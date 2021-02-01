@@ -2,8 +2,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\SurgeryService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\SurgeryService;
 
 class SurgeryRestController
 {
@@ -15,8 +15,8 @@ class SurgeryRestController
     }
 
     /**
-     * Fetches a single procedure resource by id.
-     * @param $uuid- The procedure uuid identifier in string format.
+     * Fetches a single surgery resource by id.
+     * @param $uuid- The surgery uuid identifier in string format.
      */
     public function getOne($uuid)
     {
@@ -30,7 +30,7 @@ class SurgeryRestController
     }
 
     /**
-     * Returns procedure resources which match an optional search criteria.
+     * Returns surgery resources which match an optional search criteria.
      */
     public function getAll($search = array())
     {

@@ -654,14 +654,14 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
     "GET /api/surgery" => function () {
-        RestConfig::scope_check("user", "prescription", "read");
+        RestConfig::scope_check("user", "surgery", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new SurgeryRestController())->getAll();
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /api/surgery/:uuid" => function ($uuid) {
-        RestConfig::scope_check("user", "prescription", "read");
+        RestConfig::scope_check("user", "surgery", "read");
         RestConfig::authorization_check("patients", "med");
         $return = (new SurgeryRestController())->getOne($uuid);
         RestConfig::apiLog($return);

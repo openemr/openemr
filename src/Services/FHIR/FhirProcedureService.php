@@ -9,8 +9,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ProcedureService;
-use OpenEMR\Services\SurgeryService;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Services\SurgeryService;
 
 /**
  * FHIR Procedure Service
