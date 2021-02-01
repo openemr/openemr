@@ -134,6 +134,7 @@ class ObservationLabService extends BaseService
         }
 
         if (!empty($puuidBind)) {
+            // code to support patient binding
             $isValid = BaseValidator::validateId("uuid", self::PATIENT_TABLE, $puuidBind, true);
             if ($isValid !== true) {
                 $validationMessages = [
@@ -161,12 +162,13 @@ class ObservationLabService extends BaseService
         $sqlBindArray = [$uuidBinary];
 
         if (!empty($puuidBind)) {
+            // code to support patient binding
             $sql .= " AND `patient`.`uuid` = ?";
             $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
 
+        $sqlResult = sqlQuery($sql, $sqlBindArray);
         if (!empty($sqlResult)) {
-            $sqlResult = sqlQuery($sql, [$uuidBinary]);
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
             $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
             $processingResult->addData($sqlResult);
