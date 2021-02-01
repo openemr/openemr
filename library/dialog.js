@@ -105,7 +105,9 @@ function cascwin(url, winname, width, height, options) {
         newx = 0;
         newy = 0;
     }
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
 
     // MS IE version detection taken from
     // http://msdn2.microsoft.com/en-us/library/ms537509.aspx
@@ -290,7 +292,9 @@ if (typeof alertMsg !== "function") {
                 setting: value
             },
             beforeSend: function () {
-                top.restoreSession();
+                if (typeof top.restoreSession === 'function') {
+                    top.restoreSession();
+                }
             },
             error: function (jqxhr, status, errorThrown) {
                 console.log(errorThrown);
@@ -363,7 +367,10 @@ if (typeof dlgclose !== "function") {
 * */
 function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
     // A matter of Legacy
     if (forceNewWindow) {
         return dlgOpenWindow(url, winname, width, height);
