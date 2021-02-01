@@ -15,6 +15,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
@@ -157,15 +158,31 @@ class ScopeRepository implements ScopeRepositoryInterface
         ClientEntityInterface $clientEntity,
         $userIdentifier = null
     ): array {
+        $finalizedScopes = [];
+        // we only let scopes that the client initially registered with through instead of whatever they request in
+        // their grant.
+        if ($clientEntity instanceof ClientEntity) {
+            $clientScopes = $clientEntity->getScopes();
+            foreach ($scopes as $scope) {
+                if (\in_array($scope->getIdentifier(), $clientScopes)) {
+                    $finalizedScopes[] = $scope;
+                }
+            }
+
+        } else {
+            $this->logger->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
+        }
+
         // If a nonce is passed in, add a nonce scope for id token nonce claim
         if (!empty($_SESSION['nonce'])) {
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
-            $scopes[] = $scope;
+            $finalizedScopes[] = $scope;
         }
+
         // Need a site id for our apis
-        $scopes[] = $this->getSiteScope();
-        return $scopes;
+        $finalizedScopes[] = $this->getSiteScope();
+        return $finalizedScopes;
     }
 
     public function getSiteScope(): ScopeEntity
@@ -259,7 +276,14 @@ class ScopeRepository implements ScopeRepositoryInterface
             "launch/patient",
             "api:oemr",
             "api:fhir",
-            "api:port"
+            "api:port",
+            // we define our Bulk FHIR here
+            // There really is no defined standard on how to handle SMART scopes for operations ($operation)
+            // hopefully its defined in V2, but for now we are going to implement using the following scopes
+            // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
+            'system/Patient.$export',
+            'system/Group.$export',
+            'system/*.$export'
         ];
     }
 
@@ -388,11 +412,13 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Consent.read",
             "system/Coverage.read",
             "system/Coverage.write",
+            "system/Document.read", // used for Bulk FHIR export downloads
             "system/DocumentReference.read",
             "system/DocumentReference.write",
             "system/Encounter.read",
             "system/Encounter.write",
             "system/Goal.read",
+            "system/Group.read",
             "system/Immunization.read",
             "system/Immunization.write",
             "system/Location.read",
@@ -547,6 +573,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->oidcScopes();
     }
 
+    // TODO: @bradymiller is this used anywhere anymore?
     public function getFhirSupportedScopes($role = 'user'): array
     {
         $permitted = $this->fhirScopes();
@@ -627,6 +654,11 @@ class ScopeRepository implements ScopeRepositoryInterface
                         break;
                 }
             }
+
+            // if we needed to define scopes based on operations rather than the predefined Bulk-FHIR operations
+            // we would handle them here.  Leaving this commented out just for reference
+            // @var array
+            // $operations = $resource->getOperation();
         }
 
         $scopesSupported = $this->fhirScopes();
