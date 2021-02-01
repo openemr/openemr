@@ -47,6 +47,7 @@ class SurgeryService extends BaseService
                 slist.title,
                 slist.diagnosis,
                 slist.uuid,
+                slist.type,
                 patient.fname,
                 patient.lname,
                 encounter.id,
@@ -56,7 +57,8 @@ class SurgeryService extends BaseService
                 LEFT JOIN patient_data AS patient 
                 ON slist.pid = patient.id 
                 LEFT JOIN form_encounter AS encounter 
-                ON slist.pid = encounter.pid";
+                ON slist.pid = encounter.pid
+                WHERE slist.type = 'surgery'";
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
@@ -112,7 +114,7 @@ class SurgeryService extends BaseService
                 ON slist.pid = patient.id
                 LEFT JOIN form_encounter AS encounter
                 ON slist.pid = encounter.pid
-                WHERE slist.uuid = ?";
+                WHERE slist.type = 'surgery' AND slist.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
