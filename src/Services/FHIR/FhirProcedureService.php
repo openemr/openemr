@@ -180,11 +180,15 @@ class FhirProcedureService extends FhirServiceBase
     private function processResults($procedureResult, $surgeryResult)
     {
         $processingResult = new ProcessingResult();
-        $procedureOrgs = $this->getProcedureOrg($procedureResult->getData());
-        $surgeryOrgs = $this->getSurgeryOrg($surgeryResult->getData());
-        $OrgRecords = array_merge($procedureOrgs, $surgeryOrgs);
-        if (count($OrgRecords) > 0) {
-            $processingResult->setData($OrgRecords);
+        $procedureData = array();
+        $surgeryData = array();
+        $procedureData = $procedureResult->getData();
+        $surgeryData = $surgeryResult->getData();     
+        array_push($procedureData);
+        array_push($surgeryData);
+        $surgeryprocedureRecords = array_merge($procedureData, $surgeryData);
+        if (count($surgeryprocedureRecords) > 0) {
+            $processingResult->setData($surgeryprocedureRecords);
         } else {
             $processingResult->setValidationMessages(array_merge($surgeryResult->getValidationMessages(), $procedureResult->getValidationMessages()));
             $processingResult->setInternalErrors(array_merge($surgeryResult->getInternalErrors(), $procedureResult->getInternalErrors()));
@@ -192,23 +196,5 @@ class FhirProcedureService extends FhirServiceBase
 
 
         return $processingResult;
-    }
-
-    private function getProcedureOrg($procedureRecords)
-    {
-        $procedureOrgs = array();
-        foreach ($procedureRecords as $index => $org) {
-            array_push($procedureOrgs, $org);
-        }
-        return $procedureOrgs;
-    }
-
-    private function getSurgeryOrg($surgeryRecords)
-    {
-        $surgeryOrgs = array();
-        foreach ($surgeryRecords as $index => $org) {
-            array_push($surgeryOrgs, $org);
-        }
-        return $surgeryOrgs;
     }
 }
