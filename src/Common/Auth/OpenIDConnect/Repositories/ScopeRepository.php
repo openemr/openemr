@@ -216,7 +216,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/MedicationRequest.read",
 //            "patient/MedicationRequest.write",
 //            "patient/NutritionOrder.read",
-//            "patient/Observation.read",
+              "patient/Observation.read",
 //            "patient/Observation.write",
 //            "patient/Organization.read",
 //            "patient/Organization.write",
