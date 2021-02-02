@@ -248,3 +248,14 @@ ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) DEFAULT NULL;
 #IfMissingColumn procedure_answers procedure_code
 ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) DEFAULT NULL;
 #EndIf
+
+#IfNotRow users username oe-system
+INSERT INTO `users`(`username`,`password`,`lname`,`authorized`,`active`) VALUES ('oe-system','NoLogin','System Operation User',0,0);
+INSERT INTO `gacl_aro`(`id`, `section_value`, `value`, `order_value`, `name`, `hidden`)
+    SELECT max(`id`)+1,'users','oe-system',10,'System Operation User', 0 FROM `gacl_aro`;
+INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
+    VALUES (
+        (SELECT `id` FROM `gacl_aro_groups` WHERE parent_id=10 AND value='admin')
+        ,(SELECT `id` FROM `gacl_aro` WHERE `section_value` = 'users' AND `value` = 'oe-system')
+    );
+#EndIf
