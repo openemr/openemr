@@ -885,14 +885,25 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirCareTeamRestController())->getAll($_GET);
+        $getParams = $_GET;
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirCareTeamRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $restRequest) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirCareTeamRestController())->getOne($uuid);
+    "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCareTeamRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirCareTeamRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
