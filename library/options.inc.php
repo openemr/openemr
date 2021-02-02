@@ -57,17 +57,10 @@ $membership_group_number = 0;
 
 function get_pharmacies()
 {
-    // set weno patient zip code filter if weno is on
-    $wenoPatientZipFilter = '';
-    if ($GLOBALS['weno_rx_enable']) {
-        $wenoPatientZipFilter = 'CROSS JOIN patient_data AS pd ON pd.postal_code = a.zip ';
-    }
-
     return sqlStatement("SELECT d.id, d.name, a.line1, a.city, " .
     "p.area_code, p.prefix, p.number FROM pharmacies AS d " .
     "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
-    $wenoPatientZipFilter .
     "AND p.type = 2 " .
     "ORDER BY a.state, a.city, d.name, p.area_code, p.prefix, p.number");
 }
