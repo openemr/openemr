@@ -168,7 +168,6 @@ class ScopeRepository implements ScopeRepositoryInterface
                     $finalizedScopes[] = $scope;
                 }
             }
-
         } else {
             $this->logger->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
         }
@@ -283,7 +282,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
             'system/Patient.$export',
             'system/Group.$export',
-            'system/*.$export'
+            'system/*.$export',
+            'system/*.$bulkdata-status'
         ];
     }
 

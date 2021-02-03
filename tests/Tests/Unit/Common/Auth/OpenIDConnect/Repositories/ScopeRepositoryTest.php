@@ -30,7 +30,11 @@ class ScopeRepositoryTest extends TestCase
         $fhirResources = ['Patient', 'Observation'];
         $portalResources = ['patient', 'patient/encounter'];
 
-        $this->scopeRepository->setFhirRouteMap($this->makeRoutes('fhir', $fhirResources, $noopCallback));
+        $fhirRoutes = $this->makeRoutes('fhir', $fhirResources, $noopCallback);
+        // add in some operations and see if we can test this works properly
+        $fhirRoutes['Get /fhir/Group/:id/$export'] = $noopCallback;
+
+        $this->scopeRepository->setFhirRouteMap($fhirRoutes);
         $this->scopeRepository->setStandardRouteMap($this->makeRoutes('api', $standardResources, $noopCallback));
         $this->scopeRepository->setPortalRouteMap($this->makeRoutes('portal', $portalResources, $noopCallback));
     }
@@ -103,5 +107,22 @@ class ScopeRepositoryTest extends TestCase
 
         $diff = array_diff($expectedScopes, $validatorArray);
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
+    }
+
+
+    public function testGetScopeEntityByIdentifierHasExportOperations()
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setRequestScopes('system/Group.$export system/Patient.$export system/*.$export');
+
+        // let's see if we get the scope
+        $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/Group.$export');
+        $this->assertNotEmpty($scopeEntity, "system/Group.\$export not found in FHIR route map");
+
+        $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/Patient.$export');
+        $this->assertNotEmpty($scopeEntity, "system/Patient.\$export not found in FHIR route map");
+
+        $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/*.$export');
+        $this->assertNotEmpty($scopeEntity, "system/*.\$export not found in FHIR route map");
     }
 }

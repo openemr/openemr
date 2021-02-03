@@ -16,6 +16,7 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Http\Message\ResponseInterface;
 
 class HttpRestRouteHandler
 {
@@ -53,6 +54,9 @@ class HttpRestRouteHandler
                 $parsedRoute = new HttpRestParsedRoute($dispatchRestRequest->getRequestMethod(), $dispatchRestRequest->getRequestPath(), $routePath);
                 if ($parsedRoute->isValid()) {
                     $dispatchRestRequest->setResource($parsedRoute->getResource());
+                    if ($parsedRoute->isOperation()) {
+                        $dispatchRestRequest->setOperation($parsedRoute->getOperation());
+                    }
 
                     // make sure our scopes pass the security checks
                     self::checkSecurity($dispatchRestRequest);
@@ -65,6 +69,10 @@ class HttpRestRouteHandler
                     // call the function and use array unpacking to make this faster
                     $result = $routeCallback(...$routeControllerParameters);
 
+                    // returning responses let's us unit test this way better.
+                    if ($result instanceof ResponseInterface) {
+                        return $result; // we will let the caller output this value
+                    }
                     if ($return_method === 'standard') {
                         header('Content-Type: application/json');
                         echo json_encode($result);
@@ -73,6 +81,7 @@ class HttpRestRouteHandler
                     if ($return_method === 'direct-json') {
                         return json_encode($result);
                     }
+
                     // $return_method == 'direct'
                     return $result;
                 }
@@ -94,6 +103,21 @@ class HttpRestRouteHandler
     }
 
     /**
+     * Given a PSR7 response send the response (headers & body) to the HTTP requesting client
+     * @param ResponseInterface $response The response to send
+     */
+    public static function emitResponse(ResponseInterface $response)
+    {
+        // we don't use the Rest Config response as our http status response is different here
+        foreach ($response->getHeaders() as $k => $values) {
+            foreach ($values as $v) {
+                header(sprintf('%s: %s', $k, $v));
+            }
+        }
+        echo $response->getBody()->getContents();
+    }
+
+    /**
      * Security check on the request route against the Access Token scopes.
      * @param HttpRestRequest $restRequest
      * @throws AccessDeniedException If the security check fails
@@ -112,8 +136,17 @@ class HttpRestRouteHandler
                 $scopeType = 'system';
                 break;
         }
-        $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
         $resource = $restRequest->getResource();
+        if (!empty($restRequest->getOperation())) {
+            $permission = $restRequest->getOperation();
+            // this only applies to root level permissions, which I don't believe we are granting in the system right
+            // now.
+            if (empty($resource)) {
+                $resource = "*"; // for our permission check
+            }
+        } else {
+            $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
+        }
 
         $config = $restRequest->getRestConfig();
 
