@@ -112,12 +112,15 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // Look through the claims and set is_last on each one that
             // is the last for this x-12 partner
+            $lastClaim = null;
             foreach ($context['claims'] as $claim) {
                 if ($claim->getPartner() === $row['id']) {
                     $lastClaim = $claim;
                 }
             }
-            $lastClaim->setIsLast(true);
+            if ($lastClaim !== null) {
+                $lastClaim->setIsLast(true);
+            }
         }
     }
 
