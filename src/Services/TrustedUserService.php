@@ -18,7 +18,8 @@ class TrustedUserService
     public function isTrustedUser($clientId, $userId)
     {
             $trusted = $this->getTrustedUser($clientId, $userId);
-            return !empty($trusted['session_cache']);
+            $isTrusted = !empty($trusted['session_cache']);
+            return $isTrusted;
     }
 
     public function getTrustedUser($clientId, $userId)
@@ -36,6 +37,9 @@ class TrustedUserService
     {
         if (\is_array($scope)) {
             $scope = implode(" ", $scope);
+        }
+        if (empty($userId)) {
+            throw new \InvalidArgumentException("userId cannot be null unless this is a client_credentials grant");
         }
         $id = $this->getTrustedUser($clientId, $userId)['id'] ?? '';
         $sql = "REPLACE INTO `oauth_trusted_user` (`id`, `user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, session_cache, `grant_type`) VALUES (?, ?, ?, ?, ?, Now(), ?, ?, ?)";
