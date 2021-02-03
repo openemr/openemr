@@ -391,7 +391,8 @@ class Installer
      * Handle the additional users now that our gacl's have finished installing.
      * @return bool
      */
-    public function install_additional_users() {
+    public function install_additional_users()
+    {
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
             return false;
