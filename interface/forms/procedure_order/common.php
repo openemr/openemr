@@ -200,7 +200,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
         $viewmode = true;
     }
 
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($ppid) . "/orders/" . check_file_dir_name($formid) . "_order_log.log";
+    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($ppid)) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -436,17 +436,19 @@ if ($formid) {
 $account = $location['facility_code'];
 $account_name = $location['name'];
 $account_facility = $location['id'];
+if (!empty($row['lab_id'])) {
+    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($row['lab_id'])) . "/logs/";
 
-$log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($row['lab_id']) . "/orders/";
-
-if (!is_dir($log_file)) {
-    if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
-        throw new \RuntimeException(sprintf('Directory "%s" was not created', $log_file));
+    if (!is_dir($log_file)) {
+        if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $log_file));
+        }
     }
-}
-$log_file .= check_file_dir_name($formid) . '_order_log.log';
-if (file_exists($log_file)) {
-    $order_log = file_get_contents($log_file);
+// filename
+    $log_file .= check_file_dir_name($formid) . '_order_log.log';
+    if (file_exists($log_file)) {
+        $order_log = file_get_contents($log_file);
+    }
 }
 ?>
 <!DOCTYPE html>
