@@ -29,7 +29,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
@@ -49,6 +48,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -298,6 +298,20 @@ class AuthorizationController
                 $client_secret = $this->base64url_encode(RandomGenUtils::produceRandomBytes(64));
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
+
+                // don't allow system scopes without a jwk or jwks_uri value
+                if (
+                    strpos($params['scope'], 'system/') !== false
+                    && empty($params['jwks']) && empty($params['jwks_uri'])
+                ) {
+                    throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
+                }
+            // don't allow user & system scopes for public apps
+            } else if (
+                strpos($params['scope'], 'system/') !== false
+                || strpos($params['scope'], 'user/') !== false
+            ) {
+                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             foreach ($keys as $key => $supported_values) {
                 if (isset($data[$key])) {
