@@ -290,29 +290,6 @@ class RestConfig
         }
     }
 
-    /**
-     * Checks to make sure the resource the user agent is requesting actually has the right scopes for the api request
-     * scopes are compared against the user's AccessToken scopes.
-     * @param HttpRestRequest $request
-     */
-    public static function scope_check_request(HttpRestRequest $request)
-    {
-        $scopeType = $request->isPatientRequest() ? "patient" : "user";
-        $permission = $request->getRequestMethod() == "GET" ? "write" : "read";
-        $resource = $request->getResource();
-
-        if (!$request->isFhir()) {
-            $resource = strtolower($resource);
-        }
-        // Resource scope check
-        $scope = $scopeType . '/' . $resource . '.' . $permission;
-
-        if (!in_array($scope, $request->getAccessTokenScopes())) {
-            (new SystemLogger())->debug("RestConfig::scope_check_request scope not in access token", ['scope' => $scope]);
-            throw new \OpenEMR\Common\Acl\AccessDeniedException($scopeType, $resource, "scope not in access token");
-        }
-    }
-
     // Main function to check scope
     //  Use cases:
     //     Only sending $scopeType would be for something like 'openid'
@@ -338,25 +315,6 @@ class RestConfig
             (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
             http_response_code(401);
             exit;
-        }
-    }
-
-    // Function to check if patient needs to be binded
-    public static function is_patient_binded()
-    {
-        $logger = new SystemLogger();
-        if (isset($_SESSION['bind_patient_id']) || isset($GLOBALS['bind_patient_id'])) {
-            $logger->debug("is_patient_binded(): patient is binded to the api call");
-            // ensure the proper parameters are set for patient binding or die
-            if (empty($_SESSION['pid']) || empty($_SESSION['puuid']) || empty($_SESSION['puuid_string'])) {
-                $logger->error("OpenEMR Error: is_patient_binded call failed because critical patient session variables were not set");
-                http_response_code(401);
-                exit;
-            }
-            return true;
-        } else {
-            $logger->debug("is_patient_binded(): patient is not binded to the api call (ie. user or system call with access to all patients)");
-            return false;
         }
     }
 
