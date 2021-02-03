@@ -12,20 +12,21 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirMedicationService;
+use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirMedicationRequestRestController
 {
-    private $fhirMedicationService;
+    //private $fhirMedicationService;
     private $fhirService;
+    private $fhirMedicationRequestService;
 
     public function __construct()
     {
-        $this->fhirMedicationService = new FhirMedicationService();
         $this->fhirService = new FhirResourcesService();
+        $this->fhirMedicationRequestService = new FhirMedicationRequestService();
     }
 
     /**
@@ -35,7 +36,7 @@ class FhirMedicationRequestRestController
      */
     public function getOne($fhirId)
     {
-        $processingResult = $this->fhirMedicationService->getOne($fhirId);
+        $processingResult = $this->fhirMedicationRequestService->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -47,7 +48,7 @@ class FhirMedicationRequestRestController
      */
     public function getAll($searchParams)
     {
-        $processingResult = $this->fhirMedicationService->getAll($searchParams);
+        $processingResult = $this->fhirMedicationRequestService->getAll($searchParams);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
