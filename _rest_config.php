@@ -21,13 +21,13 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+
 
 // also a handy place to add utility methods
 // TODO before v6 release: refactor http_response_code(); for psr responses.
@@ -216,7 +216,7 @@ class RestConfig
 
     public static function isTrustedUser($clientId, $userId)
     {
-        $trustedUserService = new \OpenEMR\Services\TrustedUserService();
+        $trustedUserService = new TrustedUserService();
         $response = self::createServerResponse();
         try {
             if (!$trustedUserService->isTrustedUser($clientId, $userId)) {
