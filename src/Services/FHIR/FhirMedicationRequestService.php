@@ -186,7 +186,7 @@ class FhirMedicationRequestService extends FhirServiceBase
      */
     public function getOne($fhirResourceId)
     {
-        $processingResult = $this->procedureService->getOne($fhirResourceId);
+        $processingResult = $this->prescriptionService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -206,7 +206,7 @@ class FhirMedicationRequestService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
-        return $this->procedureService->getAll($openEMRSearchParameters, false);
+        return $this->prescriptionService->getAll($openEMRSearchParameters, false);
     }
 
     public function parseFhirResource($fhirResource = array())
