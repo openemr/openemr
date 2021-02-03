@@ -308,9 +308,11 @@ function sqlQuery($statement, $binds = false)
 * audit engine. This function should only be used
 * in very special situations.
 *
+* Note: If you do an INSERT or UPDATE statement you will get an empty string ("") as a response
+*
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false|""
 */
 function sqlQueryNoLog($statement, $binds = false)
 {
