@@ -12331,3 +12331,19 @@ CREATE TABLE `x12_remote_tracker` (
 `updated_at` datetime DEFAULT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `export_job`;
+CREATE TABLE `export_job` (
+  `uuid` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `client_id` varchar(80) NOT NULL,
+  `status` varchar(40) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `resource_include_time` datetime DEFAULT NULL,
+  `output_format` varchar(128) NOT NULL,
+  `request_uri` varchar(128) NOT NULL,
+  `resources` text NOT NULL,
+  `output` text DEFAULT NULL,
+  `errors` text DEFAULT NULL,
+  `access_token_id` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='fhir export jobs';
