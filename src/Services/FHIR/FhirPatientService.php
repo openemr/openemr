@@ -23,7 +23,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPatientService extends FhirServiceBase
+class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService
 {
     /**
      * @var PatientService
@@ -375,6 +375,18 @@ class FhirPatientService extends FhirServiceBase
     {
         return $this->patientService->getAll($openEMRSearchParameters, false);
     }
+
+    /**
+     * Returns all of the data for exporting patient records in the system.
+     * @param ExportJob $job
+     * @return array
+     */
+    public function export(ExportJob $job)
+    {
+        // TODO: @adunsulag return nothing for now as we will implement this method in the next iteration
+        return [];
+    }
+
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future

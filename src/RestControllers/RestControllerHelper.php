@@ -36,6 +36,11 @@ class RestControllerHelper
     const IGNORE_ENDPOINT_RESOURCES = ['.well-known', 'metadata', 'auth'];
 
     /**
+     * The default FHIR services class namespace
+     */
+    const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
+
+    /**
      * Configures the HTTP status code and payload returned within a response.
      *
      * @param $serviceResult
@@ -147,7 +152,7 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
-    public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $serviceClassNameSpace = "OpenEMR\\Services\\FHIR\\Fhir")
+    public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
     {
         $serviceClass = $serviceClassNameSpace . $resource . "Service";
         if (class_exists($serviceClass)) {
@@ -170,6 +175,21 @@ class RestControllerHelper
         }
     }
 
+    /**
+     * Retrieves the fully qualified service class name for a given FHIR resource.  It will only return a class that
+     * actually exists.
+     * @param $resource The name of the FHIR resource that we attempt to find the service class for.
+     * @param string $serviceClassNameSpace  The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
+     * @return string|null  Returns the fully qualified name if the class is found, otherwise it returns null.
+     */
+    public function getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE) {
+        $serviceClass = $serviceClassNameSpace . $resource . "Service";
+        if (class_exists($serviceClass)) {
+            return $serviceClass;
+        }
+        return null;
+    }
+
     public function addOperations($resource, $items, FHIRCapabilityStatementResource $capResource)
     {
         $operation = end($items);
@@ -187,7 +207,6 @@ class RestControllerHelper
             $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
             $operation->addExtension($extension);
             $capResource->addOperation($operation);
-            (new SystemLogger())->debug("Added operation", ['operation' => $operationName]);
         }
     }
 
@@ -224,7 +243,7 @@ class RestControllerHelper
     }
 
 
-    public function getCapabilityRESTObject($routes, $serviceClassNameSpace = "OpenEMR\\Services\\FHIR\\Fhir", $structureDefinition = "http://hl7.org/fhir/StructureDefinition/"): FHIRCapabilityStatementRest
+    public function getCapabilityRESTObject($routes, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE, $structureDefinition = "http://hl7.org/fhir/StructureDefinition/"): FHIRCapabilityStatementRest
     {
         $restItem = new FHIRCapabilityStatementRest();
         $mode = new FHIRRestfulCapabilityMode();
@@ -234,7 +253,7 @@ class RestControllerHelper
         $resourcesHash = array();
         foreach ($routes as $key => $function) {
             $items = explode("/", $key);
-            if ($serviceClassNameSpace == "OpenEMR\\Services\\FHIR\\Fhir") {
+            if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];
             } else {
