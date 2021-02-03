@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IFhirExportableResourceService defines the methods a Fhir Resource Service must implement in order to be able to
  * export data for the system.  If a Fhir Resource Service is in the correct namespace and implements this service it
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 interface IFhirExportableResourceService
 {

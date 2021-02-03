@@ -182,7 +182,8 @@ class RestControllerHelper
      * @param string $serviceClassNameSpace  The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
      * @return string|null  Returns the fully qualified name if the class is found, otherwise it returns null.
      */
-    public function getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE) {
+    public function getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
+    {
         $serviceClass = $serviceClassNameSpace . $resource . "Service";
         if (class_exists($serviceClass)) {
             return $serviceClass;

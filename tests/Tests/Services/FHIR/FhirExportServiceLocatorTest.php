@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirExportServiceLocatorTest tests that the export services locator actually finds the correct classes.
  * @package openemr
@@ -41,7 +42,7 @@ class FhirExportServiceLocatorTest extends TestCase
     public function testFindExportServices()
     {
 
-        $noop = function() {};
+        $noop = function () {};
         $config = $this->mockConfig;
         $config::$FHIR_ROUTE_MAP = [
             'GET /fhir/Patient' => $noop

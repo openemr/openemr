@@ -1,4 +1,5 @@
 <?php
+
 /**
  * MockRestConfig is intended to imitate the \RestConfig class that we don't have fully namespaced due to its reliance
  * on globals and a bunch of other stuff.  Methods that are in \RestConfig can be imitated here so we can have some
@@ -12,12 +13,12 @@
 
 namespace OpenEMR\Tests;
 
-
 class MockRestConfig
 {
     public static $FHIR_ROUTE_MAP;
 
-    public static function reset() {
+    public static function reset()
+    {
         self::$FHIR_ROUTE_MAP = [];
     }
 }

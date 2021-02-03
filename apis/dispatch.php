@@ -101,8 +101,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     // collect token id
     $tokenId = $attributes['oauth_access_token_id'];
     // ensure user uuid and token id are populated
-    if (empty($tokenId)) {
-        $logger->error("OpenEMR Error - tokenid not available, so forced exit", ['attributes' => $attributes]);
+    if (empty($userId) || empty($tokenId)) {
+        $logger->error("OpenEMR Error - userid or tokenid not available, so forced exit", ['attributes' => $attributes]);
         http_response_code(400);
         exit();
     }
@@ -136,6 +136,7 @@ require_once("./../interface/globals.php");
 $logger = new SystemLogger();
 
 $gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
+$restRequest->setApiBaseFullUrl($gbl::$apisBaseFullUrl);
 
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
@@ -177,27 +178,25 @@ if ($isLocalApi) {
     // which is a json. json_decode($isTrusted['session_cache'])
 
     // authenticate the token
-    if (!$gbl->authenticateUserToken($tokenId, $userId)) {
+    if (!$gbl->authenticateUserToken($tokenId, $clientId, $userId)) {
         $logger->error("dispatch.php api call with invalid token");
         $gbl::destroySession();
         http_response_code(401);
         exit();
     }
     // if we have no user id but we have a valid token it's because this is a client credentials system request.
-    if (empty($userId)) {
-        $userRole = "system";
-    } else {
-        // collect user information and user role
-        $uuidToUser = new UuidUserAccount($userId);
-        $user = $uuidToUser->getUserAccount();
-        $userRole = $uuidToUser->getUserRole();
-        if (empty($user)) {
-            // unable to identify the users user role
-            $logger->error("OpenEMR Error - api user account could not be identified, so forced exit");
-            $gbl::destroySession();
-            http_response_code(400);
-            exit();
-        }
+    // collect user information and user role
+    $uuidToUser = new UuidUserAccount($userId);
+    $user = $uuidToUser->getUserAccount();
+    $userRole = $uuidToUser->getUserRole();
+    if (empty($user)) {
+        // unable to identify the users user role
+        $logger->error("OpenEMR Error - api user account could not be identified, so forced exit", [
+            'userId' => $userId,
+            'userRole' => $uuidToUser->getUserRole()]);
+        $gbl::destroySession();
+        http_response_code(400);
+        exit();
     }
     if (empty($userRole)) {
         // unable to identify the users user role
@@ -207,11 +206,16 @@ if ($isLocalApi) {
         exit();
     }
 
+    $restRequest->setAccessTokenId($tokenId);
     $restRequest->setRequestUserRole($userRole);
+    $restRequest->setRequestUser($userId, $user);
+
     // verify that the scope covers the route
     if (
+        // fhir routes are the default and can send openid/fhirUser w/ authorization_code, or no scopes at all
+        // with Client Credentials, so we only reject requests for standard or portal if the correct scope is not
+        // sent.
         ($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
-        ($gbl::is_fhir_request($resource) && !(in_array('api:fhir', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes']))) ||
         ($gbl::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes']))
     ) {
         $logger->error("dispatch.php api call with token that does not cover the requested route");
@@ -229,6 +233,8 @@ if ($isLocalApi) {
     } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
         // good to go
+    } elseif ($userRole === 'system' && ($gbl::is_fhir_request($resource))) {
+        $logger->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
     } else {
         $logger->error("OpenEMR Error: api failed because user role does not have access to the resource");
         $gbl::destroySession();
@@ -259,8 +265,19 @@ if ($isLocalApi) {
             exit();
         }
     } else if ($userRole === 'system') {
-        // we set our authUserID to be our client id so we can check against the ACLs for that client...
-        $_SESSION['authUserID'] = $restRequest->getClientId();
+        $_SESSION['authUser'] = $user["username"] ?? null;
+        $_SESSION['authUserID'] = $user["id"] ?? null;
+        if (
+            empty($_SESSION['authUser'])
+            // this should never happen as the system role depends on the system username... but we safety check it anyways
+            || $_SESSION['authUser'] != \OpenEMR\Services\UserService::SYSTEM_USER_USERNAME
+            || empty($_SESSION['authUserID'])
+        ) {
+            $logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
+            $gbl::destroySession();
+            http_response_code(401);
+            exit();
+        }
     } else {
         // this user role is not supported
         $logger->error("OpenEMR Error - api user role that was provided is not supported, so forced exit");
@@ -337,7 +354,7 @@ if ($isLocalApi) {
 // dispatch $routes called by ref (note storing the output in a variable to allow option
 //  to destroy the session/cookie before sending the output back)
 ob_start();
-$hasRoute = HttpRestRouteHandler::dispatch($routes, $restRequest);
+$dispatchResult = HttpRestRouteHandler::dispatch($routes, $restRequest);
 $apiCallOutput = ob_get_clean();
 // Tear down session for security.
 if (!$isLocalApi) {
@@ -346,10 +363,12 @@ if (!$isLocalApi) {
 // Send the output if not empty
 if (!empty($apiCallOutput)) {
     echo $apiCallOutput;
+} else if ($dispatchResult instanceof ResponseInterface) {
+    RestConfig::emitResponse($dispatchResult);
 }
 
 // prevent 200 if route doesn't exist
-if (!$hasRoute) {
+if ($dispatchResult === false) {
     $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);
     http_response_code(404);
 }

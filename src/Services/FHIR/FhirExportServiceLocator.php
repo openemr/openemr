@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirExportServiceLocator locates all of the Fhir Resource Services that support exporting data in a server export
  * operation.  This makes it possible for any FHIR resource to be exportable by implementing the appropriate interfaces
@@ -10,7 +11,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -35,7 +35,8 @@ class FhirExportServiceLocator
      * interfaces.  It returns a hashmap of resourceName:string => service:IFhirExportableResourceService.
      * @return IFhirExportableResourceService[]
      */
-    public function findExportServices() {
+    public function findExportServices()
+    {
         $resourceRegistry = [];
         $restHelper = new RestControllerHelper();
         $restConfig = $this->restConfig;
@@ -45,7 +46,7 @@ class FhirExportServiceLocator
             $resourceName = $resource->getType()->getValue();
             $serviceClassName = $restHelper->getFullyQualifiedServiceClassForResource($resourceName);
             if (!empty($serviceClassName)) {
-                $service = new $serviceClassName;
+                $service = new $serviceClassName();
                 if ($service instanceof IFhirExportableResourceService) {
                     // if service is instance of IFHIRExportableResource
                     $resourceRegistry[$resourceName] = $service;
