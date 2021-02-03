@@ -180,13 +180,7 @@ class FhirProcedureService extends FhirServiceBase
     private function processResults($procedureResult, $surgeryResult)
     {
         $processingResult = new ProcessingResult();
-        $procedureData = array();
-        $surgeryData = array();
-        $procedureData = $procedureResult->getData();
-        $surgeryData = $surgeryResult->getData();     
-        array_push($procedureData);
-        array_push($surgeryData);
-        $surgeryprocedureRecords = array_merge($procedureData, $surgeryData);
+        $surgeryprocedureRecords = array_merge($procedureResult->getData(), $surgeryResult->getData());
         if (count($surgeryprocedureRecords) > 0) {
             $processingResult->setData($surgeryprocedureRecords);
         } else {
