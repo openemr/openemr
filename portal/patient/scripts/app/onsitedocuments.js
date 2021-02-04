@@ -304,12 +304,12 @@ var page = {
                         // request a save for lbf
                         formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                     } else {
-                        page.updateModel();
+                        // don't save let charting do that.
                         flattenDocument();
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
-                        // @todo get rid of submits
                         $("#template").submit();
+                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg' );
 
                         page.renderModelView(false);
                     }

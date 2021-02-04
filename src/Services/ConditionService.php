@@ -34,7 +34,6 @@ class ConditionService extends BaseService
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
         $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        $this->uuidRegistry->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         $this->conditionValidator = new ConditionValidator();
     }
@@ -89,7 +88,7 @@ class ConditionService extends BaseService
                         FROM lists
                         LEFT JOIN list_options as verification ON verification.option_id = lists.verification AND verification.list_id='condition-verification'
                         RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                        LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id 
+                        LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id
                         LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter
                         WHERE lists.type = 'medical_problem'";
 
@@ -152,7 +151,7 @@ class ConditionService extends BaseService
                 FROM lists
                 LEFT JOIN list_options as verification ON verification.option_id = lists.verification AND verification.list_id='condition-verification'
                 RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-                LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id 
+                LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id
                 LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter
                 WHERE lists.type = 'medical_problem' AND lists.uuid = ?";
 

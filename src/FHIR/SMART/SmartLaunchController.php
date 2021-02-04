@@ -22,7 +22,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // not sure I really like this here... it seems like some of this
 // should be encapsulated in a class that autoloading can reach.
-require_once(__DIR__ . '/../../../_rest_config.php');
 
 /**
  * Class SmartLaunchController handles the display and launching of SMART apps from the user interface.
@@ -31,6 +30,8 @@ require_once(__DIR__ . '/../../../_rest_config.php');
 class SmartLaunchController
 {
     const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
+    const CLIENT_APP_STANDALONE_LAUNCH_SCOPE = 'launch/patient';
+
     /**
      * @var EventDispatcher
      */
@@ -48,7 +49,7 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if (empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_fhir_api'])) {
+        if (empty($GLOBALS['rest_fhir_api'])) {
             // do not show patient summary widget if fhir portal is off
             return;
         }
@@ -84,12 +85,6 @@ class SmartLaunchController
             // here...  all the SMART apps we've seen appear to follow a 'launch.html' nomenclature but that doesn't
             // appear to be required in the spec.
 
-            $gbl = \RestConfig::GetInstance();
-            // TODO: adunsulag surely we can centralize where this fhir API url is set?
-            // seem to get these URLs right.  for some reason the $SITE is set to interface, we don't get 'apis' in there
-            // ROOT_URL appears to be empty.. just strange
-            // $issuer = $GLOBALS['site_addr_oath'] . $gbl::$SITE . $gbl::$ROOT_URL . "/fhir";
-//            $issuer = $GLOBALS['site_addr_oath'] . "/apis/default/fhir";
             $issuer = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
             $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
 
@@ -165,7 +160,7 @@ class SmartLaunchController
             if ($client->isEnabled() && $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
                 $smartList[] = $client;
             } else {
-                SystemLogger::instance()->debug(
+                (new SystemLogger())->debug(
                     "Skipping over client ",
                     [
                         "clientId" => $client->getIdentifier()

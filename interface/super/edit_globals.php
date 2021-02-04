@@ -113,6 +113,14 @@ function checkBackgroundServices()
     $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
     $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
+
+    // When auto SFTP is enabled in globals, set up background task to run every minute
+    // to check for claims in the 'waiting' status.
+    // See library/billing_sftp_service.php for the entry point to this service.
+    // It is very lightweight if there is no work to do, so running every minute should
+    // be OK to provider users with the best experience.
+    $auto_sftp_x12 = empty($GLOBALS['auto_sftp_claims_to_x12_partner']) ? '0' : '1';
+    updateBackgroundService('X12_SFTP', $auto_sftp_x12, 1);
 }
 ?>
 <!DOCTYPE html>

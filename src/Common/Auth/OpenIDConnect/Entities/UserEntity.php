@@ -34,19 +34,17 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $uuidToUser = new UuidUserAccount($this->identifier);
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
-            if ($userRole == 'users') {
-                // TODO: adunsulag check with brady/sjpadget on whether this should be Practioner or Person, it has to
-                // be one of those resource types and you have to be able to retrieve it via a FHIR endpoint but I'm not
-                // sure a site admin is classified as a 'practioner'.
-                // TODO: adunsulag we should see if there is a better way like FHIRRouteResolver for a given resource endpoint...
-                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Practitioner/" . $this->identifier;
-            } else if ($userRole == 'patients') {
+            if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
+                // Jerry Padget indicated Person was the best resource to use for people who are not patients
+                // at some future point we may want to differentiate practioners vs persons, but this is fine for now.
+                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Person/" . $this->identifier;
+            } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
                 $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
             } else {
-                SystemLogger::instance()->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+                (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
             }
 
-            SystemLogger::instance()->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
+            (new SystemLogger())->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
             $user = $uuidToUser->getUserAccount();
             if (empty($user)) {
@@ -77,7 +75,6 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
-                'api:pofh' => true,
             ];
         }
         if ($claimsType === 'client') {
@@ -86,7 +83,6 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
-                'api:pofh' => true,
             ];
         }
         if (!empty($_SESSION['nonce'])) {
@@ -111,7 +107,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     protected function getAccountByPassword($userrole, $username, $password, $email = ''): bool
     {
-        if (($userrole == "users") && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
@@ -153,7 +149,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
                 return true;
             }
-        } elseif (($userrole == "patient") && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        } elseif (($userrole == UuidUserAccount::USER_ROLE_PATIENT) && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();

@@ -21,6 +21,9 @@ class UuidUserAccount
     private $userId;   //uuid
     private $userRole; //user role
 
+    const USER_ROLE_USERS = 'users';
+    const USER_ROLE_PATIENT = 'patient';
+
     public function __construct(string $userId)
     {
         $this->userId = $userId;
@@ -40,10 +43,10 @@ class UuidUserAccount
         }
 
         switch ($this->userRole) {
-            case 'users':
+            case self::USER_ROLE_USERS:
                 $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
                 break;
-            case 'patient':
+            case self::USER_ROLE_PATIENT:
                 $account_sql = "SELECT `pid`, `uuid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data` WHERE `uuid` = ?";
                 break;
             default:
@@ -96,10 +99,10 @@ class UuidUserAccount
         $counter = 0;
         if (!empty($userRole['id'])) {
             $counter++;
-            $this->userRole = "users";
+            $this->userRole = self::USER_ROLE_USERS;
         } else if (!empty($patientRole['pid'])) {
             $counter++;
-            $this->userRole = "patient";
+            $this->userRole = self::USER_ROLE_PATIENT;
         }
 
         if ($counter == 0) {

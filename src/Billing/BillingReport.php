@@ -71,13 +71,13 @@ class BillingReport
                     $query_part .= ' AND ' . "(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
                 } elseif (strpos($criteria_value, "form_encounter.date|between|") !== false) {
                     $elements = explode('|', $criteria_value);
-                    $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                 } elseif (strpos($criteria_value, "billing.date|between|") !== false) {
                     $elements = explode('|', $criteria_value);
-                    $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                 } elseif (strpos($criteria_value, "claims.process_time|between|") !== false) {
                     $elements = explode('|', $criteria_value);
-                    $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                 } else {
                     $elements = explode('|', $criteria_value);
                     $criteriaItemsWhitelist = [
