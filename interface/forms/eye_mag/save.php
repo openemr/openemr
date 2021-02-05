@@ -457,14 +457,14 @@ if ($_REQUEST["mode"] == "new") {
     }
 
     //change PCP/referring doc
-    if ($_REQUEST['action'] == 'docs') {
+    if ($_POST['action'] == 'docs') {
         $query = "update patient_data set ref_providerID=?,referrerID=? where pid =?";
-        sqlQuery($query, array($_REQUEST['pcp'], $_REQUEST['rDOC'], $pid));
+        sqlQuery($query, array($_POST['pcp'], $_POST['rDOC'], $pid));
 
-        if ($_REQUEST['pcp']) {
+        if ($_POST['pcp']) {
             //return PCP's data to end user to update their form
             $query = "SELECT * FROM users WHERE id =?";
-            $DOC1 = sqlQuery($query, array($_REQUEST['pcp']));
+            $DOC1 = sqlQuery($query, array($_POST['pcp']));
             $DOCS['pcp']['name'] = $DOC1['fname'] . " " . $DOC1['lname'];
             if ($DOC1['suffix']) {
                 $DOCS['pcp']['name'] .= ", " . $DOC1['suffix'];
@@ -481,7 +481,7 @@ if ($_REQUEST["mode"] == "new") {
                                             <span id='status_Fax_pcp'>
                                                 <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
-                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                    <i class='fa fa-file-pdf fa-fw'></i>
                                                 </a>
                                                 <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";

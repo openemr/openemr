@@ -1,0 +1,11 @@
+{
+  "name": "jquery-ui-1-11-4",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://jqueryui.com/resources/download/jquery-ui-1.11.4.zip"
+}

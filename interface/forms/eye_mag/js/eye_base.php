@@ -1004,6 +1004,7 @@ function hide_KB() {
 function show_KB() {
     $('.kb').toggleClass('nodisplay');
     $('.kb_off').toggleClass('nodisplay');
+    $('.copier').toggleClass('nodisplay');
     if ($('#PREFS_EXAM').val() == 'DRAW') {
         show_TEXT();
     }
@@ -1253,7 +1254,7 @@ function build_DX_list(obj) {
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
                   })
             //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fa fa-arrows fa-1'></i></div>" );
+        .prepend( "<div class='handle '><i class='fa fa-arrows-alt fa-1'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1388,13 +1389,13 @@ function build_IMPPLAN(items,nodisplay) {
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
                value.title +"</span>"+
-               "<span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
-               value.code + "</span>&nbsp;"+
+               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
+               value.code + "</span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
-                                         '<i class="float-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
+                                         '<i class="float-right fa fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
                $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];
@@ -1463,8 +1464,8 @@ function build_IMPPLAN(items,nodisplay) {
                                 });
 
         $('#IMPPLAN_zone').on( 'keyup', 'textarea', function (e){
-                              $(this).css('height', 'auto' );
-                              $(this).height( this.scrollHeight );
+                              //$(this).css('height', 'auto' );
+                             // $(this).height( this.scrollHeight );
                               });
         $('#IMPPLAN_zone').find( 'textarea' ).keyup();
         obj.IMPPLAN_items = items;
@@ -2317,8 +2318,9 @@ $(function () {
                   $("[name$='_kb']").on('click', function() {
                                            $('.kb').toggleClass('nodisplay');
                                            $('.kb_off').toggleClass('nodisplay');
+                                           $('.copier').toggleClass('nodisplay');
                                            if ($('#PREFS_EXAM').val() == 'DRAW') {
-                                           show_TEXT();
+                                                show_TEXT();
                                            }
 
                                            if ($("#PREFS_KB").val() > 0) {
@@ -2898,7 +2900,7 @@ $(function () {
                                      $('#EXAM_QP').trigger("click");
 
                                    } else {
-                                      $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                      $('#BUTTON_QP_'+new_section[1]).trigger("click").trigger("click");//double click intended RM
                                    }
                                  $("#LayerTechnical_sections_1").css("clear","both");
                                  return;
@@ -3435,39 +3437,176 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
                                             ';
                                             }
+                                            function startsWith($str, $needle){
+                                                return substr($str, 0, strlen($needle)) === $needle;
+                                            }
                                             ?>
                                             submit_form("eye_mag");
                                             });
-
+                  $("#EXT_defaults_R").on("click", function() {
+                        <?php
+                            foreach ($EXT as $item => $value) {
+                                if (startsWith($item,"R")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                ';
+                                }
+                            }
+                        ?>
+                        submit_form("eye_mag");
+                        
+                        });
+                  $("#EXT_defaults_L").on("click", function() {
+                        <?php
+                            foreach ($EXT as $item => $value) {
+                                if (startsWith($item,"L")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                ';
+                                }
+                            }
+                        ?>
+                        submit_form("eye_mag");
+                        });
                   $("#EXT_defaults").on("click", function() {
-                                            <?php
-                                            foreach ($EXT as $item => $value) {
-                                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                           ';
-                                            }
-                                            ?>
-                                           submit_form("eye_mag");
+                                            $("#EXT_defaults_L").trigger('click');
+                                            $("#EXT_defaults_R").trigger('click');
+                                            submit_form("eye_mag");
                                            });
 
-                  $("#ANTSEG_defaults").on("click", function() {
-                                                <?php
-                                                foreach ($ANTSEG as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                              ';
-                                                }
-                                                ?>
-                                              submit_form("eye_mag");
-                                              });
-                  $("#RETINA_defaults").on("click", function() {
-                                                <?php
-                                                foreach ($RETINA as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                              ';
-                                                }
-                                                ?>
-                                              submit_form("eye_mag");
-                                              });
-                  $("#NEURO_defaults").on("click", function() {
+                    $("#EXT_R_L").on('click', function () {
+                        $("#LBROW").val($("#RBROW").val());
+                        $("#LUL").val($("#RUL").val());
+                        $("#LLL").val($("#RLL").val());
+                        $("#LMCT").val($("#RMCT").val());
+                        $("#LADNEXA").val($("#RADNEXA").val());
+                        submit_form("eye_mag");
+                    });
+
+                    $("#EXT_L_R").on('click', function () {
+                        $("#RBROW").val($("#LBROW").val());
+                        $("#RUL").val($("#LUL").val());
+                        $("#RLL").val($("#LLL").val());
+                        $("#RMCT").val($("#LMCT").val());
+                        $("#RADNEXA").val($("#LADNEXA").val());
+                        submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_defaults_OD").on("click", function() {
+                    <?php
+                        foreach ($ANTSEG as $item => $value) {
+                            if (startsWith($item,"OD")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                    ';
+                            }
+                        }
+                    ?>
+                    submit_form("eye_mag");
+                    
+                    });
+                    $("#ANTSEG_defaults_OS").on("click", function() {
+                            <?php
+                                foreach ($ANTSEG as $item => $value) {
+                                    if (startsWith($item,"OS")) {
+                                        echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                            ';
+                                    }
+                                }
+                            ?>
+                            submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_defaults").on("click", function() {
+                            $("#ANTSEG_defaults_OD").trigger('click');
+                            $("#ANTSEG_defaults_OS").trigger('click');
+                            submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_OD_OS").on('click', function () {
+                        $("#OSCONJ").val($("#ODCONJ").val());
+                        $("#OSCORNEA").val($("#ODCORNEA").val());
+                        $("#OSAC").val($("#ODAC").val());
+                        $("#OSLENS").val($("#ODLENS").val());
+                        $("#OSIRIS").val($("#ODIRIS").val());
+                        submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_OS_OD").on('click', function () {
+                        $("#ODCONJ").val($("#OSCONJ").val());
+                        $("#ODCORNEA").val($("#OSCORNEA").val());
+                        $("#ODAC").val($("#OSAC").val());
+                        $("#ODLENS").val($("#OSLENS").val());
+                        $("#ODIRIS").val($("#OSIRIS").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_OD_OS").on('click', function () {
+                        $("#OSDISC").val($("#ODDISC").val());
+                        $("#OSCUP").val($("#ODCUP").val());
+                        $("#OSMAC").val($("#ODMAC").val());
+                        $("#OSVESSELS").val($("#ODVESSELS").val());
+                        $("#OSVITREOUS").val($("#ODVITREOUS").val());
+                        $("#OSPERIPH").val($("#ODPERIPH").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_OS_OD").on('click', function () {
+                        $("#ODDISC").val($("#OSDISC").val());
+                        $("#ODCUP").val($("#OSCUP").val());
+                        $("#ODMAC").val($("#OSMAC").val());
+                        $("#ODVESSELS").val($("#OSVESSELS").val());
+                        $("#ODVITREOUS").val($("#OSVITREOUS").val());
+                        $("#ODPERIPH").val($("#OSPERIPH").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#clear_EXT_L").on('click', function () {
+                        $("#LBROW").val('');
+                        $("#LUL").val('');
+                        $("#LLL").val('');
+                        $("#LMCT").val('');
+                        $("#LADNEXA").val('');
+                        $("#LLF").val('');
+                        $("#LMRD").val('');
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#clear_EXT_R").on('click', function () {
+                        $("#RBROW").val('');
+                        $("#RUL").val('');
+                        $("#RLL").val('');
+                        $("#RMCT").val('');
+                        $("#RADNEXA").val('');
+                        $("#RLF").val('');
+                        $("#RMRD").val('');
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_defaults_OD").on("click", function() {
+                            <?php
+                                foreach ($RETINA as $item => $value) {
+                                    if (startsWith($item,"OD")) {
+                                        echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                            ';
+                                    }
+                                }
+                            ?>
+                            submit_form("eye_mag");
+                            
+                            });
+                    $("#RETINA_defaults_OS").on("click", function() {
+                        <?php
+                            foreach ($RETINA as $item => $value) {
+                                if (startsWith($item,"OS")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                        ';
+                                }
+                            }
+                        ?>
+                        submit_form("eye_mag");
+                        });
+                    $("#RETINA_defaults").on("click", function() {
+                        $("#RETINA_defaults_OD").trigger('click');
+                        $("#RETINA_defaults_OS").trigger('click');
+                        submit_form("eye_mag");
+                    });
+
+
+                    $("#NEURO_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($NEURO as $item => $value) {
                                                     echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
@@ -3477,8 +3616,37 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              submit_form("eye_mag");
                                              });
 
+                    $("#clear_EXT_R").on('click', function() {
+                        $('.right.EXT').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_EXT_L").on('click', function() {
+                        $('.left.EXT').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_ANTSEG_OD").on('click', function() {
+                        $('.right.ANTSEG').val('');
+                        submit_form("eye_mag");});
+                    $("#clear_ANTSEG_OS").on('click', function() {
+                        $('.left.ANTSEG').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_RETINA_OD").on('click', function() {
+                        $('.right.RETINA').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_RETINA_OS").on('click', function() {
+                        $('.left.RETINA').val('');
+                        submit_form("eye_mag");
+                    });
 
-                  $("#MOTILITYNORMAL").on("click", function() {
+                    $("[id^='cpf_']").on('click', function() {
+                        var to_field  = this.id.match(/cpf_(.*)_(.*)/)[1];
+                        var from_field    = this.id.match(/cpf_(.*)_(.*)/)[2];
+                        $("#"+to_field).val($("#"+from_field).val());
+                        submit_form("eye_mag");
+                    });
+                    $("#MOTILITYNORMAL").on("click", function() {
                                              $("#MOTILITY_RS").val('0');
                                              $("#MOTILITY_RI").val('0');
                                              $("#MOTILITY_RR").val('0');
