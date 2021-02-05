@@ -259,14 +259,30 @@ class FhirExportRestController
         }
         // if a request is completed do we want to allow the operation to be deleted ie remove the trace of the export?
 
-        // simulate async process
-        // return's 202 that we are starting the process
-        $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
-        // we could return an OperationOutcome here, but the spec says its optional, so we'll skip it
+        try {
+            $job = $this->fhirExportJobService->getJobForUuid($jobUuidString, $this->request->getClientId(), $this->request->getRequestUserUUIDString());
 
-        // need to grab all of the resource files created and then delete them
-
-
+            $documents = \Document::getDocumentsForForeignId($job->getId());
+            if (!empty($documents)) {
+                foreach ($documents as $document) {
+                    $this->logger->debug("FhirExportRestController->processDeleteExportForJob deleting document",
+                        ['job' => $jobUuidString, $document->get_id()]);
+                    $document->process_deleted();
+                }
+            }
+            $this->fhirExportJobService->deleteJob($job);
+            $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
+        }
+        catch (\InvalidArgumentException $ex) {
+            $this->logger->error("FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
+                ['job' => $jobUuidString]);
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+        }
+        catch (\Exception $ex) {
+            $this->logger->error("FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
+                ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]);
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+        }
 
         return $response;
     }
@@ -411,7 +427,6 @@ class FhirExportRestController
             ->format("Y-m-d H:i:s");
 
         // set the foreign key so we can track documents connected to a specific export
-        $document->set_foreign_id($job->getId());
         $result = $document->createDocument(
             $folder,
             $categoryId,
@@ -427,6 +442,8 @@ class FhirExportRestController
         if (!empty($result)) {
             throw new \RuntimeException("Failed to save document for job. Message: " . $result);
         }
+        // not sure why we have to double save but the document class is broken in handling foreign ids
+        $document->persist($job->getId());
         return $document;
     }
 

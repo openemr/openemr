@@ -119,6 +119,26 @@ class FhirExportJobService
     }
 
     /**
+     * Given an export job, delete the job from the database
+     * @param ExportJob $job The job to save
+     * @return ExportJob the saved job
+     * @throws \RuntimeException if the job fails to save
+     */
+    public function deleteJob(ExportJob $job) {
+
+        $sql = "DELETE FROM `export_job` WHERE `uuid` = ? AND `client_id` = ? AND `user_id` = ?";
+        $params = [$job->getUuid(), $job->getClientId(), $job->getUserId()];
+
+        $ret = sqlStatement($sql, $params);
+        if ($ret === false) {
+            $params[0] = $job->getUuidString(); // so we don't spit out the binary value
+            $this->logger->error("Failed to delete ExportJob", ['ret' => $ret, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
+            throw new \RuntimeException("Failed to delete ExportJob");
+        }
+        return $ret !== false;
+    }
+
+    /**
      * Given an export job save the updated status,output, and errors property to the database and return the updated job.
      * @param ExportJob $job the job to save
      * @return ExportJob the updated job
