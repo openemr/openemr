@@ -61,6 +61,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Authorization Code Grant](API_README.md#authorization-code-grant)
     -   [Refresh Token Grant](API_README.md#refresh-token-grant)
     -   [Password Grant](API_README.md#password-grant)
+    -   [Client Credentials Grant](API_README#client-credentials-grant)
     -   [Logout](API_README.md#logout)
     -   [More Details](API_README.md#more-details)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
@@ -310,6 +311,14 @@ Response:
   "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
 }
 ```
+
+### Client Credentials Grant
+
+This is an advanced grant that uses JSON Web Key Sets(JWKS) to authenticate and identify the client.  This credential grant is
+required to be used for access to any **system/\*.$export** scopes.  API clients must register either web accessible JWKS URI that hosts
+a RSA384 compatible key, or provide their JWKS as part of the registration. Client Credentials Grant access tokens are short
+lived and valid for only 1 minute and no refresh token is issued.  Tokens are requested at `/oauth2/default/token`
+To walk you through how to do this process you can follow [this guide created by HL7](https://hl7.org/fhir/uv/bulkdata/authorization/index.html). 
 
 #### Logout
 
@@ -1722,3 +1731,5 @@ Response:
 -   For business logic, make or use the services [here](src/Services)
 -   For controller logic, make or use the classes [here](src/RestControllers)
 -   For routing declarations, use the class [here](_rest_routes.inc.php).
+
+- 
