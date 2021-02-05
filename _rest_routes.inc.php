@@ -638,6 +638,19 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+    // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
+    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController($request);
+        $return = $fhirExportService->processExport(
+            $_GET,
+            'Patient',
+            $request->getHeader('Accept'),
+            $request->getHeader('Prefer')
+        );
+        RestConfig::apiLog($return);
+        return $return;
+    },
     "GET /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -928,18 +941,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $exportParams,
             'Group',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
-        );
-        RestConfig::apiLog($return);
-        return $return;
-    },
-    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
-        $return = $fhirExportService->processExport(
-            $_GET,
-            'Patient',
             $request->getHeader('Accept'),
             $request->getHeader('Prefer')
         );

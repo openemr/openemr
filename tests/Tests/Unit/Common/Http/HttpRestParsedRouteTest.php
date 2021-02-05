@@ -117,4 +117,15 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertNull($parsedStatusRoute->getResource()); // there is no resource here for the root operation
         $this->assertEquals('$bulkdata-status', $parsedStatusRoute->getOperation());
     }
+
+    public function testGetOperationWithPatientExportOperation()
+    {
+        $request = '/fhir/Patient/$export';
+        $definition = 'GET /fhir/Patient/$export';
+
+        $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
+        $this->assertTrue($parsedRoute->isValid(), "route should match definition");
+        $this->assertEquals('$export', $parsedRoute->getOperation());
+        $this->assertEquals('Patient', $parsedRoute->getResource());
+    }
 }
