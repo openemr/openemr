@@ -579,27 +579,6 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->oidcScopes();
     }
 
-    // TODO: @bradymiller is this used anywhere anymore?
-    public function getFhirSupportedScopes($role = 'user'): array
-    {
-        $permitted = $this->fhirScopes();
-        $standard = null;
-        if ($role === 'user') {
-            $standard = array_merge($this->fhirRequiredSmartScopes(), $permitted);
-        }
-        if ($role === 'patient') {
-            $standard = $this->fhirRequiredSmartScopes();
-            foreach ($permitted as $readOnly) {
-                if (stripos($readOnly, '.read') === false) {
-                    continue;
-                }
-                $standard[] = $readOnly;
-            }
-        }
-
-        return $standard;
-    }
-
     public function getSystemFhirSupportedScopes(): array
     {
         return $this->systemScopes();

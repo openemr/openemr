@@ -390,7 +390,7 @@ class RestConfig
                     $logResponse = $body->getContents();
                     $body->rewind();
                 } else {
-                    $logResponse = '';
+                    $logResponse = 'Content not application/json - Skip binary data';
                 }
             } else {
                 $logResponse = (!empty($logResponse)) ? json_encode($response) : '';

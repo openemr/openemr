@@ -336,7 +336,8 @@ class Document extends ORDataObject
      * @param string $foreign_id
      * @return Document[]
      */
-    public static function getDocumentsForForeignId($foreign_id = "") {
+    public static function getDocumentsForForeignId($foreign_id = "")
+    {
         $doc = new self();
         return $doc->documents_factory($foreign_id);
     }

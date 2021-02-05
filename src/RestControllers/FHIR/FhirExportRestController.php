@@ -265,22 +265,26 @@ class FhirExportRestController
             $documents = \Document::getDocumentsForForeignId($job->getId());
             if (!empty($documents)) {
                 foreach ($documents as $document) {
-                    $this->logger->debug("FhirExportRestController->processDeleteExportForJob deleting document",
-                        ['job' => $jobUuidString, $document->get_id()]);
+                    $this->logger->debug(
+                        "FhirExportRestController->processDeleteExportForJob deleting document",
+                        ['job' => $jobUuidString, $document->get_id()]
+                    );
                     $document->process_deleted();
                 }
             }
             $this->fhirExportJobService->deleteJob($job);
             $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
-        }
-        catch (\InvalidArgumentException $ex) {
-            $this->logger->error("FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
-                ['job' => $jobUuidString]);
+        } catch (\InvalidArgumentException $ex) {
+            $this->logger->error(
+                "FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
+                ['job' => $jobUuidString]
+            );
             return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
-        }
-        catch (\Exception $ex) {
-            $this->logger->error("FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
-                ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]);
+        } catch (\Exception $ex) {
+            $this->logger->error(
+                "FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
+                ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+            );
             return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
         }
 
