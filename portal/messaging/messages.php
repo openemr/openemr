@@ -65,7 +65,7 @@ function getAuthPortalUsers()
     $resultpd = $resultusers = $resultpatients = array();
     if (IS_DASHBOARD) { // admin can mail anyone
         $authusers = sqlStatement("SELECT users.username as userid,
- CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE authorized = 1 or portal_user = 1");
+ CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE authorized = 1 AND portal_user = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultusers[] = $row;
         }
@@ -80,7 +80,7 @@ function getAuthPortalUsers()
         return $resultpd[0];
     } else {
         $resultpd = array();
-        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1 or portal_user = 1");
+        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1 AND portal_user = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultpd[] = $row;
         }
