@@ -36,7 +36,7 @@ class FhirMedicationRequestService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient_id'],
+            'patient' => ['patient_uuid'],
         ];
     }
 
@@ -57,6 +57,14 @@ class FhirMedicationRequestService extends FhirServiceBase
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $medRequestResource->setId($id);
+
+        $subject = new FHIRReference();
+        $subject->setReference('Patient/' . $dataRecord['puuid']);
+        $medRequestResource->setSubject($subject);
+
+        $medicationReference = new FHIRReference();
+        $medicationReference->setReference('Drug/' . $dataRecord['pdrug']);
+        $medRequestResource->setMedicationReference($medicationReference);
 
         $medRequestResource->setIntent('order');
 

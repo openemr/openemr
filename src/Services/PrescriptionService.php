@@ -23,7 +23,6 @@ class PrescriptionService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
-    private const DRUG_TABLE = "drugs";
     private $uuidRegistry;
 
     /**
@@ -37,7 +36,6 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createMissingUuids();
     }
 
     /**
@@ -54,20 +52,23 @@ class PrescriptionService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT prescriptions.*,
+        $sql = "SELECT 
+                prescription.id,
+                prescription.uuid,
+                prescription.patient_id,
+                prescription.encounter,
+                prescription.drug AS pdrug,
+                prescription.size,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid,
-                drug.uuid AS drug_uuid
-                FROM prescriptions
+                practitioner.uuid AS pruuid
+                FROM prescriptions AS prescription
                 LEFT JOIN patient_data AS patient
-                ON patient.pid = prescriptions.patient_id
+                ON patient.pid = prescription.patient_id
                 LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescriptions.encounter
+                ON encounter.encounter = prescription.encounter
                 LEFT JOIN users AS practitioner
-                ON practitioner.id = prescriptions.provider_id
-                LEFT JOIN drugs AS drug
-                ON drug.drug_id = prescriptions.drug_id";
+                ON practitioner.id = prescription.provider_id";
 
         if (!empty($search)) {
             $sql .= " AND ";
@@ -95,9 +96,6 @@ class PrescriptionService extends BaseService
             $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            if ($row['rxnorm_drugcode'] != "") {
-                $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
-            }
             $processingResult->addData($row);
         }
 
@@ -123,22 +121,24 @@ class PrescriptionService extends BaseService
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
         }
-
-        $sql = "SELECT prescriptions.*,
+        $sql = "SELECT 
+                prescription.id,
+                prescription.uuid,
+                prescription.patient_id,
+                prescription.encounter,
+                prescription.drug AS pdrug,
+                prescription.size,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid,
-                drug.uuid AS drug_uuid
-                FROM prescriptions
+                practitioner.uuid AS pruuid
+                FROM prescriptions AS prescription
                 LEFT JOIN patient_data AS patient
-                ON patient.pid = prescriptions.patient_id
+                ON patient.pid = prescription.patient_id
                 LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescriptions.encounter
+                ON encounter.encounter = prescription.encounter
                 LEFT JOIN users AS practitioner
-                ON practitioner.id = prescriptions.provider_id
-                LEFT JOIN drugs AS drug
-                ON drug.drug_id = prescriptions.drug_id
-                WHERE prescriptions.uuid = ?";
+                ON practitioner.id = prescription.provider_id
+                WHERE prescription.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
@@ -146,11 +146,6 @@ class PrescriptionService extends BaseService
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         $sqlResult['euuid'] = $sqlResult['euuid'] != null ? UuidRegistry::uuidToString($sqlResult['euuid']) : $sqlResult['euuid'];
         $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
-        $sqlResult['drug_uuid'] = UuidRegistry::uuidToString($sqlResult['drug_uuid']);
-        if ($sqlResult['rxnorm_drugcode'] != "") {
-            $sqlResult['rxnorm_drugcode'] = $this->addCoding($sqlResult['rxnorm_drugcode']);
-        }
-        $processingResult->addData($sqlResult);
         return $processingResult;
     }
 }

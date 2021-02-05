@@ -19,7 +19,6 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirMedicationRequestRestController
 {
-    //private $fhirMedicationService;
     private $fhirService;
     private $fhirMedicationRequestService;
 
