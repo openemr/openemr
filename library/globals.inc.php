@@ -2961,6 +2961,13 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
+        'rest_fhir_export_api' => array(
+            xl('Enable OpenEMR Standard FHIR Export API (Recommended Off)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ),
+
         'oauth_password_grant' => array(
             xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(

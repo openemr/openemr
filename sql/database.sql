@@ -298,6 +298,8 @@ INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients
 INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
+-- @bradymiller is this the right aco for this?  We really don't want people with patient stuff to have access to this doc
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 55, 56, 'admin|super');
 
 -- --------------------------------------------------------
 
@@ -1192,6 +1194,7 @@ CREATE TABLE `documents` (
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
+  `date_expires` datetime default NULL,
   `url` varchar(255) default NULL,
   `thumb_url` varchar(255) default NULL,
   `mimetype` varchar(255) default NULL,
@@ -12334,16 +12337,18 @@ PRIMARY KEY (`id`)
 
 DROP TABLE IF EXISTS `export_job`;
 CREATE TABLE `export_job` (
-  `uuid` varchar(40) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
   `user_id` varchar(40) NOT NULL,
   `client_id` varchar(80) NOT NULL,
   `status` varchar(40) NOT NULL,
-  `start_time` datetime NOT NULL,
+  `start_time` datetime DEFAULT NULL,
   `resource_include_time` datetime DEFAULT NULL,
   `output_format` varchar(128) NOT NULL,
   `request_uri` varchar(128) NOT NULL,
-  `resources` text NOT NULL,
-  `output` text DEFAULT NULL,
-  `errors` text DEFAULT NULL,
-  `access_token_id` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='fhir export jobs';
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';

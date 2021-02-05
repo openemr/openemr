@@ -152,18 +152,6 @@ class HttpRestParsedRoute
         return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$]+)', preg_quote($path)) . "$@D";
     }
 
-
-    private function getResourceForRoute($routePath)
-    {
-        $parts = explode("/", $routePath);
-        $finalArg = end($parts);
-        if (strpos($finalArg, ':') !== false) {
-            array_pop($parts);
-            $finalArg = end($parts);
-        }
-        return $finalArg;
-    }
-
     /**
      * Sets up the operation and resource definitions for this parsed route
      * @param $routeParams
@@ -176,6 +164,7 @@ class HttpRestParsedRoute
         if (empty($parts)) {
             return; // nothing we can do here
         }
+        $apiType = $parts[1] ?? null;
 
         $finalArg = end($parts);
         if (strpos($finalArg, '$') !== false) {
@@ -188,7 +177,13 @@ class HttpRestParsedRoute
             array_pop($parts);
             $finalArg = end($parts);
         }
-        if (!empty($finalArg) && !\in_array($finalArg, ['portal', 'fhir', 'api'])) {
+
+        // We've implemented our FHIR api spec so the resource is the first argument
+        // We have to accomodate this for our scope permissions
+        // standard api allows for nesting of resources so we have to handle the other possibilities there.
+        if ($apiType === 'fhir') {
+            $this->resource = $parts[2] ?? null;
+        } else if (!empty($finalArg) && !\in_array($finalArg, ['portal', 'api'])) {
             $this->resource = $finalArg;
         }
 

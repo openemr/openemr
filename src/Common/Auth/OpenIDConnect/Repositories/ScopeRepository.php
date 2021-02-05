@@ -42,6 +42,9 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     private $sessionScopes;
 
+    /**
+     * @var \RestConfig
+     */
     private $restConfig;
 
     /**
@@ -266,7 +269,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function fhirRequiredSmartScopes(): array
     {
-        return [
+        $requiredSmart = [
             "openid",
             "fhirUser",
             "online_access",
@@ -276,15 +279,18 @@ class ScopeRepository implements ScopeRepositoryInterface
             "api:oemr",
             "api:fhir",
             "api:port",
-            // we define our Bulk FHIR here
-            // There really is no defined standard on how to handle SMART scopes for operations ($operation)
-            // hopefully its defined in V2, but for now we are going to implement using the following scopes
-            // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
-            'system/Patient.$export',
-            'system/Group.$export',
-            'system/*.$export',
-            'system/*.$bulkdata-status'
         ];
+        // we define our Bulk FHIR here
+        // There really is no defined standard on how to handle SMART scopes for operations ($operation)
+        // hopefully its defined in V2, but for now we are going to implement using the following scopes
+        // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
+        if (isset($this->restConfig) && $this->restConfig->isExportEnabled()) {
+            $requiredSmart[] = 'system/Patient.$export';
+            $requiredSmart[] = 'system/Group.$export';
+            $requiredSmart[] = 'system/*.$bulkdata-status';
+            $requiredSmart[] = 'system/*.$export';
+        }
+        return $requiredSmart;
     }
 
     /**

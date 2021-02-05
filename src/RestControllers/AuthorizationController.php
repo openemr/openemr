@@ -993,7 +993,6 @@ class AuthorizationController
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
         } catch (Exception $e) {
-            // TODO: @adunsulag check with @sjpadgett was just echoing the exception what you wanted to happen here?
             echo $e;
         }
 

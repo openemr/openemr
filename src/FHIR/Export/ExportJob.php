@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * ExportJob.php
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/**
  * ExportJob represents a FHIR export job as part of the bulk on fhir specification.
  * @package openemr
  * @link      http://www.open-emr.org
@@ -9,9 +18,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\FHIR\SMART;
+namespace OpenEMR\FHIR\Export;
 
 use http\Exception\InvalidArgumentException;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ExportJob
 {
@@ -27,10 +37,21 @@ class ExportJob
     const OUTPUT_FORMAT_NDJSON = "application/ndjson";
     const ALLOWED_OUTPUT_FORMATS = [self::OUTPUT_FORMAT_FHIR_NDJSON, self::OUTPUT_FORMAT_APPLICATION_NDJSON, self::OUTPUT_FORMAT_NDJSON];
 
+    const EXPORT_OPERATION_SYSTEM = 'System';
+    const EXPORT_OPERATION_GROUP = 'Group';
+    const EXPORT_OPERATION_PATIENT = 'Patient';
+    const ALLOWED_EXPORT_OPERATIONS = [self::EXPORT_OPERATION_PATIENT, self::EXPORT_OPERATION_GROUP, self::EXPORT_OPERATION_SYSTEM];
+
     /**
-     * @var string The unique id of the export job.
+     * @var int The database id of the export job
      */
     private $id;
+
+    /**
+     * @var string The unique id of the export job (binary).  Use $this->getUuidString() to get the string formatted as
+     * a uuid4 string that is human readable.
+     */
+    private $uuid;
 
     /**
      * @var \DateTime The time that the export job was created.
@@ -95,28 +116,64 @@ class ExportJob
      */
     private $apiBaseUrl;
 
+    /**
+     * @var string The Group resource identifier for the system operation we are exporting.
+     */
+    private $groupId;
+
+    /**
+     * @var string the operation type that this export is.  Allowed types are in self::ALLOWED_EXPORT_OPERATIONS
+     */
+    private $exportType;
+
     public function __construct()
     {
         $this->setStatus(self::STATUS_PROCESSING);
         $this->setStartTime(new \DateTime());
         $this->setOutputFormat(self::OUTPUT_FORMAT_FHIR_NDJSON);
         $this->resources = [];
+        $this->setExportType(self::EXPORT_OPERATION_GROUP);
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param string $id
+     * @param int $id
      */
-    public function setId(string $id): void
+    public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return string binary uuid value
+     */
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    public function getUuidString(): string
+    {
+        $uuid = $this->getUuid();
+        if (!empty($uuid)) {
+            return UuidRegistry::uuidToString($uuid);
+        }
+        return $uuid;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setUuid(string $uuid): void
+    {
+        $this->uuid = $uuid;
     }
 
     /**
@@ -328,11 +385,46 @@ class ExportJob
     public function getStatusReportURL()
     {
         $baseUrl = $this->getApiBaseUrl() ?? "";
-        return $baseUrl . self::STATUS_REPORT_PREFIX . $this->getId();
+        return $baseUrl . self::STATUS_REPORT_PREFIX . $this->getUuidString();
     }
 
     public function isComplete()
     {
         return $this->getStatus() === self::STATUS_COMPLETED;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupId(): ?string
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * @param string $groupId
+     */
+    public function setGroupId(?string $groupId): void
+    {
+        $this->groupId = $groupId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExportType(): string
+    {
+        return $this->exportType;
+    }
+
+    /**
+     * @param string $exportType
+     */
+    public function setExportType(string $exportType): void
+    {
+        if (array_search($exportType, self::ALLOWED_EXPORT_OPERATIONS) === false) {
+            throw new \InvalidArgumentException("exportType is invalid");
+        }
+        $this->exportType = $exportType;
     }
 }

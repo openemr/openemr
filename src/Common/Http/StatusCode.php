@@ -31,4 +31,6 @@ abstract class StatusCode
 
     // 5XX status codes go here
     const INTERNAL_SERVER_ERROR = 500;
+
+    const NOT_IMPLEMENTED = 501;
 }

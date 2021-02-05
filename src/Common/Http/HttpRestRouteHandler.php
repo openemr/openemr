@@ -165,7 +165,7 @@ class HttpRestRouteHandler
             // don't do any checks on our open fhir resources
             if (
                 $restRequest->getResource() == 'metadata'
-                || $restRequest->getResource() == 'smart-configuration'
+                || $restRequest->getResource() == '.well-known'
             ) {
                 return;
             }

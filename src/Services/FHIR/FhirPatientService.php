@@ -2,7 +2,22 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
+use OpenEMR\FHIR\FhirSearchParameterType;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -23,12 +38,40 @@ use OpenEMR\Validators\ProcessingResult;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService
+class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
     /**
      * @var PatientService
      */
     private $patientService;
+
+    /**
+     * Note requirements for US Core are:
+     * Each Patient must HAVE (if missing data in EMR, must have a data missing definition extension)
+     * 1. a patient identifier
+     * 2. a patient name
+     * 3. a gender
+     * Each patient must SUPPORT
+     * 1. a contact detail (telephone or email)
+     * 2. a birth date
+     * 3. an address
+     * 4. a communication language
+     * 5. a race
+     * 6. an ethnicity
+     * 7. a birth sex
+     *
+     * Search Parameters Required
+     * 1. Must support exact token match _id
+     * 2. Must support exact token match identifier
+     * 3. Must support fuzzy string matching name
+     * 4. Must support name+birthdate search
+     * 5. Must support gender+name search
+     *
+     * Search Parameters optional
+     * 1. birthdate+family search
+     * 2. family+gender search
+     */
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient';
 
     public function __construct()
     {
@@ -42,20 +85,24 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function loadSearchParameters()
     {
+        // @see https://www.hl7.org/fhir/patient.html#search
         return  [
-            '_id' => ['uuid'],
-            'address' => ['street', 'postal_code', 'city', 'state'],
-            'address-city' => ['city'],
-            'address-postalcode' => ['postal_code'],
-            'address-state' => ['state'],
-            'birthdate' => ['DOB'],
-            'email' => ['email'],
-            'family' => ['lname'],
-            'gender' => ['sex'],
-            'given' => ['fname', 'mname'],
-            'name' => ['title', 'fname', 'mname', 'lname'],
-            'phone' => ['phone_home', 'phone_biz', 'phone_cell'],
-            'telecom' => ['email', 'phone_home', 'phone_biz', 'phone_cell']
+            '_id' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['uuid'] ],
+            // TODO: this must be an exact match OR condition, since we don't have that supported yet we are just going off ssn
+//            'identifier' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['ssn', 'pubid'] ],
+            'identifier' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['ss'] ],
+            'address' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['street', 'postal_code', 'city', 'state'] ],
+            'address-city' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['city'] ],
+            'address-postalcode' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['postal_code'] ],
+            'address-state' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['state'] ],
+            'birthdate' => ['type' => FhirSearchParameterType::DATE, 'fields' => ['DOB'] ],
+            'email' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['email'] ],
+            'family' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['lname'] ],
+            'gender' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['sex'] ],
+            'given' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['fname', 'mname'] ],
+            'name' => ['type' => FhirSearchParameterType::STRING, 'fields' => ['title', 'fname', 'mname', 'lname'] ],
+            'phone' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['phone_home', 'phone_biz', 'phone_cell'] ],
+            'telecom' => ['type' => FhirSearchParameterType::TOKEN, 'fields' => ['email', 'phone_home', 'phone_biz', 'phone_cell'] ]
         ];
     }
 
@@ -76,17 +123,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $patientResource->setActive(true);
 
         $narrativeText = '';
-        if (isset($dataRecord['fname'])) {
+        if (!empty($dataRecord['fname'])) {
             $narrativeText = $dataRecord['fname'];
         }
-        if (isset($dataRecord['lname'])) {
+        if (!empty($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $patientResource->setText($text);
+        if (!empty($narrativeText)) {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $patientResource->setText($text);
+        }
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -95,24 +144,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $name = new FHIRHumanName();
         $name->setUse('official');
 
-        if (isset($dataRecord['title'])) {
+        if (!empty($dataRecord['title'])) {
             $name->addPrefix($dataRecord['title']);
         }
-        if (isset($dataRecord['lname'])) {
+        if (!empty($dataRecord['lname'])) {
             $name->setFamily($dataRecord['lname']);
         }
 
-        $givenName = array();
-        if (isset($dataRecord['fname'])) {
-            array_push($givenName, $dataRecord['fname']);
+        if (!empty($dataRecord['fname'])) {
+            $name->addGiven($dataRecord['fname']);
         }
 
-        if (isset($dataRecord['mname'])) {
-            array_push($givenName, $dataRecord['mname']);
-        }
-
-        if (count($givenName) > 0) {
-            $name->given = $givenName;
+        if (!empty($dataRecord['mname'])) {
+            $name->addGiven($dataRecord['mname']);
         }
 
         $patientResource->addName($name);
@@ -122,94 +166,69 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
 
         $address = new FHIRAddress();
-        if (isset($dataRecord['street'])) {
+        if (!empty($dataRecord['street'])) {
             $address->addLine($dataRecord['street']);
         }
-        if (isset($dataRecord['city'])) {
+        if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
         }
-        if (isset($dataRecord['state'])) {
+        if (!empty($dataRecord['state'])) {
             $address->setState($dataRecord['state']);
         }
-        if (isset($dataRecord['postal_code'])) {
+        if (!empty($dataRecord['postal_code'])) {
             $address->setPostalCode($dataRecord['postal_code']);
         }
-        if (isset($dataRecord['country_code'])) {
+        if (!empty($dataRecord['country_code'])) {
             $address->setCountry($dataRecord['country_code']);
         }
 
         $patientResource->addAddress($address);
 
-        if (isset($dataRecord['phone_home'])) {
-            $patientResource->addTelecom(array(
-                'system' => 'phone',
-                'value' => $dataRecord['phone_home'],
-                'use' => 'home'
-            ));
+        if (!empty($dataRecord['phone_home'])) {
+            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_home'], 'home'));
         }
 
-        if (isset($dataRecord['phone_biz'])) {
-            $patientResource->addTelecom(array(
-                'system' => 'phone',
-                'value' => $dataRecord['phone_biz'],
-                'use' => 'work'
-            ));
+        if (!empty($dataRecord['phone_biz'])) {
+            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_biz'], 'work'));
         }
 
-        if (isset($dataRecord['phone_cell'])) {
-            $patientResource->addTelecom(array(
-                'system' => 'phone',
-                'value' => $dataRecord['phone_cell'],
-                'use' => 'mobile'
-            ));
+        if (!empty($dataRecord['phone_cell'])) {
+            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_cell'], 'mobile'));
         }
 
-        if (isset($dataRecord['email'])) {
-            $patientResource->addTelecom(array(
-                'system' => 'email',
-                'value' => $dataRecord['email'],
-                'use' => 'home'
-            ));
+        if (!empty($dataRecord['email'])) {
+            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email'], 'home'));
         }
 
         $gender = new FHIRAdministrativeGender();
-        if (isset($dataRecord['sex'])) {
+        if (!empty($dataRecord['sex'])) {
             $gender->setValue(strtolower($dataRecord['sex']));
         }
         $patientResource->setGender($gender);
 
-        if (isset($dataRecord['ss'])) {
-            $fhirIdentifier = [
-                'use' => 'official',
-                'type' => [
-                    'coding' => [
-                        [
-                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
-                            'code' => 'SS'
-                        ]
-                    ]
-                ],
-                'system' => 'http://hl7.org/fhir/sid/us-ssn',
-                'value' => $dataRecord['ss']
-            ];
-            $patientResource->addIdentifier($fhirIdentifier);
+        if (!empty($dataRecord['ss'])) {
+            $patientResource->addIdentifier(
+                $this->createIdentifier(
+                    'official',
+                    'http://terminology.hl7.org/CodeSystem/v2-0203',
+                    'SS',
+                    'http://hl7.org/fhir/sid/us-ssn',
+                    $dataRecord['ss']
+                )
+            );
         }
 
-        if (isset($dataRecord['pubpid'])) {
-            $fhirIdentifier = [
-                'use' => 'official',
-                'type' => [
-                    'coding' => [
-                        [
-                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
-                            'code' => 'PT'
-                        ]
-                    ]
-                ],
-                'system' => 'http:\\terminology.hl7.org\ValueSet\v2-0203',
-                'value' => $dataRecord['pubpid']
-            ];
-            $patientResource->addIdentifier($fhirIdentifier);
+        if (!empty($dataRecord['pubpid'])) {
+            $patientResource->addIdentifier(
+                // not sure if the SystemURI for PT should be the same or not.
+                $this->createIdentifier(
+                    'official',
+                    'http://terminology.hl7.org/CodeSystem/v2-0203',
+                    'PT',
+                    'http://terminology.hl7.org/CodeSystem/v2-0203',
+                    $dataRecord['pubpid']
+                )
+            );
         }
 
         if ($encode) {
@@ -217,6 +236,32 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         } else {
             return $patientResource;
         }
+    }
+
+    private function createIdentifier($use, $system, $code, $systemUri, $value): FHIRIdentifier
+    {
+        $identifier = new FHIRIdentifier();
+        $idUse = new FHIRIdentifierUse();
+        $idUse->setValue($use);
+        $identifier->setUse($idUse);
+        $idType = new FHIRCodeableConcept();
+        $idTypeCoding = new FHIRCoding();
+        $idTypeCoding->setSystem(new FHIRUri($system));
+        $idTypeCoding->setCode(new FHIRCode($code));
+        $idType->addCoding($idTypeCoding);
+        $identifier->setType($idType);
+        $identifier->setSystem(new FHIRUri($systemUri));
+        $identifier->setValue(new FHIRString($value));
+        return $identifier;
+    }
+
+    private function createContactPoint($system, $value, $use): FHIRContactPoint
+    {
+        $contactPoint = new FHIRContactPoint();
+        $contactPoint->setSystem(new FHIRContactPointSystem(['value' => $system]));
+        $contactPoint->setValue(new FHIRString($value));
+        $contactPoint->setUse(new FHIRContactPointUse(['value' => $use]));
+        return $contactPoint;
     }
 
     /**
@@ -373,22 +418,95 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
+        // TODO: @bradymiller all the patient unit tests require this to be set to false for fuzzy matching.  However,
+        // it allows patient data to be leaked if anyone has an additional search param in a patient context for FHIR
+        // We need to redo all of the search stuff to have each search param
+        // have it's own search conditions (AND, OR, prefix string, suffix string, fuzzy match, etc).
         return $this->patientService->getAll($openEMRSearchParameters, false);
-    }
-
-    /**
-     * Returns all of the data for exporting patient records in the system.
-     * @param ExportJob $job
-     * @return array
-     */
-    public function export(ExportJob $job)
-    {
-        // TODO: @adunsulag return nothing for now as we will implement this method in the next iteration
-        return [];
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    /**
+     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
+     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
+     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
+     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
+     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
+     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
+     * @return void
+     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
+     * @throws ExportException  If there is an error in processing the export
+     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
+     */
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+    {
+        // we have no concept of date created & date modified in the system for patients, so we just return everything
+
+        $type = $job->getExportType();
+
+        $searchParams = [];
+        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+            $group = $job->getGroupId();
+            // we would need to grab all of the patient ids that belong to this group
+            // TODO: if we fully implement groups of patient populations we would set our patient ids into $searchParams
+            // or filter the results here
+        }
+
+        $processingResult = $this->getAll($searchParams);
+        $patientData = $processingResult->getData();
+        foreach ($patientData as $patient) {
+            if (!($patient instanceof FHIRPatient)) {
+                throw new ExportException("Patient Service return records that are not a valid patient resource", 0, $lastResourceIdExported);
+            }
+            $writer->append($patient);
+            $lastResourceIdExported = $patient->getId();
+        }
+    }
+
+    /**
+     * Returns whether the service supports the system export operation
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---system-level-export
+     * @return bool true if this resource service should be called for a system export operation, false otherwise
+     */
+    public function supportsSystemExport()
+    {
+        return true;
+    }
+
+    /**
+     * Returns whether the service supports the group export operation.
+     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
+     * patient data (such as Organization or Practitioner)
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients
+     * @return bool true if this resource service should be called for a group export operation, false otherwise
+     */
+    public function supportsGroupExport()
+    {
+        return true;
+    }
+
+    /**
+     * Returns whether the service supports the all patient export operation
+     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
+     * patient data (such as Organization or Practitioner)
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---all-patients
+     * @return bool true if this resource service should be called for a patient export operation, false otherwise
+     */
+    public function supportsPatientExport()
+    {
+        return true;
+    }
+
+    /**
+     * We only have one profile URI we need to return here
+     * @return array
+     */
+    public function getProfileURIs(): array
+    {
+        return [self::USCGI_PROFILE_URI];
     }
 }

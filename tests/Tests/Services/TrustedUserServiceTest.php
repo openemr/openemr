@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\TrustedUserService;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -37,12 +38,13 @@ class TrustedUserServiceTest extends TestCase
      */
     public function testIsTrustedUserWithNullUserId()
     {
+        $userUuid = (new UserService())->getSystemUser()['uuid'];
         $clientId = Uuid::uuid4()->toString();
         $service = new TrustedUserService();
         $code = $clientId . self::TRUSTED_CLIENT_TAG;
         $id = $service->saveTrustedUser(
             $clientId,
-            null,
+            $userUuid,
             'openid',
             0,
             $code,
@@ -55,7 +57,7 @@ class TrustedUserServiceTest extends TestCase
         $this->assertNotEmpty($trustedUser, "Trusted user should have saved with null user id");
 
         // now check to make sure our user is trusted
-        $isTrusted = $service->isTrustedUser($clientId, null);
+        $isTrusted = $service->isTrustedUser($clientId, $userUuid);
 
         $this->assertEquals(true, $isTrusted, "Client with null user id should be trusted");
     }

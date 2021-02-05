@@ -574,6 +574,8 @@ RestConfig::$ROUTE_MAP = array(
     }
 );
 
+use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
@@ -625,7 +627,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirPatientRestController())->getOne($request->getPatientUUIDString());
+            // in Patient context you still have to return a bundle even if it is just one resource.
+            $params = $_GET;
+            $params['_id'] = $request->getPatientUUIDString();
+            $return = (new FhirPatientRestController())->getAll($params);
         } else {
             RestConfig::authorization_check("patients", "demo");
             $return = (new FhirPatientRestController())->getAll($_GET);
@@ -911,22 +916,17 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "users");
 
         // Grab the document id
-        // extract the export key id from the doc id
-        // grab the export db record
-        // no record -> deny request
-
-        // check the expires tag on the db record
-        // if request expired -> reject the request
-
-
-        // run file cleanup requests
-        // grab all export db records w/ expired records & delete them
+        $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
+        $response = $docController->downloadDocument($documentId, $request->getRequestUserId());
+        return $response;
     },
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
+        $exportParams = $_GET;
+        $exportParams['groupId'] = $groupId;
         $return = $fhirExportService->processExport(
-            $_GET,
+            $exportParams,
             'Group',
             $request->getHeader('Accept'),
             $request->getHeader('Prefer')
@@ -963,11 +963,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     // @see https://ibm.github.io/FHIR/guides/FHIRBulkOperations/
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $job = $_GET['job'];
+        $jobUuidString = $_GET['job'];
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
         $fhirExportService = new FhirExportRestController($request);
-        $return = $fhirExportService->processExportStatusRequestForJob($job);
+        $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
         RestConfig::apiLog($return);
         return $return;
     },

@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\FHIR\FhirSearchParameterType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationDefinition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -21,12 +22,14 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTypeRestfulInteraction;
 use OpenEMR\FHIR\R4\FHIRResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementInteraction;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementOperation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 
 class RestControllerHelper
 {
@@ -152,28 +155,31 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
-    public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
+    public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $service)
     {
-        $serviceClass = $serviceClassNameSpace . $resource . "Service";
-        if (class_exists($serviceClass)) {
-            $service = new $serviceClass();
-            foreach ($service->getSearchParams() as $searchParam => $searchFields) {
-                $paramExists = false;
+        if (empty($service)) {
+            return; // nothing to do here as the service isn't defined.
+        }
+        $capResource->addSearchInclude('*');
+        foreach ($service->getSearchParams() as $fhirSearchField => $searchDefinition) {
+            $paramExists = false;
 
-                foreach ($capResource->getSearchParam() as $searchParam) {
-                    if (strcmp($searchParam->getName(), $searchParam) == 0) {
-                        $paramExists = true;
-                    }
+            $type = $searchDefinition['type'] ?? FhirSearchParameterType::STRING;
+
+            foreach ($capResource->getSearchParam() as $searchParam) {
+                if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
+                    $paramExists = true;
                 }
-                if (!$paramExists) {
-                    $searchParam = new FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSearchParam();
-                    $searchParam->setName($searchParam);
-                    $searchParam->setType("string");
-                    $paramsList[] = $searchParam;
-                }
+            }
+            if (!$paramExists) {
+                $param = new FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSearchParam();
+                $param->setName($fhirSearchField);
+                $param->setType($type);
+                $capResource->addSearchParam($param);
             }
         }
     }
+
 
     /**
      * Retrieves the fully qualified service class name for a given FHIR resource.  It will only return a class that
@@ -204,7 +210,7 @@ class RestControllerHelper
             $operation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
 
             $extension = new FHIRExtension();
-            $extension->setValueCode('SHOULD');
+            $extension->setValueCode(new FHIRCode('SHOULD'));
             $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
             $operation->addExtension($extension);
             $capResource->addOperation($operation);
@@ -273,13 +279,25 @@ class RestControllerHelper
             }
 
             if (!in_array($resource, self::IGNORE_ENDPOINT_RESOURCES)) {
+                $service = null;
+                $serviceClass = $this->getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace);
+                if (!empty($serviceClass)) {
+                    $service = new $serviceClass();
+                }
                 if (!array_key_exists($resource, $resourcesHash)) {
                     $capResource = new FHIRCapabilityStatementResource();
                     $capResource->setType(new FHIRCode($resource));
                     $capResource->setProfile(new FHIRCanonical($structureDefinition . $resource));
+
+                    if ($service instanceof IResourceUSCIGProfileService) {
+                        $profileUris = $service->getProfileURIs();
+                        foreach ($profileUris as $uri) {
+                            $capResource->addSupportedProfile(new FHIRCanonical($uri));
+                        }
+                    }
                     $resourcesHash[$resource] = $capResource;
                 }
-                $this->setSearchParams($resource, $resourcesHash[$resource], $serviceClassNameSpace);
+                $this->setSearchParams($resource, $resourcesHash[$resource], $service);
                 $this->addRequestMethods($items, $resourcesHash[$resource]);
                 $this->addOperations($resource, $items, $resourcesHash[$resource]);
             }

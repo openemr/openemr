@@ -1,22 +1,55 @@
 <?php
 
+/**
+ * Document - This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
+ * of some type. This URL is not necessarily a web url, it could be a file URL or reference to a BLOB in a db.
+ * It is implicit that a document can have other related tables to it at least a one document to many notes which join on a documents
+ * id and categories which do the same.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Unknown -- No ownership was listed on this document prior to February 5th 2021
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright OpenEMR contributors (c) 2021
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-/**
- * class Document
- * This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
- * of some type. This URL is not necessarily a web url, it could be a file URL or reference to a BLOB in a db.
- * It is implicit that a document can have other related tables to it at least a one document to many notes which join on a documents
- * id and categories which do the same.
- */
-
 class Document extends ORDataObject
 {
+
+    /**
+     * Use the native filesystem to store files at
+     */
+    const STORAGE_METHOD_FILESYSTEM = 0;
+
+    /**
+     * Use CouchDb to store files at
+     */
+    const STORAGE_METHOD_COUCHDB = 1;
+
+    /**
+     * Flag that the encryption is on.
+     */
+    const ENCRYPTED_ON = 1;
+
+    /**
+     * Flag the encryption is off.
+     */
+    const ENCRYPTED_OFF = 0;
+
+    /**
+     * Date format for the expires field
+     */
+    const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
 
     /*
     *   Database unique identifier
@@ -54,6 +87,11 @@ class Document extends ORDataObject
     *   @var string
     */
     var $date;
+
+    /**
+     * @var string at which the document can no longer be accessed.
+     */
+    var $date_expires;
 
     /*
     *   URL which point to the document, may be a file URL, a web URL, a db BLOB URL, or others
@@ -145,6 +183,12 @@ class Document extends ORDataObject
     var $path_depth;
 
     /**
+     * Flag that marks the document as deleted or not
+     * @var int 1 if deleted, 0 if not
+     */
+    var $deleted;
+
+    /**
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
      */
@@ -163,6 +207,7 @@ class Document extends ORDataObject
         $this->type = $this->type_array[0] ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
+        $this->date_expires = null; // typically no expiration date here
         $this->url = "";
         $this->mimetype = "";
         $this->docdate = date("Y-m-d");
@@ -171,10 +216,89 @@ class Document extends ORDataObject
         $this->encounter_id = 0;
         $this->encounter_check = "";
         $this->encrypted = 0;
+        $this->deleted = 0;
 
         if ($id != "") {
             $this->populate();
         }
+    }
+
+    /**
+     * Retrieves all of the categories associated with this document
+     */
+    public function get_categories()
+    {
+        if (empty($this->get_id())) {
+            return [];
+        }
+
+        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec` FROM `categories` "
+        . "JOIN `categories_to_documents` `ctd` ON `ctd`.`category_id` = `categories`.`id` "
+        . "WHERE `ctd`.`document_id` = ? ";
+        $resultSet = sqlStatement($categories, [$this->get_id()]);
+        $categories = [];
+        while ($category = sqlGetAssoc($resultSet)) {
+            $categories[] = $category;
+        }
+        return $categories;
+    }
+
+    /**
+     *
+     * @return bool true if the document expiration date has expired
+     */
+    public function has_expired()
+    {
+        if (!empty($this->date_expires)) {
+            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
+            return $dateTime->getTimestamp() >= time();
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether the passed in $user can access the document or not.  It checks against all of the access
+     * permissions for the categories the document is in.  If there are any categories that the document is tied to
+     * that the owner does NOT have access rights to, the request is denied.  If there are no categories tied to the
+     * document, default access is granted.
+     * @param int|null $user  The user we are checking.  If no user is provided it checks against the currently logged in user
+     * @return bool True if the passed in user or current user can access this document, false otherwise.
+     */
+    public function can_access($user = null)
+    {
+        $categories = $this->get_categories();
+
+        // no categories to prevent access
+        if (empty($categories)) {
+            return true;
+        }
+
+        // verify that we can access every single category this document is tied to
+        foreach ($categories as $category) {
+            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $user) === false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if a document has been deleted or not
+     * @return bool true if the document is deleted, false otherwise
+     */
+    public function is_deleted()
+    {
+        return $this->deleted != 0;
+    }
+
+    /**
+     * Handles the deletion of a document
+     */
+    public function process_deleted()
+    {
+        // TODO: @bradymiller is this the correct way in the system to delete documents? Do we remove the underlying file?
+        $this->deleted = 1;
+        $this->persist();
     }
 
     /**
@@ -280,6 +404,14 @@ class Document extends ORDataObject
     function get_date()
     {
         return $this->date;
+    }
+
+    /**
+     * @return string|null The datetime that the document expires at
+     */
+    function get_date_expires(): ?string
+    {
+        return $this->date_expires;
     }
     function set_hash($hash)
     {
@@ -447,6 +579,10 @@ class Document extends ORDataObject
     {
         return $this->encrypted;
     }
+    function is_encrypted()
+    {
+        return $this->encrypted == self::ENCRYPTED_ON;
+    }
     /*
     *   Overridden function to stor current object state in the db.
     *   current overide is to allow for a just in time foreign id, often this is needed
@@ -521,6 +657,7 @@ class Document extends ORDataObject
    * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
+   * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
    * @return string                Empty string if success, otherwise error message text
    */
     function createDocument(
@@ -532,7 +669,8 @@ class Document extends ORDataObject
         $higher_level_path = '',
         $path_depth = 1,
         $owner = 0,
-        $tmpfile = null
+        $tmpfile = null,
+        $date_expires = null
     ) {
         // The original code used the encounter ID but never set it to anything.
         // That was probably a mistake, but we reference it here for documentation
@@ -566,7 +704,7 @@ class Document extends ORDataObject
         $encounter_id = '';
         $this->storagemethod = $GLOBALS['document_storage_method'];
         $this->mimetype = $mimetype;
-        if ($this->storagemethod == 1) {
+        if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
             if ($GLOBALS['couchdb_encryption']) {
                 $document = $cryptoGen->encryptStandard($data, null, 'database');
@@ -675,15 +813,16 @@ class Document extends ORDataObject
         }
 
         if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
-            $this->set_encrypted(1);
+            $this->set_encrypted(self::ENCRYPTED_ON);
         } else {
-            $this->set_encrypted(0);
+            $this->set_encrypted(self::ENCRYPTED_OFF);
         }
         $this->name = $filename;
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
         $this->owner = $owner ? $owner : $_SESSION['authUserID'];
+        $this->date_expires = $date_expires;
         $this->set_foreign_id($patient_id);
         $this->persist();
         $this->populate();
@@ -693,6 +832,48 @@ class Document extends ORDataObject
         }
 
         return '';
+    }
+
+    /**
+     * Retrieves the document data that has been saved to the filesystem or couch db.  If the $decrypt flag is set to
+     * true, it will return the unencrypted version of the data for the document.
+     * @param bool $decrypt True if the document should be decrypted, false otherwise
+     * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted or expired
+     * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts or is unencrypted.
+     */
+    function get_data($decrypt = false)
+    {
+        $storagemethod = $this->get_storagemethod();
+
+        if ($this->has_expired()) {
+            throw new BadMethodCallException("Should not attempt to retrieve data from expired documents");
+        }
+        if ($this->is_deleted()) {
+            throw new BadMethodCallException("Should not attempt to retrieve data from deleted documents");
+        }
+
+        if ($storagemethod === self::STORAGE_METHOD_COUCHDB) {
+            // Taken from ccr/display.php
+            $couch_docid = $this->get_couch_docid();
+            $couch_revid = $this->get_couch_revid();
+            $couch = new CouchDB();
+            $resp = $couch->retrieve_doc($couch_docid);
+            $data = base64_decode($resp->data);
+        } else {
+            $filepath  = $this->get_url_filepath();
+            if (!file_exists($filepath)) {
+                throw new RuntimeException("Saved filepath does not exist at location " . $filepath);
+            }
+            $data = file_get_contents($filepath);
+        }
+
+        if (!empty($data) && $decrypt && $this->is_encrypted()) {
+            $cryptoGen = new CryptoGen();
+            $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
+            return $decryptedData;
+        } else {
+            return $data;
+        }
     }
 
   /**

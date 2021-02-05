@@ -22,20 +22,15 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
 
     /**
-     * Returns the token expiration date for the given token id.  If $userId is null it will return the token for a
-     * confidential_client access token
+     * Returns the token expiration date for the given token id.
      * @param $tokenId string The access token id
      * @param $clientId string The client id
-     * @param number|null $userId  The id of the openemr user the token corresponds to
+     * @param number $userId  The id of the openemr user the token corresponds to
      * @return string|null The expiration date or null if there was no token found
      */
     public function getTokenExpiration($tokenId, $clientId, $userId = null)
     {
-        if (empty($userId)) {
-            $result = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `client_id` = ? AND `user_id` IS NULL", [$tokenId, $clientId]);
-        } else {
-            $result = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `client_id` = ? AND `user_id` = ?", [$tokenId, $clientId, $userId]);
-        }
+        $result = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `client_id` = ? AND `user_id` = ?", [$tokenId, $clientId, $userId]);
         $authTokenExpiration = $result['expiry'] ?? null;
         return $authTokenExpiration;
     }

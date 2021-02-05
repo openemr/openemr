@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ExportJobTest.php
+ * ExportJobTest tests that the ExportJob class is functioning properly.
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -9,9 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Unit\FHIR\SMART;
+namespace OpenEMR\Tests\Unit\FHIR\Export;
 
-use OpenEMR\FHIR\SMART\ExportJob;
+use OpenEMR\FHIR\Export\ExportJob;
 use PHPUnit\Framework\TestCase;
 
 class ExportJobTest extends TestCase

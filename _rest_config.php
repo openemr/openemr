@@ -63,6 +63,11 @@ class RestConfig
     /**  @var set to true if not rest call */
     private static $notRestCall = false;
 
+    /**
+     * @var bool Whether REST api export is enabled or not.
+     */
+    private static $isExportEnabled = false;
+
     /** prevents external construction */
     private function __construct()
     {
@@ -434,6 +439,15 @@ class RestConfig
             header($responseHeader, false);
         }
         echo $response->getBody();
+    }
+
+    /**
+     * If the FHIR export api is enabled or not.  True if its turned on, false otherwise.
+     * @return bool
+     */
+    public static function isExportEnabled()
+    {
+        return $GLOBALS['rest_fhir_export_api'] === '1';
     }
 
     public function authenticateUserToken($tokenId, $clientId, $userId): bool

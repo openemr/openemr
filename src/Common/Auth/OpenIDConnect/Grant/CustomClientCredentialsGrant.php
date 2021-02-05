@@ -227,8 +227,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         // grab the client
         $client = $this->getClientEntityOrFail($clientId, $request);
 
-        // TODO: @adunsulag check with @bradymiller or @sjpadgett on whether this belongs in ClientRepository since we
-        // are type checking it against ClientEntity.  Currently all the JWK validation stuff is centralized in this
+        // Currently all the JWK validation stuff is centralized in this
         // grant... but knowledge of the client entity is inside the ClientRepository, either way I don't like the
         // class cohesion problems this creates.
         if (!($client instanceof ClientEntity)) {
@@ -279,7 +278,10 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             // issuer = issue URI of sender application so redirectUri
             // subject claim
             $token = $configuration->parser()->parse($jwt);
-            $this->logger->debug("Token parsed", ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]);
+            $this->logger->debug(
+                "Token parsed",
+                ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]
+            );
 //
 
             $constraints = $configuration->validationConstraints();
@@ -289,7 +291,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             } catch (RequiredConstraintsViolated $exception) {
                 $this->logger->error(
                     "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
-                    ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+                    [
+                        'client' => $clientId, 'exceptionMessage' => $exception->getMessage()
+                        , 'claims' => $token->claims()->all()
+                        ,'expectedAudience' => $this->authTokenUrl
+                    ]
                 );
                 // ONC Inferno server refuses to allow a 401 HTTP status code to pass their test suite and requires
                 // a 400 HTTP status code, despite the SMART spec specifically stating that invalid_client w/ 401 is

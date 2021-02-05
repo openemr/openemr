@@ -217,6 +217,16 @@ class HttpRestRequest
     }
 
     /**
+     * Returns the current user id if we have one
+     * @return int|null
+     */
+    public function getRequestUserId(): ?int
+    {
+        $user = $this->getRequestUser();
+        return $user['id'] ?? null;
+    }
+
+    /**
      * @param array $requestUser
      */
     public function setRequestUser($userUUIDString, array $requestUser): void

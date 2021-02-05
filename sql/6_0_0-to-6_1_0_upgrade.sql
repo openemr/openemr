@@ -262,17 +262,29 @@ INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
 
 #IfNotTable
 CREATE TABLE `export_job` (
-  `uuid` varchar(40) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
   `user_id` varchar(40) NOT NULL,
   `client_id` varchar(80) NOT NULL,
   `status` varchar(40) NOT NULL,
-  `start_time` datetime NOT NULL,
+  `start_time` datetime DEFAULT NULL,
   `resource_include_time` datetime DEFAULT NULL,
   `output_format` varchar(128) NOT NULL,
   `request_uri` varchar(128) NOT NULL,
-  `resources` text NOT NULL,
-  `output` text DEFAULT NULL,
-  `errors` text DEFAULT NULL,
-  `access_token_id` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='fhir export jobs';
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';
+#EndIf
+
+#IfNotRow categories name FHIR Export Document
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FHIR Export Document', '', 1, rght, rght + 5, 'admin|super' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 1 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfMissingColumn documents date_expires
+ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL AFTER `date`;
 #EndIf

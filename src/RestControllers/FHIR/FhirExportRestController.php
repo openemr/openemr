@@ -24,15 +24,15 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
-use OpenEMR\FHIR\SMART\ExportJob;
-use OpenEMR\Services\DocumentService;
+use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use Psr\Log\LoggerInterface;
@@ -51,22 +51,33 @@ class InvalidExportHeaderException extends \Exception
 class FhirExportRestController
 {
     /**
+     * The DateInterval format that is the maximum time an export process can execute before
+     * a shutdown exception is thrown.
+     */
+    const MAX_EXPORT_TIME_INTERVAL = "PT30S";
+
+    /**
+     * The DateInterval format that is the maximum time from our Job's start time that a generated export document can
+     * be accessed in the system.
+     */
+    const MAX_DOCUMENT_ACCESS_TIME = "PT1H";
+
+    /**
      * Only allowed header format for the operation outcome
      * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#headers
      */
     const ACCEPT_HEADER_OPERATION_OUTCOME = 'application/fhir+json';
     const PREFER_HEADER = 'respond-async';
 
-    // TODO: @adunsulag is there another place in the system that has our standard datetime constants?
-    /**
-     * The date format to use for our DateTime values
-     */
-    const DATETIME_FORMAT = 'Y-m-d H:i:s';
-
     /**
      * The folder name that export documents are stored in.
      */
     const FHIR_DOCUMENT_FOLDER = 'system-fhir-export';
+
+    /**
+     * Name of the category we stick our exports in for ACL controls
+     */
+    const FHIR_DOCUMENT_CATEGORY = 'FHIR Export Document';
 
     /**
      * @var HttpRestRequest The current http request object
@@ -83,10 +94,17 @@ class FhirExportRestController
      */
     private $resourceRegistry;
 
+    /**
+     * @var
+     */
+    private $isExportDisabled;
+
     public function __construct(HttpRestRequest $request)
     {
         $this->request = $request;
         $this->logger = new SystemLogger();
+        $this->fhirExportJobService = new FhirExportJobService();
+        $this->isExportDisabled = !($this->request->getRestConfig()::isExportEnabled());
     }
 
     /**
@@ -102,9 +120,14 @@ class FhirExportRestController
      */
     public function processExport($exportParams, $exportType, $acceptHeader, $preferHeader)
     {
+        if ($this->isExportDisabled) {
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_IMPLEMENTED);
+        }
+
         $outputFormat = $exportParams['_outputFormat'] ?? ExportJob::OUTPUT_FORMAT_FHIR_NDJSON;
         $since = $exportParams['_since'] ?? new \DateTime(date("Y-m-d H:i:s", 0)); // since epoch time
         $type = $exportParams['type'] ?? '';
+        $groupId = $exportParams['groupId'] ?? null;
         $resources = !empty($resources) ? explode(",", $type) : [];
 
         $this->logger->debug("FhirExportRestController->processExport() Patient export call made", [
@@ -123,6 +146,8 @@ class FhirExportRestController
 
             $job = new ExportJob();
             $job->setOutputFormat($outputFormat);
+            $job->setExportType($exportType);
+            $job->setGroupId($groupId);
             $job->setResourceIncludeTime($since);
             $job->setClientId($this->request->getClientId());
             $job->setResources($resources);
@@ -131,7 +156,7 @@ class FhirExportRestController
             $job->setRequestURI($this->request->getRequestURI());
             $job->setApiBaseUrl($this->request->getApiBaseFullUrl());
 
-            $job = $this->createJobRequest($job);
+            $job = $this->fhirExportJobService->createJobRequest($job);
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
 
@@ -161,18 +186,22 @@ class FhirExportRestController
      * return the output and errors in the response body.  The output and errors results will include links for the
      * calling Agent to go and download the results from.
      *
-     * @param $jobId The unique id of the job to retrieve the status report for
+     * @param $jobUuidString The unique id of the job to retrieve the status report for
      * @return ResponseInterface
      */
-    public function processExportStatusRequestForJob($jobId)
+    public function processExportStatusRequestForJob($jobUuidString)
     {
+        if ($this->isExportDisabled) {
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_IMPLEMENTED);
+        }
+
         // simulate async process
         // if job is still going we would return a 202
         // return's 202 that we are starting the process
         try {
             $status = StatusCode::ACCEPTED;
 
-            $job = $this->getJobForId($jobId, $this->request->getClientId(), $this->request->getRequestUserUUIDString());
+            $job = $this->fhirExportJobService->getJobForUuid($jobUuidString, $this->request->getClientId(), $this->request->getRequestUserUUIDString());
             if ($job->isComplete()) {
                 $status = StatusCode::OK;
                 // need to construct our FHIR complete object here
@@ -192,13 +221,13 @@ class FhirExportRestController
             }
             $this->logger->debug(
                 "FhirExportRestController->processExportStatusRequestForJob() status request exit",
-                ['jobId' => $jobId, 'status' => $job->getStatus(), 'request' => $job->getRequestURI()]
+                ['jobUuid' => $jobUuidString, 'status' => $job->getStatus(), 'request' => $job->getRequestURI()]
             );
             return $response;
         } catch (\InvalidArgumentException $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() invalid request",
-                ['jobId' => $jobId, 'exception' => $exception->getMessage()]
+                ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage()]
             );
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was invalid"));
@@ -207,7 +236,7 @@ class FhirExportRestController
         } catch (\Exception $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
-                ['jobId' => $jobId, 'exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             $response = $this->createResponseForCode(StatusCode::INTERNAL_SERVER_ERROR);
             $operationOutcome = $this->createOperationOutcomeError(xlt("An internal server error occurred"));
@@ -220,11 +249,16 @@ class FhirExportRestController
      * Return's an HTTP response with the result of the delete operation.  The delete response returns a status
      * code of StatusCode::ACCEPTED.  Subsequent calls to the DELETE will return a StatusCode::BAD_REQUEST as the
      * export job has been deleted or marked for deleted.
-     * @param $jobId The unique id of the job.
+     * @param $jobUuidString The unique id of the job.
      * @return ResponseInterface
      */
-    public function processDeleteExportForJob($jobId)
+    public function processDeleteExportForJob($jobUuidString)
     {
+        if ($this->isExportDisabled) {
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_IMPLEMENTED);
+        }
+        // if a request is completed do we want to allow the operation to be deleted ie remove the trace of the export?
+
         // simulate async process
         // return's 202 that we are starting the process
         $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
@@ -240,7 +274,7 @@ class FhirExportRestController
     /**
      * Given a job that contains a list of resources to export, process each of those resources and save their results
      * into Documents stored inside OpenEMR in the ndjson format.  There will be one file per resource and the resources
-     * are saved in the FHIR_DOCUMENT_FOLDER under the file name of <resource>-<jobId>.ndjson with the ndjson
+     * are saved in the FHIR_DOCUMENT_FOLDER under the file name of <resource>-<jobUuidString>.ndjson with the ndjson
      * mimetype.  The results and any errors of the export are saved back into the ExportJob.  The ExportJob's status
      * is marked as completed upon completion.
      * @see ExportJob::OUTPUT_FORMAT_FHIR_NDJSON
@@ -253,54 +287,147 @@ class FhirExportRestController
 
         $processedJob = clone $job;
         // we will generate a bunch of documents here and then save them out to our folder....
-        $document = new \Document();
-        $folder = self::FHIR_DOCUMENT_FOLDER;
-        $docService = new DocumentService();
         $categoryId = null;
         $ouputResult = [];
         $errorResult = [];
+        $shutdownTime = new \DateTime();
+        // don't allow the export to take longer than 2 minutes
+        $shutdownTime->add(new \DateInterval("PT2M"));
+
+        $shutdownImminent = false;
 
         foreach ($job->getResources() as $resource) {
-            if (!$this->isValidResource($resource)) {
-                $errorResult[] = $this->createOperationOutcomeError("Resource does not support export operation");
+            // since we send job into a bunch of services that we have no control over, we copy it in order to make sure
+            // one service doesn't mess with the export object.
+            $jobForResource = clone $job;
+            if (!$this->isValidResource($resource, $jobForResource->getExportType())) {
+                $errorResult[] = $this->createOperationOutcomeError("Resource does not support this export operation");
+                continue;
+            }
+            // if we've reached our shutdown point, every subsequent resource we just fail immediately
+            if ($shutdownImminent) {
+                $this->errorResult[] = $this->getExportTimeoutExportError($resource);
                 continue;
             }
 
-            $fileName = $resource . "-" . $job->getId() . ".ndjson";
-            $fullPath = $job->getId() . DIRECTORY_SEPARATOR . $fileName;
+            $output = null;
+            $error = null;
+            // if we had an async process we would be able to resume off of the last id that was exported for this
+            // resource
+            $lastResourceIdExported = null;
+            try {
+                $service = $this->getExportServiceForResource($resource);
+                // this could be a file pointer, or whatever else we wanted to be able to handle this
+                // for now we assume that OpenEMR data can all fit inside memory per resource.... if that changes
+                // we should be able to rewrite just a little bit of this to be more efficient.
+                $exportWriter = new ExportMemoryStreamWriter($shutdownTime);
+                $service->export($exportWriter, $jobForResource, $lastResourceIdExported);
 
-            // TODO: @adunsulag this might work for small exports... but we may need to change this if we start dealing
-            // with a ton of data...
-            $lines = [];
-            for ($i = 0; $i < 5; $i++) {
-                // for now we are just testing with dummy data until we actually run through each resource.
-                $patient = new FHIRPatient();
-                $fhirId = new FHIRId();
-                $fhirId->setValue(Uuid::uuid4());
-                $patient->setId($fhirId);
-                $lines[] = json_encode($patient);
+                // we are grabbing the contents to write out to our document
+                $output = $this->createOutputResultForData($jobForResource, $resource, $exportWriter->getContents());
+                $this->logger->debug("FhirExportRestController->processResourceExportForJob() resource outputted", [
+                    'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
+                ]);
+            } catch (ExportWillShutdownException $exception) {
+                // we ran out of time and need to mark everything as failed
+                $shutdownImminent = true;
+                $errorOutcome = $this->getExportTimeoutExportError($resource);
+                $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
+                $this->logger->error("FhirExportRestController->processResourceExportForJob() Export reached "
+                . "maximum execution time.", [
+                    'exception' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
+            } catch (\Exception $exception) {
+                $errorMessage = xlt("An unknown system error occurred during the export for resource") . ' ' . $resource;
+                $errorOutcome = $this->createOperationOutcomeError($errorMessage);
+                $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
+                $this->logger->error("FhirExportRestController->processResourceExportForJob() Unknown system error"
+                . " occurred during export", ['exception' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
+            } finally {
+                $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
+                    'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
+                ]);
+                $exportWriter->close();
             }
-            $data = implode($lines, '\n');
 
-            $mimeType = "application/fhir+ndjson";
-            $data = "{}";
-            $higherLevelPath = "";
-            $pathDepth = 1;
-            $owner = 0;  // userID
-            $result = $document->createDocument($folder, $categoryId, $fullPath, $mimeType, $data, $higherLevelPath, $pathDepth, $owner);
-            if ($result === '') {
-                $ouputResult[] = [
-                    'url' => $this->request->getApiBaseFullUrl() . '/Document/' . $fileName . '/Binary'
-                    ,"type" => $resource
-                ];
+            if (!empty($output)) {
+                $outputResult[] = $output;
+            } else {
+                $errorResult[] = $error;
             }
         }
 
-        $processedJob->setOutput(json_encode($ouputResult));
+        $processedJob->setOutput(json_encode($outputResult));
         $processedJob->setErrors(json_encode($errorResult));
         $processedJob->setStatus(ExportJob::STATUS_COMPLETED);
 
-        return $this->updateJob($processedJob);
+        return $this->fhirExportJobService->updateJob($processedJob);
+    }
+
+    private function createErrorResultForOutcomeOperation(ExportJob $job, FHIROperationOutcome $errorOutcome)
+    {
+        $jobUuidString = $job->getUuidString();
+        $resource = $errorOutcome->get_fhirElementName();
+        $fileName = $resource  . "-" . $jobUuidString . "-" . $errorOutcome->getId() . ".ndjson";
+        $data = json_encode($errorOutcome);
+        $document = $this->createExportJobFile($job, $fileName, $data);
+        return $this->getResultForResourceDocument($resource, $document);
+    }
+
+    private function createOutputResultForData(ExportJob $job, $resource, &$data)
+    {
+        $jobUuidString = $job->getUuidString();
+        $fileName = $resource . "-" . $jobUuidString . ".ndjson";
+        $document = $this->createExportJobFile($job, $fileName, $data);
+        return $this->getResultForResourceDocument($resource, $document);
+    }
+
+    private function getResultForResourceDocument($resource, \Document $document)
+    {
+        return [
+            'url' => $this->request->getApiBaseFullUrl() . '/fhir/Document/' . $document->get_id() . '/Binary'
+            ,"type" => $resource
+        ];
+    }
+
+    private function createExportJobFile(ExportJob $job, $fileName, &$data): \Document
+    {
+        $document = new \Document();
+        $folder = self::FHIR_DOCUMENT_FOLDER;
+        $categoryId = sqlQuery('Select `id` FROM categories WHERE name=?', [self::FHIR_DOCUMENT_CATEGORY]);
+        if ($categoryId === false) {
+            throw new ExportException("document category id does not exist in system");
+        }
+
+        $mimeType = "application/fhir+ndjson";
+        $higherLevelPath = "";
+        $pathDepth = 1;
+        $owner = 0;  // userID
+        $tmpFile = null;
+
+        $expirationDate = $job->getStartTime()
+            ->add(new \DateInterval(self::MAX_DOCUMENT_ACCESS_TIME))
+            ->format("Y-m-d H:i:s");
+
+        // set the foreign key so we can track documents connected to a specific export
+        $document->set_foreign_id($job->getId());
+        $result = $document->createDocument(
+            $folder,
+            $categoryId,
+            $fileName,
+            $mimeType,
+            $data,
+            $higherLevelPath,
+            $pathDepth,
+            $owner,
+            $tmpFile,
+            $expirationDate
+        );
+        if (!empty($result)) {
+            throw new \RuntimeException("Failed to save document for job. Message: " . $result);
+        }
+        return $document;
     }
 
     /**
@@ -333,13 +460,27 @@ class FhirExportRestController
     /**
      * Checks if the passed in resource is valid and can be exported as part of this request.
      * @param $resource The name of the resource to check
+     * @param $exportType string The export operation type that is being requested.
      * @return bool true if the resource can be exported, false otherwise.
      */
-    private function isValidResource($resource)
+    private function isValidResource($resource, $exportType)
     {
         $resourceRegistry = $this->getExportServiceRegistry();
-        $resources = array_keys($resourceRegistry);
-        return array_search($resource, $resources) !== false;
+        $service = $resourceRegistry[$resource] ?? null;
+        if (isset($service)) {
+            switch ($exportType) {
+                case ExportJob::EXPORT_OPERATION_SYSTEM:
+                    return $service->supportsSystemExport();
+                break;
+                case ExportJob::EXPORT_OPERATION_GROUP:
+                    return $service->supportsGroupExport();
+                break;
+                case ExportJob::EXPORT_OPERATION_PATIENT:
+                    return $service->supportsPatientExport();
+                break;
+            }
+        }
+        return false;
     }
 
     /**
@@ -372,98 +513,19 @@ class FhirExportRestController
         return $this->resourceRegistry;
     }
 
-    /**
-     * Return the fully populated export job for the given client and user.
-     * @param $jobId The unique identifier for the job
-     * @param $clientId The api client the job belongs to
-     * @param $userId The user that created the job request
-     * @return ExportJob
-     * @throws \InvalidArgumentException if the $jobId, $clientId, or $userId is invalid
-     */
-    private function getJobForId($jobId, $clientId, $userId)
+    private function getExportServiceForResource($resource): IFhirExportableResourceService
     {
-        // TODO: @adunsulag when we have the client tied to a system user for Credentials grant we will attach it here.
-        $sql = "SELECT `uuid`, `start_time`, `resource_include_time`, `output_format`, `resources`, "
-            . "`client_id`, `user_id`, `access_token_id`, `status`, `request_uri`, `output`, `errors` "
-            . "FROM `export_job` WHERE `uuid` = ? AND `client_id`=? AND `user_id` = ? ";
-
-        $params = [$jobId, $clientId, $userId];
-        $ret = sqlQueryNoLog($sql, $params);
-
-        if (empty($ret)) {
-            $this->logger->error(
-                "FhirExportRestController->getJobForId() failed to find job",
-                ['jobId' => $jobId, 'sql' => $sql, 'params' => $params]
-            );
-            throw new \InvalidArgumentException("Export Job with jobId '" . $jobId . "' does not exist");
+        $resourceRegistry = $this->getExportServiceRegistry();
+        $service = $resourceRegistry[$resource] ?? null;
+        if (!isset($service)) {
+            throw new \LogicException("Method should not be called with invalid service resource");
         }
-
-        $this->logger->debug("FhirExportRestController->getJobForId() ", ['jobId' => $jobId, 'dbResult' => $ret]);
-
-        $job = new ExportJob();
-        $job->setId($jobId);
-        $job->setStartTime(\DateTime::createFromFormat(self::DATETIME_FORMAT, $ret['start_time']));
-        $job->setResourceIncludeTime(\DateTime::createFromFormat(self::DATETIME_FORMAT, $ret['resource_include_time']));
-        $job->setOutputFormat($ret['output_format']);
-        $job->setResources($ret['resources']);
-        $job->setClientId($ret['client_id']);
-        $job->setUserId($ret['user_id']);
-        $job->setAccessTokenId($ret['access_token_id']);
-        $job->setStatus($ret['status']);
-        $job->setRequestURI($ret['request_uri']);
-        $job->setOutput($ret['output']);
-        $job->setErrors($ret['errors']);
-        return $job;
+        return $service;
     }
 
-    /**
-     * Given an export job, save it to the database
-     * @param ExportJob $job The job to save
-     * @return ExportJob the saved job
-     * @throws \RuntimeException if the job fails to save
-     */
-    private function createJobRequest(ExportJob $job)
+    private function getExportTimeoutExportError()
     {
-        // we will generate a UUID here, if we ever want the db to do that we would accomplish that here...
-        $job->setId(Uuid::uuid4());
-
-        $sql = "INSERT INTO `export_job`(`uuid`, `start_time`, `resource_include_time`, `output_format`, `resources`, "
-            . "`client_id`, `user_id`, `access_token_id`, `status`, `request_uri`) "
-            . " VALUES (?,?,?,?,?,?,?,?,?,?)";
-
-        $startTime = $job->getStartTime()->format(self::DATETIME_FORMAT);
-        if ($job->getResourceIncludeTime() instanceof \DateTime) {
-            $resourceIncludeTime = $job->getResourceIncludeTime()->format(self::DATETIME_FORMAT);
-        } else {
-            $resourceIncludeTime = null;
-        }
-        $params = [$job->getId(), $startTime, $resourceIncludeTime
-            , $job->getOutputFormat(), $job->getResourcesString(), $job->getClientId(), $job->getUserId()
-            , $job->getAccessTokenId(), $job->getStatus(), $job->getRequestURI()];
-        $ret = sqlQueryNoLog($sql, $params);
-        if (!empty($ret)) {
-            $this->logger->error("Failed to save ExportJob", ['ret' => $ret, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
-            throw new \RuntimeException("Failed to save ExportJob");
-        }
-        return $job;
-    }
-
-    /**
-     * Given an export job save its updated properties to the database and return the updated job.
-     * @param ExportJob $job the job to save
-     * @return ExportJob the updated job
-     * @throws \RuntimeException if the job fails to save
-     */
-    private function updateJob(ExportJob $job)
-    {
-        $sql = "UPDATE export_job SET `output`=?, `errors`=?, `status`=? WHERE uuid = ?";
-        $params = [$job->getOutput(), $job->getErrors(), $job->getStatus(), $job->getId()];
-        $ret = sqlQueryNoLog($sql, $params);
-        if (!empty($ret)) {
-            $this->logger->error("Failed to save ExportJob", ['sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
-            throw new \RuntimeException("Failed to save ExportJob with updated output,errors, & status");
-        }
-        return $job;
+        return $this->createOperationOutcomeError(xlt("Export process timed out"));
     }
 
     /**
