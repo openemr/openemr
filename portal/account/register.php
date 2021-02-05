@@ -171,7 +171,7 @@ if ($GLOBALS['language_menu_login']) {
                         // need these for validation.
                         profile.find('select#providerid option:contains("Unassigned")').val('');
                     // must have a provider for many reasons. w/o save won't work.
-                        profile.find('select#providerid').attr('required', true);
+                        //profile.find('select#providerid').attr('required', true);
                         profile.find('select#sex option:contains("Unassigned")').val('');
                         profile.find('select#sex').attr('required', true);
 

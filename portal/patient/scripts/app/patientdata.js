@@ -192,14 +192,7 @@ var page = {
                     }
                 });
             });
-            document.getElementById('title').value = page.patient.get('title')
-            document.getElementById('sex').value = page.patient.get('sex')
-            document.getElementById('status').value = page.patient.get('status')
-            document.getElementById('ethnicity').value = page.patient.get('ethnicity')
-            document.getElementById('race').value = page.patient.get('race')
-            document.getElementById('state').value = page.patient.get('state')
-            document.getElementById('religion').value = page.patient.get('religion')
-            document.getElementById('referralSource').value = page.patient.get('referralSource')
+            /* no idea why previous form inits were here! */
             if (page.portalpatient) {
                 $('#note').val(_.escape(page.portalpatient.get('note')));
             }
@@ -379,7 +372,7 @@ var page = {
         page.patient.save({
             'title': $('select#title').val(),
             'language': $('input#language').val(),
-            'financial': $('input#financial').val(),
+            //'financial': $('input#financial').val(),
             'fname': $('input#fname').val(),
             'lname': $('input#lname').val(),
             'mname': $('input#mname').val(),
@@ -411,8 +404,8 @@ var page = {
             'race': $('select#race').val(),
             'ethnicity': $('select#ethnicity').val(),
             'religion': $('select#religion').val(),
-            'interpretter': $('input#interpretter').val(),
-            'migrantseasonal': $('input#migrantseasonal').val(),
+            //'interpretter': $('input#interpretter').val(),
+            //'migrantseasonal': $('input#migrantseasonal').val(),
             'familySize': $('input#familySize').val(),
             'monthlyIncome': $('input#monthlyIncome').val(),
             //	'billingNote': $('textarea#billingNote').val(),
@@ -426,11 +419,11 @@ var page = {
             'hipaaMessage': $('input#hipaaMessage').val(),
             'hipaaAllowsms': $('input[name=hipaaAllowsms]:checked').val(),
             'hipaaAllowemail': $('input[name=hipaaAllowemail]:checked').val(),
-            'referralSource': $('select#referralSource').val(),
+            //'referralSource': $('select#referralSource').val(),
             //'pricelevel': $('input#pricelevel').val(),
-            'regdate': $('input#regdate').val(),
-            'contrastart': $('input#contrastart').val(),
-            'completedAd': $('input[name=completedAd]:checked').val(),
+            //'regdate': $('input#regdate').val(),
+            //'contrastart': $('input#contrastart').val(),
+            //'completedAd': $('input[name=completedAd]:checked').val(),
             //'adReviewed': $('input#adReviewed').val(),
             //'vfc': $('input#vfc').val(),
             'mothersname': $('input#mothersname').val(),
@@ -441,11 +434,11 @@ var page = {
             'allowPatientPortal': $('input[name=allowPatientPortal]:checked').val(),
             //'deceasedDate': $('input#deceasedDate').val()+' '+$('input#deceasedDate-time').val(),
             //'deceasedReason': $('input#deceasedReason').val(),
-            'soapImportStatus': $('input#soapImportStatus').val(),
+            //'soapImportStatus': $('input#soapImportStatus').val(),
             //'cmsportalLogin': $('input#cmsportalLogin').val(),
             'careTeam': $('select#careTeam').val() || 0,
             'county': $('input#county').val(),
-            'industry': $('textarea#industry').val(),
+            //'industry': $('textarea#industry').val(),
             'note': $('textarea#note').val()
         }, {
             wait: true,
