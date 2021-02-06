@@ -27,8 +27,10 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Ramsey\Uuid\Uuid;
 
 class CustomClientCredentialsGrantTest extends TestCase
 {
@@ -51,8 +53,11 @@ class CustomClientCredentialsGrantTest extends TestCase
         // setup our fake access token & our repo
         $accessToken = new AccessTokenEntity();
 
+
+
         $ttl = new \DateInterval('PT300S');
         $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
         $grant->setHttpClient(new Client());
@@ -102,6 +107,7 @@ class CustomClientCredentialsGrantTest extends TestCase
 
         $ttl = new \DateInterval('PT300S');
         $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
         $grant->setHttpClient($httpClient);
@@ -138,6 +144,7 @@ class CustomClientCredentialsGrantTest extends TestCase
 
         $ttl = new \DateInterval('PT300S');
         $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
         $grant->setHttpClient(new Client());
@@ -226,6 +233,16 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessTokenRepo->method('getNewToken')
             ->willReturn($accessToken);
         return $accessTokenRepo;
+    }
+
+    private function getMockUserService()
+    {
+        $userService = $this->createMock(UserService::class);
+        $userService->method('getSystemUser')
+            ->willReturn([
+                'uuid' => Uuid::uuid4()
+            ]);
+        return $userService;
     }
 
     private function getMockClientRepository(ClientEntity $clientEntity)
