@@ -7,17 +7,22 @@ use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\FhirSearchParameterType;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCommunication;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -166,23 +171,39 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
 
         $address = new FHIRAddress();
+        // TODO: we don't track start and end periods for dates so what value should go here...?
+        $addressPeriod = new FHIRPeriod();
+        $start = new \DateTime();
+        $start->sub(new \DateInterval('P1Y')); // subtract one year
+        $end = new \DateTime();
+        $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
+        // if there's an end date we provide one here, but for now we just go back one year
+//        $addressPeriod->setEnd(new FHIRDateTime($end->format(\DateTime::RFC3339_EXTENDED)));
+        $address->setPeriod($addressPeriod);
+        $hasAddress = false;
         if (!empty($dataRecord['street'])) {
             $address->addLine($dataRecord['street']);
+            $hasAddress = true;
         }
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
+            $hasAddress = true;
         }
         if (!empty($dataRecord['state'])) {
             $address->setState($dataRecord['state']);
+            $hasAddress = true;
         }
         if (!empty($dataRecord['postal_code'])) {
             $address->setPostalCode($dataRecord['postal_code']);
+            $hasAddress = true;
         }
         if (!empty($dataRecord['country_code'])) {
             $address->setCountry($dataRecord['country_code']);
+            $hasAddress = true;
         }
-
-        $patientResource->addAddress($address);
+        if ($hasAddress) {
+            $patientResource->addAddress($address);
+        }
 
         if (!empty($dataRecord['phone_home'])) {
             $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_home'], 'home'));
@@ -203,9 +224,89 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $gender = new FHIRAdministrativeGender();
         if (!empty($dataRecord['sex'])) {
             $gender->setValue(strtolower($dataRecord['sex']));
+
+            // if this is not here we have to add a data missing element
+            // birth sex
+            // TODO: I don't see anywhere we are tracking birth sex and we will need to handle that... for now we
+            // just key off recorded sex
+            $birthSex = $dataRecord['sex'] == 'Male' ? 'M' : 'F';
+            $birthSexExtension = new FHIRExtension();
+            $birthSexExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex");
+            $birthSexExtension->setValueCode($birthSex);
+            $patientResource->addExtension($birthSexExtension);
         }
         $patientResource->setGender($gender);
 
+        // note to figure out what the crap to put in this FHIR thing you have to look at the DETAILED Descriptions
+        // of us-core-patient Profile and see the race has a USCoreRaceExtension in the race property.  Clicking on
+        // that absurd rabit whole brings you to the ACTUAL way that this field should be populated:
+        // @see http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-race.html
+        // what a frickin mess.
+        if (isset($dataRecord['race'])) {
+            // race is defined as containing 2 required extensions, text & ombCategory
+            $raceExtension = new FHIRExtension();
+            $raceExtension->setUrl("http://hl7.org/fhir/StructureDefinition/us-core-race");
+
+            $ombCategory = new FHIRExtension();
+            $ombCategory->setUrl("ombCategory");
+            $ombCategoryCoding = new FHIRCoding();
+            $ombCategoryCoding->setSystem(new FHIRUri("urn:oid:2.16.840.1.113883.6.238"));
+            $coding = new FHIRCoding();
+            $coding->setSystem(new FHIRUri("http://hl7.org/fhir/v3/Race"));
+            // 2106-3 is White
+            // 2076-8 is Native Hawaiian or Other Pacific Islander
+            // 2131-1 is Other Race
+            // 2054-5 is Black or African American
+            // 2028-9 is Asian
+            // 1002-5 is American Indian or Alaska Native
+            if ($dataRecord['race'] == 'amer_ind_or_alaska_native') {
+                $ombCategoryCoding->setCode("1002-5");
+                $ombCategoryCoding->setDisplay("American Indian or Alaska Native");
+            } else if ($dataRecord['race'] == 'white') {
+                $ombCategoryCoding->setCode("2106-3");
+                $ombCategoryCoding->setDisplay("White");
+            } else {
+                // TODO: this is just to pass for FHIR, we need to map whatever we track for race onto this.
+                // TODO: we need to populate these values
+            }
+            $ombCategory->setValueCoding($coding);
+            $raceExtension->addExtension($ombCategory);
+
+            $textExtension = new FHIRExtension();
+            $textExtension->setUrl("text");
+            $textExtension->setValueString(new FHIRString($ombCategoryCoding->getDisplay()));
+            $raceExtension->addExtension($textExtension);
+        }
+
+        // TODO: this is a required field, so not sure what we want to do if this is missing?
+        if (!empty($dataRecord['ethnicity'])) {
+            $ethnicityExtension = new FHIRExtension();
+            $ethnicityExtension->setUrl("http://hl7.org/fhir/StructureDefinition/us-core-ethnicity");
+            $coding = new FHIRCoding();
+            $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
+            $codeableConcept = new FHIRCodeableConcept();
+            // 2135-2 is Hispanic or Latino
+            // 2186-5 is Not Hispanic or Latino
+            if ($dataRecord['ethnicity'] != 'not_hisp_or_latin') {
+                $coding->setCode("2135-2");
+                $coding->setDisplay("Hispanic or Latino");
+                $codeableConcept->setText("Hispanic or Latino");
+            } else {
+                $coding->setCode("2186-5");
+                $coding->setDisplay("Not Hispanic or Latino");
+                $codeableConcept->setText("Not Hispanic or Latino");
+            }
+            $codeableConcept->addCoding($coding);
+            $ethnicityExtension->setValueCodeableConcept($codeableConcept);
+            $patientResource->addExtension($ethnicityExtension);
+        }
+
+        // Not sure what to do here but this is on the 2021 HL7 US Core page about SSN
+        // * The Patient’s Social Security Numbers SHOULD NOT be used as a patient identifier in Patient.identifier.value.
+        // There is increasing concern over the use of Social Security Numbers in healthcare due to the risk of identity
+        // theft and related issues. Many payers and providers have actively purged them from their systems and
+        // filter them out of incoming data.
+        // @see http://hl7.org/fhir/us/core/2021Jan/StructureDefinition-us-core-patient.html#FHIR-27731
         if (!empty($dataRecord['ss'])) {
             $patientResource->addIdentifier(
                 $this->createIdentifier(
@@ -230,6 +331,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 )
             );
         }
+
+        $communication = new FHIRPatientCommunication();
+        $languageConcept = new FHIRCodeableConcept();
+        $language = new FHIRCoding();
+        $language->setSystem(new FHIRUri("urn:ietf:bcp:47"));
+        // TODO: @bradymiller @sjpadget what should go here?  What should we pull from here?
+        $language->setCode(new FHIRCode('en-US'));
+        $language->setDisplay("English");
+        $languageConcept->addCoding($language);
+        $languageConcept->setText("English");
+        $communication->setLanguage($languageConcept);
+        $patientResource->addCommunication($communication);
 
         if ($encode) {
             return json_encode($patientResource);
