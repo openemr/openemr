@@ -1014,7 +1014,7 @@ class C_Document extends Controller
             }
 
             if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
-                $docdate = "'$docdate'";
+                $docdate = "$docdate";
             } else {
                 $docdate = "NULL";
             }
