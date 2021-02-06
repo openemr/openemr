@@ -99,6 +99,17 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                 appRegister.jwks_uri = document.querySelector("#jwksUri").value;
                 appRegister.jwks = document.querySelector("#jwks").value;
 
+                if (appRegister.jwks.trim() != "") {
+                    try {
+                        appRegister.jwks = JSON.parse(appRegister.jwks);
+                    }
+                    catch (error) {
+                        console.error(error);
+                        alert(<?php echo xlj("Your JWKS is invalid"); ?>);
+                        return;
+                    }
+                }
+
                 let scopes = [];
                 let scopeInputs =  document.querySelectorAll('input.app-scope:checked');
                 for (let scope of scopeInputs) {
