@@ -325,7 +325,7 @@ function getAuthPortalUsers()
                 $scope.htmlToText = function(html) {
                     const hold = document.createElement('DIV');
                     hold.innerHTML = html;
-                    return hold.textContent || hold.innerText || '';
+                    return jsText(hold.textContent || hold.innerText || '');
                 };
 
                 $scope.getInbox = function () {
@@ -602,10 +602,10 @@ function getAuthPortalUsers()
                         <div class="container-fluid" ng-show="isMessageSelected()">
                             <div class="row" ng-controller="messageCtrl">
                                 <div class="w-100 pl-1 mb-1 bg-secondary">
-                                    <h4 class="pt-2">
+                                    <h5 class="pt-2">
                                         <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation from'); ?></a>
                                         <strong>{{selected.sender_name}}</strong> <?php echo xlt('regarding'); ?> <strong>{{selected.title}}</strong> <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
-                                    </h4>
+                                    </h5>
                                     <span class="btn-group float-right">
                                         <button ng-show="selected.sender_id != cUserId" class="btn btn-primary" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose">
                                             <i class="fa fa-reply"></i> <?php echo xlt('Reply'); ?></button>
