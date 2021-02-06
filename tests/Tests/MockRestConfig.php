@@ -16,9 +16,14 @@ namespace OpenEMR\Tests;
 class MockRestConfig
 {
     public static $FHIR_ROUTE_MAP;
+    public static $exportEnabled = false;
 
     public static function reset()
     {
         self::$FHIR_ROUTE_MAP = [];
+    }
+
+    public static function isExportEnabled() {
+        return self::$exportEnabled;
     }
 }

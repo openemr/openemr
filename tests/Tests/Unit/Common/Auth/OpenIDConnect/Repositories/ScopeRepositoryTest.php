@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
 
 class ScopeRepositoryTest extends TestCase
@@ -23,7 +24,10 @@ class ScopeRepositoryTest extends TestCase
 
     public function setUp(): void
     {
-        $this->scopeRepository = new ScopeRepository();
+        $mock = new MockRestConfig();
+        $mock::$exportEnabled = true;
+
+        $this->scopeRepository = new ScopeRepository($mock);
 
         $noopCallback = function (){ };
         $standardResources = ['facility, patient'];
