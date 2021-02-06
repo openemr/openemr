@@ -23,7 +23,8 @@ class MockRestConfig
         self::$FHIR_ROUTE_MAP = [];
     }
 
-    public static function isExportEnabled() {
+    public static function isExportEnabled()
+    {
         return self::$exportEnabled;
     }
 }
