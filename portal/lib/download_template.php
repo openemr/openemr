@@ -4,7 +4,7 @@
  * Document Template Download Module.
  *
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Ruth Moulton
  * @link    http://www.open-emr.org
  */
 
@@ -378,6 +379,42 @@ function doSubs($s)
                 }
             }
             $s = keyReplace($s, dataFixup($data, $title));
+        } elseif (preg_match('/^{CurrentDate:?.*}/', substr($s, $keyLocation), $matches)) {
+            /* defaults to ISO standard date format yyyy-mm-dd
+             * modified by string following ':' as follows
+             * 'global' will use the global date format setting
+             * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' override the global setting
+             * anything else is ignored
+             *
+             * oeFormatShortDate($date = 'today', $showYear = true) - OpenEMR function to format
+             * date using global setting, defaults to ISO standard yyyy-mm-dd
+            */
+            $keyLength = strlen($matches[0]);
+            $matched = $matches[0];
+            $format = 'Y-m-d'; /* default yyyy-mm-dd */
+            $currentdate = '';
+            if (preg_match('/GLOBAL/i', $matched, $matches)) {
+                /* use global setting */
+                $currentdate = oeFormatShortDate(date('Y-m-d'), true);
+            } elseif (
+                /* there's an overiding format */
+                preg_match('/YYYY-MM-DD/i', $matched, $matches)
+            ) {
+                /* nothing to do here as this is the default format */
+            } elseif (preg_match('[MM/DD/YYYY]i', $matched, $matches)) {
+                $format = 'm/d/Y';
+            } elseif (preg_match('[DD/MM/YYYY]i', $matched, $matches)) {
+                $format = 'd/m/Y';
+            }
+
+            if (!$currentdate) {
+                $currentdate = date($format);  /* get the current date in specified format */
+            }
+            $s = keyReplace($s, dataFixup($currentdate, xl('Date')));
+        } elseif (keySearch($s, '{CurrentTime}')) {
+            $format = 'H:i';  /* 24 hour clock with leading zeros */
+            $currenttime = date($format); /* format to hh:mm for local time zone */
+            $s = keyReplace($s, dataFixup($currenttime, xl('Time')));
         }
     } // End if { character found.
 
