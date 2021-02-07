@@ -622,12 +622,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
+        $params = $_GET;
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirPatientRestController())->getOne($request->getPatientUUIDString());
+            //  Note in Patient context still have to return a bundle even if it is just one resource. (ie.
+            //   need to use getAll rather than getOne)
+            $params['_id'] = $request->getPatientUUIDString();
+            $return = (new FhirPatientRestController())->getAll($params, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "demo");
-            $return = (new FhirPatientRestController())->getAll($_GET);
+            $return = (new FhirPatientRestController())->getAll($params);
         }
         RestConfig::apiLog($return);
         return $return;

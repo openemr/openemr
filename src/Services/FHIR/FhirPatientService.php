@@ -368,12 +368,12 @@ class FhirPatientService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->patientService->getAll($openEMRSearchParameters, false);
+        return $this->patientService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
