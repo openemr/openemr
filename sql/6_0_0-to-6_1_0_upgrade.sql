@@ -125,11 +125,11 @@ CREATE UNIQUE INDEX `uuid` ON `insurance_companies` (`uuid`);
 ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfNotIndex insurance_data uuid
-CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
+#IfUuidNeedUpdate insurance_data
 #EndIf
 
-#IfUuidNeedUpdate insurance_data
+#IfNotIndex insurance_data uuid
+CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
 #EndIf
 
 #IfMissingColumn facility weno_id
