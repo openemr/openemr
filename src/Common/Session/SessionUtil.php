@@ -226,7 +226,6 @@ class SessionUtil
     {
         // Destroy the cookie
         $params = session_get_cookie_params();
-        // we need to track some of our cookie sessions here
         setcookie(
             session_name(),
             '',
