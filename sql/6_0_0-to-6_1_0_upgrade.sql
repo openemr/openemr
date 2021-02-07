@@ -109,6 +109,41 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
+#IfUuidNeedUpdate patient_data
+#EndIf
+
+#IfUuidNeedUpdate form_encounter
+#EndIf
+
+#IfUuidNeedUpdate users
+#EndIf
+
+#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#EndIf
+
+#IfUuidNeedUpdate facility
+#EndIf
+
+#IfUuidNeedUpdate immunizations
+#EndIf
+
+#IfUuidNeedUpdate lists
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfUuidNeedUpdateId procedure_result procedure_result_id
+#EndIf
+
+#IfUuidNeedUpdate ccda
+#EndIf
 
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
@@ -125,11 +160,11 @@ CREATE UNIQUE INDEX `uuid` ON `insurance_companies` (`uuid`);
 ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate insurance_data
-#EndIf
-
 #IfNotIndex insurance_data uuid
 CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate insurance_data
 #EndIf
 
 #IfMissingColumn facility weno_id
