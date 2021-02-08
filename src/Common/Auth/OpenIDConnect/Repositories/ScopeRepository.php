@@ -284,7 +284,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         // There really is no defined standard on how to handle SMART scopes for operations ($operation)
         // hopefully its defined in V2, but for now we are going to implement using the following scopes
         // @see https://chat.fhir.org/#narrow/stream/179170-smart/topic/SMART.20scopes.20and.20custom.20operations/near/156832330
-        if (isset($this->restConfig) && $this->restConfig->isExportEnabled()) {
+        if (isset($this->restConfig) && $this->restConfig->areSystemScopesEnabled()) {
             $requiredSmart[] = 'system/Patient.$export';
             $requiredSmart[] = 'system/Group.$export';
             $requiredSmart[] = 'system/*.$bulkdata-status';
@@ -400,7 +400,10 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/ServiceRequest.read"
         ];
 
-        return array_merge($permitted, $this->systemScopes());
+        if ($this->restConfig->areSystemScopesEnabled()) {
+            return array_merge($permitted, $this->systemScopes());
+        }
+        return $permitted;
     }
 
     public function systemScopes(): array

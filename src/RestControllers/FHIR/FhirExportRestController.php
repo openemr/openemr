@@ -20,6 +20,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -104,7 +105,7 @@ class FhirExportRestController
         $this->request = $request;
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
-        $this->isExportDisabled = !($this->request->getRestConfig()::isExportEnabled());
+        $this->isExportDisabled = !($this->request->getRestConfig()::areSystemScopesEnabled());
     }
 
     /**
@@ -128,7 +129,7 @@ class FhirExportRestController
         $since = $exportParams['_since'] ?? new \DateTime(date("Y-m-d H:i:s", 0)); // since epoch time
         $type = $exportParams['type'] ?? '';
         $groupId = $exportParams['groupId'] ?? null;
-        $resources = !empty($resources) ? explode(",", $type) : [];
+        $resources = !empty($type) ? explode(",", $type) : [];
 
         $this->logger->debug("FhirExportRestController->processExport() Patient export call made", [
             '_outputFormat' => $outputFormat,
@@ -159,15 +160,14 @@ class FhirExportRestController
             $job = $this->fhirExportJobService->createJobRequest($job);
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
-
-            // go through and run each of our FHIR resource controllers...
-            return $response;
+        } catch (AccessDeniedException $exception) {
+            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
+            $response->getBody()->write(json_encode($operationOutcome));
         } catch (InvalidExportHeaderException $header) {
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
-            // "'Accept' " . xlt("header invalid")
             $operationOutcome = $this->createOperationOutcomeError($header->getMessage());
             $response->getBody()->write(json_encode($operationOutcome));
-            return $response;
         } catch (\Exception $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
@@ -176,8 +176,8 @@ class FhirExportRestController
             $response = $this->createResponseForCode(StatusCode::INTERNAL_SERVER_ERROR);
             $operationOutcome = $this->createOperationOutcomeError(xlt("An internal server error occurred"));
             $response->getBody()->write(json_encode($operationOutcome));
-            return $response;
         }
+        return $response;
     }
 
     /**
@@ -486,6 +486,7 @@ class FhirExportRestController
      */
     private function isValidResource($resource, $exportType)
     {
+        $this->request->getRestConfig()::scope_check('system', $resource, 'read');
         $resourceRegistry = $this->getExportServiceRegistry();
         $service = $resourceRegistry[$resource] ?? null;
         if (isset($service)) {
@@ -512,12 +513,47 @@ class FhirExportRestController
      */
     private function getResourcesForRequest($resources = array())
     {
+        $approvedResources = [];
         $registry = $this->getExportServiceRegistry();
         $validResources = array_keys($registry);
+        // if no resources are sent we are supposed to return the resources that the client has access to in their
+        // access token
         if (empty($resources)) {
-            return $validResources;
+            foreach ($validResources as $resource) {
+                if ($this->hasAccessToResource($resource)) {
+                    $approvedResources[] = $resource;
+                }
+            }
+        } else {
+            $approvedResources = $resources;
+            // if they requested specifically a resource they do not have access to we will deny the request
+            foreach ($resources as $resource) {
+                if (!$this->hasAccessToResource($resource)) {
+                    throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does not grant access to resource ' . $resource);
+                }
+            }
         }
-        return $resources;
+        if (empty($approvedResources)) {
+            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does grant access to any supported system resources');
+        }
+        return $approvedResources;
+    }
+
+    /**
+     * Checks if the current user agent has access to the resource.
+     * @param $resource The resource being checked
+     * @return bool true if the user agent has access, false otherwise
+     */
+    private function hasAccessToResource($resource)
+    {
+
+        $permission = 'system/' . $resource . '.read';
+        $hasAccess = \in_array($permission, $this->request->getAccessTokenScopes());
+        $this->logger->debug(
+            "FhirExportRestController->hasAccessToResource() Checking resource access",
+            ['permission' => $permission, 'hasAccess' => $hasAccess]
+        );
+        return $hasAccess;
     }
 
     /**

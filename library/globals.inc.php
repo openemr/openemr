@@ -2961,11 +2961,11 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
-        'rest_fhir_export_api' => array(
-            xl('Enable OpenEMR Standard FHIR Export API (Recommended Off)'),
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
             'bool',
             '0',
-            xl('Enable OpenEMR Standard FHIR RESTful API.')
+            xl('Enable OpenEMR FHIR System Scopes.')
         ),
 
         'oauth_password_grant' => array(

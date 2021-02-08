@@ -25,7 +25,7 @@ class ScopeRepositoryTest extends TestCase
     public function setUp(): void
     {
         $mock = new MockRestConfig();
-        $mock::$exportEnabled = true;
+        $mock::$systemScopesEnabled = true;
 
         $this->scopeRepository = new ScopeRepository($mock);
 

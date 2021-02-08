@@ -301,18 +301,20 @@ class AuthorizationController
 
                 // don't allow system scopes without a jwk or jwks_uri value
                 if (
-                    strpos($params['scope'], 'system/') !== false
-                    && empty($params['jwks']) && empty($params['jwks_uri'])
+                    strpos($data['scope'], 'system/') !== false
+                    && empty($data['jwks']) && empty($data['jwks_uri'])
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
             // don't allow user & system scopes for public apps
             } else if (
-                strpos($params['scope'], 'system/') !== false
-                || strpos($params['scope'], 'user/') !== false
+                strpos($data['scope'], 'system/') !== false
+                || strpos($data['scope'], 'user/') !== false
             ) {
                 throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
+            $this->validateScopesAgainstServerApprovedScopes($data['scope']);
+
             foreach ($keys as $key => $supported_values) {
                 if (isset($data[$key])) {
                     if (in_array($key, array('contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'))) {
@@ -374,6 +376,27 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
+        }
+    }
+
+    /**
+     * Verifies that the scope string only has approved scopes for the system.
+     * @param $scopeString the space separated scope string
+     */
+    private function validateScopesAgainstServerApprovedScopes($scopeString)
+    {
+        $requestScopes = explode(" ", $scopeString);
+        if (empty($requestScopes)) {
+            return;
+        }
+
+        $scopeRepo = new ScopeRepository($this->restConfig);
+        $scopeRepo->setRequestScopes($scopeString);
+        foreach ($requestScopes as $scope) {
+            $validScope = $scopeRepo->getScopeEntityByIdentifier($scope);
+            if (empty($validScope)) {
+                throw OAuthServerException::invalidScope($scope);
+            }
         }
     }
 
