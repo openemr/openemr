@@ -467,7 +467,8 @@ class Document extends ORDataObject
      * OpenEMR installation media can be moved to other instances, to get the real filesystem path we use this method.
      * If the document is a couch db document this will return null;
      */
-    protected function get_filesystem_filepath() {
+    protected function get_filesystem_filepath()
+    {
         if ($this->get_storagemethod() === self::STORAGE_METHOD_COUCHDB) {
             return null;
         }
@@ -923,7 +924,8 @@ class Document extends ORDataObject
      * @return string  Returns false if the encryption failed, otherwise it returns a string
      * @throws RuntimeException If the data cannot be decrypted
      */
-    public function decrypt_content($data) {
+    public function decrypt_content($data)
+    {
         $cryptoGen = new CryptoGen();
         $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
         if ($decryptedData === false) {
@@ -938,7 +940,8 @@ class Document extends ORDataObject
      * @throws BadMethodCallException If you attempt to retrieve a document that is not stored on the file system
      * @throws RuntimeException if the filesystem file does not exist or content cannot be accessed.
      */
-    protected function get_content_from_filesystem() {
+    protected function get_content_from_filesystem()
+    {
         $path = $this->get_filesystem_filepath();
         if (empty($path)) {
             throw new BadMethodCallException("Attempted to retrieve the content from the filesystem for a file that uses a different storage mechanism");

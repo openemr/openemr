@@ -281,8 +281,9 @@ CREATE TABLE `export_job` (
 #EndIf
 
 #IfNotRow categories name FHIR Export Document
-INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FHIR Export Document', '', 1, rght, rght + 5, 'admin|super' from categories where name = 'Categories';
-UPDATE categories SET rght = rght + 1 WHERE name = 'Categories';
+SET @max_rght = (SELECT MAX(rght) FROM categories);
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FHIR Export Document', '', 1, @max_rght, @max_rght + 1, 'admin|super' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf
 

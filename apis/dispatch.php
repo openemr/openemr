@@ -184,7 +184,7 @@ if ($isLocalApi) {
         http_response_code(401);
         exit();
     }
-    // if we have no user id but we have a valid token it's because this is a client credentials system request.
+
     // collect user information and user role
     $uuidToUser = new UuidUserAccount($userId);
     $user = $uuidToUser->getUserAccount();
