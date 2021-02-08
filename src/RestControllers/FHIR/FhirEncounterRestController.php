@@ -33,11 +33,12 @@ class FhirEncounterRestController
     /**
      * Queries for a single FHIR encounter resource by FHIR id
      * @param $fhirId The FHIR encounter resource id (uuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirEncounterService->getOne($fhirId);
+        $processingResult = $this->fhirEncounterService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -47,11 +48,12 @@ class FhirEncounterRestController
      * - _id (euuid)
      * - patient (puuid)
      * - date {gt|lt|ge|le}
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirEncounterService->getAll($searchParams);
+        $processingResult = $this->fhirEncounterService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

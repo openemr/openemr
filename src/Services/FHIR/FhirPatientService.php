@@ -368,9 +368,10 @@ class FhirPatientService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
         return $this->patientService->getAll($openEMRSearchParameters, false);
     }

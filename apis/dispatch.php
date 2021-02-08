@@ -20,17 +20,20 @@ require_once("./../_rest_config.php");
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use Psr\Http\Message\ResponseInterface;
 
 $gbl = RestConfig::GetInstance();
+$restRequest = new HttpRestRequest($gbl, $_SERVER);
 $routes = array();
 
 // Parse needed information from Redirect or REQUEST_URI
 $resource = $gbl::getRequestEndPoint();
-$logger = SystemLogger::instance();
+$logger = new SystemLogger();
 $logger->debug("dispatch.php requested", ["resource" => $resource, "method" => $_SERVER['REQUEST_METHOD']]);
 
 $skipApiAuth = false;
@@ -76,6 +79,9 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
             $resource = str_replace('/' . $site, '', $resource);
         }
     }
+    // set our scopes and updated resources as needed
+    $restRequest->setAccessTokenScopes($scopes);
+
     // ensure 1) sane site 2) site from gbl and access token are the same and 3) ensure the site exists on filesystem
     if (empty($site) || empty($gbl::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', $gbl::$SITE) || ($site !== $gbl::$SITE) || !file_exists(__DIR__ . '/../sites/' . $gbl::$SITE)) {
         $logger->error("OpenEMR Error - api site error, so forced exit");
@@ -100,6 +106,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
         http_response_code(400);
         exit();
     }
+    $restRequest->setClientId($clientId);
+    $restRequest->setAccessTokenId($tokenId);
 
     // Get a site id from initial login authentication.
     $isLocalApi = false;
@@ -107,18 +115,25 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $ignoreAuth = true;
 }
 
+// set the route as well as the resource information.  Note $resource is actually the route and not the resource name.
+$restRequest->setRequestPath($resource);
+
 if (!$isLocalApi) {
     // Will start the api OpenEMR session/cookie.
     SessionUtil::apiSessionStart($gbl::$web_root);
 }
 
 $GLOBALS['is_local_api'] = $isLocalApi;
+$restRequest->setIsLocalApi($isLocalApi);
 
 // Set $sessionAllowWrite to true here for following reasons:
 //  1. !$isLocalApi - not applicable since use the SessionUtil::apiSessionStart session, which was set above
 //  2. $isLocalApi - in this case, basically setting this to true downstream after some session sets via session_write_close() call
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
+
+// recollect this so the DEBUG global can be used if set
+$logger = new SystemLogger();
 
 $gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
 
@@ -186,12 +201,13 @@ if ($isLocalApi) {
         http_response_code(400);
         exit();
     }
+    $restRequest->setRequestUser($userId, $user);
+    $restRequest->setRequestUserRole($userRole);
     // verify that the scope covers the route
     if (
         ($gbl::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
         ($gbl::is_fhir_request($resource) && !(in_array('api:fhir', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes']))) ||
-        ($gbl::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes'])) ||
-        ($gbl::is_portal_fhir_request($resource) && !(in_array('api:pofh', $GLOBALS['oauth_scopes']) || in_array('fhirUser', $GLOBALS['oauth_scopes'])))
+        ($gbl::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes']))
     ) {
         $logger->error("dispatch.php api call with token that does not cover the requested route");
         $gbl::destroySession();
@@ -201,11 +217,11 @@ if ($isLocalApi) {
     // ensure user role has access to the resource
     //  for now assuming:
     //   users has access to oemr and fhir
-    //   patient has access to port and pofh
+    //   patient has access to port and fhir
     if ($userRole == 'users' && ($gbl::is_api_request($resource) || $gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and user has access to api/fhir resource", ['resource' => $resource]);
         // good to go
-    } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_portal_fhir_request($resource))) {
+    } elseif ($userRole == 'patient' && ($gbl::is_portal_request($resource) || $gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
         // good to go
     } else {
@@ -228,8 +244,9 @@ if ($isLocalApi) {
         }
     } elseif ($userRole == 'patient') {
         $_SESSION['pid'] = $user['pid'] ?? null;
-        $_SESSION['puuid'] = $user['uuid'] ?? null;
-        if (empty($_SESSION['pid']) || empty($_SESSION['puuid'])) {
+        $puuidCheck = $user['uuid'] ?? null;
+        $puuidStringCheck = UuidRegistry::uuidToString($puuidCheck) ?? null;
+        if (empty($_SESSION['pid']) || empty($puuidCheck) || empty($puuidStringCheck)) {
             // this should never happen
             $logger->error("OpenEMR Error: api failed because unable to set critical patient session variables");
             $gbl::destroySession();
@@ -246,12 +263,12 @@ if ($isLocalApi) {
 }
 
 //Extend API using RestApiCreateEvent
-$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $gbl::$PORTAL_FHIR_ROUTE_MAP);
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $restRequest);
 $restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
 $gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
 $gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
 $gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
-$gbl::$PORTAL_FHIR_ROUTE_MAP = $restApiCreateEvent->getPortalFHIRRouteMap();
+$restRequest = $restApiCreateEvent->getRestRequest();
 
 // api flag must be four chars
 // Pass only routes for current api.
@@ -276,19 +293,6 @@ if ($gbl::is_fhir_request($resource)) {
     }
     $_SESSION['api'] = 'port';
     $routes = $gbl::$PORTAL_ROUTE_MAP;
-} elseif ($gbl::is_portal_fhir_request($resource)) {
-    if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
-        $logger->error(
-            "dispatch.php attempted to access resource with portal FHIR api turned off ",
-            ['resource' => $resource]
-        );
-        // if the external portal fhir api is turned off and this is not a local api call, then exit
-        $gbl::destroySession();
-        http_response_code(501);
-        exit();
-    }
-    $_SESSION['api'] = 'pofh';
-    $routes = $gbl::$PORTAL_FHIR_ROUTE_MAP;
 } elseif ($gbl::is_api_request($resource)) {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
         $logger->error(
@@ -313,6 +317,8 @@ if ($gbl::is_fhir_request($resource)) {
     exit();
 }
 
+$restRequest->setApiType($_SESSION['api']);
+
 if ($isLocalApi) {
     // Ensure that a local process does not hold up other processes
     //  Note can not do this for !$isLocalApi since need to be able to set
@@ -323,7 +329,7 @@ if ($isLocalApi) {
 // dispatch $routes called by ref (note storing the output in a variable to allow option
 //  to destroy the session/cookie before sending the output back)
 ob_start();
-$hasRoute = HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
+$hasRoute = HttpRestRouteHandler::dispatch($routes, $restRequest);
 $apiCallOutput = ob_get_clean();
 // Tear down session for security.
 if (!$isLocalApi) {

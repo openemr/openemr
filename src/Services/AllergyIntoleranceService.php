@@ -46,10 +46,11 @@ class AllergyIntoleranceService extends BaseService
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
 
         // Validating and Converting Patient UUID to PID
@@ -82,6 +83,19 @@ class AllergyIntoleranceService extends BaseService
             $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
         }
 
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValidPatient = $this->allergyIntoleranceValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
+
         $sqlBindArray = array();
         $sql = "SELECT lists.*,
         users.uuid as practitioner,
@@ -99,6 +113,10 @@ class AllergyIntoleranceService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' AND ';
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= '(';
+            }
             $whereClauses = array();
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
@@ -106,7 +124,17 @@ class AllergyIntoleranceService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= ") AND `patient`.`uuid` = ?";
+                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+            }
+        } elseif (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " AND `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
+
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -131,20 +159,31 @@ class AllergyIntoleranceService extends BaseService
      * Returns a single allergyIntolerance record by uuid.
      * @param $uuid - The allergyIntolerance uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
 
         $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
-
         if ($isValid !== true) {
             $validationMessages = [
                 'uuid' => ["invalid or nonexisting value" => " value " . $uuid]
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
+        }
+
+        if (!empty($puuidBind)) {
+            $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "patient_data", $puuidBind, true);
+            if ($isValid !== true) {
+                $validationMessages = [
+                    'puuid' => ["invalid or nonexisting value" => " value " . $uuid]
+                ];
+                $processingResult->setValidationMessages($validationMessages);
+                return $processingResult;
+            }
         }
 
         $sql = "SELECT lists.*,
@@ -162,19 +201,28 @@ class AllergyIntoleranceService extends BaseService
     WHERE type = 'allergy' AND lists.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
-            UuidRegistry::uuidToString($sqlResult['practitioner']) :
-            $sqlResult['practitioner'];
-        $sqlResult['organization'] = $sqlResult['organization'] ?
-            UuidRegistry::uuidToString($sqlResult['organization']) :
-        $sqlResult['organization'];
-        if ($sqlResult['diagnosis'] != "") {
-            $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
+        $sqlBindArray = [$uuidBinary];
+
+        if (!empty($puuidBind)) {
+            $sql .= " AND `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
-        $processingResult->addData($sqlResult);
+
+        $sqlResult = sqlQuery($sql, $sqlBindArray);
+        if (!empty($sqlResult)) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+            $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
+                UuidRegistry::uuidToString($sqlResult['practitioner']) :
+                $sqlResult['practitioner'];
+            $sqlResult['organization'] = $sqlResult['organization'] ?
+                UuidRegistry::uuidToString($sqlResult['organization']) :
+                $sqlResult['organization'];
+            if ($sqlResult['diagnosis'] != "") {
+                $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
+            }
+            $processingResult->addData($sqlResult);
+        }
         return $processingResult;
     }
 

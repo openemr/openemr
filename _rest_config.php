@@ -21,6 +21,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
@@ -41,9 +42,6 @@ class RestConfig
 
     /** @var portal routemap is an  of patterns and routes */
     public static $PORTAL_ROUTE_MAP;
-
-    /** @var portal fhir routemap is an  of patterns and routes */
-    public static $PORTAL_FHIR_ROUTE_MAP;
 
     /** @var app root is the root directory of the application */
     public static $APP_ROOT;
@@ -195,7 +193,7 @@ class RestConfig
 
     public static function verifyAccessToken()
     {
-        $logger = SystemLogger::instance();
+        $logger = new SystemLogger();
         $response = self::createServerResponse();
         $request = self::createServerRequest();
         $server = new ResourceServer(
@@ -306,9 +304,14 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
+                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
                 http_response_code(401);
                 exit;
             }
+        } else {
+            (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
+            http_response_code(401);
+            exit;
         }
     }
 
@@ -330,11 +333,6 @@ class RestConfig
     public static function is_portal_request($resource): bool
     {
         return stripos(strtolower($resource), "/portal/") !== false;
-    }
-
-    public static function is_portal_fhir_request($resource): bool
-    {
-        return stripos(strtolower($resource), "/portalfhir/") !== false;
     }
 
     public static function is_api_request($resource): bool

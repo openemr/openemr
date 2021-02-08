@@ -27,7 +27,6 @@ use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -53,6 +52,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
@@ -63,6 +63,8 @@ use RuntimeException;
 class AuthorizationController
 {
     use CryptTrait;
+
+    const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -78,6 +80,11 @@ class AuthorizationController
     private $userId;
 
     /**
+     * @var SMARTAuthorizationController
+     */
+    private $smartAuthController;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -85,7 +92,7 @@ class AuthorizationController
     public function __construct($providerForm = true)
     {
         $gbl = \RestConfig::GetInstance();
-        $this->logger = SystemLogger::instance();
+        $this->logger = new SystemLogger();
 
         $this->siteId = $_SESSION['site_id'] ?? $gbl::$SITE;
         $this->authBaseUrl = $GLOBALS['webroot'] . '/oauth2/' . $this->siteId;
@@ -100,6 +107,13 @@ class AuthorizationController
         $this->configKeyPairs();
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
+
+        $this->smartAuthController = new SMARTAuthorizationController(
+            $this->logger,
+            $this->authBaseFullUrl,
+            $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
+            __DIR__ . "/../../oauth2/"
+        );
     }
 
     private function configKeyPairs(): void
@@ -374,7 +388,7 @@ class AuthorizationController
         // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
         // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
-        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port api:pofh';
+        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
 
         // if a public app requests the launch scope we also do not let them through unless they've been manually
         // authorized by an administrator user.
@@ -538,7 +552,10 @@ class AuthorizationController
                 exit;
             }
         } catch (OAuthServerException $exception) {
-            $this->logger->error("AuthorizationController->oauthAuthorizationFlow() OAuthServerException", ["message" => $exception->getMessage()]);
+            $this->logger->error(
+                "AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
         } catch (Exception $exception) {
@@ -571,6 +588,16 @@ class AuthorizationController
         $this->logger->debug("AuthorizationController->getAuthorizationServer() creating server");
         $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
 
+        if (empty($this->grantType)) {
+            $this->grantType = 'authorization_code';
+        }
+
+        // responseType is cloned inside the league auth server so we have to handle changes here before we send
+        // into the $authServer the $responseType
+        if ($this->grantType === 'authorization_code') {
+            $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
+        }
+
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -579,9 +606,7 @@ class AuthorizationController
             $this->oaEncryptionKey,
             $responseType
         );
-        if (empty($this->grantType)) {
-            $this->grantType = 'authorization_code';
-        }
+
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
             $grant = new AuthCodeGrant(
@@ -589,6 +614,12 @@ class AuthorizationController
                 new RefreshTokenRepository(),
                 new \DateInterval('PT1M') // auth code. should be short turn around.
             );
+
+            // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
+            // Smart V2 http://build.fhir.org/ig/HL7/smart-app-launch/ will require PKCE with the code_challenge_method
+            // Note: this was true as of January 18th 2021
+            $grant->disableRequireCodeChallengeForPublicClients();
+
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
                 $grant,
@@ -661,7 +692,7 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
 
-        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_portal_fhir_api']));
+        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_fhir_api']));
 
         if (empty($_POST['username']) && empty($_POST['password'])) {
             $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");
@@ -735,9 +766,49 @@ class AuthorizationController
         $user->setIdentifier($_SESSION['user_id']);
         $_SESSION['claims'] = $user->getClaims();
         $oauthLogin = true;
-        $redirect = $this->authBaseUrl . "/device/code";
+        // need to redirect to patient select if we have a launch context && this isn't a patient login
         $authorize = 'authorize';
-        require_once(__DIR__ . "/../../oauth2/provider/login.php");
+
+        // if we need to authorize any smart context as part of our OAUTH handler we do that here
+        // otherwise we send on to our scope authorization confirm.
+        if ($this->smartAuthController->needSmartAuthorization()) {
+            $redirect = $this->authBaseFullUrl . $this->smartAuthController->getSmartAuthorizationPath();
+        } else {
+            $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
+        }
+        $this->logger->debug("AuthorizationController->userLogin() complete redirecting", ["scopes" => $_SESSION['scopes']
+            , 'claims' => $_SESSION['claims'], 'redirect' => $redirect]);
+
+        header("Location: $redirect");
+        exit;
+    }
+
+    public function scopeAuthorizeConfirm()
+    {
+
+        // show our scope auth piece
+        $oauthLogin = true;
+        $redirect = $this->authBaseUrl . "/device/code";
+        require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
+    }
+
+    /**
+     * Checks if we are in a SMART authorization endpoint
+     * @param $end_point
+     * @return bool
+     */
+    public function isSMARTAuthorizationEndPoint($end_point)
+    {
+        return $this->smartAuthController->isValidRoute($end_point);
+    }
+
+    /**
+     * Route handler for any SMART authorization contexts that we need for OpenEMR
+     * @param $end_point
+     */
+    public function dispatchSMARTAuthorizationEndpoint($end_point)
+    {
+        return $this->smartAuthController->dispatchRoute($end_point);
     }
 
     private function verifyLogin($username, $password, $email = '', $type = 'api'): bool
@@ -789,6 +860,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
         try {
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $_POST['scope']);
             $server = $this->getAuthorizationServer();
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
@@ -835,6 +907,25 @@ class AuthorizationController
         }
     }
 
+    private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes)
+    {
+        $requestScopes = $request->getScopes();
+        $scopeUpdates = [];
+        // we only allow scopes from the original session request, if user approved scope it will show up here.
+        foreach ($requestScopes as $scope) {
+            if (isset($approvedScopes[$scope->getIdentifier()])) {
+                $scopeUpdates[] = $scope;
+            }
+        }
+        $this->logger->debug(
+            "AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
+            ['updatedScopes' => $scopeUpdates]
+        );
+
+        $request->setScopes($scopeUpdates);
+        return $request;
+    }
+
     private function deserializeUserSession(): AuthorizationRequest
     {
         $authRequest = new AuthorizationRequest();
@@ -864,6 +955,7 @@ class AuthorizationController
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
         } catch (Exception $e) {
+            // TODO: @adunsulag check with @sjpadgett was just echoing the exception what you wanted to happen here?
             echo $e;
         }
 

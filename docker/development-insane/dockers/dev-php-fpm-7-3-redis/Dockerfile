@@ -22,7 +22,7 @@ RUN apt-get install -y mariadb-client \
                        imagemagick
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
-ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions pdo_mysql \
                            ldap \

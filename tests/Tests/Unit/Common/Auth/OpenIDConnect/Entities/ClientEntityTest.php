@@ -23,7 +23,7 @@ class ClientEntityTest extends TestCase
     public function testHasScope()
     {
         $client = new ClientEntity();
-        $client->setScopes('openid email phone address launch api:oemr api:fhir api:port api:pofh');
+        $client->setScopes('openid email phone address launch api:oemr api:fhir api:port');
 
         $this->assertFalse($client->hasScope("bacon"), "invalid scope should not return true");
         $this->assertTrue($client->hasScope("launch"), "launch scope should have been found");

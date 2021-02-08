@@ -11,7 +11,6 @@ endpoint to the OpenEMR FHIR controller which handles the request, and also hand
 
 ```php
 "GET /fhir/Patient" => function () {
-    RestConfig::scope_check("user", "Patient", "read");
     RestConfig::authorization_check("patients", "demo");
     $return = (new FhirPatientRestController())->getAll($_GET);
     RestConfig::apiLog($return);
@@ -59,8 +58,6 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [Location](FHIR_README.md#location-resource)
     -   [CareTeam](FHIR_README.md#careTeam-resource)
     -   [Provenance](FHIR_README.md#Provenance-resources)
--   [Patient Portal FHIR API Endpoints](FHIR_README.md#patient-portal-fhir-endpoints)
-    -   [Patient](FHIR_README.md#patient-portal-patient-resource)
 
 ### Prerequisite
 
@@ -605,36 +602,3 @@ Provenance resources are requested by including `_revinclude=Provenance:target` 
       ```sh
       curl -X GET 'http://localhost:8300/apis/default/fhir/AllergyIntolerance?_revinclude=Provenance:target'
       ```
-
-## Patient Portal FHIR Endpoints
-
-This is under development and is considered EXPERIMENTAL.
-
-Enable the Patient Portal FHIR service (/portalfhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal FHIR REST API (EXPERIMENTAL)"
-
-OpenEMR patient portal fhir endpoints Use `http://localhost:8300/apis/default/portalfhir as base URI.`
-
-Note that the `default` component can be changed to the name of the site when using OpenEMR's multisite feature.
-
-_Example:_ `http://localhost:8300/apis/default/portalfhir/Patient` returns a resource of the patient.
-
-The Bearer token is required for each OpenEMR FHIR request (except for the Capability Statement), and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the [Authorization](API_README.md#authorization) section.
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/default/portalfhir/Patient' \
-  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
-```
-
----
-
-### Patient Portal Patient Resource
-
-#### GET /portalfhir/Patient
-
-Request:
-
-```sh
-curl -X GET 'http://localhost:8300/apis/default/portalfhir/Patient'
-```

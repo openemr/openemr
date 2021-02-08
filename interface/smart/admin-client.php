@@ -21,15 +21,15 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use OpenEMR\Common\Logging\SystemLogger;
 
-$router = new ClientAdminController(new ClientRepository(), SystemLogger::instance(), 'admin-client.php');
+$router = new ClientAdminController(new ClientRepository(), new SystemLogger(), 'admin-client.php');
 try {
     $router->dispatch(($_REQUEST['action'] ?? null), $_REQUEST);
 } catch (CsrfInvalidException $exception) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
-    SystemLogger::instance()->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
 } catch (Exception $exception) {
-    SystemLogger::instance()->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (new SystemLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

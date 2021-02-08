@@ -15,11 +15,37 @@ use Throwable;
 
 class AccessDeniedException extends \Exception
 {
+    /**
+     * @var string
+     */
+    private $requiredSection;
+
+    /**
+     * @var string;
+     */
+    private $subCategory;
+
     public function __construct($requiredSection, $subCategory = '', $message = "", $code = 0, Throwable $previous = null)
     {
         if (empty($message)) {
             $message = xlt('ACL check failed');
         }
         parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequiredSection(): string
+    {
+        return $this->requiredSection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubCategory(): string
+    {
+        return $this->subCategory;
     }
 }

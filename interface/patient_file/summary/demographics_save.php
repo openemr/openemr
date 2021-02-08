@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-
+global $pid;
 // Check authorization.
 if ($pid) {
     if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {

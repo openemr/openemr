@@ -1365,7 +1365,22 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default
             xl('Enable percent-based price levels')
-        )
+        ),
+
+        'gen_x12_based_on_ins_co' => array(
+            xl('Generate X-12 Based On Insurance Company'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For sending claims directly to insurance company, based on X12 Partner Settings')
+        ),
+
+        'auto_sftp_claims_to_x12_partner' => array(
+            xl('Automatically SFTP Claims To X12 Partner'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For automatically sending claims that are generated in EDI directory to the X12 partner using SFTP credentials X12 Partner Settings')
+        ),
+
     ),
 
     // E-Sign Tab
@@ -2946,13 +2961,6 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
-        'rest_portal_fhir_api' => array(
-            xl('Enable OpenEMR Patient Portal FHIR REST API (EXPERIMENTAL)'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
-        ),
-
         'oauth_password_grant' => array(
             xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(
@@ -2963,6 +2971,13 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
+        ),
+
+        'cc_front_payments' => array(
+            xl('Accept Credit Card transactions from Front Payments'),
+            'bool',
+            '0',
+            xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
         ),
 
         'payment_gateway' => array(

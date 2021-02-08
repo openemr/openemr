@@ -3,6 +3,13 @@
 /**
  * class X12Partner
  *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
@@ -12,6 +19,7 @@ class X12Partner extends ORDataObject
 
     var $id;
     var $name;
+    var $x12_submitter_name; // Submitter name for TPA
     var $id_number;
     var $x12_isa01; //
     var $x12_isa02; //
@@ -30,6 +38,14 @@ class X12Partner extends ORDataObject
     var $processing_format;
     var $processing_format_array;
     var $x12_gs03; // Application Sender's Code. If this isn't set then we will use the $x12_receiver_id(ISA08).
+
+    //for submitting claims via sftp
+    var $x12_sftp_login;
+    var $x12_sftp_pass;
+    var $x12_sftp_host;
+    var $x12_sftp_port;
+    var $x12_sftp_local_dir;
+    var $x12_sftp_remote_dir;
 
     /**
      * Constructor sets all Insurance attributes to their default value
@@ -83,6 +99,81 @@ class X12Partner extends ORDataObject
     function get_name()
     {
         return $this->name;
+    }
+
+    function get_x12_submitter_name()
+    {
+        return $this->x12_submitter_name;
+    }
+
+    function set_x12_submitter_name($string)
+    {
+        $this->x12_submitter_name = $string;
+    }
+
+    /**
+     * SFTP credentials for direct submit to x-12 partners.
+     *
+     * @param $string
+     */
+    function set_x12_sftp_login($string)
+    {
+        $this->x12_sftp_login = $string;
+    }
+
+    function get_x12_sftp_login()
+    {
+        return $this->x12_sftp_login;
+    }
+
+    function set_x12_sftp_pass($string)
+    {
+        $this->x12_sftp_pass = $string;
+    }
+
+    function get_x12_sftp_pass()
+    {
+        return $this->x12_sftp_pass;
+    }
+
+    function set_x12_sftp_host($string)
+    {
+        $this->x12_sftp_host = $string;
+    }
+
+    function get_x12_sftp_host()
+    {
+        return $this->x12_sftp_host;
+    }
+
+    function set_x12_sftp_port($string)
+    {
+        $this->x12_sftp_port = $string;
+    }
+
+    function get_x12_sftp_port()
+    {
+        return $this->x12_sftp_port;
+    }
+
+    function set_x12_sftp_local_dir($string)
+    {
+        $this->x12_sftp_local_dir = $string;
+    }
+
+    function get_x12_sftp_local_dir()
+    {
+        return $this->x12_sftp_local_dir;
+    }
+
+    function set_x12_sftp_remote_dir($string)
+    {
+        $this->x12_sftp_remote_dir = $string;
+    }
+
+    function get_x12_sftp_remote_dir()
+    {
+        return $this->x12_sftp_remote_dir;
     }
 
     function set_name($string)

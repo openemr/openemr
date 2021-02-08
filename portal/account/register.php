@@ -90,6 +90,8 @@ if ($GLOBALS['language_menu_login']) {
     <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-register']); ?>
 
     <script>
+        var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
+        top.webroot_url = webRoot;
         var newPid = 0;
         var curPid = 0;
         var provider = 0;
@@ -210,9 +212,9 @@ if ($GLOBALS['language_menu_login']) {
             // this time using the profile data that will be saved as new patient.
             // callserver will intercept on fail or silence to continue.
             let stillNew = callServer('get_newpid', '',
-                encodeURIComponent(profile.find('input#fname').val()),
-                encodeURIComponent(profile.find('input#lname').val()),
                 encodeURIComponent(profile.find('input#dob').val()),
+                encodeURIComponent(profile.find('input#lname').val()),
+                encodeURIComponent(profile.find('input#fname').val()),
                 encodeURIComponent(profile.find('input#email').val()));
                 if (isValid) {
                     provider = profile.find('select#providerid').val();
@@ -235,7 +237,7 @@ if ($GLOBALS['language_menu_login']) {
                     // we can still use update here if we want to allow changing passwords.
 
                     // save the new patient.
-                    document.getElementById('profileFrame').contentWindow.page.updateModel(1);
+                    document.getElementById('profileFrame').contentWindow.postMessage({submitForm: true}, window.location.origin);
                     $("#insuranceForm").submit();
                     //  cleanup is in callServer done promise. This starts end session.
                 }

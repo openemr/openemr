@@ -81,15 +81,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 ?>
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
-<style>
-    /* TODO: Find a way to remove this stylesheet */
-    .form-control {
-        width: auto;
-        display: inline;
-        height: auto;
-    }
-</style>
-
 <?php include_once($GLOBALS['srcdir'] . "/options.js.php"); ?>
 
 <script>
