@@ -18,7 +18,7 @@ use OpenEMR\Validators\BaseValidator;
 
 class PrescriptionService extends BaseService
 {
-
+    private const DRUGS_TABLE = "drugs";
     private const PRESCRIPTION_TABLE = "prescriptions";
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
@@ -36,6 +36,7 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
     }
 
     /**
@@ -96,6 +97,7 @@ class PrescriptionService extends BaseService
             $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
+            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
             $processingResult->addData($row);
         }
 
@@ -121,6 +123,9 @@ class PrescriptionService extends BaseService
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
         }
+
+        $puuidbytes = UuidRegistry::uuidToBytes($puuid);
+
         $sql = "SELECT 
                 prescription.id,
                 prescription.uuid,
