@@ -122,6 +122,47 @@ function sqlStatement($statement, $binds = false)
 }
 
 /**
+ * Standard sql query in OpenEMR.
+ *
+ * Function that will allow use of the adodb binding
+ * feature to prevent sql-injection. Will continue to
+ * be compatible with previous function calls that do
+ * not use binding.
+ * It will return a recordset object.
+ * The sqlFetchArray() function should be used to
+ * utilize the return object.
+ *
+ * @param  string  $statement  query
+ * @param  array   $binds      binded variables array (optional)
+ * @return recordset
+ */
+function sqlStatementThrowException($statement, $binds = false)
+{
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
+    }
+
+    //Run a adodb execute
+    // Note the auditSQLEvent function is embedded in the
+    //   Execute function.
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+    if ($recordset === false) {
+        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError());
+    }
+}
+
+/**
+ * Return the last inserted sql id for a query.
+ * @return int
+ */
+function sqlGetLastInsertId() {
+    // Return the correct last id generated using function
+    //   that is safe with the audit engine.
+    return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+}
+
+/**
 * Specialized sql query in OpenEMR that skips auditing.
 *
 * Function that will allow use of the adodb binding

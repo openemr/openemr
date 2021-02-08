@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -82,7 +83,8 @@ class FhirExportJobService
      * Given an export job, save it to the database
      * @param ExportJob $job The job to save
      * @return ExportJob the saved job
-     * @throws \RuntimeException if the job fails to save
+     * @throws \RuntimeException if the job id fails to retrieve
+     * @throws SqlQueryException If there is a sql error saving the request
      */
     public function createJobRequest(ExportJob $job)
     {
@@ -103,17 +105,15 @@ class FhirExportJobService
         $params = [$job->getUuid(), $startTime, $resourceIncludeTime
             , $job->getOutputFormat(), $job->getResourcesString(), $job->getClientId(), $job->getUserId()
             , $job->getAccessTokenId(), $job->getStatus(), $job->getRequestURI()];
-        // TODO: @bradymiller is there a different function we can call that will NOT kill execution if the insert fails?
-        // for an API caller we'd rather throw an exception or something else rather than just dying so we can communicate
-        // back to the caller that something went wrong.
 
-        $ret = sqlInsert($sql, $params);
-        if (!is_int($ret)) {
+        sqlStatementThrowException($sql, $params);
+        $id = sqlGetLastInsertId();
+        if (!is_int($id)) {
             $params[0] = $job->getUuidString(); // so we don't spit out the binary value
-            $this->logger->error("Failed to save ExportJob", ['ret' => $ret, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
+            $this->logger->error("Failed to save ExportJob", ['ret' => $id, 'sql' => $sql, 'params' => $params, 'sqlError' => getSqlLastError()]);
             throw new \RuntimeException("Failed to save ExportJob");
         } else {
-            $job->setId($ret);
+            $job->setId($id);
         }
         return $job;
     }
