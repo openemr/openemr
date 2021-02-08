@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SqlQueryException is thrown when a sql statement error has occurred and allows the system to catch and handle the
  * problem.
@@ -11,7 +12,6 @@
 
 namespace OpenEMR\Common\Database;
 
-
 use Throwable;
 
 class SqlQueryException extends \RuntimeException
@@ -21,7 +21,7 @@ class SqlQueryException extends \RuntimeException
      */
     private $sqlStatement;
 
-    public function __construct($sqlStatement="", $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($sqlStatement = "", $message = "", $code = 0, Throwable $previous = null)
     {
         $this->sqlStatement = $sqlStatement;
         parent::__construct($message, $code, $previous);

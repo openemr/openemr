@@ -33,10 +33,9 @@ class TrustedUserServiceTest extends TestCase
     }
 
     /**
-     * We had api authorization issues where null user id's were not returning as trusted user's
-     * so this test makes sure that a client with a null
+     * Verify api authorization with a valid user uuid
      */
-    public function testIsTrustedUserWithNullUserId()
+    public function testIsTrustedUserWithUserId()
     {
         $userUuid = (new UserService())->getSystemUser()['uuid'];
         $clientId = Uuid::uuid4()->toString();
@@ -54,12 +53,12 @@ class TrustedUserServiceTest extends TestCase
 
 
         $trustedUser = $service->getTrustedUserByCode($code);
-        $this->assertNotEmpty($trustedUser, "Trusted user should have saved with null user id");
+        $this->assertNotEmpty($trustedUser, "Trusted user should have saved with valid user uuid");
 
         // now check to make sure our user is trusted
         $isTrusted = $service->isTrustedUser($clientId, $userUuid);
 
-        $this->assertEquals(true, $isTrusted, "Client with null user id should be trusted");
+        $this->assertEquals(true, $isTrusted, "Client with valid user uuid should be trusted");
     }
 
     public function testSaveTrustedUserThrowsExceptionIfInvalidUserId()
