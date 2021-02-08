@@ -263,7 +263,7 @@ INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
 #IfNotTable
 CREATE TABLE `export_job` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL ,
   `user_id` varchar(40) NOT NULL,
   `client_id` varchar(80) NOT NULL,
   `status` varchar(40) NOT NULL,
@@ -275,7 +275,8 @@ CREATE TABLE `export_job` (
   `output` text,
   `errors` text,
   `access_token_id` text,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE (`uuid`)
 ) ENGINE=InnoDB COMMENT='fhir export jobs';
 #EndIf
 
