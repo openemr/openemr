@@ -288,5 +288,5 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf
 
 #IfMissingColumn documents date_expires
-ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL AFTER `date`;
+ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL;
 #EndIf
