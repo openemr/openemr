@@ -53,7 +53,12 @@ class UserService
     public function getSystemUser()
     {
         $user = $this->getUserByUsername(self::SYSTEM_USER_USERNAME);
+
         if (!empty($user)) {
+            if (empty($user['uuid'])) {
+                // we should always have this setup, but create them just in case.
+                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+            }
             // convert to a string value here
             $user['uuid'] = UuidRegistry::uuidToString($user['uuid']);
         }
