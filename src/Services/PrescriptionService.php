@@ -95,6 +95,7 @@ class PrescriptionService extends BaseService
             $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
+            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
             if ($row['rxnorm_drugcode'] != "") {
                 $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
             }
