@@ -36,7 +36,7 @@ class RestControllerHelper
     /**
      * The resource endpoint names we want to skip over.
      */
-    const IGNORE_ENDPOINT_RESOURCES = ['.well-known', 'metadata', 'auth'];
+    const IGNORE_ENDPOINT_RESOURCES = ['.well-known', 'metadata'];
 
     /**
      * The default FHIR services class namespace
