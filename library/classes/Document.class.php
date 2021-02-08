@@ -296,7 +296,6 @@ class Document extends ORDataObject
      */
     public function process_deleted()
     {
-        // TODO: @bradymiller is this the correct way in the system to delete documents? Do we remove the underlying file?
         $this->deleted = 1;
         $this->persist();
     }
@@ -462,6 +461,36 @@ class Document extends ORDataObject
     function get_url_filepath()
     {
         return preg_replace("|^(.*)://|", "", $this->url);
+    }
+
+    /**
+     * OpenEMR installation media can be moved to other instances, to get the real filesystem path we use this method.
+     * If the document is a couch db document this will return null;
+     */
+    protected function get_filesystem_filepath() {
+        if ($this->get_storagemethod() === self::STORAGE_METHOD_COUCHDB) {
+            return null;
+        }
+        //change full path to current webroot.  this is for documents that may have
+        //been moved from a different filesystem and the full path in the database
+        //is not current.  this is also for documents that may of been moved to
+        //different patients. Note that the path_depth is used to see how far down
+        //the path to go. For example, originally the path_depth was always 1, which
+        //only allowed things like documents/1/<file>, but now can have more structured
+        //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+        // etc.
+        // NOTE that $from_filename and basename($url) are the same thing
+        $filepath = $this->get_url_filepath();
+        $from_all = explode("/", $filepath);
+        $from_filename = array_pop($from_all);
+        $from_pathname_array = array();
+        for ($i = 0; $i < $this->get_path_depth(); $i++) {
+            $from_pathname_array[] = array_pop($from_all);
+        }
+        $from_pathname_array = array_reverse($from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
+        $filepath = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        return $filepath;
     }
     /**
     * get the url filename only
@@ -846,13 +875,13 @@ class Document extends ORDataObject
     }
 
     /**
-     * Retrieves the document data that has been saved to the filesystem or couch db.  If the $decrypt flag is set to
-     * true, it will return the unencrypted version of the data for the document.
-     * @param bool $decrypt True if the document should be decrypted, false otherwise
+     * Retrieves the document data that has been saved to the filesystem or couch db.  If the $force_no_decrypt flag is
+     * set to true, it will return the encrypted version of the data for the document.
+     * @param bool $force_no_decrypt True if the document should have its data returned encrypted, false otherwise
      * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted or expired
      * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts or is unencrypted.
      */
-    function get_data($decrypt = false)
+    function get_data($force_no_decrypt = false)
     {
         $storagemethod = $this->get_storagemethod();
 
@@ -863,28 +892,65 @@ class Document extends ORDataObject
             throw new BadMethodCallException("Should not attempt to retrieve data from deleted documents");
         }
 
+        $base64Decode = false;
+
         if ($storagemethod === self::STORAGE_METHOD_COUCHDB) {
+            $base64Decode = true;
             // Taken from ccr/display.php
             $couch_docid = $this->get_couch_docid();
             $couch_revid = $this->get_couch_revid();
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($couch_docid);
-            $data = base64_decode($resp->data);
+            $data = $resp->data;
         } else {
-            $filepath  = $this->get_url_filepath();
-            if (!file_exists($filepath)) {
-                throw new RuntimeException("Saved filepath does not exist at location " . $filepath);
-            }
-            $data = file_get_contents($filepath);
+            $data = $this->get_content_from_filesystem();
         }
 
-        if (!empty($data) && $decrypt && $this->is_encrypted()) {
-            $cryptoGen = new CryptoGen();
-            $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
-            return $decryptedData;
-        } else {
-            return $data;
+        if (!empty($data)) {
+            if ($this->is_encrypted() && !$force_no_decrypt) {
+                $data = $this->decrypt_content($data);
+            }
+            if ($base64Decode) {
+                $data = base64_decode($data);
+            }
         }
+        return $data;
+    }
+
+    /**
+     * Given a document data contents it decrypts the document data
+     * @param $data The data that needs to be decrypted
+     * @return string  Returns false if the encryption failed, otherwise it returns a string
+     * @throws RuntimeException If the data cannot be decrypted
+     */
+    public function decrypt_content($data) {
+        $cryptoGen = new CryptoGen();
+        $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
+        if ($decryptedData === false) {
+            throw new RuntimeException("Failed to decrypt the data");
+        }
+        return $decryptedData;
+    }
+
+    /**
+     * Returns the content from the filesystem for this document
+     * @return string
+     * @throws BadMethodCallException If you attempt to retrieve a document that is not stored on the file system
+     * @throws RuntimeException if the filesystem file does not exist or content cannot be accessed.
+     */
+    protected function get_content_from_filesystem() {
+        $path = $this->get_filesystem_filepath();
+        if (empty($path)) {
+            throw new BadMethodCallException("Attempted to retrieve the content from the filesystem for a file that uses a different storage mechanism");
+        }
+        if (!file_exists($path)) {
+            throw new RuntimeException("Saved filepath does not exist at location " . $path);
+        }
+        $data = file_get_contents($path);
+        if ($data === false) {
+            throw new RuntimeException("The data could not be retrieved for the file at " . $path . " Check that access rights to the file have been granted");
+        }
+        return $data;
     }
 
   /**

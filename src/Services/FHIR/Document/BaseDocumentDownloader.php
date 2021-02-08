@@ -58,8 +58,7 @@ class BaseDocumentDownloader implements IDocumentDownloader
         // improving memory performance
         // @see Psr\Http\Message\StreamInterface
 
-        $decrypt = true; // decrypt the data if its been encrypted
-        $documentData = $document->get_data($decrypt);
+        $documentData = $document->get_data();
         $psr17 = new Psr17Factory();
 
         // when creating a stream from a string for some reason we have to rewind to the beginning of the stream
