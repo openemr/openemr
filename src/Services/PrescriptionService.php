@@ -36,7 +36,7 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
+        //(new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
     }
 
     /**
@@ -97,7 +97,7 @@ class PrescriptionService extends BaseService
             $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
+            //$row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
             $processingResult->addData($row);
         }
 
@@ -124,8 +124,6 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        $puuidbytes = UuidRegistry::uuidToBytes($puuid);
-
         $sql = "SELECT 
                 prescription.id,
                 prescription.uuid,
@@ -147,10 +145,15 @@ class PrescriptionService extends BaseService
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
+        $puuidBytes = $this->getUuidById($sqlResult['patient_id'], self::PATIENT_TABLE, "id");
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+        $sqlResult['puuid'] = UuidRegistry::uuidToString($puuidBytes);
         $sqlResult['euuid'] = $sqlResult['euuid'] != null ? UuidRegistry::uuidToString($sqlResult['euuid']) : $sqlResult['euuid'];
         $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
+        if ($sqlResult['rxnorm_drugcode'] != "") {
+            $sqlResult['rxnorm_drugcode'] = $this->addCoding($sqlResult['rxnorm_drugcode']);
+        }
+        $processingResult->addData($sqlResult);
         return $processingResult;
     }
 }
