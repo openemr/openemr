@@ -197,7 +197,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     {
         // Get the correct batch file using the X-12 partner ID
         $batch = $this->x12_partner_batches[$claim->getPartner()];
-        $edicount = isSet($this->edicount[$claim->getPartner()]) ? $this->edicount[$claim->getPartner()] : 0;
+        $edicount = isset($this->edicount[$claim->getPartner()]) ? $this->edicount[$claim->getPartner()] : 0;
 
         // Tell our batch that we've processed this claim
         $batch->addClaim($claim);
