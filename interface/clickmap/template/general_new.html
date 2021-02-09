@@ -26,9 +26,15 @@
         {if !$reportMode}
             <div class="col-12">
                 <div class="btn-group">
+                    {php} if($_GET['from_assessment_form'] == 1){ {/php}
+                    <button type="submit" class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
+                    <button type="button" class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
+                    <button type="button" class="btn btn-secondary btn-cancel" id="cancel" onclick="top.restoreSession(); dlgclose();">{xl t="Cancel"}</button>
+                    {php} } else { {/php}
                     <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
                     <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
                     <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+                    {php} } {/php}
                 </div>
                 <p>
                     {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
@@ -67,6 +73,9 @@
         <input type="hidden" name="pid" value="{$form->get_pid()}" />
         <input type="hidden" name="process" value="true" />
         <input type="hidden" name="data" id="data" value=""/>
+	{php} if(isset($_GET['assessment_form_id']) && $_GET['assessment_form_id'] > 0){ {/php}
+		<input type="hidden" name="assessment_form_id" value="{php}echo $_GET['assessment_form_id'];{/php}" />
+	{php} } {/php}
     </form>
     </body>
     </html>

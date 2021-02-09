@@ -430,7 +430,13 @@ $(function () {
     $("#growthchart").on("click", function() { ShowGrowthchart(); });
     $("#pdfchart").on("click", function() { ShowGrowthchart(1); });
     $("#htmlchart").on("click", function() { ShowGrowthchart(2); });
-    $("#cancel").on("click", function() { location.href=cancellink; });
+    $("#cancel").on("click", function() {
+        {/literal}
+        {php} if(isset($_GET['from_assessment_form']) && $_GET['from_assessment_form'] == 1) echo 'dlgclose();'; {/php}
+        {literal}
+        location.href=cancellink;
+        });
+
     addGCSelector();
 
     $('.datetimepicker').datetimepicker({
@@ -457,9 +463,26 @@ function ShowGrowthchart(doPDF) {
     if (doPDF == 1) newURL += "&pdf=1";
     if (doPDF == 2) newURL += "&html=1";
     newURL += "&chart_type=" + encodeURIComponent($("#chart_type").val()) + "&csrf_token_form=" + {/literal}{$CSRF_TOKEN_FORM|js_url}{literal};
+    {/literal}
+	{php}
+		if(isset($_GET['from_assessment_form']) && $_GET['from_assessment_form'] == 1){
+			echo 'newURL+="&chart_type=2-20"';
+		} else {
+			echo 'newURL+="&chart_type="+$("#chart_type").val();';
+		}
+	{/php}
+	{literal}
     // do the new window stuff
     top.restoreSession();
-    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+    {/literal}
+	{php}
+		if(isset($_GET['from_assessment_form']) && $_GET['from_assessment_form'] == 1){
+			echo 'window.location.href = newURL + "&menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450";';
+		} else {
+			echo 'window.open(newURL, "_blank", "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450")';
+		}
+	{/php}
+     {literal}
 }
 
 function convLbtoKg(name) {
@@ -596,6 +619,16 @@ function calculateBMI() {
         $("#BMI_input").val("");
     }
 }
+
+ $(function () {
+{/literal}
+{php}
+    if(isset($_GET['from_assessment_form']) && $_GET['from_assessment_form'] == 1){
+        echo 'if(patientAge <= 20){ ShowGrowthchart(2); } else { alert("Please check patient Age !"); dlgclose(); } ';
+    }
+{/php}
+{literal}
+});
 
 </script>
 {/literal}

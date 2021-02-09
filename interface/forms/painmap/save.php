@@ -24,5 +24,6 @@ $c = new C_FormPainMap();
 /* Save the form contents .*/
 echo $c->default_action_process($_POST);
 
+echo "<script>parent.opener.dlgclose()</script>";
 /* return to the encounter. */
 @formJump();

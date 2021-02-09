@@ -1,0 +1,227 @@
+.css_button_small {
+    background: #2672ec;
+    color: #ffffff !important;
+    display: block;
+    float: left;
+    font-weight: 300;
+    margin-right: 3px;
+    padding-right: 10px;
+    /* sliding doors padding */
+    text-decoration: none;
+    padding: 5px 12px 5px;
+    border: none;
+    font-size: 9px;
+}
+
+.css_button_small span {
+    display: block;
+}
+
+.css_button_small:hover {
+    background: #1050b6;
+}
+
+.css_button, input[type="button"], input[type="submit"], button {
+    background: #2672ec;
+    color: #ffffff !important;
+    display: block;
+    float: left;
+    font-weight: 300;
+    margin-right: 3px;
+    padding-right: 10px;
+    /* sliding doors padding */
+    text-decoration: none;
+    padding: 5px 12px 5px;
+    border: none;
+}
+
+.css_button span, input[type="button"] span, button span {
+    display: block;
+}
+
+.css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
+    background: red !important;
+}
+
+.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+    background: #1050b6;
+}
+
+.css_btn {
+    background: #2672ec;
+    color: #ffffff !important;
+    display: block;
+    float: left;
+    font-weight: 300;
+    margin-right: 3px;
+    padding-right: 10px;
+    /* sliding doors padding */
+    text-decoration: none;
+    padding: 5px 12px 5px;
+    border: none;
+}
+
+.css_btn:hover {
+    color: orangered;
+}
+
+.system_template_list_wrap {
+    position: relative;
+    margin: 10px;
+    padding: 10px;
+}
+
+.css_button_small, .css_button {
+    float: none;
+    display: inline-block;
+}
+
+.system_template_list_table, .system_template_table {
+    width: 100%;
+    border: 0px;
+    border-left: 1px solid #303030;
+    border-top: 1px solid #303030;
+    margin-top: 20px;
+    border-spacing: 0px;
+}
+
+.system_template_list_table thead th, .system_template_table > thead > th {
+    text-align: left;
+    background: #feffca;
+}
+
+.system_template_list_table thead th, .system_template_list_table thead td,
+.system_template_list_table tbody th, .system_template_list_table tbody td {
+    border-right: 1px solid #303030;
+    border-bottom: 1px solid #303030;
+    vertical-align: top;
+}
+
+.system_template_table {
+    max-width: 800px;
+    margin-top: 5px;
+}
+
+.system_template_table > tbody > tr > td {
+    border-right: 1px solid #303030;
+    border-bottom: 1px solid #303030;
+    padding: 6px;
+    vertical-align: top;
+}
+
+.template_location {
+    display: block;
+    width: 100%;
+    min-height: 95%;
+    padding: 6px;
+}
+
+.system_template_table input {
+    border: 1px solid #ababab;
+    width: 100%;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+.system_template_inner_wrap table {
+    width: 100%;
+}
+
+.system_template_inner_wrap table td {
+    padding: 5px;
+    border-bottom: 1px solid #ababab;
+}
+
+.field_description {
+    border: 1px solid #DDD;
+    width: 100%;
+    min-height: 200px;
+}
+
+.css_btn_edit, .css_btn_delete {
+    background: #2672ec;
+}
+
+.css_btn_delete {
+    background: #FF5722;
+}
+
+.demographics_form_wrap {
+    width: 100%;
+}
+
+.common-form-body input[type="text"], .common-form-body textarea, .common-form-body select {
+    display: block;
+    width: 100%;
+    border: 1px solid #DDD;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.common-form-body textarea {
+    min-height: 70px;
+}
+
+.common-form-body input.inline, .common-form-body textarea.inline, .common-form-body select.inline {
+    display: inline;
+}
+
+.demographics_form_table table {
+    font-size: 12px;
+}
+
+.demographics_form_option_wrap table {
+    width: 100%;
+    border: 1px solid #303030;
+    border-spacing: 0px;
+}
+
+.demographics_form_option_wrap table td {
+    border: 0px;
+    vertical-align: top;
+    padding: 5px;
+}
+
+.demographics_form_option_wrap table tr td:first-child {
+    border-right: 1px solid #303030;
+}
+
+.demographics_form_option_wrap table tr:last-child td {
+    border-top: 1px solid #303030;
+    border-right: 0px;
+    text-align: center;
+}
+
+.demographics_form_option_wrap table tr:last-child td button {
+    float: none;
+}
+
+.demographics_form_option_wrap table textarea {
+    width: 100%;
+    min-height: 300px;
+}
+
+.demographics_form_option_wrap table td ul {
+    margin: -5px;
+    padding: 0px;
+    list-style: none;
+}
+
+.demographics_form_option_wrap table td ul li {
+    padding: 3px 5px;
+    border-bottom: 1px solid #DDD;
+    background: #EFEFEF;
+    position: relative;
+}
+
+.edit_btn {
+    position: absolute;
+    right: 3px;
+    top: 6px;
+    padding: 2px 5px;
+    background: #FF5722;
+    border-radius: 0px;
+    font-size: 11px;
+    color: #FFF;
+    cursor: pointer;
+}

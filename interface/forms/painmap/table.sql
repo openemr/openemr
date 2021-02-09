@@ -7,5 +7,6 @@ CREATE TABLE `form_painmap` (
   `authorized` tinyint(4) DEFAULT NULL,
   `activity` tinyint(4) DEFAULT NULL,
   `data` text,
+  `assessment_form_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;

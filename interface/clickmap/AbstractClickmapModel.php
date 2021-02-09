@@ -86,6 +86,8 @@ abstract class AbstractClickmapModel extends ORDataObject
      */
     var $data;
 
+    var $assessment_form_id;
+
     /**
      * @brief Initialize a newly created object belonging to this class
      *
@@ -237,5 +239,19 @@ abstract class AbstractClickmapModel extends ORDataObject
         } else {
             trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
+    }
+
+    function get_assessment_form_id() {
+        return $this->assessment_form_id;
+    }
+
+    function set_assessment_form_id($assessment_form_id) {
+        if (!empty($assessment_form_id)) {
+            $this->assessment_form_id = $assessment_form_id;
+        }
+	else
+	{
+	    trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
+	}
     }
 }

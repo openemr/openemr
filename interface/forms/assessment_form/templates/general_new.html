@@ -1,0 +1,1296 @@
+<html>
+<head>
+{php}
+$pain_map_id = 0; $vital_id = 0;
+$pain_map_id_que = sqlFetchArray(sqlStatement("SELECT form_painmap.id FROM form_painmap INNER JOIN forms ON form_painmap.id = forms.form_id WHERE forms.form_name = ? AND forms.encounter = ?", array( 'Graphical Pain Map', $_SESSION['encounter'])));
+if(isset($pain_map_id_que) && isset($pain_map_id_que['id']) && $pain_map_id_que['id'] > 0) $pain_map_id = $pain_map_id_que['id'];
+
+$vital_id_que = sqlFetchArray(sqlStatement("SELECT form_vitals.id FROM form_vitals INNER JOIN forms ON form_vitals.id = forms.form_id WHERE forms.form_name = ? AND forms.encounter = ?", array( 'Vitals', $_SESSION['encounter'])));
+if(isset($vital_id_que) && isset($vital_id_que['id']) && $vital_id_que['id'] > 0) $vital_id = $vital_id_que['id'];
+{/php}
+<title>{php} echo xl('Patient Progress Note'); {/php}</title>
+{headerTemplate assets='datetime-picker'}
+<link rel="stylesheet" href="{$WEBROOT}/interface/forms/assessment_form/templates.css" type="text/css">
+{literal}
+<style>
+a {
+    text-decoration: none;
+}
+
+.iframe.medium_modal textarea, .iframe.medium_modal:hover textarea, .iframe.medium_modal:active textarea, .iframe.medium_modal:hover {
+    text-decoration: none;
+}
+
+.auto_complete, .cpt_complete {
+    display: none;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 24px;
+    background: #EFEFEF;
+    border: 1px solid #DDD;
+    z-index: 10;
+}
+
+.auto_complete ul, .cpt_complete ul {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+}
+
+.auto_complete ul li, .cpt_complete ul li {
+    padding: 0px;
+    margin: 0px;
+    border-bottom: 1px solid #DDD;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.common-form-body .small_font input[type="text"], .common-form-body .small_font select {
+    padding: 2px;
+    font-size: 11px;
+    border-radius: 2px;
+    margin: 0px;
+}
+
+button.form_btn, a.form_btn, input[type="button"].form_btn, input[type="submit"].form_btn {
+    border-radius: 4px;
+    border: 1px solid #DDD;
+    background: #EFEFEF;
+    color: #303030 !important;
+    font-weight: 600;
+    display: block;
+    margin: 10px;
+    margin-bottom: 10px;
+    padding: 12px 12px;
+    width: 100%;
+    cursor: pointer;
+    max-width: 100px;
+    font-size: 13px;
+}
+
+a.form_btn {
+    text-align: center;
+    font-size: 13px;
+    max-width: 100px;
+}
+
+button.form_btn:hover, a.form_btn:hover, input[type="button"].form_btn:hover, input[type="submit"].form_btn:hover {
+    background: #2672EC;
+    color: #FFF !important;
+}
+
+fieldset {
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.clincal_reminder_wrap {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    max-height: 100px;
+    overflow: auto;
+    font-size: 12.5px;
+}
+
+.clincal_reminder_wrap span {
+    font-size: 12.5px;
+}
+
+.clinical_title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.clinicTestsWrap {
+    display: none;
+    position: fixed;
+    left: 22%;
+    top: 20%;
+    width: 700px;
+    height: 380px;
+    background: #FFF;
+    border: 3px solid #DDD;
+    z-index: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.clinicTestsWrap table {
+    width: 100%;
+}
+
+.clinics_test_subs {
+    display: inline-block;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    font-size: 14px;
+}
+</style>
+{/literal}
+</head>
+<body class="body-top">
+    <div class="container-fluid mt-2">
+        <form name="assessment_form" id="assessment_form" method="post"
+            action="{$FORM_ACTION}/interface/forms/assessment_form/save.php" onsubmit="return onFormSubmit();">
+            <div class="demographics_form_wrap">
+                <div class="common-form-wrap">
+                    <div class="common-form-body">
+                        <table class="demographics_form_table">
+                            <tbody>
+                            <tr>
+                                <td colspan="2" style="vertical-align:top;">
+                                    <p><span class="title">{php} xl('Patient Progress Note','e'); {/php}</span></p>
+                                </td>
+                                <td colspan="2" rowspan="2" style="vertical-align:top;">
+                                    <div class="clincal_reminder_wrap">
+                                        <span class="clinical_title">{php} xl('Clinical Reminder','e'); {/php}</span>
+                                        {php}
+                                        $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
+                                        $pid = $_SESSION['pid'];
+                                        if ( (!empty($clin_rem_check)) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
+                                        clinical_summary_widget($pid,"reminders-due",'','default',$_SESSION['authUser']);
+                                        }
+                                        {/php}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <input type="checkbox" name="keep_existing_cc_hpi_ros" id="keep_existing_cc_hpi_ros" value='1' /> &nbsp; Keep Existing CC, HPI, ROS
+                                    <br /><br />
+                                    <input type="checkbox" name="save_pap" id="save_pap" value='1' /> &nbsp; Keep Existing PE, A&P
+                                </td>
+                                <td style="vertical-align: top;">
+                                    <input type="checkbox" name="save_psfh" id="save_psfh" value='1' /> &nbsp; Keep Existing PSFH <br /><br />
+                                    <input type="checkbox" name="save_am" id="save_am" value='1' /> &nbsp; Keep Existing Allergies & Medication <br /><br />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align:top;width:22%;">
+                                    <fieldset>
+                                        <legend>Chief Complaint</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=chief_complaint" class='iframe medium_modal' onclick="top.restoreSession()">
+                                            <textarea name="chief_complaint" id="chief_complaint">{$data->get_chief_complaint()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                </td>
+                                <td style="vertical-align:top;width:33%;">
+                                    <fieldset>
+                                        <legend>Allergies</legend>
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td colspan="2">
+                                                    <a href="../../forms/assessment_form/form_option.php?option_id=allergies" class='iframe medium_modal'>
+                                                        {php}
+                                                        $label = "";
+                                                        $sql = sqlStatement("select title, diagnosis from lists where type='allergy' and pid='".$_SESSION['pid']."'");
+                                                        while($row = sqlFetchArray($sql)){
+                                                        $title = $row['title'];
+                                                        $code = explode(":", $row['diagnosis']);
+                                                        $title .= !empty($row['diagnosis']) ? "(".$code[1].")" : "";
+                                                        $label .= "#".$title."\n";
+                                                        }
+                                                        $this->assign('label1',$label);
+                                                        {/php}
+                                                        <textarea name="allergies" id="allergies">{if empty($data->get_allergies())}{$label1}
+														{else}{$data->get_allergies()}{/if}</textarea>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </fieldset>
+                                </td>
+                                <td style="vertical-align:top;width:34%;">
+                                    <fieldset>
+                                        <legend>Current Medications</legend>
+                                        {php}
+                                        $label = "";
+                                        $sql = sqlStatement("select title, diagnosis from lists where type='medication' and pid='".$_SESSION['pid']."'");
+                                        while($row = sqlFetchArray($sql)){
+                                        $title = $row['title'];
+                                        $code = explode(":", $row['diagnosis']);
+                                        $title .= !empty($row['diagnosis']) ? "(".$code[1].")" : "";
+                                        $label .= "#".$title."\n";
+                                        }
+                                        $this->assign('label1',$label);
+                                        {/php}
+                                        <textarea name="current_medications" id="current_medications">{if empty($data->get_current_medications())}{$label1}
+														{else}{$data->get_current_medications()}
+														{/if}</textarea>
+                                    </fieldset>
+                                </td>
+                                <td rowspan="2" style="vertical-align:top;width:11%;">
+                                    <!-- <a href="../../forms/assessment_form/clinical_reminder.php" class='iframe medium_modal form_btn'>Clinical Reminder</a> -->
+
+                                    {php} if($pain_map_id > 0){ {/php}
+                                    <a href="../../patient_file/encounter/view_form.php?formname=painmap&from_assessment_form=1&id={php}echo $pain_map_id;{/php}" class='iframe medium_modal form_btn'>Illustration</a>
+                                    {php} }else{ {/php}
+                                    <a href="../../patient_file/encounter/load_form.php?formname=painmap&from_assessment_form=1" class='iframe medium_modal form_btn'>Illustration</a>
+                                    {php} } {/php}
+
+                                    {php} if($vital_id > 0){ {/php}
+                                    <a href="../../patient_file/encounter/view_form.php?formname=vitals&from_assessment_form=1&id={php}echo $vital_id;{/php}" class='iframe medium_modal form_btn'>Growth Chart</a>
+                                    {php} }else{ {/php}
+                                    <a href="../../patient_file/encounter/load_form.php?formname=vitals&from_assessment_form=1" class='iframe medium_modal form_btn'>Growth Chart</a>
+                                    {php} } {/php}
+
+                                    <button type="button" onclick="window.open('../../forms/assessment_form/form_letters.php', '_blank', 'resize, width=850,height=650');" class='form_btn'>Form/Letters</button>
+                                    <div style="clear: both;"></div>
+
+                                    <!--<button type="button" onclick="openProcedureOrder();" class='form_btn'>Referral Labs Radiology</button>
+                                    <div style="clear:both;"></div>-->
+
+
+                                    <a href="../../patient_file/encounter/load_form.php?formname=procedure_order&form_from=assessment_form" class='iframe medium_modal form_btn'>Lab Order</a>
+                                    <div style="clear: both;"></div>
+                                    <a href="../../forms/assessment_form/orders_for_test.php?orderdetails={$data->get_laborders()}" class='iframe medium_modal form_btn'>Nursing, Radiology and Referral</a>
+
+                                    <div style="clear: both;"></div>
+                                    <button type="button" class="form_btn"
+                                        onclick="window.open('https://www.uptodate.com/login', '_blank', 'resize');">Web Research</button>
+                                    <div style="clear: both;"></div>
+                                    <a href="../../eRx.php?page=medentry" class='iframe medium_modal form_btn'>Write Prescription</a>
+                                    <div style="clear: both;"></div>
+                                    <a href="../../patient_file/report/patient_report.php?{php} echo 'form_id='.$_GET['id']; {/php}" class='form_btn'>Print Notes</a>
+                                    <!--<a href="{$DONT_SAVE_LINK}" class="form_btn">{php} xl("Cancel","e"); {/php}</a>-->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align:top;">
+                                    <fieldset>
+                                        <legend>History of Present Illness</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=history_of_present_illnes" class='iframe medium_modal'>
+                                            <textarea name="history_of_present_illnes" id="history_of_present_illnes">{$data->get_history_of_present_illnes()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>Review of Systems</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=review_of_systems" class='iframe medium_modal'>
+                                            <textarea name="review_of_systems" id="review_of_systems">{$data->get_review_of_systems()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>Past Medical History</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=past_medical_history" class='iframe medium_modal'>
+                                            <textarea name="past_medical_history" id="past_medical_history">{$data->get_past_medical_history()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>Social History</legend>
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <label>&nbsp;</label>
+                                                    <select name="social_history" id="social_history">
+                                                        <option value=''>--Select Tobacco Use--</option>
+                                                        {html_options options=$data->get_sh_options() selected=$data->get_social_history()}
+                                                </td>
+                                                <td style="width:25%;">
+                                                    <label>Pks/Yrs</label>
+                                                    <input type="text" name="social_history_pks_day" id="social_history_pks_day" class="inline" value="{$data->get_social_history_pks_day()}">
+                                                </td>
+                                                <td style="width:25%;">
+                                                    <label>Yrs Quit</label>
+                                                    <input type="text" name="social_history_yrs_smkd" id="social_history_yrs_smkd" class="inline" value="{$data->get_social_history_yrs_smkd()}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3">
+                                                    <a href="../../forms/assessment_form/form_option.php?option_id=social_history_desc" class='iframe medium_modal'>
+                                                        <textarea name="social_history_desc" id="social_history_desc">{$data->get_social_history_desc()}</textarea>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>Family History</legend>
+                                        <table style="width:100%;">
+                                            <tr>
+                                                {assign var="fam_his" value=$data->get_family_history()}
+                                                {php}$family = $this->get_template_vars('fam_his');{/php}
+                                                <td>
+                                                    <input type="radio" name="family_history" onchange="changeFamilyHistory(1);" value='1' {php}if($family=='1' || empty($family)) echo "checked"; {/php}/> &nbsp; Text
+                                                </td>
+                                                <td>
+                                                    <input type="radio" name="family_history" onchange="changeFamilyHistory(2);" value='2' {php}if($family=='2') echo "checked"; {/php}/> &nbsp; Structured
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <a href="../../forms/assessment_form/form_option.php?option_id=family_history" class='iframe medium_modal' id="family_history_link">
+                                                        <textarea name="family_history_desc" id="family_history">{$data->get_family_history_desc()}</textarea>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </fieldset>
+                                    <!-- <fieldset>
+                                        <legend>Current Medications</legend>
+                                            <table style="width:100%;">
+                                                <tr>
+                                                 <td colspan="2">
+                                                    <!-- <a href="../../forms/assessment_form/form_option.php?option_id=current_medications" class='iframe medium_modal' > -->
+                                    <!--  <textarea name="current_medications"id="current_medications">{$data->get_current_medications()}</textarea> -->
+                                    <!-- </a> -->
+                                    <!-- 	</td>
+                                        </tr>
+                                </table>
+                            </fieldset> -->
+                                </td>
+                                <td colspan="2" style="vertical-align:top;">
+                                    <fieldset>
+                                        <legend>Physical Exam</legend>
+                                        {assign var="clinic_tests" value=$data->get_in_clinic_tests()}
+                                        {php}$decode = $this->get_template_vars('clinic_tests');
+                                        $clitst = json_decode(urldecode($decode));
+                                        $clinictst = Array('Urinalysis Test:'=>$clitst[0],
+                                        'Nitrites:'=>$clitst[1],
+                                        'Protein:'=>$clitst[2],
+                                        'Blood:'=>$clitst[3],
+                                        'Ketones:'=>$clitst[4],
+                                        'Glucose:'=>$clitst[5],
+                                        'Specific Gravity:'=>$clitst[6],
+                                        'PH:'=>$clitst[7],
+                                        'Leukocyte:'=>$clitst[8],
+                                        'Urobilirubin:'=>$clitst[9],
+                                        'Bilirubin:'=>$clitst[10],
+                                        'Flu Test:'=>$clitst[11],
+                                        'Pregnancy Test:'=>$clitst[12],
+                                        'Strep Test:'=>$clitst[13],
+                                        'Finger Stick:'=>$clitst[14],
+                                        'Comments:'=>$clitst[15]);
+                                        {/php}
+                                        <div style="padding:5px;border:1px solid #DDD;margin-top:10px;margin-bottom:10px;">
+                                            <div style="text-align:right;">
+                                                <button type="button" style="float:none;display: inline-block;" onclick="openInClinicTests();">Clinic Tests</button>
+                                            </div>
+                                            {php}
+                                            //$spcgravity = array("1"=>"1.005","2"=>"1.010","3"=>"1.015","4"=>"1.020","5"=>"1.025");
+                                            $glucose = Array("", "<=130 mg/d", ">=130 mg/d");
+                                            $bilirubin = Array("", "NEGATIVE", "POSITIVE");
+                                            $ketones = Array("", "None", "Present");
+                                            $specific_gravity = Array("", "1.005", "1.010", "1.015", "1.020", "1.025");
+                                            $blood = Array("", "<=1 RBCs", "<=2 RBCs", "<=3 RBCs");
+                                            $protein = Array("", "<=50 mg/d", "<=100 mg/d", "<=150 mg/d");
+
+                                            foreach($clinictst as $tkey => $tvalue){
+                                            $keyidtemp = str_replace(' ', '', $tkey);
+                                            $keyid = str_replace(':', '', $keyidtemp);
+                                            $tvalue = str_replace('_', ' ',$tvalue);
+                                            if($tkey == "Blood:"){
+                                            $tvalue = $blood[$tvalue];
+                                            }else if($tkey == "Ketones:"){
+                                            $tvalue = $ketones[$tvalue];
+                                            }else if($tkey == "Glucose:"){
+                                            $tvalue = $glucose[$tvalue];
+                                            }else if($tkey == "Specific Gravity:"){
+                                            $tvalue = $specific_gravity[$tvalue];
+                                            }
+                                            $tstr .= "
+                                            <div class='clinics_test_subs' id='".$keyid."'>";
+                                                if(!empty($tvalue)){
+                                                $tstr .= "<b>$tkey</b> ".ucfirst($tvalue).",";
+                                                }
+                                                $tstr .= "
+                                            </div>
+                                            ";
+
+                                            }
+                                            echo $tstr;
+                                            {/php}
+                                        </div>
+                                        <div class="clinicTestsWrap">
+                                            <table>
+                                                <tr>
+                                                    <td style="width:50%;vertical-align:top;">
+                                                        <table>
+                                                            <tr>
+                                                                <td>Urinalysis Test:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="urinalysis_test">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[0]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[0]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Nitrites:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="nitrites">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[1]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[1]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Protein:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="protein">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[2]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[2]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Blood:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="blood">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[3]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[3]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Ketones:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="ketones">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[4]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[4]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Glucose:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="glucose">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[5]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[5]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Specific Gravity:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="specific_gravity">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[6]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[6]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>pH:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="pH">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[7]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[7]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Leukocyte:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="leukocyte">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[8]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[8]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Urobilirubin:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="urobilirubin">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[9]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[9]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Bilirubin:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="bilirubin">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='Normal' {php}if($clitst[10]=="Normal") echo
+                                                                        " selected"; {/php}>Normal</option>
+                                                                        <option value='Abnormal' {php}if($clitst[10]=="Abnormal") echo
+                                                                        " selected"; {/php}>Abnormal</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td style="width:50%;vertical-align:top;">
+                                                        <table>
+                                                            <tr>
+                                                                <td>Flu Test:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="flu_test">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='positive' {php}if($clitst[11]=="positive") echo
+                                                                        " selected"; {/php}>POSITIVE</option>
+                                                                        <option value='negative' {php}if($clitst[11]=="negative") echo
+                                                                        " selected"; {/php}>NEGATIVE</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Pregnancy Test:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="pregnancy_test">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='positive' {php}if($clitst[12]=="positive") echo
+                                                                        " selected"; {/php}>POSITIVE</option>
+                                                                        <option value='negative' {php}if($clitst[12]=="negative") echo
+                                                                        " selected"; {/php}>NEGATIVE</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Strep Test:</td>
+                                                                <td>
+                                                                    <select name="clinic_tests[]" id="strep_test">
+                                                                        <option value=''>--Select--</option>
+                                                                        <option value='positive' {php}if($clitst[13]=="positive") echo
+                                                                        " selected"; {/php}>POSITIVE</option>
+                                                                        <option value='negative' {php}if($clitst[13]=="negative") echo
+                                                                        " selected"; {/php}>NEGATIVE</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Finger Stick:</td>
+                                                                <td>
+                                                                    <input name="finger_stick" id="finger_stick" value="{php} echo $clitst[14]; {/php}" style="width:100%;" />
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="vertical-align:top;">Comments:</td>
+                                                                <td>
+                                                                    <textarea name="comments" id="comments" cols="5">{php} echo $clitst[15]; {/php}</textarea>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="vertical-align:top;text-align:right;"><br />
+                                                        <button type="button" style="float:none;display:inline-block;" onclick="saveInClinicTests();">Save</button> &nbsp;
+                                                        <button type="button" style="float:none;display:inline-block;" onclick="closeInClinicTests();">Close</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <table>
+                                            <tr>
+                                                <th>&nbsp;</th>
+                                                <th>Weight</th>
+                                                <th>Height</th>
+                                                <th>Temp</th>
+                                                <th>BP</th>
+                                                <th>Pulse</th>
+                                                <th colspan="2">RR</th>
+                                                <th colspan="2">BMI</th>
+                                                <th>Sat(%)</th>
+                                                <th>On02</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                            <tr class="small_font">
+                                                {php}
+                                                $vital = sqlQuery("SELECT * from form_vitals fv join forms f on fv.id = f.form_id WHERE fv.pid='".$_SESSION['pid']."' and f.encounter='".$_SESSION['encounter']."'");
+                                                $weight = $vital['weight'];
+                                                $this->assign('weight1',$weight);
+                                                $height = $vital['height'];
+                                                $this->assign('height1',$height);
+                                                $temp = $vital['temperature'];
+                                                $this->assign('temp1',$temp);
+                                                $bp1 = $vital['bps'];
+                                                $this->assign('bp11',$bp1);
+                                                $bp2 = $vital['bpd'];
+                                                $this->assign('bp21',$bp2);
+                                                $pulse = $vital['pulse'];
+                                                $this->assign('pulse1',$pulse);
+                                                $rr = $vital['respiration'];
+                                                $this->assign('rr1',$rr);
+                                                $bmi = $vital['BMI'];
+                                                $this->assign('bmi1',$bmi);
+                                                $sat = $vital['oxygen_saturation'];
+                                                $this->assign('sat1',$sat);
+                                                {/php}
+                                                <td>Note</td>
+                                                <td>
+                                                    <input type="text" name="vital_weight" id="vital_weight" style="width: 50%;display: inline-block;" value="{if empty($data->get_vital_weight())}{$weight1}{else}{$data->get_vital_weight()}{/if}">
+                                                    <select name="vital_wt" id="vital_wt" style="width: 35%;display: inline-block;-webkit-appearance: none;">
+                                                        {html_options options=$data->get_wt_options() selected=$data->get_vital_wt()}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="vital_height" id="vital_height" style="width: 50%;display: inline-block;" value="{if empty($data->get_vital_height())}{$height1}{else}{$data->get_vital_height()}{/if}">
+                                                    <select name="vital_ht" id="vital_ht" style="width: 35%;display: inline-block;-webkit-appearance: none;">
+                                                        {html_options options=$data->get_ht_options() selected=$data->get_vital_ht()}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="vital_temp" id="vital_temp" style="width: 50%;display: inline-block;" onchange="vitalValidate();" value="{if empty($data->get_vital_temp())}{$temp1}{else}{$data->get_vital_temp()}{/if}">
+                                                    <select name="vital_tp" id="vital_tp" style="width: 35%;display: inline-block;-webkit-appearance: none;">
+                                                        {html_options options=$data->get_tp_options() selected=$data->get_vital_tp()}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="vital_bp1" id="vital_bp1" onchange="vitalValidate();" class="inline" style="width:37%;" value="{if empty($data->get_vital_bp1())}{$bp11}{else}{$data->get_vital_bp1()}{/if}">/<input type="text" name="vital_bp2" id="vital_bp2" onchange="vitalValidate();" class="inline" style="width:37%;" value="{if empty($data->get_vital_bp2())}{$bp21}{else}{$data->get_vital_bp2()}{/if}">
+                                                </td>
+                                                <td><input type="text" name="vital_pulse" id="vital_pulse" onchange="vitalValidate();" value="{if empty($data->get_vital_pulse())}{$pulse1}{else}{$data->get_vital_pulse()}{/if}"></td>
+                                                <td colspan="2"><input type="text" name="vital_rr" onchange="vitalValidate();" id="vital_rr" value="{if empty($data->get_vital_rr())}{$rr1}{else}{$data->get_vital_rr()}{/if}"></td>
+                                                <td colspan="2"><input type="text" name="vital_bmi" readonly id="vital_bmi" value="{if empty($data->get_vital_bmi())}{$bmi1}{else}{$data->get_vital_bmi()}{/if}"></td>
+                                                <td><input type="text" name="vital_sat" id="vital_sat" value="{if empty($data->get_vital_sat())}{$sat1}{else}{$data->get_vital_sat()}{/if}"></td>
+                                                <td><input type="text" name="vital_on02" id="vital_on02" value="{$data->get_vital_on02()}"></td>
+                                            </tr>
+                                            <tr style="background:#DDD;">
+                                                <th style="width:16%;">Date</th>
+                                                <th style="width:10%;">Weight(lb)</th>
+                                                <th style="width:10%;">Height(In)</th>
+                                                <th style="width:8%;">Temp(*C)</th>
+                                                <th style="width:9%;">BP</th>
+                                                <th style="width:7%;">Pulse</th>
+                                                <th style="width:6%;">RR</th>
+                                                <th style="width:7%;">HC in</th>
+                                                <th style="width:7%;">BMI</th>
+                                                <th style="width:7%;">BMI %</th>
+                                                <th style="width:7%;">Sat(%)</th>
+                                                <th colspan="2">On02</th>
+                                            </tr>
+                                            {php}
+                                            $vsql = sqlStatement("SELECT date(fa.date) as vital_date, vital_weight, vital_height, vital_temp, vital_bp1, vital_bp2, vital_pulse, vital_rr, vital_bmi, vital_sat, vital_on02, vital_ht, vital_wt, vital_tp FROM form_assessment_form fa join forms f on fa.id = f.form_id WHERE fa.pid='".$_SESSION['pid']."' and f.encounter!='".$_SESSION['encounter']."' and fa.vital_weight != 'NULL' ORDER BY vital_date desc LIMIT 3");
+                                            while($vrow = sqlFetchArray($vsql)){
+                                            echo "
+                                            <tr style='height:20px;background:#EFEFEF;'>";
+                                                echo "
+                                                <td>".$vrow['vital_date']."</td>
+                                                ";
+                                                echo "
+                                                <td>";
+                                                    if($vrow['vital_wt'] == "kg"){
+                                                    $weight = ceil($vrow['vital_weight']/0.4535);
+                                                    }else{
+                                                    $weight = $vrow['vital_weight'];
+                                                    }
+                                                    echo $weight;
+                                                    echo "
+                                                </td>
+                                                ";
+                                                echo "
+                                                <td>";
+                                                    if($vrow['vital_ht'] == "mtr"){
+                                                    $height = ceil($vrow['vital_height']*39.37);
+                                                    }else{
+                                                    $height = $vrow['vital_height'];
+                                                    }
+                                                    echo $height;
+                                                    echo "
+                                                </td>
+                                                ";
+                                                echo "
+                                                <td>";
+                                                    if($vrow['vital_tp'] == "fh"){
+                                                    $temprature = ceil(($vrow['vital_temp'] -32)*5/9);
+                                                    }else{
+                                                    $temprature = $vrow['vital_temp'];
+                                                    }
+                                                    echo $temprature;
+                                                    echo "
+                                                </td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_bp1']."/".$vrow['vital_bp2']."</td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_pulse']."</td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_rr']."</td>
+                                                ";
+                                                echo "
+                                                <td></td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_bmi']."</td>
+                                                ";
+                                                echo "
+                                                <td></td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_sat']."</td>
+                                                ";
+                                                echo "
+                                                <td>".$vrow['vital_on02']."</td>
+                                                ";
+                                                echo "
+                                            </tr>
+                                            ";
+                                            }
+                                            {/php}
+                                        </table>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=physical_exam" class='iframe medium_modal'>
+                                            <textarea name="physical_exam_desc" id="physical_exam">{$data->get_physical_exam_desc()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                    <table style="width:100%;">
+                                        <tr>
+                                            <td style="width:50%;">
+                                                <fieldset>
+                                                    <legend>Diagnoses</legend>
+                                                    <div style="position:relative;">
+                                                        <input type="text" name="diagnoses" id="diagnoses" placeholder="Search ICD code..." onkeyup="changeDiagonisis($(this),'icd')" style="display:inline-block;" />
+                                                        <div class="auto_complete" id="auto_complete">
+                                                            <ul></ul>
+                                                        </div>
+                                                        <!--<a href="../../forms/assessment_form/assessment_form_search_code.php" id="diagnoses_link" class="iframe medium_modal css_button_small">Search Code</a>-->
+                                                    </div>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:50%;">
+                                                <fieldset>
+                                                    <legend>CPT Code</legend>
+                                                    <div style="position:relative;">
+                                                        <input type="text" name="cptcode" id="cptcode" placeholder="Search CPT code..." onkeyup="changeDiagonisis($(this),'cpt')" style="display:inline-block;" />
+                                                        <div class="cpt_complete" id="cpt_complete">
+                                                            <ul></ul>
+                                                        </div>
+                                                        <!--<a href="../../forms/assessment_form/assessment_form_search_code.php" id="diagnoses_link" class="iframe medium_modal css_button_small">Search Code</a>-->
+                                                    </div>
+                                                    <br />
+                                                    <select name="problem_list" id="problem_list">
+                                                        <option>-Problem List-</option>
+                                                        {html_options options=$data->get_pl_options()}
+                                                    </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <fieldset>
+                                                    <legend>Assessment</legend>
+                                                    <a href="../../forms/assessment_form/form_option.php?option_id=assessment" class='iframe medium_modal'>
+                                                        <textarea name="assessment" id="assessment">{$data->get_assessment()}</textarea>
+                                                    </a>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td colspan="2">
+                                    <fieldset>
+                                        <legend>Surgical Procedure</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=surgical_procedure" class='iframe medium_modal'>
+                                            <textarea name="surgical_procedure" id="surgical_procedure">{$data->get_surgical_procedure()}</textarea>
+                                        </a>
+                                    </fieldset>
+
+                                    <fieldset>
+                                        <legend>Plan</legend>
+                                        <a href="../../forms/assessment_form/form_option.php?option_id=plan" class='iframe medium_modal'>
+                                            <textarea name="plan" id="plan">{$data->get_plan()}</textarea>
+                                        </a>
+                                    </fieldset>
+                                </td>
+                                <td style="vertical-align:bottom;">
+                                    <button type="Submit" name="Submit" value=\"{php} xl(
+                                    'Save Form','e','"','"'); {/php}\" class="form_btn">{php} xl("Save","e"); {/php}</button>
+                                    <div style="clear:both;"></div>
+                                    <a href="{$DONT_SAVE_LINK}" class="form_btn" onclick="return onCloseForm();">{php} xl("Cancel","e"); {/php}</a>
+                                </td>
+                            </tr>
+                            <!--<tr>
+                                <td><input type="submit" name="Submit" value={php} xl('Save Form','e','"','"'); {/php}</td>
+                                <td><a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[{php} xl("Don't Save","e"); {/php}]</a></td>
+                            </tr>-->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="common-form-footer">
+
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="{$data->get_id()}" />
+                <input type="hidden" name="activity" value="{$data->get_activity()}">
+                <input type="hidden" name="pid" value="{$data->get_pid()}">
+                <input type="hidden" name="process" value="true">
+                <input type="hidden" name="form_id" id="form_id" value="{php}echo $_GET['id']; {/php}">
+                <input type="hidden" name="in_clinic_tests" id="in_clinic_tests" value="{$data->get_in_clinic_tests()}">
+                <input type="hidden" name="laborders" id="laborders" value="{$data->get_laborders()}">
+                <input type="hidden" name="feecodes" id="feecodes" value="">
+                {php}
+                $ptrow = sqlQuery("SELECT chief_complaint, history_of_present_illnes, review_of_systems, past_medical_history, social_history_desc, family_history_desc, physical_exam_desc, assessment, plan, allergies, current_medications FROM form_assessment_form fa join forms f on fa.id = f.form_id WHERE fa.pid='".$_SESSION['pid']."' ORDER BY fa.id desc LIMIT 1");
+                {/php}
+                <input type='hidden' id='cf_comp' name='cf_comp' value="{php}echo addslashes($ptrow['chief_complaint']); {/php}">
+                <input type='hidden' id='hofpreill' name='hofpreill' value="{php}echo addslashes($ptrow['history_of_present_illnes']); {/php}">
+                <input type='hidden' id='rofsys' name='rofsys' value="{php}echo addslashes($ptrow['review_of_systems']); {/php}">
+                <input type='hidden' id='ptmedhis' name='ptmedhis' value="{php}echo addslashes($ptrow['past_medical_history']); {/php}">
+                <input type='hidden' id='sochis' name='sochis' value="{php}echo addslashes($ptrow['social_history_desc']); {/php}">
+                <input type='hidden' id='famhis' name='famhis' value="{php}echo addslashes($ptrow['family_history_desc']); {/php}">
+                <input type='hidden' id='assphyex' name='famhis' value="{php}echo addslashes($ptrow['physical_exam_desc']); {/php}">
+                <input type='hidden' id='assplan' name='famhis' value="{php}echo addslashes($ptrow['plan']); {/php}">
+                <input type='hidden' id='assassess' name='famhis' value="{php}echo addslashes($ptrow['assessment']); {/php}">
+                <input type='hidden' id='aller' name='aller' value="{php}echo addslashes($ptrow['allergies']); {/php}">
+                <input type='hidden' id='medica' name='medica' value="{php}echo addslashes($ptrow['current_medications']); {/php}">
+        </form>
+    </div>
+    {literal}
+    <script>
+        var valueChanged = 0;
+
+        $(document).ready(function () {
+            $(".medium_modal").on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let title = {
+                /literal}{xlj t='Title Here!'}{literal};
+                dlgopen('', '', 'modal-lg', 700, '', '', {
+                    buttons: [
+                        {text: {/literal}{xlj t='Close'}{literal}, close: true, style: 'default btn-sm'}
+                    ],
+                    allowResize: true,
+                    allowDrag: true,
+                    dialogId: '',
+                    type: 'iframe',
+                    url: $(this).attr('href')
+                })
+            });
+            vitalValidate();
+            /*$("#diagnoses").autocomplete('../../../library/ajax/assessment_form_search_code.php', {
+                width: 200,
+                scrollHeight: 100,
+                selectFirst: true
+            });
+            $("#diagnoses").focus();*/
+        });
+
+        function onFormSubmit() {
+            /*var conFirm = confirm('Do you want to save the session?');
+            if(conFirm){
+                return top.restoreSession();
+            }else{
+                return false;
+            }	*/
+            return true;
+        }
+
+        function onCloseForm() {
+            var conFirm = confirm('Do you want to close the form?');
+            if (conFirm) {
+                return top.restoreSession();
+            } else {
+                return false;
+            }
+        }
+
+        function updateValue(id, value) {
+            // this gets called from the popup window and updates the field with a new value
+            var current = document.getElementById(id).value;
+            //var newValue = current + value;
+            var newValue = value;
+            var existingVal = $('#' + id).parent('.iframe.medium_modal').attr('href');
+            if (existingVal && existingVal != "") {
+                var splitExistingVal = existingVal.split('&content=');
+                $('#' + id).parent('.iframe.medium_modal').attr('href', (splitExistingVal[0] + "&content=" + encodeURI(newValue)));
+            }
+            document.getElementById(id).value = newValue;
+            document.getElementById(id).focus();
+        }
+
+        function updateDiagonisis(value) {
+            document.getElementById('diagnoses').value = value;
+        }
+
+        function changeDiagonisis(obj, codetype) {
+            $('#auto_complete ul li').remove();
+            $('#cpt_complete ul li').remove();
+            $.ajax({
+                url: '../../forms/assessment_form/assessment_form_search_code.php?search_code=' + obj.val() + '&codetype=' + codetype,
+                type: "get",
+                success: function (result) {
+                    var resultObj = JSON.parse(result);
+                    if (codetype == 'cpt') {
+                        $('#cpt_complete ul li').remove();
+                    } else {
+                        $('#auto_complete ul li').remove();
+                    }
+                    resultObj.forEach(function (item) {
+                        if (codetype == 'cpt') {
+                            var clickVar = '<li onclick="selectTheVale($(this), ';
+                            clickVar += "'" + codetype + "'";
+                            clickVar += ')">' + item.code + ' - ' + item.code_text + '</li>';
+                            $('#cpt_complete ul').append(clickVar);
+                        } else {
+                            var clickVar = '<li onclick="selectTheVale($(this), ';
+                            clickVar += "'" + codetype + "'";
+                            clickVar += ')">' + item.code + ' - ' + item.code_text + '</li>';
+                            $('#auto_complete ul').append(clickVar);
+                        }
+                    });
+
+                    if (resultObj.length > 0) {
+                        if (codetype == 'cpt') {
+                            $('#cpt_complete').show();
+                        } else {
+                            $('#auto_complete').show();
+                        }
+                    }
+                }
+            });
+            //$('#diagnoses_link').attr("href", '../../forms/assessment_form/assessment_form_search_code.php?search_code = ' + obj.val());
+        }
+
+        function selectTheVale(obj, codetype) {
+            var sText = obj.text();
+            var txt = "#" + sText;
+            var current = $('#assessment').val();
+            //code = sText.split(" ");
+            var index = sText.indexOf("-");
+            code = sText.substr(0, index);
+            description = sText.substr(index + 1);
+            //description = sText.split("-");
+            var temp = $("#feecodes").val();
+            var desc = description.trim();
+            var ecode = code;
+            if (temp) {
+                temp = temp + "#" + ecode + "~" + desc;
+            } else {
+                temp = ecode + "~" + desc;
+            }
+            $("#feecodes").val(temp);
+
+            if (current) {
+                txt = current + "\n" + txt;
+            }
+            $('#assessment').val(txt);
+            $('#diagnoses').val('');
+            $('#cptcode').val('');
+            $('#auto_complete ul li').remove();
+            $('#auto_complete').hide();
+            $('#cpt_complete ul li').remove();
+            $('#cpt_complete').hide();
+        }
+
+        $('#social_history, #social_history_pks_day, #social_history_yrs_smkd').change(function () {
+            var drop = $('#social_history option:selected').text();
+            var drop_val = $('#social_history').val();
+            var pks_day = $('#social_history_pks_day').val();
+            var yrs_smkd = $('#social_history_yrs_smkd').val();
+            var txt = ''
+            if (pks_day || yrs_smkd) {
+                txt = '(';
+                if (pks_day) {
+                    txt = txt + ' ' + pks_day + ' pks yrs';
+                }
+                if (yrs_smkd) {
+                    if (pks_day) txt = txt + ' / ';
+                    txt = txt + ' ' + yrs_smkd + ' Yrs quit'
+                }
+                txt = txt + ' )\n';
+            }
+            txt = drop + txt;
+            //var current = $('#social_history_desc').val();
+            //if(current){
+            //	txt = current + txt;
+            //}
+            if (drop_val) {
+                $('#social_history_desc').val(txt);
+            }
+        });
+
+        $('#vital_weight, #vital_height').change(function () {
+            if ($("#vital_wt").val() == "lb") {
+                var weight = Math.round($('#vital_weight').val() * 0.4535);
+            } else {
+                var weight = $('#vital_weight').val();
+            }
+            if ($("#vital_ht").val() == "in") {
+                var height = $('#vital_height').val() * 0.0254;
+            } else {
+                var height = $('#vital_height').val();
+            }
+            if (weight && height) {
+                var bmi = Math.round(weight / (height * height));
+                $('#vital_bmi').val(bmi);
+            }
+            vitalValidate();
+        });
+
+        $("#problem_list").change(function () {
+            var drop = $('#problem_list option:selected').text();
+            code = drop.split(":").pop().slice(0, -1);
+            description = drop.split("(");
+            var temp = $("#feecodes").val();
+            if (temp) {
+                temp = temp + "#" + code + "~" + description[0];
+            } else {
+                temp = code + "~" + description[0];
+            }
+            $("#feecodes").val(temp);
+            var txt = "#" + drop;
+            var current = $('#assessment').val();
+            if (current) {
+                txt = current + "\n" + txt;
+            }
+            $('#assessment').val(txt);
+        });
+
+        function changeFamilyHistory(type) {
+            if (type == 1 || type == '1') {
+                $('#family_history_link').attr('href', '../../forms/assessment_form/form_option.php?option_id=family_history');
+            } else {
+                $('#family_history_link').attr('href', '../../forms/assessment_form/family_history.php');
+            }
+        }
+
+        function updateFamilyHistoryValue(formData) {
+            console.log(formData);
+        }
+
+        function vitalValidate() {
+            if ($("#vital_ht").val() == "in") {
+                var height = $('#vital_height').val();
+            } else {
+                var height = $('#vital_height').val() / 0.0254;
+            }
+            if (height && (height < 65 || height > 74)) {
+                changeColor("vital_height", "red");
+            } else {
+                changeColor("vital_height", "");
+            }
+
+            var tmp = $("#vital_temp").val();
+            if (tmp && (tmp < 36.5 || tmp > 37.3)) {
+                changeColor("vital_temp", "red");
+            } else {
+                changeColor("vital_temp", "");
+            }
+
+            var bp1 = $("#vital_bp1").val();
+            if (bp1 && (bp1 < 90 || bp1 > 120)) {
+                changeColor("vital_bp1", "red");
+            } else {
+                changeColor("vital_bp1", "");
+            }
+
+            var bp2 = $("#vital_bp2").val();
+            if (bp2 && (bp2 < 60 || bp2 > 80)) {
+                changeColor("vital_bp2", "red");
+            } else {
+                changeColor("vital_bp2", "");
+            }
+
+            var pulse = $("#vital_pulse").val();
+            if (pulse && (pulse < 60 || pulse > 100)) {
+                changeColor("vital_pulse", "red");
+            } else {
+                changeColor("vital_pulse", "");
+            }
+
+            var rr = $("#vital_rr").val();
+            if (rr && (rr < 12 || rr > 18)) {
+                changeColor("vital_rr", "red");
+            } else {
+                changeColor("vital_rr", "");
+            }
+
+            var bmi = $("#vital_bmi").val();
+            if (bmi && (bmi < 18.5 || bmi > 24.9)) {
+                changeColor("vital_bmi", "red");
+            } else {
+                changeColor("vital_bmi", "");
+            }
+        }
+
+        function changeColor(id, color) {
+            $("#" + id).css({"background-color": color});
+        }
+
+        function openInClinicTests() {
+            $('.clinicTestsWrap').show();
+        }
+
+        function saveInClinicTests() {
+            var arr = [];
+            arr = $("select[name='clinic_tests[]']").map(function () {
+                return $(this).val();
+            }).get();
+            arr.push($("#finger_stick").val());
+            arr.push($("textarea#comments").val());
+            var myJson = encodeURIComponent(JSON.stringify(arr));
+            $("#in_clinic_tests").val(myJson);
+            updatePhysical();
+            $('.clinicTestsWrap').hide();
+        }
+
+        function closeInClinicTests() {
+            $('.clinicTestsWrap').hide();
+        }
+
+        function saveandPrint() {
+            var form_id = $("#form_id").val();
+            window.location.href = "../../patient_file/report/patient_report.php?" + form_id;
+            /*saveInClinicTests();
+            var assessment_form_data = $('#assessment_form').serialize();
+            var assessment_form_action = $('#assessment_form').attr("action");
+            var form_id = 0;
+        {/literal}
+            {php}
+                if(!empty($_GET['id'])){
+                    echo "form_id='".$_GET['id']."';";
+                }
+            {/php}
+        {literal}
+            $.post(assessment_form_action + '?print_assessment_form=1', assessment_form_data, function(data){
+                window.open('../../forms/assessment_form/reports_print.php?form_id='+form_id, '_blank');
+        {/literal}
+            {php}
+                if(!empty($_GET['id'])){
+                    //echo "window.location.reload();";
+                }else{
+                    echo "window.history.back();";
+                }
+            {/php}
+        {literal}
+            });
+            return false;*/
+        }
+
+        $("#keep_existing_cc_hpi_ros").change(function () {
+            if (this.checked) {
+                $("#chief_complaint").val($("#cf_comp").val().replace(/\\/g, ""));
+                $("#history_of_present_illnes").val($("#hofpreill").val().replace(/\\/g, ""));
+                $("#review_of_systems").val($("#rofsys").val().replace(/\\/g, ""));
+            } else {
+                $("#chief_complaint").val("");
+                $("#history_of_present_illnes").val("");
+                $("#review_of_systems").val("");
+            }
+        });
+
+        $("#save_psfh").change(function () {
+            if (this.checked) {
+                $("#past_medical_history").val($("#ptmedhis").val().replace(/\\/g, ""));
+                $("#social_history_desc").val($("#sochis").val().replace(/\\/g, ""));
+                $("#family_history").val($("#famhis").val().replace(/\\/g, ""));
+            } else {
+                $("#past_medical_history").val("");
+                $("#social_history_desc").val("");
+                $("#family_history").val("");
+            }
+        });
+
+
+        $("#save_am").change(function () {
+            if (this.checked) {
+                $("#allergies").val($("#aller").val().replace(/\\/g, ""));
+                $("#current_medications").val($("#medica").val().replace(/\\/g, ""));
+            } else {
+                $("#allergies").val("");
+                $("#current_medications").val("");
+            }
+        });
+
+        $("#save_pap").change(function () {
+            if (this.checked) {
+                $("#physical_exam").val($("#assphyex").val().replace(/\\/g, ""));
+                $("#plan").val($("#assplan").val().replace(/\\/g, ""));
+                $("#assessment").val($("#assassess").val().replace(/\\/g, ""));
+            } else {
+                $("#physical_exam").val("");
+                $("#plan").val("");
+                $("#assessment").val("");
+            }
+        });
+
+        function updatePhysical() {
+            var clinicObj = new Map([
+                ['urinalysis_test', 'Urinalysis Test'],
+                ['nitrites', 'Nitrites'],
+                ['protein', 'Protein'],
+                ['blood', 'Blood'],
+                ['ketones', 'Ketones'],
+                ['glucose', 'Glucose'],
+                ['specific_gravity', 'Specific Gravity'],
+                ['pH', 'PH'],
+                ['leukocyte', 'Leukocyte'],
+                ['urobilirubin', 'Urobilirubin'],
+                ['bilirubin', 'Bilirubin'],
+                ['flu_test', 'Flu Test'],
+                ['pregnancy_test', 'Pregnancy Test'],
+                ['strep_test', 'Strep Test'],
+                ['finger_stick', 'Finger Stick'],
+                ['comments', 'Comments'],
+            ]);
+            for (const [key, value] of clinicObj.entries()) {
+                var actdivid = clinicObj.get(key);
+                var divuse = actdivid.replace(/\s/g, '');
+                $("#" + divuse).html('');
+                //$("#clinic_test_results").html("");
+                var selop = $("#" + key).val();
+                if (selop) {
+                    if (key != "comments" && key != "finger_stick") {
+                        var tempselop = $("#" + key + " :selected").text();
+                        selop = tempselop.replace(/\b\w/g, l => l.toUpperCase());
+                    }
+                    var content = "<b>" + actdivid + ":</b> " + selop + ",";
+                    $("#" + divuse).append(content);
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            if (!$("#form_id").val()) {
+                document.getElementById('keep_existing_cc_hpi_ros').click();
+                document.getElementById('save_psfh').click();
+                document.getElementById('save_pap').click();
+                document.getElementById('save_am').click();
+            }
+        });
+
+        function closeTab(winname, refresh) {
+            twCloseTab('enctabs', winname);
+            if (refresh) {
+                refreshVisitDisplay();
+            }
+        }
+
+        function openProcedureOrder() {
+            dlgopen('../../patient_file/encounter/load_form.php?formname=procedure_order&form_from=assessment_form', '_blank', 'modal-full', 500);
+        }
+    </script>
+    {/literal}
+</body>
+</html>
