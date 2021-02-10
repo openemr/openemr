@@ -534,7 +534,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // TODO: @bradymiller all the patient unit tests require this to be set to false for fuzzy matching.  However,
         // we need to redo all of the search stuff to have each search param
         // have it's own search conditions (AND, OR, prefix string, suffix string, fuzzy match, etc).
-	return $this->patientService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->patientService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
