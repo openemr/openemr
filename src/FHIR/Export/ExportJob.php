@@ -25,6 +25,11 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ExportJob
 {
+    /**
+     * The name of the OpenEMR table record this record belongs to.
+     */
+    const TABLE_NAME = "ExportJob";
+
     const STATUS_REPORT_PREFIX = '/fhir/$bulkdata-status?job=';
 
     const STATUS_PROCESSING = 'processing';

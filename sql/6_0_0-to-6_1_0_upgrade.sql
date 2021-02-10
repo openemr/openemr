@@ -260,7 +260,7 @@ INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
     );
 #EndIf
 
-#IfNotTable
+#IfNotTable export_job
 CREATE TABLE `export_job` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) DEFAULT NULL ,
@@ -289,4 +289,10 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 
 #IfMissingColumn documents date_expires
 ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents foreign_reference_id
+ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NULL,
+                        ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
+ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
 #EndIf

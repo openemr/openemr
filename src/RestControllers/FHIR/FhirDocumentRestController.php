@@ -55,9 +55,15 @@ class FhirDocumentRestController
         // run file cleanup requests
         // grab all export db records w/ expired records & delete them
 
+        // return 404 if our document is deleted.
+        if ($document->is_deleted()) {
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+        }
+
         if (!$document->can_access($userId)) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
+
         if ($document->has_expired()) {
             // cleanup the document if we haven't already
             try {

@@ -262,13 +262,16 @@ class FhirExportRestController
         try {
             $job = $this->fhirExportJobService->getJobForUuid($jobUuidString, $this->request->getClientId(), $this->request->getRequestUserUUIDString());
 
-            $documents = \Document::getDocumentsForForeignId($job->getId());
+            $documents = \Document::getDocumentsForForeignReferenceId(ExportJob::TABLE_NAME, $job->getId());
             if (!empty($documents)) {
                 foreach ($documents as $document) {
                     $this->logger->debug(
                         "FhirExportRestController->processDeleteExportForJob deleting document",
                         ['job' => $jobUuidString, $document->get_id()]
                     );
+                    // we are deleting the export job so we unlink the document
+                    $document->set_foreign_reference_table(null);
+                    $document->set_foreign_reference_id(null);
                     $document->process_deleted();
                 }
             }
@@ -441,13 +444,13 @@ class FhirExportRestController
             $pathDepth,
             $owner,
             $tmpFile,
-            $expirationDate
+            $expirationDate,
+            $job->getId(),
+            'ExportJob'
         );
         if (!empty($result)) {
             throw new \RuntimeException("Failed to save document for job. Message: " . $result);
         }
-        // not sure why we have to double save but the document class is broken in handling foreign ids
-        $document->persist($job->getId());
         return $document;
     }
 

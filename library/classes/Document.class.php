@@ -58,10 +58,26 @@ class Document extends ORDataObject
     var $id;
 
     /*
-    *   DB unique identifier reference to some other table, this is not unique in the document table
+    *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
+    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
+    *  documents.
     *   @var int
     */
     var $foreign_id;
+
+    /**
+     * DB Unique identifier reference to another table record in the database.  This is not unique in the document. The
+     * table that this record points to is in the $foreign_reference_table
+     * @var int
+     */
+    var $foreign_reference_id;
+
+    /**
+     * Database table name for the foreign_reference_id.  This value must be populated if $foreign_reference_id is
+     * populated.
+     * @var string
+     */
+    var $foreign_reference_table;
 
     /*
     *   Enumerated DB field which is met information about how to use the URL
@@ -288,7 +304,7 @@ class Document extends ORDataObject
      */
     public function is_deleted()
     {
-        return $this->deleted != 0;
+        return $this->get_deleted() != 0;
     }
 
     /**
@@ -296,12 +312,31 @@ class Document extends ORDataObject
      */
     public function process_deleted()
     {
-        $this->deleted = 1;
+        $this->set_deleted(1);
         $this->persist();
     }
 
     /**
-     * Convenience function to get an array of many document objects
+     * Returns the Document deleted value.  Needed for the ORM to process this value.  Recommended you use
+     * is_deleted() instead of this function
+     * @return int
+     */
+    public function get_deleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Sets the Document deleted value.  Used by the ORM to set this flag.
+     * @param $deleted 1 if deleted, 0 if not
+     */
+    public function set_deleted($deleted)
+    {
+        $this->deleted = $deleted;
+    }
+
+    /**
+     * Convenience function to get an array of many document objects that are linked to a patient
      * For really large numbers of documents there is a way more efficient way to do this by overwriting the populate method
      * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
      */
@@ -331,14 +366,50 @@ class Document extends ORDataObject
     }
 
     /**
-     * Return an array of documents for the foreign id passed in.
-     * @param string $foreign_id
+     * Returns an array of many documents that are linked to a foreign table.  If $foreign_reference_id is populated
+     * it will return documents that are specific that that foreign record.
+     * @param string $foreign_reference_table The table name that we are retrieving documents for
+     * @param string $foreign_reference_id The table record that this document references
+     * @return array
+     */
+    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
+    {
+        $documents = array();
+
+        $sqlArray = array($foreign_reference_table);
+
+        if (empty($foreign_reference_id)) {
+            $foreign_reference_id_sql = " like '%'";
+        } else {
+            $foreign_reference_id_sql = " = ?";
+            $sqlArray[] = strval($foreign_reference_id);
+        }
+
+        $d = new Document();
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_reference_table = ? "
+        . "AND foreign_reference_id " . $foreign_reference_id_sql;
+
+        (new \OpenEMR\Common\Logging\SystemLogger())->debug("documents_factory_for_foreign_reference", ['sql' => $sql, 'sqlArray' => $sqlArray]);
+
+        $result = $d->_db->Execute($sql, $sqlArray);
+
+        while ($result && !$result->EOF) {
+            $documents[] = new Document($result->fields['id']);
+            $result->MoveNext();
+        }
+
+        return $documents;
+    }
+
+    /**
+     * Return an array of documents that are connected to another table record in the system.
+     * @param int $foreign_id
      * @return Document[]
      */
-    public static function getDocumentsForForeignId($foreign_id = "")
+    public static function getDocumentsForForeignReferenceId(string $foreign_table, int $foreign_id)
     {
         $doc = new self();
-        return $doc->documents_factory($foreign_id);
+        return $doc->documents_factory_for_foreign_reference($foreign_table, $foreign_id);
     }
 
     /**
@@ -383,10 +454,52 @@ class Document extends ORDataObject
     {
         return $this->id;
     }
+
+    /**
+     * This is a Patient record id
+     * @param $fid Unique database identifier for a patient record
+     */
     function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
     }
+
+    /**
+     * Sets the unique database identifier that this Document is referenced to. If unlinking this document
+     * with a foreign table you must set $reference_id and $table_name to be null
+     */
+    public function set_foreign_reference_id($reference_id)
+    {
+        $this->foreign_reference_id = $reference_id;
+    }
+
+    /**
+     * Sets the table name that this Document references in the foreign_reference_id
+     * @param $table_name The database table name
+     */
+    public function set_foreign_reference_table($table_name)
+    {
+        $this->foreign_reference_table = $table_name;
+    }
+
+    /**
+     * The unique database reference to another table record (Foreign Key)
+     * @return int|null
+     */
+    public function get_foreign_reference_id(): ?int
+    {
+        return $this->foreign_reference_id;
+    }
+
+    /**
+     * Returns the database table name for the foreign reference id
+     * @return string|null
+     */
+    public function get_foreign_reference_table(): ?string
+    {
+        return $this->foreign_reference_table;
+    }
+
     function get_foreign_id()
     {
         return $this->foreign_id;
@@ -699,6 +812,8 @@ class Document extends ORDataObject
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @param  string  $date_expires The datetime that the document should no longer be accessible in the system
+   * @param  string  $foreign_reference_id The table id to another table record in OpenEMR
+   * @param  string  $foreign_reference_table The table name of the foreign_reference_id this document refers to.
    * @return string                Empty string if success, otherwise error message text
    */
     function createDocument(
@@ -711,8 +826,18 @@ class Document extends ORDataObject
         $path_depth = 1,
         $owner = 0,
         $tmpfile = null,
-        $date_expires = null
+        $date_expires = null,
+        $foreign_reference_id = null,
+        $foreign_reference_table = null
     ) {
+        if (
+            !empty($foreign_reference_id) && empty($foreign_reference_table)
+            || empty($foreign_reference_id) && !empty($foreign_reference_table)
+        ) {
+            return xl('Reference table and reference id must both be set');
+        }
+        $this->set_foreign_reference_id($foreign_reference_id);
+        $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
         // That was probably a mistake, but we reference it here for documentation
         // and leave it empty. Logically, documents are not tied to encounters.
@@ -896,7 +1021,10 @@ class Document extends ORDataObject
         $base64Decode = false;
 
         if ($storagemethod === self::STORAGE_METHOD_COUCHDB) {
-            $base64Decode = true;
+            // encrypting does not use base64 encoding
+            if (!$this->is_encrypted()) {
+                $base64Decode = true;
+            }
             // Taken from ccr/display.php
             $couch_docid = $this->get_couch_docid();
             $couch_revid = $this->get_couch_revid();
