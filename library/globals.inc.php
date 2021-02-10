@@ -2961,6 +2961,13 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR FHIR System Scopes.')
+        ),
+
         'oauth_password_grant' => array(
             xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(

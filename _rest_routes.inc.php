@@ -574,11 +574,14 @@ RestConfig::$ROUTE_MAP = array(
     }
 );
 
+use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirExportRestController;
 use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
@@ -624,11 +627,27 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirPatientRestController())->getOne($request->getPatientUUIDString());
+            // in Patient context you still have to return a bundle even if it is just one resource.
+            $params = $_GET;
+            $params['_id'] = $request->getPatientUUIDString();
+            $return = (new FhirPatientRestController())->getAll($params);
         } else {
             RestConfig::authorization_check("patients", "demo");
             $return = (new FhirPatientRestController())->getAll($_GET);
         }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
+    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController($request);
+        $return = $fhirExportService->processExport(
+            $_GET,
+            'Patient',
+            $request->getHeader('Accept'),
+            $request->getHeader('Prefer')
+        );
         RestConfig::apiLog($return);
         return $return;
     },
@@ -757,14 +776,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getAll($_GET);
+        if ($request->isPatientRequest()) {
+            $getParams = $_GET;
+            // TODO: need to verify that observation rest controller supports search by patient.
+            $getParams['patient'] = $request->getPatientUUIDString();
+            $return = (new FhirObservationRestController())->getAll($getParams);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getAll($_GET);
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirObservationRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            $getParams = $_GET;
+            $getParams['_id'] = $uuid;
+            $getParams['patient'] = $request->getPatientUUIDString();
+            $return = (new FhirObservationRestController())->getAll($getParams);
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirObservationRestController())->getOne($uuid);
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
@@ -884,6 +919,64 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPersonRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    // Bulk FHIR api endpoints
+    'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
+        // currently only allow users with the same permissions as export to take a file out
+        // this could be relaxed to allow other types of files ie such as patient access etc.
+        RestConfig::authorization_check("admin", "users");
+
+        // Grab the document id
+        $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
+        $response = $docController->downloadDocument($documentId, $request->getRequestUserId());
+        return $response;
+    },
+    'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController($request);
+        $exportParams = $_GET;
+        $exportParams['groupId'] = $groupId;
+        $return = $fhirExportService->processExport(
+            $exportParams,
+            'Group',
+            $request->getHeader('Accept'),
+            $request->getHeader('Prefer')
+        );
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    'GET /fhir/$export' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $fhirExportService = new FhirExportRestController($request);
+        $return = $fhirExportService->processExport(
+            $_GET,
+            'System',
+            $request->getHeader('Accept'),
+            $request->getHeader('Prefer')
+        );
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    // these two operations are adopted based on the documentation used in the IBM FHIR Server
+    // we'd reference cerner or epic but we couldn't find any documentation about those (Jan 30th 2021)
+    // @see https://ibm.github.io/FHIR/guides/FHIRBulkOperations/
+    'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $jobUuidString = $_GET['job'];
+        // if we were truly async we would return 202 here to say we are in progress with a JSON response
+        // since OpenEMR data is so small we just return the JSON from the database
+        $fhirExportService = new FhirExportRestController($request);
+        $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $job = $_GET['job'];
+        $fhirExportService = new FhirExportRestController($request);
+        $return = $fhirExportService->processDeleteExportForJob($job);
         RestConfig::apiLog($return);
         return $return;
     }

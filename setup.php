@@ -1209,16 +1209,6 @@ STP2TBLBOT;
                                 flush();
                             }
 
-                            echo "Adding Initial User...\n";
-                            flush();
-                            if (! $installer->add_initial_user()) {
-                                echo "$error.\n";
-                                echo $installer->error_message;
-                                break;
-                            }
-                            echo "$ok<br />\n";
-                            flush();
-
                             echo "Setting up Access Controls...\n";
                             require("$OE_SITE_DIR/sqlconf.php");
                             if (! $installer->install_gacl()) {
@@ -1229,6 +1219,27 @@ STP2TBLBOT;
                                 echo "$ok<br />\n";
                                 flush();
                             }
+
+
+                            echo "Adding Initial User...\n";
+                            flush();
+                            if (! $installer->add_initial_user()) {
+                                echo "$error.\n";
+                                echo $installer->error_message;
+                                break;
+                            }
+                            echo "$ok<br />\n";
+                            flush();
+
+                            echo "Adding Additional Users...\n";
+                            flush();
+                            if (! $installer->install_additional_users()) {
+                                echo "$error.\n";
+                                echo $installer->error_message;
+                                break;
+                            }
+                            echo "$ok<br />\n";
+                            flush();
                         }
 
                         // If user has selected to set MFA App Based 2FA, display QR code to scan

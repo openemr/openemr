@@ -15,6 +15,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\UserService;
 
 class UuidUserAccount
 {
@@ -23,6 +24,7 @@ class UuidUserAccount
 
     const USER_ROLE_USERS = 'users';
     const USER_ROLE_PATIENT = 'patient';
+    const USER_ROLE_SYSTEM = 'system';
 
     public function __construct(string $userId)
     {
@@ -43,6 +45,7 @@ class UuidUserAccount
         }
 
         switch ($this->userRole) {
+            case self::USER_ROLE_SYSTEM:
             case self::USER_ROLE_USERS:
                 $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
                 break;
@@ -93,13 +96,17 @@ class UuidUserAccount
             error_log("OpenEMR ERROR: error in conversion of string uuid to binary id");
             return null;
         }
-        $userRole = sqlQueryNoLog("SELECT `id` FROM `users` WHERE `uuid` = ?", [$userIdBinary]);
+        $userRole = sqlQueryNoLog("SELECT `id`,`username` FROM `users` WHERE `uuid` = ?", [$userIdBinary]);
         $patientRole = sqlQueryNoLog("SELECT `pid` FROM `patient_data` WHERE `uuid` = ?", [$userIdBinary]);
 
         $counter = 0;
         if (!empty($userRole['id'])) {
             $counter++;
-            $this->userRole = self::USER_ROLE_USERS;
+            if ($userRole['username'] === UserService::SYSTEM_USER_USERNAME) {
+                $this->userRole = self::USER_ROLE_SYSTEM;
+            } else {
+                $this->userRole = self::USER_ROLE_USERS;
+            }
         } else if (!empty($patientRole['pid'])) {
             $counter++;
             $this->userRole = self::USER_ROLE_PATIENT;

@@ -283,3 +283,51 @@ ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) DEFAULT NULL;
 #IfMissingColumn procedure_answers procedure_code
 ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) DEFAULT NULL;
 #EndIf
+
+#IfNotRow users username oe-system
+INSERT INTO `users`(`username`,`password`,`lname`,`authorized`,`active`) VALUES ('oe-system','NoLogin','System Operation User',0,0);
+INSERT INTO `gacl_aro`(`id`, `section_value`, `value`, `order_value`, `name`, `hidden`)
+    SELECT max(`id`)+1,'users','oe-system',10,'System Operation User', 0 FROM `gacl_aro`;
+INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
+    VALUES (
+        (SELECT `id` FROM `gacl_aro_groups` WHERE parent_id=10 AND value='admin')
+        ,(SELECT `id` FROM `gacl_aro` WHERE `section_value` = 'users' AND `value` = 'oe-system')
+    );
+#EndIf
+
+#IfNotTable export_job
+CREATE TABLE `export_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL ,
+  `user_id` varchar(40) NOT NULL,
+  `client_id` varchar(80) NOT NULL,
+  `status` varchar(40) NOT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `resource_include_time` datetime DEFAULT NULL,
+  `output_format` varchar(128) NOT NULL,
+  `request_uri` varchar(128) NOT NULL,
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  PRIMARY KEY  (`id`),
+  UNIQUE (`uuid`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';
+#EndIf
+
+#IfNotRow categories name FHIR Export Document
+SET @max_rght = (SELECT MAX(rght) FROM categories);
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FHIR Export Document', '', 1, @max_rght, @max_rght + 1, 'admin|super' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfMissingColumn documents date_expires
+ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents foreign_reference_id
+ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NULL,
+                        ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
+ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
+#EndIf

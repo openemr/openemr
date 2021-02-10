@@ -15,7 +15,7 @@ if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
 // PHP is a fickle beast!
-$scopeRepository = new ScopeRepository();
+$scopeRepository = new ScopeRepository(RestConfig::GetInstance());
 $claims_array = $scopeRepository->getSupportedClaims();
 $claims = json_encode($claims_array, JSON_PRETTY_PRINT);
 
@@ -24,6 +24,10 @@ $scopes_array = $scopeRepository->getCurrentStandardScopes();
 $scopes_array = array_merge($scopes_array_smart, $scopes_array);
 
 $scopes = json_encode($scopes_array, JSON_PRETTY_PRINT);
+
+// Note: for token_endpoint_auth_signing_alg_values_supported we only support RS384 to be spec compliant
+// @see http://hl7.org/fhir/uv/bulkdata/authorization/index.html#registering-a-smart-backend-service-communicating-public-keys
+//  We can't support ES384 right now because lobucci/jwt does not support that.
 
 $discovery = <<<TEMPLATE
 {
@@ -71,7 +75,8 @@ $discovery = <<<TEMPLATE
     "client_secret_post"
 ],
 "token_endpoint_auth_signing_alg_values_supported": [
-    "RS256"
+    "RS256",
+    "RS384"
 ],
 "claims_locales_supported": [
     "en-US"
