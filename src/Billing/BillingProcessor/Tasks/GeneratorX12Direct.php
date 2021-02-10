@@ -55,6 +55,12 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $x12_partners = [];
 
+    /**
+     * For each X12 partner, track edi counts
+     * @var array
+     */
+    protected $edi_counts = [];
+
     public function __construct($action, $encounter_claim = false)
     {
         parent::__construct($action);
@@ -191,6 +197,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     {
         // Get the correct batch file using the X-12 partner ID
         $batch = $this->x12_partner_batches[$claim->getPartner()];
+        $edicount = isset($this->edicount[$claim->getPartner()]) ? $this->edicount[$claim->getPartner()] : 0;
 
         // Tell our batch that we've processed this claim
         $batch->addClaim($claim);
@@ -198,7 +205,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Use the tr3 format to output for direct-submission to insurance companies
         $log = '';
         $is_last_claim = $claim->getIsLast();
-        $segs = explode("~\n", X125010837P::gen_x12_837_tr3($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim, $is_last_claim));
+        $HLCount = count($batch->getClaims());
+        $segs = explode("~\n", X125010837P::gen_x12_837_tr3($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim, $is_last_claim, $HLCount, $edicount));
+        $this->edicount[$claim->getPartner()] = $edicount;
         $this->appendToLog($log);
         $batch->append_claim($segs);
 
