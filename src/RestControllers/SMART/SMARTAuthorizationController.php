@@ -12,15 +12,13 @@
 namespace OpenEMR\RestControllers\SMART;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 

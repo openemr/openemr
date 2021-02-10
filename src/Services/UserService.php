@@ -19,6 +19,11 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 class UserService
 {
     /**
+     * The name of the system user used for api requests.
+     */
+    const SYSTEM_USER_USERNAME = 'oe-system';
+
+    /**
      * Default constructor.
      */
     public function __construct()
@@ -39,6 +44,25 @@ class UserService
     public function getUserByUsername($username)
     {
         return sqlQuery("SELECT * FROM `users` WHERE `username` = ?", [$username]);
+    }
+
+    /**
+     * Retrieves the API System User if it exists, returns null if the user does not exist.
+     * @return array
+     */
+    public function getSystemUser()
+    {
+        $user = $this->getUserByUsername(self::SYSTEM_USER_USERNAME);
+
+        if (!empty($user)) {
+            if (empty($user['uuid'])) {
+                // we should always have this setup, but create them just in case.
+                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+            }
+            // convert to a string value here
+            $user['uuid'] = UuidRegistry::uuidToString($user['uuid']);
+        }
+        return $user;
     }
 
     /**

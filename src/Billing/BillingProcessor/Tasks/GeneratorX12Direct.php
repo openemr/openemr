@@ -55,6 +55,12 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $x12_partners = [];
 
+    /**
+     * For each X12 partner, track edi counts
+     * @var array
+     */
+    protected $edi_counts = [];
+
     public function __construct($action, $encounter_claim = false)
     {
         parent::__construct($action);
@@ -106,6 +112,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // Store the x-12 partner's data in case we need to reference it (like need the Name or something)
             $this->x12_partners[$row['id']] = $row;
+
+            // We need to track the edi count for each x-12 partner, initialize them to zero here
+            $this->edi_counts[$row['id']] = 0;
 
             // Store the directory in an associative array with the partner ID as the index
             $this->x12_partner_batches[$row['id']] = $batch;
@@ -192,13 +201,19 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Get the correct batch file using the X-12 partner ID
         $batch = $this->x12_partner_batches[$claim->getPartner()];
 
+        // Get the correct edi count for this x-12 partner using the partner ID
+        $edicount = $this->edi_counts[$claim->getPartner()];
+
         // Tell our batch that we've processed this claim
         $batch->addClaim($claim);
 
         // Use the tr3 format to output for direct-submission to insurance companies
         $log = '';
         $is_last_claim = $claim->getIsLast();
-        $segs = explode("~\n", X125010837P::gen_x12_837_tr3($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim, $is_last_claim));
+        $HLCount = count($batch->getClaims());
+        $segs = explode("~\n", X125010837P::gen_x12_837_tr3($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim, $is_last_claim, $HLCount, $edicount));
+        // edi count is passed by reference and incremented in the tr3 function, and we need to set it back here
+        $this->edi_counts[$claim->getPartner()] = $edicount;
         $this->appendToLog($log);
         $batch->append_claim($segs);
 

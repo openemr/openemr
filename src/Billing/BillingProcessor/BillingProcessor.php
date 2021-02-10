@@ -53,6 +53,13 @@ class BillingProcessor
     protected $post;
 
     /**
+     * Our logger instance that we use and also pass down
+     * to the processing tasks
+     * @var
+     */
+    protected $logger;
+
+    /**
      * The following constants are the options for processing tasks, which are the actions
      * applied to the checked claims on the billing manager screen
      */
@@ -63,6 +70,7 @@ class BillingProcessor
     public function __construct($post)
     {
         $this->post = $post;
+        $this->logger = new BillingLogger();
     }
 
     /**
@@ -99,6 +107,12 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor);
+                if ($billingClaim->getPartner() == -1) {
+                    // If the x-12 partner is unassigned, don't process it.
+                    $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
+                    continue;
+                }
+
                 $claims[] = $billingClaim;
             }
         }
@@ -168,8 +182,7 @@ class BillingProcessor
         // instance. The default implementation of the LoggerInterface and the way
         // this is usually implemented on tasks is the trait Traits\WritesToBillingLog
         if ($processing_task instanceof LoggerInterface) {
-            $logger = new BillingLogger();
-            $processing_task->setLogger($logger);
+            $processing_task->setLogger($this->logger);
         }
 
         return $processing_task;
