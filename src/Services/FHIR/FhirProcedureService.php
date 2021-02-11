@@ -154,8 +154,8 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind);
-        $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind);
+        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind = null);
+        $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind = null);
         return $this->processResults($procedureResult, $surgeryResult);
     }
 
