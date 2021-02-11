@@ -817,13 +817,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
-        //RestConfig::authorization_check("patients", "med");
+        RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
-        //RestConfig::authorization_check("patients", "med");
+        RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
