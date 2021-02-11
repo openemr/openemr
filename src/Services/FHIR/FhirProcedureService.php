@@ -131,7 +131,7 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind = null);
+        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind);
         $surgeryResult = $this->surgeryService->getOne($fhirResourceId);
         $processingResult = $this->processResults($procedureResult, $surgeryResult);
         if (!$processingResult->hasErrors()) {
@@ -154,7 +154,7 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind = null);
+        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind);
         $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false);
         return $this->processResults($procedureResult, $surgeryResult);
     }
