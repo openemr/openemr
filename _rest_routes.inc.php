@@ -584,7 +584,7 @@ RestConfig::$ROUTE_MAP = array(
         $return = (new SurgeryRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
-    },
+    }
 );
 
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
