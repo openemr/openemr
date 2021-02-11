@@ -36,7 +36,7 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        //(new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
     }
 
     /**
@@ -53,23 +53,20 @@ class PrescriptionService extends BaseService
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT 
-                prescription.id,
-                prescription.uuid,
-                prescription.patient_id,
-                prescription.encounter,
-                prescription.drug AS pdrug,
-                prescription.size,
+        $sql = "SELECT prescriptions.*,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid
-                FROM prescriptions AS prescription
+                practitioner.uuid AS pruuid,
+                drug.uuid AS drug_uuid
+                FROM prescriptions
                 LEFT JOIN patient_data AS patient
-                ON patient.pid = prescription.patient_id
+                ON patient.pid = prescriptions.patient_id
                 LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescription.encounter
+                ON encounter.encounter = prescriptions.encounter
                 LEFT JOIN users AS practitioner
-                ON practitioner.id = prescription.provider_id";
+                ON practitioner.id = prescriptions.provider_id
+                LEFT JOIN drugs AS drug
+                ON drug.id = prescriptions.drug_id";
 
         if (!empty($search)) {
             $sql .= " AND ";

@@ -63,7 +63,7 @@ class FhirMedicationRequestService extends FhirServiceBase
         $medRequestResource->setSubject($subject);
 
         $medicationReference = new FHIRReference();
-        $medicationReference->setReference('Drug/' . $dataRecord['pdrug']);
+        $medicationReference->setReference('Drug/' . $dataRecord['drug_uuid']);
         $medRequestResource->setMedicationReference($medicationReference);
 
         $medRequestResource->setIntent('order');
