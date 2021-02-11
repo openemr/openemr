@@ -526,16 +526,15 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
         // TODO: @bradymiller all the patient unit tests require this to be set to false for fuzzy matching.  However,
-        // it allows patient data to be leaked if anyone has an additional search param in a patient context for FHIR
-        // We need to redo all of the search stuff to have each search param
+        // we need to redo all of the search stuff to have each search param
         // have it's own search conditions (AND, OR, prefix string, suffix string, fuzzy match, etc).
-        return $this->patientService->getAll($openEMRSearchParameters, false);
+        return $this->patientService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)

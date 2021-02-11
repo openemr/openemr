@@ -625,15 +625,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
+        $params = $_GET;
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            // in Patient context you still have to return a bundle even if it is just one resource.
-            $params = $_GET;
+            //  Note in Patient context still have to return a bundle even if it is just one resource. (ie.
+            //   need to use getAll rather than getOne)
             $params['_id'] = $request->getPatientUUIDString();
-            $return = (new FhirPatientRestController())->getAll($params);
+            $return = (new FhirPatientRestController())->getAll($params, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "demo");
-            $return = (new FhirPatientRestController())->getAll($_GET);
+            $return = (new FhirPatientRestController())->getAll($params);
         }
         RestConfig::apiLog($return);
         return $return;
@@ -776,30 +777,25 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
+        $getParams = $_GET;
         if ($request->isPatientRequest()) {
-            $getParams = $_GET;
-            // TODO: need to verify that observation rest controller supports search by patient.
-            $getParams['patient'] = $request->getPatientUUIDString();
-            $return = (new FhirObservationRestController())->getAll($getParams);
+            // only allow access to data of binded patient
+            $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirObservationRestController())->getAll($_GET);
+            $return = (new FhirObservationRestController())->getAll($getParams);
         }
-
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
-            $getParams = $_GET;
-            $getParams['_id'] = $uuid;
-            $getParams['patient'] = $request->getPatientUUIDString();
-            $return = (new FhirObservationRestController())->getAll($getParams);
+            // only allow access to data of binded patient
+            $return = (new FhirObservationRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
             $return = (new FhirObservationRestController())->getOne($uuid);
         }
-
         RestConfig::apiLog($return);
         return $return;
     },
@@ -827,26 +823,48 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Condition" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirConditionRestController())->getAll($_GET);
+        $getParams = $_GET;
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirConditionRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirConditionRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Condition/:id" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirConditionRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirConditionRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirConditionRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirProcedureRestController())->getAll($_GET);
+        $getParams = $_GET;
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirProcedureRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirProcedureRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirProcedureRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirProcedureRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirProcedureRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
@@ -887,14 +905,25 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirCareTeamRestController())->getAll($_GET);
+        $getParams = $_GET;
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirCareTeamRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $restRequest) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirCareTeamRestController())->getOne($uuid);
+    "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCareTeamRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirCareTeamRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
