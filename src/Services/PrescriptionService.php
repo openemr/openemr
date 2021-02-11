@@ -36,7 +36,11 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::DRUGS_TABLE]))->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry([
+            'table_name' => self::DRUGS_TABLE,
+            'table_id' => 'drug_id'
+        ]);
+        $this->uuidRegistry->createMissingUuids();
     }
 
     /**
@@ -66,7 +70,7 @@ class PrescriptionService extends BaseService
                 LEFT JOIN users AS practitioner
                 ON practitioner.id = prescriptions.provider_id
                 LEFT JOIN drugs AS drug
-                ON drug.id = prescriptions.drug_id";
+                ON drug.drug_id = prescriptions.drug_id";
 
         if (!empty($search)) {
             $sql .= " AND ";
@@ -94,7 +98,7 @@ class PrescriptionService extends BaseService
             $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            //$row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
+            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
             $processingResult->addData($row);
         }
 
@@ -121,32 +125,30 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        $sql = "SELECT 
-                prescription.id,
-                prescription.uuid,
-                prescription.patient_id,
-                prescription.encounter,
-                prescription.drug AS pdrug,
-                prescription.size,
+        $sql = "SELECT prescriptions.*,
                 patient.uuid AS puuid,
                 encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid
-                FROM prescriptions AS prescription
+                practitioner.uuid AS pruuid,
+                drug.uuid AS drug_uuid
+                FROM prescriptions
                 LEFT JOIN patient_data AS patient
-                ON patient.pid = prescription.patient_id
+                ON patient.pid = prescriptions.patient_id
                 LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescription.encounter
+                ON encounter.encounter = prescriptions.encounter
                 LEFT JOIN users AS practitioner
-                ON practitioner.id = prescription.provider_id
-                WHERE prescription.uuid = ?";
+                ON practitioner.id = prescriptions.provider_id
+                LEFT JOIN drugs AS drug
+                ON drug.drug_id = prescriptions.drug_id
+                WHERE prescriptions.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        $puuidBytes = $this->getUuidById($sqlResult['patient_id'], self::PATIENT_TABLE, "id");
+        //$puuidBytes = $this->getUuidById($sqlResult['patient_id'], self::PATIENT_TABLE, "id");
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($puuidBytes);
+        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         $sqlResult['euuid'] = $sqlResult['euuid'] != null ? UuidRegistry::uuidToString($sqlResult['euuid']) : $sqlResult['euuid'];
         $sqlResult['pruuid'] = UuidRegistry::uuidToString($sqlResult['pruuid']);
+        $sqlResult['drug_uuid'] = UuidRegistry::uuidToString($sqlResult['drug_uuid']);
         if ($sqlResult['rxnorm_drugcode'] != "") {
             $sqlResult['rxnorm_drugcode'] = $this->addCoding($sqlResult['rxnorm_drugcode']);
         }
