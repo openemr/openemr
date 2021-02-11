@@ -28,7 +28,6 @@ class FhirProcedureService extends FhirServiceBase
      * @var ProcedureService
      */
     private $procedureService;
-    private $surgeryService;
 
     public function __construct()
     {
@@ -128,12 +127,13 @@ class FhirProcedureService extends FhirServiceBase
      * Performs a FHIR Procedure Resource lookup by FHIR Resource ID
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Procedure Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
         $procedureResult = $this->procedureService->getOne($fhirResourceId);
         $surgeryResult = $this->surgeryService->getOne($fhirResourceId);
-        $processingResult = $this->processResults($procedureResult, $surgeryResult);
+        $processingResult = $this->processResults($procedureResult, $surgeryResult, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -149,14 +149,14 @@ class FhirProcedureService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
         $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false);
         $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false);
-        return $this->processResults($procedureResult, $surgeryResult);
+        return $this->processResults($procedureResult, $surgeryResult, $puuidBind = null);
     }
 
     public function parseFhirResource($fhirResource = array())
@@ -177,8 +177,7 @@ class FhirProcedureService extends FhirServiceBase
     {
         // TODO: If Required in Future
     }
-
-    private function processResults($procedureResult, $surgeryResult)
+    private function processResults($procedureResult, $surgeryResult, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
         $surgeryprocedureRecords = array_merge($procedureResult->getData(), $surgeryResult->getData());

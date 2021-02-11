@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * SurgeryRestController
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Shubham Pandey <shubham.pandey1706gmail.com>
+ * @copyright Copyright (c) 2021 Shubham Pandey <shubham.pandey1706gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\RestControllers\RestControllerHelper;

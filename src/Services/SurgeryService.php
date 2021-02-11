@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * SurgeryService
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Shubham Pandey <shubham.pandey1706gmail.com>
+ * @copyright Copyright (c) 2021 Shubham Pandey <shubham.pandey1706gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -13,7 +23,10 @@ class SurgeryService extends BaseService
     private const ENCOUNTER_TABLE = "form_encounter";
     private const SURGERY_LIST_PATIENT = "lists";
     private $uuidRegistry;
-
+    
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
         parent::__construct(self::SURGERY_LIST_PATIENT);
@@ -25,6 +38,16 @@ class SurgeryService extends BaseService
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
     }
 
+    /**
+     * Returns a list of surgeries matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
     public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
@@ -85,6 +108,12 @@ class SurgeryService extends BaseService
         return $processingResult;
     }
 
+    /**
+     * Returns a single surgery record by id.
+     * @param $uuid - The procedure uuid identifier in string format.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
     public function getOne($uuid)
     {
         $processingResult = new ProcessingResult();

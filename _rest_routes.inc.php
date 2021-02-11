@@ -572,7 +572,19 @@ RestConfig::$ROUTE_MAP = array(
         $return = (new PrescriptionRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
+    "GET /api/surgery" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new SurgeryRestController())->getAll();
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /api/surgery/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new SurgeryRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
 );
 
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
@@ -805,13 +817,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
+        //RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
+        //RestConfig::authorization_check("patients", "med");
         $return = (new FhirProcedureRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
