@@ -131,9 +131,9 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $procedureResult = $this->procedureService->getOne($fhirResourceId);
+        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind = null);
         $surgeryResult = $this->surgeryService->getOne($fhirResourceId);
-        $processingResult = $this->processResults($procedureResult, $surgeryResult, $puuidBind);
+        $processingResult = $this->processResults($procedureResult, $surgeryResult);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -154,9 +154,9 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false);
+        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind = null);
         $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false);
-        return $this->processResults($procedureResult, $surgeryResult, $puuidBind = null);
+        return $this->processResults($procedureResult, $surgeryResult);
     }
 
     public function parseFhirResource($fhirResource = array())
@@ -177,7 +177,7 @@ class FhirProcedureService extends FhirServiceBase
     {
         // TODO: If Required in Future
     }
-    private function processResults($procedureResult, $surgeryResult, $puuidBind = null)
+    private function processResults($procedureResult, $surgeryResult)
     {
         $processingResult = new ProcessingResult();
         $surgeryprocedureRecords = array_merge($procedureResult->getData(), $surgeryResult->getData());
