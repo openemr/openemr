@@ -23,7 +23,6 @@ class SurgeryService extends BaseService
     private const ENCOUNTER_TABLE = "form_encounter";
     private const SURGERY_LIST_PATIENT = "lists";
     private $uuidRegistry;
-    
     /**
      * Default constructor.
      */
