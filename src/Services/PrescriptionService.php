@@ -15,6 +15,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\PatientValidator;
 
 class PrescriptionService extends BaseService
 {
@@ -24,6 +25,7 @@ class PrescriptionService extends BaseService
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
     private $uuidRegistry;
+    private $patientValidator;
 
     /**
      * Default constructor.
@@ -41,6 +43,7 @@ class PrescriptionService extends BaseService
             'table_id' => 'drug_id'
         ]);
         $this->uuidRegistry->createMissingUuids();
+        $this->patientValidator = new PatientValidator();
     }
 
     /**
@@ -56,6 +59,19 @@ class PrescriptionService extends BaseService
     public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
+
+        if (isset($search['patient.uuid'])) {
+            $isValidPatient = $this->patientValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['patient.uuid'],
+                true
+            );
+            if ($isValidPatient != true) {
+                return $isValidPatient;
+            }
+            $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+        }
 
         $sql = "SELECT prescriptions.*,
                 patient.uuid AS puuid,
@@ -73,7 +89,7 @@ class PrescriptionService extends BaseService
                 ON drug.drug_id = prescriptions.drug_id";
 
         if (!empty($search)) {
-            $sql .= " AND ";
+            $sql .= " WHERE ";
             $whereClauses = array();
             $wildcardFields = array();
             foreach ($search as $fieldName => $fieldValue) {
@@ -143,7 +159,6 @@ class PrescriptionService extends BaseService
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        //$puuidBytes = $this->getUuidById($sqlResult['patient_id'], self::PATIENT_TABLE, "id");
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         $sqlResult['euuid'] = $sqlResult['euuid'] != null ? UuidRegistry::uuidToString($sqlResult['euuid']) : $sqlResult['euuid'];

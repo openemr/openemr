@@ -36,7 +36,7 @@ class FhirMedicationRequestService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient_uuid'],
+            'patient' => ['patient.uuid'],
         ];
     }
 
