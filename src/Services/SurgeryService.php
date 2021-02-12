@@ -48,7 +48,7 @@ class SurgeryService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
         $sqlBindArray = array();
 
@@ -63,6 +63,19 @@ class SurgeryService extends BaseService
                 return $isValidPatient;
             }
             $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+        }
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValidPatient = BaseValidator::validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
         }
 
         $sql = "SELECT 
@@ -85,6 +98,10 @@ class SurgeryService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= '(';
+            }
             $whereClauses = array();
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
@@ -92,8 +109,16 @@ class SurgeryService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= ") AND `patient`.`uuid` = ?";
+                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+            }
+        } elseif (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " WHERE `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
-
         $statementResult = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -114,7 +139,7 @@ class SurgeryService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
 
@@ -125,6 +150,18 @@ class SurgeryService extends BaseService
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
+        }
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValid = BaseValidator::validateId("uuid", self::PATIENT_TABLE, $puuidBind, true);
+            if ($isValid !== true) {
+                $validationMessages = [
+                    'puuid' => ["invalid or nonexisting value" => " value " . $puuidBind]
+                ];
+                $processingResult->setValidationMessages($validationMessages);
+                return $processingResult;
+            }
         }
 
         $sql = "SELECT 
@@ -146,7 +183,15 @@ class SurgeryService extends BaseService
                 WHERE slist.type = 'surgery' AND slist.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $sqlResult = sqlQuery($sql, [$uuidBinary]);
+        $sqlBindArray = [$uuidBinary];
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " AND `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        }
+
+        $sqlResult = sqlQuery($sql, $sqlBindArray);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
