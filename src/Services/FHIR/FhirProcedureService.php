@@ -9,6 +9,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Services\SurgeryService;
 
 /**
  * FHIR Procedure Service
@@ -31,6 +33,7 @@ class FhirProcedureService extends FhirServiceBase
     {
         parent::__construct();
         $this->procedureService = new ProcedureService();
+        $this->surgeryService = new SurgeryService();
     }
 
     /**
@@ -128,7 +131,9 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->procedureService->getOne($fhirResourceId, $puuidBind);
+        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind);
+        $surgeryResult = $this->surgeryService->getOne($fhirResourceId, $puuidBind);
+        $processingResult = $this->processResults($procedureResult, $surgeryResult);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -149,7 +154,9 @@ class FhirProcedureService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind = null);
+        $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind = null);
+        $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind = null);
+        return $this->processResults($procedureResult, $surgeryResult);
     }
 
     public function parseFhirResource($fhirResource = array())
@@ -169,5 +176,19 @@ class FhirProcedureService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+    private function processResults($procedureResult, $surgeryResult)
+    {
+        $processingResult = new ProcessingResult();
+        $surgeryprocedureRecords = array_merge($procedureResult->getData(), $surgeryResult->getData());
+        if (count($surgeryprocedureRecords) > 0) {
+            $processingResult->setData($surgeryprocedureRecords);
+        } else {
+            $processingResult->setValidationMessages(array_merge($surgeryResult->getValidationMessages(), $procedureResult->getValidationMessages()));
+            $processingResult->setInternalErrors(array_merge($surgeryResult->getInternalErrors(), $procedureResult->getInternalErrors()));
+        }
+
+
+        return $processingResult;
     }
 }
