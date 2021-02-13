@@ -721,6 +721,18 @@ if ($_REQUEST['dispensed']) {
             vertical-align: text-middle;
             text-decoration: unset;
         }
+        table {
+            font-size: 1.0em;
+            padding: 12px;
+            color: black;
+            vertical-align: text-top;
+        }
+
+        input[type=text] {
+            text-align: center;
+            width: 60px;
+            padding: 0.2em 0.4em !important;
+        }
 
         .refraction b {
             font-weight: bold;
@@ -739,11 +751,34 @@ if ($_REQUEST['dispensed']) {
             font-size:12px;
         }
 
+        .right {
+            text-align: right;
+            vertical-align: middle;}
+
+        .left {
+            vertical-align: middle;
+            text-align: left;
+        }
+
         .title {
             font-size: 0.9em;
             font-weight: normal;
         }
 
+        .bold {
+            font-weight: 600;
+        }
+
+        input {
+            width: 60px;
+        }
+
+        input[type="radio"] {
+            width: 15px;
+        }
+        .underline {
+            text-decoration:underline !important
+        }
         #CTLODQUANTITY, #CTLOSQUANTITY {
             width: 300px;
             text-align: left;
@@ -759,7 +794,7 @@ if ($_REQUEST['dispensed']) {
     </style>
     <!-- jQuery library -->
 
-    <script>
+    <script language="JavaScript">
         <?php require_once("$srcdir/restoreSession.php"); ?>
         function pick_rxType(rxtype, id) {
             var url = "../../forms/eye_mag/SpectacleRx.php";
