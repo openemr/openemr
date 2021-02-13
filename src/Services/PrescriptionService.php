@@ -15,16 +15,17 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\PatientValidator;
 
 class PrescriptionService extends BaseService
 {
-
+    private const DRUGS_TABLE = "drugs";
     private const PRESCRIPTION_TABLE = "prescriptions";
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
-    private const DRUG_TABLE = "drugs";
     private $uuidRegistry;
+    private $patientValidator;
 
     /**
      * Default constructor.
@@ -37,7 +38,12 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createMissingUuids();
+        $this->uuidRegistry = new UuidRegistry([
+            'table_name' => self::DRUGS_TABLE,
+            'table_id' => 'drug_id'
+        ]);
+        $this->uuidRegistry->createMissingUuids();
+        $this->patientValidator = new PatientValidator();
     }
 
     /**
@@ -53,6 +59,19 @@ class PrescriptionService extends BaseService
     public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
+
+        if (isset($search['patient.uuid'])) {
+            $isValidPatient = $this->patientValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['patient.uuid'],
+                true
+            );
+            if ($isValidPatient != true) {
+                return $isValidPatient;
+            }
+            $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+        }
 
         $sql = "SELECT prescriptions.*,
                 patient.uuid AS puuid,
@@ -70,7 +89,7 @@ class PrescriptionService extends BaseService
                 ON drug.drug_id = prescriptions.drug_id";
 
         if (!empty($search)) {
-            $sql .= " AND ";
+            $sql .= " WHERE ";
             $whereClauses = array();
             $wildcardFields = array();
             foreach ($search as $fieldName => $fieldValue) {
