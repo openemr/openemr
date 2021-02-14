@@ -40,7 +40,7 @@ function make_task($ajax_req)
     $to_data    =  sqlQuery($query, array($to_id));
     $filename   = "Fax_".$enc."_".$to_data['lname'].".pdf";
 
-    $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
+    $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ? and deleted = 0";
     $doc = sqlQuery($query, array($enc,$patient_id,'%'.$filename.'%' ));
 
 
@@ -60,8 +60,8 @@ function make_task($ajax_req)
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
     if ($task['ID'] && $task['COMPLETED'] == '2') {
-        $send['comments'] = xlt('This fax has already been sent to')." ". $task['to_name'] ." via " .$task['to_fax']." on " .$sent_date.". ".
-                            xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.')." ".
+        $send['comments'] = xlt('This fax has already been sent to')." ". text($task['to_name']) ." " . xlt('via') . " " . text($task['to_fax']) ." on " . text($sent_date) . ". ".
+                            xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.') . " ".
                             xlt('Filename').": ". text($filename);
         echo json_encode($send);
         exit;
@@ -70,7 +70,7 @@ function make_task($ajax_req)
             $send['DOC_link'] = "<a href="JavaScript:void(0);"
                                     onclick="openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');"
                                     title='".xla('View the Summary Report sent to') . 
-                                            $task['to_name'] . " " . xla('via') . " " . $task['to_fax'] . " " . xla('on') . " " . $sent_date ."'>
+                                            text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) ."'>
 								    <i class='far fa-file-pdf fa-fw'></i>
                                  </a>
 								 <i class='fas fa-redo-alt fa-fw'
@@ -129,8 +129,8 @@ function process_tasks($task)
         //now return any objects you need to Eye Form
         $send['DOC_link'] = "<a onclick="openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');"
                                 href="JavaScript:void(0);"
-                                title='" . xlt('Report was faxed to') . " " . $task['to_name'] . " @ " . $task['to_fax'] . " on " .
-                                $task['COMPLETED_DATE'] . ". " . xla(' Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
+                                title='" . xlt('Report was faxed to') . " " . text($task['to_name']) . " @ " . text($task['to_fax']) . " on " .
+                                text($task['COMPLETED_DATE']) . ". " . xla(' Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
                             //if we want a "resend" icon, add it here.
     }
 

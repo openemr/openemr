@@ -4165,7 +4165,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   echo str_replace("form-control", "", $select_pharm);
                                                 ?>
                                               </td><td class="top">
-                                                  <a class="btn btn-primary btn-sm iframe rx_modal" href="javascript:;" onclick="editScripts('../../../controller.php?prescription&amp;list&amp;id=1')"><span>Edit</span></a>
+                                                  <a class="btn btn-primary btn-sm iframe rx_modal" href="javascript:;" onclick="editScripts('../../../controller.php?prescription&amp;list&amp;id=1')"><span><?php echo xlt('Edit'); ?></span></a>
                                                   
                                                   <button onclick="editScripts('../../../controller.php?prescription&list&id=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
                                               </td></tr>
