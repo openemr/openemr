@@ -135,27 +135,9 @@ if ($GLOBALS['medex_enable'] == '1') {
     $prefs = sqlFetchArray($preferences);
     $results = json_decode($prefs['status'], true);
     $logged_in = $results;
-    if (!empty($prefs)) {
-        foreach ($results['campaigns']['events'] as $event) {
-            if ($event['M_group'] != 'REMINDER') {
-                continue;
-            }
-            $icon = $icons[$event['M_type']]['SCHEDULED']['html'];
-            if ($event['E_timing'] == '1') {
-                $action = xl("before");
-            }
-            if ($event['E_timing'] == '2') {
-                $action = xl("before (PM)");
-            }
-            if ($event['E_timing'] == '3') {
-                $action = xl("after");
-            }
-            if ($event['E_timing'] == '4') {
-                $action = xl("after (PM)");
-            }
-            $days = ($event['E_fire_time'] == '1') ? xl("day") : xl("days");
-            $current_events .= $icon . " &nbsp; " . (int)$event['E_fire_time'] . " " . text($days) . " " . text($action) . "<br />";
-        }
+    $logged_in=$results;
+    if (!empty($logged_in['token'])) {
+        $current_events = $icons['SMS']['READ']['html'] . " " .xlt("On-line");
     } else {
         $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
     }
@@ -369,10 +351,10 @@ if (!$_REQUEST['flb_table']) {
                 <div class="d-none d-sm-block">
                     <span id="status_summary">
                         <?php
-                        $statuses_output = "<span class='text badge badge-dark'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
+                        $statuses_output = "<span class='text badge badge-light'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
                         unset($appointments_status['count_all']);
                         foreach ($appointments_status as $status_symbol => $count) {
-                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-dark'>" . text($count) . "</span></span>";
+                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-light'>" . text($count) . "</span></span>";
                         }
                         echo $statuses_output;
                         ?>
