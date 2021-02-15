@@ -2982,7 +2982,7 @@ function canvas_select($zone, $encounter, $pid)
      * At first glance, using the text PRIORS selection method should work...  Not yet.
      *
      *
-     *   $documents['categories']=$categories;
+     *  $documents['categories']=$categories;
      *  $documents['my_name']=$my_name;
      *  $documents['children_names']=$children_names;
      *  $documents['parent_name'] = $parent_name;
@@ -3004,7 +3004,7 @@ function canvas_select($zone, $encounter, $pid)
     $canvi = [];
     if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
+            if (!preg_match("/" . $zone . "_VIEW/", $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3126,11 +3126,11 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     background-image: none;" />
                 </div>
                 <?php
-
-                    $sql = "SELECT * from documents where url like ?";
-                    $doc = sqlQuery($sql, array("%" . $base_name . "%"));
-                    $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                if (file_exists($file_store) && ($doc['id'] > '0')) {
+    
+                $sql = "SELECT * from documents where name like ? ORDER by id DESC";
+                $doc = sqlQuery($sql, array("%" . $base_name . "%"));
+                $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+                if ( ($doc['id'] > '0') ) {
                     $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
                 } else {
                     //base image.
@@ -3679,6 +3679,8 @@ function document_engine($pid)
     $sql1 =  sqlStatement("Select * from categories");
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
+        $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
+    
         $my_name[$row1['id']] = $row1['name'];
         $children_names[$row1['parent']][] = $row1['name'];
         $parent_name[$row1['name']] = $my_name[$row1['parent']];
@@ -3701,6 +3703,8 @@ function document_engine($pid)
     while ($row2 = sqlFetchArray($sql2)) {
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
+        $row2['cat_name'] = preg_replace('/ - Eye/', '', $row2['cat_name']);
+        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot']."/sites/", $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
             $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
@@ -3720,15 +3724,15 @@ function document_engine($pid)
         $docs_by_date[$row2['encounter_date']][] = $row2;
     }
 
-    $documents['categories'] = $categories;
-    $documents['my_name'] = $my_name;
-    $documents['children_names'] = $children_names;
-    $documents['parent_name'] = $parent_name;
-    $documents['zones'] = $zones;
-    $documents['docs_in_zone'] = $docs_in_zone;
-    $documents['docs_in_cat_id'] = $docs_in_cat_id;
-    $documents['docs_in_name'] = $docs_in_name;
-    $documents['docs_by_date'] = $docs_by_date;
+    $documents['categories']        = $categories;
+    $documents['my_name']           = $my_name;
+    $documents['children_names']    = $children_names;
+    $documents['parent_name']       = $parent_name;
+    $documents['zones']             = $zones;
+    $documents['docs_in_zone']      = $docs_in_zone;
+    $documents['docs_in_cat_id']    = $docs_in_cat_id;
+    $documents['docs_in_name']      = $docs_in_name;
+    $documents['docs_by_date']      = $docs_by_date;
 
     return array($documents);
 }

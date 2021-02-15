@@ -3537,7 +3537,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     $("#RETINA_OD_OS").on('click', function () {
                         $("#OSDISC").val($("#ODDISC").val());
                         $("#OSCUP").val($("#ODCUP").val());
-                        $("#OSMAC").val($("#ODMAC").val());
+                        $("#OSMACULA").val($("#ODMACULA").val());
                         $("#OSVESSELS").val($("#ODVESSELS").val());
                         $("#OSVITREOUS").val($("#ODVITREOUS").val());
                         $("#OSPERIPH").val($("#ODPERIPH").val());
@@ -3547,7 +3547,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     $("#RETINA_OS_OD").on('click', function () {
                         $("#ODDISC").val($("#OSDISC").val());
                         $("#ODCUP").val($("#OSCUP").val());
-                        $("#ODMAC").val($("#OSMAC").val());
+                        $("#ODMACULA").val($("#OSMACULA").val());
                         $("#ODVESSELS").val($("#OSVESSELS").val());
                         $("#ODVITREOUS").val($("#OSVITREOUS").val());
                         $("#ODPERIPH").val($("#OSPERIPH").val());
