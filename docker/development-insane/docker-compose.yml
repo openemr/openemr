@@ -141,6 +141,21 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+  openemr-7-4:
+    restart: always
+    image: openemr/openemr:flex-3.13
+    ports:
+    - 8084:80
+    - 9084:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       EMPTY: "yes"
       MYSQL_HOST: mariadb
       MYSQL_ROOT_PASS: root
@@ -149,7 +164,7 @@ services:
       XDEBUG_IDE_KEY: PHPSTORM
       XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9083'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9084'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
@@ -164,21 +179,6 @@ services:
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
-  openemr-7-4:
-    restart: always
-    image: openemr/openemr:flex-3.13
-    ports:
-    - 8084:80
-    - 9084:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
   openemr-8-0:
     restart: always
     image: openemr/openemr:flex-3.13-8
