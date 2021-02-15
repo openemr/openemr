@@ -357,8 +357,8 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                 $pdf->ezText(xl("Digitally Signed"), 12);
 
                 $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-                "(t1.user like t2.username) where t1.pid=? and t1.encounter=?");
-                if ($results = sqlFetchArray($query, array($pid, $encounter))) {
+                "(t1.user like t2.username) where t1.pid = ? and t1.encounter = ?", array($pid, $encounter));
+                if ($results = sqlFetchArray($query)) {
                         $name = $results['fname'] . " " . $results['lname'] . ", " . $results['title'];
                         $user_id = $results['id'];
                 }
