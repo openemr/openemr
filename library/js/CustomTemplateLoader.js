@@ -10,7 +10,7 @@
 
 // Target dom of active page
 window.onload = function (event) {
-    const isAny = document.querySelector("textarea");
+    const isAny = document.querySelectorAll("textarea, input[type='text']");
     if (isAny === null || isAny === 'undefined') {
         // no reason to load
         console.log("Templates Api Support not required for: ['" + location + "']");

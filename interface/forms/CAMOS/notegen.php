@@ -357,8 +357,8 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                 $pdf->ezText(xl("Digitally Signed"), 12);
 
                 $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-                "(t1.user like t2.username) where t1.pid=? and t1.encounter=?");
-                if ($results = sqlFetchArray($query, array($pid, $encounter))) {
+                    "(t1.user like t2.username) where t1.pid = ? and t1.encounter = ?", array($pid, $encounter));
+                if ($results = sqlFetchArray($query)) {
                         $name = $results['fname'] . " " . $results['lname'] . ", " . $results['title'];
                         $user_id = $results['id'];
                 }
@@ -429,9 +429,9 @@ function getFormData($start_date, $end_date, $lname, $fname)
             $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['calories'] = array();
         }
 
-        // get icd9 codes for this encounter
+        // get ICD10 codes for this encounter
         $query2 = sqlStatement("select * from billing where encounter = ?" .
-            " and pid = ? and code_type like 'ICD9' and activity=1", array($results1['enc'], $results1['pid']));
+            " and pid = ? and code_type like 'ICD10' and activity=1", array($results1['enc'], $results1['pid']));
         while ($results2 = sqlFetchArray($query2)) {
             array_push(
                 $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['billing'],

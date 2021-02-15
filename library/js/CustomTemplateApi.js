@@ -28,18 +28,21 @@ function doTemplateEditor(_this, event, oContext = '') {
 }
 
 const bindTextArea = function () {
-    const teventElement = document.querySelector("textarea");
+    const teventElement = document.querySelectorAll("textarea, input[type='text']");
     if (typeof teventElement === 'undefined' || teventElement === null) {
         return false;
     }
-    document.body.addEventListener('dblclick', event => {
-        if (event.target.nodeName === "TEXTAREA") {
-            doTemplateEditor(this, event);
-        } else if (event.target.nodeName === "INPUT" && event.target.type === "text") {
-            doTemplateEditor(this, event, 'sentence');
-        } else {
-            return false;
-        }
+    teventElement.forEach(item => {
+        item.addEventListener('dblclick', event => {
+            if (event.target.nodeName === "TEXTAREA") {
+                doTemplateEditor(this, event);
+            } else if (event.target.nodeName === "INPUT" && event.target.type === "text") {
+                doTemplateEditor(this, event, 'sentence');
+            } else {
+                return false;
+            }
+        })
     });
+
     console.log("Bound text events: ['" + location + "']");
 };
