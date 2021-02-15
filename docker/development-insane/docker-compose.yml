@@ -135,7 +135,6 @@ services:
     - 9083:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
-    - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
@@ -151,6 +150,7 @@ services:
     - 9084:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
+    - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
