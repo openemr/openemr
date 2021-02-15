@@ -36,7 +36,7 @@ class FhirMedicationRequestService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient_id'],
+            'patient' => ['patient.uuid'],
         ];
     }
 
@@ -57,6 +57,14 @@ class FhirMedicationRequestService extends FhirServiceBase
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $medRequestResource->setId($id);
+
+        $subject = new FHIRReference();
+        $subject->setReference('Patient/' . $dataRecord['puuid']);
+        $medRequestResource->setSubject($subject);
+
+        $medicationReference = new FHIRReference();
+        $medicationReference->setReference('Drug/' . $dataRecord['drug_uuid']);
+        $medRequestResource->setMedicationReference($medicationReference);
 
         $medRequestResource->setIntent('order');
 
@@ -183,10 +191,11 @@ class FhirMedicationRequestService extends FhirServiceBase
      * Performs a FHIR MedicationRequest Resource lookup by FHIR Resource ID
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR MedicationRequest Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->procedureService->getOne($fhirResourceId);
+        $processingResult = $this->prescriptionService->getOne($fhirResourceId, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -202,12 +211,12 @@ class FhirMedicationRequestService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->procedureService->getAll($openEMRSearchParameters, false);
+        return $this->prescriptionService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())

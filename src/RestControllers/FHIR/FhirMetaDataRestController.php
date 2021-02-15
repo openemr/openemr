@@ -10,6 +10,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
@@ -69,8 +70,7 @@ class FhirMetaDataRestController
         $dateTime = new FHIRDateTime();
         $dateTime->setValue(date("Y-m-d", time()));
         $capabilityStatement->setDate($dateTime);
-        $restJSON = $this->restHelper->getCapabilityRESTJSON($routes);
-        $restObj = new FHIRCapabilityStatementRest($restJSON);
+        $restObj = $this->restHelper->getCapabilityRESTObject($routes);
         $restObj->setSecurity($this->getRestSecurity());
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($serverRoot . "/composer.json");
@@ -79,6 +79,10 @@ class FhirMetaDataRestController
         $software->setName("OpenEMR");
         $software->setVersion($composerObj["version"]);
         $capabilityStatement->setSoftware($software);
+
+        // add the fact that we support Bulk FHIR operations.
+        $capabilityStatement->addInstantiates(new FHIRCanonical("http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data"));
+
         return $capabilityStatement;
     }
 

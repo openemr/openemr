@@ -23,9 +23,7 @@ var app = {
 	    if (!message) {
 	        return;
         }
-        if (!timeout) {
-            timeout = 5000;
-        }
+        timeout = 60000; // mostly errors so make long.
         if (typeof signerAlertMsg !== 'undefined') {
             signerAlertMsg("Error: " + message, timeout);
         } else {

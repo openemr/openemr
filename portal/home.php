@@ -24,7 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
-    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+    require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
@@ -405,8 +405,7 @@ foreach ($msgs as $i) {
                             <i class="fa fa-user"></i>
                         </div>
                         <div class="float-left info">
-                            <p><?php echo xlt('Welcome') . ' ' . text($result['fname'] . " " . $result['lname']); ?></p>
-                            <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
+                            <p><?php echo xlt('Welcome') . ' ' . text($result['fname']); ?></p>
                         </div>
                     </div>
                     <!-- css class was sidebar-menu -->

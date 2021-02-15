@@ -384,11 +384,19 @@ class Installer
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Handle the additional users now that our gacl's have finished installing.
+     * @return bool
+     */
+    public function install_additional_users()
+    {
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
             return false;
         }
-
         return true;
     }
 
@@ -1155,6 +1163,10 @@ $config = 1; /////////////
             }
 
             if (! $this->install_gacl()) {
+                return false;
+            }
+
+            if (! $this->install_additional_users()) {
                 return false;
             }
         }

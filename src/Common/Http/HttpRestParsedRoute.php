@@ -32,6 +32,13 @@ class HttpRestParsedRoute
     private $resource;
 
     /**
+     * The endpoint operation that the api request is for.  Only populated if the route definition
+     * matches against the current route
+     * @var string
+     */
+    private $operation;
+
+    /**
      * The endpoint paramters (identifiers, and anything else marked with the :colon param).
      * Only populated if the route definition matches against the current route
      * @var string
@@ -64,10 +71,11 @@ class HttpRestParsedRoute
             $this->isValid = true;
             array_shift($matches); // drop request method
             $this->routeParams = $matches;
-            $this->resource = $this->getResourceForRoute($routeDefinition);
-            (new SystemLogger())->debug("HttpRestParsedRoute->__construct() ", ['routePath' => $routeDefinition,
+            $this->parseRouteParams($matches, $routeDefinition);
+            (new SystemLogger())->debug("HttpRestParsedRoute->__construct() matched", ['routePath' => $routeDefinition,
                 'requestPath' => $requestRoute
-                ,'method' => $requestMethod, 'routeParams' => $this->routeParams, 'resource' => $this->getResource()]);
+                ,'method' => $requestMethod, 'routeParams' => $this->routeParams
+                , 'resource' => $this->getResource(), 'operation' => $this->getOperation()]);
         } else {
             $this->isValid = false;
         }
@@ -86,7 +94,7 @@ class HttpRestParsedRoute
     /**
      * @return string
      */
-    public function getResource(): string
+    public function getResource(): ?string
     {
         return $this->resource;
     }
@@ -116,6 +124,24 @@ class HttpRestParsedRoute
     }
 
     /**
+     * Returns the operation name for the parsed route.  Operations are prefixed with a $
+     * @return string
+     */
+    public function getOperation(): ?string
+    {
+        return $this->operation;
+    }
+
+    /**
+     * Returns true if the parsed route is an operation, false otherwise
+     * @return bool
+     */
+    public function isOperation(): bool
+    {
+        return !empty($this->operation);
+    }
+
+    /**
      * Returns the regex for a given path we use to match against a route.
      * @param $path
      * @return string
@@ -126,15 +152,41 @@ class HttpRestParsedRoute
         return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$]+)', preg_quote($path)) . "$@D";
     }
 
-
-    private function getResourceForRoute($routePath)
+    /**
+     * Sets up the operation and resource definitions for this parsed route
+     * @param $routeParams
+     * @param $routeDefinition
+     * @return mixed|void
+     */
+    private function parseRouteParams($routeParams, $routeDefinition)
     {
-        $parts = explode("/", $routePath);
+        $parts = explode("/", $routeDefinition);
+        if (empty($parts)) {
+            return; // nothing we can do here
+        }
+        $apiType = $parts[1] ?? null;
+
         $finalArg = end($parts);
+        if (strpos($finalArg, '$') !== false) {
+            $this->operation = $finalArg;
+            array_pop($parts);
+            $finalArg = end($parts);
+        }
+
         if (strpos($finalArg, ':') !== false) {
             array_pop($parts);
             $finalArg = end($parts);
         }
+
+        // We've implemented our FHIR api spec so the resource is the first argument
+        // We have to accomodate this for our scope permissions
+        // standard api allows for nesting of resources so we have to handle the other possibilities there.
+        if ($apiType === 'fhir') {
+            $this->resource = $parts[2] ?? null;
+        } else if (!empty($finalArg) && !\in_array($finalArg, ['portal', 'api'])) {
+            $this->resource = $finalArg;
+        }
+
         return $finalArg;
     }
 }
