@@ -191,12 +191,12 @@ class SurgeryService extends BaseService
         }
 
         $sqlResult = sqlQuery($sql, $sqlBindArray);
-        if(!empty($sqlResult)){
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
-        $processingResult->addData($sqlResult);
-    }
+        if (!empty($sqlResult)) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+            $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
+            $processingResult->addData($sqlResult);
+        }
         return $processingResult;
     }
 }
