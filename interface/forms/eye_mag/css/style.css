@@ -913,8 +913,8 @@ textarea.ANTSEGTEXT {
 .color_indicator {
   width: 32px;
   display: block;
-  height: 20px;
-  top: 17px;
+  height: 17px;
+  top: 19px;
   position: relative;
   left: 3px;
   border: 1pt solid #c0c0c0;
