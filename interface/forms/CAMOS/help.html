@@ -66,10 +66,10 @@ damage that occurs as a result of the data or as a result of the use of the CAMO
 <b>lock</b> button - Inserts text: '/*lock::*/' which prevents accidental deletion.  Admittedly a dumb way to do it, but maybe helpful.
 </p>
 <p>
-<b>icd9</b> button - Inserts icd9 codes from billing table for this encounter.  You have to remember to enter them first before viewing this form.
+<b>ICD10</b> button - Inserts ICD10 codes from billing table for this encounter.  You have to remember to enter them first before viewing this form.
 </p>
 <p>
-<b>search</b> button - Searches content from form_CAMOS table based on keywords entered in text box to the left of the button.  Starting the keywords with the word 'codes' or 'billing' will search the codes or billing table for matching icd9, cpt4 or other codes.  Data is displayed in the content box in camos function format (see advanced section below).
+<b>search</b> button - Searches content from form_CAMOS table based on keywords entered in text box to the left of the button.  Starting the keywords with the word 'codes' or 'billing' will search the codes or billing table for matching ICD10, cpt4 or other codes.  Data is displayed in the content box in camos function format (see advanced section below).
 </p>
 <p>
 <b>search selected</b> button -  Like the search button described above, but searches are limited by what is selected in the columns.
@@ -146,7 +146,7 @@ Embedded functions are contained within comments.  The first word is the functio
 </p>
 <p>
 The <b>billing</b> function<br /><br />
-If you want to enter an entry into the billing table to have, for example, a CPT4 or ICD9 code come up after entering a CAMOS form into a patient's chart, do this:
+If you want to enter an entry into the billing table to have, for example, a CPT4 or ICD10 code come up after entering a CAMOS form into a patient's chart, do this:
 </p>
 <b>billing function signature</b>
 <div class='box'>
@@ -163,7 +163,7 @@ If you want to enter an entry into the billing table to have, for example, a CPT
 /*billing::CPT4::80054::CMP:: :: ::50.00*/ /*add a cmp for $50*/
 /*billing::CPT4::85024::CBC:: :: ::25.00*/ /*add a cbc*/
 /*billing::CPT4::80061::Lipid Panel:: :: ::50.00*/
-/*billing::ICD9::V70.0::physical:: :: ::0.00*/ /*this is a diagnosis, not a procedure*/
+/*billing::ICD10::Z00.00::physical:: :: ::0.00*/ /*this is a diagnosis, not a procedure*/
 </pre>
 </div>
 </div>
