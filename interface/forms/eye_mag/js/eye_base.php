@@ -409,7 +409,7 @@ function alter_issue2(issue_number,issue_type,index) {
     } else {
         $('iframe').contents().find('#delete_button').addClass('nodisplay');
     }
-    $('iframe').contents().find('#issue'                ).val(issue_number);
+    $('iframe').contents().find('#issue').val(issue_number);
     if (typeof here !== "undefined") {
         $('iframe').contents().find('#form_title'           ).val(here.title);
         $('iframe').contents().find('#form_diagnosis'       ).val(here.diagnosis);

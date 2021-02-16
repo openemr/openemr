@@ -2140,13 +2140,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                                     <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt(ucwords($item['row_subtype'])) . ' Meds</span>
                                 </td>
                                 <td>
-                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',' . attr_js($key) . ',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\'Eye Meds\',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
                                 </td>
                             </tr>
                         </table>
                         ';
-                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
-                            onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . $reaction) . "</span><br />";
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",\"Eye Meds\"," . attr_js($index) . ");\">" . text($item['title']) . "</span><br />";
                     $index++;
                     continue;
                 }
@@ -2422,7 +2422,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 //<!-- Eye Meds -->
     echo "<br /><span class='panel_title' title='" . xla("Eye Meds") . "'>" . xlt("Eye Meds") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
-            onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
+            onclick="alter_issue2('0','Eye Meds','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Eye Meds']) {
@@ -2433,7 +2433,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
-            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Medication','" . $i . "');\" > " . text($item['title']) . "</span><br />";
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Eye Meds','" . $i . "');\" > " . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>

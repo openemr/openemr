@@ -231,6 +231,7 @@ foreach (explode(',', $given) as $item) {
             document.getElementById('row_begindate').style.display = 'none';
             document.getElementById('row_enddate').style.display = 'none';
             document.getElementById('row_reaction').style.display = 'none';
+            document.getElementById('row_eye_med').style.display = 'none';
             document.getElementById('row_referredby').style.display = 'none';
             document.getElementById('row_classification').style.display = 'none';
             document.getElementById('row_occurrence').style.display = 'none';
@@ -265,7 +266,7 @@ foreach (explode(',', $given) as $item) {
                 document.getElementById('row_begindate').style.display = '';
                 document.getElementById('row_enddate').style.display = '';
                 document.getElementById('row_comments').style.display = '';
-                document.getElementById('row_eye_med').style.display = '';
+                document.getElementById('form_eye_subtype').checked = false;
                 //change Onset to started
                 //change resolved to Completed
                 document.getElementById('onset').textContent = "<?php echo xlt('Start') . ':'; ?>";
