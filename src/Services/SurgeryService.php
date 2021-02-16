@@ -96,7 +96,7 @@ class SurgeryService extends BaseService
                 WHERE slist.type = 'surgery'";
 
         if (!empty($search)) {
-            $sql .= ' WHERE ';
+            $sql .= ' AND ';
             if (!empty($puuidBind)) {
                 // code to support patient binding
                 $sql .= '(';
@@ -115,7 +115,7 @@ class SurgeryService extends BaseService
             }
         } elseif (!empty($puuidBind)) {
             // code to support patient binding
-            $sql .= " WHERE `patient`.`uuid` = ?";
+            $sql .= " AND `patient`.`uuid` = ?";
             $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
         $statementResult = sqlStatement($sql, $sqlBindArray);
@@ -191,11 +191,12 @@ class SurgeryService extends BaseService
         }
 
         $sqlResult = sqlQuery($sql, $sqlBindArray);
+        if(!empty($sqlResult)){
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
         $sqlResult['euuid'] = UuidRegistry::uuidToString($sqlResult['euuid']);
-
         $processingResult->addData($sqlResult);
+    }
         return $processingResult;
     }
 }
