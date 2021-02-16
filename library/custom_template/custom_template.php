@@ -23,7 +23,7 @@
 //
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
-//           Jerry Padgett <sjpadgett@gmail.com> 2019-2020
+//           Jerry Padgett <sjpadgett@gmail.com> 2019-2021
 //
 // +------------------------------------------------------------------------------+
 
@@ -42,11 +42,17 @@ function listitemCode($strDisp, $strInsert)
              "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></li>';
     }
 }
+
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
 $contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : '';
-$type = isset($_GET['type']) ? $_GET['type'] : '';
-$cc_flag = isset($_GET['ccFlag']) ? $_GET['ccFlag'] : '';
+$type = $_GET['type'] ?? '';
+$cc_flag = $_GET['ccFlag'] ?? '';
+
 $isNN = empty($cc_flag) ? 1 : 0;
+if (empty($isNN)) {
+    $contextName = empty($contextName) ? "Encounters" : $contextName;
+}
+// either NN context from layout or text template default.
 $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", array($contextName));
 ?>
 <html>
@@ -67,7 +73,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
     <?php if (!$isNN) { ?>
         $(function () {
             $('#contextSearch').select2({
-                placeholder: '<?php echo xlj('Select Template Context'); ?>',
+                placeholder: <?php echo xlj('Select Template Context'); ?>,
                 width: 'resolve',
                 theme: 'bootstrap4',
                 ajax: {
@@ -92,14 +98,15 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
             });
         });
     <?php } ?>
+
     function refreshme() {
         top.restoreSession();
         document.location.reload();
     }
 
     CKEDITOR.config.customConfig = top.webroot_url + '/library/js/nncustom_config.js';
-    $(function () {
 
+    $(function () {
         tabbify();
 
         $(".iframe_small").on('click', function (e) {
@@ -177,7 +184,6 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
             <input type="hidden" name="contextName" id="contextName" value="<?php echo attr($contextName); ?>" />
             <div class="row">
               <div class="col-md-12">
-                <p class='text'><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><?php echo xlt('Save'); ?></a></p>
                 <?php if (!$isNN) { ?>
                 <div id="searchCriteria">
                     <div class="select-box form-inline mb-1">
@@ -189,7 +195,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
                 </div>
                 <?php } ?>
               </div>
-              <div class="col-md-3 text mb-2" id="templateDD">
+              <div class="col-md-4 text mb-2" id="templateDD">
                 <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
                     <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
@@ -200,7 +206,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
                     ?>
                 </select>
               </div>
-              <div class="col-md-9 text mb-2">
+              <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
                 <!-- Enter Key !-->
                 <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
@@ -212,22 +218,19 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
                 <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
                 <?php
                 $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
-                while ($row = sqlFetchArray($res)) {
-                    ?>
+                while ($row = sqlFetchArray($res)) { ?>
                     <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
-                    <?php
-                }
-                ?>
+                <?php } ?>
+                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="bg-light">
                     <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
                         <ul id="menu5" class="example_menu w-100">
                             <li>
                                 <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
                                 <ul>
-                                    <div id="template_sentence">
-                                    </div>
+                                    <div id="template_sentence"></div>
                                 </ul>
                             </li>
                             <?php
@@ -252,34 +255,29 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
                                 <?php
                                 foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
                                     $res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
-                                    if (sqlNumRows($res)) {
-                                        ?>
-                                        <li>
-                                            <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
-                                            <ul>
-                                                <?php
-                                                while ($row = sqlFetchArray($res)) {
-                                                    listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']));
-                                                }
-                                                ?>
-                                            </ul>
-                                        </li>
-                                        <?php
-                                    }
+                                    if (sqlNumRows($res)) { ?>
+                                    <li>
+                                        <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
+                                        <ul>
+                                            <?php
+                                            while ($row = sqlFetchArray($res)) {
+                                                listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']));
+                                            }
+                                            ?>
+                                        </ul>
+                                    </li>
+                                    <?php }
                                 }
-                            }
-                            ?>
+                            } ?>
                         </ul>
                     </div>
                 </div>
                 <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id']; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
                 <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
-              <div class="col-md-9">
-                <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
-              </div>
-              <div class="col-md-12 text-right">
-                <p class="text"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><?php echo xlt('Save'); ?></a></p>
+              <div class="col-md-8">
+                <textarea class="ckeditor" cols="100" rows="180" id="textarea1" name="textarea1"></textarea>
+                <span class="float-right my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
         </form>

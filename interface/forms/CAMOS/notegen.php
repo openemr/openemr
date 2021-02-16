@@ -429,9 +429,9 @@ function getFormData($start_date, $end_date, $lname, $fname)
             $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['calories'] = array();
         }
 
-        // get icd9 codes for this encounter
+        // get ICD10 codes for this encounter
         $query2 = sqlStatement("select * from billing where encounter = ?" .
-            " and pid = ? and code_type like 'ICD9' and activity=1", array($results1['enc'], $results1['pid']));
+            " and pid = ? and code_type like 'ICD10' and activity=1", array($results1['enc'], $results1['pid']));
         while ($results2 = sqlFetchArray($query2)) {
             array_push(
                 $dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['billing'],
