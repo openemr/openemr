@@ -259,10 +259,11 @@ class PatientService extends BaseService
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
         $sqlBindArray = array();
 
@@ -302,6 +303,10 @@ class PatientService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= '(';
+            }
             $whereClauses = array();
             $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
             foreach ($search as $fieldName => $fieldValue) {
@@ -317,7 +322,17 @@ class PatientService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= ") AND `uuid` = ?";
+                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+            }
+        } elseif (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " WHERE `uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
+
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();

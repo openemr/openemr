@@ -24,9 +24,16 @@ class HttpRestRequest
     private $restConfig;
 
     /**
+     * The Resource that is being requested in this http rest call.
      * @var string
      */
     private $resource;
+
+    /**
+     * The FHIR operation that this request represents.  FHIR operations are prefixed with a $ ie $export
+     * @var string
+     */
+    private $operation;
 
     /**
      * @var array
@@ -90,12 +97,53 @@ class HttpRestRequest
      */
     private $requestPath;
 
+    /**
+     * @var string the URL for the api base full url
+     */
+    private $apiBaseFullUrl;
+
+    /**
+     * @var string[] The request headers
+     */
+    private $headers;
+
     public function __construct($restConfig, $server)
     {
         $this->restConfig = $restConfig;
         $this->requestSite = $restConfig::$SITE;
 
         $this->requestMethod = $server["REQUEST_METHOD"];
+        $this->setRequestURI($server['REQUEST_URI'] ?? "");
+        $this->headers = $this->parseHeadersFromServer($server);
+    }
+
+    /**
+     * Return an array of HTTP request headers
+     * @return array|string[]
+     */
+    public function getHeaders()
+    {
+        return array_values($this->headers);
+    }
+
+    /**
+     * Retrieve the value of the passed in request's HTTP header.  Return's null if the value does not exist
+     * @param $headerName string the name of the header value to retrieve.
+     * @return mixed|string|null
+     */
+    public function getHeader($headerName)
+    {
+        return $this->headers[$headerName] ?? null;
+    }
+
+    /**
+     * Checks if the current HTTP request has the passed in header
+     * @param $headerName The name of the header to check
+     * @return bool true if the header exists, false otherwise.
+     */
+    public function hasHeader($headerName)
+    {
+        return !empty($this->headers[$headerName]);
     }
 
     /**
@@ -106,7 +154,23 @@ class HttpRestRequest
         return $this->restConfig;
     }
 
+    /**
+     * Return the Request URI (matches the $_SERVER['REQUEST_URI'])
+     * @return mixed|string
+     */
+    public function getRequestURI()
+    {
+        return $this->requestURI;
+    }
 
+    /**
+     * Return the Request URI (matches the $_SERVER['REQUEST_URI'])
+     * @param mixed|string $requestURI
+     */
+    public function setRequestURI($requestURI): void
+    {
+        $this->requestURI = $requestURI;
+    }
 
     /**
      * @return string
@@ -119,9 +183,29 @@ class HttpRestRequest
     /**
      * @param string $resource
      */
-    public function setResource(string $resource): void
+    public function setResource(?string $resource): void
     {
         $this->resource = $resource;
+    }
+
+    /**
+     * Returns the operation name for this request if this request represents a FHIR operation.
+     * Operations are prefixed with a $
+     * @return string
+     */
+    public function getOperation(): ?string
+    {
+        return $this->operation;
+    }
+
+    /**
+     * Sets the operation name for this request if this request represents a FHIR operation.
+     * Operations are prefixed with a $
+     * @param string $operation The operation name
+     */
+    public function setOperation(string $operation): void
+    {
+        $this->operation = $operation;
     }
 
     /**
@@ -130,6 +214,16 @@ class HttpRestRequest
     public function getRequestUser(): array
     {
         return $this->requestUser;
+    }
+
+    /**
+     * Returns the current user id if we have one
+     * @return int|null
+     */
+    public function getRequestUserId(): ?int
+    {
+        $user = $this->getRequestUser();
+        return $user['id'] ?? null;
     }
 
     /**
@@ -242,7 +336,7 @@ class HttpRestRequest
      */
     public function setRequestUserRole($requestUserRole): void
     {
-        if (!in_array($requestUserRole, ['patient', 'users'])) {
+        if (!in_array($requestUserRole, ['patient', 'users', 'system'])) {
             throw new \InvalidArgumentException("invalid user role found");
         }
         $this->requestUserRole = $requestUserRole;
@@ -320,5 +414,48 @@ class HttpRestRequest
     public function getRequestPath(): ?string
     {
         return $this->requestPath;
+    }
+
+    /**
+     * Returns the full URL to the api server
+     * @return string
+     */
+    public function getApiBaseFullUrl(): string
+    {
+        return $this->apiBaseFullUrl;
+    }
+
+    /**
+     * Set the full URL to the api server that api requests are appended to.
+     * @param string $apiBaseFullUrl
+     */
+    public function setApiBaseFullUrl(string $apiBaseFullUrl): void
+    {
+        $this->apiBaseFullUrl = $apiBaseFullUrl;
+    }
+
+    /**
+     * Given an array of server variables (typically the $_SERVER superglobal) parse out all of the HTTP_X headers
+     * and convert them into a hashmap of header -> header
+     * @param $server array of server variables typically the $_SERVER superglobal
+     * @return array hashmap of header -> header
+     */
+    private function parseHeadersFromServer($server)
+    {
+        $headers = array();
+        foreach ($server as $key => $value) {
+            $prefix = substr($key, 0, 5);
+
+            if ($prefix != 'HTTP_') {
+                continue;
+            }
+
+            $serverHeader = strtolower(substr($key, 5));
+            $uppercasedServerHeader = ucwords(str_replace('_', ' ', $serverHeader));
+
+            $header = str_replace(' ', '-', $uppercasedServerHeader);
+            $headers[$header] = $value;
+        }
+        return $headers;
     }
 }

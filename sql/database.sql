@@ -269,7 +269,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57, 'patients|docs');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
@@ -298,6 +298,8 @@ INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients
 INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
+-- @bradymiller is this the right aco for this?  We really don't want people with patient stuff to have access to this doc
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super');
 
 -- --------------------------------------------------------
 
@@ -1192,6 +1194,7 @@ CREATE TABLE `documents` (
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
+  `date_expires` datetime default NULL,
   `url` varchar(255) default NULL,
   `thumb_url` varchar(255) default NULL,
   `mimetype` varchar(255) default NULL,
@@ -1217,10 +1220,13 @@ CREATE TABLE `documents` (
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `document_data` MEDIUMTEXT,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `foreign_reference_id` bigint(20) default NULL,
+  `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
+  KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
   KEY `owner` (`owner`)
 ) ENGINE=InnoDB;
 
@@ -1663,7 +1669,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL);
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -12331,3 +12337,22 @@ CREATE TABLE `x12_remote_tracker` (
 `updated_at` datetime DEFAULT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `export_job`;
+CREATE TABLE `export_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `client_id` varchar(80) NOT NULL,
+  `status` varchar(40) NOT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `resource_include_time` datetime DEFAULT NULL,
+  `output_format` varchar(128) NOT NULL,
+  `request_uri` varchar(128) NOT NULL,
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  UNIQUE (`uuid`),
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';

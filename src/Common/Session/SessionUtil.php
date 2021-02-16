@@ -72,6 +72,8 @@ class SessionUtil
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         session_start([
             'read_and_close' => $read_only,
             'cookie_samesite' => self::$use_cookie_samesite,
@@ -128,11 +130,17 @@ class SessionUtil
 
     public static function coreSessionDestroy(): void
     {
+        (new SystemLogger())->debug(
+            "Destroying core session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 
     public static function portalSessionStart(): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         session_start([
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => self::$use_cookie_secure,
@@ -149,11 +157,17 @@ class SessionUtil
 
     public static function portalSessionCookieDestroy(): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         self::standardSessionCookieDestroy();
     }
 
     public static function apiSessionStart($web_root): void
     {
+        (new SystemLogger())->debug(
+            "Creating apiSessionStart cookie",
+            ['cookie.name' => 'apiOpenEMR']
+        );
         session_start([
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => true,
@@ -171,12 +185,15 @@ class SessionUtil
 
     public static function apiSessionCookieDestroy(): void
     {
+        (new SystemLogger())->debug(
+            "Destroying api session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 
     public static function oauthSessionStart($web_root): void
     {
-        // we need to track some of our cookie sessions here
         (new SystemLogger())->debug(
             "Creating oauthSessionStart cookie",
             ['cookie.name' => 'authserverOpenEMR']
@@ -198,19 +215,17 @@ class SessionUtil
 
     public static function oauthSessionCookieDestroy(): void
     {
+        (new SystemLogger())->debug(
+            "Destroying oauth session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 
     private static function standardSessionCookieDestroy(): void
     {
-
         // Destroy the cookie
         $params = session_get_cookie_params();
-        // we need to track some of our cookie sessions here
-        (new SystemLogger())->debug(
-            "Destroying session cookie",
-            ['name' => session_name(), 'cookieParams' => $params]
-        );
         setcookie(
             session_name(),
             '',

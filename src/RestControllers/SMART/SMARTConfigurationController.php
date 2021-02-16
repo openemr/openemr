@@ -61,7 +61,7 @@ class SMARTConfigurationController
         $authServer = $this->authServer;
         // combine all possible supported scopes(OIDC & SMART on FHIR)
         // and reduce to only scopes supported by existing FHIR api resources.
-        $scopeRepository = new ScopeRepository();
+        $scopeRepository = new ScopeRepository(\RestConfig::GetInstance());
         $scopesSupported = $scopeRepository->getCurrentSmartScopes();
 
         /**

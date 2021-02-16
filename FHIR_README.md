@@ -38,6 +38,7 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [Authorization Code Grant](API_README.md#authorization-code-grant)
     -   [Refresh Token Grant](API_README.md#refresh-token-grant)
     -   [Password Grant](API_README.md#password-grant)
+    -   [Client Credentials Grant](API_README.md#client-credentials-grant)
     -   [Logout](API_README.md#logout)
     -   [More Details](API_README.md#more-details)
 -   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
@@ -58,6 +59,9 @@ Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR 
     -   [Location](FHIR_README.md#location-resource)
     -   [CareTeam](FHIR_README.md#careTeam-resource)
     -   [Provenance](FHIR_README.md#Provenance-resources)
+    -   [System Export](FHIR_README.md#SystemExport-resource)
+    -   [Patient Export](FHIR_README.md#PatientExport-resource)
+    -   [Group Export](FHIR_README.md#GroupExport-resource)
 
 ### Prerequisite
 
@@ -602,3 +606,54 @@ Provenance resources are requested by including `_revinclude=Provenance:target` 
       ```sh
       curl -X GET 'http://localhost:8300/apis/default/fhir/AllergyIntolerance?_revinclude=Provenance:target'
       ```
+### BULK FHIR Exports
+An export operation that implements the [BULK FHIR Export ONC requirements](https://hl7.org/fhir/uv/bulkdata/export/index.html) can be requested by issuing a GET request to the following endpoints:
+ - System Export, requires the **system/\*.$export** scope.  Exports All supported FHIR resources
+    ```sh
+          curl -X GET 'https://localhost:9300/apis/default/fhir/$export'
+    ```
+ - Group Export, requires the **system/Group.$export** scope.  Exports all data in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) for the group.
+   There is only one group defined in the system currently.  If OpenEMR defines additional patient population groups you would change the Group ID in the API call.
+    ```sh
+          curl -X GET 'https://localhost:9300/apis/default/fhir/Group/1/$export'
+    ```
+ - Patient Export, requires the **system/Group.$export** scope.  Exports all data for all patients in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html).
+    ```sh
+          curl -X GET 'https://localhost:9300/apis/default/fhir/Patient/$export'
+    ``` 
+You will get an empty body response with a **Content-Location** header with the URL you can query for status updates on the export. 
+
+To query the status update operation you need the **system/\*.$bulkdata-status** scope.  An example query:
+ - Status Query
+    ```sh
+          curl -X GET 'https://localhost:9300/apis/default/fhir/$bulkdata-status?job=92a94c00-77d6-4dfc-ae3b-73550742536d'
+    ``` 
+
+A status Query will return a result like the following:
+```
+{
+  "transactionTime": {
+    "date": "2021-02-05 20:48:38.000000",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "request": "\/apis\/default\/fhir\/Group\/1\/%24export",
+  "requiresAccessToken": true,
+  "output": [
+    {
+      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Document\/97552\/Binary",
+      "type": "Patient"
+    },
+    {
+      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Document\/105232\/Binary",
+      "type": "Encounter"
+    }
+  ],
+  "error": []
+}
+```
+
+You can download the exported documents which are formatted in Newline Delimited JSON (NDJSON) by making a call to:
+    ```sh
+          curl -X GET 'https://10.0.0.9:9300/apis/default/fhir/Document/105232/Binary'
+    ``` 

@@ -179,7 +179,7 @@ class AllergyIntoleranceService extends BaseService
             $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "patient_data", $puuidBind, true);
             if ($isValid !== true) {
                 $validationMessages = [
-                    'puuid' => ["invalid or nonexisting value" => " value " . $uuid]
+                    'puuid' => ["invalid or nonexisting value" => " value " . $puuidBind]
                 ];
                 $processingResult->setValidationMessages($validationMessages);
                 return $processingResult;

@@ -1489,7 +1489,7 @@ class X125010837P
      * This function processes claims and outputs "TR3" format,
      * for multiple billing providers per claim. This format is the typical
      * format accepted by insurance companies, and allows OpenEMR to submit
-     * claims directly to insurance compainies without a clearing house.
+     * claims directly to insurance companies without a clearing house.
      *
      * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
      *
@@ -1498,17 +1498,16 @@ class X125010837P
      * @param  $log
      * @param  false $encounter_claim
      * @param  $SEFLAG
+     * @param  $HLcount
+     * @param  $edicount
+     * @param  $HLBillingPayToProvider Place-holder for utilizing multiple billing providers
      * @return string|string[]|null
      */
-    public static function gen_x12_837_tr3($pid, $encounter, &$log, $encounter_claim = false, $SEFLAG)
+    public static function gen_x12_837_tr3($pid, $encounter, &$log, $encounter_claim = false, $SEFLAG, $HLcount, &$edicount, $HLBillingPayToProvider = 1)
     {
         $today = time();
         $out = '';
         $claim = new Claim($pid, $encounter);
-        //Here we set up the variables that will help us keep one billing provider loop per file
-        global $HLcount, $HLBillingPayToProvider, $edicount, $STFLAG;
-        $HLcount = isset($HLcount) ? $HLcount : 0;
-        $edicount = isset($edicount) ? $edicount : 0;
 
         $log .= "Generating claims directly to ins companies with tr3 function $pid" . "-" . $encounter . " for " .
             $claim->patientFirstName() . ' ' .
@@ -1547,7 +1546,7 @@ class X125010837P
             "~\n";
 
         //we only want one transaction set for medi-cal
-        if ($HLcount == 0) { //***TR3 brackets close at 2000B
+        if ($HLcount == 1) { //***TR3 brackets close at 2000B
             ++$edicount;
             $out .= "ST" .
                 "*" . "837" .
@@ -1623,63 +1622,132 @@ class X125010837P
                 "*" . $claim->clearingHouseETIN() .
                 "~\n";
 
-            ++$HLcount;
-
             // if HL count = 1
+            ++$edicount;
+            $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
+            "*" . $HLcount .
+            "*" .
+            "*" . "20" .
+            "*" . "1" . // 1 indicates there are child segments
+            "~\n";
 
-            if ($HLcount == 1) { //***TR3 Add (this is where we do the HL loop
+            // Situational PRV segment for provider taxonomy.
+            if ($claim->facilityTaxonomy()) {
                 ++$edicount;
-                $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
-                "*" . $HLcount .
-                "*" .
-                "*" . "20" .
-                "*" . "1" . // 1 indicates there are child segments
+                $out .= "PRV" .
+                "*" . "BI" .
+                "*" . "PXC" .
+                "*" . $claim->facilityTaxonomy() .
                 "~\n";
+            }
 
-                $HLBillingPayToProvider = $HLcount; //***TR3 Modify - HL count numbers are different for TR3 since only one provider per loop
-
-                // Situational PRV segment for provider taxonomy.
-                if ($claim->facilityTaxonomy()) {
-                    ++$edicount;
-                    $out .= "PRV" .
-                    "*" . "BI" .
-                    "*" . "PXC" .
-                    "*" . $claim->facilityTaxonomy() .
-                    "~\n";
+            // Situational CUR segment (foreign currency information) omitted here.
+            ++$edicount;
+            if ($claim->federalIdType() == "SY") { // check for entity type like in 1000A
+                $firstName = $claim->providerFirstName();
+                $lastName = $claim->providerLastName();
+                $middleName = $claim->providerMiddleName();
+                $out .= "NM1" .
+                "*" . "85" .
+                "*" . "1" .
+                "*" . $lastName .
+                "*" . $firstName .
+                "*" . $middleName .
+                "*" . // Name Prefix not used
+                "*";
+            } else {
+                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                if ($billingFacilityName == '') {
+                    $log .= "*** billing facility name in 2010A loop is empty.\n";
                 }
+                $out .= "NM1" . // Loop 2010AA Billing Provider
+                "*" . "85" .
+                "*" . "2" .
+                "*" . $billingFacilityName .
+                "*" .
+                "*" .
+                "*" .
+                "*";
+            }
+            if ($claim->billingFacilityNPI()) {
+                $out .= "*XX*" . $claim->billingFacilityNPI();
+            } else {
+                $log .= "*** Billing facility has no NPI.\n";
+            }
+            $out .= "~\n";
 
-                // Situational CUR segment (foreign currency information) omitted here.
+            ++$edicount;
+            $out .= "N3" .
+            "*";
+            if ($claim->billingFacilityStreet()) {
+                $out .= $claim->billingFacilityStreet();
+            } else {
+                $log .= "*** Billing facility has no street.\n";
+            }
+            $out .= "~\n";
+
+            ++$edicount;
+            $out .= "N4" .
+            "*";
+            if ($claim->billingFacilityCity()) {
+                $out .= $claim->billingFacilityCity();
+            } else {
+                $log .= "*** Billing facility has no city.\n";
+            }
+            $out .= "*";
+            if ($claim->billingFacilityState()) {
+                $out .= $claim->billingFacilityState();
+            } else {
+                $log .= "*** Billing facility has no state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->billingFacilityZip())) {
+                $out .= $claim->x12Zip($claim->billingFacilityZip());
+            } else {
+                $log .= "*** Billing facility has no zip.\n";
+            }
+            $out .= "~\n";
+
+            if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
                 ++$edicount;
-                if ($claim->federalIdType() == "SY") { // check for entity type like in 1000A
-                    $firstName = $claim->providerFirstName();
-                    $lastName = $claim->providerLastName();
-                    $middleName = $claim->providerMiddleName();
-                    $out .= "NM1" .
-                    "*" . "85" .
-                    "*" . "1" .
-                    "*" . $lastName .
-                    "*" . $firstName .
-                    "*" . $middleName .
-                    "*" . // Name Prefix not used
-                    "*";
+                $out .= "REF";
+                if ($claim->federalIdType()) {
+                    $out .= "*" . $claim->federalIdType();
                 } else {
-                    $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
-                    if ($billingFacilityName == '') {
-                        $log .= "*** billing facility name in 2010A loop is empty.\n";
-                    }
-                    $out .= "NM1" . // Loop 2010AA Billing Provider
-                    "*" . "85" .
-                    "*" . "2" .
-                    "*" . $billingFacilityName .
-                    "*" .
-                    "*" .
-                    "*" .
-                    "*";
+                    $out .= "*EI"; // For dealing with the situation before adding TaxId type In facility.
                 }
+                $out .= "*" . $claim->billingFacilityETIN() . "~\n";
+            } else {
+                $log .= "*** No billing facility NPI and/or ETIN.\n";
+            }
+            if ($claim->providerNumberType() && $claim->providerNumber() && !$claim->billingFacilityNPI()) {
+                ++$edicount;
+                $out .= "REF" .
+                "*" . $claim->providerNumberType() .
+                "*" . $claim->providerNumber() .
+                "~\n";
+            } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
+                $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
+            }
+
+            // Situational PER*1C segment omitted.
+
+            // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
+            if ($claim->pay_to_provider != '') {
+                ++$edicount;
+                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                $out .= "NM1" .       // Loop 2010AB Pay-To Provider
+                "*" . "87" .
+                "*" . "2" .
+                "*" . $billingFacilityName .
+                "*" .
+                "*" .
+                "*" .
+                "*";
                 if ($claim->billingFacilityNPI()) {
                     $out .= "*XX*" . $claim->billingFacilityNPI();
                 } else {
-                    $log .= "*** Billing facility has no NPI.\n";
+                    $log .= "*** Pay to provider has no NPI.\n";
                 }
                 $out .= "~\n";
 
@@ -1689,7 +1757,7 @@ class X125010837P
                 if ($claim->billingFacilityStreet()) {
                     $out .= $claim->billingFacilityStreet();
                 } else {
-                    $log .= "*** Billing facility has no street.\n";
+                    $log .= "*** Pay to provider has no street.\n";
                 }
                 $out .= "~\n";
 
@@ -1699,99 +1767,22 @@ class X125010837P
                 if ($claim->billingFacilityCity()) {
                     $out .= $claim->billingFacilityCity();
                 } else {
-                    $log .= "*** Billing facility has no city.\n";
+                    $log .= "*** Pay to provider has no city.\n";
                 }
                 $out .= "*";
                 if ($claim->billingFacilityState()) {
                     $out .= $claim->billingFacilityState();
                 } else {
-                    $log .= "*** Billing facility has no state.\n";
+                    $log .= "*** Pay to provider has no state.\n";
                 }
                 $out .= "*";
                 if ($claim->x12Zip($claim->billingFacilityZip())) {
                     $out .= $claim->x12Zip($claim->billingFacilityZip());
                 } else {
-                    $log .= "*** Billing facility has no zip.\n";
+                    $log .= "*** Pay to provider has no zip.\n";
                 }
                 $out .= "~\n";
-
-                if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
-                    ++$edicount;
-                    $out .= "REF";
-                    if ($claim->federalIdType()) {
-                        $out .= "*" . $claim->federalIdType();
-                    } else {
-                        $out .= "*EI"; // For dealing with the situation before adding TaxId type In facility.
-                    }
-                    $out .= "*" . $claim->billingFacilityETIN() . "~\n";
-                } else {
-                    $log .= "*** No billing facility NPI and/or ETIN.\n";
-                }
-                if ($claim->providerNumberType() && $claim->providerNumber() && !$claim->billingFacilityNPI()) {
-                    ++$edicount;
-                    $out .= "REF" .
-                    "*" . $claim->providerNumberType() .
-                    "*" . $claim->providerNumber() .
-                    "~\n";
-                } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
-                    $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
-                }
-
-                // Situational PER*1C segment omitted.
-
-                // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
-                if ($claim->pay_to_provider != '') {
-                    ++$edicount;
-                    $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
-                    $out .= "NM1" .       // Loop 2010AB Pay-To Provider
-                    "*" . "87" .
-                    "*" . "2" .
-                    "*" . $billingFacilityName .
-                    "*" .
-                    "*" .
-                    "*" .
-                    "*";
-                    if ($claim->billingFacilityNPI()) {
-                        $out .= "*XX*" . $claim->billingFacilityNPI();
-                    } else {
-                        $log .= "*** Pay to provider has no NPI.\n";
-                    }
-                    $out .= "~\n";
-
-                    ++$edicount;
-                    $out .= "N3" .
-                    "*";
-                    if ($claim->billingFacilityStreet()) {
-                        $out .= $claim->billingFacilityStreet();
-                    } else {
-                        $log .= "*** Pay to provider has no street.\n";
-                    }
-                    $out .= "~\n";
-
-                    ++$edicount;
-                    $out .= "N4" .
-                    "*";
-                    if ($claim->billingFacilityCity()) {
-                        $out .= $claim->billingFacilityCity();
-                    } else {
-                        $log .= "*** Pay to provider has no city.\n";
-                    }
-                    $out .= "*";
-                    if ($claim->billingFacilityState()) {
-                        $out .= $claim->billingFacilityState();
-                    } else {
-                        $log .= "*** Pay to provider has no state.\n";
-                    }
-                    $out .= "*";
-                    if ($claim->x12Zip($claim->billingFacilityZip())) {
-                        $out .= $claim->x12Zip($claim->billingFacilityZip());
-                    } else {
-                        $log .= "*** Pay to provider has no zip.\n";
-                    }
-                    $out .= "~\n";
-                }
-            } //***MS Add (end HL Loop)
-
+            }
             // Loop 2010AC Pay-To Plan Name omitted.  Includes:
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }//***TR3

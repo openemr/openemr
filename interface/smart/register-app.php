@@ -54,10 +54,11 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 // TODO: adunsulag find out where our openemr name comes from
 $openemr_name = $openemr_name ?? '';
 
-$scopeRepo = new ScopeRepository();
+$scopeRepo = new ScopeRepository(RestConfig::GetInstance());
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
 $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
+$fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getTokenPath();
 ?>
 <html>
 <head>
@@ -85,6 +86,8 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                     ,"token_endpoint_auth_method": "client_secret_post"
                     ,"contacts": []
                     ,"scope": []
+                    ,"jwks_uri": ""
+                    ,"jwks": ""
                 };
                 appRegister.client_name = document.querySelector('#appName').value;
                 let redirect_uri = document.querySelector("#redirectUri").value;
@@ -93,6 +96,19 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                 appRegister.post_logout_redirect_uris.push(document.querySelector("#logoutURI").value);
                 appRegister.initiate_login_uri = document.querySelector("#launchUri").value;
                 appRegister.contacts.push(document.querySelector("#contactEmail").value);
+                appRegister.jwks_uri = document.querySelector("#jwksUri").value;
+                appRegister.jwks = document.querySelector("#jwks").value;
+
+                if (appRegister.jwks.trim() != "") {
+                    try {
+                        appRegister.jwks = JSON.parse(appRegister.jwks);
+                    }
+                    catch (error) {
+                        console.error(error);
+                        alert(<?php echo xlj("Your JWKS is invalid"); ?>);
+                        return;
+                    }
+                }
 
                 let scopes = [];
                 let scopeInputs =  document.querySelectorAll('input.app-scope:checked');
@@ -244,6 +260,17 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                     <?php endforeach; ?>
                     </div>
                 </div>
+                <h3 class="text-center"><?php echo xlt("The following items are required for System Scopes"); ?></h3>
+                <hr />
+                <div class="form-group">
+                    <label for="jwksUri" class="text-right"><?php echo xlt('JSON Web Key Set URI'); ?>:</label>
+                    <input type="text" class="form-control" id="jwksUri" name="jwksUri" placeholder="<?php echo xla('URI'); ?>" />
+                </div>
+                <div class="form-group">
+                    <label for="jwks" class="text-right"><?php echo xlt('JSON Web Key Set (Note a hosted web URI is preferred and this feature may be removed in future SMART versions)'); ?>:</label>
+                    <textarea class="form-control" id="jwks" name="jwks" rows="5"></textarea>
+                </div>
+
                 <div class="form-group">
                     <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="<?php echo xla('Submit'); ?>" (onClick)="registerApp();" />
                 </div>
@@ -255,6 +282,10 @@ $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . Authorization
                     <div class="form-group">
                         <label for="clientSecretID" class="text-right"><?php echo xlt('Client Secret APP ID:'); ?></label>
                         <textarea class="form-control" id="clientSecretID" name="clientSecretID"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="audURL" class="text-right"><?php echo xlt('Aud URI (use this in the "aud" claim of your JWT)'); ?></label>
+                        <input type="text" disabled class="form-control" id="audURL" name="audURL" value="<?php echo attr($fhirTokenUrl); ?>" />
                     </div>
                 </div>
                 <div class="form-group errorResponse hidden">

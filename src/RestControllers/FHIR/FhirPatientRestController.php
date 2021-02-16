@@ -96,11 +96,12 @@ class FhirPatientRestController
      * - name (title, first name, middle name, last name)
      * - phone (home, business, cell)
      * - telecom (email, phone)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirPatientService->getAll($searchParams);
+        $processingResult = $this->fhirPatientService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
