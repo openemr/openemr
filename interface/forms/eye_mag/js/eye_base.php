@@ -2417,17 +2417,18 @@ $(function () {
 
                                                                    }
                                                                    });
-                  $("[id^='sketch_tools_']").on('click', function() {
-                                                   var zone = this.id.match(/sketch_tools_(.*)_/)[1];
-                                                   $("[id^='sketch_tools_"+zone+"']").css("height","30px");
-                                                   $(this).css("height","50px");
-                                                   $("#sketch_tool_"+zone+"_color").css("background-color",$("#selColor_"+zone).val());
-                                                   });
-                  $("[id^='sketch_sizes_']").on('click', function() {
-                                                   var zone = this.id.match(/sketch_sizes_(.*)_/)[1];
-                                                   $("[id^='sketch_sizes_"+zone+"']").css("background","").css("border-bottom","");
-                                                   $(this).css("border-bottom","2pt solid black");
-                                                   });
+                  $("[id^='sketch_tools_']").click(function() {
+                        var zone = this.id.match(/sketch_tools_(.*)_/)[1];
+                        $("[id^='sketch_tools_"+zone+"']").css("height","30px");
+                        $(this).css("height","50px");
+                        $("#sketch_tool_"+zone+"_color").css("background-image","").css("background-color",$("#selColor_"+zone).val());
+                  });
+                  $("[id^='sketch_sizes_']").click(function() {
+                        var zone = this.id.match(/sketch_sizes_(.*)_/)[1];
+                        $("[id^='sketch_sizes_"+zone+"']").css("background","").css("border-bottom","");
+                        $(this).css("border-bottom","2pt solid black");
+                  });
+
 
                   //  Here we get CC1 to show
                   $(".tab_content").addClass('nodisplay');

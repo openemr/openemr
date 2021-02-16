@@ -113,9 +113,10 @@ a:active {
 
 #tabs_left .ui-tabs-nav li {
   border-bottom-width: 1px !important;
-  border-left: 5px solid var(--primary);
-  border-radius: 0 4px 4px 0;
-  overflow: hidden;
+  border-left: 5px solid #0064b4;
+  -moz-border-radius: 4px 0px 0px 4px;
+  -webkit-border-radius: 4px 0px 0px 4px;
+  border-radius: 0px 4px 4px 0px;overflow: hidden;
   right: 8px;
   width: 100%;
 }
@@ -904,12 +905,24 @@ textarea.ANTSEGTEXT {
 
 .tools div {
   background-image: url('../../../forms/eye_mag/images/pencil_white.png');
-  background-size: 40px 80px;
+  background-size: 35px 50px;
   float: left;
   margin-right: 50px;
   position: relative;
 }
-
+.color_indicator {
+  width: 32px;
+  display: block;
+  height: 20px;
+  top: 17px;
+  position: relative;
+  left: 3px;
+  border: 1pt solid #c0c0c0;
+  border-top: unset;
+  border-bottom: white;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
 .transparent {
   z-index: 10;
 }
@@ -1622,7 +1635,7 @@ a:focus {
 
 .anchor {
   /* This creates anchors for the menu system that are offset for the fixed header.
-     * The fields/anchors are added as blank elements (sorry) in view.php
+     * The fields/anchors are added as blank elements in view.php
      */
   display: none;
   height: 1px;
@@ -1636,11 +1649,21 @@ a:focus {
   width: 20px;
 }
 
+.sketch_tooled {
+   width: 40px;
+ }
+
 .sketch_tools:active {
   color: var(--danger);
   height: 100px;
 }
-
+.jscolor-picker {
+  width: 33px;
+  padding:unset;
+  display: block;height: 20px;
+  top: 2px;
+  position: relative;
+}
 #sddm div {
   z-index: 100;
 }

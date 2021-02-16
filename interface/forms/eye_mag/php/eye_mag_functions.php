@@ -3105,25 +3105,18 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         ?>
         <div id="<?php echo attr($zone); ?>_canvas">
             <div class="tools">
-                <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
-                    <input class="jscolor {mode:'HVS',
-                                    position:'right',
-                                    borderColor:'#FFF #666 #666 #FFF',
-                                    insetColor:'#666 #FFF #FFF #666',
-                                    backgroundColor:'#CCC',
-                                    hash:'true',
-                                    styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
-                                    valueElement:'selColor_<?php echo attr($zone); ?>',
-                                    refine:true
-                                }"
-                    id="sketch_tool_<?php echo attr($zone); ?>_color"
-                    type="text" style="width: 38px;
-    height: 20px;
-    padding: 11px 0px;
-    background-color: blue;
-    margin-top: 26px;
-    color: white;
-    background-image: none;" />
+                
+                <div id="sketch_tooled_<?php echo attr($zone); ?>_8"
+                     data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
+                                     previewSize:55,
+                                     valueElement:'#selColor_<?php echo attr($zone); ?>',
+                                     position:'right'
+                                    }"
+                     class="jscolor-picker"
+                     data-target="selColor_<?php echo attr($zone); ?>"
+                >
+                    <span id="sketch_tool_<?php echo attr($zone);?>_color"
+                          class="color_indicator" />
                 </div>
                 <?php
     
