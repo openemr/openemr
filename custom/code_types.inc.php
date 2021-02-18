@@ -476,7 +476,7 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  */
 function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = array(), $limit = null, $mode = 'default', $return_query = false)
 {
-    global $code_types,$code_external_tables;
+    global $code_types, $code_external_tables;
 
   // Figure out the appropriate limit clause
     $limit_query = limit_query_string($limit, $start, $number, $return_only_one);
