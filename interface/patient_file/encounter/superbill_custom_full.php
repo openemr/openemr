@@ -254,7 +254,7 @@ $search = $_REQUEST['search'] ?? null;
 $search_reportable = $_REQUEST['search_reportable'] ?? null;
 $search_financial_reporting = $_REQUEST['search_financial_reporting'] ?? null;
 
-$search_active = $_REQUEST['search_active'];
+$search_active = $_REQUEST['search_active'] ?? null;
 
 //Build the filter_elements array
 $filter_elements = array();
@@ -670,7 +670,7 @@ if ($fend > ($count ?? null)) {
         </div>
         <div class="col-md">
           <input type='checkbox' title='<?php echo xla("Only Show Active Codes ") ?>' name='search_active' value='1'<?php if (!empty($search_active)) {
-              echo ' checked'; } ?> /><?php echo xlt('Active Codes'); ?>
+                echo ' checked'; } ?> /><?php echo xlt('Active Codes'); ?>
         </div>
         <div class="col-md text-right">
           <?php if ($fstart) { ?>
