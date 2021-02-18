@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provides manual administration for codes
+ * Provides manual administration of codes
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -9,7 +9,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -211,14 +211,14 @@ if (isset($mode) && $thisauthwrite) {
             $code_name = $code_sql['ct_label'];
         }
 
-        $categorey_id = $_POST['form_superbill'];
-        $categorey_sql = sqlFetchArray(sqlStatement("SELECT (title) FROM list_options WHERE list_id='superbill'" .
-            " AND option_id=?", array($categorey_id)));
+        $category_id = $_POST['form_superbill'];
+        $category_sql = sqlFetchArray(sqlStatement("SELECT (title) FROM list_options WHERE list_id='superbill'" .
+            " AND option_id=?", array($category_id)));
 
-        $categorey_name = '';
+        $category_name = '';
 
-        if ($categorey_sql) {
-            $categorey_name = $categorey_sql['title'];
+        if ($category_sql) {
+            $category_name = $category_sql['title'];
         }
 
         $date = date('Y-m-d H:i:s');
@@ -228,7 +228,7 @@ if (isset($mode) && $thisauthwrite) {
             "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-            array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser'])
+            array($date,$code,$modifier,$active,$reportable,$financial_reporting,$category_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser'])
         );
     }
 }
@@ -254,6 +254,8 @@ $search = $_REQUEST['search'] ?? null;
 $search_reportable = $_REQUEST['search_reportable'] ?? null;
 $search_financial_reporting = $_REQUEST['search_financial_reporting'] ?? null;
 
+$search_active = $_REQUEST['search_active'];
+
 //Build the filter_elements array
 $filter_elements = array();
 if (!empty($search_reportable)) {
@@ -262,6 +264,10 @@ if (!empty($search_reportable)) {
 
 if (!empty($search_financial_reporting)) {
     $filter_elements['financial_reporting'] = $search_financial_reporting;
+}
+
+if (!empty($search_active)) {
+    $filter_elements['active'] = $search_active;
 }
 
 if (isset($_REQUEST['filter'])) {
@@ -661,6 +667,10 @@ if ($fend > ($count ?? null)) {
           <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
                 echo ' checked'; } ?> /><?php echo xlt('Service Reporting Only'); ?>
           <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>' />
+        </div>
+        <div class="col-md">
+          <input type='checkbox' title='<?php echo xla("Only Show Active Codes ") ?>' name='search_active' value='1'<?php if (!empty($search_active)) {
+              echo ' checked'; } ?> /><?php echo xlt('Active Codes'); ?>
         </div>
         <div class="col-md text-right">
           <?php if ($fstart) { ?>
