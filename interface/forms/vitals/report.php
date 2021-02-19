@@ -150,3 +150,4 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
         return $vitals;
     }
 }
+
