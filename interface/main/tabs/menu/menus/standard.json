@@ -1130,6 +1130,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "API Clients",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/smart/admin-client.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
