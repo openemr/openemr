@@ -121,6 +121,13 @@ function checkBackgroundServices()
     // be OK to provider users with the best experience.
     $auto_sftp_x12 = empty($GLOBALS['auto_sftp_claims_to_x12_partner']) ? '0' : '1';
     updateBackgroundService('X12_SFTP', $auto_sftp_x12, 1);
+
+    /**
+     * Setup background services for Weno when it is enabled
+     * this is to sync the prescription logs
+     */
+    $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
+    updateBackgroundService('WenoExchange', $wenoservices, 240);
 }
 ?>
 <!DOCTYPE html>

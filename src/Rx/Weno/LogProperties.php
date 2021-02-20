@@ -64,20 +64,15 @@ class LogProperties
         $email = $this->provider->getProviderEmail();
         $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
         $md5 = md5($prov_pass);                       // hash the current password
-        $workday = date("l");
-        //This is to cover working on Saturday but not on Sunday.
-        //Checking Saturday for any prescriptions that were written.
-        if ($workday == 'Monday') {
-            $yesterday = date("Y-m-d", strtotime("-2 day"));
-        } else {
-            $yesterday = date("Y-m-d", strtotime("yesterday"));
-        }
+        //span the log call for two days
+        $today = date("Y-m-d");
+        $yesterday = date("Y-m-d", strtotime("-2 day"));
 
         $p = [
             "UserEmail" => $email['email'],
             "MD5Password" => $md5,
             "FromDate" => $yesterday,
-            "ToDate" => $yesterday,
+            "ToDate" => $today,
             "ResponseFormat" => "CSV"
         ];
         $plaintext = json_encode($p);                //json encode email and password
@@ -263,6 +258,8 @@ class LogProperties
                 }
                 fclose($records);
             }
+            $logstring = "prescrition log imported records successfully";
+            EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
         }
     }
 }
