@@ -28,8 +28,10 @@
                     <li class="menuLabel" data-bind="click: changePassword"><?php echo xlt("Change Password");?></li>
                     <li class="menuLabel" data-bind="click: changeMFA"><?php echo xlt("MFA Management");?></li>
                     <li class="menuLabel" data-bind="click: logout"><?php echo xlt("Logout");?></li>
+
                 </ul>
               </div>
         </div>
     <!-- /ko -->
 </script>
+

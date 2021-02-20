@@ -8318,6 +8318,7 @@ CREATE TABLE `users` (
   `billname` varchar(255) default NULL,
   `email` varchar(255) default NULL,
   `email_direct` varchar(255) NOT NULL default '',
+  `google_signin_email` VARCHAR(255) UNIQUE DEFAULT NULL,
   `url` varchar(255) default NULL,
   `assistant` varchar(255) default NULL,
   `organization` varchar(255) default NULL,

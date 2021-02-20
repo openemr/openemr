@@ -331,3 +331,7 @@ ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NUL
                         ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
 ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
 #EndIf
+
+#IfMissingColumn users google_signin_email
+ALTER TABLE `users` ADD COLUMN `google_signin_email` VARCHAR(255) UNIQUE DEFAULT NULL;
+#EndIf

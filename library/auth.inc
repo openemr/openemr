@@ -17,12 +17,17 @@
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Services\UserService;
 
 $incoming_site_id = '';
-
+//This is the conditional that determines if the password is correct.
 if (
-    isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])
+    isset($_GET['auth']) && ($_GET['auth'] == "login")
+    && (
+        (isset($_POST['authUser']) && isset($_POST['clearPass'])) ||
+        ($GLOBALS['google_signin_enabled'] && $_POST['used_google_signin'] && $_POST['google_signin_token'])
+    )
+    && (isset($_POST['new_login_session_management']))
 ) {
     // Attempt login
 
@@ -39,7 +44,28 @@ if (
     // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
     //  unsuccessful or successful login
     $passTemp = $_POST['clearPass'];
-    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp)) {
+
+    $login_success = false;
+    if (
+        $GLOBALS['google_signin_enabled'] &&
+        $_POST['used_google_signin'] &&
+        $_POST['google_signin_token']
+    ) {
+        $user = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
+        if ($user !== false) {
+            // Make sure user is in an auth group
+            $authGroup = UserService::getAuthGroupForUser($user['username']);
+            if ($authGroup !== false) {
+                $login_success = true;
+                AuthUtils::setSessionVariables($user['username'], $user['password'], $user, $authGroup);
+            }
+        }
+    } else {
+        $authUtils = new AuthUtils('login');
+        $login_success = $authUtils->confirmPassword($_POST['authUser'], $passTemp);
+    }
+
+    if (false === $login_success) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
         if (function_exists('sodium_memzero')) {
@@ -49,7 +75,6 @@ if (
         }
         authLoginScreen();
     }
-
     // login attempt success
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);

@@ -31,6 +31,37 @@ class UserService
     }
 
     /**
+     * Return a user given their Google email. If no user found, return false.
+     *
+     * @param $email
+     * @return array|false|null
+     */
+    public static function getUserByGoogleSigninEmail($email)
+    {
+        $sql = "SELECT * FROM `users` `U`
+            JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
+            WHERE `google_signin_email` = ? LIMIT 1";
+        return sqlQuery($sql, [$email]);
+    }
+
+    /**
+     * Given a username, heck to ensure user is in a group (and collect the group name)
+     * Returns the group name if successful, or false if failure
+     *
+     * @param $username
+     * @return string|bool
+     */
+    public static function getAuthGroupForUser($username)
+    {
+        $return = false;
+        $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
+        if ($result !== false && !empty($result['name'])) {
+            $return = $result['name'];
+        }
+        return $return;
+    }
+
+    /**
      * @return array hydrated user object
      */
     public function getUser($userId)

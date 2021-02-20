@@ -130,6 +130,10 @@ function generate_html_end()
     return 0;
 }
 
+//***Google Sign on Function:
+
+
+
 if (isset($_POST['new_login_session_management'])) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
@@ -367,7 +371,7 @@ if (isset($_POST['new_login_session_management'])) {
     // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
     // Also need to delete clearPass from memory
-    if (function_exists('sodium_memzero')) {
+    if (function_exists('sodium_memzero') && ! isset($_POST['idtoken'])) {
         sodium_memzero($_POST["clearPass"]);
     } else {
         $_POST["clearPass"] = '';
@@ -513,9 +517,18 @@ $_SESSION['frame2label'] = $frame2label;
 if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
     $_SESSION['app1'] = $_POST['appChoice'];
 }
+//Make sure we have all the necessary $_POST variables if there is a google sign-in
+if(isset($_POST['idtoken'])){
+    $_POST['authUser'] = $_REQUEST['authUser'] = $_SESSION['authUser'];
+    $_POST['clearPass'] = null;
+
+}
 
 // Pass a unique token, so main.php script can not be run on its own
 $_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
+
+
+
 header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
 exit();
 ?>

@@ -212,6 +212,8 @@ $esignApi = new Api();
     <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu

@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 function user_data_view_model(username,fname,lname,authGrp)
 {
     var self=this;
@@ -130,6 +131,10 @@ function changeMFA()
 
 function logout()
 {
+    console.log('Attempt to Signout.');
+
     top.restoreSession();
     document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php";
 }
+
+

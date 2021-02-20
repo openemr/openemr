@@ -2967,7 +2967,18 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable OpenEMR FHIR System Scopes.')
         ),
-
+        'google_signin_enabled' => array(
+            xl('Enable Google Sign-In'),
+            'bool',
+            '0',
+            xl('Enable Authentication Using Google Sign-in')
+        ),
+        'google_signin_client_id' => array(
+            xl('Google Sign-In Client ID'),
+            'text',
+            '',
+            xl('This Client ID Provided By Google For Your App (Required For Google Sign-in)')
+        ),
         'oauth_password_grant' => array(
             xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(

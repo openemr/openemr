@@ -244,6 +244,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         if (isset($_POST["supervisor_id"])) {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
+        if (isset($_POST["google_signin_email"])) {
+            sqlStatement("update users set google_signin_email = ? where id = ? ", array($_POST["google_signin_email"], $_POST["id"]));
+        }
 
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
