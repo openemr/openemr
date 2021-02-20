@@ -63,7 +63,8 @@
         "nyholm/psr7-server": "1.0.1",
         "lcobucci/jwt": "dev-342php8 as 3.4.9",
         "psr/log": "1.1.3",
-        "monolog/monolog": "2.1.1"
+        "monolog/monolog": "2.1.1",
+        "google/apiclient": "v2.9.1"
     },
     "config": {
         "platform": {

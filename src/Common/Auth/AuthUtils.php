@@ -25,9 +25,11 @@
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -38,6 +40,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use \Google_Client;
+use OpenEMR\Services\UserService;
 
 class AuthUtils
 {
@@ -268,7 +272,7 @@ class AuthUtils
         $ip = collectIpAddresses();
 
         // Check to ensure username and password are not empty
-        if (empty($username) || empty($password)) {
+        if ((empty($username) || empty($password))) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -291,8 +295,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a group (and collect the group name)
-        $authGroup = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
-        if (empty($authGroup) || empty($authGroup['name'])) {
+        $authGroup = UserService::getAuthGroupForUser($username);
+        if ($authGroup === false) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -301,7 +305,7 @@ class AuthUtils
 
         // Check to ensure user is in a acl group
         if (AclExtended::aclGetGroupTitles($username) == 0) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -313,7 +317,7 @@ class AuthUtils
             " WHERE BINARY `username` = ?";
         $userSecure = privQuery($getUserSecureSQL, [$username]);
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -323,7 +327,7 @@ class AuthUtils
         if (self::useActiveDirectory($username)) {
             // ldap authentication
             if (!$this->activeDirectoryValidation($username, $password)) {
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -331,7 +335,7 @@ class AuthUtils
             // standard authentication
             // First, ensure the user hash is a valid hash
             if (!AuthHash::hashValid($userSecure['password'])) {
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
@@ -342,7 +346,7 @@ class AuthUtils
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
                 }
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -364,7 +368,7 @@ class AuthUtils
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             if (!$this->checkLoginFailedCounter($username)) {
                 $this->incrementLoginFailedCounter($username);
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -372,7 +376,7 @@ class AuthUtils
 
         // Check to ensure password not expired if this option is set (note ldap skips this)
         if (!$this->checkPasswordNotExpired($username)) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
             $this->clearFromMemory($password);
             return false;
         }
@@ -396,25 +400,15 @@ class AuthUtils
                 error_log('OpenEMR Error : OpenEMR is not working because broken function.');
                 die("OpenEMR Error : OpenEMR is not working because broken function.");
             }
-
-            // Set up session environment
-            $_SESSION['authUser'] = $username;                     // username
-            $_SESSION['authPass'] = $hash;                         // user hash used to confirm session in authCheckSession()
-            $_SESSION['authUserID'] = $userInfo['id'];             // user id
-            $_SESSION['authProvider'] = $authGroup['name'];        // user group
-            $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
-            // Some users may be able to authorize without being providers:
-            if ($userInfo['see_auth'] > '2') {
-                $_SESSION['userauthorized'] = '1';
-            }
-            EventAuditLogger::instance()->newEvent('login', $username, $authGroup['name'], 1, "success: " . $ip['ip_string']);
+            self::setSessionVariables($username, $hash, $userInfo, $authGroup);
+            EventAuditLogger::instance()->newEvent('login', $username, $authGroup, 1, "success: " . $ip['ip_string']);
         } elseif ($this->apiAuth) {
             // Set up class variables that the api will need to collect (log for API is done outside)
             $this->userId = $userInfo['id'];
-            $this->userGroup = $authGroup['name'];
+            $this->userGroup = $authGroup;
         } else {
             // Log for authentication that are done, which are not api auth or login auth
-            EventAuditLogger::instance()->newEvent('auth', $username, $authGroup['name'], 1, "Auth success: " . $ip['ip_string']);
+            EventAuditLogger::instance()->newEvent('auth', $username, $authGroup, 1, "Auth success: " . $ip['ip_string']);
         }
         return true;
     }
@@ -967,4 +961,55 @@ class AuthUtils
             $password = '';
         }
     }
+
+    /**
+     * Validates a google ID token and returns a user on success. If validation
+     * fails, return false.
+     *
+     * @param $token
+     * @return array|bool
+     */
+    static public function verifyGoogleSignIn($token)
+    {
+        $return = false;
+        if (!empty($token)) {
+            $client = new Google_Client([
+                'client_id' => $GLOBALS['google_signin_client_id']]);  // Specify the CLIENT_ID of the app that accesses the backend
+            $payload = $client->verifyIdToken($token);
+            if ($payload) {
+                //See if email address exists in user table
+                $user = UserService::getUserByGoogleSigninEmail($payload['email']);
+                if ($user !== false) {
+                    $_SESSION['GoogleSignInPayload'] = $payload;
+                    $_SESSION['user_logged_in_with_google'] = true;
+                    $_SESSION['google_signin_token'] = $token;
+                    $return = $user;
+                }
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Given an associative array representing the user, set the session variables
+     * @param $username
+     * @param $hash
+     * @param array $userInfo
+     * @param $authGroup
+     */
+    public static function setSessionVariables($username, $hash, $userInfo, $authGroup)
+    {
+        // Set up session environment
+        $_SESSION['authUser'] = $username; // username
+        $_SESSION['authPass'] = $hash; // user hash used to confirm session in authCheckSession()
+        $_SESSION['authUserID'] = $userInfo['id']; // user id
+        $_SESSION['authProvider'] = $authGroup; // user group
+        $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
+        // Some users may be able to authorize without being providers:
+        if ($userInfo['see_auth'] > '2') {
+            $_SESSION['userauthorized'] = '1';
+        }
+    }
+
 }

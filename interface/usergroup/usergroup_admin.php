@@ -7,8 +7,12 @@
  * @link      http://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -243,6 +247,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if (isset($_POST["supervisor_id"])) {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
+        }
+        if (isset($_POST["google_signin_email"])) {
+            sqlStatement("update users set google_signin_email = ? where id = ? ", array($_POST["google_signin_email"], $_POST["id"]));
         }
 
         // Set the access control group of user

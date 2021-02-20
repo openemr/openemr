@@ -14,8 +14,12 @@
  * @author  cfapress
  * @author  markleeds
  * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author  Ken Chapple <ken@mi-squared.com>
+ * @author  Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -107,6 +111,10 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
+    <?php
+    if ($GLOBALS['google_signin_enabled']) { ?>
+        <meta name="google-signin-client_id" content="<?php echo $GLOBALS['google_signin_client_id']; ?>">
+    <?php } ?>
     <script>
         var registrationTranslations = <?php echo json_encode(array(
             'title' => xla('OpenEMR Product Registration'),
@@ -236,11 +244,11 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                   <?php echo xlt('Invalid username or password'); ?>
               </div>
             <?php } // End login failure block ?>
-            <div class="form-group">
+            <div id="standard-auth-username" class="form-group">
                 <label for="authUser" class="text-right"><?php echo xlt('Username:'); ?></label>
                 <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>" />
             </div>
-            <div class="form-group">
+            <div id="standard-auth-password" class="form-group">
                 <label for="clearPass" class="text-right"><?php echo xlt('Password:'); ?></label>
                 <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>" />
             </div>
@@ -291,8 +299,21 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 </div>
             <?php } // End facilities menu block ?>
             <div class="form-group oe-pull-away">
-                <button type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                <button id="login-button" type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
             </div>
+            <?php if ($GLOBALS['google_signin_enabled']) { ?>
+            <div class="form-group">
+                <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+                <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+                <div id="google-signin" onclick="return do_google_signin();">
+                    <!-- This message is displayed if the google platform API cannot render the button -->
+                    <span id="google-signin-service-unreachable-alert" style="display:none;"><?php echo xlt('Google Sign-In is enabled but the service is unreachable.'); ?></span>
+                </div>
+                <div id="google-signout">
+                    <a href="#" onclick="signOut();"><?php echo xlt('Sign out'); ?></a>
+                </div>
+            </div>
+            <?php } ?>
           </div>
           <div class="<?php echo $logoarea; ?>">
             <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
@@ -349,3 +370,79 @@ if ($GLOBALS['login_page_layout'] == 'left') {
   </form>
 </body>
 </html>
+<?php if ($GLOBALS['google_signin_enabled']) { ?>
+<script type="text/javascript">
+
+    // This variable controls whether we should login to OpenEMR
+    // so we only login if "Sign in with Google button" was clicked
+    let google_signin = false;
+
+    // Hide the google signout link uneless we are signed-in
+    // This isn't really ever displayed, because once we sign-in with google,
+    // we automatically log into the app
+    $('#google-signout').hide();
+
+    // Click-handler for signin button
+    function do_google_signin() {
+        google_signin = true;
+    }
+
+    // When Google sign-in successful, sign in to the app, but only
+    // if the button was clicked (otherwise we would automatically login)
+    function onSignInSuccess(googleUser) {
+        if (google_signin === true) {
+            const auth_response = googleUser.getAuthResponse();
+            const id_token = auth_response.id_token;
+            $('.login-failure').hide();
+            $('#used-google-signin').val(true);
+            $('#google-signin-token').val(id_token);
+            $('#google-signout').show();
+            $('#standard-auth-username, #standard-auth-password').hide();
+            var element = document.getElementById('login-button');
+            transmit_form(element);
+        }
+    }
+
+    function onSignInFailure(error) {
+        $('.login-failure').show();
+    }
+
+    function renderButton() {
+        gapi.signin2.render('google-signin', {
+            'prompt': 'select_account',
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSignInSuccess,
+            'onfailure': onSignInFailure
+        });
+    }
+
+    function signOut() {
+        google_signin = false;
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            $('#used-google-signin').val('');
+            $('#google-signin-token').val('');
+            $('#google-signout').hide();
+            $('#standard-auth-username, #standard-auth-password').show();
+        });
+    }
+
+    $.getScript('https://apis.google.com/js/platform.js', function(data, textStatus, jqxh ) {
+        // When the auth2 library is loaded, log out so the user has to sign into google
+        gapi.load('auth2', function() {
+            gapi.auth2.init().then(function () {
+                signOut();
+            });
+        });
+
+        // Render the "Sign in with Google" button
+        renderButton();
+    }).fail(function (jqxhr, settings, exception) {
+        $('#google-signin-service-unreachable-alert').show();
+    });
+</script>
+<?php } ?>

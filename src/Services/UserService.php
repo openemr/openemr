@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -28,6 +30,37 @@ class UserService
      */
     public function __construct()
     {
+    }
+
+    /**
+     * Return a user given their Google email. If no user found, return false.
+     *
+     * @param $email
+     * @return array|false|null
+     */
+    public static function getUserByGoogleSigninEmail($email)
+    {
+        $sql = "SELECT * FROM `users` `U`
+            JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
+            WHERE `google_signin_email` = ? LIMIT 1";
+        return sqlQuery($sql, [$email]);
+    }
+
+    /**
+     * Given a username, heck to ensure user is in a group (and collect the group name)
+     * Returns the group name if successful, or false if failure
+     *
+     * @param $username
+     * @return string|bool
+     */
+    public static function getAuthGroupForUser($username)
+    {
+        $return = false;
+        $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
+        if ($result !== false && !empty($result['name'])) {
+            $return = $result['name'];
+        }
+        return $return;
     }
 
     /**
