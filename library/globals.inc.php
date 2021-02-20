@@ -39,6 +39,7 @@
 //   Georgian                       // xl('Georgian')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
+//   Gujarati                       // xl('Gujarati')
 //   Hebrew                         // xl('Hebrew')
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
