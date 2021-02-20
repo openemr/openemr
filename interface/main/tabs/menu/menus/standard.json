@@ -1323,8 +1323,8 @@
           },
             {
                 "label":"Prescription Log",
-                "menu_id":"adm0",
-                "target":"adm",
+                "menu_id":"rep0",
+                "target":"rep",
                 "url":"/interface/weno/rxlogmanager.php",
                 "children":[],
                 "requirement":0,
