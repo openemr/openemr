@@ -184,6 +184,8 @@ INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `functio
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
 
 -- --------------------------------------------------------
 

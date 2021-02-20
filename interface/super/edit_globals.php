@@ -113,6 +113,13 @@ function checkBackgroundServices()
     $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
     $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
+
+    /**
+     * Setup background services for Weno when it is enabled
+     * this is to sync the prescription logs
+     */
+    $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
+    updateBackgroundService('WenoExchange', $wenoservices, 240);
 }
 ?>
 <!DOCTYPE html>

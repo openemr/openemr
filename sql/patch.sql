@@ -52,3 +52,8 @@
 ALTER TABLE `facility` ADD `weno_id` VARCHAR(10) DEFAULT NULL;
 #EndIf
 
+#IfNotRow background_services name WenoExchange
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
+#EndIf
+
