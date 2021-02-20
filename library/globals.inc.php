@@ -3170,13 +3170,6 @@ $GLOBALS_METADATA = array(
             xl('Encryption key issued by Weno eRx service.')
         ),
 
-        'weno_md5_hash' => array(
-            xl('Weno Hash Key'),
-            'encrypted',                      // data type
-            '',
-            xl('Encryption hash key issued by Weno eRx service.')
-        ),
-
         'weno_provider_password' => array(
             xl('Weno Provider Account Password'),
             'encrypted',                      // data type
