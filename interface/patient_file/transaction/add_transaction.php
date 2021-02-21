@@ -503,7 +503,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $list_id    = $frow['list_id'];
 
                             // Accumulate action conditions into a JSON expression for the browser side.
-                            accumActionConditions($field_id, $condition_str, $frow['conditions']);
+                            accumActionConditions($frow, $condition_str);
 
                             $currvalue  = '';
                             if (isset($trow[$field_id])) {

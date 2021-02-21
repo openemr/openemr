@@ -1,4 +1,5 @@
 <?php
+
 require_once("../globals.php");
 
 // This script exists because IPPF and Community versions of the

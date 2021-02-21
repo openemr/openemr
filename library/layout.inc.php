@@ -52,11 +52,12 @@ $datatypes = array(
     "36" => xl("Multiple Select List"),
     "37" => xl("Lab Results"),
     "40" => xl("Image canvas"),
-    "41" => xl("Patient"),
+    "41" => xl("Patient Signature"),
     "42" => xl("User Signature"),
     "43" => xl("List box w/search"),
     "44" => xl("Multi-Select Facilties"),
     "45" => xl("Multi-Select Provider"),
+    "46" => xl("List box w/comment"),
     "51" => xl("Patient"),
 );
 

@@ -450,7 +450,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $currvalue  = '';
 
                         // Accumulate action conditions into a JSON expression for the browser side.
-                        accumActionConditions($field_id, $condition_str, $frow['conditions']);
+                        accumActionConditions($frow, $condition_str);
 
                         if (strpos($field_id, 'em_') === 0) {
                             $tmp = substr($field_id, 3);

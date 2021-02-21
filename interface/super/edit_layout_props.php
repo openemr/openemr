@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -105,9 +105,11 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
     if ($group_id) {
         $sets =
             "grp_subtitle = ?, "   .
+            "grp_init_open = ?, "  .
             "grp_columns = ?";
         $sqlvars = array(
             $_POST['form_subtitle'],
+            empty($_POST['form_init_open' ]) ? 0 : 1,
             intval($_POST['form_columns']),
         );
     } else {
@@ -122,6 +124,9 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_size = ?, "       .
             "grp_issue_type = ?, " .
             "grp_aco_spec = ?, "   .
+            // "grp_save_close = ?, " .
+            "grp_init_open = ?, "  .
+            "grp_referrals = ?, "  .
             "grp_services = ?, "   .
             "grp_products = ?, "   .
             "grp_diags = ?";
@@ -136,6 +141,9 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             intval($_POST['form_size']),
             $_POST['form_issue'],
             $_POST['form_aco'],
+            // empty($_POST['form_save_close']) ? 0 : 1,
+            empty($_POST['form_init_open' ]) ? 0 : 1,
+            empty($_POST['form_referrals']) ? 0 : 1,
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
@@ -144,8 +152,8 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
 
     if ($layout_id) {
         // They have edited an existing layout.
-        $form_title = $_POST['form_title'];
-        if ($form_title == '') {
+        $form_title = $_POST['form_title'] ?? '';
+        if ($form_title == '' && !$group_id) {
             $alertmsg = xl('Title is required');
         } else {
             $sqlvars[] = $layout_id;
@@ -164,7 +172,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             $alertmsg = xl('Layout ID is required');
         } elseif ($form_title == '') {
             $alertmsg = xl('Title is required');
-        } elseif (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
+        } elseif (preg_match('/(LBF|LBT|HIS)[0-9A-Za-z_]+/', $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",
@@ -210,9 +218,13 @@ $row = array(
     'grp_size'       => '9',
     'grp_issue_type' => '',
     'grp_aco_spec'   => '',
+    // 'grp_save_close' => '0',
+    'grp_init_open'  => '0',
+    'grp_referrals'  => '0',
     'grp_services'   => '',
     'grp_products'   => '',
     'grp_diags'      => '',
+    'grp_last_update' => '',
 );
 
 if ($layout_id) {
@@ -232,14 +244,27 @@ if ($layout_id) {
 <center>
 
 <table class='w-100 border-0'>
-<?php if (empty($layout_id)) { ?>
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Layout ID'); ?>
   </td>
   <td>
+<?php if (empty($layout_id)) { ?>
    <input type='text' class='form-control' size='31' maxlength='31' name='form_form_id' value='' /><br />
     <?php echo xlt('Visit form ID must start with LBF. Transaction form ID must start with LBT.') ?>
+<?php } else { ?>
+    <?php echo text($layout_id); ?>
+<?php } ?>
+  </td>
+ </tr>
+
+<?php if (empty($group_id) && !empty($row['grp_last_update'])) { ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Last Update'); ?>
+  </td>
+  <td>
+    <?php echo text($row['grp_last_update']); ?>
   </td>
  </tr>
 <?php } ?>
@@ -407,6 +432,17 @@ for ($cols = 2; $cols <= 10; ++$cols) {
   </td>
  </tr>
 
+    <?php /* ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <?php echo xlt('Enable Save and Close'); ?>
+  </td>
+  <td>
+   <input type='checkbox' name='form_save_close' <?php echo ($row['grp_save_close']) ? "checked" : ""; ?> />
+  </td>
+ </tr>
+<?php */ ?>
+
  <tr>
   <td valign='top' width='1%' nowrap>
    <input type='checkbox' name='form_services' <?php echo ($row['grp_services']) ? "checked" : ""; ?> />
@@ -434,6 +470,36 @@ for ($cols = 2; $cols <= 10; ++$cols) {
   </td>
   <td>
    <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_referrals' <?php echo ($row['grp_referrals']) ? "checked" : ""; ?> />
+    <?php echo xlt('Show Referrals Section'); ?>
+  </td>
+  <td>
+   &nbsp;
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_init_open' <?php echo ($row['grp_init_open']) ? "checked" : ""; ?> />
+    <?php echo xlt('Initially Open Sections'); ?>
+  </td>
+  <td>
+   &nbsp;
+  </td>
+ </tr>
+
+<?php } else { // else this is a group ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Initially Open Group'); ?>
+  </td>
+  <td>
+   <input type='checkbox' name='form_init_open' <?php echo ($row['grp_init_open']) ? "checked" : ""; ?> />
   </td>
  </tr>
 

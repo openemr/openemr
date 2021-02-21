@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -854,6 +854,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('A referral source may be specified for each visit.')
+        ),
+
+        'gbl_form_save_close' => array(
+            xl('Display Save and Close Visit button in LBFs'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This is helpful if visits usually do not have charges.')
         ),
 
         'gbl_mask_patient_id' => array(

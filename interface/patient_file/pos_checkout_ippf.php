@@ -52,8 +52,11 @@
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../../custom/code_types.inc.php");
+require_once("$srcdir/checkout_receipt_array.inc.php");
+require_once("$srcdir/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -65,7 +68,7 @@ $facilityService = new FacilityService();
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
 
-$currdecimals = $GLOBALS['currency_decimals'];
+$currdecimals = intval($GLOBALS['currency_decimals'] ?? 2);
 
 // Details default to yes now.
 $details = (!isset($_GET['details']) || !empty($_GET['details'])) ? 1 : 0;
@@ -94,9 +97,12 @@ $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,sta
 // Adjustments from the ar_activity table.
 $aAdjusts = array();
 
+// Holds possible javascript error messages.
+$alertmsg = '';
+
 // Format a money amount with decimals but no other decoration.
 // Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals=0)
+function formatMoneyNumber($value, $extradecimals = 0)
 {
     return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
 }
@@ -207,7 +213,8 @@ function load_taxes($patient_id, $encounter)
         "SELECT code, fee, ndc_info FROM billing WHERE " .
         "pid = ? AND encounter = ? AND code_type = 'TAX' AND activity = 1 " .
         "ORDER BY id",
-        array($patient_id, $encounter));
+        array($patient_id, $encounter)
+    );
     while ($taxrow = sqlFetchArray($taxres)) {
         $aInvTaxes[$taxrow['code']][$taxrow['ndc_info']] = $taxrow['fee'];
     }
@@ -224,8 +231,7 @@ function load_taxes($patient_id, $encounter)
     $rcpt_num_ref_columns = 1;
     if ($num_optional_columns == 1) {
         $rcpt_num_method_columns = 2;
-    }
-    else if ($num_optional_columns > 1) {
+    } else if ($num_optional_columns > 1) {
         $rcpt_num_method_columns = 3;
         $rcpt_num_ref_columns = $num_optional_columns - 1;
     }
@@ -269,9 +275,18 @@ function pull_tax($lineid, &$aTaxes)
 
 // Output HTML for a receipt line item.
 //
-function receiptDetailLine($code_type, $code, $description, $quantity, $charge, &$aTotals='',
-    $lineid='', $billtime='', $postdate='', $chargecat='')
-{
+function receiptDetailLine(
+    $code_type,
+    $code,
+    $description,
+    $quantity,
+    $charge,
+    &$aTotals = '',
+    $lineid = '',
+    $billtime = '',
+    $postdate = '',
+    $chargecat = ''
+) {
     global $details, $TAXES_AFTER_ADJUSTMENT;
 
     // Use $lineid to match up (and delete) entries in $aInvTaxes with the line.
@@ -294,15 +309,16 @@ function receiptDetailLine($code_type, $code, $description, $quantity, $charge, 
         $description = $GLOBALS['simplified_demographics'] ? '' : "$payer ";
         $description .= $code ? xl('Item Adjustment') : xl('Invoice Adjustment');
         $quantity = '';
-    }
-    else {
+    } else {
         // Total and clear adjustments in $aAdjusts matching this line item.
         $adjust += pull_adjustment($code_type, $code, $billtime, $memo);
     }
 
     $charge = formatMoneyNumber($charge);
     $total = formatMoneyNumber($charge + $totlinetax - $adjust);
-    if (empty($quantity)) $quantity = 1;
+    if (empty($quantity)) {
+        $quantity = 1;
+    }
     $price = formatMoneyNumber($charge / $quantity, 2);
     $tmp = formatMoneyNumber($price);
     if ($price == $tmp) {
@@ -331,19 +347,19 @@ function receiptDetailLine($code_type, $code, $description, $quantity, $charge, 
     echo "  <td title='" . xla('Entered') . ' ' .
          text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'>" .
          text(oeFormatShortDate($postdate)) . "</td>\n";
-    echo "  <td>$code</td>\n";
-    echo "  <td>$description</td>\n";
+    echo "  <td>" . text($code) . "</td>\n";
+    echo "  <td>" . text($description) . "</td>\n";
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . oeFormatMoney($price,false,true) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false, true)) . "</td>\n";
 
     if (!empty($GLOBALS['gbl_checkout_charges'])) {
-        echo "  <td class='text-right'>" . oeFormatMoney($charge,false,true) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false, true)) . "</td>\n";
     }
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . oeFormatMoney($tax,false,true) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
         }
     }
 
@@ -355,23 +371,23 @@ function receiptDetailLine($code_type, $code, $description, $quantity, $charge, 
     // Adjustment and its description.
     if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
         echo "  <td class='text-right'>" . text($memo) . "</td>\n";
-        echo "  <td class='text-right'>" . oeFormatMoney($adjust,false,true) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false, true)) . "</td>\n";
     }
 
     if ($TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . oeFormatMoney($tax,false,true) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
         }
     }
 
-    echo "  <td class='text-right'>" . oeFormatMoney($total) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($total)) . "</td>\n";
     echo " </tr>\n";
 }
 
 // Output HTML for a receipt payment line.
 //
-function receiptPaymentLine($paydate, $amount, $description='', $method='', $refno='', $billtime='')
+function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = '')
 {
     global $aTaxNames, $num_optional_columns;
     global $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -388,8 +404,7 @@ function receiptPaymentLine($paydate, $amount, $description='', $method='', $ref
             // or similar, otherwise append that to the payment method.
             if ($description == '') {
                 $description = $tmp[1];
-            }
-            else {
+            } else {
                 $method .= ' ' . $tmp[1];
             }
         }
@@ -400,11 +415,11 @@ function receiptPaymentLine($paydate, $amount, $description='', $method='', $ref
         echo " title='" . xla('Entered') . ' ' .
             text(oeFormatShortDate($billtime)) . attr(substr($billtime, 10)) . "'";
     }
-    echo ">" . oeFormatShortDate($paydate) . "</td>\n";
+    echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
     echo "  <td colspan='$rcpt_num_method_columns' class='text-left'>" . text($method) . "</td>\n";
     echo "  <td colspan='$rcpt_num_ref_columns' class='text-left'>" . text($description) . "</td>\n";
-    echo "  <td colspan='$rcpt_num_amount_columns' class='text-right'>" . oeFormatMoney($amount) . "</td>\n";
+    echo "  <td colspan='$rcpt_num_amount_columns' class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -448,14 +463,14 @@ function invoiceChecksum($pid, $encounter)
 // Generate a receipt from the last-billed invoice for this patient,
 // or for the encounter specified as a GET parameter.
 //
-function generate_receipt($patient_id, $encounter=0)
+function generate_receipt($patient_id, $encounter = 0)
 {
     global $details, $rapid_data_entry, $aAdjusts;
     global $web_root, $webserver_root, $code_types;
     global $aTaxNames, $aInvTaxes, $checkout_times, $current_checksum;
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
-    global $facilityService;
+    global $facilityService, $alertmsg;
 
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {
@@ -472,7 +487,7 @@ function generate_receipt($patient_id, $encounter=0)
         );
     }
     if (empty($ferow)) {
-        die(xl("This patient has no activity."));
+        die(xlt("This patient has no activity."));
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
@@ -492,7 +507,7 @@ function generate_receipt($patient_id, $encounter=0)
 
     // Generate $aTaxNames = array of tax names, and $aInvTaxes = array of taxes for this invoice.
     load_taxes($patient_id, $encounter);
-?>
+    ?>
 <!-- The following is from the php function generate_receipt. -->
 <!DOCTYPE html>
 <html>
@@ -502,7 +517,7 @@ function generate_receipt($patient_id, $encounter=0)
 
     <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -511,9 +526,11 @@ function generate_receipt($patient_id, $encounter=0)
 
     // Process click on Print button.
     function printme(checkout_id) {
-<?php if (!empty($GLOBALS['gbl_custom_receipt'])) { ?>
+    <?php if (!empty($GLOBALS['gbl_custom_receipt'])) { ?>
         // Custom checkout receipt needs to be sent as a PDF in a new window or tab.
-        window.open('pos_checkout.php?<?php echo "ptid=$patient_id&enc=$encounter&pdf=1&coid="; ?>' + encodeURIComponent(checkout_id),
+        window.open('pos_checkout.php?ptid=' + <?php echo js_url($patient_id); ?>
+            + '&enc=' + <?php echo js_url($encounter); ?>
+            + '&pdf=1&coid=' + encodeURIComponent(checkout_id),
             '_blank', 'width=750,height=550,resizable=1,scrollbars=1');
 <?php } else { ?>
         var divstyle = document.getElementById('hideonprint').style;
@@ -547,11 +564,13 @@ function generate_receipt($patient_id, $encounter=0)
     // Submit the form to complete a void operation.
     function voidwrap(form_reason, form_notes) {
         top.restoreSession();
-        document.location.href = 'pos_checkout.php?ptid=<?php echo $patient_id; ?>&' + voidaction +
-          '=<?php echo $encounter; ?>' + '&form_checksum=<?php echo $current_checksum; ?>' +
+        document.location.href = 'pos_checkout.php?ptid=' + <?php echo js_url($patient_id); ?> +
+          '&' + encodeURIComponent(voidaction) + '=' + <?php echo js_url($encounter); ?> +
+          '&form_checksum=' + <?php echo js_url($current_checksum); ?> +
           '&form_reason=' + encodeURIComponent(form_reason) +
           '&form_notes='  + encodeURIComponent(form_notes) +
-          '<?php if (!empty($_GET['framed'])) echo '&framed=1'; ?>';
+          '<?php if (!empty($_GET['framed'])) {
+                echo '&framed=1';} ?>';
         return false;
     }
 
@@ -560,7 +579,7 @@ function generate_receipt($patient_id, $encounter=0)
     function voidme(action) {
         voidaction = action;
         if (action == 'void' || action == 'voidall') {
-           if (!confirm('<?php echo xl('This will advance the receipt number. Please print the receipt if you have not already done so.'); ?>')) {
+           if (!confirm(<?php echo xlj('This will advance the receipt number. Please print the receipt if you have not already done so.'); ?>)) {
               return false;
            }
            dlgopen('void_dialog.php', '_blank', 500, 450);
@@ -590,14 +609,14 @@ function generate_receipt($patient_id, $encounter=0)
                 <table class='table' width='95%'>
                     <tr>
                         <td width='25%' align='left' valign='top'>
-<?php
+    <?php
     // TBD: Maybe make a global for this file name.
     if ($tmp = UrlIfImageExists('ma_logo.png')) {
-      echo "<img src='$tmp' />";
+        echo "<img src='$tmp' />";
     } else {
-      echo "&nbsp;";
+        echo "&nbsp;";
     }
-?>
+    ?>
                         </td>
                         <td width='50%' align='center' valign='top' class='font-weight-bold'>
                             <?php echo text($frow['name']); ?>
@@ -615,15 +634,15 @@ function generate_receipt($patient_id, $encounter=0)
                     </tr>
                 </table>
                 <p class='font-weight-bold'>
-<?php
+    <?php
     echo xlt("Client Receipt");
     if ($invoice_refno) {
-        echo " " . xlt("for Invoice") . " $invoice_refno";
+        echo " " . xlt("for Invoice") . text(" $invoice_refno");
     }
-?>
+    ?>
                     <br />&nbsp;
                 </p>
-<?php
+    <?php
     // Compute numbers for summary on right side of page.
     $head_begbal = get_patient_balance_excluding($patient_id, $encounter);
     $row = sqlQuery(
@@ -654,38 +673,38 @@ function generate_receipt($patient_id, $encounter=0)
     );
     $head_payments -= $row['amount'];
     $head_endbal = $head_begbal + $head_charges - $head_adjustments - $head_payments;
-?>
+    ?>
                 <table class='table' width='95%'>
                     <tr>
                         <td width='50%' class='text-left' valign='top'>
-                            <?php echo $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']; ?>
-                            <br /><?php echo $patdata['street']; ?>
+                            <?php echo text($patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']); ?>
+                            <br /><?php echo text($patdata['street']); ?>
                             <br /><?php
-                            echo generate_layout_display_field('DEM', 'city' , $patdata['city']) . ", ";
+                            echo generate_layout_display_field('DEM', 'city', $patdata['city']) . ", ";
                             echo generate_layout_display_field('DEM', 'state', $patdata['state']) . " ";
-                            echo $patdata['postal_code']; ?>
+                            echo text($patdata['postal_code']); ?>
                         </td>
                         <td width='50%' class='text-right' valign='top'>
                             <table>
                                 <tr>
                                     <td><?php echo xlt('Beginning Account Balance'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo oeFormatMoney($head_begbal); ?></td>
+                                    <td class='text-right'><?php echo text(oeFormatMoney($head_begbal)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Total Visit Charges'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo oeFormatMoney($head_charges); ?></td>
+                                    <td class='text-right'><?php echo text(oeFormatMoney($head_charges)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Adjustments'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo oeFormatMoney($head_adjustments); ?></td>
+                                    <td class='text-right'><?php echo text(oeFormatMoney($head_adjustments)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Payments'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo oeFormatMoney($head_payments); ?></td>
+                                    <td class='text-right'><?php echo text(oeFormatMoney($head_payments)); ?></td>
                                 </tr>
                                 <tr>
                                     <td><?php echo xlt('Ending Account Balance'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td class='text-right'><?php echo oeFormatMoney($head_endbal); ?></td>
+                                    <td class='text-right'><?php echo text(oeFormatMoney($head_endbal)); ?></td>
                                 </tr>
                             </table>
                         </td>
@@ -693,12 +712,11 @@ function generate_receipt($patient_id, $encounter=0)
                 </table>
 
                 <table class='table' width='95%'>
-<?php if ($details) { ?>
-
+    <?php if ($details) { ?>
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>'
                         style='padding-top:5pt;' class='font-weight-bold'>
-                            <?php echo xl('Charges for') . ' ' . oeFormatShortDate($svcdate); ?>
+                                <?php echo xlt('Charges for') . ' ' . text(oeFormatShortDate($svcdate)); ?>
                         </td>
                     </tr>
 
@@ -708,30 +726,30 @@ function generate_receipt($patient_id, $encounter=0)
                         <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
                         <td class='font-weight-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
                         <td class='font-weight-bold text-right'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
-<?php if (!empty($GLOBALS['gbl_checkout_charges'])) { ?>
+        <?php if (!empty($GLOBALS['gbl_checkout_charges'])) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Charge'); ?></td>
-<?php } ?>
-<?php
-    if (!$TAXES_AFTER_ADJUSTMENT) {
-        foreach ($aTaxNames as $taxname) {
-            echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+    <?php } ?>
+        <?php
+        if (!$TAXES_AFTER_ADJUSTMENT) {
+            foreach ($aTaxNames as $taxname) {
+                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+            }
         }
-    }
-?>
-<?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
+        ?>
+        <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Customer'); ?></td>
 <?php } ?>
-<?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+        <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Adj Type'); ?></td>
                         <td class='font-weight-bold text-right'><?php echo xlt('Adj Amt'); ?></td>
 <?php } ?>
-<?php
-    if ($TAXES_AFTER_ADJUSTMENT) {
-        foreach ($aTaxNames as $taxname) {
-            echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+        <?php
+        if ($TAXES_AFTER_ADJUSTMENT) {
+            foreach ($aTaxNames as $taxname) {
+                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+            }
         }
-    }
-?>
+        ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Total'); ?></td>
                     </tr>
 
@@ -743,7 +761,7 @@ function generate_receipt($patient_id, $encounter=0)
                             &nbsp;
                         </td>
                     </tr>
-<?php
+    <?php
     // Create array aAdjusts from ar_activity rows for $encounter.
     load_adjustments($patient_id, $encounter);
 
@@ -830,7 +848,7 @@ function generate_receipt($patient_id, $encounter=0)
             $arow['post_date']
         );
     }
-?>
+    ?>
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>'
                         style='border-top:1px solid black; font-size:1px; padding:0;'>
@@ -838,21 +856,21 @@ function generate_receipt($patient_id, $encounter=0)
                         </td>
                     </tr>
 
-<?php
+    <?php
     // Sub-Total line with totals of all numeric columns.
     if ($details) {
         echo " <tr>\n";
-        echo "  <td colspan='3' align='right'><b>" . xl('Sub-Total') . "</b></td>\n";
-        echo "  <td align='center'>" . $aTotals[0] . "</td>\n";
-        echo "  <td align='right'>" . oeFormatMoney($aTotals[1]) . "</td>\n";
+        echo "  <td colspan='3' align='right'><b>" . xlt('Sub-Total') . "</b></td>\n";
+        echo "  <td align='center'>" . text($aTotals[0]) . "</td>\n";
+        echo "  <td align='right'>" . text(oeFormatMoney($aTotals[1])) . "</td>\n";
         // Optional charge amount.
         if (!empty($GLOBALS['gbl_checkout_charges'])) {
-            echo "  <td align='right'>" . oeFormatMoney($aTotals[2]) . "</td>\n";
+            echo "  <td align='right'>" . text(oeFormatMoney($aTotals[2])) . "</td>\n";
         }
         if (!$TAXES_AFTER_ADJUSTMENT) {
             // Put tax columns, if any, in the subtotals.
             for ($i = 0; $i < count($aTaxNames); ++$i) {
-                echo "  <td align='right'>" . oeFormatMoney($aTotals[5 + $i]) . "</td>\n";
+                echo "  <td align='right'>" . text(oeFormatMoney($aTotals[5 + $i])) . "</td>\n";
             }
         }
         // Optional charge category empty column.
@@ -862,15 +880,15 @@ function generate_receipt($patient_id, $encounter=0)
         // Optional adjustment columns.
         if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
             echo "  <td align='right'>&nbsp;</td>\n";
-            echo "  <td align='right'>" . oeFormatMoney($aTotals[3]) . "</td>\n";
+            echo "  <td align='right'>" . text(oeFormatMoney($aTotals[3])) . "</td>\n";
         }
         if ($TAXES_AFTER_ADJUSTMENT) {
             // Put tax columns, if any, in the subtotals.
             for ($i = 0; $i < count($aTaxNames); ++$i) {
-                echo "  <td align='right'>" . oeFormatMoney($aTotals[5 + $i]) . "</td>\n";
+                echo "  <td align='right'>" . text(oeFormatMoney($aTotals[5 + $i])) . "</td>\n";
             }
         }
-        echo "  <td align='right'>" . oeFormatMoney($aTotals[4]) . "</td>\n";
+        echo "  <td align='right'>" . text(oeFormatMoney($aTotals[4])) . "</td>\n";
         echo " </tr>\n";
     }
 
@@ -890,24 +908,24 @@ function generate_receipt($patient_id, $encounter=0)
     echo "  <td colspan='" . (3 + $num_optional_columns) . "'>&nbsp;</td>\n";
     echo "  <td colspan='" . 2 .
          "' align='right'><b>" . xlt('Total Charges') . "</b></td>\n";
-    echo "  <td align='right'>" . oeFormatMoney($aTotals[4]) . "</td>\n";
+    echo "  <td align='right'>" . text(oeFormatMoney($aTotals[4])) . "</td>\n";
     echo " </tr>\n";
-?>
+    ?>
 
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>' style='padding-top:5pt;'>
-                            <b><?php echo xl('Payments'); ?></b>
+                            <b><?php echo xlt('Payments'); ?></b>
                         </td>
                     </tr>
 
                     <tr>
                         <td><b><?php echo xlt('Date'); ?></b></td>
                         <td colspan='2'><b><?php echo xlt('Checkout Receipt Ref'); ?></b></td>
-                        <td colspan="<?php echo $rcpt_num_method_columns; ?>"
+                        <td colspan="<?php echo text($rcpt_num_method_columns); ?>"
                         align='left'><b><?php echo xlt('Payment Method'); ?></b></td>
-                        <td colspan="<?php echo $rcpt_num_ref_columns; ?>"
+                        <td colspan="<?php echo text($rcpt_num_ref_columns); ?>"
                         align='left'><b><?php echo xlt('Ref No'); ?></b></td>
-                        <td colspan='<?php echo $rcpt_num_amount_columns; ?>'
+                        <td colspan='<?php echo text($rcpt_num_amount_columns); ?>'
                         align='right'><b><?php echo xlt('Amount'); ?></b></td>
                     </tr>
 
@@ -918,7 +936,7 @@ function generate_receipt($patient_id, $encounter=0)
                       </td>
                     </tr>
 
-<?php
+    <?php
     $payments = 0;
 
     // Get co-pays.
@@ -952,7 +970,7 @@ function generate_receipt($patient_id, $encounter=0)
         $payments += formatMoneyNumber($inrow['pay_amount']);
         // Compute invoice number with payment suffix.
         $tmp = array_search($inrow['post_time'], $checkout_times);
-        $tmp = $tmp === FALSE ? 0 : ($tmp + 1);
+        $tmp = $tmp === false ? 0 : ($tmp + 1);
         $refno = $invoice_refno ? "$invoice_refno-$tmp" : "$encounter-$tmp";
         receiptPaymentLine(
             $inrow['post_date'],
@@ -963,7 +981,7 @@ function generate_receipt($patient_id, $encounter=0)
             $inrow['post_time']
         );
     }
-?>
+    ?>
 
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>'
@@ -975,7 +993,7 @@ function generate_receipt($patient_id, $encounter=0)
                     <tr>
                         <td colspan='<?php echo 3 + $num_optional_columns; ?>'>&nbsp;</td>
                         <td colspan='2' align='right'><b><?php echo xlt('Total Payments'); ?></b></td>
-                        <td align='right'><?php echo str_replace(' ', '&nbsp;', oeFormatMoney($payments, true)); ?></td>
+                        <td align='right'><?php echo str_replace(' ', '&nbsp;', text(oeFormatMoney($payments, true))); ?></td>
                     </tr>
 
                 </table>
@@ -985,7 +1003,7 @@ function generate_receipt($patient_id, $encounter=0)
         <div class='row'>
             <div class='col'>
 
-<?php
+    <?php
     // The user-customizable note.
     if (!empty($GLOBALS['gbl_checkout_receipt_note'])) {
         echo "<p>";
@@ -994,35 +1012,34 @@ function generate_receipt($patient_id, $encounter=0)
         echo str_repeat('*', 80) . '<br />';
         echo "</p>";
     }
-?>
+    ?>
 
                 <p>
-                <b><?php echo xlt("Printed on") . ' ' . dateformat(); ?></b>
+                <b><?php echo xlt("Printed on") . ' ' . text(dateformat()); ?></b>
                 </p>
 
                 <div id='hideonprint'>
                     <p>
                         &nbsp;
 
-<?php
+    <?php
     if (count($checkout_times) > 1 && !empty($GLOBALS['gbl_custom_receipt'])) {
         // Multiple checkouts so allow selection of the one to print.
         // This is only applicable for custom checkout receipts.
         echo "<select onchange='printme(this.value)' >\n";
         echo " <option value=''>" . xlt('Print Checkout') . "</option>\n";
         $i = 0;
-        foreach ($checkout_times AS $tmp) {
-          ++$i;
-          echo " <option value='$tmp'>$i: $tmp</option>\n";
+        foreach ($checkout_times as $tmp) {
+            ++$i;
+            echo " <option value='" . attr($tmp) . "'>" . text("$i: $tmp") . "</option>\n";
         }
         echo "</select>\n";
-    }
-    else {
+    } else {
         echo "<a href='#' onclick='return printme(\"\");'>" . xlt('Print') . "</a>\n";
     }
-?>
+    ?>
 
-<?php if (AclMain::aclCheckCore('acct','disc')) { ?>
+    <?php if (AclMain::aclCheckCore('acct', 'disc')) { ?>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <a href='#' onclick='return voidme("regen");'><?php echo xlt('Generate New Receipt Number'); ?></a>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1031,30 +1048,32 @@ function generate_receipt($patient_id, $encounter=0)
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <a href='#' onclick='return voidme("voidall");' title='<?php echo xla('Applies to this visit only'); ?>'>
                         <?php echo xlt('Void All Checkouts'); ?></a>
-<?php } ?>
+    <?php } ?>
 
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-<?php if ($details) { ?>
-                        <a href='pos_checkout.php?details=0&ptid=<?php echo $patient_id; ?>&enc=<?php echo attr($encounter); ?>' onclick='top.restoreSession()'><?php echo xlt('Hide Details'); ?></a>
-<?php } else { ?>
-                        <a href='pos_checkout.php?details=1&ptid=<?php echo $patient_id; ?>&enc=<?php echo attr($encounter); ?>' onclick='top.restoreSession()'><?php echo xlt('Show Details'); ?></a>
-<?php } ?>
+    <?php if ($details) { ?>
+                        <a href='pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'
+                            onclick='top.restoreSession()'><?php echo xlt('Hide Details'); ?></a>
+    <?php } else { ?>
+                        <a href='pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'
+                            onclick='top.restoreSession()'><?php echo xlt('Show Details'); ?></a>
+    <?php } ?>
                     </p>
                 </div><!-- end hideonprint -->
             </div><!-- end col -->
         </div><!-- end row -->
     </div><!-- end container -->
     <script>
-<?php
-if ($alertmsg) {
-  echo " alert('" . addslashes($alertmsg) . "');\n";
-}
-?>
+    <?php
+    if ($alertmsg) {
+        echo " alert(" . js_escape($alertmsg) . ");\n";
+    }
+    ?>
     </script>
 </body>
 </html>
-<?php
+    <?php
 }
 
 // end function generate_receipt()
@@ -1070,7 +1089,9 @@ function write_form_headers()
     global $form_headers_written, $patdata, $patient_id, $encounter_id, $aAdjusts;
     global $taxes, $encounter_date, $num_optional_columns, $TAXES_AFTER_ADJUSTMENT;
 
-    if ($form_headers_written) return;
+    if ($form_headers_written) {
+        return;
+    }
     $form_headers_written = true;
 
     // Create arrays $aAdjusts, $aTaxNames and $aInvTaxes for this encounter.
@@ -1083,84 +1104,84 @@ function write_form_headers()
         array($patient_id, $encounter_id)
     );
     $encounter_date = substr($ferow['date'], 0, 10);
-?>
+    ?>
    <tr>
       <td colspan='<?php echo 5 + $num_optional_columns; ?>' align='center' class='title'>
-          <?php echo xlt('Patient Checkout for '); ?><?php echo $patdata['fname'] . " " .
-          $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?>
+          <?php echo xlt('Patient Checkout for '); ?><?php echo text($patdata['fname']) . " " .
+              text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?>
           <br />&nbsp;
           <p class='bold'>
-<?php
+    <?php
     $prvbal = get_patient_balance_excluding($patient_id, $encounter_id);
     echo xlt('Previous Balance') . '&nbsp;&nbsp;&nbsp;&nbsp;';
-    echo "<input type='text' value='" . oeFormatMoney($prvbal) . "' size='6' ";
+    echo "<input type='text' value='" . attr(oeFormatMoney($prvbal)) . "' size='6' ";
     echo "style='text-align:right;background-color:transparent' readonly />\n";
     if ($prvbal > 0) {
         echo "&nbsp;<input type='button' value='" . xla('Pay Previous Balance') .
             "' onclick='payprevious()' />\n";
     }
-?>
+    ?>
                 <br />&nbsp;
             </p>
         </td>
     </tr>
 
     <tr>
-<?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
+    <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
         <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1) + count($taxes); ?>' class='bold'>
-<?php } else { ?>
+    <?php } else { ?>
         <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1); ?>' class='bold'>
-<?php } ?>
+    <?php } ?>
             &nbsp;
         </td>
-<?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
+    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
         <td align='right' class='bold' nowrap>
             <?php echo xlt('Default Customer'); ?>
         </td>
-<?php } ?>
-<?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+    <?php } ?>
+    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
         <td align='right' class='bold' nowrap>
             <?php echo xlt('Default Adjust Type'); ?>
         </td>
         <td class='bold'>
             &nbsp;
         </td>
-<?php } ?>
-<?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
+    <?php } ?>
+    <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
         <td class='bold'>
-<?php } else { ?>
+    <?php } else { ?>
         <td colspan='<?php echo 1 + count($taxes); ?>' class='bold'>
-<?php } ?>
+    <?php } ?>
             &nbsp;
         </td>
     </tr>
 
     <tr>
-<?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
+    <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
         <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1) + count($taxes); ?>' class='title'>
-<?php } else { ?>
+    <?php } else { ?>
         <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1); ?>' class='title'>
-<?php } ?>
+    <?php } ?>
             <?php echo xlt('Current Charges'); ?>
         </td>
-<?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category default ?>
+    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category default ?>
         <td align='right' class='bold'>
             <?php echo generate_select_list('form_charge_category', 'chargecats', '', '', ' ', '', 'chargeCategoryChanged();'); ?>
         </td>
-<?php } ?>
-<?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { // adjustmenty reason default ?>
+    <?php } ?>
+    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { // adjustmenty reason default ?>
         <td align='right' class='bold'>
             <?php echo generate_select_list('form_discount_type', 'adjreason', '', '', ' ', '', 'discountTypeChanged();billingChanged();'); ?>
         </td>
         <td class='bold'>
             &nbsp;
         </td>
-<?php } ?>
-<?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
+    <?php } ?>
+    <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
         <td class='bold'>
-<?php } else { ?>
+    <?php } else { ?>
         <td colspan='<?php echo 1 + count($taxes); ?>' class='bold'>
-<?php } ?>
+    <?php } ?>
             &nbsp;
         </td>
     </tr>
@@ -1169,44 +1190,53 @@ function write_form_headers()
         <td class='bold'><?php echo xlt('Date'); ?></td>
         <td class='bold'><?php echo xlt('Description'); ?></td>
         <td align='right' class='bold'><?php echo xlt('Quantity'); ?></td>
-<?php if (empty($GLOBALS['gbl_checkout_charges'])) { // if no charges column ?>
+    <?php if (empty($GLOBALS['gbl_checkout_charges'])) { // if no charges column ?>
         <td align='right' class='bold'><?php echo xlt('Charge'); ?></td>
-<?php } else { // charges column needed ?>
+    <?php } else { // charges column needed ?>
         <td align='right' class='bold'><?php echo xlt('Price'); ?></td>
         <td align='right' class='bold'><?php echo xlt('Charge'); ?></td>
-<?php } ?>
-<?php
+    <?php } ?>
+    <?php
     if (!$TAXES_AFTER_ADJUSTMENT) {
         foreach ($taxes as $taxarr) {
             echo "  <td align='right' class='bold'>" . text($taxarr[0]) . "</td>";
         }
     }
-?>
-<?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category ?>
+    ?>
+    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category ?>
         <td align='right' class='bold'><?php echo xlt('Customer'); ?></td>
-<?php } ?>
-<?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+    <?php } ?>
+    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
         <td align='right' class='bold'><?php echo xlt('Adjust Type'); ?></td>
         <td align='right' class='bold'><?php echo xlt('Adj'); ?></td>
-<?php } ?>
-<?php
+    <?php } ?>
+    <?php
     if ($TAXES_AFTER_ADJUSTMENT) {
         foreach ($taxes as $taxarr) {
             echo "  <td align='right' class='bold'>" . text($taxarr[0]) . "</td>";
         }
     }
-?>
+    ?>
         <td align='right' class='bold'><?php echo xlt('Total'); ?></td>
     </tr>
-<?php
+    <?php
 }
 
 // Function to output a line item for the input form.
 //
 $totalchg = 0; // totals charges after adjustments
-function write_form_line($code_type, $code, $id, $date, $description,
-    $amount, $units, $taxrates, $billtime='', $chargecat='')
-{
+function write_form_line(
+    $code_type,
+    $code,
+    $id,
+    $date,
+    $description,
+    $amount,
+    $units,
+    $taxrates,
+    $billtime = '',
+    $chargecat = ''
+) {
     global $lino, $totalchg, $aAdjusts, $taxes, $encounter_date, $TAXES_AFTER_ADJUSTMENT;
 
     // Write heading rows if that is not already done.
@@ -1243,36 +1273,35 @@ function write_form_line($code_type, $code, $id, $date, $description,
     }
 
     echo " <tr>\n";
-    echo "  <td class='text'>" . oeFormatShortDate($encounter_date);
-    echo "<input type='hidden' name='line[$lino][code_type]' value='$code_type'>";
-    echo "<input type='hidden' name='line[$lino][code]' value='$code'>";
-    echo "<input type='hidden' name='line[$lino][id]' value='$id'>";
-    echo "<input type='hidden' name='line[$lino][description]' value='$description'>";
+    echo "  <td class='text'>" . text(oeFormatShortDate($encounter_date));
+    echo "<input type='hidden' name='line[$lino][code_type]' value='" . attr($code_type) . "'>";
+    echo "<input type='hidden' name='line[$lino][code]' value='" . attr($code) . "'>";
+    echo "<input type='hidden' name='line[$lino][id]' value='" . attr($id) . "'>";
+    echo "<input type='hidden' name='line[$lino][description]' value='" . attr($description) . "'>";
     // String of numeric tax rates is written here as a form field only for JavaScript tax computations.
-    echo "<input type='hidden' name='line[$lino][taxnumrates]' value='$taxnumrates'>";
-    echo "<input type='hidden' name='line[$lino][units]' value='$units'>";
+    echo "<input type='hidden' name='line[$lino][taxnumrates]' value='" . attr($taxnumrates) . "'>";
+    echo "<input type='hidden' name='line[$lino][units]' value='" . attr($units) . "'>";
     // Indicator of whether and when this line item was previously billed:
-    echo "<input type='hidden' name='line[$lino][billtime]' value='$billtime'>";
+    echo "<input type='hidden' name='line[$lino][billtime]' value='" . attr($billtime) . "'>";
     echo "</td>\n";
-    echo "  <td class='text'>$description</td>";
-    echo "  <td class='text' align='right'>$units</td>";
+    echo "  <td class='text'>" . text($description) . "</td>";
+    echo "  <td class='text' align='right'>" . text($units) . "</td>";
 
     if (empty($GLOBALS['gbl_checkout_charges'])) {
         // We show only total charges here.
         echo "  <td class='text' align='right'>";
-        echo "<input type='hidden' name='line[$lino][price]' value='$price'>";
-        echo "<input type='text' name='line[$lino][charge]' value='$amount' size='6'";
+        echo "<input type='hidden' name='line[$lino][price]' value='" . attr($price) . "'>";
+        echo "<input type='text' name='line[$lino][charge]' value='" . attr($amount) . "' size='6'";
         echo " style='text-align:right;background-color:transparent' readonly />";
         echo "</td>\n";
-    }
-    else {
+    } else {
         // In this case show price and extended charge amount.
         echo "  <td class='text' align='right'>";
-        echo "<input type='text' name='line[$lino][price]' value='$price' size='6'";
+        echo "<input type='text' name='line[$lino][price]' value='" . attr($price) . "' size='6'";
         echo " style='text-align:right;background-color:transparent' readonly />";
         echo "</td>\n";
         echo "  <td class='text' align='right'>";
-        echo "<input type='text' name='line[$lino][charge]' value='$amount' size='6'";
+        echo "<input type='text' name='line[$lino][charge]' value='" . attr($amount) . "' size='6'";
         echo " style='text-align:right;background-color:transparent' readonly />";
         echo "</td>\n";
     }
@@ -1290,7 +1319,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
             echo "  <td class='text' align='right'>";
             echo "<input type='text' name='line[$lino][tax][$i]' size='6'";
             // Set tax amounts for existing billed items. JS must not recompute those.
-            echo " value='" . formatMoneyNumber($aTaxes[$taxid]) . "'";
+            echo " value='" . attr(formatMoneyNumber($aTaxes[$taxid])) . "'";
             echo " style='text-align:right;background-color:transparent' readonly />";
             echo "</td>\n";
             ++$i;
@@ -1329,11 +1358,11 @@ function write_form_line($code_type, $code, $id, $date, $description,
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
-        echo empty($GLOBALS['discount_by_money']) ? '' : $GLOBALS['gbl_currency_symbol'];
+        echo empty($GLOBALS['discount_by_money']) ? '' : text($GLOBALS['gbl_currency_symbol']);
         echo "<input type='text' name='line[$lino][adjust]' size='6'";
-        echo " value='" . formatMoneyNumber($adjust) . "'";
+        echo " value='" . attr(formatMoneyNumber($adjust)) . "'";
         // Modifying discount requires the acct/disc permission.
-        if ($billtime || $code_type == 'TAX' || $code_type == 'COPAY' || !AclMain::aclCheckCore('acct','disc')) {
+        if ($billtime || $code_type == 'TAX' || $code_type == 'COPAY' || !AclMain::aclCheckCore('acct', 'disc')) {
             echo " style='text-align:right;background-color:transparent' readonly";
         } else {
             echo " style='text-align:right' maxlength='8' onkeyup='lineDiscountChanged($lino)'";
@@ -1351,7 +1380,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
             echo "  <td class='text' align='right'>";
             echo "<input type='text' name='line[$lino][tax][$i]' size='6'";
             // Set tax amounts for existing billed items. JS must not recompute those.
-            echo " value='" . formatMoneyNumber($aTaxes[$taxid]) . "'";
+            echo " value='" . attr(formatMoneyNumber($aTaxes[$taxid])) . "'";
             echo " style='text-align:right;background-color:transparent' readonly />";
             echo "</td>\n";
             ++$i;
@@ -1360,7 +1389,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
 
     // Extended amount after adjustments and taxes.
     echo "  <td class='text' align='right'>";
-    echo "<input type='text' name='line[$lino][amount]' value='$total' size='6'";
+    echo "<input type='text' name='line[$lino][amount]' value='" . attr($total) . "' size='6'";
     echo " style='text-align:right;background-color:transparent' readonly />";
     echo "</td>\n";
 
@@ -1371,14 +1400,15 @@ function write_form_line($code_type, $code, $id, $date, $description,
 
 // Function to output a past payment/adjustment line to the form.
 //
-function write_old_payment_line($pay_type, $date, $method, $reference, $amount) {
+function write_old_payment_line($pay_type, $date, $method, $reference, $amount)
+{
     global $lino, $taxes, $num_optional_columns;
     global $form_num_type_columns, $form_num_method_columns, $form_num_ref_columns, $form_num_amount_columns;
     // Write heading rows if that is not already done.
     write_form_headers();
     $amount = formatMoneyNumber($amount);
     echo " <tr>\n";
-    echo "  <td class='text' colspan='$form_num_type_columns'>" . text($pay_type ) . "</td>\n";
+    echo "  <td class='text' colspan='$form_num_type_columns'>" . text($pay_type) . "</td>\n";
     echo "  <td class='text' colspan='$form_num_method_columns'>" . text($method) . "</td>\n";
     echo "  <td class='text' colspan='$form_num_ref_columns'>" . text($reference) . "</td>\n";
     echo "  <td class='text' align='right' colspan='$form_num_amount_columns'><input type='text' name='oldpay[$lino][amount]' " .
@@ -1390,14 +1420,17 @@ function write_old_payment_line($pay_type, $date, $method, $reference, $amount) 
 }
 
 // Mark the tax rates that are referenced in this invoice.
-function markTaxes($taxrates) {
+function markTaxes($taxrates)
+{
     global $taxes;
     $arates = explode(':', $taxrates);
     if (empty($arates)) {
         return;
     }
     foreach ($arates as $value) {
-        if (!empty($taxes[$value])) $taxes[$value][2] = '1';
+        if (!empty($taxes[$value])) {
+            $taxes[$value][2] = '1';
+        }
     }
 }
 
@@ -1427,9 +1460,8 @@ $alertmsg = ''; // anything here pops up in an alert box
 if (!empty($_POST['form_save'])) {
     $patient_id = 0 + $_POST['form_pid'];
     $encounter_id = 0 + $_POST['form_encounter'];
-}
-else {
-    foreach(array('regen', 'enc', 'void', 'voidall') as $key) {
+} else {
+    foreach (array('regen', 'enc', 'void', 'voidall') as $key) {
         if (!empty($_GET[$key])) {
             $encounter_id = 0 + $_GET[$key];
             break;
@@ -1494,7 +1526,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     $form_amount = $_POST['form_amount'];
     $lines = $_POST['line'];
 
-    for ($lino = 0; $lines[$lino]['code_type']; ++$lino) {
+    for ($lino = 0; !empty($lines[$lino]['code_type']); ++$lino) {
         $line = $lines[$lino];
         $code_type = $line['code_type'];
         $code      = $line['code'];
@@ -1549,15 +1581,22 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                 if ($memo === '') {
                     $memo = formData('form_discount_type');
                 }
+                sqlBeginTrans();
+                $sequence_no = sqlQuery(
+                    "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
+                    "pid = ? AND encounter = ?",
+                    array($patient_id, $encounter_id)
+                );
                 $query = "INSERT INTO ar_activity ( " .
-                    "pid, encounter, code_type, code, modifier, payer_type, " .
+                    "pid, encounter, sequence_no, code_type, code, modifier, payer_type, " .
                     "post_user, post_time, post_date, session_id, memo, adj_amount " .
                     ") VALUES ( " .
-                    "?, ?, ?, ?, '', '0', ?, ?, ?, '0', ?, ? " .
+                    "?, ?, ?, ?, ?, '', '0', ?, ?, ?, '0', ?, ? " .
                     ")";
                 sqlStatement($query, array(
                     $patient_id,
                     $encounter_id,
+                    $sequence_no['increment'],
                     $code_type,
                     $code,
                     $_SESSION['authUserID'],
@@ -1566,6 +1605,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     $memo,
                     $adjust
                 ));
+                sqlCommitTrans();
             }
         }
 
@@ -1574,8 +1614,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             if ($code_type == 'PROD') {
                 $query = "UPDATE drug_sales SET chargecat = ? WHERE sale_id = ?";
                 sqlQuery($query, array($chargecat, $id));
-            }
-            else {
+            } else {
                 $query = "UPDATE billing SET chargecat = ? WHERE id = ?";
                 sqlQuery($query, array($chargecat, $id));
             }
@@ -1594,26 +1633,33 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     if ($_POST['form_discount'] != 0) {
         if ($GLOBALS['discount_by_money']) {
             $amount  = formatMoneyNumber(trim($_POST['form_discount']));
-        }
-        else {
+        } else {
             $amount  = formatMoneyNumber(trim($_POST['form_discount']) * $form_amount / 100);
         }
         $memo = formData('form_discount_type');
+        sqlBeginTrans();
+        $sequence_no = sqlQuery(
+            "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
+            "pid = ? AND encounter = ?",
+            array($patient_id, $encounter_id)
+        );
         $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
             "post_date, session_id, memo, adj_amount " .
             ") VALUES ( " .
-            "?, ?, '', '', '0', ?, ?, ?, '0', ?, ? " .
+            "?, ?, ?, '', '', '0', ?, ?, ?, '0', ?, ? " .
             ")";
         sqlStatement($query, array(
             $patient_id,
             $encounter_id,
+            $sequence_no['increment'],
             $_SESSION['authUserID'],
             $this_bill_date,
             $postdate,
             $memo,
             $amount
         ));
+        sqlCommitTrans();
     }
 
     // Post the payments.
@@ -1625,9 +1671,23 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             if ($amount != 0.00) {
                 $method = $line['method'];
                 $refno  = $line['refno'];
-                if ($method !== '' && $refno !== '') $method .= " $refno";
+                if ($method !== '' && $refno !== '') {
+                    $method .= " $refno";
+                }
                 $session_id = 0; // Is this OK?
-                arPostPayment($patient_id, $encounter_id, $session_id, $amount, '', 0, $method, 0, $this_bill_date,'', $postdate);
+                SLEOB::arPostPayment(
+                    $patient_id,
+                    $encounter_id,
+                    $session_id,
+                    $amount,
+                    '',
+                    0,
+                    $method,
+                    0,
+                    $this_bill_date,
+                    '',
+                    $postdate
+                );
             }
         }
     }
@@ -1637,9 +1697,8 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
             $invoice_refno = formData('form_irnumber', 'P', true);
-        }
-        else {
-            $invoice_refno = add_escape_custom(updateInvoiceRefNumber());
+        } else {
+            $invoice_refno = add_escape_custom(BillingUtilities::updateInvoiceRefNumber());
         }
         if ($invoice_refno) {
             sqlStatement(
@@ -1664,7 +1723,7 @@ $form_notes  = empty($_GET['form_notes' ]) ? '' : $_GET['form_notes'];
 // If "regen" encounter ID was given, then we must generate a new receipt ID.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
-    doVoid($patient_id, $encounter_id, false, '', $form_reason, $form_notes);
+    BillingUtilities::doVoid($patient_id, $encounter_id, false, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
     $_GET['enc'] = $encounter_id;
 }
@@ -1674,8 +1733,7 @@ if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
 if ($patient_id && !empty($_GET['enc'])) {
     if (empty($_GET['pdf'])) {
         generate_receipt($patient_id, $_GET['enc']);
-    }
-    else {
+    } else {
         // PDF receipt is requested. In this case we are probably in a new window.
         require_once($GLOBALS['OE_SITE_DIR'] . "/" . $GLOBALS['gbl_custom_receipt']);
         // $checkout_id is an optional specified checkout timestamp.
@@ -1694,11 +1752,10 @@ if ($patient_id && !empty($_GET['enc'])) {
 // Or for "voidall" undo all checkouts for the encounter.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['void'])) {
-    doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
+    BillingUtilities::doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
-}
-else if (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
-    doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
+} else if (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
+    BillingUtilities::doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 }
 
@@ -1716,12 +1773,10 @@ if (!$encounter_id) {
     if (!empty($brow['encounter'])) {
         if (!empty($drow['encounter'])) {
             $encounter_id = min(intval($brow['encounter']), intval($drow['encounter']));
-        }
-        else {
+        } else {
             $encounter_id = $brow['encounter'];
         }
-    }
-    else if (!empty($drow['encounter'])) {
+    } else if (!empty($drow['encounter'])) {
         $encounter_id = $drow['encounter'];
     }
 }
@@ -1814,9 +1869,9 @@ while ($urow = sqlFetchArray($ures)) {
         "list_id = 'adjreason' AND option_value = 1 AND activity = 1"
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
-        echo "            && adjreason != '" . addslashes($tmprow['option_id']) . "'\n";
+        echo "            && adjreason != " . js_escape($tmprow['option_id']) . "\n";
     }
-?>
+    ?>
         ) {
             taxable -= adjust;
         }
@@ -1896,7 +1951,7 @@ while ($urow = sqlFetchArray($ures)) {
             amount = parseFloat(amount.toFixed(<?php echo $currdecimals ?>));
             total += amount;
             // Set payment row's description to Refund if the amount is negative.
-            var title = amount < 0 ? '<?php echo xl('Refund'); ?>' : '<?php echo xl('New payment'); ?>';
+            var title = amount < 0 ? <?php echo xlj('Refund'); ?> : <?php echo xlj('New payment'); ?>;
             var span = document.getElementById('paytitle_' + lino);
             span.innerHTML = title;
         }
@@ -1948,10 +2003,10 @@ while ($urow = sqlFetchArray($ures)) {
             preg_match('/ADJ=(\w+)/', $tmprow['notes'], $matches) ||
             preg_match('/ADJ="(.*?)"/', $tmprow['notes'], $matches)
         ) {
-            echo "  if (customer == '" . addslashes($tmprow['option_id']) . "') ret = '" . addslashes($matches[1]) . "';\n";
+            echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
     }
-?>
+    ?>
         return ret;
     }
 
@@ -2090,8 +2145,8 @@ while ($urow = sqlFetchArray($ures)) {
                 async: false, // We cannot continue without an answer.
                 url: "<?php echo $GLOBALS['webroot']; ?>/library/ajax/check_szf_referrals_ajax.php",
                 data: {
-                    "pid": <?php echo $patient_id; ?>,
-                    "encounter": <?php echo $encounter_id; ?>,
+                    "pid": <?php echo intval($patient_id); ?>,
+                    "encounter": <?php echo intval($encounter_id); ?>,
                     "services": services_needing_referral
                 },
                 success: function (jsondata, textstatus) {
@@ -2118,15 +2173,15 @@ while ($urow = sqlFetchArray($ures)) {
             var chargecat = f['line[' + lino + '][chargecat]'].value;
             if (
                 1 == 2
-<?php
+    <?php
     $lres = sqlStatement(
         "SELECT option_id FROM list_options WHERE " .
         "list_id = 'chargecats' AND activity = 1 AND notes LIKE '%GIFTCARD=Y%' ORDER BY seq, title"
     );
     while ($lrow = sqlFetchArray($lres)) {
-        echo "                || chargecat == '" . addslashes($lrow['option_id']) . "'\n";
+        echo "                || chargecat == " . js_escape($lrow['option_id']) . "\n";
     }
-?>
+    ?>
             ) {
                 gc_customer_exists = true;
             }
@@ -2139,26 +2194,26 @@ while ($urow = sqlFetchArray($ures)) {
             var method = f['payment[' + lino + '][method]'].value;
             if (
                 1 == 2
-<?php
+    <?php
     $lres = sqlStatement(
         "SELECT option_id FROM list_options WHERE " .
         "list_id = 'paymethod' AND activity = 1 AND notes LIKE '%GIFTCARD=Y%' ORDER BY seq, title"
     );
     while ($lrow = sqlFetchArray($lres)) {
-        echo "                || method == '" . addslashes($lrow['option_id']) . "'\n";
+        echo "                || method == " . js_escape($lrow['option_id']) . "\n";
     }
-?>
+    ?>
             ) {
                 if (!f['payment[' + lino + '][refno]'].value) {
                   // There is a gift card payment method but no gift card ID is entered.
-                  alert('<?php echo xls("Enter Gift Card number in the Reference field"); ?>');
+                  alert(<?php echo xlj("Enter Gift Card number in the Reference field"); ?>);
                   return false;
                 }
                 return true; // There is a gift card payment method or no such methods exist.
             }
         }
         // There is a gift card customer but no gift card payment method.
-        alert('<?php echo xls("Gift Card Customer requires at least one Gift Card Payment Method"); ?>');
+        alert(<?php echo xlj("Gift Card Customer requires at least one Gift Card Payment Method"); ?>);
         return false;
 <?php } ?>
     }
@@ -2177,12 +2232,12 @@ while ($urow = sqlFetchArray($ures)) {
         }
 <?php if (false /* adjustments_indicate_insurance */) { ?>
         if (missingtypeany) {
-            alert('<?php echo xls('Adjustment type is required for every line item.') ?>');
+            alert(<?php echo xlj('Adjustment type is required for every line item.') ?>);
             return false;
         }
 <?php } else { ?>
         if (missingtypeamt) {
-            alert('<?php echo xls('Adjustment type is required for each line with an adjustment.') ?>');
+            alert(<?php echo xlj('Adjustment type is required for each line with an adjustment.') ?>);
             return false;
         }
 <?php } ?>
@@ -2211,18 +2266,23 @@ while ($urow = sqlFetchArray($ures)) {
         'help_file_name' => ""
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
-?>
+    ?>
 </head>
 
 <body>
 
 <?php
-echo "<form method='post' action='pos_checkout.php?rde=$rapid_data_entry";
-if ($encounter_id) echo "&enid=$encounter_id";
-if (!empty($_GET['framed'])) echo '&framed=1';
+echo "<form method='post' action='pos_checkout.php?rde=" . attr_url($rapid_data_entry);
+if ($encounter_id) {
+    echo "&enid=" . attr_url($encounter_id);
+}
+if (!empty($_GET['framed'])) {
+    echo '&framed=1';
+}
 echo "' onsubmit='return validate()'>\n";
-echo "<input type='hidden' name='form_pid' value='$patient_id' />\n";
+echo "<input type='hidden' name='form_pid' value='" . attr($patient_id) . "' />\n";
 ?>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 
@@ -2280,16 +2340,17 @@ while ($brow = sqlFetchArray($bres)) {
     $taxrates = '';
     $related_code = '';
     if (!empty($code_types[$code_type]['fee'])) {
-        $query = "SELECT taxrates, related_code FROM codes WHERE code_type = '" .
-            $code_types[$code_type]['id'] . "' AND " .
-            "code = '" . $brow['code'] . "' AND ";
+        $query = "SELECT taxrates, related_code FROM codes WHERE code_type = ? AND " .
+            "code = ? AND ";
+        $binds = array($code_types[$code_type]['id'], $brow['code']);
         if ($brow['modifier']) {
-            $query .= "modifier = '" . $brow['modifier'] . "'";
+            $query .= "modifier = ?";
+            $binds[] = $brow['modifier'];
         } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
         $query .= " LIMIT 1";
-        $tmp = sqlQuery($query);
+        $tmp = sqlQuery($query, $binds);
         $taxrates = $tmp['taxrates'];
         $related_code = $tmp['related_code'];
         markTaxes($taxrates);
@@ -2332,7 +2393,7 @@ while ($brow = sqlFetchArray($bres)) {
                 ) {
                     $gcac_service_provided = true;
                 }
-            }      
+            }
         }
     }
 }
@@ -2386,10 +2447,10 @@ while ($drow = sqlFetchArray($dres)) {
 // Line for total charges.
 $totalchg = formatMoneyNumber($totalchg);
 echo " <tr>\n";
-echo "  <td class='bold' colspan='" . ($GLOBALS['gbl_checkout_charges'] ? 4 : 3) .
-     "' align='right'>" . xl('Total Charges This Visit') . "</td>\n";
+echo "  <td class='bold' colspan='" . (!empty($GLOBALS['gbl_checkout_charges']) ? 4 : 3) .
+     "' align='right'>" . xlt('Total Charges This Visit') . "</td>\n";
 echo "  <td class='text' align='right'><input type='text' name='totalcba' " .
-     "value='$totalchg' size='6' maxlength='8' " .
+     "value='" . attr($totalchg) . "' size='6' maxlength='8' " .
      "style='text-align:right;background-color:transparent' readonly";
 echo "></td>\n";
 if (!$TAXES_AFTER_ADJUSTMENT) {
@@ -2418,7 +2479,7 @@ if ($TAXES_AFTER_ADJUSTMENT) {
     }
 }
 echo "  <td class='text' align='right'><input type='text' name='totalchg' " .
-     "value='$totalchg' size='6' maxlength='8' " .
+     "value='" . attr($totalchg) . "' size='6' maxlength='8' " .
      "style='text-align:right;background-color:transparent' readonly";
 echo "></td>\n";
 echo " </tr>\n";
@@ -2517,7 +2578,9 @@ echo "  </tr>\n";
 
 echo " <tr";
 // Hide this if only showing line item adjustments.
-if ($GLOBALS['gbl_checkout_line_adjustments'] == 1) echo " style='display:none'";
+if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+    echo " style='display:none'";
+}
 echo ">\n";
 echo "  <td class='title' colspan='" . ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) .
      "' align='right'><b>" . xlt('Difference') . "</b></td>\n";
@@ -2539,21 +2602,20 @@ if ($encounter_id) {
 // Line for Discount.
 echo " <tr";
 // Hide this if only showing line item adjustments.
-if ($GLOBALS['gbl_checkout_line_adjustments'] == 1) {
+if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
     echo " style='display:none'";
 }
 echo ">\n";
 echo "  <td class='bold' colspan='" . ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) .
      "' align='right'>";
-if (AclMain::aclCheckCore('acct','disc') || AclMain::aclCheckCore('admin','super')) {
-    echo "<a href='#' onclick='return computeDiscount()'>[" . xl('Compute') ."]</a> <b>";
+if (AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('admin', 'super')) {
+    echo "<a href='#' onclick='return computeDiscount()'>[" . xlt('Compute') . "]</a> <b>";
     echo xlt('Discount/Adjustment') . "</b></td>\n";
     echo "  <td class='text' align='right' colspan='$form_num_amount_columns'>" .
          "<input type='text' name='form_discount' " .
          "value='' size='6' maxlength='8' onkeyup='billingChanged()' " .
          "style='text-align:right' />";
-}
-else {
+} else {
     echo "" . xlt('Discount/Adjustment') . "</td>\n";
     echo "  <td class='text' align='right' colspan='$form_num_amount_columns'>" .
          "<input type='text' name='form_discount' value='' size='6' " .
@@ -2588,8 +2650,11 @@ echo " </tr>\n";
 
 <?php
 // A current invoice reference number may be present if there was a previous checkout.
-$tmprow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
-  "pid = '$patient_id' AND encounter = '$encounter_id'");
+$tmprow = sqlQuery(
+    "SELECT invoice_refno FROM form_encounter WHERE " .
+    "pid = ? AND encounter = ?",
+    array($patient_id, $encounter_id)
+);
 $current_irnumber = $tmprow['invoice_refno'];
 
 if (!$current_irnumber) {
@@ -2597,21 +2662,20 @@ if (!$current_irnumber) {
     // invoice reference number.
     $irnumber = BillingUtilities::getInvoiceRefNumber();
     if (!empty($irnumber)) {
-?>
+        ?>
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
             (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1); ?>' align='right'>
             <?php echo xlt('Tentative Invoice Ref No'); ?>
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
-            <?php echo $irnumber; ?>
+            <?php echo text($irnumber); ?>
         </td>
     </tr>
-<?php
-    }
+        <?php
+    } else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
-    else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
-?>
+        ?>
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
             (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1); ?>' align='right'>
@@ -2624,7 +2688,7 @@ if (!$current_irnumber) {
         />
         </td>
     </tr>
-<?php
+        <?php
     }
 }
 ?>
@@ -2640,10 +2704,10 @@ if (!$current_irnumber) {
 <?php if (empty($_GET['framed'])) { ?>
             <input type='button' value='Cancel' onclick='window.close()' />
 <?php } ?>
-            <input type='hidden' name='form_provider'  value='<?php echo $inv_provider  ?>' />
-            <input type='hidden' name='form_payer'     value='<?php echo $inv_payer     ?>' />
-            <input type='hidden' name='form_encounter' value='<?php echo $encounter_id ?>' />
-            <input type='hidden' name='form_checksum'  value='<?php echo $current_checksum; ?>' />
+            <input type='hidden' name='form_provider'  value='<?php echo attr($inv_provider); ?>' />
+            <input type='hidden' name='form_payer'     value='<?php echo attr($inv_payer); ?>' />
+            <input type='hidden' name='form_encounter' value='<?php echo attr($encounter_id); ?>' />
+            <input type='hidden' name='form_checksum'  value='<?php echo attr($current_checksum); ?>' />
         </td>
     </tr>
 
@@ -2699,7 +2763,7 @@ foreach ($aCellHTML as $ix => $html) {
  function payprevious() {
   var width  = 750;
   var height = 550;
-  var loc = '../patient_file/front_payment.php?omitenc=<?php echo $encounter_id; ?>';
+  var loc = '../patient_file/front_payment.php?omitenc=' + <?php echo js_url($encounter_id); ?>;
 <?php if (empty($_GET['framed'])) { ?>
   opener.parent.left_nav.dlgopen(loc, '_blank', width, height);
   window.close();
@@ -2715,7 +2779,7 @@ foreach ($aCellHTML as $ix => $html) {
 
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 
 if ($gcac_related_visit && !$gcac_service_provided) {
@@ -2738,9 +2802,9 @@ if ($gcac_related_visit && !$gcac_service_provided) {
                 "WHERE pid = ? AND encounter = ? AND " .
                 "deleted = 0 AND formdir = 'LBFgcac'",
                 array($patient_id, $encounter_id)
-                );
+            );
             if (empty($grow['count'])) { // if there is no gcac form
-                echo " alert('" . xl('This visit will need a GCAC form, referral or procedure service.') . "');\n";
+                echo " alert(" . xlj('This visit will need a GCAC form, referral or procedure service.') . ");\n";
             }
         }
     }
@@ -2761,20 +2825,18 @@ if ($GLOBALS['ippf_specific']) {
     $csmethod = empty($csrow['field_value']) ? '' : $csrow['field_value'];
 
     if (($csmethod || $contraception_billing_code) && $csmethod != "IPPFCM:$contraception_billing_code") {
-        echo " alert('" . xls('Warning') . ': ';
+        $warningMessage = xl('Warning') . ': ';
         if (!$csmethod) {
-            echo xls('there is a contraception service but no contraception form new method');
+            $warningMessage .= xl('there is a contraception service but no contraception form new method');
+        } else if (!$contraception_billing_code) {
+            $warningMessage .= xl('there is a contraception form new method but no contraception service');
+        } else {
+            $warningMessage .= xl('new method in contraception form does not match the contraception service');
         }
-        else if (!$contraception_billing_code) {
-            echo xls('there is a contraception form new method but no contraception service');
-        }
-        else {
-            echo xls('new method in contraception form does not match the contraception service');
-        }
-        echo "');\n";
+        echo " alert(" . js_escape($warningMessage) . ");\n";
     }
 }
-                ?>
+?>
         </script>
     </body>
 </html>

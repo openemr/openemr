@@ -70,7 +70,7 @@ $(function () {
   "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
   // Vertical length options and their default
   "aLengthMenu": [ 15, 25, 50, 100 ],
-  "iDisplayLength": 15,
+  "iDisplayLength": 50,
   // Specify a width for the first column.
   "aoColumns": [{"sWidth":"10%"}, null],
   // This callback function passes some form data on each call to the ajax handler.
@@ -150,6 +150,9 @@ $(function () {
   }
  }
 <?php } ?>
+
+ // Set focus to the Search field.
+ $('#my_data_table_filter input').focus();
 
 });
 

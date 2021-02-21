@@ -38,6 +38,7 @@ $form_fname = trim($_POST['form_fname'] ?? '');
 $form_lname = trim($_POST['form_lname'] ?? '');
 $form_specialty = trim($_POST['form_specialty'] ?? '');
 $form_organization = trim($_POST['form_organization'] ?? '');
+$form_npi = trim($_POST['form_npi'] ?? '');
 $form_abook_type = trim($_REQUEST['form_abook_type'] ?? '');
 $form_external = !empty($_POST['form_external']) ? 1 : 0;
 
@@ -64,6 +65,11 @@ if ($form_fname) {
 if ($form_specialty) {
     $query .= "AND u.specialty LIKE ? ";
     array_push($sqlBindArray, "%" . $form_specialty . "%");
+}
+
+if ($form_npi) {
+    $query .= "AND u.npi LIKE ? ";
+    array_push($sqlBindArray, "%" . $form_npi . "%");
 }
 
 if ($form_abook_type) {
@@ -130,6 +136,10 @@ $res = sqlStatement($query, $sqlBindArray);
                     <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($form_specialty); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
                     </div>
                     <div class="col-sm-2">
+                    <label for="form_npi"><?php echo xlt('Specialty') ?>:</label>
+                    <input type='text' class="form-control inputtext" name='form_npi' size='10' value='<?php echo attr($form_npi); ?>' title='<?php echo xla("Any part of the desired NPI") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <?php
                     echo '<label>' . xlt('Type') . ": " . '</label>';
                     // Generates a select list named form_abook_type:
@@ -153,6 +163,7 @@ $res = sqlStatement($query, $sqlBindArray);
   <th><?php echo xlt('Local'); ?></th><!-- empty for external -->
   <th><?php echo xlt('Type'); ?></th>
   <th><?php echo xlt('Specialty'); ?></th>
+  <th><?php echo xlt('NPI'); ?></th>
   <th><?php echo xlt('Phone(W)'); ?></th>
   <th><?php echo xlt('Mobile'); ?></th>
   <th><?php echo xlt('Fax'); ?></th>
@@ -192,6 +203,7 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
     echo "  <td>" . generate_display_field(array('data_type' => '1','list_id' => 'abook_type'), $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
+    echo "  <td>" . text($row['npi'])       . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
     echo "  <td>" . text($row['phonecell']) . "</td>\n";
     echo "  <td>" . text($row['fax'])       . "</td>\n";

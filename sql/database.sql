@@ -245,6 +245,7 @@ CREATE TABLE `billing` (
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pricelevel` varchar(31) default '',
   `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
+  `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -1361,6 +1362,8 @@ CREATE TABLE `drug_sales` (
   `bill_date` datetime default NULL,
   `pricelevel` varchar(31) default '',
   `selector` varchar(255) default '' comment 'references drug_templates.selector',
+  `trans_type` tinyint NOT NULL DEFAULT 1 COMMENT '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment',
+  `chargecat` varchar(31) default '',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -1775,6 +1778,8 @@ CREATE TABLE `form_encounter` (
   `pos_code` tinyint(4) default NULL,
   `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
+  `shift` varchar(31) NOT NULL DEFAULT '',
+  `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -3212,9 +3217,13 @@ CREATE TABLE `layout_group_properties` (
   grp_size        int(11)        not null default 0,
   grp_issue_type  varchar(75)    not null default '',
   grp_aco_spec    varchar(63)    not null default '',
+  grp_save_close  tinyint(1)     not null default 0,
+  grp_init_open   tinyint(1)     not null default 0,
+  grp_referrals   tinyint(1)     not null default 0,
   grp_services    varchar(4095)  not null default '',
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
+  grp_last_update timestamp      NULL,
   PRIMARY KEY (grp_form_id, grp_group_id)
 ) ENGINE=InnoDB;
 
@@ -6470,7 +6479,8 @@ CREATE TABLE `log` (
   `log_from` VARCHAR(20) DEFAULT 'open-emr',
   `menu_item_id` INT(11) DEFAULT NULL,
   `ccda_doc_id` INT(11) DEFAULT NULL COMMENT 'CCDA document id from ccda',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 
@@ -8512,6 +8522,8 @@ CREATE TABLE `voids` (
   `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
   `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
   `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  `reason`                 VARCHAR(31)   default '',
+  `notes`                  VARCHAR(255)  default '',
   PRIMARY KEY (`void_id`),
   KEY datevoided (date_voided),
   KEY pidenc (patient_id, encounter_id)
@@ -8700,6 +8712,7 @@ CREATE TABLE ar_activity (
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
+  post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -10006,6 +10019,27 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{"form_group":{"presence": true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
+
+-- void reasons list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','void_reasons','Void Reasons',1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','one'  ,'Reason 1',10,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','two'  ,'Reason 2',20,0);
+
+-- payment methods list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','paymethod','Payment Methods', 1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Cash' ,'Cash' ,10,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Check','Check',20,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','MC'   ,'MC'   ,30,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','VISA' ,'VISA' ,40,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','AMEX' ,'AMEX' ,50,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','DISC' ,'DISC' ,60,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Other','Other',70,0);
+
+-- shift list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','shift','Shifts', 1, 0);
 
 -- list_options for `form_eye`
 

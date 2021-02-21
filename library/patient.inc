@@ -1734,7 +1734,8 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
     return sprintf('%01.2f', $balance);
 }
 
-function get_patient_balance_excluding($pid, $excluded = -1) {
+function get_patient_balance_excluding($pid, $excluded = -1)
+{
     // We join form_encounter here to make sure we only count amounts for
     // encounters that exist.  We've had some trouble before with encounters
     // that were deleted but leaving line items in the database.

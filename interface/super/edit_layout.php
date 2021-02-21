@@ -8,26 +8,41 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2014-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2014-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
+require_once("$srcdir/layout.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
+// Indicates if deactivated layouts are included in the dropdown.
+$form_inactive = !empty($_REQUEST['form_inactive']);
+
+function setLayoutTimestamp($layout_id)
+{
+    $query = "UPDATE layout_group_properties SET grp_last_update = CURRENT_TIMESTAMP " .
+        "WHERE grp_form_id = ? AND grp_group_id = ''";
+    sqlStatement($query, array($layout_id));
+}
+
 function collectLayoutNames($condition, $mapping = '')
 {
-    global $layouts;
-    $gres = sqlStatement("SELECT grp_form_id, grp_title, grp_mapping " .
-      "FROM layout_group_properties WHERE " .
-      "grp_group_id = '' AND grp_activity = 1 AND $condition " .
-      "ORDER BY grp_mapping, grp_seq, grp_title");
+    global $layouts, $form_inactive;
+    $gres = sqlStatement(
+        "SELECT grp_form_id, grp_title, grp_mapping " .
+        "FROM layout_group_properties WHERE " .
+        "grp_group_id = '' " .
+        ($form_inactive ? "" : "AND grp_activity = 1 ") .
+        "AND $condition " .
+        "ORDER BY grp_mapping, grp_seq, grp_title"
+    );
     while ($grow = sqlFetchArray($gres)) {
         $tmp = $mapping ? $mapping : $grow['grp_mapping'];
         if (!$tmp) {
@@ -48,52 +63,6 @@ $lres = sqlStatement("SELECT * FROM list_options " .
 while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
-
-// Field modifier objects in script
-// array of the data_types of the fields
-$datatypes = array(
-  "1"  => xl("List box"),
-  "2"  => xl("Textbox"),
-  "3"  => xl("Textarea"),
-  "4"  => xl("Text-date"),
-  "10" => xl("Providers"),
-  "11" => xl("Providers NPI"),
-  "12" => xl("Pharmacies"),
-  "13" => xl("Squads"),
-  "14" => xl("Organizations"),
-  "15" => xl("Billing codes"),
-  "16" => xl("Insurances"),
-  "18" => xl("Visit Categories"),
-  "21" => xl("Checkbox(es)"),
-  "22" => xl("Textbox list"),
-  "23" => xl("Exam results"),
-  "24" => xl("Patient allergies"),
-  "25" => xl("Checkboxes w/text"),
-  "26" => xl("List box w/add"),
-  "27" => xl("Radio buttons"),
-  "28" => xl("Lifestyle status"),
-  "31" => xl("Static Text"),
-  "32" => xl("Smoking Status"),
-  "33" => xl("Race/Ethnicity"),
-  "34" => xl("NationNotes"),
-  "35" => xl("Facilities"),
-  "36" => xl("Multiple Select List"),
-  "40" => xl("Image canvas"),
-  "41" => xl("Patient Signature"),
-  "42" => xl("User Signature"),
-  "43" => xl("List box w/search"),
-  "44" => xl("Multi-Select Facilties"),
-  "45" => xl("Multi-Select Provider"),
-  "46" => xl("List box w/comment"),
-);
-
-$sources = array(
-  'F' => xl('Form'),
-  'D' => xl('Patient'),
-  'H' => xl('History'),
-  'E' => xl('Visit'),
-  'V' => xl('VisForm'),
-);
 
 function nextGroupOrder($order)
 {
@@ -193,6 +162,8 @@ function fuzzyRename($from, $to)
     $query = "UPDATE layout_group_properties SET grp_group_id = concat(?, substr(grp_group_id, ?)) " .
     "WHERE grp_form_id = ? AND grp_group_id LIKE ?";
     sqlStatement($query, array($to, strlen($from) + 1, $layout_id, "$from%"));
+
+    setLayoutTimestamp($layout_id);
 }
 
 // Swaps the positions of two groups.  To the degree they have matching parents,
@@ -225,7 +196,7 @@ function tableNameFromLayout($layout_id)
     }
     if ($layout_id == "DEM") {
         $tablename = "patient_data";
-    } elseif ($layout_id == "HIS") {
+    } elseif (substr($layout_id, 0, 3) == "HIS") {
         $tablename = "history_data";
     } elseif ($layout_id == "SRH") {
         $tablename = "lists_ippf_srh";
@@ -266,14 +237,29 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         $tmp = sqlQuery("SELECT `" . escape_sql_column_name($field_id, [$tablename]) . "` FROM `" . escape_table_name($tablename) . "` WHERE " .
         "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `" . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1");
         if (!isset($tmp['field_id'])) {
-            sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`");
-            EventAuditLogger::instance()->newEvent(
-                "alter_table",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
-                1,
-                "$tablename DROP $field_id "
-            );
+            $lotmp = array();
+            // For History layouts do not delete a field name duplicated in another History layout
+            // (should not happen, but a bug allowed it).
+            if (substr($layout_id, 0, 3) == 'HIS') {
+                $lotmp = sqlQuery(
+                    "SELECT COUNT(*) AS count FROM layout_options WHERE " .
+                    "form_id LIKE 'HIS%' AND form_id != ? AND field_id = ?",
+                    array($layout_id, $field_id)
+                );
+            }
+            if (empty($lotmp['count'])) {
+                sqlStatement(
+                    "ALTER TABLE `" . escape_table_name($tablename) . "` " .
+                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
+                );
+                EventAuditLogger::instance()->newEvent(
+                    "alter_table",
+                    $_SESSION['authUser'],
+                    $_SESSION['authProvider'],
+                    1,
+                    "$tablename DROP $field_id "
+                );
+            }
         }
     }
 }
@@ -338,6 +324,10 @@ if (!$thisauth) {
     die(xlt('Not authorized'));
 }
 
+// Make a sorted version of the $datatypes array.
+$sorted_datatypes = $datatypes;
+natsort($sorted_datatypes);
+
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 
@@ -350,7 +340,6 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // If we are saving, then save.
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
@@ -360,10 +349,9 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $data_type = trim($iter['datatype']);
         $listval = $data_type == 34 ? trim($iter['contextName']) : trim($iter['list_id']);
         $action = $iter['action'];
-        if ($action == 'value') {
-            $action = 'value=' . $iter['value'];
+        if ($action == 'value' || $action == 'hsval') {
+            $action .= '=' . $iter['value'];
         }
-
         // Skip conditions for the line are stored as a serialized array.
         $condarr = array('action' => $action);
         $cix = 0;
@@ -378,7 +366,6 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
             );
         }
         $conditions = $cix ? serialize($condarr) : '';
-
         if ($field_id) {
             if ($field_id != $field_id_original) {
                 if (renameColumn($layout_id, $field_id_original, $field_id) > 0) {
@@ -407,13 +394,14 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
                 "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
+
+              setLayoutTimestamp($layout_id);
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // Add a new field to a specific group
     $data_type = trim($_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
@@ -443,11 +431,11 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
       ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
+    setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // Move field(s) to a new group in the layout
     $sqlstmt = "UPDATE layout_options SET " .
                 " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
@@ -459,15 +447,51 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
         $comma = ", ";
     }
-
     $sqlstmt .= ")";
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
+    setLayoutTimestamp($layout_id);
+} elseif (($_POST['formaction'] ?? '') == "copytolayout" && $layout_id && !empty($_POST['targetlayout'])) {
+    // Copy field(s) to the specified group in another layout.
+    // It's important to skip any duplicate field names.
+    $tlayout = $_POST['targetlayout'];
+    $tgroup  = $_POST['targetgroup'];
+    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+        $srow = sqlQuery(
+            "SELECT * FROM layout_options WHERE " .
+            "form_id = ? AND field_id = ? LIMIT 1",
+            array($layout_id, $onefield)
+        );
+        if (empty($srow)) {
+            die("Internal error: Field '" . text($onefield) . "' not found in layout '" . text($layout_id) . "'.");
+        }
+        $trow = sqlQuery(
+            "SELECT * FROM layout_options WHERE " .
+            "form_id = ? AND field_id = ? LIMIT 1",
+            array($tlayout, $onefield)
+        );
+        if (!empty($trow)) {
+            echo "<!-- Field '" . text($onefield) . "' already exists in layout '" . text($tlayout) . "'. -->\n";
+            continue;
+        }
+        $qstr = "INSERT INTO layout_options SET `form_id` = ?, `field_id` = ?, `group_id` = ?";
+        $qarr = array($tlayout, $onefield, $tgroup);
+        foreach ($srow as $key => $value) {
+            if ($key == 'form_id' || $key == 'field_id' || $key == 'group_id') {
+                continue;
+            }
+            $qstr .= ", `$key` = ?";
+            $qarr[] = $value;
+        }
+        // echo "<!-- $qstr ("; foreach ($qarr as $tmp) echo "'$tmp',"; echo ") -->\n"; // debugging
+        sqlStatement($qstr, $qarr);
+        addOrDeleteColumn($tlayout, $onefield, true);
+        setLayoutTimestamp($tlayout);
+    }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // Delete a field from a specific group
     $sqlstmt = "DELETE FROM layout_options WHERE " .
                 " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
@@ -477,20 +501,18 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
         $comma = ", ";
     }
-
     $sqlstmt .= ")";
     sqlStatement($sqlstmt);
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
+    setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // Generate new value for layout_items.group_id.
     $newgroupid = genGroupId($_POST['newgroupparent']);
-
     sqlStatement(
         "INSERT INTO layout_group_properties SET " .
         "grp_form_id = ?, " .
@@ -498,63 +520,36 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         "grp_title = ?",
         array($layout_id, $newgroupid, $_POST['newgroupname'])
     );
-
-    $data_type = trim($_POST['gnewdatatype']);
-    $max_length = $data_type == 3 ? 3 : 255;
-    $listval = $data_type == 34 ? trim($_POST['gcontextName']) : trim($_POST['gnewlistid']);
-    // add a new group to the layout, with the defined field
-    sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, description" .
-      ", max_length, list_id, list_backup_id " .
-      ") VALUES ( " .
-      "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewsource'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewid'])) . "'" .
-      ",'" . add_escape_custom($_POST['gnewtitle']) . "'" .
-      ",'" . add_escape_custom(trim($newgroupid))                . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewseq'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewuor'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewtitlecols'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewdatacols'])) . "'" .
-      ",'" . add_escape_custom($data_type) . "'"                                   .
-        ",'" . add_escape_custom(encodeModifier($_POST['gnewedit_options'] ?? null)) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewdefault'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewdesc'])) . "'" .
-      ",'"    . add_escape_custom(trim($_POST['gnewmaxSize']))    . "'"                                  .
-      ",'" . add_escape_custom($listval)       . "'" .
-      ",'" . add_escape_custom(trim($_POST['gnewbackuplistid'])) . "'" .
-      " )");
-    addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
-
-    /**********************************************************************
-    else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+    setLayoutTimestamp($layout_id);
+} elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+        CsrfUtils::csrfNotVerified();
     }
-
     // drop the fields from the related table (this is critical)
-    $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
-    "form_id = '" . $_POST['layout_id'] . "' ".
-    "AND group_name = '" . $_POST['deletegroupname'] . "'");
-    while ($row = sqlFetchArray($res)) {
-    addOrDeleteColumn($layout_id, $row['field_id'], false);
-    }
-
-    // Delete an entire group from the form
-    sqlStatement("DELETE FROM layout_options WHERE ".
-    " form_id = '".$_POST['layout_id']."' ".
-    " AND group_name = '".$_POST['deletegroupname']."'"
+    $res = sqlStatement(
+        "SELECT field_id FROM layout_options WHERE " .
+        "form_id = ? AND group_id = ?",
+        array($_POST['layout_id'], $_POST['deletegroupid'])
     );
+    while ($row = sqlFetchArray($res)) {
+        addOrDeleteColumn($layout_id, $row['field_id'], false);
     }
-     **********************************************************************/
+    // Delete an entire group from the form
+    sqlStatement(
+        "DELETE FROM layout_options WHERE " .
+        " form_id = ? AND group_id = ?",
+        array($_POST['layout_id'], $_POST['deletegroupid'])
+    );
+    sqlStatement(
+        "DELETE FROM layout_group_properties WHERE " .
+        "grp_form_id = ? AND grp_group_id = ?",
+        array($_POST['layout_id'], $_POST['deletegroupid'])
+    );
+    setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     // Note that in some cases below the swapGroups() call will do nothing.
     $res = sqlStatement(
         "SELECT DISTINCT group_id " .
@@ -578,12 +573,12 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
         $id1 = $id2;
     }
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) { // Renaming a group. This might include moving to a
-    // different parent group.
+    setLayoutTimestamp($layout_id);
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
+    // Renaming a group. This might include moving to a different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     $newparent = $_POST['renamegroupparent'];  // this is an ID
     $oldid     = $_POST['renameoldgroupname']; // this is an ID
     $oldparent = substr($oldid, 0, -1);
@@ -601,12 +596,6 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     "grp_group_id = ?, grp_title = ? " .
     "WHERE grp_form_id = ? AND grp_group_id = ?";
     sqlStatement($query, array($newid, $_POST['renamegroupname'], $layout_id, $oldid));
-}
-
-// Get the selected form's elements.
-if ($layout_id) {
-    $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-    "form_id = ? ORDER BY group_id, seq", array($layout_id));
 }
 
 // global counter for field numbers
@@ -640,7 +629,7 @@ function genFieldOptionList($current = '')
 //
 function writeFieldLine($linedata)
 {
-    global $fld_line_no, $sources, $lbfonly, $extra_html,$validations;
+    global $fld_line_no, $sources, $lbfonly, $extra_html, $validations, $UOR;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
 
@@ -696,12 +685,11 @@ function writeFieldLine($linedata)
 
     echo "  <td class='text-center optcell'>";
     echo "<select name='fld[" . attr($fld_line_no) . "][uor]' class='form-control optin'>";
-    foreach (array(0 => xl('Unused'), 1 => xl('Optional'), 2 => xl('Required')) as $key => $value) {
+    foreach ($UOR as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['uor']) {
             echo " selected";
         }
-
         echo ">" . text($value) . "</option>\n";
     }
 
@@ -712,7 +700,8 @@ function writeFieldLine($linedata)
     echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
-    foreach ($datatypes as $key => $value) {
+    global $sorted_datatypes;
+    foreach ($sorted_datatypes as $key => $value) {
         if ($linedata['data_type'] == $key) {
             echo "<option value='" . attr($key) . "' selected>" . text($value) . "</option>";
         } else {
@@ -724,19 +713,18 @@ function writeFieldLine($linedata)
     echo "  </td>";
 
     echo "  <td class='text-center optcell'>";
+
     if (
-        $linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
-        $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
-        $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
-        $linedata['data_type'] == 27 || $linedata['data_type'] == 28 ||
-        $linedata['data_type'] == 32 || $linedata['data_type'] == 15 ||
-        $linedata['data_type'] == 40
+        in_array(
+            $linedata['data_type'],
+            array(1, 2, 3, 15, 21, 22, 23, 25, 26, 27, 28, 32, 33, 37, 40, 51)
+        )
     ) {
-      // Show the width field
+        // Show the width field
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value='" .
         attr($linedata['fld_length']) .
         "' size='2' maxlength='10' class='form-control optin' title='" . xla('Width') . "' />";
-        if ($linedata['data_type'] == 3 || $linedata['data_type'] == 40) {
+        if (in_array($linedata['data_type'], array(3, 40))) {
             // Show the height field
             echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='" .
             attr($linedata['fld_rows']) .
@@ -767,8 +755,8 @@ function writeFieldLine($linedata)
         $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-        $linedata['data_type'] == 36 || $linedata['data_type'] == 43 ||
-        $linedata['data_type'] == 46
+        $linedata['data_type'] == 36 || $linedata['data_type'] == 37 ||
+        $linedata['data_type'] == 43 || $linedata['data_type'] == 46
     ) {
         $type = "";
         $disp = "style='display: none'";
@@ -877,7 +865,11 @@ function writeFieldLine($linedata)
       array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
         unserialize($linedata['conditions'], ['allowed_classes' => false]);
     $action = empty($conditions['action']) ? 'skip' : $conditions['action'];
-    $action_value = $action == 'skip' ? '' : substr($action, 6);
+    $action_value = '';
+    if ($action != 'skip') {
+        $action_value = substr($action, 6);
+        $action = substr($action, 0, 5); // "value" or "hsval"
+    }
     //
     $extra_html .= "<div id='ext_" . attr($fld_line_no) . "' " .
       "style='width: 750px; border: 1px solid var(--black);" .
@@ -888,8 +880,9 @@ function writeFieldLine($linedata)
       "  <th colspan='3' class='text-left font-weight-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
       "<select class='form-control' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
-      "<option value='skip'  " . ($action == 'skip' ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
-      "<option value='value' " . ($action != 'skip' ? 'selected' : '') . ">" . xlt('set value to') . "</option>" .
+      "<option value='skip'  " . ($action == 'skip'  ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
+      "<option value='value' " . ($action == 'value' ? 'selected' : '') . ">" . xlt('set value to') . "</option>" .
+      "<option value='hsval' " . ($action == 'hsval' ? 'selected' : '') . ">" . xlt('hide else set to') . "</option>" .
       "</select>" .
       "<input type='text' class='form-control' name='fld[" . attr($fld_line_no) . "][value]' value='" . attr($action_value) . "' size='15' />" .
       " " . xlt('if') .
@@ -1016,6 +1009,34 @@ function writeFieldLine($linedata)
          "</table>\n" .
        "</div>\n";
 }
+
+// Generates <optgroup> and <option> tags for all layouts.
+//
+function genLayoutOptions($title = '?', $default = '')
+{
+    global $layouts;
+    $s = "  <option value=''>" . text($title) . "</option>\n";
+    $lastgroup = '';
+    foreach ($layouts as $key => $value) {
+        if ($value[0] != $lastgroup) {
+            if ($lastgroup) {
+                $s .= " </optgroup>\n";
+            }
+            $s .= " <optgroup label='" . attr($value[0]) . "'>\n";
+            $lastgroup = $value[0];
+        }
+        $s .= "  <option value='" . attr($key) . "'";
+        if ($key == $default) {
+            $s .= " selected";
+        }
+        $s .= ">" . text($value[1]) . "</option>\n";
+    }
+    if ($lastgroup) {
+        $s .= " </optgroup>\n";
+    }
+    return $s;
+}
+
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -1134,6 +1155,14 @@ function writeFieldLine($linedata)
     }
   </style>
 <script>
+
+// Called when the "Include inactive" checkbox is clicked.
+// This reloads the page, any edits are lost.
+function inactiveClicked() {
+  top.restoreSession();
+  location.href = 'edit_layout.php?form_inactive=<?php echo $form_inactive ? "0" : "1"; ?>';
+}
+
 // Helper functions for positioning the floating divs.
 function extGetX(elem) {
  var x = 0;
@@ -1264,7 +1293,7 @@ function setListItemOptions(lino, seq, init) {
   var list_id   = f['fld[' + i + '][list_id]'].value;
   // WARNING: If new data types are defined the following test may need enhancing.
   // We're getting out if the type does not generate multiple fields with different names.
-  if (data_type != '21' && data_type != '22' && data_type != '23' && data_type != '25') {
+  if (data_type != '21' && data_type != '22' && data_type != '23' && data_type != '25' && data_type != '37') {
     f[target].style.display = 'none';
     return;
   }
@@ -1344,53 +1373,45 @@ function myChangeCheck() {
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="" />
 <input type="hidden" name="deletefieldgroup" id="deletefieldgroup" value="" />
 <!-- elements used to identify a group to delete -->
-<!--
-<input type="hidden" name="deletegroupname" id="deletegroupname" value="">
--->
+<input type="hidden" name="deletegroupid" id="deletegroupid" value="">
 <!-- elements used to change the group order -->
 <input type="hidden" name="movegroupname" id="movegroupname" value="" />
 <input type="hidden" name="movedirection" id="movedirection" value="" />
 <!-- elements used to select more than one field -->
 <input type="hidden" name="selectedfields" id="selectedfields" value="" />
 <input type="hidden" id="targetgroup" name="targetgroup" value="" />
+<input type="hidden" id="targetlayout" name="targetlayout" value="" />
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
+
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
- <option value=''>-- <?php echo xlt('Select') ?> --</option>
-<?php
-$lastgroup = '';
-foreach ($layouts as $key => $value) {
-    if ($value[0] != $lastgroup) {
-        if ($lastgroup) {
-            echo " </optgroup>\n";
-        }
-        echo " <optgroup label='" . attr($value[0]) . "'>\n";
-        $lastgroup = $value[0];
-    }
-    echo "  <option value='" . attr($key) . "'";
-    if ($key == $layout_id) {
-        echo " selected";
-    }
-    echo ">" . text($value[1]) . "</option>\n";
-}
-if ($lastgroup) {
-    echo " </optgroup>\n";
-}
-?>
+<?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
 </select>
+
+&nbsp;
+<label><input type='checkbox' name='form_inactive' value='1'
+ title='<?php echo xla('This will abandon any edits!'); ?>'
+ onclick='inactiveClicked()' <?php if ($form_inactive) {
+        echo 'checked';} ?> />
+<?php echo xlt('Include inactive'); ?></label>
 
 <?php if ($layout_id) { ?>
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <input type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup' value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger btn-sm" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
-    <?php echo xlt('With selected:');?>
+<input type='button' class="btn btn-danger btn-sm" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span>
+<br />
+    <?php echo xlt('With selected');?>:&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
 <input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
+<select id='copytolayout' class='form-control form-control-sm d-inline-block'
+ style='width:20%;' disabled="disabled" onchange="CopyToLayout(this)">
+    <?php echo genLayoutOptions(xl('Copy to Layout...')); ?>
+</select>
+&nbsp;&nbsp;&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
-
 <?php } else { ?>
 <input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
@@ -1431,17 +1452,32 @@ while ($grow = sqlFetchArray($gres)) {
 $prevgroup = "!@#asdf1234"; // an unlikely group ID
 $firstgroup = true; // flag indicates it's the first group to be displayed
 
-if (!empty($res)) {
+// Get the selected form's elements.
+if ($layout_id) {
+    $res = sqlStatement(
+        "SELECT p.grp_group_id, l.* FROM layout_group_properties AS p " .
+        "LEFT JOIN layout_options AS l ON l.form_id = p.grp_form_id AND l.group_id = p.grp_group_id " .
+        "WHERE p.grp_form_id = ? " .
+        "ORDER BY p.grp_group_id, l.seq, l.field_id",
+        array($layout_id)
+    );
     while ($row = sqlFetchArray($res)) {
-        $group_id = $row['group_id'];
+        $group_id = $row['grp_group_id'];
+        // Skip if this is the top level layout and (as expected) it has no fields.
+        if ($group_id === '' && empty($row['form_id'])) {
+            continue;
+        }
         if ($group_id != $prevgroup) {
             if ($firstgroup == false) {
                 echo "</tbody></table></div>\n";
                 echo "<div id='" . attr($group_id) . "' class='group'>";
-            } else { // making first group flag useful for maintaining top fixed nav bar.
-                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:40px'>";
+            } else {
+                // making first group flag useful for maintaining top fixed nav bar.
+                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:80px'>";
             }
-            echo "<div class='text font-weight-bold layouts_title p-2 bg-light' style='position:relative;'>";
+
+            // echo "<div id='" . $group_id . "' class='group'>";
+            echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
@@ -1454,30 +1490,29 @@ if (!empty($res)) {
             $gmyname = $grparr[$group_id]['grp_title'];
 
             echo text($gdispname);
-
             // if not english and set to translate layout labels, then show the translation of group name
             if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
+                // echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
+                echo "<span class='translation'>" . xlt($gdispname) . "</span>";
                 echo "&nbsp; ";
             }
-
             echo "&nbsp; ";
-            echo " <input type='button' class='btn btn-primary btn-sm addfield' id='addto~" . attr($group_id) . "' value='" . xla('Add Field') . "'/>";
+            echo " <input type='button' class='addfield' id='" . attr("addto~$group_id") . "' value='" . xla('Add Field') . "'/>";
             echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='btn btn-secondary btn-sm renamegroup' id='" . attr($group_id) . "~" . attr($gmyname) . "' value='" . xla('Rename Group') . "'/>";
-            /******************************************************************
+            echo " <input type='button' class='renamegroup' id='" . attr("$group_id~$gmyname") . "' value='" . xla('Rename Group') . "'/>";
             echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='deletegroup' id='" . attr($group_id) . "' value='" . xla('Delete Group') . "'/>";
-            ******************************************************************/
+            echo " <input type='button' class='deletegroup' id='" . attr("$group_id") . "' value='" . xla('Delete Group') . "'/>";
             echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~up' value='" . xla('Move Up') . "'/>";
+            echo " <input type='button' class='movegroup' id='" . attr("$group_id~up") . "' value='" . xla('Move Up') . "'/>";
             echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~down' value='" . xla('Move Down') . "'/>";
+            echo " <input type='button' class='movegroup' id='" . attr("$group_id~down") . "' value='" . xla('Move Down') . "'/>";
             echo "&nbsp; &nbsp; ";
-            echo "<input type='button' class='btn btn-secondary btn-sm' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
+            echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
             echo "</div>";
             $firstgroup = false;
-            ?>
+            if (!empty($row['form_id'])) { // if this is not an empty group
+                ?>
+
       <div class="table-responsive">
       <table class='table table-sm table-striped'>
       <thead>
@@ -1486,10 +1521,10 @@ if (!empty($res)) {
         <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
         <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
         <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-            <?php // if not english and showing layout label translations, then show translation header for title
-            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-            } ?>
+                <?php // if not english and showing layout label translations, then show translation header for title
+                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                    echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
+                } ?>
           <th><?php echo xlt('UOR'); ?></th>
           <th><?php echo xlt('Data Type'); ?></th>
           <th><?php echo xlt('Size'); ?></th>
@@ -1500,22 +1535,25 @@ if (!empty($res)) {
           <th><?php echo xlt('Data Cols'); ?></th>
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
-            <?php // if not english and showing layout label translations, then show translation header for description
-            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
-            } ?>
+                <?php // if not english and showing layout label translations, then show translation header for description
+                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                    echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
+                } ?>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
       </thead>
       <tbody>
 
-            <?php
-        } // end if-group_name
+                <?php
+            } // end not empty group
+        } // end new group
 
-        writeFieldLine($row);
+        if (!empty($row['form_id'])) {
+            writeFieldLine($row);
+        }
         $prevgroup = $group_id;
     } // end while loop
-}
+} // end if $layout_id
 
 ?>
 </tbody>
@@ -1552,84 +1590,7 @@ if (!empty($res)) {
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('newgroupparent', $layout_id); ?>
 <br />
-<div class="table-responsive">
-<table class='table table-sm table-striped' style="border-collapse: collapse; margin-top: 5px;">
-<thead>
- <tr class='head'>
-  <th><?php echo xlt('Order{{Sequence}}'); ?></th>
-  <th <?php echo " $lbfonly"; ?>><?php echo xlt('Source'); ?></th>
-  <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
-  <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-  <th><?php echo xlt('UOR'); ?></th>
-  <th><?php echo xlt('Data Type'); ?></th>
-  <th><?php echo xlt('Size Width'); ?></th>
-  <th><?php echo xlt('Size Height'); ?></th>
-  <th><?php echo xlt('Max Size'); ?></th>
-  <th><?php echo xlt('List'); ?></th>
-  <th><?php echo xlt('Backup List'); ?></th>
-  <th><?php echo xlt('Label Cols'); ?></th>
-  <th><?php echo xlt('Data Cols'); ?></th>
-  <th><?php echo xlt('Options'); ?></th>
-  <th><?php echo xlt('Description'); ?></th>
- </tr>
-</thead>
-<tbody>
-<tr class='text-center'>
-<td><input type="text" class='form-control' name="gnewseq" id="gnewseq" value="" size="2" maxlength="4" /></td>
-<td<?php echo " $lbfonly"; ?>>
-<select class='form-control' name='gnewsource' id='gnewsource'>
-<?php
-foreach ($sources as $key => $value) {
-    echo "<option value='" . attr($key) . "'>" . text($value) . "</option>\n";
-}
-?>
-</select>
-</td>
-<td><input type="text" name="gnewid" class="form-control" id="gnewid" value="" size="10" maxlength="31"
-     onclick='FieldIDClicked(this)' /> </td>
-<td><input type="text" name="gnewtitle" class="form-control" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
-<td>
-<select class='form-control' name="gnewuor" id="gnewuor">
-<option value="0"><?php echo xlt('Unused'); ?></option>
-<option value="1" selected><?php echo xlt('Optional'); ?></option>
-<option value="2"><?php echo xlt('Required'); ?></option>
-</select>
-</td>
-<td class="text-center">
-<select class='form-control' name='gnewdatatype' id='gnewdatatype'>
-<option value=''></option>
-<?php
-global $datatypes;
-foreach ($datatypes as $key => $value) {
-    echo "<option value='" . attr($key) . "'>" . text($value) . "</option>";
-}
-?>
-</select>
-</td>
-<td><input class="form-control" type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" /></td>
-<td><input class="form-control" type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
-<td><input class="form-control" type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
-<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="form-control listid" />
-    <select class='form-control' name='gcontextName' id='gcontextName' style='display:none'>
-        <?php
-        $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-        while ($row = sqlFetchArray($res)) {
-            echo "<option value='" . attr($row['cl_list_item_long']) . "'>" . text($row['cl_list_item_long']) . "</option>";
-        }
-        ?>
-    </select>
-</td>
-<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="form-control listid" /></td>
-<td><input class="form-control" type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3" /> </td>
-<td><input class="form-control" type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3" /> </td>
-<td><select name="gnewedit_options[]" id="gnewedit_options" class="form-control typeAddons" multiple value="" size="3"></select>
-    <input type="hidden" name="gnewdefault" id="gnewdefault" value="" /> </td>
-<td><input class="form-control" type="text" name="gnewdesc" id="gnewdesc" value="" size="20" /> </td>
-</tr>
-</tbody>
-</table>
-</div>
-<br />
+
 <input type="button" class="btn btn-primary btn-sm savenewgroup" value='<?php echo xla('Save New Group'); ?>' />
 <input type="button" class="btn btn-secondary btn-sm cancelnewgroup" value='<?php echo xla('Cancel'); ?>' />
 </span>
@@ -1684,8 +1645,8 @@ foreach ($sources as $key => $value) {
     <select class='form-control' name='newdatatype' id='newdatatype'>
      <option value=''></option>
 <?php
-global $datatypes;
-foreach ($datatypes as $key => $value) {
+global $sorted_datatypes;
+foreach ($sorted_datatypes as $key => $value) {
     echo "     <option value='" . attr($key) . "'>" . text($value) . "</option>\n";
 }
 ?>
@@ -1732,10 +1693,9 @@ echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
 	{id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},
 	{id: 'D',text:" . xlj('Dup Check') . "},
-	{id: 'E',text:" . xlj('Dup Check on only Edit') . "},
+	{id: 'E',text:" . xlj('Dup Check on only Edit, or Extra billing codes OK') . "},
 	{id: 'W',text:" . xlj('Dup Check on only New') . "},
 	{id: 'G',text:" . xlj('Graphable') . "},
-	{id: 'I',text:" . xlj('Initially Open Group') . "},
 	{id: 'J',text:" . xlj('Jump to Next Row') . "},
 	{id: 'K',text:" . xlj('Prepend Blank Row') . "},
 	{id: 'L',text:" . xlj('Lab Order') . "},
@@ -1882,9 +1842,7 @@ $(function () {
     });
     $(".addgroup").click(function() { AddGroup(this); });
     $(".savenewgroup").click(function() { SaveNewGroup(this); });
-    /******************************************************************
     $(".deletegroup").click(function() { DeleteGroup(this); });
-    ******************************************************************/
     $(".cancelnewgroup").click(function() { CancelNewGroup(this); });
     $(".movegroup").click(function() { MoveGroup(this); });
     $(".renamegroup").click(function() { RenameGroup(this); });
@@ -1898,12 +1856,13 @@ $(function () {
         // disable the delete-move buttons
         $("#deletefields").attr("disabled", "disabled");
         $("#movefields").attr("disabled", "disabled");
+        $("#copytolayout").attr("disabled", "disabled");
         $(".selectfield").each(function(i) {
             // if any field is selected, enable the delete-move buttons
             if ($(this).prop("checked") == true) {
                 $("#deletefields").removeAttr("disabled");
                 $("#movefields").removeAttr("disabled");
-
+                $("#copytolayout").removeAttr("disabled");
             }
         });
     });
@@ -1912,7 +1871,6 @@ $(function () {
     $(".cancelnewfield").click(function() { CancelNewField(this); });
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
     $("#newdatatype").change(function() { ChangeList(this.value);});
-    $("#gnewdatatype").change(function() { ChangeListg(this.value);});
     $(".listid").click(function() { ShowLists(this); });
 
     // special class that skips the element
@@ -1951,8 +1909,6 @@ $(function () {
         $(btnObj).parent().after($("#groupdetail"));
         $("html, body").animate({ scrollTop: 0 }, "slow");
         $('#groupdetail > #newgroupname').focus();
-        // Assign a sensible default sequence number.
-        $('#gnewseq').val(10);
     };
 
     // save the new group to the form
@@ -1969,28 +1925,23 @@ $(function () {
         }
         var validname = $("#newgroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
         $("#newgroupname").val(validname);
-
-        // now, check the first group field values
-        if (!validateNewField('gnew')) return false;
-
-        // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
         mySubmit();
     }
 
-    /******************************************************************
     // actually delete an entire group from the database
     var DeleteGroup = function(btnObj) {
         var parts = $(btnObj).attr("id");
-        var groupname = parts.replace(/^\d+/, "");
-        if (confirm(<?php echo xlj('WARNING') ?> + " - " + <?php echo xlj('This action cannot be undone.') ?> + "\n" + <?php echo xlj('Are you sure you wish to delete the entire group named'); ?> + " '" + groupname + "'?")) {
+        if (confirm(<?php echo xlj('WARNING') ?> + " - " +
+            <?php echo xlj('This action cannot be undone.') ?> + "\n" +
+            <?php echo xlj('Are you sure you wish to delete this entire group?'); ?>)
+        ) {
             // submit the form to add a new field to a specific group
             $("#formaction").val("deletegroup");
-            $("#deletegroupname").val(parts);
+            $("#deletegroupid").val(parts);
             $("#theform").submit();
         }
     };
-    ******************************************************************/
 
     // just hide the new field DIV
     var CancelNewGroup = function(btnObj) {
@@ -2128,6 +2079,7 @@ $(function () {
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
         if (!myChangeCheck()) return;
+        $("#targetlayout").val("");
         var title = <?php echo xlj('Select Group');?>;
         dlgopen('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=' + <?php echo js_url($layout_id); ?>,
             "_blank",850, 600,"", title);
@@ -2142,16 +2094,6 @@ $(function () {
       else{
         $('#newlistid').show();
         $('#contextName').hide();
-      }
-    };
-    var ChangeListg = function(btnObj){
-      if(btnObj==34){
-        $('#gnewlistid').hide();
-        $('#gcontextName').show();
-      }
-      else{
-        $('#gnewlistid').show();
-        $('#gcontextName').hide();
       }
     };
 
@@ -2187,6 +2129,26 @@ function layoutLook(){
     return false;
 }
 
+// show the popup choice of groups
+// TBD: Make this less redundant to ShowGroups which is used for moving fields.
+function CopyToLayout(selObj) {
+    if (!selObj.value || !myChangeCheck()) return;
+    $("#targetlayout").val(selObj.value);
+    var title = <?php echo xlj('Select Group');?>;
+    dlgopen('../patient_file/encounter/find_code_dynamic.php?what=groups&layout_id=' + selObj.value,
+        "_blank",850, 600,"", title);
+};
+
+function typeUsesList(datatype) {
+<?php
+foreach ($typesUsingList as $mytype) {
+    // echo "  if (datatype == '$mytype') return true;\n";
+    echo "  if (datatype == " . js_escape($mytype) . ") return true;\n";
+}
+?>
+    return false;
+}
+
 function NationNotesContext(lineitem, val) {
     // Check if function is needed.
     if (!document.getElementById("fld[" + lineitem + "][contextName]") || !document.getElementById("fld[" + lineitem + "][list_id]")) {
@@ -2200,7 +2162,9 @@ function NationNotesContext(lineitem, val) {
     else {
         document.getElementById("fld[" + lineitem + "][list_id]").style.display = '';
         document.getElementById("fld[" + lineitem + "][contextName]").style.display = 'none';
-        document.getElementById("fld[" + lineitem + "][list_id]").value = '';
+        if (!typeUsesList(val)) {
+            document.getElementById("fld["+lineitem+"][listid]").value='';
+        }
     }
 }
 
@@ -2260,9 +2224,9 @@ function SetField(field_id, title, data_type, uor, fld_length, max_length,
 // End code for field ID selection pop-up.
 //////////////////////////////////////////////////////////////////////
 
-/* this is called after the user chooses a new group from the popup window
- * it will submit the page so the selected fields can be moved into
- * the target group
+/* This is called after the user chooses a new group from the popup window.
+ * It will submit the page so the selected fields can be moved into
+ * the target group or copied to the target layout.
  */
 function MoveFields(targetgroup) {
     $("#targetgroup").val(targetgroup);
@@ -2276,7 +2240,12 @@ function MoveFields(targetgroup) {
             delim = " ";
         }
     });
-    $("#formaction").val("movefields");
+    if ($("#targetlayout").val()) {
+        $("#formaction").val("copytolayout");
+    }
+    else {
+        $("#formaction").val("movefields");
+    }
     mySubmit();
 };
 

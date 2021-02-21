@@ -640,6 +640,22 @@ function strterm($string, $length)
     }
 }
 
+// Helper function to generate an image URL that defeats browser/proxy caching when needed.
+function UrlIfImageExists($filename, $append = true)
+{
+    global $webserver_root, $web_root;
+    $path = "sites/" . $_SESSION['site_id'] . "/images/$filename";
+    // @ in next line because a missing file is not an error.
+    if ($stat = @stat("$webserver_root/$path")) {
+        if ($append) {
+            return "$web_root/$path?v=" . $stat['mtime'];
+        } else {
+            return "$web_root/$path";
+        }
+    }
+    return '';
+}
+
 // Override temporary_files_dir
 $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 

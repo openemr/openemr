@@ -1,10 +1,22 @@
 <?php
-// Copyright (C) 2012-2014, 2021 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+
+/**
+* Copyright (C) 2012-2021 Rod Roark <rod@sunsetsystems.com>
+*
+* LICENSE: This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+*/
 
 use OpenEMR\Billing\BillingUtilities;
 
@@ -17,7 +29,8 @@ $contraception_billing_prov = 0;
 // This is called for each service in the visit to determine the method
 // of the service with highest CYP.
 //
-function _contraception_billing_check($code_type, $code, $provider) {
+function _contraception_billing_check($code_type, $code, $provider)
+{
     global $code_types;
     global $contraception_billing_code, $contraception_billing_cyp, $contraception_billing_prov;
 
@@ -63,7 +76,8 @@ function _contraception_billing_check($code_type, $code, $provider) {
 // provider of that service, $contraception_billing_prov, and the corresponding
 // CYP value $contraception_billing_cyp.
 //
-function contraception_billing_scan($patient_id, $encounter_id, $provider_id=0) {
+function contraception_billing_scan($patient_id, $encounter_id, $provider_id = 0)
+{
     global $contraception_billing_code, $contraception_billing_cyp, $contraception_billing_prov;
 
     $contraception_billing_code = '';

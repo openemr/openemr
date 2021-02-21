@@ -935,3 +935,37 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 
     return $limit_query;
 }
+
+// Recursive function to look up the IPPF2 (or other type) code, if any,
+// for a given related code field.
+//
+function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0)
+{
+    global $code_types;
+    // echo "<!-- related_code = '$related_code' depth = '$depth' -->\n"; // debugging
+    if (++$depth > 4 || empty($related_code)) {
+        return false; // protects against relation loops
+    }
+    $relcodes = explode(';', $related_code);
+    foreach ($relcodes as $codestring) {
+        if ($codestring === '') {
+            continue;
+        }
+        list($codetype, $code) = explode(':', $codestring);
+        if ($codetype === $typewanted) {
+            // echo "<!-- returning '$code' -->\n"; // debugging
+            return $code;
+        }
+        $row = sqlQuery(
+            "SELECT related_code FROM codes WHERE " .
+            "code_type = ? AND code = ? AND active = 1 " .
+            "ORDER BY id LIMIT 1",
+            array($code_types[$codetype]['id'], $code)
+        );
+        $tmp = recursive_related_code($row['related_code'], $typewanted, $depth);
+        if ($tmp !== false) {
+            return $tmp;
+        }
+    }
+    return false;
+}
