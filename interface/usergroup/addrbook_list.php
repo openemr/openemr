@@ -30,8 +30,8 @@ if (!empty($_POST)) {
 
 $popup = empty($_GET['popup']) ? 0 : 1;
 $rtn_selection = 0;
-if ($popup) {
-    $rtn_selection = $_GET['popup'] == 2 ? 1 : 0;
+if ($_GET['popup'] == 2 || $_POST['popup'] == 2) {
+    $rtn_selection = 2;
 }
 
 $form_fname = trim($_POST['form_fname'] ?? '');
@@ -109,7 +109,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
+            <input type="hidden" name="popup" value="<?php echo attr($rtn_selection); ?>" />
 
                 <div class="form-group">
                 <div class="row">
