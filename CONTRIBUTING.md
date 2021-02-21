@@ -271,12 +271,16 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client-off'
           ```
-19. Xdebug and profiling is also supported for PHPStorm.
-    - Firefox install xdebug helper add on (configure for PHPSTORM)
+19. Xdebug and profiling is also supported for PHPStorm and VSCode.
+    - Firefox/Chrome install xdebug helper add on and enable
     - PHPStorm Settings->Language & Frameworks->PHP->Debug
         - Start listening
         - Untoggle "Break at first line in PHP scripts"
         - Untoggle both settings that start with "Force Break at first line..."
+        - See [these images for more detail](https://github.com/openemr/openemr-devops/pull/283#issuecomment-779798156)
+    - VSCode
+        - Listen for XDebug    
+        - Use this `launch.json` [template](https://github.com/openemr/openemr-devops/issues/285#issuecomment-782899207)
     - Make sure port 9000 is open on your host operating system
     - Profiling output can be found in /tmp directory in the docker. Following will list the profiling output files:
       ```sh
