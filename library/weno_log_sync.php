@@ -10,9 +10,6 @@
 
 use OpenEMR\Rx\Weno\Container;
 
-function log_sync()
-{
-    $container = new Container();
-    $logsync = $container->getLogproperties();
-    $logsync->logSync();
-}
+$container = new Container();
+$logsync = $container->getLogproperties();
+$logsync->logSync();
