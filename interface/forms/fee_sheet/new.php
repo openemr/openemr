@@ -568,7 +568,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'select2', 'common']);?>
+<?php Header::setupHeader(['common', 'knockout', 'select2']);?>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
