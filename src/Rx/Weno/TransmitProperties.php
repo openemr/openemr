@@ -138,7 +138,12 @@ class TransmitProperties
      */
     private function getPatientInfo()
     {
-        //get patient data
+        //get patient data if in an encounter
+        //Since the transmitproperties is called in the logproperties
+        //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
+        if (empty($_SESSION['encounter'])) {
+            return ;
+        }
         $missing = 0;
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
@@ -204,7 +209,7 @@ class TransmitProperties
         if (!empty($prov_pass['setting_value'])) {
             return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
         } else {
-            echo xlt('Password is missing');
+            echo xlt('Provider Password is missing');
             die;
         }
     }
