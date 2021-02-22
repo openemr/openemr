@@ -139,9 +139,37 @@ class TransmitProperties
     private function getPatientInfo()
     {
         //get patient data
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid = ?", [$_SESSION['pid']]);
-        if (empty($patient['fname']) || empty($patient['lname']) || empty($patient['dob']) || empty($patient['sex']) || empty($patient['postal_code']) || empty($patient['street']) || empty($patient['email'])) {
-            echo xlt('Patient data is incomplete phone, first name, last name, gender, email, zip code, date of birth or address');
+        $missing = 0;
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
+        if (empty($patient['fname'])) {
+            echo xlt("First Name Missing") . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['lname'])) {
+            echo xlt("Last Name Missing")  . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['dob'])) {
+            echo xlt("Date of Birth Missing") . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['sex'])) {
+            echo xlt("Gender Missing") . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['postal_code'])) {
+            echo xlt("Zip Code Missing") . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['street'])) {
+            echo xlt("Street Address incomplete Missing") . "<br>";
+            ++$missing;
+        }
+        if (empty($patient['email'])) {
+            echo xlt("Email Address Missing") . "<br>";
+            ++$missing;
+        }
+        if ($missing > 0) {
             exit;
         }
         return $patient;
