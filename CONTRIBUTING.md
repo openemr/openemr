@@ -6,9 +6,9 @@ The maintainers of OpenEMR want to get your pull request in as seamlessly as pos
 
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
 
-### Starting with Development Docker Environment
-
 ---
+
+### Starting with OpenEMR Development Docker Environment
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
@@ -53,15 +53,16 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 We look forward to your contribution...
 
-### Advanced Use of Development Docker Environment
-
 ---
+
+### Advanced Use of OpenEMR Development Docker Environment
 
 The OpenEMR development docker environment has a very rich advanced feature set. See below Index for links to all the cool advanced stuff:
 
-**Index for Advanced Use of Development Docker Environment**
+**Index for Advanced Use of OpenEMR Development Docker Environment**
 
 ---
+
 1. [Xdebug and profiling](#xdebug)
 2. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
 3. [Run the entire dev tool suite](#dev_tools_suite)
