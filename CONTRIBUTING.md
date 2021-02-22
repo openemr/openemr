@@ -2,16 +2,16 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
-## Code Contributions (local development)
+# Code Contributions (local development)
 
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
 
-### Starting with Development Docker Environment
+## Starting with Development Docker Environment
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
+    - If you haven't already, [install git](https://git-scm.com/downloads) for your system
 	- (optional) If you want to set up the base services(e.g. git, docker, docker-compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
-    - It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
-	- If you haven't already, [install git](https://git-scm.com/downloads) for your system
+    - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 2. `cd openemr/docker/development-easy` (if you are running this on Raspberry Pi, then instead do `cd openemr/docker/development-easy-arm32` or `cd openemr/docker/development-easy-arm64`)
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
     - (optional) If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
@@ -51,24 +51,28 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 We look forward to your contribution...
 
-### Advanced Use of Development Docker Environment
+## Advanced Use of Development Docker Environment
 
 The OpenEMR development docker environment has a very rich feature set. See below Index for links to all the cool stuff:
 
 **Index for Advanced Use of Development Docker Environment**
--   [1. Xdebug and profiling](#xdebug)
--   [2. Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
--   [3. Run the entire dev tool suite](#dev_tools_suite)
--   [4. Run only all the automated tests](#dev_tools_auto)
--   [5. Resetting OpenEMR and loading demo data](#dev_tools_reset)
--   [6. Backup and restore OpenEMR data](#dev_tools_backup)
--   [7. Send/receive snapshots](#dev_tools_send)
--   [8. Turn on and turn off support for multisite feature](#dev_tools_multisite)
--   [9. Change the database character set and collation](#dev_tools_charset)
--   [10. Test ssl certificate and force/unforce https](#dev_tools_https)
--   [11. Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
--   [12. CouchDB integration](#dev_tools_couchdb)
--   [13. LDAP integration](#dev_tools_ldap)
+
+---
+1. [Xdebug and profiling](#xdebug)
+2. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
+3. [Run the entire dev tool suite](#dev_tools_suite)
+4. [Run only all the automated tests](#dev_tools_auto)
+5. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
+6. [Backup and restore OpenEMR data](#dev_tools_backup)
+7. [Send/receive snapshots](#dev_tools_send)
+8. [Turn on and turn off support for multisite feature](#dev_tools_multisite)
+9. [Change the database character set and collation](#dev_tools_charset)
+10. [Test ssl certificate and force/unforce https](#dev_tools_https)
+11. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
+12. [CouchDB integration](#dev_tools_couchdb)
+13. [LDAP integration](#dev_tools_ldap)
+
+---
 
 1. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm and VSCode.
     - Firefox/Chrome install xdebug helper add on and enable
@@ -326,29 +330,29 @@ The OpenEMR development docker environment has a very rich feature set. See belo
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client-off'
           ```
 
-### Non-docker Use
+## Non-docker Use
 
 If you do not want to use Docker, you can always install OpenEMR directly on your local environment. This will require installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
 
-## Financial contributions
+# Financial contributions
 
 We also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/openemr).
 Anyone can file an expense. If the expense makes sense for the development of the community, it will be "merged" in the ledger of our open collective by the core contributors and the person who filed the expense will be reimbursed.
 
-## Credits
+# Credits
 
-### Contributors
+## Contributors
 
 Thank you to all the people who have already contributed to openemr!
 <a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
-### Backers
+## Backers
 
 Thank you to all our backers! [[Become a backer](https://opencollective.com/openemr#backer)]
 
 <a href="https://opencollective.com/openemr#backers" target="_blank"><img src="https://opencollective.com/openemr/backers.svg?width=890"></a>
 
-### Sponsors
+## Sponsors
 
 Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/openemr#sponsor))
 
