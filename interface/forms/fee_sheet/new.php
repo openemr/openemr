@@ -209,7 +209,7 @@ function echoServiceLines()
                 if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' /></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -568,7 +568,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'select2']);?>
+<?php Header::setupHeader(['knockout', 'select2', 'common']);?>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
