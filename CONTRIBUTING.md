@@ -2,11 +2,13 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
-# Code Contributions (local development)
+## Code Contributions (local development)
 
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
 
-## Starting with Development Docker Environment
+### Starting with Development Docker Environment
+
+---
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
@@ -51,9 +53,11 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 We look forward to your contribution...
 
-## Advanced Use of Development Docker Environment
+### Advanced Use of Development Docker Environment
 
-The OpenEMR development docker environment has a very rich feature set. See below Index for links to all the cool stuff:
+---
+
+The OpenEMR development docker environment has a very rich advanced feature set. See below Index for links to all the cool advanced stuff:
 
 **Index for Advanced Use of Development Docker Environment**
 
@@ -150,7 +154,7 @@ The OpenEMR development docker environment has a very rich feature set. See belo
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools common-test'
       ```
-3. <a name="#dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
+3. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
@@ -330,29 +334,29 @@ The OpenEMR development docker environment has a very rich feature set. See belo
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools ldap-ssl-client-off'
           ```
 
-## Non-docker Use
+### Non-docker Use
 
 If you do not want to use Docker, you can always install OpenEMR directly on your local environment. This will require installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
 
-# Financial contributions
+## Financial contributions
 
 We also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/openemr).
 Anyone can file an expense. If the expense makes sense for the development of the community, it will be "merged" in the ledger of our open collective by the core contributors and the person who filed the expense will be reimbursed.
 
-# Credits
+## Credits
 
-## Contributors
+### Contributors
 
 Thank you to all the people who have already contributed to openemr!
 <a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
-## Backers
+### Backers
 
 Thank you to all our backers! [[Become a backer](https://opencollective.com/openemr#backer)]
 
 <a href="https://opencollective.com/openemr#backers" target="_blank"><img src="https://opencollective.com/openemr/backers.svg?width=890"></a>
 
-## Sponsors
+### Sponsors
 
 Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/openemr#sponsor))
 
