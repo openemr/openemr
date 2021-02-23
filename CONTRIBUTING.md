@@ -89,7 +89,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - VSCode
         - Listen for XDebug
         - Use this `launch.json` [template](https://github.com/openemr/openemr-devops/issues/285#issuecomment-782899207)
-    - Make sure port 9000 is open on your host operating system
+    - Make sure port 9003 is open on your host operating system
     - Profiling output can be found in /tmp directory in the docker. Following will list the profiling output files:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools list-xdebug-profiles'

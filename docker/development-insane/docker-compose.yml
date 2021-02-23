@@ -161,7 +161,7 @@ services:
       MYSQL_ROOT_PASS: root
       DEVELOPER_TOOLS: "yes"
       INSANE_DEV_MODE: "yes"
-      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_ON: 1
       XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:9084'
