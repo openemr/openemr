@@ -64,18 +64,19 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 ---
 
 1. [Xdebug and profiling](#xdebug)
-2. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
-3. [Run the entire dev tool suite](#dev_tools_suite)
-4. [Run only all the automated tests](#dev_tools_auto)
-5. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
-6. [Backup and restore OpenEMR data](#dev_tools_backup)
-7. [Send/receive snapshots](#dev_tools_send)
-8. [Turn on and turn off support for multisite feature](#dev_tools_multisite)
-9. [Change the database character set and collation](#dev_tools_charset)
-10. [Test ssl certificate and force/unforce https](#dev_tools_https)
-11. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
-12. [CouchDB integration](#dev_tools_couchdb)
-13. [LDAP integration](#dev_tools_ldap)
+2. [Testing other PHP versions](#other_php_versions)
+3. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
+4. [Run the entire dev tool suite](#dev_tools_suite)
+5. [Run only all the automated tests](#dev_tools_auto)
+6. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
+7. [Backup and restore OpenEMR data](#dev_tools_backup)
+8. [Send/receive snapshots](#dev_tools_send)
+9. [Turn on and turn off support for multisite feature](#dev_tools_multisite)
+10. [Change the database character set and collation](#dev_tools_charset)
+11. [Test ssl certificate and force/unforce https](#dev_tools_https)
+12. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
+13. [CouchDB integration](#dev_tools_couchdb)
+14. [LDAP integration](#dev_tools_ldap)
 
 ---
 
@@ -98,7 +99,9 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools xdebug-log'
       ```
-2. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
+2. <a name="other_php_versions"></a>Testing other PHP versions.
+    - The standard `flex` docker used in the easy development environments is PHP 7.4. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.0 , then just need to change it to `image: openemr/openemr:flex-3.13-8`. To use PHP 7.3 requires 2 changes; change image to `image: openemr/openemr:flex-3.12` and then add the following environment setting to the openemr service: `XDEBUG_IDE_KEY: PHPSTORM`.
+3. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-log'
@@ -155,15 +158,15 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools common-test'
       ```
-3. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
+4. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
-4. <a name="dev_tools_auto"></a>Run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
+5. <a name="dev_tools_auto"></a>Run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```
-5. <a name="dev_tools_reset"></a>Resetting OpenEMR and loading demo data.
+6. <a name="dev_tools_reset"></a>Resetting OpenEMR and loading demo data.
     - To reset OpenEMR only (then can reinstall manually via setup.php in web browser):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset'
@@ -178,7 +181,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset-install-demodata'
       ```
         - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
-6. <a name="dev_tools_backup"></a>Backup and restore OpenEMR data (database and data on drive) via snapshots.
+7. <a name="dev_tools_backup"></a>Backup and restore OpenEMR data (database and data on drive) via snapshots.
     - Create a backup snapshot (using `example` below, but can use any alphanumeric identifier):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools backup example'
@@ -191,7 +194,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools list-snapshots'
       ```
-7. <a name="dev_tools_send"></a>Send/receive snapshots (via capsules) that are created above in item 11.
+8. <a name="dev_tools_send"></a>Send/receive snapshots (via capsules) that are created above in item 11.
     - Here is how to grab a capsule from the docker, which can then store or share with friends.
         - List the capsules:
           ```sh
@@ -214,7 +217,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools upgrade 5.0.2'
           ```
-8. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature.
+9. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature.
     - Turn on support for multisite:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools enable-multisite'
@@ -223,7 +226,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-multisite'
       ```
-9. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
+10. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
     - Best to demonstrate this devtool with examples.
         - Set character set to utf8mb4 and collation to utf8mb4_general_ci (this is default for OpenEMR 6 and higher):
           ```sh
@@ -241,7 +244,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8 utf8_general_ci'
           ```
-10. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
+11. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
     - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then can import this zip package (example `ssl.zip`) into the docker via:
       ```sh
       docker cp ssl.zip $(docker ps | grep _openemr | cut -f 1 -d " "):/certs/
@@ -266,7 +269,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools un-force-https'
       ```
-11. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
+12. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
     - Place the testing sql ssl CA cert:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl'
@@ -283,7 +286,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-client-off'
       ```
-12. <a name="dev_tools_couchdb"></a>CouchDB integration.
+13. <a name="dev_tools_couchdb"></a>CouchDB integration.
     - In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB docker is included in this OpenEMR docker development environment. You can visit the CouchDB GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with username `admin` and password `password`. You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR at Administration->Globals->Documents:
         - Document Storage Method->CouchDB
     - After running the following devtools, 'dev-reset', 'dev-install', 'dev-reset-install', 'dev-reset-install-demodata', 'restore-snapshot', then need to restart the couchdb docker via the following command:
@@ -307,7 +310,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-client-off'
           ```
-13. <a name="dev_tools_ldap"></a>LDAP integration.
+14. <a name="dev_tools_ldap"></a>LDAP integration.
     - In OpenEMR, LDAP is an option for authentication. If this is turned on, then this will be supported for the `admin` user, which will use the following password: `admin`
     - Turn on LDAP:
       ```sh
