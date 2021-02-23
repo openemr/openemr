@@ -163,6 +163,8 @@ services:
       INSANE_DEV_MODE: "yes"
       XDEBUG_ON: 1
       XDEBUG_PROFILER_ON: 1
+      # setting xdebug client host for cases where xdebug.discover_client_host fails
+      XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:9084'
       OPENEMR_SETTING_oauth_password_grant: 3
