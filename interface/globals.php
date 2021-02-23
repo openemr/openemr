@@ -436,7 +436,9 @@ if (!empty($glrow)) {
             $rtl_override = true;
         }
     }
-
+	
+	//Calendar type 0:Gregorian(English) 1:Shamsi(Persian) 2:Qamari(Arabic)
+	$GLOBALS['calendar_type']=0;
 
     // change theme name, if the override file exists.
     if ($rtl_override) {

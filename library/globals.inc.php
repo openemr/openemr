@@ -498,6 +498,17 @@ $GLOBALS_METADATA = array(
             'English (Standard)',             // default = english
             xl('Default language if no other is allowed or chosen.')
         ),
+        
+        'calendar_type' => array(
+            xl('Calendar Type'),
+            array(
+            '0' => xl('Gregorian (English)'),
+            '1' => xl('Shamsi (Persian)'),
+            '2' => xl('Qamari (Arabic)'),
+                ),
+            0,             // default = Gregorian(English)
+            xl('Choose Calendar Type.')
+        ),
 
         'language_menu_showall' => array(
             xl('All Languages Allowed'),
