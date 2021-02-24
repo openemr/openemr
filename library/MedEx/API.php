@@ -1627,7 +1627,7 @@ class Display extends base
             <div class="col-sm-12 text-center">
                 <div class="showRecalls" id="show_recalls">
                     <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
-                    <div name="div_response" id="div_response" class="form-inline"><br />
+                    <div name="div_response" id="div_response"><br />
                     </div>
                     <form action="#" name="save_prefs" id="save_prefs">
                             <div class="row">
