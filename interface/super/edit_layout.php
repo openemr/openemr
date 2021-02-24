@@ -84,6 +84,7 @@ $datatypes = array(
   "43" => xl("List box w/search"),
   "44" => xl("Multi-Select Facilties"),
   "45" => xl("Multi-Select Provider"),
+  "46" => xl("List box w/comment"),
 );
 
 $sources = array(

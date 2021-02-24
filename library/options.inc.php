@@ -385,9 +385,14 @@ function generate_form_field($frow, $currvalue)
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
-    // generic single-selection list or single-selection list with search or Race and Ethnicity.
+    // generic single-selection list or single-selection list with search or Race and Ethnicity or single-selection list with comment support.
     // These data types support backup lists.
-    if ($data_type == 1 || $data_type == 33 || $data_type == 43) {
+    if ($data_type == 1 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $lbfchange = "processCommentField(" . attr_js($field_id) . ");" . $lbfchange;
+        }
+
         echo generate_select_list(
             "form_$field_id",
             $list_id,
@@ -401,6 +406,26 @@ function generate_form_field($frow, $currvalue)
             false,
             $backup_list
         );
+
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $selectedValues = explode("|", $currvalue);
+            if (!preg_match('/^comment_/', $currvalue) || (count($selectedValues) == 1)) {
+                $display = "display:none";
+                $comment = "";
+            } else {
+                $display = "display:inline-block";
+                $comment = $selectedValues[count($selectedValues) - 1];
+            }
+            echo "<input type='text'" .
+                " name='form_text_" . attr($field_id) . "'" .
+                " id='form_text_" . attr($field_id) . "'" .
+                " size='" . attr($frow['fld_length']) . "'" .
+                " class='form-control'" .
+                " " . ((!empty($frow['max_length'])) ? "maxlength='" . attr($frow['max_length']) . "'" : "") . " " .
+                " style='" . $display . "'" .
+                " value='" . attr($comment) . "'/>";
+        }
     } elseif ($data_type == 2) { // simple text field
         $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $maxlength = $frow['max_length'];
@@ -1429,7 +1454,7 @@ function generate_print_field($frow, $currvalue)
 
     // generic single-selection list
     //  Supports backup lists.
-    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
+    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
                 $fld_length = 3;
@@ -1440,6 +1465,12 @@ function generate_print_field($frow, $currvalue)
 
         $tmp = '';
         if ($currvalue) {
+            if ($data_type == 46) {
+                // support for single-selection list with comment support
+                $selectedValues = explode("|", $currvalue);
+                $currvalue = $selectedValues[0];
+            }
+
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
             $tmp = xl_list_label($lrow['title']);
@@ -1452,6 +1483,14 @@ function generate_print_field($frow, $currvalue)
 
             if (empty($tmp)) {
                 $tmp = "($currvalue)";
+            }
+
+            if ($data_type == 46) {
+                // support for single-selection list with comment support
+                $resnote = $selectedValues[1] ?? null;
+                if (!empty($resnote)) {
+                    $tmp .= " (" . $resnote . ")";
+                }
             }
         }
 
@@ -2150,21 +2189,36 @@ function generate_display_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature
-    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43) {
+    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $selectedValues = explode("|", $currvalue);
+            $currvalue = $selectedValues[0];
+        }
+
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
           $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
-        // only supported in data types 1,26,33,43
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
+        // only supported in data types 1,26,33,43,46
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
         }
+
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(text(xl_list_label($currvalue))) .
-            '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
+                '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
+        }
+
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $resnote = $selectedValues[1] ?? null;
+            if (!empty($resnote)) {
+                $s .= " (" . text($resnote) . ")";
+            }
         }
     } elseif ($data_type == 2) { // simple text field
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
@@ -2590,7 +2644,13 @@ function generate_plaintext_field($frow, $currvalue)
     // generic selection list or the generic selection list with add on the fly
     // feature, or radio buttons
     //  Supports backup lists (for datatypes 1,26,33,43)
-    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33 || $data_type == 43) {
+    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $selectedValues = explode("|", $currvalue);
+            $currvalue = $selectedValues[0];
+        }
+
         $lrow = sqlQuery(
             "SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1",
@@ -2599,10 +2659,18 @@ function generate_plaintext_field($frow, $currvalue)
         $s = xl_list_label($lrow['title']);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,33,43
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43)) {
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list, $currvalue));
             $s = xl_list_label($lrow['title']);
+        }
+
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $resnote = $selectedValues[1] ?? null;
+            if (!empty($resnote)) {
+                $s .= " (" . $resnote . ")";
+            }
         }
     } elseif ($data_type == 2 || $data_type == 3 || $data_type == 15) { // simple or long text field
         $s = $currvalue;
@@ -3647,6 +3715,14 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 }
 
                 $i++;
+            }
+        } elseif ($data_type == 46) {
+            $reslist = trim($_POST["$prefix$field_id"]);
+            if (preg_match('/^comment_/', $reslist)) {
+                $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
+                $value = $reslist . "|" . $res_comment;
+            } else {
+                $value = $_POST["$prefix$field_id"];
             }
         } else {
             $value = $_POST["$prefix$field_id"];
