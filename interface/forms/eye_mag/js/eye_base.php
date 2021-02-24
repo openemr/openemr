@@ -1021,11 +1021,11 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
+            iam.location.href = base + "/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&list&id="+encodeURIComponent(pid)
+            iam.location.href = base + "/controller.php?prescription&list&id="+encodeURIComponent(pid)
         };
 
         let title = 'Prescriptions';
@@ -2000,14 +2000,26 @@ function build_DOCS(DOCS) {
         $("#pcp_address").html(DOCS['pcp']['address']);
         $("#pcp_phone").html(DOCS['pcp']['phone']);
         $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
-        $("#pcp_fax").html(DOCS['pcp']['fax_info']);
+        $("#pcp_fax").html(DOCS['pcp']['fax']+DOCS['pcp']['fax_info']);
+    } else {
+        $("#pcp_name").html('');
+        $("#pcp_address").html('');
+        $("#pcp_phone").html('');
+        $("#pcp_phonew2").html('');
+        $("#pcp_fax").html('');
     }
     if (DOCS['ref']) {
         $("#ref_name").html(DOCS['ref']['name']);
         $("#ref_address").html(DOCS['ref']['address']);
         $("#ref_phone").html(DOCS['ref']['phone']);
         $("#ref_phonew2").html(DOCS['ref']['phonew2']);
-        $("#ref_fax").html(DOCS['ref']['fax_info']);
+        $("#ref_fax").html(DOCS['ref']['fax']+DOCS['ref']['fax_info']);
+    } else {
+        $("#ref_name").html('');
+        $("#ref_address").html('');
+        $("#ref_phone").html('');
+        $("#ref_phonew2").html('');
+        $("#ref_fax").html('');
     }
 }
 
@@ -2244,6 +2256,10 @@ $(function () {
                                                    update_DOCS();
                                                    });
 
+                  $("#form_pharmacy_id").change(function() {
+                        update_Pharma();
+                  });
+
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
                     $('[title]').each(function() {
@@ -2450,7 +2466,6 @@ $(function () {
                                                           //  At the end, we add return false so that the click on the link is not executed
                                                           return false;
                                                           });
-                  $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                   $("input,textarea,text").css("background-color","#FFF8DC");
                   $("[id*=ODIOP],[id*=OSIOP]").each(function() { color_IOP(this); });
                   $("#IOPTIME").css("background-color","#FFFFFF");
@@ -3389,6 +3404,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#Visions_B").toggleClass('nodisplay');
                                              });
                   $("#EXAM_defaults").on("click", function() {
+                                            if (!confirm('<?php echo xla("Replace all exam findings with Default values?  Are you sure?"); ?>') {
+                                                return;
+                                            }
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";

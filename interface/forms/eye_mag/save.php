@@ -469,10 +469,12 @@ if ($_REQUEST["mode"] == "new") {
             if ($DOC1['suffix']) {
                 $DOCS['pcp']['name'] .= ", " . $DOC1['suffix'];
             }
-            $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
-            $DOCS['pcp']['fax'] = $DOC1['fax'];
-            $DOCS['pcp']['phone'] = $DOC1['phonew1'];
-
+            $DOCS['pcp']['address'] =  $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
+            if (!empty($DOC1['organization'])) {
+                $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOCS['pcp']['address'];
+            }
+            $DOCS['pcp']['fax']     = $DOC1['fax'];
+            $DOCS['pcp']['phone']   = $DOC1['phonew1'];
             // does the fax already exist?
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_PCP = sqlQuery($query, array($_REQUEST['pcp'], $pid, $encounter));

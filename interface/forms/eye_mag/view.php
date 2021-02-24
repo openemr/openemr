@@ -3762,8 +3762,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                    *  echo "<i class='far fa-file-word'></i>";
                                                                    */
                                                                 echo '<td class="' . $class1 . ' ">';
-                                                                echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='" . attr($codetext) . "' data-title='" . attr($codedesc) . "' name='TEST[]' $checked value='" . attr($row['codes']) . "'> ";
-                                                                $label = text(substr($codedesc, 0, 35));
+                                                                echo "<input type='checkbox' class='TESTS indent20' id='TEST_$counter' data-codetext='" . attr($codetext) . "' data-title='" . attr($codetext) . "' name='TEST[]' $checked value='" . attr($row['codes']) . "'> ";
+                                                                $label = text(substr($row['title'], 0, 30));
                                                                 echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                                                 echo $label . "</label>";
                                                                 echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . $row['modifier'] . '">';
@@ -4165,9 +4165,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   echo str_replace("form-control", "", $select_pharm);
                                                 ?>
                                               </td><td class="top">
-                                                  <a class="btn btn-primary btn-sm iframe rx_modal" href="javascript:;" onclick="editScripts('../../../controller.php?prescription&amp;list&amp;id=1')"><span><?php echo xlt('Edit'); ?></span></a>
-                                                  
-                                                  <button onclick="editScripts('../../../controller.php?prescription&list&id=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
+                                                  <button onclick="editScripts('<?php echo $GLOBALS['webroot']; ?>/controller.php?prescription&list&pid=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
                                               </td></tr>
 
                                       </table>
