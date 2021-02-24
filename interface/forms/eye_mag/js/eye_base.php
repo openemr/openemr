@@ -3404,7 +3404,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#Visions_B").toggleClass('nodisplay');
                                              });
                   $("#EXAM_defaults").on("click", function() {
-                                            if (!confirm('<?php echo xla("Replace all exam findings with Default values?  Are you sure?"); ?>') {
+                                            if (!confirm('<?php echo xla("Replace all exam findings with Default values?  Are you sure?"); ?>')) {
                                                 return;
                                             }
                                             <?php

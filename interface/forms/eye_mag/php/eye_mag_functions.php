@@ -3105,18 +3105,20 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         ?>
         <div id="<?php echo attr($zone); ?>_canvas">
             <div class="tools">
-                
-                <div id="sketch_tooled_<?php echo attr($zone); ?>_8"
-                     data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
-                                     previewSize:55,
-                                     valueElement:'#selColor_<?php echo attr($zone); ?>',
-                                     position:'right'
-                                    }"
-                     class="jscolor-picker"
-                     data-target="selColor_<?php echo attr($zone); ?>"
-                >
+                <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
                     <span id="sketch_tool_<?php echo attr($zone);?>_color"
-                          class="color_indicator" />
+                          class="color_indicator jscolor"
+                          data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
+                                     previewSize:75,
+                                     valueElement:'#selColor_<?php echo attr($zone); ?>',
+                                     position:'right',
+                                     value:'#000',
+                                    hash:'true',
+                                    refine:true
+                                
+                                    }"
+                          data-target="selColor_<?php echo attr($zone); ?>"
+                    ></span>
                 </div>
                 <?php
     
@@ -3155,19 +3157,19 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
 
-                <div align="center" class="borderShadow">
-                    <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
-                </div>
-                <div style="margin-top: 7px;">
-                    <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
-                    <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
-                    <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
-                    <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
-                    <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
-                </div>
+            <div align="center" class="borderShadow">
+                <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
             </div>
-            <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+            <div style="margin-top: 7px;">
+                <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
+                <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
+                <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
+                <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+                <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
+            </div>
         </div>
+        <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+    </div>
 
     <?php
 }
