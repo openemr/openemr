@@ -26,23 +26,25 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if ($_POST['bn_save_ereq']) { //labcorp
-    $_POST['bn_xmit'] = "transmit";
+if (!$encounter) { // comes from globals.php
+    die("Internal error: we do not seem to be in an encounter!");
 }
+
 // Defaults for new orders.
+$provider_id = getProviderIdOfEncounter($encounter);
 $row = array(
-    'provider_id' => $_SESSION['authUserID'],
+    'provider_id' => $provider_id,
     'date_ordered' => date('Y-m-d'),
     //'date_collected' => date('Y-m-d H:i'),
 );
 
+if ($_POST['bn_save_ereq']) { //labcorp
+    $_POST['bn_xmit'] = "transmit";
+}
+
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid));
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
-
-if (!$encounter) { // comes from globals.php
-    die("Internal error: we do not seem to be in an encounter!");
-}
 
 function get_lab_name($id): string
 {
