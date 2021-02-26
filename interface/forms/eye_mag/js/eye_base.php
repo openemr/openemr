@@ -365,6 +365,7 @@ function unlock() {
  *  Function to fax this visit report to someone.
  */
 function create_task(to_id,task,to_type) {
+    $(this).addClass('fa-spin');
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
@@ -392,7 +393,7 @@ function create_task(to_id,task,to_type) {
                    }
                    if (obj.comments) alert(obj.comments);
                    //maybe change an icon to sent?  Think.
-                   });
+           });
 }
 
 
@@ -1254,7 +1255,7 @@ function build_DX_list(obj) {
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
                   })
             //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fa fa-arrows-alt fa-1'></i></div>" );
+        .prepend( "<div class='handle '><i class='fas fa-arrows-alt fa-1'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1948,15 +1949,6 @@ $(function () {
                    });
   });
 
-/* Undo feature
- *  RIGHT NOW THIS WORKS PER FIELD ONLY in FF. In Chrome it works great.  Not sure about IE at all.
- *  In FF, you select a field and CTRL-Z reverses/Shift-Ctrl-Z forwards value
- *  To get true Undo Redo, we will need to create two arrays, one with the command/field, prior value, next value to undo
- *  and when undone, add this to the REDO array.  When an Undo command is followed by anything other than Redo, it erases REDO array.
- *  Ctrl-Z works without this extra code!  Fuzzy on the details for specific browsers so TODO.
- */
-
-
 /**
  *  Function to update the PCP and referring person
  *
@@ -1981,12 +1973,8 @@ function update_DOCS() {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   //TODO:  We should also update the Communication Engine for sending note
-                   // to reflect these people...
-                   // Currently we have to reload the page to get the new names we selected
-                   // to show up in the Communications Engine
-                    obj = JSON.parse(result);
-                    build_DOCS(obj);
+                   obj = JSON.parse(result);
+                   build_DOCS(obj);
     });
 }
 
@@ -2000,26 +1988,30 @@ function build_DOCS(DOCS) {
         $("#pcp_address").html(DOCS['pcp']['address']);
         $("#pcp_phone").html(DOCS['pcp']['phone']);
         $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
-        $("#pcp_fax").html(DOCS['pcp']['fax']+DOCS['pcp']['fax_info']);
+        $("#pcp_fax").html(DOCS['pcp']['fax']);
+        $("#pcp_fax_info").html(DOCS['pcp']['fax_info']);
     } else {
         $("#pcp_name").html('');
         $("#pcp_address").html('');
         $("#pcp_phone").html('');
         $("#pcp_phonew2").html('');
         $("#pcp_fax").html('');
+        $("#pcp_fax_info").html('');
     }
     if (DOCS['ref']) {
         $("#ref_name").html(DOCS['ref']['name']);
         $("#ref_address").html(DOCS['ref']['address']);
         $("#ref_phone").html(DOCS['ref']['phone']);
         $("#ref_phonew2").html(DOCS['ref']['phonew2']);
-        $("#ref_fax").html(DOCS['ref']['fax']+DOCS['ref']['fax_info']);
+        $("#ref_fax").html(DOCS['ref']['fax']);
+        $("#ref_fax_info").html(DOCS['ref']['fax_info']);
     } else {
         $("#ref_name").html('');
         $("#ref_address").html('');
         $("#ref_phone").html('');
         $("#ref_phonew2").html('');
         $("#ref_fax").html('');
+        $("#ref_fax_info").html('');
     }
 }
 

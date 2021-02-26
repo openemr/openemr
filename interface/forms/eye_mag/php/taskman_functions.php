@@ -67,8 +67,8 @@ function make_task($ajax_req)
         exit;
     } elseif ($task['ID'] && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
-            $send['DOC_link'] = "<a href="JavaScript:void(0);"
-                                    onclick="openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');"
+            $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
+                                    onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                     title='".xla('View the Summary Report sent to') . 
                                             text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) ."'>
 								    <i class='far fa-file-pdf fa-fw'></i>
@@ -127,9 +127,9 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a onclick="openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');"
-                                href="JavaScript:void(0);"
-                                title='" . xlt('Report was faxed to') . " " . text($task['to_name']) . " @ " . text($task['to_fax']) . " on " .
+        $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+                                href=\"JavaScript:void(0);\"
+                                title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
                                 text($task['COMPLETED_DATE']) . ". " . xla(' Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
                             //if we want a "resend" icon, add it here.
     }
@@ -304,7 +304,7 @@ function make_document($task)
     @extract($encounter_data);
     $providerID     = getProviderIdOfEncounter($encounter);
     $providerNAME   = getProviderName($providerID);
-    $dated          = new DateTime($encounter_date);//encounter_date presumably comes from the @extract above
+    $dated          = new DateTime($encounter_date);//encounter_date comes from the @extract above
     $dated          = $dated->format('Y/m/d');
     $visit_date     = oeFormatShortDate($dated);
     $pid            = $task['PATIENT_ID'];
@@ -320,10 +320,9 @@ function make_document($task)
         $category_name  = "Communication%"; //Faxes are stored in the Documents->Eye Module->Communication-Eye category.
         // Do we need to translate this?
         // $category_name = xl('Communication');
-        $query          = "select id from categories where name =?";
+        $query          = "select id from categories where name  like ?";
         $ID             = sqlQuery($query, array($category_name));
         $category_id    = $ID['id'];
-//var_dump($ID); die();
         $filename       = "Fax_" . $encounter . "_" . $to_data['lname'].".pdf";
         $count          = 0;
         while (file_exists($filepath.'/'.$filename)) {
@@ -405,17 +404,23 @@ function make_document($task)
             <br />
             <br />
             <hr />
-            <table>
+            <table style="margin-left:150px;" cellspacing="20">
                 <tr>
-                <td class='col1'><?php echo xlt('From'); ?>:</td>
-                    <td class='col2'>
+                <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;"><?php echo xlt('From'); ?>:</td>
+                    <td style="width:375px; padding:10px;">
                     <?php echo text($from_name); ?><br />
 
                     </td>
                 </tr>
                 <tr>
-                <td class='col1'><?php echo xlt('Address'); ?>:</td>
-                    <td class='col2'>
+                <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;"><?php echo xlt('Address'); ?>:</td>
+                    <td style="width:375px; padding:10px;">
                     <?php if ($from_data['name']) {
                         echo text($from_data['name']) . "<br />";
                     } ?>
@@ -425,60 +430,82 @@ function make_document($task)
                     </td>
                 </tr>
                 <tr>
-                    <td class='col1'>
+                    <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;">
                     <?php echo xlt('Phone'); ?>:
                     </td>
-                    <td class='col2'>
+                    <td style="width:375px; padding:10px;">
                     <?php echo text($from_data['phonew1']); ?>
                     </td>
                 </tr>
                 <tr>
-                    <td class='col1'>
+                    <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;">
                     <?php echo xlt('Fax'); ?>:
                     </td>
-                <td class='col2'><?php echo text($from_data['fax']); ?><br />
+                <td style="width:375px; padding:10px;"><?php echo text($from_data['fax']); ?><br />
                     </td>
                 </tr>
                 <tr>
-                <td class='col1'><?php echo xlt('To{{Destination}}'); ?>:</td>
-                <td class='col2'><?php echo text($to_name); ?></td>
+                <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;"><?php echo xlt('To{{Destination}}'); ?>:</td>
+                <td style="width:375px; padding:10px;"><?php echo text($to_name); ?></td>
                 </tr>
                 <tr>
-                <td class='col1'><?php echo xlt('Address'); ?>:</td>
-                    <td class='col2'>
+                <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;"><?php echo xlt('Address'); ?>:</td>
+                    <td style="width:375px;padding:10px;">
                     <?php echo text($to_data['street']) . "<br />
 				 			" . text($to_data['city']) . ", " . text($to_data['state']) . " " . text($to_data['zip']); ?>
                             <br />
                         </td>
                     </tr>
                     <tr>
-                        <td class='col1'>
+                        <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;">
                             <?php echo xlt('Phone'); ?>:
                         </td>
-                        <td class='col2'>
+                        <td style="width:375px;padding:10px;">
                             <?php echo text($to_data['phonew1']); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td class='col1'>
+                        <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;">
                             <?php echo xlt('Fax'); ?>:
                         </td>
-                        <td class='col2'>
+                        <td style="width:375px;padding:10px;">
                             <?php echo text($to_data['fax']); ?>
                         </td>
                     </tr>
                     <tr><td colspan="2"><br /><hr /></td></tr>
                     <tr>
-                        <td class='col1'>
+                        <td style="font-weight:bold;
+                            width:100px;
+                            padding:10px;
+                            text-align:right;">
                             <?php echo xlt('Comments'); ?>:
                         </td>
-                        <td class='col2'><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo text($visit_date); ?> 
+                        <td style="width:375px;padding:10px;"><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo text($visit_date); ?>
                         </td>
                     </tr>
             </table>
         </div>
         <?php
         echo '<pagebreak resetpagenum="1" pagenumstyle="1" suppress="off" />';
+        
     }
 
     echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
@@ -551,7 +578,10 @@ mpdf-->
         page: letterhead;
     }
 </style>';
-
+    
+    $stylesheet = file_get_contents('/var/www/localhost/htdocs/openemr/interface/forms/eye_mag/css/report.css');
+    
+    //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
 

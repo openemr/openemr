@@ -458,8 +458,8 @@ if ($_REQUEST["mode"] == "new") {
 
     //change PCP/referring doc
     if ($_POST['action'] == 'docs') {
-        $query = "update patient_data set ref_providerID=?,referrerID=? where pid =?";
-        sqlQuery($query, array($_POST['pcp'], $_POST['rDOC'], $pid));
+        $query = "update patient_data set ref_providerID=?,providerID=? where pid =?";
+        sqlQuery($query, array($_POST['rDOC'], $_POST['pcp'], $pid));
 
         if ($_POST['pcp']) {
             //return PCP's data to end user to update their form
@@ -483,16 +483,19 @@ if ($_REQUEST["mode"] == "new") {
                                             <span id='status_Fax_pcp'>
                                                 <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
-                                                    <i class='fa fa-file-pdf fa-fw'></i>
+                                                    <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
-                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
+                                                <i class='fas fa-redo fa-fw'
+                                                   title='". xla("Click to Re-Send this fax") . "'
+                                                   onclick=\"top.restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
-                $DOCS['pcp']['fax_info'] = '
-                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['pcp']) . '\',\'Fax\',\'pcp\'); return false;">
-                    ' . text($DOC1['fax']) . '&nbsp;&nbsp;
-                    <span id="status_Fax_pcp"><i class="fa fa-fax fa-fw"></i></span>
-                </a>';
+                $DOCS['pcp']['fax_info'] = ' &nbsp;&nbsp;
+                    <a href="JavaScript:void(0);"
+                       title="' . xla('Send a report to this provider') . '"
+                       onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['pcp']) . '\',\'Fax\',\'pcp\'); return false;">
+                       <i class="fa fa-fax fa-fw"></i>
+                    </a>';
             }
         }
 
@@ -515,20 +518,23 @@ if ($_REQUEST["mode"] == "new") {
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_REF = sqlQuery($query, array($_REQUEST['rDOC'], $pid, $encounter));
             if ($FAX_REF['ID'] > '') { //it is here already, make them print and manually fax it.  Show icon
-                $DOCS['ref']['fax_info'] = text($DOC2['fax']) . "&nbsp;&nbsp;
+                $DOCS['ref']['fax_info'] = "&nbsp;&nbsp;
                                             <span id='status_Fax_ref'>
                                                 <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_REF['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_REF['COMPLETED_DATE'] . ".'>
-                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                    <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
-                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
+                                                <i class='fas fa-redo fa-fw'
+                                                    title='". xla("Click to Re-Send this fax") . "'
+                                                   onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
-                $DOCS['ref']['fax_info'] = '
-                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['rDOC']) . '\',\'Fax\',\'ref\'); return false;">
-                    ' . text($DOC2['fax']) . '&nbsp;&nbsp;
-                    <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
-                </a>';
+                $DOCS['ref']['fax_info'] = '&nbsp;&nbsp;
+                    <a href="JavaScript:void(0);"
+                       title="' . xla('Send a report to this provider') . '"
+                       onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['rDOC']) . '\',\'Fax\',\'ref\'); return false;">
+                        <span id="status_Fax_ref"><i class="fas fa-fax fa-fw"></i></span>
+                    </a>';
             }
         }
 

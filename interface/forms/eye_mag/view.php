@@ -1253,7 +1253,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <div id="LayerVision_W_1" name="currentRX" class="refraction current_W borderShadow <?php echo $display_W_width; ?>">
                       <i class="closeButton fa fa-times" id="Close_W_1" name="Close_W_1"
                         title="<?php echo xla('Close All Current Rx Panels and make this a Preference to stay closed'); ?>"></i>
-                      <i class="closeButton_2 fa fa-arrows-h " id="W_width_display_1" name="W_width_display"
+                      <i class="closeButton_2 fas fa-arrows-alt-h" id="W_width_display_1" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
                       <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','1'); return false;"
                         title="<?php echo xla("Dispense this Rx"); ?>" class="closeButton_3 fa fa-print"></i>
@@ -3465,8 +3465,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                   echo '</span><ol>';
                                   echo '<li>' . xlt('Manually type into the New DX box above.') . '<br />' . xlt('The *Tab* key creates each entry.') . '</li>';
                                   echo '<span class"bold" style="margin-left:-5px;">' . xlt('or utilize the Impression/Plan Builder') . '</span>';
-                                  echo '<li>' . xlt('Drag a DX over by its handle') . ':&nbsp;<i class="fa fa-arrows-alt"></i></li>';
-                                  echo '<li>' . xlt('Double click on a DX\'s handle') . ':&nbsp;<i class="fa fa-arrows-alt"></i></li>';
+                                  echo '<li>' . xlt('Drag a DX over by its handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
+                                  echo '<li>' . xlt('Double click on a DX\'s handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
                                   echo '<li>' . xlt('Multi-select desired DX(s) and click the') . ' <i class="fa fa-reply"></i> ' . xlt('icon') . '</li>';
                                   echo '</ol>';
                                 ?>
@@ -4014,52 +4014,63 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <tr>
                                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                                               <td class="bold">
-                                                  <span id="pcp_fax">
                                                     <?php
                                                     if ($pcp_data['fax'] > '') {
                                                         // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
                                                         $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
                                                         if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
-                                                            echo text($pcp_data['fax']) . "</span>&nbsp;&nbsp;
-                                                                <span id='status_Fax_pcp'>
-                                                                    <a href='JavaScript:void(0);' onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($FAX_PCP['DOC_ID']) . "', 'PCP Fax');\"
-                                                                    target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
-                                                                    <i class='far fa-file-pdf fa-fw'></i></a>
-                                                                    <i class='fas fa-redo-alt fa-fw' onclick=\"top.restoreSession(); create_task('" . attr($pat_data['providerID']) . "','Fax-resend','ref'); return false;\"></i>
-                                                                </span>";
-                                                        } else { ?>
-                                                              <a href="JavaScript:void(0);" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['providerID']); ?>','Fax','pcp'); return false;">
-                                                                    <?php echo text($pcp_data['fax']); ?></a>&nbsp;&nbsp;
-                                                              <span id="status_Fax_pcp"><i class="fas fa-fax fa-fw"></i></span>
-                                                                <?php
-                                                        }
-                                                    } ?>
-                                                  </span>
-                                              </td>
-                                              <td class="bold">
-                                                  <span id="ref_fax">
-                                                    <?php if ($ref_data['fax'] > '') {
-                                                      // does the fax already exist?
-                                                        $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                                        $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
-                                                        if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon
-                                                            echo text($ref_data['fax']) . "&nbsp;&nbsp;
-                                                              <span id='status_Fax_ref'>
-                                                                  <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($pid) . "&doc_id=" . attr($FAX_REF['DOC_ID']) . "', 'Fax Report');\"
-                                                                     href='JavaScript:void(0);'
-                                                                     title='" . xla('View the Summary Report sent via Fax Server on') . " " . attr($FAX_REF['COMPLETED_DATE']) . ".'>
+                                                            ?>
+                                                            <span id='pcp_fax'><?php echo text($pcp_data['fax']); ?></span>
+                                                            <span id='pcp_fax_info'>
+                                                                 <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_PCP['DOC_ID']); ?>', 'PCP: Fax Report');"
+                                                                    href='JavaScript:void(0);'
+                                                                    title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_PCP['COMPLETED_DATE']); ?>'>
                                                                   <i class='far fa-file-pdf fa-fw'></i></a>
-                                                                  <i class='fas fa-redo-alt fa-fw'
-                                                                    onclick=\"top.restoreSession(); create_task('" . attr($pat_data['ref_providerID']) . "','Fax-resend','ref'); return false;\"></i>
-                                                              </span>";
+                                                                  <i class='fas fa-redo fa-fw'
+                                                                     title='<?php echo xla("Click to Re-Send this fax"); ?>'
+                                                                     onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['providerID']); ?>','Fax-resend','pcp'); return false;"></i>
+                                                            </span> <?php
                                                         } else { ?>
-                                                            <a href="#" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax','ref'); return false;">
-                                                                <?php echo text($ref_data['fax']); ?></a>&nbsp;&nbsp;
-                                                            <span id="status_Fax_ref"><i class="fas fa-fax fa-fw"></i></span>
+                                                            <span id='pcp_fax'>
+                                                                <a href="JavaScript:void(0);"
+                                                                   onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['providerID']); ?>','Fax','pcp'); return false;">
+                                                                    <?php echo text($pcp_data['fax']); ?>
+                                                                    <span id="status_Fax_pcp"><i class="fas fa-fax fa-fw"></i></span>
+                                                                </a>&nbsp;&nbsp;
+                                                            </span>
+                                                            <span id='pcp_fax_info'></span>
                                                             <?php
                                                         }
                                                     } ?>
+                                              </td>
+                                              <td class="bold">
+                                                  <?php if ($ref_data['fax'] > '') {
+                                                      // does the fax already exist?
+                                                      $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
+                                                      $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
+                                                      if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon ?>
+                                                             <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
+                                                             <span id='ref_fax_info'>
+                                                                 <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
+                                                                    href='JavaScript:void(0);'
+                                                                    title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_REF['COMPLETED_DATE']); ?>'>
+                                                                  <i class='far fa-file-pdf fa-fw'></i></a>
+                                                                  <i class='fas fa-redo fa-fw'
+                                                                     title='<?php echo xla("Click to Re-Send this fax"); ?>'
+                                                                     onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax-resend','ref'); return false;"></i>
+                                                              </span> <?php
+                                                      } else { ?>
+                                                             <span id='ref_fax'>
+                                                                 <a href="JavaScript:void(0);" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax','ref'); return false;">
+                                                                    <?php echo text($ref_data['fax']); ?>
+                                                                    <span id="status_Fax_ref"><i class="fas fa-fax fa-fw"></i></span>
+                                                                </a>&nbsp;&nbsp;
+                                                            </span>
+                                                            <span id='ref_fax_info'></span>
+                                                            <?php
+                                                      }
+                                                  } ?>
                                                   </span>
                                               </td>
                                           </tr>
