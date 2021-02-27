@@ -23,6 +23,10 @@
 if ($this->trow) {
     $row = $this->trow;
 }
+$exclude = array();
+if ($this->exclude) {
+    $exclude = $this->exclude;
+}
 
     echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
     $_SESSION['whereto'] = 'profilecard';
@@ -43,6 +47,8 @@ if ($this->trow) {
             if (!page.isInitialized) page.init();
         },1000);
     });
+    // profile excludes global from layouts via PatientController
+    const exclude = <?php echo js_escape($exclude); ?>;
 </script>
 <?php if (attr($this->register)) {?>
 <style>
@@ -80,11 +86,11 @@ if ($this->trow) {
             <fieldset>
             <div class="form-row mb-2 pb-2">
             <div class="col-sm-auto px-3 form-group plist-group" id="provideridInputContainer">
-                    <label class="plist-label" for="providerid"><?php echo xlt('Select Primary Physician')?></label>
+                    <label class="plist-label" for="providerid"><?php echo xlt('Current Physician')?></label>
                     <div class="controls inline-inputs">
                         <select class="form-control" id="providerid" value="<?php echo $row['providerid'] ?>">
                             <?php
-                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
+                            echo "<option value='1'>" . xlt('Administrator Assign') . "</option>";
                             foreach ($this->users_list as $user) {
                                 $user_name = text($user['fname'] . ' ' . $user['lname']);
                                 $id = attr($user['id']);
@@ -354,25 +360,25 @@ if ($this->trow) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
-                    <label class="plist-label" for="referralSource"><?php echo xlt('How Referred')?></label><br />
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
+                    <label class="plist-label" for="referralSource"><?php /*echo xlt('How Referred')*/?></label><br />
                     <div class="controls inline-inputs">
                         <?php
-                      # Generate drop down list for Referral Source
+/*                      # Generate drop down list for Referral Source
                         echo generate_select_list('referralSource', 'refsource', $row['referralSource'], xl('Referral Source'), 'Unassigned', "form-control");
-                        ?>
+                        */?>
                         <span class="help-inline"></span>
                     </div>
-                </div>
-                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
-                    <label class="plist-label" for="regdate"><?php echo xlt('Registration Date')?></label>
+                </div>-->
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
+                    <label class="plist-label" for="regdate"><?php /*echo xlt('Registration Date')*/?></label>
                     <div class="controls inline-inputs">
                         <div class="input-group">
                             <input disabled id="regdate" type="text" class="form-control jquery-date-picker" value="<%= item.get('regdate') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="mothersnameInputContainer">
                     <label class="plist-label" for="mothersname"><?php echo xlt('Mothers Name')?></label>
                     <div class="controls inline-inputs">

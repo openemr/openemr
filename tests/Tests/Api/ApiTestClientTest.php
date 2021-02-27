@@ -23,6 +23,9 @@ class ApiTestClientTest extends TestCase
     const EXAMPLE_API_ENDPOINT_SCOPE = "user/facility.read";
     const API_ROUTE_SCOPE = "api:oemr";
 
+    /**
+     * @var ApiTestClient
+     */
     private $client;
 
     /**

@@ -26,20 +26,20 @@ function xl(string) {
 // html escaping functions - special case when sending js string to html (see codebase for examples)
 //   jsText (equivalent to text() )
 //   jsAttr (equivalent to attr() )
-var htmlEscapesText = {
+const htmlEscapesText = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;'
 };
-var htmlEscapesAttr = {
+const htmlEscapesAttr = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#x27;'
 };
-var htmlEscaperText = /[&<>]/g;
-var htmlEscaperAttr = /[&<>"']/g;
+const htmlEscaperText = /[&<>]/g;
+const htmlEscaperAttr = /[&<>"']/g;
 jsText = function(string) {
     return ('' + string).replace(htmlEscaperText, function(match) {
         return htmlEscapesText[match];

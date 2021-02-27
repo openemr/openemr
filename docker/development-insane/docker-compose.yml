@@ -30,6 +30,7 @@
 #        http://localhost:8104 (with Nginx and PHP-FPM 7.3)
 #        http://localhost:8105 (with Nginx and PHP-FPM 7.4)
 #        http://localhost:8106 (with Nginx and PHP-FPM 8.0)
+#        http://localhost:8107 (with Nginx and PHP-FPM 8.1)
 #        http://localhost:8150 (with Nginx and PHP-FPM 5.6 with redis)
 #        http://localhost:8151 (with Nginx and PHP-FPM 7.0 with redis)
 #        http://localhost:8152 (with Nginx and PHP-FPM 7.1 with redis)
@@ -37,6 +38,7 @@
 #        http://localhost:8154 (with Nginx and PHP-FPM 7.3 with redis)
 #        http://localhost:8155 (with Nginx and PHP-FPM 7.4 with redis)
 #        http://localhost:8156 (with Nginx and PHP-FPM 8.0 with redis)
+#        http://localhost:8157 (with Nginx and PHP-FPM 8.1 with redis)
 #        https://localhost:9080 with SSL and Alpine 3.7 (with Apache and PHP 7.1)
 #        https://localhost:9081 with SSL and Alpine 3.9 (with Apache and PHP 7.2)
 #        https://localhost:9082 with SSL and Alpine 3.11 (with Apache and PHP 7.3)
@@ -58,6 +60,7 @@
 #        https://localhost:9104 with SSL (with Nginx and PHP-FPM 7.3)
 #        https://localhost:9105 with SSL (with Nginx and PHP-FPM 7.4)
 #        https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.0)
+#        https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.1)
 #        https://localhost:9150 with SSL (with Nginx and PHP-FPM 5.6 with redis)
 #        https://localhost:9151 with SSL (with Nginx and PHP-FPM 7.0 with redis)
 #        https://localhost:9152 with SSL (with Nginx and PHP-FPM 7.1 with redis)
@@ -65,6 +68,7 @@
 #        https://localhost:9154 with SSL (with Nginx and PHP-FPM 7.3 with redis)
 #        https://localhost:9155 with SSL (with Nginx and PHP-FPM 7.4 with redis)
 #        https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.0 with redis)
+#        https://localhost:9157 with SSL (with Nginx and PHP-FPM 8.0 with redis)
 
 #
 #    On the main setup input screen:
@@ -131,6 +135,21 @@ services:
     - 9083:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+  openemr-7-4:
+    restart: always
+    image: openemr/openemr:flex-3.13
+    ports:
+    - 8084:80
+    - 9084:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
@@ -142,11 +161,14 @@ services:
       MYSQL_ROOT_PASS: root
       DEVELOPER_TOOLS: "yes"
       INSANE_DEV_MODE: "yes"
-      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_ON: 1
       XDEBUG_PROFILER_ON: 1
+      # setting xdebug client host for cases where xdebug.discover_client_host fails
+      XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9083'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9084'
       OPENEMR_SETTING_oauth_password_grant: 3
+      OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
       OPENEMR_SETTING_rest_portal_api: 1
@@ -160,21 +182,6 @@ services:
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
-  openemr-7-4:
-    restart: always
-    image: openemr/openemr:flex-3.13
-    ports:
-    - 8084:80
-    - 9084:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
   openemr-8-0:
     restart: always
     image: openemr/openemr:flex-3.13-8
@@ -413,6 +420,8 @@ services:
     - 9105:445
     - 8106:86
     - 9106:446
+    - 8107:87
+    - 9107:447
     - 8150:90
     - 9150:450
     - 8151:91
@@ -427,6 +436,8 @@ services:
     - 9155:455
     - 8156:96
     - 9156:456
+    - 8157:97
+    - 9157:457
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -439,12 +450,14 @@ services:
     - dev-php-fpm-7-2
     - dev-php-fpm-7-3
     - dev-php-fpm-8-0
+    - dev-php-fpm-8-1
     - dev-php-fpm-5-6-redis
     - dev-php-fpm-7-0-redis
     - dev-php-fpm-7-1-redis
     - dev-php-fpm-7-2-redis
     - dev-php-fpm-7-3-redis
     - dev-php-fpm-8-0-redis
+    - dev-php-fpm-8-1-redis
   dev-php-fpm-5-6:
     restart: always
     image: openemr/dev-php-fpm:5.6
@@ -501,6 +514,14 @@ services:
     - ./dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+  dev-php-fpm-8-1:
+    restart: always
+    image: openemr/dev-php-fpm:8.1
+    volumes:
+    - ../..:/usr/share/nginx/html/openemr
+    - ./dockers/dev-php-fpm-8-1/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-5-6-redis:
     restart: always
     image: openemr/dev-php-fpm:5.6-redis
@@ -555,6 +576,14 @@ services:
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+  dev-php-fpm-8-1-redis:
+    restart: always
+    image: openemr/dev-php-fpm:8.1-redis
+    volumes:
+    - ../..:/usr/share/nginx/html/openemr
+    - ./dockers/dev-php-fpm-8-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:

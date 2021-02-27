@@ -61,6 +61,7 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
     -   [Authorization Code Grant](API_README.md#authorization-code-grant)
     -   [Refresh Token Grant](API_README.md#refresh-token-grant)
     -   [Password Grant](API_README.md#password-grant)
+    -   [Client Credentials Grant](API_README#client-credentials-grant)
     -   [Logout](API_README.md#logout)
     -   [More Details](API_README.md#more-details)
 -   [Standard API Endpoints](API_README.md#api-endpoints)
@@ -159,9 +160,14 @@ This is a listing of scopes:
   - `user/vital.write`
 - `api:fhir` (fhir which are the /fhir/ endpoints)
   - `patient/AllergyIntolerance.read`
+  - `patient/CareTeam.read`
+  - `patient/Condition.read`
   - `patient/Encounter.read`
   - `patient/Immunization.read`
+  - `patient/MedicationRequest.read`
+  - `patient/Observation.read`
   - `patient/Patient.read`
+  - `patient/Procedure.read`
   - `user/AllergyIntolerance.read`
   - `user/CareTeam.read`
   - `user/Condition.read`
@@ -200,7 +206,7 @@ curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oa
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
    "contacts": ["me@example.org", "them@example.org"],
-   "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/Encounter.read patient/Immunization.read patient/Patient.read"
+   "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
   }'
 ```
 
@@ -218,7 +224,7 @@ Response:
     "client_name": "A Private App",
     "redirect_uris": ["https:\/\/client.example.org\/callback"],
     "token_endpoint_auth_method": "client_secret_post",
-    "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/Encounter.read patient/Immunization.read patient/Patient.read"
+    "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
 }
 ```
 
@@ -292,7 +298,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20offline_access%20api%3Aport%20api%3Afhir%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FAllergyIntolerance.read%20patient%2FEncounter.read%20patient%2FImmunization.read%20patient%2FPatient.read
+&scope=openid%20offline_access%20api%3Aport%20api%3Afhir%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FAllergyIntolerance.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FEncounter.read%20patient%2FImmunization.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FPatient.read%20patient%2FProcedure.read
 &user_role=patient
 &username=Phil1
 &password=phil
@@ -310,6 +316,14 @@ Response:
   "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
 }
 ```
+
+### Client Credentials Grant
+
+This is an advanced grant that uses JSON Web Key Sets(JWKS) to authenticate and identify the client.  This credential grant is
+required to be used for access to any **system/\*.$export** scopes.  API clients must register either web accessible JWKS URI that hosts
+a RSA384 compatible key, or provide their JWKS as part of the registration. Client Credentials Grant access tokens are short
+lived and valid for only 1 minute and no refresh token is issued.  Tokens are requested at `/oauth2/default/token`
+To walk you through how to do this process you can follow [this guide created by HL7](https://hl7.org/fhir/uv/bulkdata/authorization/index.html).
 
 #### Logout
 
@@ -1722,3 +1736,5 @@ Response:
 -   For business logic, make or use the services [here](src/Services)
 -   For controller logic, make or use the classes [here](src/RestControllers)
 -   For routing declarations, use the class [here](_rest_routes.inc.php).
+
+-

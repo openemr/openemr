@@ -109,6 +109,41 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
+#IfUuidNeedUpdate patient_data
+#EndIf
+
+#IfUuidNeedUpdate form_encounter
+#EndIf
+
+#IfUuidNeedUpdate users
+#EndIf
+
+#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#EndIf
+
+#IfUuidNeedUpdate facility
+#EndIf
+
+#IfUuidNeedUpdate immunizations
+#EndIf
+
+#IfUuidNeedUpdate lists
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
+#EndIf
+
+#IfUuidNeedUpdateId procedure_result procedure_result_id
+#EndIf
+
+#IfUuidNeedUpdate ccda
+#EndIf
 
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
@@ -125,11 +160,11 @@ CREATE UNIQUE INDEX `uuid` ON `insurance_companies` (`uuid`);
 ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate insurance_data
-#EndIf
-
 #IfNotIndex insurance_data uuid
 CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate insurance_data
 #EndIf
 
 #IfMissingColumn facility weno_id
@@ -247,6 +282,58 @@ ALTER TABLE `procedure_providers` ADD `type` VARCHAR(31) DEFAULT NULL;
 
 #IfMissingColumn procedure_answers procedure_code
 ALTER TABLE `procedure_answers` ADD `procedure_code` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfNotRow users username oe-system
+INSERT INTO `users`(`username`,`password`,`lname`,`authorized`,`active`) VALUES ('oe-system','NoLogin','System Operation User',0,0);
+INSERT INTO `gacl_aro`(`id`, `section_value`, `value`, `order_value`, `name`, `hidden`)
+    SELECT max(`id`)+1,'users','oe-system',10,'System Operation User', 0 FROM `gacl_aro`;
+INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
+    VALUES (
+        (SELECT `id` FROM `gacl_aro_groups` WHERE parent_id=10 AND value='admin')
+        ,(SELECT `id` FROM `gacl_aro` WHERE `section_value` = 'users' AND `value` = 'oe-system')
+    );
+#EndIf
+
+#IfNotTable export_job
+CREATE TABLE `export_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL ,
+  `user_id` varchar(40) NOT NULL,
+  `client_id` varchar(80) NOT NULL,
+  `status` varchar(40) NOT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `resource_include_time` datetime DEFAULT NULL,
+  `output_format` varchar(128) NOT NULL,
+  `request_uri` varchar(128) NOT NULL,
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  PRIMARY KEY  (`id`),
+  UNIQUE (`uuid`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';
+#EndIf
+
+#IfNotRow categories name FHIR Export Document
+SET @max_rght = (SELECT MAX(rght) FROM categories);
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FHIR Export Document', '', 1, @max_rght, @max_rght + 1, 'admin|super' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfMissingColumn documents date_expires
+ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn documents foreign_reference_id
+ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NULL,
+                        ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
+ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
+
+#IfNotRow background_services name WenoExchange
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id,title,seq,is_default,option_value,mapping,notes,codes,toggle_setting_1,toggle_setting_2,activity,subtype Procedure_Billing

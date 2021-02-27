@@ -39,6 +39,7 @@
 //   Georgian                       // xl('Georgian')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
+//   Gujarati                       // xl('Gujarati')
 //   Hebrew                         // xl('Hebrew')
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
@@ -2959,6 +2960,13 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
+        ),
+
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR FHIR System Scopes.')
         ),
 
         'oauth_password_grant' => array(

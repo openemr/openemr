@@ -2,6 +2,11 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
@@ -14,7 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirEncounterService extends FhirServiceBase
+class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService
 {
     /**
      * @var EncounterService
@@ -173,5 +178,68 @@ class FhirEncounterService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    /**
+     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
+     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
+     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
+     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
+     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
+     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
+     * @return void
+     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
+     * @throws ExportException  If there is an error in processing the export
+     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
+     */
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+    {
+        // TODO: encounter search should support multiple date parameter searches for interval period search
+//        $date = [
+//            'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED)
+//            ,'ge' . $job->getResourceIncludeTime()->format(\DateTime::RFC3339_EXTENDED)
+//        ];
+        $date = 'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED);
+        $result = $this->getAll(['date' => $date]);
+        $encounters = $result->getData();
+        if (!empty($encounters)) {
+            foreach ($encounters as $encounter) {
+                $writer->append($encounter);
+            }
+        }
+    }
+
+    /**
+     * Returns whether the service supports the system export operation
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---system-level-export
+     * @return bool true if this resource service should be called for a system export operation, false otherwise
+     */
+    public function supportsSystemExport()
+    {
+        return true;
+    }
+
+    /**
+     * Returns whether the service supports the group export operation.
+     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
+     * patient data (such as Organization or Practitioner)
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients
+     * @return bool true if this resource service should be called for a group export operation, false otherwise
+     */
+    public function supportsGroupExport()
+    {
+        return true;
+    }
+
+    /**
+     * Returns whether the service supports the all patient export operation
+     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
+     * patient data (such as Organization or Practitioner)
+     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---all-patients
+     * @return bool true if this resource service should be called for a patient export operation, false otherwise
+     */
+    public function supportsPatientExport()
+    {
+        return true;
     }
 }
