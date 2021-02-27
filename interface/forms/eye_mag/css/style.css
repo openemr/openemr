@@ -114,9 +114,8 @@ a:active {
 #tabs_left .ui-tabs-nav li {
   border-bottom-width: 1px !important;
   border-left: 5px solid #0064b4;
-  -moz-border-radius: 4px 0px 0px 4px;
-  -webkit-border-radius: 4px 0px 0px 4px;
-  border-radius: 0px 4px 4px 0px;overflow: hidden;
+  border-radius: 0 4px 4px 0;
+  overflow: hidden;
   right: 8px;
   width: 100%;
 }
@@ -168,9 +167,11 @@ tabs_left-vertical .ui-tabs-panel {
   cursor: pointer;
   text-decoration: underline;
 }
+
 .text_issue {
   font-size: 12px;
 }
+
 .text_clinical {
   text-decoration: none;
 }
@@ -649,10 +650,10 @@ body {
 }
 
 #form_container {
-  padding: 0 20px;
-  position: relative;
   display: inline-table;
   max-width: 93%;
+  padding: 0 20px;
+  position: relative;
   text-align: center;
 }
 
@@ -910,19 +911,21 @@ textarea.ANTSEGTEXT {
   margin-right: 50px;
   position: relative;
 }
+
 .color_indicator {
-  width: 32px;
+  border: 1pt solid #c0c0c0;
+  border-bottom: var(--white);
+  border-top: unset;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   display: block;
   height: 20px;
-  top: 18px;
-  position: relative;
   left: 3px;
-  border: 1pt solid #c0c0c0;
-  border-top: unset;
-  border-bottom: white;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
+  position: relative;
+  top: 18px;
+  width: 32px;
 }
+
 .transparent {
   z-index: 10;
 }
@@ -1598,9 +1601,9 @@ input {
 }
 
 .navbar-brand {
-  height: 18px;
-  padding: 0px 5px 0 10px;
   font-size: 0.8rem;
+  height: 18px;
+  padding: 0 5px 0 10px;
 }
 
 .navbar-nav > li > .dropdown-menu {
@@ -1650,27 +1653,32 @@ a:focus {
 }
 
 .sketch_tooled {
-   width: 40px;
- }
+  width: 40px;
+}
 
 .sketch_tools:active {
   color: var(--danger);
   height: 100px;
 }
+
 .jscolor-picker {
-  width: 33px;
-  padding:unset;
-  display: block;height: 20px;
-  top: 2px;
+  display: block;
+  height: 20px;
+  padding: unset;
   position: relative;
+  top: 2px;
+  width: 33px;
 }
+
 #sddm div {
   z-index: 100;
 }
+
 #IMPPLAN_zone div i {
   margin-left: 15px;
   margin-top: 2px;
 }
+
 .panel_side {
   background-color: #f5f5dc;
   border: 1px solid #c6bbbb;
@@ -1686,8 +1694,9 @@ a:focus {
 }
 
 #right-panel div span {
-  margin:2px;
+  margin: 2px;
 }
+
 .panel_title {
   font-weight: 600;
   text-decoration: underline;
@@ -2279,8 +2288,8 @@ View.php
 #Lyr42 input {
   height: 0.18in;
   left: 0.5in;
-  width: 0.28in;
   margin: 2px;
+  width: 0.28in;
 }
 
 #Lyr42 > span:nth-of-type(1) {
@@ -2497,18 +2506,21 @@ View.php
 #Add_Glasses {
   background: #c9dbf2;
   font-size: 0.9em;
-  margin-left: 30px;
   font-weight: bold;
+  margin-left: 30px;
 }
+
 .copier {
   color: #e88862;
 }
+
 #wearing_1,
 #wearing_2,
 #wearing_3,
 #wearing_4 {
   width: 100%;
 }
+
 .delButton_2 {
   display: inline-block;
   float: right;
@@ -2521,10 +2533,12 @@ View.php
 .overlay {
   z-index: 9;
 }
+
 .cpf_left {
   float: right;
   font-size: 0.7em;
 }
+
 .cpf_right {
   float: left;
   font-size: 0.7em;
@@ -2842,13 +2856,13 @@ input[type="checkbox"] {
 }
 
 .oldies_prefix {
+  float: right;
   font-size: 0.72em;
   margin: 0 5px;
   padding: 1px 0 0 10px;
   position: relative;
   white-space: nowrap;
   z-index: 10;
-  float:right;
 }
 
 .PMSFH_table td {
