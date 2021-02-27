@@ -242,7 +242,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     forms.form_id=form_eye_locking.id and
                     forms.encounter=? and
                     forms.pid=? ";
-    
+
     $encounter_data = sqlQuery($query, array($encounter, $pid));
     @extract($encounter_data);
     $providerID = getProviderIdOfEncounter($encounter);
@@ -276,7 +276,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     if (($cols == 'Fax') || ($cols == 'Report') || ($cols == 'Fax-resend')) {
         echo report_header($pid, 'PDF');
     }
-    
+
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
         $facility = null;
@@ -286,7 +286,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             $facility = $facilityService->getPrimaryBillingLocation();
         }
     }
-    
+
     ?><br /><br />
     <table style="font-size:1.2em;">
         <tr>
@@ -301,44 +301,44 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             <br/>
                             <div style="padding-left:20px;">
                                 <?php
-                                    if ($TIMING1) {
-                                        echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1) . "<br />";
-                                    }
-                                    
-                                    if ($CONTEXT1) {
-                                        echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1) . "<br />";
-                                    }
-                                    
-                                    if ($SEVERITY1) {
-                                        echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1) . "<br />";
-                                    }
-                                    
-                                    if ($MODIFY1) {
-                                        echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1) . "<br />";
-                                    }
-                                    
-                                    if ($ASSOCIATED1) {
-                                        echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1) . "<br />";
-                                    }
-                                    
-                                    if ($LOCATION1) {
-                                        echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1) . "<br />";
-                                    }
-                                    
-                                    if ($QUALITY1) {
-                                        echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY1) . "<br />";
-                                    }
-                                    
-                                    if ($DURATION1) {
-                                        echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION1) . "<br />";
-                                    }
+                                if ($TIMING1) {
+                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1) . "<br />";
+                                }
+
+                                if ($CONTEXT1) {
+                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1) . "<br />";
+                                }
+
+                                if ($SEVERITY1) {
+                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1) . "<br />";
+                                }
+
+                                if ($MODIFY1) {
+                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1) . "<br />";
+                                }
+
+                                if ($ASSOCIATED1) {
+                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1) . "<br />";
+                                }
+
+                                if ($LOCATION1) {
+                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1) . "<br />";
+                                }
+
+                                if ($QUALITY1) {
+                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY1) . "<br />";
+                                }
+
+                                if ($DURATION1) {
+                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION1) . "<br />";
+                                }
                                 ?>
                                 
                                 <?php
-                                    if ($CC2) {
-                                        echo "
+                                if ($CC2) {
+                                    echo "
                     ";
-                                        echo "<b>" . xlt('Chief Complaint 2'); ?>:</b> &nbsp;<?php echo text($CC2); ?>
+                                    echo "<b>" . xlt('Chief Complaint 2'); ?>:</b> &nbsp;<?php echo text($CC2); ?>
                                         <br/>
                                         <b><?php echo xlt('HPI'); ?>:</b>
                                         &nbsp;<?php echo text($HPI2); ?>
@@ -346,103 +346,103 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
                                         <div style="padding-left:10px;">
                                             <?php
-                                                if ($TIMING2) {
-                                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2) . "<br />";
-                                                }
-                                                
-                                                if ($CONTEXT2) {
-                                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2) . "<br />";
-                                                }
-                                                
-                                                if ($SEVERITY2) {
-                                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2) . "<br />";
-                                                }
-                                                
-                                                if ($MODIFY2) {
-                                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2) . "<br />";
-                                                }
-                                                
-                                                if ($ASSOCIATED2) {
-                                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2) . "<br />";
-                                                }
-                                                
-                                                if ($LOCATION2) {
-                                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2) . "<br />";
-                                                }
-                                                
-                                                if ($QUALITY2) {
-                                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY2) . "<br />";
-                                                }
-                                                
-                                                if ($DURATION2) {
-                                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION2) . "<br />";
-                                                }
+                                            if ($TIMING2) {
+                                                echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2) . "<br />";
+                                            }
+
+                                            if ($CONTEXT2) {
+                                                echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2) . "<br />";
+                                            }
+
+                                            if ($SEVERITY2) {
+                                                echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2) . "<br />";
+                                            }
+
+                                            if ($MODIFY2) {
+                                                echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2) . "<br />";
+                                            }
+
+                                            if ($ASSOCIATED2) {
+                                                echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2) . "<br />";
+                                            }
+
+                                            if ($LOCATION2) {
+                                                echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2) . "<br />";
+                                            }
+
+                                            if ($QUALITY2) {
+                                                echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY2) . "<br />";
+                                            }
+
+                                            if ($DURATION2) {
+                                                echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION2) . "<br />";
+                                            }
                                             ?>
                                         </div>
                                         <?php
-                                    }
-                                    
-                                    if ($CC3) {
-                                        ?>
+                                }
+
+                                if ($CC3) {
+                                    ?>
                                         
                                         
-                                        <?php echo "<b>" . xlt('Chief Complaint 3'); ?>:</b> &nbsp;<?php echo text($CC3); ?>
+                                    <?php echo "<b>" . xlt('Chief Complaint 3'); ?>:</b> &nbsp;<?php echo text($CC3); ?>
                                         <br/>
                                         <?php echo xlt('HPI'); ?>&nbsp; <?php echo text($HPI3); ?>
                                         <br/>
                                         <div style="padding-left:10px;">
-                                            <?php
-                                                if ($TIMING3) {
-                                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3) . "<br />";
-                                                }
-                                                
-                                                if ($CONTEXT3) {
-                                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3) . "<br />";
-                                                }
-                                                
-                                                if ($SEVERITY3) {
-                                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3) . "<br />";
-                                                }
-                                                
-                                                if ($MODIFY3) {
-                                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3) . "<br />";
-                                                }
-                                                
-                                                if ($ASSOCIATED3) {
-                                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3) . "<br />";
-                                                }
-                                                
-                                                if ($LOCATION3) {
-                                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3) . "<br />";
-                                                }
-                                                
-                                                if ($QUALITY3) {
-                                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY3) . "<br />";
-                                                }
-                                                
-                                                if ($DURATION3) {
-                                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION3) . "<br />";
-                                                }
-                                            ?>
+                                        <?php
+                                        if ($TIMING3) {
+                                            echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3) . "<br />";
+                                        }
+
+                                        if ($CONTEXT3) {
+                                            echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3) . "<br />";
+                                        }
+
+                                        if ($SEVERITY3) {
+                                            echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3) . "<br />";
+                                        }
+
+                                        if ($MODIFY3) {
+                                            echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3) . "<br />";
+                                        }
+
+                                        if ($ASSOCIATED3) {
+                                            echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3) . "<br />";
+                                        }
+
+                                        if ($LOCATION3) {
+                                            echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3) . "<br />";
+                                        }
+
+                                        if ($QUALITY3) {
+                                            echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY3) . "<br />";
+                                        }
+
+                                        if ($DURATION3) {
+                                            echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION3) . "<br />";
+                                        }
+                                        ?>
                                         </div>
                                         
                                         <?php
-                                    }
+                                }
                                 ?>
                                 
                                 <?php
-                                    if (($CHRONIC1) && ($cols != 'Fax')) { ?>
+                                if (($CHRONIC1) && ($cols != 'Fax')) { ?>
                                         <br />
                                         <span style="font-weight:bold;"><?php echo xlt('Chronic or Inactive Problems'); ?>:</span> <br/>
                                         &nbsp;<?php echo text($CHRONIC1) . "<br />";
                                         if ($CHRONIC2) {
                                             echo "&nbsp;" . $CHRONIC2 . "<br />";
                                         }
-                                        
+
                                         if ($CHRONIC3) {
                                             echo "&nbsp;" . $CHRONIC3 . "<br />";
                                         }
-                                    } ?>
+                                } ?>
                             </div>
                         </td>
                     </tr>
@@ -453,18 +453,18 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     //get patient photo
                     $tempDocC = new C_Document();
                     $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
-                    if (!empty($fileTemp)) {
-                        if ($PDF_OUTPUT) {
-                            // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
-                            file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
-                            $tmp_files_remove[] = $from_file_tmp_web_name;
-                        } else {
-                            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
-                            echo "<img src='" . $filetoshow . "' style='width:220px;'>";
-                        }
+                if (!empty($fileTemp)) {
+                    if ($PDF_OUTPUT) {
+                        // tmp file in ../documents/temp since need to be available via webroot
+                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                        file_put_contents($from_file_tmp_web_name, $fileTemp);
+                        echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
+                        $tmp_files_remove[] = $from_file_tmp_web_name;
+                    } else {
+                        $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                        echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                     }
+                }
                 ?>
             </td>
         </tr>
@@ -478,37 +478,37 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 <td style="width:680px;text-align:center;margin:1 auto;">
                     <?php
                         $PMSFH = build_PMSFH($pid);
-                        if ($cols != 'Fax') {
-                            show_PMSFH_report($PMSFH);
-                        }
-                        
+                    if ($cols != 'Fax') {
+                        show_PMSFH_report($PMSFH);
+                    }
+
                         $count_rx = '0';
-                        
+
                         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
                         $wear = sqlStatement($query, array($pid, $form_id, $encounter));
-                        while ($wearing = sqlFetchArray($wear)) {
-                            $count_rx++;
-                            ${"display_W_$count_rx"} = '';
-                            ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
-                            ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
-                            ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
-                            ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
-                            ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
-                            ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
-                            ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
-                            ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
-                            ${"ODADD_$count_rx"} = $wearing['ODADD'];
-                            ${"OSADD_$count_rx"} = $wearing['OSADD'];
-                            ${"ODVA_$count_rx"} = $wearing['ODVA'];
-                            ${"OSVA_$count_rx"} = $wearing['OSVA'];
-                            ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
-                            ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
-                            ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'];
-                            ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'];
-                            ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
-                            ${"W_$count_rx"} = '1';
-                            ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
-                        }
+                    while ($wearing = sqlFetchArray($wear)) {
+                        $count_rx++;
+                        ${"display_W_$count_rx"} = '';
+                        ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
+                        ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
+                        ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
+                        ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
+                        ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
+                        ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
+                        ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
+                        ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
+                        ${"ODADD_$count_rx"} = $wearing['ODADD'];
+                        ${"OSADD_$count_rx"} = $wearing['OSADD'];
+                        ${"ODVA_$count_rx"} = $wearing['ODVA'];
+                        ${"OSVA_$count_rx"} = $wearing['OSVA'];
+                        ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
+                        ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
+                        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'];
+                        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'];
+                        ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
+                        ${"W_$count_rx"} = '1';
+                        ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
+                    }
                     ?>
 
                 </td>
@@ -550,98 +550,98 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                 <td><?php echo text($SCOSVA); ?></td>
                             </tr>
                         <?php }
-                            if ($ODVA_1 || $OSVA_1) { ?>
+                        if ($ODVA_1 || $OSVA_1) { ?>
                                 <tr>
                                     <td><?php echo xlt('cc{{with correction}}'); ?></td>
                                     <td><?php echo text($ODVA_1); ?></td>
                                     <td><?php echo text($OSVA_1); ?></td>
                                 </tr>
                             <?php }
-                            if ($ARODVA || $AROSVA) { ?>
+                        if ($ARODVA || $AROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('AR{{autorefraction}}'); ?></td>
                                     <td><?php echo text($ARODVA); ?></td>
                                     <td><?php echo text($AROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($MRODVA || $MROSVA) { ?>
+                        if ($MRODVA || $MROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('MR{{Manifest Refraction}}'); ?></td>
                                     <td><?php echo text($MRODVA); ?></td>
                                     <td><?php echo text($MROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($CRODVA || $CROSVA) { ?>
+                        if ($CRODVA || $CROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('CR{{Cycloplegic Refraction}}'); ?></td>
                                     <td><?php echo text($CRODVA); ?></td>
                                     <td><?php echo text($CROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($PHODVA || $PHOSVA) { ?>
+                        if ($PHODVA || $PHOSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('PH{{Pinhole Vision}}'); ?></td>
                                     <td><?php echo text($PHODVA); ?></td>
                                     <td><?php echo text($PHOSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($CTLODVA || $CTLOSVA) { ?>
+                        if ($CTLODVA || $CTLOSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('CTL{{Contact Lens Vision}}'); ?></td>
                                     <td><?php echo text($CTLODVA); ?></td>
                                     <td><?php echo text($CTLOSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($SCNEARODVA || $SCNEAROSVA) { ?>
+                        if ($SCNEARODVA || $SCNEAROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('scNear{{without correction near}}'); ?></td>
                                     <td><?php echo text($SCNEARODVA); ?></td>
                                     <td><?php echo text($SCNEAROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($ODNEARVA_1 || $WNEAROSVA_1) { ?>
+                        if ($ODNEARVA_1 || $WNEAROSVA_1) { ?>
                                 <tr>
                                     <td><?php echo xlt('ccNear{{with correction at near}}'); ?></td>
                                     <td><?php echo text($ODNEARVA_1); ?></td>
                                     <td><?php echo text($OSNEARVA_1); ?></td>
                                 </tr>
                             <?php }
-                            if ($ARNEARODVA || $ARNEAROSVA) { ?>
+                        if ($ARNEARODVA || $ARNEAROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('ARNear{{Auto-refraction near acuity}}'); ?></td>
                                     <td><?php echo text($ARNEARODVA); ?></td>
                                     <td><?php echo text($ARNEAROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($MRNEARODVA || $MRNEAROSVA) { ?>
+                        if ($MRNEARODVA || $MRNEAROSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('MRNear{{Manifest Near Acuity}}'); ?></td>
                                     <td><?php echo text($MRNEARODVA); ?></td>
                                     <td><?php echo text($MRNEAROSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($PAMODVA || $PAMOSVA) { ?>
+                        if ($PAMODVA || $PAMOSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('PAM{{Potential Acuity Meter}}'); ?></td>
                                     <td><?php echo text($PAMODVA); ?></td>
                                     <td><?php echo text($PAMOSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($GLAREODVA || $GLAREOSVA) { ?>
+                        if ($GLAREODVA || $GLAREOSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('Glare{{Acuity under Glare conditions}}'); ?></td>
                                     <td><?php echo text($GLAREODVA); ?></td>
                                     <td><?php echo text($GLAREOSVA); ?></td>
                                 </tr>
                             <?php }
-                            if ($CONTRASTODVA || $CONTRASTOSVA) { ?>
+                        if ($CONTRASTODVA || $CONTRASTOSVA) { ?>
                                 <tr>
                                     <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
                                     <td><?php echo text($CONTRASTODVA); ?></td>
                                     <td><?php echo text($CONTRASTOSVA); ?></td>
                                 </tr>
                             <?php }
-                            if (!empty($BINOCVA)) { ?>
+                        if (!empty($BINOCVA)) { ?>
                                 <tr>
                                     <td><?php echo xlt('VABiNoc{{Binocular Visual Acuity}}'); ?></td>
                                     <td rowspan="2"><?php echo text($BINOCVA); ?></td>
@@ -667,17 +667,17 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OS'); ?></td>
                         </tr>
                         <?php
-                            if ($ODIOPAP || $OSIOPAP) {
-                                echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('App{{Applanation abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPAP) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPAP) . "</td></tr>";
-                            }
-                            
-                            if ($ODIOPTPN || $OSIOPTPN) {
-                                echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('Tpn{{Tonopen abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPTPN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPTPN) . "</td></tr>";
-                            }
-                            
-                            if ($ODIOPFTN || $OSIOPFTN) {
-                                echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('FTN{{Finger Tension abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPFTN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPFTN) . "</td></tr>";
-                            }
+                        if ($ODIOPAP || $OSIOPAP) {
+                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('App{{Applanation abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPAP) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPAP) . "</td></tr>";
+                        }
+
+                        if ($ODIOPTPN || $OSIOPTPN) {
+                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('Tpn{{Tonopen abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPTPN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPTPN) . "</td></tr>";
+                        }
+
+                        if ($ODIOPFTN || $OSIOPFTN) {
+                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('FTN{{Finger Tension abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPFTN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPFTN) . "</td></tr>";
+                        }
                         ?>
                         <tr>
                             <td colspan="3" style="text-align:center;font-weight:bold;">
@@ -690,40 +690,40 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 <?php
                     // if the VF zone is checked, display it
                     // if ODVF1 = 1 (true boolean) the value="0" checked="true"
-                    for ($z = 1; $z < 5; $z++) {
-                        $ODzone = "ODVF" . $z;
-                        if ($$ODzone == '1') {
-                            $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                            if ($PDF_OUTPUT) {
-                                $ODVF[$z] = 'X';
-                            }
-                            
-                            $bad++;
-                        } else {
-                            $ODVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                            if ($PDF_OUTPUT) {
-                                $ODVF[$z] = 'O';
-                            }
+                for ($z = 1; $z < 5; $z++) {
+                    $ODzone = "ODVF" . $z;
+                    if ($$ODzone == '1') {
+                        $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
+                        if ($PDF_OUTPUT) {
+                            $ODVF[$z] = 'X';
                         }
-                        
-                        $OSzone = "OSVF" . $z;
-                        if ($$OSzone == "1") {
-                            $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                            if ($PDF_OUTPUT) {
-                                $OSVF[$z] = 'X';
-                            }
-                            
-                            $bad++;
-                        } else {
-                            $OSVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                            if ($PDF_OUTPUT) {
-                                $OSVF[$z] = 'O';
-                            }
+
+                        $bad++;
+                    } else {
+                        $ODVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
+                        if ($PDF_OUTPUT) {
+                            $ODVF[$z] = 'O';
                         }
                     }
+
+                    $OSzone = "OSVF" . $z;
+                    if ($$OSzone == "1") {
+                        $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
+                        if ($PDF_OUTPUT) {
+                            $OSVF[$z] = 'X';
+                        }
+
+                        $bad++;
+                    } else {
+                        $OSVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
+                        if ($PDF_OUTPUT) {
+                            $OSVF[$z] = 'O';
+                        }
+                    }
+                }
                 ?>
                 <?php
-                    if ($bad < '1') { ?>
+                if ($bad < '1') { ?>
             <td style="border-right: 1pt #000 solid;
                           float: left;
                           font-size: 0.9em;
@@ -734,10 +734,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                           text-align: center;
                           vertical-align: top;">
             <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
-            <?php
-                echo "<br /><br />Full to CF OU";
+                    <?php
+                    echo "<br /><br />Full to CF OU";
                 } else {
-            ?>
+                    ?>
                 <td style="border-right: 1pt #000 solid;
                           float: left;
                           font-size: 0.9em;
@@ -794,7 +794,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         </tr>
                     </table>
                     <?php
-                        } ?>
+                } ?>
                 </td>
 
                 <!-- START OF THE MOTILITY BOX -->
@@ -809,39 +809,39 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                           vertical-align: top;">
                     <b class="underline"><?php echo xlt('Motility'); ?></b>
                     <?php
-                        if ($MOTILITYNORMAL == 'on') {
-                            echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
+                    if ($MOTILITYNORMAL == 'on') {
+                        echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
+                    } else {
+                        if ($PDF_OUTPUT) {
+                            $background = "url(" . $GLOBALS["fileroot"] . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
                         } else {
-                            if ($PDF_OUTPUT) {
-                                $background = "url(" . $GLOBALS["fileroot"] . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
-                            } else {
-                                $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
-                            }
-                            
-                            $zone = array(
-                                "MOTILITY_RRSO",
-                                "MOTILITY_RS",
-                                "MOTILITY_RLSO",
-                                "MOTILITY_RR",
-                                "MOTILITY_R0",
-                                "MOTILITY_RL",
-                                "MOTILITY_RRIO",
-                                "MOTILITY_RI",
-                                "MOTILITY_RLIO",
-                                "MOTILITY_LRSO",
-                                "MOTILITY_LS",
-                                "MOTILITY_LLSO",
-                                "MOTILITY_LR",
-                                "MOTILITY_L0",
-                                "MOTILITY_LL",
-                                "MOTILITY_LRIO",
-                                "MOTILITY_LI",
-                                "MOTILITY_LLIO"
-                            );
-                            for ($i = 0; $i < count($zone); ++$i) {
-                                ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
-                            }
-                            ?>
+                            $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
+                        }
+
+                        $zone = array(
+                            "MOTILITY_RRSO",
+                            "MOTILITY_RS",
+                            "MOTILITY_RLSO",
+                            "MOTILITY_RR",
+                            "MOTILITY_R0",
+                            "MOTILITY_RL",
+                            "MOTILITY_RRIO",
+                            "MOTILITY_RI",
+                            "MOTILITY_RLIO",
+                            "MOTILITY_LRSO",
+                            "MOTILITY_LS",
+                            "MOTILITY_LLSO",
+                            "MOTILITY_LR",
+                            "MOTILITY_L0",
+                            "MOTILITY_LL",
+                            "MOTILITY_LRIO",
+                            "MOTILITY_LI",
+                            "MOTILITY_LLIO"
+                        );
+                        for ($i = 0; $i < count($zone); ++$i) {
+                            ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
+                        }
+                        ?>
                             <table cellspacing="2" style="margin:2px;text-align:center;">
                                 <tr style="font-weight:bold;">
                                     <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
@@ -889,20 +889,20 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                 </tr>
                             </table>
                             <?php
-                        } ?>
+                    } ?>
                 </td>
                 
                 <?php
-                    if (($PUPIL_NORMAL == '1') || $ODPUPILSIZE1 || $OSPUPILSIZE1) {
-                        ?>
+                if (($PUPIL_NORMAL == '1') || $ODPUPILSIZE1 || $OSPUPILSIZE1) {
+                    ?>
                         <td style="border-right:0px;">
-                            <?php
-                                if (($PUPIL_NORMAL == '1') && (!$ODPUPILSIZE1 || !$OSPUPILSIZE1)) { ?>
+                        <?php
+                        if (($PUPIL_NORMAL == '1') && (!$ODPUPILSIZE1 || !$OSPUPILSIZE1)) { ?>
                                     <b class="underline"><?php echo xlt('Pupils'); ?></b>&nbsp;&nbsp;
                                     <?php echo xlt('Round and Reactive') . "<br />";
-                                }
-                                
-                                if ($ODPUPILSIZE1 || $OSPUPILSIZE1) { ?>
+                        }
+
+                        if ($ODPUPILSIZE1 || $OSPUPILSIZE1) { ?>
                                     <table cellspacing="0" style="margin:1px;text-align:center;">
                                         <tr class="report_vitals">
                                             <!-- start of the Pupils box -->
@@ -955,14 +955,14 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         </tr>
                                     </table>
                                     <?php
-                                } ?>
+                        } ?>
                         </td>
                         <?php
-                    } ?>
+                } ?>
             </tr>
         </table>
         <?php
-        
+
         if ($DIMODPUPILSIZE1 || $DIMOSPUPILSIZE1 || $PUPIL_COMMENTS || $AMSLEROD || $AMSLEROS) { ?>
             <!-- start of slide down pupils_panel -->
             <br/>
@@ -1009,13 +1009,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td class="report_vitals" style="border-right:0px;border-left:1pt solid black;">
                             <b class="underline"><?php echo xlt('Amsler'); ?></b>
                             <?php
-                                if (!$AMSLEROD) {
-                                    $AMSLEROD = "0";
-                                }
-                                
-                                if (!$AMSLEROS) {
-                                    $AMSLEROS = "0";
-                                }
+                            if (!$AMSLEROD) {
+                                $AMSLEROD = "0";
+                            }
+
+                            if (!$AMSLEROS) {
+                                $AMSLEROS = "0";
+                            }
                             ?>
                             <table style="font-size:10px;">
                                 <tr style="font-weight:bold;">
@@ -1047,7 +1047,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             
             <?php
         }
-        
+
         if ($cols != 'Fax') {
             ?><!-- start of the refraction boxes -->
             <?php
@@ -1119,7 +1119,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <?php
                     }
                 }
-                
+
                 if ($ARODSPH || $AROSSPH) { ?>
                     <tr style="border-bottom:1pt solid black;">
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
@@ -1147,7 +1147,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     </tr>
                     <?php
                 }
-                
+
                 if (${"CRCOMMENTS"}) {
                     ?>
                     <tr>
@@ -1159,8 +1159,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     <?php
                 }
             }
-            
-            
+
+
             if ($MRODSPH || $MROSSPH) { ?>
                 <tr>
                     <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
@@ -1189,7 +1189,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </tr>
                 <?php
             }
-            
+
             if ($CRODSPH || $CROSSPH) { ?>
                 <tr>
                     <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
@@ -1219,7 +1219,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </tr>
                 <?php
             }
-            
+
             if ($CTLODSPH || $CTLOSSPH) { ?>
                 <tr style="text-align:center;padding:5px;text-decoration:underline;">
                     <td></td>
@@ -1422,8 +1422,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                 style="text-align:left;"><?php echo text($LMCT); ?></td>
                         </tr>
                         <?php
-                            if ($RADNEXA || $LADNEXA) {
-                                ?>
+                        if ($RADNEXA || $LADNEXA) {
+                            ?>
                                 <tr>
                                     <td style="text-align:right;"><?php echo text($RADNEXA); ?></td>
                                     <td style="text-align:center;font-weight:bold;"><?php echo xlt('Adnexa'); ?></td>
@@ -1434,16 +1434,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         style="text-align:left;"><?php echo text($LADNEXA); ?></td>
                                 </tr>
                                 <?php
-                            }
-                            
-                            if ($EXT_COMMENTS) { ?>
+                        }
+
+                        if ($EXT_COMMENTS) { ?>
                                 <tr>
                                     <td colspan="3">
                                         <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($EXT_COMMENTS); ?>
                                     </td>
                                 </tr>
                                 <?php
-                            } ?>
+                        } ?>
                     </table>
                 </td>
                 <td style="text-align:center;padding:1px;vertical-align:middle;">
@@ -1457,8 +1457,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     <!-- end of external exam -->
     <div class="report_exam_group">
         <?php
-            if ($OSCONJ || $ODCONJ || $ODCORNEA || $OSCORNEA || $ODAC || $OSAC || $ODLENS || $OSLENS || $ODIRIS || $OSIRIS) {
-                ?>
+        if ($OSCONJ || $ODCONJ || $ODCORNEA || $OSCORNEA || $ODAC || $OSAC || $ODLENS || $OSLENS || $ODIRIS || $OSIRIS) {
+            ?>
                 <!-- start of Anterior Segment exam -->
                 <table>
                     <tr>
@@ -1525,7 +1525,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSIRIS); ?></td>
                                 </tr>
-                                <?php if ($ODGONIO || $OSDGONIO) { ?>
+                            <?php if ($ODGONIO || $OSDGONIO) { ?>
                                     <tr>
                                         <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1540,7 +1540,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             style="width:100px;"><?php echo text($OSGONIO); ?></td>
                                     </tr>
                                 <?php }
-                                    if ($ODKTHICKNESS || $OSKTHICKNESS) { ?>
+                            if ($ODKTHICKNESS || $OSKTHICKNESS) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1554,7 +1554,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($OSKTHICKNESS); ?></td>
                                         </tr>
                                     <?php }
-                                    if ($ODSCHIRMER1 || $OSSCHIRMER1) { ?>
+                            if ($ODSCHIRMER1 || $OSSCHIRMER1) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1568,7 +1568,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($OSSCHIRMER1); ?></td>
                                         </tr>
                                     <?php }
-                                    if ($ODSCHIRMER2 || $OSSCHIRMER2) { ?>
+                            if ($ODSCHIRMER2 || $OSSCHIRMER2) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1582,7 +1582,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($OSSCHIRMER2); ?></td>
                                         </tr>
                                     <?php }
-                                    if ($ODTBUT || $OSTBUT) { ?>
+                            if ($ODTBUT || $OSTBUT) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1596,8 +1596,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($OSTBUT); ?></td>
                                         </tr>
                                     <?php }
-                                    
-                                    if ($ANTSEG_COMMENTS) { ?>
+
+                            if ($ANTSEG_COMMENTS) { ?>
                                         <tr>
                                             <td colspan="2">
                                                 <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($ANTSEG_COMMENTS); ?>
@@ -1608,7 +1608,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         </td>
                         <td style="text-align:center;padding:1px;vertical-align:middle;">
                             <?php
-                                display_draw_image("ANTSEG", $encounter, $pid);
+                            display_draw_image("ANTSEG", $encounter, $pid);
                             ?>
                         </td>
                     </tr>
@@ -1616,22 +1616,22 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 <!-- end of Anterior Segment exam -->
                 
                 <?php
-            }
+        }
         ?>
     </div>
     <div class="report_exam_group">
 
         <!-- start of Other exam -->
         <?php
-            if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
-                ?>
+        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
+            ?>
                 <table>
                     <tr>
                         <td style="text-align:left;vertical-align:top;padding:1px;">
                             <b><u><?php echo xlt('Additional Findings'); ?>:</u></b>
-                            <?php if ($ACT == 'on' and $MOTILITYNORMAL == 'on') { ?>
+                        <?php if ($ACT == 'on' and $MOTILITYNORMAL == 'on') { ?>
                                 <span id="ACTNORMAL_CHECK" name="ACTNORMAL_CHECK">
-                <?php echo xlt('Orthophoric'); ?>
+                            <?php echo xlt('Orthophoric'); ?>
               </span>
                             <?php } ?>
                             <table class="report_section">
@@ -1640,8 +1640,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                     <td style="width:100px;"></td>
                                     <td style="font-weight:bold;text-align:left;padding-left:10px;text-decoration:underline;width:150px;"><?php echo xlt('Left'); ?></td>
                                 </tr>
-                                <?php
-                                    if ($RLF || $LLF) { ?>
+                            <?php
+                            if ($RLF || $LLF) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1654,9 +1654,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;" style=""><?php echo text($LLF); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if (isset($RMRD) || isset($LMRD)) { ?>
+                            }
+
+                            if (isset($RMRD) || isset($LMRD)) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                                         flex-wrap: wrap;
@@ -1672,9 +1672,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LMRD); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
+                            }
+
+                            if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1688,9 +1688,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LVFISSURE); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($RCAROTID || $LCAROTID) { ?>
+                            }
+
+                            if ($RCAROTID || $LCAROTID) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1704,9 +1704,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LCAROTID); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($RTEMPART || $LTEMPART) { ?>
+                            }
+
+                            if ($RTEMPART || $LTEMPART) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1720,9 +1720,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LTEMPART); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($RCNV || $LCNV) { ?>
+                            }
+
+                            if ($RCNV || $LCNV) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1736,9 +1736,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LCNV); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($RCNVII || $LCNVII) { ?>
+                            }
+
+                            if ($RCNVII || $LCNVII) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1752,9 +1752,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($LCNVII); ?></td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($HERTELBASE) { ?>
+                            }
+
+                            if ($HERTELBASE) { ?>
                                         <tr>
                                             <td colspan="3" style="text-align:center;padding-top:15px;">
                                                 <b style="font-weight:bold;padding-bottom:5px;">
@@ -1762,7 +1762,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                                 </b>
                                                 <br/>
                                                 <?php
-                                                    if ($HERTELBASE) { ?>
+                                                if ($HERTELBASE) { ?>
                                                         <b style="border:1pt solid black;width:30px;text-align:center;padding:0 5;">
                                                             <?php echo text($ODHERTEL); ?>
                                                         </b>
@@ -1775,13 +1775,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                                             <?php echo text($OSHERTEL); ?>
                                                         </b>
                                                         <?php
-                                                    } ?>
+                                                } ?>
                                             </td>
                                         </tr>
                                         <?php
-                                    }
-                                    
-                                    if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS) { ?>
+                            }
+
+                            if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS) { ?>
                                         <!-- start of NEURO exam -->
                                         <?php
                                         if ($ODCOLOR or $OSCOLOR) { ?>
@@ -1798,7 +1798,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($ODREDDESAT or $OSREDDESAT) { ?>
                                             <tr>
                                                 <td style="text-align:right; 
@@ -1815,7 +1815,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($ODCOINS or $OSCOINS) { ?>
                                             <tr>
                                                 <td style="text-align:right; 
@@ -1832,7 +1832,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($ODNPA or $OSNPA) { ?>
                                             <tr>
                                                 <td style="text-align:right; 
@@ -1849,7 +1849,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($ODNPC or $OSNPC) { ?>
                                             <tr>
                                                 <td style="text-align:right;font-weight:bold;"><?php echo xlt('NPC{{near point of convergence}}'); ?>
@@ -1859,7 +1859,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?>
                                             <tr style="text-decoration:underline;">
                                                 <td></td>
@@ -1868,7 +1868,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($DACCDIST or $DACCNEAR) { ?>
                                             <tr>
                                                 <td style="text-align:right;font-weight:bold;"><?php echo xlt('Divergence Amps'); ?>:
@@ -1878,7 +1878,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($CACCDIST or $CACCNEAR) { ?>
                                             <tr>
                                                 <td style="text-align:right;font-weight:bold;"><?php echo xlt('Convergence Amps'); ?>:
@@ -1888,7 +1888,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($VERTFUSAMPS) { ?>
                                             <tr>
                                                 <td style="text-align:right;font-weight:bold;">
@@ -1901,7 +1901,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                        
+
                                         if ($STEREOPSIS) { ?>
                                             <tr>
                                                 <td style="text-align:right;font-weight:bold;"><?php echo xlt('Stereopsis'); ?>:&nbsp;
@@ -1910,32 +1910,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             </tr>
                                             <?php
                                         }
-                                    } ?>
+                            } ?>
                             </table>
                         </td>
                         <td style="text-align:center;padding:1px;vertical-align:middle;">
                             <?php
-                                display_draw_image("NEURO", $encounter, $pid);
+                            display_draw_image("NEURO", $encounter, $pid);
                             ?>
                         </td>
                     </tr>
                 </table>
                 <?php
-            } ?>
+        } ?>
         <!-- end of Other exam -->
     </div>
     <div class="report_exam_group">
         <!-- start of the Retina exam -->
         <?php
-            if ($ODDISC || $OSDISC || $ODCUP || $ODMACULA || $ODVESSELS || $ODPERIPH || $ODVITREOUS) {
-                ?>
+        if ($ODDISC || $OSDISC || $ODCUP || $ODMACULA || $ODVESSELS || $ODPERIPH || $ODVITREOUS) {
+            ?>
                 <table>
                     <tr>
                         <td style="text-align:left;padding:1px;vertical-align:top;">
                             <b><u><?php echo xlt('Retina'); ?>:</u></b>
                             <table class="report_section">
-                                <?php
-                                    if ($DIL_MEDS) { ?>
+                            <?php
+                            if ($DIL_MEDS) { ?>
                                         <tr>
                                             <td colspan="3" style="text-align:left; 
                                         flex-wrap: wrap;
@@ -1947,7 +1947,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
                                         </tr>
                                         <?php
-                                    } ?>
+                            } ?>
                                 <tr>
                                     <td style="text-align:right;font-weight:bold;text-decoration:underline;width:150px;"><?php echo xlt('Right'); ?></td>
                                     <td style="width:100px;"></td>
@@ -2023,7 +2023,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;"><?php echo text($OSPERIPH); ?></td>
                                     </tr>
                                 <?php }
-                                    if ($ODCMT || $OSCMT) { ?>
+                                if ($ODCMT || $OSCMT) { ?>
                                         <tr>
                                             <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -2036,8 +2036,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         width: 200px;">&nbsp;<?php echo text($OSCMT); ?></td>
                                         </tr>
                                     <?php }
-                                    
-                                    if ($RETINA_COMMENTS) { ?>
+
+                                if ($RETINA_COMMENTS) { ?>
                                         <tr>
                                             <td colspan="2" style="text-align:left; 
                                         flex-wrap: wrap;
@@ -2052,14 +2052,14 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         </td>
                         <td style="text-align:center;padding:1px;vertical-align:middle;">
                             <?php
-                                display_draw_image("RETINA", $encounter, $pid);
+                            display_draw_image("RETINA", $encounter, $pid);
                             ?>
                         </td>
                     </tr>
                 </table>
                 
                 <?php
-            } ?>
+        } ?>
         <!-- end of Retina exam -->
     </div>
     <?php
@@ -2079,7 +2079,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         </tr>
                         <tr>
                             <?php
-                                if ($ACT5SCDIST) { ?>
+                            if ($ACT5SCDIST) { ?>
                                     <td style="text-align:center;font-weight:bold;"> <!-- scDIST -->
                                         <table cellpadding="0"
                                                style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;border:1pt solid grey;">
@@ -2127,10 +2127,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         </table>
                                     </td>
                                     <?php
-                                }
-                                
-                                if ($ACT5CCDIST) {
-                            ?>
+                            }
+
+                            if ($ACT5CCDIST) {
+                                ?>
                             <td style="text-align:center;font-weight:bold;"> <!-- ccDIST -->
                                 <table cellpadding="0"
                                        style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;border:1pt solid grey;">
@@ -2180,11 +2180,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             </td>
                         </tr>
                         <tr>
-                            <?php
-                                }
-                                
-                                if ($ACT5SCNEAR) {
-                                    ?>
+                                <?php
+                            }
+
+                            if ($ACT5SCNEAR) {
+                                ?>
 
                                     <td style="text-align:center;font-weight:bold;"> <!-- scNEAR -->
                                         <table cellpadding="0"
@@ -2234,10 +2234,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         </table>
                                     </td>
                                     <?php
-                                }
-                                
-                                if ($ACT5CCNEAR) {
-                                    ?>
+                            }
+
+                            if ($ACT5CCNEAR) {
+                                ?>
 
                                     <td style="text-align:center;font-weight:bold;"> <!-- ccNEAR -->
                                         <table cellpadding="0"
@@ -2287,10 +2287,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
                                     </td>
                                     <?php
-                                } ?>
+                            } ?>
                         </tr>
                     </table>
-                    <?php
+                        <?php
                     }
                     if ($NEURO_COMMENTS) { ?>
                         <table>
@@ -2340,7 +2340,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         $IMPPLAN_items[$i] = $newdata;
         $i++;
     }
-    
+
     if (!empty($IMPPLAN_items)) {
         //for ($i=0; $i < count($IMPPLAN_item); $i++) {
         foreach ($IMPPLAN_items as $item) {
@@ -2350,7 +2350,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             if (preg_match($pattern, $item['code'])) {
                 $item['code'] = '';
             }
-            
+
             if ($item['codetext'] > '') {
                 echo $item['codetext'] . "<br />";
             } else {
@@ -2358,30 +2358,30 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($item['codetype'] > '') {
                         $item['code'] = $item['codetype'] . ": " . $item['code'];
                     }
-                    
+
                     echo $item['plan'] . "</div><br />";
                 }
             }
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, array($form_id, $pid));
-            
-            
-            if (!empty($PLAN_results)) { ?>
+
+
+        if (!empty($PLAN_results)) { ?>
                 <br />
                 <b><?php echo xlt('Orders') . "/" . xlt('Next Visit'); ?>:</b>
                 <br />
                 <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                     <?php
-                        while ($plan_row = sqlFetchArray($PLAN_results)) {
-                            echo $plan_row['ORDER_DETAILS'] . "<br />";
-                        }
-                        echo $item['plan'] . "</div><br />";
+                    while ($plan_row = sqlFetchArray($PLAN_results)) {
+                        echo $plan_row['ORDER_DETAILS'] . "<br />";
+                    }
+                    echo $item['plan'] . "</div><br />";
                     ?>
                 </div>
                 <?php
-            }
-            ?>
+        }
+        ?>
             </td>
             </tr>
             </table>
@@ -2389,31 +2389,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <td style="text-align:center;vertical-align:bottom;padding:1px;">
                 <?php
                     display_draw_image("IMPPLAN", $encounter, $pid);
-                    
-                    if ($PDF_OUTPUT) {
-                        //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
-                        //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                        $from_file = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
-                        if (file_exists($from_file)) {
-                            echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
-                        } else {
-                            echo "<br /><br />";
-                        }
+
+                if ($PDF_OUTPUT) {
+                    //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
+                    //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
+                    $from_file = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
+                    if (file_exists($from_file)) {
+                        echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                     } else {
-                        $signature = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
-                        if (file_exists($signature)) {
-                            echo "<img style='width:50mm;' src='" . $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
-                        } else {
-                            echo "<br /><br />";
-                        }
+                        echo "<br /><br />";
                     }
+                } else {
+                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
+                    if (file_exists($signature)) {
+                        echo "<img style='width:50mm;' src='" . $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
+                    } else {
+                        echo "<br /><br />";
+                    }
+                }
                     echo "<br /><i style='font-size:9px;'>" . xlt('electronically signed on') . " " . oeFormatShortDate() . "</i>";
-                
+
                 ?>
                 <br/>
                 <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
                 <?php
-                
+
                 ?>
 
 
@@ -2423,79 +2423,78 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             </div>
             <?php
             return;
-        
     }
 }
 
-                function display_draw_image($zone, $encounter, $pid)
-                {
-                    global $form_folder;
-                    global $web_root;
-                    global $PDF_OUTPUT;
-                    global $tmp_files_remove;
-                    $side = "OU";
-                    $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
-                    $filename = $base_name . ".jpg";
-                    $sql = "SELECT * from documents where documents.name like '%" . $filename . "'";
-                    $doc = sqlQuery($sql);
-                    $document_id = $doc['id'];
+function display_draw_image($zone, $encounter, $pid)
+{
+    global $form_folder;
+    global $web_root;
+    global $PDF_OUTPUT;
+    global $tmp_files_remove;
+    $side = "OU";
+    $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
+    $filename = $base_name . ".jpg";
+    $sql = "SELECT * from documents where documents.name like '%" . $filename . "'";
+    $doc = sqlQuery($sql);
+    $document_id = $doc['id'];
 
-                    if (($document_id > '1') && (is_numeric($document_id))) {
-                        $d = new Document($document_id);
-                        $fname = basename($d->get_url());
+    if (($document_id > '1') && (is_numeric($document_id))) {
+        $d = new Document($document_id);
+        $fname = basename($d->get_url());
 
-                        $extension = substr($fname, strrpos($fname, "."));
-                        $notes = $d->get_notes();
-                        if (!empty($notes)) {
-                            echo "<table>";
-                        }
+        $extension = substr($fname, strrpos($fname, "."));
+        $notes = $d->get_notes();
+        if (!empty($notes)) {
+            echo "<table>";
+        }
 
-                        foreach ($notes as $note) {
-                            echo '<tr>';
-                            echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
-                            echo '</tr>';
-                            echo '<tr>';
-                            echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
-                            echo '</tr>';
-                            echo '<tr>';
-                            echo '<td>' . $note->get_note() . '<br /><br /></td>';
-                            echo '</tr>';
-                        }
+        foreach ($notes as $note) {
+            echo '<tr>';
+            echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
+            echo '</tr>';
+            echo '<tr>';
+            echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
+            echo '</tr>';
+            echo '<tr>';
+            echo '<td>' . $note->get_note() . '<br /><br /></td>';
+            echo '</tr>';
+        }
 
-                        if (!empty($notes)) {
-                            echo "</table>";
-                        }
+        if (!empty($notes)) {
+            echo "</table>";
+        }
 
-                        //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
-                        if ($PDF_OUTPUT) {
-                            $tempDocC = new C_Document();
-                            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
-                            // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
-                            file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
-                            $tmp_files_remove[] = $from_file_tmp_web_name;
-                        } else {
-                            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(rand());
-                            echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
-                        }
-                    } else {
-                        //else show base_image
-                        $filetoshow = "../../forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                        if ($PDF_OUTPUT) {
-                            $filetoshow = $GLOBALS["webroot"] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                        }
+        //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
+        if ($PDF_OUTPUT) {
+            $tempDocC = new C_Document();
+            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
+            // tmp file in ../documents/temp since need to be available via webroot
+            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+            file_put_contents($from_file_tmp_web_name, $fileTemp);
+            echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
+            $tmp_files_remove[] = $from_file_tmp_web_name;
+        } else {
+            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(rand());
+            echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
+        }
+    } else {
+        //else show base_image
+        $filetoshow = "../../forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+        if ($PDF_OUTPUT) {
+            $filetoshow = $GLOBALS["webroot"] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+        }
 
-                      // uncomment to show base image, no touch up by user.
-                      // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
-                    }
+      // uncomment to show base image, no touch up by user.
+      // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
+    }
 
-                    return;
-                }
+    return;
+}
 
-                function report_ACT($term)
-                {
-                    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
-                    return $term . "&nbsp;";
-                }
-                ?>
+function report_ACT($term)
+{
+    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
+    return $term . "&nbsp;";
+}
+?>

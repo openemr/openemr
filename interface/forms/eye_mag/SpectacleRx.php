@@ -1149,9 +1149,9 @@ if ($REFTYPE == "CTL") {
                             <?php
                     } else {
                         if (!empty($ODADD) || !empty($OSADD)) {
-                            $adds =1;
+                            $adds = 1;
                         } else {
-                            $adds ='';
+                            $adds = '';
                         }
                         ?>
                             <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
@@ -1161,7 +1161,7 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
-                                        echo "(".text($CTLMANUFACTUREROD).")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROD) . ")";} ?></td>
                                 </tr>
                                 <tr class="bold">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1208,7 +1208,7 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
-                                        echo "(".text($CTLMANUFACTUREROS).")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROS) . ")";} ?></td>
                                 </tr>
                                 <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>

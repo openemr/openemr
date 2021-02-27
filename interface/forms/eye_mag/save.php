@@ -486,7 +486,7 @@ if ($_REQUEST["mode"] == "new") {
                                                     <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
                                                 <i class='fas fa-redo fa-fw'
-                                                   title='". xla("Click to Re-Send this fax") . "'
+                                                   title='" . xla("Click to Re-Send this fax") . "'
                                                    onclick=\"top.restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
@@ -525,7 +525,7 @@ if ($_REQUEST["mode"] == "new") {
                                                     <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
                                                 <i class='fas fa-redo fa-fw'
-                                                    title='". xla("Click to Re-Send this fax") . "'
+                                                    title='" . xla("Click to Re-Send this fax") . "'
                                                    onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
@@ -1205,9 +1205,9 @@ if ($_REQUEST['canvas']) {
     //      We are attaching it ot this encounter so when the encounter is locked
     //      this file should also be locked.  Right?
     // Then add this.
-    
+
     $sql = "SELECT * from documents where documents.name like ?";
-    $ans1 = sqlQuery($sql, array('%' . $base_name. '%') );
+    $ans1 = sqlQuery($sql, array('%' . $base_name . '%'));
     if ($ans1['id']) {  //it is new, add it
         $file = substr($ans1['url'], 7);
         foreach (glob($file) as $file_to_delete) {
@@ -1217,24 +1217,24 @@ if ($_REQUEST['canvas']) {
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
         $category_id = $ID['id'];//we need to know where to store this new one.
-        
+
         $sql = "DELETE from categories_to_documents where document_id = ?";
         sqlQuery($sql, [$ans1['id']]);
         $sql = "DELETE from documents where id = ?";
         sqlQuery($sql, [$ans1['id']]);
     }
-    
+
     $type = "image/jpeg"; // all our canvases are this type
     $data = $_POST["imgBase64"];
     $data = substr($data, strpos($data, ",") + 1);
     $data = base64_decode($data);
     $size = strlen($data);
-    
+
     $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter, $doc_id));
-    
+
     echo "doc stored.";
     exit;
 }

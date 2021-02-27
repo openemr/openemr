@@ -351,9 +351,9 @@ class Events extends Base
                 }
                 //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                 //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
-                if ($event['T_appt_stats']>'') {
-                    $list = implode('|',$event['T_appt_stats']);
-                    $appt_status = " and pc_appstatus in (".$list.")";
+                if ($event['T_appt_stats'] > '') {
+                    $list = implode('|', $event['T_appt_stats']);
+                    $appt_status = " and pc_appstatus in (" . $list . ")";
                 }
 
                 $timing = (int)$event['E_fire_time'] - 1;
@@ -392,8 +392,8 @@ class Events extends Base
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
                         if ($appt['e_is_subEvent_of'] > '0') {
-                            $query ="select * from medex_outgoing where msg_uid=?";
-                            $event2 = sqlStatement($query,array($appt['e_is_subEvent_of']));
+                            $query = "select * from medex_outgoing where msg_uid=?";
+                            $event2 = sqlStatement($query, array($appt['e_is_subEvent_of']));
                             if (new DateTime() < new DateTime($event2["msg_date"])) {
                                 // if current time is less than Parent Appt, ignore this appt
                                 continue;
@@ -442,8 +442,7 @@ class Events extends Base
                         $appt3[] = $appt2;
                     }
                 }
-            }
-            elseif ($event['M_group'] == 'RECALL') {
+            } elseif ($event['M_group'] == 'RECALL') {
                 if ($event['time_order'] > '0') {
                     $interval = "+";
                 } else {
@@ -506,9 +505,7 @@ class Events extends Base
 
                     $appt3[] = $recall2;
                 }
-            
-            }
-            elseif ($event['M_group'] == 'ANNOUNCE') {
+            } elseif ($event['M_group'] == 'ANNOUNCE') {
                 if (empty($event['start_date'])) {
                     continue;
                 }
@@ -652,8 +649,7 @@ class Events extends Base
                     $appt2['to']            = $results;
                     $appt3[] = $appt2;
                 }
-            }
-            elseif ($event['M_group'] == 'SURVEY') {
+            } elseif ($event['M_group'] == 'SURVEY') {
                 if (empty($event['timing'])) {
                     $event['timing'] = "180";
                 }
@@ -683,7 +679,7 @@ class Events extends Base
                     if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
                         continue;
                     }
-                    
+
                     $escapedArr[] = $k;
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                     LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
@@ -741,8 +737,7 @@ class Events extends Base
                         $count_surveys++;
                     }
                 }
-            }
-            elseif ($event['M_group'] == 'CLINICAL_REMINDER') {
+            } elseif ($event['M_group'] == 'CLINICAL_REMINDER') {
                 $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                               WHERE
                             `patient_reminders`.pid ='" . $event['PID'] . "' AND
@@ -759,8 +754,7 @@ class Events extends Base
                     $fields2['clinical_reminders'][] = $urow;
                     $count_clinical_reminders++;
                 }
-            }
-            elseif ($event['M_group'] == 'GOGREEN') {
+            } elseif ($event['M_group'] == 'GOGREEN') {
                 if (!empty($event['appt_stats'])) {
                     $prepare_me = '';
                     $no_fu = '';
@@ -2840,12 +2834,12 @@ class Display extends base
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        
+
         $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token=' . $logged_in['token'] . "&r=" . $logged_in['display']));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        
+
         if (isset($response['success'])) {
             echo $response['success'];
         } elseif (isset($response['error'])) {
@@ -2868,7 +2862,7 @@ class Display extends base
         $fields['providerID'] = $_SESSION['authUserID'];
         $fields['token'] = $logged_in['token'];
         $fields['pc_eid'] = "1234";
-        
+
         $this->curl->setUrl($this->MedEx->getUrl('custom/TM_bot'));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
@@ -3326,9 +3320,9 @@ class MedEx
 
     public function login($force = '')
     {
-        $info= array();
+        $info = array();
         $info = $this->getPreferences();
-        
+
         if (
             empty($info) ||
             empty($info['ME_username']) ||

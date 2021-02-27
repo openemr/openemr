@@ -28,7 +28,7 @@ $facilityService = new FacilityService();
 function make_task($ajax_req)
 {
     global $send;
-    
+
     $from_id    = $ajax_req['from_id'];
     $to_id      = $ajax_req['to_id'];
     $patient_id = $ajax_req['pid'];
@@ -38,15 +38,15 @@ function make_task($ajax_req)
 
     $query      = "SELECT * FROM users WHERE id=?";
     $to_data    =  sqlQuery($query, array($to_id));
-    $filename   = "Fax_".$enc."_".$to_data['lname'].".pdf";
+    $filename   = "Fax_" . $enc . "_" . $to_data['lname'] . ".pdf";
 
     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ? and deleted = 0";
-    $doc = sqlQuery($query, array($enc,$patient_id,'%'.$filename.'%' ));
+    $doc = sqlQuery($query, array($enc,$patient_id,'%' . $filename . '%' ));
 
 
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
     $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
-    
+
     if (!empty($task['COMPLETED_DATE'])) {
         $dated = new DateTime($task['COMPLETED_DATE']);
         $dated = $dated->format('Y/m/d');
@@ -60,17 +60,17 @@ function make_task($ajax_req)
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
     if ($task['ID'] && $task['COMPLETED'] == '2') {
-        $send['comments'] = xlt('This fax has already been sent to')." ". text($task['to_name']) ." " . xlt('via') . " " . text($task['to_fax']) ." on " . text($sent_date) . ". ".
-                            xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.') . " ".
-                            xlt('Filename').": ". text($filename);
+        $send['comments'] = xlt('This fax has already been sent to') . " " . text($task['to_name']) . " " . xlt('via') . " " . text($task['to_fax']) . " on " . text($sent_date) . ". " .
+                            xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.') . " " .
+                            xlt('Filename') . ": " . text($filename);
         echo json_encode($send);
         exit;
     } elseif ($task['ID'] && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
                                     onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
-                                    title='".xla('View the Summary Report sent to') . 
-                                            text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) ."'>
+                                    title='" . xla('View the Summary Report sent to') .
+                                            text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) . "'>
 								    <i class='far fa-file-pdf fa-fw'></i>
                                  </a>
 								 <i class='fas fa-redo-alt fa-fw'
@@ -85,12 +85,12 @@ function make_task($ajax_req)
             //we need to resend this fax????  Remake it with latest data and send ot out.
             $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
             $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
-            
+
             $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), ?, ?, ?, ?, ?, ?)";
             sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
-    
+
             $send['comments'] = xlt('Resending this report.');
             echo json_encode($send);
         } else { //DOC_TYPE is a Report
@@ -118,7 +118,7 @@ function process_tasks($task)
      */
     $task = make_document($task);
     update_taskman($task, 'created', '1');
-    
+
     if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         deliver_document($task);
     }
@@ -177,7 +177,7 @@ function deliver_document($task)
 {
     global $facilityService;
     $facility_data  = $facilityService->getPrimaryBillingLocation();
-    
+
     $query          = "SELECT * FROM users WHERE id=?";
     $from_data      = sqlQuery($query, array($task['FROM_ID']));
     $from_name      = $from_data['fname'] . " " . $from_data['lname'];
@@ -186,30 +186,30 @@ function deliver_document($task)
     }
     $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
     $email_sender   = $GLOBALS['patient_reminder_sender_email'];
-    
+
     $to_data        = sqlQuery($query, array($task['TO_ID']));
     $to_fax         = preg_replace("/[^0-9]/", "", $to_data['fax']);
-    
+
     $mail           = new MyMailer();
-    
-    $to_email       = $to_fax."@".$GLOBALS['hylafax_server'];
+
+    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
     $file_to_attach = preg_replace('/^file:\/\//', "", $task['DOC_url']);
     $file_name      = preg_replace('/^.*\//', "", $task['DOC_url']);
-    
+
     $mail->AddReplyTo($email_sender, $from_name);
     $mail->SetFrom($email_sender, $from_name);
     $mail->AddAddress($to_email);
-    if ($from_fax =='') {
+    if ($from_fax == '') {
         error_log("Taskman Error: No from_fax value found", 0);
         exit();
     }
     $mail->Subject = $from_fax;
-    $mail->Body =' ';
+    $mail->Body = ' ';
     $mail->AddAttachment($file_to_attach, $file_name);
     if ($mail->Send()) {
-        error_log("NO ERROR: email sent to " . $to_email,'0');
+        error_log("NO ERROR: email sent to " . $to_email, '0');
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
@@ -240,13 +240,13 @@ function make_document($task)
     global $encounter;
     global $facilityService;
     global $web_root, $webserver_root;
-    
+
     /**
      * We want to store the current PDF version of this task.
      */
 
     $facility_data  = $facilityService->getPrimaryBillingLocation();
-    
+
     $query          = "SELECT * FROM users WHERE id=?";
     $from_data      = sqlQuery($query, array($task['FROM_ID']));
     $from_name      = $from_data['fname'] . " " . $from_data['lname'];
@@ -255,25 +255,25 @@ function make_document($task)
     }
  //   $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
  //   $email_sender   = $GLOBALS['patient_reminder_sender_email'];
-    
+
     $to_data        = sqlQuery($query, array($task['TO_ID']));
     $to_name        = $to_data['fname'] . " " . $to_data['lname'];
     if ($to_data['suffix']) {
         $to_name .= ", " . $to_data['suffix'];
     }
-    $task['to_name']= $to_name;
+    $task['to_name'] = $to_name;
     $to_fax         = preg_replace("/[^0-9]/", "", $to_data['fax']);
     $task['to_fax'] = $to_fax;
-    
+
     $query          = "SELECT * FROM patient_data where pid=?";
     $patientData    = sqlQuery($query, array($task['PATIENT_ID']));
-    $pt_name        = $patientData['fname'].' '.$patientData['lname'];
+    $pt_name        = $patientData['fname'] . ' ' . $patientData['lname'];
 
     $encounter      = $task['ENC_ID'];
 
  //   $mail           = new MyMailer();
     $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
-   
+
     $query = "select  *,form_encounter.date as encounter_date
               
                from forms,form_encounter,form_eye_base, 
@@ -299,7 +299,7 @@ function make_document($task)
                     forms.form_id=form_eye_locking.id and
                     forms.encounter =? and
                     forms.pid=?";
-    
+
     $encounter_data = sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID     = getProviderIdOfEncounter($encounter);
@@ -308,24 +308,24 @@ function make_document($task)
     $dated          = $dated->format('Y/m/d');
     $visit_date     = oeFormatShortDate($dated);
     $pid            = $task['PATIENT_ID'];
-    
+
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $task['PATIENT_ID'];
 
     // So far we make A "Report", one per encounter, and "Faxes", as many as we need per encounter.
     // So delete any prior report if that is what we are doing. and replace it.
     // If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to
     //  always remake it?  For now, REMAKE IT...
-    
-    if (($task['DOC_TYPE'] =='Fax')||($task['DOC_TYPE'] =='Fax-resend')) {
+
+    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         $category_name  = "Communication%"; //Faxes are stored in the Documents->Eye Module->Communication-Eye category.
         // Do we need to translate this?
         // $category_name = xl('Communication');
         $query          = "select id from categories where name  like ?";
         $ID             = sqlQuery($query, array($category_name));
         $category_id    = $ID['id'];
-        $filename       = "Fax_" . $encounter . "_" . $to_data['lname'].".pdf";
+        $filename       = "Fax_" . $encounter . "_" . $to_data['lname'] . ".pdf";
         $count          = 0;
-        while (file_exists($filepath.'/'.$filename)) {
+        while (file_exists($filepath . '/' . $filename)) {
             $count++;
             $filename = "FAX_" . $encounter . "_" . $to_data['lname'] . "_" . $count . ".pdf";
         }
@@ -335,7 +335,7 @@ function make_document($task)
         $ID             = sqlQuery($query, array($category_name));
         $category_id    = $ID['id'];
 
-        $filename       = "Report_".$encounter.".pdf";
+        $filename       = "Report_" . $encounter . ".pdf";
         foreach (glob($filepath . '/' . $filename) as $file) {
             unlink($file);
         }
@@ -505,7 +505,6 @@ function make_document($task)
         </div>
         <?php
         echo '<pagebreak resetpagenum="1" pagenumstyle="1" suppress="off" />';
-        
     }
 
     echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
@@ -537,13 +536,13 @@ function make_document($task)
 
 <htmlpageheader name="letterheader">
     <div style="border-bottom: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; font-family: sans-serif; ">
-         From: '.$facility_data['name'].'   on {DATE F j, Y}  Medical Report: '.$pt_name.' --- HIPAA-protected ----
+         From: ' . $facility_data['name'] . '   on {DATE F j, Y}  Medical Report: ' . $pt_name . ' --- HIPAA-protected ----
     </div>
 </htmlpageheader>
 
 <htmlpagefooter name="letterfooter2">
     <div style="border-top: 1px solid #000000; font-size: 7pt; text-align: center; font-family: sans-serif; ">
-         Created: {DATE m-j-Y} --- Page {PAGENO} of {nbpg} ---  Medical Report: '.$pt_name.' --- HIPAA-protected ----  '.$facility_data['name'].'
+         Created: {DATE m-j-Y} --- Page {PAGENO} of {nbpg} ---  Medical Report: ' . $pt_name . ' --- HIPAA-protected ----  ' . $facility_data['name'] . '
     </div>
 </htmlpagefooter>
 mpdf-->
@@ -554,10 +553,10 @@ mpdf-->
         background-color: white;
     }
   ';
-    
-    if (($task['DOC_TYPE'] =='Fax')||($task['DOC_TYPE'] =='Fax-resend')) {
+
+    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
             //make the fax coversheet light blue just because we can
-  $header .='
+        $header .= '
     @page :first {
         resetpagenum: 0;
         background-color: azure;
@@ -565,8 +564,8 @@ mpdf-->
     }
     ';
     }
-    
-    $header .='
+
+    $header .= '
     @page letterhead  {
         header: letterheader;
         footer: _blank;
@@ -578,23 +577,23 @@ mpdf-->
         page: letterhead;
     }
 </style>';
-    
+
     $stylesheet = file_get_contents('/var/www/localhost/htdocs/openemr/interface/forms/eye_mag/css/report.css');
-    
+
     //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
 
     $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
     $pdf->Output($temp_filename, 'F');
-    
+
     $type = "application/pdf";
     $size = filesize($temp_filename);
     $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id);
     unlink($temp_filename);
 
     $task['DOC_ID'] = $return['doc_id'];
-    $task['DOC_url'] = $filepath.'/'.$filename;
+    $task['DOC_url'] = $filepath . '/' . $filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter,$task['DOC_ID']));
 

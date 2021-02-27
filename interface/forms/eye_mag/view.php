@@ -2283,11 +2283,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <i class="float-left fas fa-times copier" id="clear_ANTSEG_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="ANTSEG_defaults_OD" title="<?php echo xla('Enter default values for OD{{right eye}}');?>"></i>
                                           <?php echo xlt('OD{{right eye}}'); ?>
-                                          <i class="float-right fas fa-arrow-right copier" id="ANTSEG_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to')." ".xla('OS{{left eye}}');?>"></i>
+                                          <i class="float-right fas fa-arrow-right copier" id="ANTSEG_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
                                       </th>
                                       <th></th>
                                       <th>
-                                          <i class="float-left fas fa-arrow-left copier" id="ANTSEG_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to')." ".xla('OD{{right eye}}');?>"></i>
+                                          <i class="float-left fas fa-arrow-left copier" id="ANTSEG_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="ANTSEG_defaults_OS" title="<?php echo xla('Enter defaults values for OS{{left eye}}');?>"></i>
                                           <?php echo xlt('OS{{left eye}}'); ?>
                                           <i class="delButton_2 fas fa-times copier" id="clear_ANTSEG_OS" title="<?php echo xla('Delete OS{{left eye}} values'); ?>"></i>
@@ -2493,11 +2493,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <i class="float-left fas fa-times copier" id="clear_RETINA_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="RETINA_defaults_OD" title="<?php echo xla('Enter default values for OD{{right eye}}');?>"></i>
                                           <?php echo xlt('OD{{right eye}}'); ?>
-                                          <i class="float-right fas fa-arrow-right copier" id="RETINA_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to')." ".xla('OS{{left eye}}');?>"></i>
+                                          <i class="float-right fas fa-arrow-right copier" id="RETINA_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
                                       </th>
                                       <th></th>
                                       <th>
-                                          <i class="float-left fas fa-arrow-left copier" id="RETINA_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to')." ".xla('OD{{right eye}}');?>"></i>
+                                          <i class="float-left fas fa-arrow-left copier" id="RETINA_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="RETINA_defaults_OS" title="<?php echo xla('Enter defaults values for OS{{left eye}}');?>"></i>
                                           <?php echo xlt('OS{{left eye}}'); ?>
                                           <i class="delButton_2 fas fa-times copier" id="clear_RETINA_OS" title="<?php echo xla('Delete OS{{left eye}} values'); ?>"></i>
@@ -4047,9 +4047,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="bold">
                                                   <?php if ($ref_data['fax'] > '') {
                                                       // does the fax already exist?
-                                                      $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
-                                                      $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
-                                                      if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon ?>
+                                                        $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
+                                                        $FAX_REF  =  sqlQuery($query, array($pat_data['ref_providerID'],$pid,$encounter));
+                                                        if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon ?>
                                                              <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
                                                              <span id='ref_fax_info'>
                                                                  <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
@@ -4060,7 +4060,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                      title='<?php echo xla("Click to Re-Send this fax"); ?>'
                                                                      onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax-resend','ref'); return false;"></i>
                                                               </span> <?php
-                                                      } else { ?>
+                                                        } else { ?>
                                                              <span id='ref_fax'>
                                                                  <a href="JavaScript:void(0);" onclick="top.restoreSession(); create_task('<?php echo attr($pat_data['ref_providerID']); ?>','Fax','ref'); return false;">
                                                                     <?php echo text($ref_data['fax']); ?>
@@ -4068,8 +4068,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 </a>&nbsp;&nbsp;
                                                             </span>
                                                             <span id='ref_fax_info'></span>
-                                                            <?php
-                                                      }
+                                                              <?php
+                                                        }
                                                   } ?>
                                                   </span>
                                               </td>

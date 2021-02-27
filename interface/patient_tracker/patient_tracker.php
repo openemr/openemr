@@ -135,9 +135,9 @@ if ($GLOBALS['medex_enable'] == '1') {
     $prefs = sqlFetchArray($preferences);
     $results = json_decode($prefs['status'], true);
     $logged_in = $results;
-    $logged_in=$results;
+    $logged_in = $results;
     if (!empty($logged_in['token'])) {
-        $current_events = $icons['SMS']['READ']['html'] . " " .xlt("On-line");
+        $current_events = $icons['SMS']['READ']['html'] . " " . xlt("On-line");
     } else {
         $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
     }

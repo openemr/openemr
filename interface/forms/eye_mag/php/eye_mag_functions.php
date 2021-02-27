@@ -81,7 +81,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             }
             $priors[$i] = $prior;
             $priors[$i]['encounter_date'] = $oeexam_date;
-    
+
             if (($i > 0) && ($prior['PLAN'])) {
                 //this plan is a todo list for next visit, which is $i-1 actually
                 $j = $i - 1;
@@ -129,7 +129,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         $later   = "0";
     }
 
-    
+
     //current visit =[0]
     if (!$priors[$current]['PLAN']) {
         $priors[$current]['PLAN'] = array();
@@ -2376,7 +2376,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     global $pcp_data;
     global $ref_data;
     ob_start();
-    
+
     //<!-- POH -->
     echo "<br /><span class='panel_title' title='" . xla('Past Ocular History') . "'>" . xlt("POH{{Past Ocular History}}") . ":</span>";
     ?>
@@ -3158,11 +3158,11 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     ></span>
                 </div>
                 <?php
-    
+
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
                 $doc = sqlQuery($sql, array("%" . $base_name . "%"));
                 $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                if ( ($doc['id'] > '0') ) {
+                if (($doc['id'] > '0')) {
                     $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
                 } else {
                     //base image.
@@ -3712,7 +3712,7 @@ function document_engine($pid)
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
         $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
-    
+
         $my_name[$row1['id']] = $row1['name'];
         $children_names[$row1['parent']][] = $row1['name'];
         $parent_name[$row1['name']] = $my_name[$row1['parent']];
@@ -3736,7 +3736,7 @@ function document_engine($pid)
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
         $row2['cat_name'] = preg_replace('/ - Eye/', '', $row2['cat_name']);
-        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot']."/sites/", $row2['url']);
+        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot'] . "/sites/", $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
             $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
@@ -3784,7 +3784,7 @@ function display($pid, $encounter, $category_value)
     global $form_folder;
     global $id;
     global $documents;
-    $episode='';
+    $episode = '';
        /**
         *   Each document is stored in a specific category.  Think of a category as a Folder.
         *   Practices can add/alter/delete category names as they wish.
@@ -3816,7 +3816,7 @@ function display($pid, $encounter, $category_value)
         $episode .= "<tr>
         <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
-            <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " ".attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
+            <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
@@ -3828,7 +3828,7 @@ function display($pid, $encounter, $category_value)
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') .': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') . ': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3915,7 +3915,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 // This only shows up in fullscreen currently so hide it.
                                 // If the decision is made to show this is framed openEMR, then display it
                                 */
-                                if ($display !== "fullscreen") { ?>
+                            if ($display !== "fullscreen") { ?>
                                     <li class="divider"></li>
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
                                         <a class="nav-link black"
@@ -3924,7 +3924,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>
                                     <?php
-                                } ?>
+                            } ?>
                         </ul>
                     </li>
                
@@ -4058,7 +4058,7 @@ function menu_overhaul_left($pid, $encounter)
         </div>
         <div id="left_menu3" name="left_menu3" class="col-sm-3" style="font-size:1.0em;">
             <?php             //if the patient has a photograph, use it else use generic avitar thing.
-            
+
             if (!empty($documents['docs_in_name']['Patient Photograph'][0])) {
                 ?>
                 <object><embed

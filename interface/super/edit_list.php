@@ -198,16 +198,16 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id
                 } else {
                     $notes = trim($iter['notes']);
                 }
-    
+
                 if (preg_match("/Eye_QP_/", $list_id)) {
                     if (preg_match("/^[BLR]/", $id)) {
                         $stuff = explode("_", $id)[0];
                         $iter['mapping'] = substr($stuff, 1);
-                        $iter['subtype'] = substr($stuff, 0,1);
+                        $iter['subtype'] = substr($stuff, 0, 1);
                     } else {
                         $stuff = explode("_", $id)[0];
                         $iter['mapping'] = substr($stuff, 2);
-                        $iter['subtype'] = substr($stuff, 0,2);
+                        $iter['subtype'] = substr($stuff, 0, 2);
                     }
                 }
 

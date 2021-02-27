@@ -3448,7 +3448,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
                                             ';
                                             }
-                                            function startsWith($str, $needle){
+                                            function startsWith($str, $needle)
+                                            {
                                                 return substr($str, 0, strlen($needle)) === $needle;
                                             }
                                             ?>
@@ -3456,24 +3457,24 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             });
                   $("#EXT_defaults_R").on("click", function() {
                         <?php
-                            foreach ($EXT as $item => $value) {
-                                if (startsWith($item,"R")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                        foreach ($EXT as $item => $value) {
+                            if (startsWith($item, "R")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                 ';
-                                }
                             }
+                        }
                         ?>
                         submit_form("eye_mag");
                         
                         });
                   $("#EXT_defaults_L").on("click", function() {
                         <?php
-                            foreach ($EXT as $item => $value) {
-                                if (startsWith($item,"L")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                        foreach ($EXT as $item => $value) {
+                            if (startsWith($item, "L")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                 ';
-                                }
                             }
+                        }
                         ?>
                         submit_form("eye_mag");
                         });
@@ -3502,24 +3503,24 @@ $("body").on("click","[name^='old_canvas']", function() {
                     });
                     $("#ANTSEG_defaults_OD").on("click", function() {
                     <?php
-                        foreach ($ANTSEG as $item => $value) {
-                            if (startsWith($item,"OD")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                    foreach ($ANTSEG as $item => $value) {
+                        if (startsWith($item, "OD")) {
+                            echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                     ';
-                            }
                         }
+                    }
                     ?>
                     submit_form("eye_mag");
                     
                     });
                     $("#ANTSEG_defaults_OS").on("click", function() {
                             <?php
-                                foreach ($ANTSEG as $item => $value) {
-                                    if (startsWith($item,"OS")) {
-                                        echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                            foreach ($ANTSEG as $item => $value) {
+                                if (startsWith($item, "OS")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                             ';
-                                    }
                                 }
+                            }
                             ?>
                             submit_form("eye_mag");
                     });
@@ -3589,24 +3590,24 @@ $("body").on("click","[name^='old_canvas']", function() {
                     
                     $("#RETINA_defaults_OD").on("click", function() {
                             <?php
-                                foreach ($RETINA as $item => $value) {
-                                    if (startsWith($item,"OD")) {
-                                        echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                            foreach ($RETINA as $item => $value) {
+                                if (startsWith($item, "OD")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                             ';
-                                    }
                                 }
+                            }
                             ?>
                             submit_form("eye_mag");
                             
                             });
                     $("#RETINA_defaults_OS").on("click", function() {
                         <?php
-                            foreach ($RETINA as $item => $value) {
-                                if (startsWith($item,"OS")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                        foreach ($RETINA as $item => $value) {
+                            if (startsWith($item, "OS")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                         ';
-                                }
                             }
+                        }
                         ?>
                         submit_form("eye_mag");
                         });
