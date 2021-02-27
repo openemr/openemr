@@ -430,30 +430,6 @@ if(dateVal > currentDate)
  return errMsgs.length < 1;
 }
 
-
-
-// Onkeyup handler for policy number.  Allows only A-Z and 0-9.
-function policykeyup(e) {
- var v = e.value.toUpperCase();
- var filteredString="";
- for (var i = 0; i < v.length; ++i) {
-  var c = v.charAt(i);
-  if ((c >= '0' && c <= '9') ||
-     (c >= 'A' && c <= 'Z') ||
-     (c == '*') ||
-     (c == '-') ||
-     (c == '_') ||
-     (c == '(') ||
-     (c == ')') ||
-     (c == '#'))
-     {
-         filteredString+=c;
-     }
- }
- e.value = filteredString;
- return;
-}
-
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(function () {
 

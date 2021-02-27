@@ -330,8 +330,15 @@ ALTER TABLE `documents` ADD COLUMN `date_expires` DATETIME DEFAULT NULL;
 ALTER TABLE `documents` ADD COLUMN `foreign_reference_id` bigint(20) default NULL,
                         ADD COLUMN `foreign_reference_table` VARCHAR(40) default NULL;
 ALTER TABLE `documents` ADD KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`);
+
 #EndIf
 
 #IfMissingColumn users google_signin_email
 ALTER TABLE `users` ADD COLUMN `google_signin_email` VARCHAR(255) UNIQUE DEFAULT NULL;
+
+
+#IfNotRow background_services name WenoExchange
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
+
 #EndIf
