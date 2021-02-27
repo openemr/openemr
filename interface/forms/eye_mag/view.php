@@ -185,14 +185,14 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="description" content="OpenEMR: Eye Exam" />
       <meta name="author" content="OpenEMR: Ophthalmology" />
 
-      
+
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
       ?>
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/jquery-1-10-2/jquery.js"></script>
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+      <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-1-10-2/jquery.min.js"></script>
+      <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-     
+
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
@@ -3441,7 +3441,7 @@ if ($refresh and $refresh != 'fullscreen') {
                          title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>"
                          onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
                          href="JavaScript:void(0);">
-                         
+
                       </a>
                       <span class="closeButton_2 fa fa-paint-brush" id="BUTTON_DRAW_IMPPLAN" title="<?php echo xla('Open/Close the Imp/Plan drawing panel'); ?>"  name="BUTTON_DRAW_IMPPLAN"></span>
                       <i class="closeButton_3 fa fa-database" title="<?php echo xla('Show the Impression/Plan Builder panel'); ?>" id="BUTTON_QP_IMPPLAN" name="BUTTON_QP_IMPPLAN"></i>
@@ -4205,7 +4205,7 @@ if ($refresh and $refresh != 'fullscreen') {
         echo $output;
     }
     ?>
-  <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-panelslider/jquery.panelslider.js"></script>
+  <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
   <script>
         function openNewForm(sel, label) {
             top.restoreSession();
@@ -4300,11 +4300,11 @@ if ($refresh and $refresh != 'fullscreen') {
         obj.Clinical = [<?php echo json_encode($codes_found[0]); ?>];
             <?php
         } ?>
-        
+
         var base = '<?php echo $GLOBALS['webroot']; ?>';
     </script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
