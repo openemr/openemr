@@ -275,7 +275,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         $(xml).find("acl").each(function(){
                             value_acl = $(this).find("value").text();
                             title = $(this).find("title").text();
-                            titleDash = value_acl.replace(" ","-");
+                            titleDash = value_acl.replace(/ /g,"-");
                             return_value = $(this).find("returnid").text();
                             return_title = $(this).find("returntitle").text();
                             note = $(this).find("note").text();
@@ -306,7 +306,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                 //set up variables and html page pointers
                 temparray = cthis.id.split("_");
                 identity = temparray[0];
-                identityFormatted = identity.replace("-"," ");
+                identityFormatted = identity.replace(/-/g," ");
                 control = temparray[1];
                 action = temparray[2];
                 return_value = temparray[3];

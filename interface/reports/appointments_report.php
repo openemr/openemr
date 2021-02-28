@@ -30,11 +30,16 @@ require_once "$srcdir/clinical_rules.php";
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Acl\AclMain;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+}
+
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    die(xlt("Unauthorized access."));
 }
 
 # Clear the pidList session whenever load this page.

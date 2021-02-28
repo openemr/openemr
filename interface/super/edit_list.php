@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2007-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -44,6 +45,44 @@ if (!$thisauth) {
     die(xlt('Not authorized'));
 }
 
+// Compute a current checksum of the data from the database for the given list.
+//
+function listChecksum($list_id)
+{
+    if ($list_id == 'feesheet') {
+        $row = sqlQuery(
+            "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+            "fs_category, fs_option, fs_codes" .
+            "))) AS checksum FROM fee_sheet_options"
+        );
+    } else if ($list_id == 'code_types') {
+        $row = sqlQuery(
+            "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag" .
+            "))) AS checksum FROM code_types"
+        );
+    } else {
+        $row = sqlQuery(
+            "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+            "list_id, option_id, title, seq, is_default, option_value, mapping, notes" .
+            "))) AS checksum FROM list_options WHERE " .
+            "list_id = ?",
+            array($list_id)
+        );
+    }
+    return (0 + $row['checksum']);
+}
+
+$alertmsg = '';
+
+$current_checksum = listChecksum($list_id);
+
+if (isset($_POST['form_checksum']) && $_POST['formaction'] == 'save') {
+    if ($_POST['form_checksum'] != $current_checksum) {
+        $alertmsg = xl('Save rejected because someone else has changed this list. Please try again.');
+    }
+}
+
 //Limit variables for filter
 $records_per_page = 40;
 $list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
@@ -51,7 +90,7 @@ $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0)
 
 // If we are saving, then save.
 //
-if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id) {
+if (($_POST['formaction'] ?? '' == 'save') && $list_id && $alertmsg == '') {
     $opt = $_POST['opt'];
     if ($list_id == 'feesheet') {
         // special case for the feesheet list
@@ -196,7 +235,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
                     $notes = trim($iter['apptstat_color']) . '|' . trim($iter['apptstat_timealert']);
                 } else {
-                    $notes = trim($iter['notes']);
+                    $notes = trim($iter['notes'] ?? '');
                 }
 
                 if (preg_match("/Eye_QP_/", $list_id)) {
@@ -240,6 +279,13 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id
             }
         }
     }
+    EventAuditLogger::instance()->newEvent(
+        "edit_list",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "List = $list_id"
+    );
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == 'addlist')) {
     // make a new list ID from the new list name
     $newlistID = $_POST['newlistname'];
@@ -258,11 +304,25 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id
         // send error and continue.
         echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
     }
+    EventAuditLogger::instance()->newEvent(
+        "add_list",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "List = $newlistID"
+    );
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == 'deletelist')) {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
     // delete the list from the master list-of-lists
     sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", array($_POST['list_id']));
+    EventAuditLogger::instance()->newEvent(
+        "delete_list",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "List = " . $_POST['list_id']
+    );
 }
 
 $opt_line_no = 0;
@@ -384,7 +444,8 @@ function writeOptionLine(
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][value]' value='" .
             attr($value) . "' size='8' maxlength='15' class='optin' />";
         echo "</td>\n";
-    } elseif ($list_id == 'adjreason') { // Adjustment reasons use option_value as a reason category.  This is
+    } elseif ($list_id == 'adjreason') {
+        // Adjustment reasons use option_value as a reason category.  This is
         // needed to distinguish between adjustments that change the invoice
         // balance and those that just shift responsibility of payment or
         // are used as comments.
@@ -407,6 +468,23 @@ function writeOptionLine(
         }
         echo "</select>";
         echo "</td>\n";
+    } elseif ($list_id == 'warehouse') {
+        echo "  <td>\n";
+        // Build a drop-down list of facilities.
+        $query = "SELECT id, name FROM facility ORDER BY name";
+        $fres = sqlStatement($query);
+        echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
+        echo " <option value='0'>-- " . xlt('Unassigned') . " --\n";
+        while ($frow = sqlFetchArray($fres)) {
+            $facid = $frow['id'];
+            echo " <option value='" . attr($facid) . "'";
+            if ($facid == $value) {
+                echo " selected";
+            }
+            echo ">" . text($frow['name']) . "\n";
+        }
+        echo " </select>\n";
+        echo " </td>\n";
     } elseif ($list_id == 'abook_type') { // Address book categories use option_value to flag category as a
         // person-centric vs company-centric vs indifferent.
         echo "  <td>";
@@ -1029,6 +1107,16 @@ function writeITLine($it_array)
             f.submit();
         }
 
+        // This is invoked when a new list is chosen.
+        // Disables all buttons and actions so certain bad things cannot happen.
+        function listSelected() {
+            var f = document.forms[0];
+            // For jQuery 1.6 and later, change ".attr" to ".prop".
+            $(":button").attr("disabled", true);
+            f.formaction.value = '';
+            f.submit();
+        }
+
     </script>
 
 </head>
@@ -1038,6 +1126,7 @@ function writeITLine($it_array)
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
     <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
+    <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
     <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
         <div class="container-fluid">
               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -1227,6 +1316,8 @@ function writeITLine($it_array)
                 <th class="font-weight-bold"><?php echo xlt('Color:Abbr'); ?></th>
             <?php } elseif ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
                 <th class="font-weight-bold"><?php echo xlt('Type'); ?></th>
+            <?php } elseif ($list_id == 'warehouse') { ?>
+                <th class="font-weight-bold"><?php echo xlt('Facility'); ?></th>
             <?php } elseif ($list_id == 'immunizations') { ?>
                 <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
             <?php } elseif ($list_id == 'ptlistcols') { ?>
@@ -1511,6 +1602,12 @@ function writeITLine($it_array)
         }
         return resObject;
     }
+
+<?php
+if ($alertmsg) {
+    echo "    alert(" . js_escape($alertmsg) . ");\n";
+}
+?>    
 
 </script>
 </body>

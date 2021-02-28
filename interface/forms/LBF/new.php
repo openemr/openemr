@@ -186,7 +186,13 @@ if (!$from_trend_form) {
 
 // If Save was clicked, save the info.
 //
-if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POST['bn_save_continue']) || !empty($_POST['bn_save_close'])) {
+if (
+    !empty($_POST['bn_save']) ||
+    !empty($_POST['bn_save_print']) ||
+    !empty($_POST['bn_save_continue']) ||
+    !empty($_POST['bn_save_checkout']) ||
+    !empty($_POST['bn_save_close'])
+) {
     $newid = 0;
     if (!$formid) {
         // Creating a new form. Get the new form_id by inserting and deleting a dummy row.

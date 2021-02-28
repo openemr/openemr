@@ -12,6 +12,7 @@
  */
 
 require_once("../globals.php");
+require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
@@ -395,6 +396,56 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     ?>
  </td>
 </tr>
+<?php } ?>
+
+<!-- facility and warehouse restrictions, optional -->
+<?php if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) { ?>
+ <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
+  <td class="text"><?php echo !empty($GLOBALS['gbl_fac_warehouse_restrictions']) ?
+    xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
+  <td colspan="3">
+   <select name="schedule_facility[]" multiple style="width:490px;">
+    <?php
+    $user_id = 0; // in user_admin.php this is intval($_GET["id"]).
+    $userFacilities = getUserFacilities($user_id, 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
+    $ufid = array();
+    foreach ($userFacilities as $uf) {
+        $ufid[] = $uf['id'];
+    }
+    $fres = sqlStatement("select * from facility order by name");
+    if ($fres) {
+        while ($frow = sqlFetchArray($fres)) {
+            // Get the warehouses that are linked to this user and facility.
+            $whids = getUserFacWH($user_id, $frow['id']); // from calendar.inc
+            // Generate an option for just the facility with no warehouse restriction.
+            echo "    <option";
+            if (empty($whids) && in_array($frow['id'], $ufid)) {
+                echo ' selected';
+            }
+            echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
+            // Then generate an option for each of the facility's warehouses.
+            // Does not apply if the site does not use warehouse restrictions.
+            if (!empty($GLOBALS['gbl_fac_warehouse_restrictions'])) {
+                $lres = sqlStatement(
+                    "SELECT option_id, title FROM list_options WHERE " .
+                    "list_id = ? AND option_value = ? ORDER BY seq, title",
+                    array('warehouse', $frow['id'])
+                );
+                while ($lrow = sqlFetchArray($lres)) {
+                    echo "    <option";
+                    if (in_array($lrow['option_id'], $whids)) {
+                        echo ' selected';
+                    }
+                    echo " value='" . attr($frow['id']) . "/" . attr($lrow['option_id']) . "'>&nbsp;&nbsp;&nbsp;" .
+                        text(xl_list_label($lrow['title'])) . "</option>\n";
+                }
+            }
+        }
+    }
+    ?>
+   </select>
+  </td>
+ </tr>
 <?php } ?>
 
  <tr>
