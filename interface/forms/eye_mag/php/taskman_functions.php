@@ -275,8 +275,8 @@ function make_document($task)
     $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
 
     $query = "select  *,form_encounter.date as encounter_date
-              
-               from forms,form_encounter,form_eye_base, 
+
+               from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external, form_eye_antseg,form_eye_postseg,
@@ -536,13 +536,13 @@ function make_document($task)
 
 <htmlpageheader name="letterheader">
     <div style="border-bottom: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; font-family: sans-serif; ">
-         From: ' . $facility_data['name'] . '   on {DATE F j, Y}  Medical Report: ' . $pt_name . ' --- HIPAA-protected ----
+         From: ' . text($facility_data['name']) . '   on {DATE F j, Y}  Medical Report: ' . text($pt_name) . ' --- HIPAA-protected ----
     </div>
 </htmlpageheader>
 
 <htmlpagefooter name="letterfooter2">
     <div style="border-top: 1px solid #000000; font-size: 7pt; text-align: center; font-family: sans-serif; ">
-         Created: {DATE m-j-Y} --- Page {PAGENO} of {nbpg} ---  Medical Report: ' . $pt_name . ' --- HIPAA-protected ----  ' . $facility_data['name'] . '
+         Created: {DATE m-j-Y} --- Page {PAGENO} of {nbpg} ---  Medical Report: ' . text($pt_name) . ' --- HIPAA-protected ----  ' . text($facility_data['name']) . '
     </div>
 </htmlpagefooter>
 mpdf-->
