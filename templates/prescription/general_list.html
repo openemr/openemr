@@ -217,7 +217,7 @@ $(function () {
                                 </td>
                                 {if empty($prescription->erx_source) || $prescription->erx_source==0}
                                 <td class="editscript"  id="{$prescription->id|attr}">
-                                    <a class='editscript btn btn-primary btn-sm btn-edit' id='{$prescription->id|attr}' href="/controller.php?prescription&edit&id={$prescription->id|attr_url}">{xlt t='Edit'}</a>
+                                    <a class='editscript btn btn-primary btn-sm btn-edit' id='{$prescription->id|attr}' href="{$GLOBALS.webroot}/controller.php?prescription&edit&id={$prescription->id|attr_url}">{xlt t='Edit'}</a>
                                 <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
                                     {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
                                 -->
