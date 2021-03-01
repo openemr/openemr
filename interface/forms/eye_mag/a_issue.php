@@ -231,6 +231,7 @@ foreach (explode(',', $given) as $item) {
             document.getElementById('row_begindate').style.display = 'none';
             document.getElementById('row_enddate').style.display = 'none';
             document.getElementById('row_reaction').style.display = 'none';
+            document.getElementById('row_eye_med').style.display = 'none';
             document.getElementById('row_referredby').style.display = 'none';
             document.getElementById('row_classification').style.display = 'none';
             document.getElementById('row_occurrence').style.display = 'none';
@@ -265,7 +266,7 @@ foreach (explode(',', $given) as $item) {
                 document.getElementById('row_begindate').style.display = '';
                 document.getElementById('row_enddate').style.display = '';
                 document.getElementById('row_comments').style.display = '';
-                document.getElementById('row_eye_med').style.display = '';
+                document.getElementById('form_eye_subtype').checked = false;
                 //change Onset to started
                 //change resolved to Completed
                 document.getElementById('onset').textContent = "<?php echo xlt('Start') . ':'; ?>";
@@ -590,7 +591,8 @@ foreach (explode(',', $given) as $item) {
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
-    <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
+    
     <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
@@ -649,37 +651,60 @@ foreach (explode(',', $given) as $item) {
                 echo $HELLO['POH'] . $HELLO['POS'] . $HELLO['Eye Meds'] . $HELLO['PMH'] . $HELLO['Medication'] . $HELLO['Surgery'] . $HELLO['Allergy'] . $HELLO['FH'] . $HELLO['SOCH'] . $HELLO['ROS'];
                 ?>
             </div>
-            <div class="borderShadow text-left">
-                <table class='border-0 w-100'>
+            <div class="borderShadow text-left issues">
+                <style>
+                    input[type="text"] {
+                        display: inline-block;
+                        height: 22px;
+                        padding: 0.2em 0.4em;
+                        width: 150px;
+                        text-align:left;
+                        padding-left:5px;
+                    }
+
+                    textarea {
+                        max-width: 95%;
+                        min-width: 95%;
+                        overflow: auto;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        box-shadow: 0 1px 3px #ddd inset;
+                        box-sizing: border-box;
+                        display: inline-block;
+                    }
+                    
+                </style>
+                <table class='border-0 w-100 small'>
                     <tr id='row_quick_picks'>
-                        <td class="text-nowrap align-top">&nbsp;</td>
+                        <td class="text-nowrap">&nbsp;</td>
                         <td class="align-top" colspan="1">
-                            <select name='form_titles' size='7' onchange='top.restoreSession();set_text();'>
+                            <select size="7" name='form_titles' onchange='top.restoreSession();set_text();'>
                             </select>
                         </td>
                         <td>
                     </tr>
                     <tr id="row_title">
-                        <td class="right font-weight-bold text-nowrap align-top" id='title_diagnosis' style="vertical-align:middle;"><?php echo xlt('Title'); ?>:</td>
+                        <td class="right font-weight-bold text-nowrap" id='title_diagnosis' style="vertical-align:middle;">
+                           <?php echo xlt('Title'); ?>:</td>
                         <td colspan="3">
-                            <input type='text' size='40' name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>' />
+                            <input type='text' name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>' />
                         </td>
                     </tr>
                     <tr id="row_diagnosis">
-                        <td class="right font-weight-bold text-nowrap align-top" style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
+                        <td class="right font-weight-bold text-nowrap" style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
                         <td colspan="3">
-                            <input type='text' size='50' name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis']) ?>' onclick='top.restoreSession();sel_diagnosis();' title='<?php echo xla('Click to select or change diagnoses'); ?>' />
+                            <input type='text' name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis']) ?>' onclick='top.restoreSession();sel_diagnosis();' title='<?php echo xla('Click to select or change diagnoses'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_begindate'>
                         <td class="right text-nowrap"><strong id="onset"><?php echo xlt('Onset'); ?>:</strong></td>
                         <td>
-                            <input type='text' class='datepicker' size='10' name='form_begin' id='form_begin' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['begdate'])); ?>' ¸  title='<?php echo xla('Date of onset, surgery or start of medication'); ?>' />
+                            <input type='text' class='datepicker' name='form_begin' id='form_begin' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['begdate'])); ?>' ¸  title='<?php echo xla('Date of onset, surgery or start of medication'); ?>' />
 
                         </td>
                         <td class="text-nowrap" id='row_enddate'>
                             <input type='checkbox' name='form_active' id='form_active' value='1' <?php echo attr($irow['enddate']) ? " checked" : ""; ?> onclick='top.restoreSession();resolvedClicked(this);' title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-                            <strong id="resolved"><?php echo xlt('Resolved'); ?>:</strong>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['enddate'])); ?>' title='<?php echo xla('Date of recovery or end of medication'); ?>' />
+                            <strong id="resolved"><?php echo xlt('Resolved'); ?>:</strong>&nbsp;<input type='text' class='datepicker' name='form_end' id='form_end' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['enddate'])); ?>' title='<?php echo xla('Date of recovery or end of medication'); ?>' />
                         </td>
                     </tr>
 
@@ -721,13 +746,13 @@ foreach (explode(',', $given) as $item) {
                     <tr id='row_reaction'>
                         <td class="right text-nowrap align-top"><strong><?php echo xlt('Reaction'); ?>:</strong></td>
                         <td colspan="3">
-                            <input type='text' size='40' name='form_reaction' id='form_reaction' value='<?php echo attr($irow['reaction']) ?>' title='<?php echo xla('Allergy Reaction'); ?>' />
+                            <input type='text'  name='form_reaction' id='form_reaction' value='<?php echo attr($irow['reaction']) ?>' title='<?php echo xla('Allergy Reaction'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_referredby'>
                         <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Referred by'); ?>:</strong></td>
                         <td colspan="3">
-                            <input type='text' size='40' name='form_referredby' id='form_referredby' value='<?php echo attr($irow['referredby']) ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
+                            <input type='text' name='form_referredby' id='form_referredby' value='<?php echo attr($irow['referredby']) ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                         </td>
                     </tr>
                     <tr id='row_eye_med'>
@@ -759,7 +784,7 @@ foreach (explode(',', $given) as $item) {
                         <td class="right text-nowrap align-top"><strong><?php echo xlt('Destination'); ?>:</strong></td>
                         <td colspan="3">
                             <?php if (true) { ?>
-                            <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>' title='GP, Secondary care specialist, etc.' />
+                            <input type='text' name='form_destination' value='<?php echo attr($irow['destination']) ?>' title='GP, Secondary care specialist, etc.' />
                                 <?php
                             } else { // leave this here for now, please -- Rod
                                 ?>
