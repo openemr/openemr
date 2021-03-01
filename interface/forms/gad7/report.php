@@ -22,7 +22,7 @@ function gad7_report($pid, $encounter, $cols, $id)
 
     $str_values = [0 => 'Not at all (0)',1 => 'Several days (1)',2 => 'More than half of days (2)',3 => 'Nearly every day (3)'];
 
-    $str_difficulty_values = [0 => 'Not at all (0)',1=>"Somewhat difficult (1)", 2 => "Very difficult (2)", 3 => "Extremely difficult (3)", 'undef'=> 'not answered'];
+    $str_difficulty_values = [0 => 'Not at all (0)',1 => "Somewhat difficult (1)", 2 => "Very difficult (2)", 3 => "Extremely difficult (3)", 'undef' => 'not answered'];
 
     $str_issues = ["nervous_score" => "Feeling nervous","control_worry_score" => "Not controlling worry","worry_score" => "Worrying","relax_score" => "Trouble relaxing","restless_score" => "Being restless","irritable_score" => "Being irritable","fear_score" => "Feeling afraid", "difficulty" => "Difficulty working etc.","total" => "Total GAD-7 score"];
 
@@ -62,7 +62,7 @@ function gad7_report($pid, $encounter, $cols, $id)
                 $exp = $str_score_analysis [15];
         }
 
-          print "<td><span class=bold>" . xlt($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - ".$exp . "</span></td>";
+          print "<td><span class=bold>" . xlt($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . $exp . "</span></td>";
     }
 
     print "</tr></table>";
