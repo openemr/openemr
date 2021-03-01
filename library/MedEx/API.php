@@ -609,7 +609,7 @@ class Events extends Base
                 while ($appt = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results == false) {
-                        continue; //not happening - either not allowed or not possible
+                        continue;
                     }
                     if ($appt['pc_recurrtype'] != '0') {
                         $recurrents = $this->addRecurrent($appt, "+", $event['appts_start'], $event['appts_end'], "ANNOUNCE");
@@ -1474,15 +1474,18 @@ class Logging extends base
         $log = "/tmp/medex.log" ;
         $std_log = fopen($log, 'a');
         $timed = date('Y-m-d H:i:s');
-        fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  " . $timed . "\n");
-        if (is_array($data)) {
-            $dumper = print_r($data, true);
-            fputs($std_log, $dumper);
-            foreach ($data as $key => $value) {
-                fputs($stdlog, $key . ": " . $value . "\n");
+        fwrite($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  " . $timed . "\n");
+        try {
+            if (is_array($data)) {
+                $dumper = print_r($data, true);
+                foreach ($data as $key => $value) {
+                    fputs($std_log, $key . ": " . $value . "\n");
+                }
+            } else {
+               fputs($std_log, "\nDATA= " . $data . "\n");
             }
-        } else {
-            fputs($std_log, "\nDATA= " . $data . "\n");
+        } catch (\Exception $e) {
+            fwrite($std_log, $e->getMessage()."\n");
         }
         fclose($std_log);
         return true;
@@ -1497,6 +1500,27 @@ class Display extends base
 
         ?>
     <script>
+        function toggle_menu() {
+                var x = document.getElementById('hide_nav');
+                if (x.style.display === 'none') {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'setting_bootstrap_submenu' : 'show',
+                        success: function (data) {
+                            x.style.display = 'block';
+                        }
+                        });
+
+                } else {
+                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                        'setting_bootstrap_submenu' : 'hide',
+                        success: function (data) {
+                            x.style.display = 'none';
+                        }
+                    });
+                }
+            $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+            }
+
         function SMS_bot_list() {
             top.restoreSession();
             var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
@@ -1504,8 +1528,15 @@ class Display extends base
             return false;
         }
         </script>
+        <i class="fa fa-caret-<?php
+            if ($setting_bootstrap_submenu == 'hide') {
+                echo 'down';
+            } else {
+                echo 'up';
+            } ?> menu_arrow" style="position:fixed;left:5px;top:4px;z-index:1200;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+          
         <div id="hide_nav">
-            <nav id="navbar_oe" class="navbar navbar-expand-md navbar-light bg-light bgcolor2" name="kiosk_hide" data-role="page banner navigation">
+            <nav id="navbar_oe" class="navbar navbar-expand-sm navbar-light bgcolor2" name="kiosk_hide" data-role="page banner navigation">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -2848,32 +2879,30 @@ class Display extends base
         return false;
     }
 
-    public function TM_bot($logged_in)
+    public function TM_bot($logged_in, $data)
     {
         $fields = array();
-        $fields = $_REQUEST;
-        if (!empty($_REQUEST['pid']) && $_REQUEST['pid'] != 'find') {
-            $responseA = $this->syncPat($_REQUEST['pid'], $logged_in);
-        } elseif ($_REQUEST['show'] == 'pat_list') {
+        $fields = $data;
+        if (!empty($data['pid']) && $data['pid'] != 'find') {
+            $responseA = $this->syncPat($data['pid'], $logged_in);
+        } elseif ($data['show'] == 'pat_list') {
             $responseA = $this->syncPat($_REQUEST['show'], $logged_in);
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
         $fields['providerID'] = $_SESSION['authUserID'];
         $fields['token'] = $logged_in['token'];
-        $fields['pc_eid'] = "1234";
-
+        $fields['pc_eid'] = $data['pc_eid'];
+        
         $this->curl->setUrl($this->MedEx->getUrl('custom/TM_bot'));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        //exit;
-        if (isset($response['success'])) {
-            echo $response['success'];
-        } elseif (isset($response['error'])) {
+        
+        if (isset($response['error'])) {
             $this->lastError = $response['error'];
         }
-        return false;
+        return $response;
     }
 
 /**
@@ -3308,11 +3337,17 @@ class MedEx
 
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
+        
+        if ($info['force']=='1') {
+            return $response;
+        }
+        
         if (!empty($response['token'])) {
             $response['practice']   = $this->practice->sync($response['token']);
             $response['generate']   = $this->events->generate($response['token'], $response['campaigns']['events']);
             $response['success']    = "200";
         }
+        
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
         return $response;
@@ -3342,8 +3377,8 @@ class MedEx
                 $expired = '1';
             }
         }
-
-        if (($expired == '1') || ($force == '1')) {
+        if (($expired == '1') || ($force > '0')) {
+            $info['force'] = $force;
             $info = $this->just_login($info);
         } else {
             $info['status'] = json_decode($info['status'], true);
