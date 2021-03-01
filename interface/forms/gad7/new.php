@@ -1,4 +1,5 @@
 <?php
+
 /**
  * gad-7 form using forms api     new.php    create a new form
  *
@@ -9,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once ("gad7.inc"); //common strings, other includes etc
+require_once("gad7.inc"); //common strings, other includes etc
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 formHeader("Form: GAD-7");
 $returnurl = 'encounter_top.php';   // update top of encounter window when done
@@ -42,11 +43,11 @@ function create_q8 ( question, menue){
        question.appendChild(new_line);
        question.appendChild(ital);
 // populate the   the menue
-         menue.options[0] = new Option ( "<?php echo xlt($str_not     ); ?>", "0");
-         menue.options[1] = new Option ( "<?php echo xlt($str_somewhat); ?>", "1" );
-         menue.options[2] = new Option ( "<?php echo xlt($str_very    ); ?>", "2"  );
-         menue.options[3] = new Option ( "<?php echo xlt($str_extremely);?>", "3" );
-         menue.options[4] = new Option ( "<?php echo xlt($str_default);  ?>", "undef"  );
+         menue.options[0] = new Option ( "<?php echo xlt($str_not); ?>", "0");
+         menue.options[1] = new Option ( "<?php echo xlt($str_somewhat); ?>", "1");
+         menue.options[2] = new Option ( "<?php echo xlt($str_very); ?>", "2");
+         menue.options[3] = new Option ( "<?php echo xlt($str_extremely);?>", "3");
+         menue.options[4] = new Option ( "<?php echo xlt($str_default);  ?>", "undef");
        }
 </script>
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all());" >

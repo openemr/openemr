@@ -48,9 +48,9 @@ function create_q8 (question, menue){
        question.appendChild(ital);
 
 // populate the   the menue
-         menue.options[0] = new Option ( "<?php echo xlt($str_not     ); ?>", "0");
+         menue.options[0] = new Option ( "<?php echo xlt($str_not); ?>", "0");
          menue.options[1] = new Option ( "<?php echo xlt($str_somewhat); ?>", "1");
-         menue.options[2] = new Option ( "<?php echo xlt($str_very    ); ?>", "2");
+         menue.options[2] = new Option ( "<?php echo xlt($str_very); ?>", "2");
          menue.options[3] = new Option ( "<?php echo xlt($str_extremely);?>", "3");
          menue.options[4] = new Option ( "<?php echo xlt($str_default);  ?>", "undef");
 }

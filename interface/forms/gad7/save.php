@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Gad-7 save.php
  *
@@ -8,7 +9,6 @@
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -29,7 +29,7 @@ if ($_GET["mode"] == "new") {
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
-        "update form_gad7 set pid = ?, 
+        "update form_gad7 set pid = ?,
             groupname = ?,
             user = ?,
             authorized = ?,
