@@ -220,8 +220,6 @@ class Practice extends Base
             }
         }
 
-        $sqlQuery = "SELECT * FROM medex_prefs";
-        $my_status = sqlStatement($sqlQuery);
         while ($urow = sqlFetchArray($my_status)) {
             $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
             $fields3['ME_providers']        = $urow['ME_providers'];
@@ -308,8 +306,8 @@ class Events extends Base
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
-        $sql2 = "SELECT ME_facilities FROM medex_prefs";
-        $pref_facilities = sqlQuery($sql2);
+        $sql2 = "SELECT * FROM medex_prefs";
+        $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
             $escClause = [];
@@ -351,6 +349,12 @@ class Events extends Base
                                      and pc_apptstatus != '%'
                                      and pc_apptstatus != 'x' ";
                 }
+                //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
+                //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
+                if ($event['T_appt_stats'] > '') {
+                    $list = implode('|', $event['T_appt_stats']);
+                    $appt_status = " and pc_appstatus in (" . $list . ")";
+                }
 
                 $timing = (int)$event['E_fire_time'] - 1;
                 $today = date("l");
@@ -363,8 +367,8 @@ class Events extends Base
                     $timing2 = ($timing + 1) . ":1:1";
                 }
 
-                if (!empty($pref_facilities['ME_facilities'])) {
-                    $places = str_replace("|", ",", $pref_facilities['ME_facilities']);
+                if (!empty($prefs['ME_facilities'])) {
+                    $places = str_replace("|", ",", $prefs['ME_facilities']);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                 LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                 WHERE
@@ -387,12 +391,20 @@ class Events extends Base
                                 AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
+                        if ($appt['e_is_subEvent_of'] > '0') {
+                            $query = "select * from medex_outgoing where msg_uid=?";
+                            $event2 = sqlStatement($query, array($appt['e_is_subEvent_of']));
+                            if (new DateTime() < new DateTime($event2["msg_date"])) {
+                                // if current time is less than Parent Appt, ignore this appt
+                                continue;
+                            }
+                        }
                         list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results == false) {
                             continue;
                         }
                         if (($appt['pc_recurrtype'] != '0') && ($interval == "+")) {
-                            $recurrents = $this->addRecurrent($appt, $interval, $timing, $timing2);
+                            $recurrents = $this->addRecurrent($appt, $interval, $timing, $timing2, "REMINDER");
                             $count_recurrents += $recurrents;
                             continue;
                         }
@@ -641,33 +653,33 @@ class Events extends Base
                 if (empty($event['timing'])) {
                     $event['timing'] = "180";
                 }
+                $escClause = [];
                 // appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
                 $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') ";
-                if (!empty($event['T_appt_stats'])) {
-                    foreach ($event['T_appt_stats'] as $stat) {
+                if (!empty($event['appt_stats'])) {
+                    foreach ($event['appt_stats'] as $stat) {
                         $escapedArr[] = $stat;
                         $escClause['Stat'] .= "?,";
                     }
-                    rtrim($escStat, ",");
+                    rtrim($escClause['Stat'], ",");
                     $appt_status = " and pc_appstatus in (" . $escClause['Stat'] . ") ";
                 }
 
-                $sql2 = "SELECT * FROM medex_prefs";
-                $pref = sqlQuery($sql2);
                 $facility_clause = '';
-                if (!empty($event['T_facilities'])) {
-                    foreach ($event['T_facilities'] as $fac) {
+                if (!empty($event['facilities'])) {
+                    foreach ($event['facilities'] as $fac) {
                         $escapedArr[] = $fac;
                         $escClause['Fac'] .= "?,";
                     }
-                    rtrim($escFac, ",");
+                    rtrim($escClause['Fac'], ",");
                     $facility_clause = " AND cal.pc_facility in (" . $escClause['Fac'] . ") ";
                 }
-                $all_providers = explode('|', $pref['ME_providers']);
+                $all_providers = explode('|', $prefs['ME_providers']);
                 foreach ($event['survey'] as $k => $v) {
                     if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
                         continue;
                     }
+
                     $escapedArr[] = $k;
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                     LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
@@ -677,14 +689,12 @@ class Events extends Base
                                         pat.pid=cal.pc_pid AND
                                         pc_apptstatus !='%' AND
                                         pc_apptstatus != 'x' " .
-                                $appt_status .
-                                $facility_clause . "
-                                         AND cal.pc_aid IN (?)
-                                         AND email > ''
-                                         AND hipaa_allowemail NOT LIKE 'NO'
-                                        GROUP BY pc_pid
-                                        ORDER BY pc_eventDate,pc_startTime
-                                        LIMIT " . $v;
+                                        $appt_status .
+                                        $facility_clause . "
+                                        AND cal.pc_aid IN (?)
+                                    GROUP BY pc_pid
+                                    ORDER BY pc_eventDate,pc_startTime
+                                    LIMIT " . $v;
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt = sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
@@ -921,7 +931,7 @@ class Events extends Base
                         }
                     }
                     if ($appt['pc_recurrtype'] != '0') {
-                        $recurrents = $this->addRecurrent($appt, "+", $start_date, $end_date, "GOGREEN");
+                        $recurrents = $this->addRecurrent($appt, "+", $event['appts_start'], $event['appts_end'], "GOGREEN");
                         $count_recurrents += $recurrents;
                         continue;
                     }
@@ -1120,7 +1130,7 @@ class Events extends Base
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
-                $response   = $this->curl->getResponse();
+                $this->curl->getResponse();
                 $data       = array();
                 sleep(1);
             }
@@ -1229,7 +1239,7 @@ class Events extends Base
                         $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while ($occurence === -1);
 
-                    if ($occurence >= $from_date && $occurence <= $stop_date) {
+                    if ($occurence >= $start_date && $occurence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", $exdate) as $exception) {
@@ -1428,7 +1438,7 @@ class Callback extends Base
                 }
             } elseif ($data['msg_reply'] == "CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
-                $test = sqlQuery($sqlUPDATE, array($data['pc_eid']));
+                sqlQuery($sqlUPDATE, array($data['pc_eid']));
                 //this requires attention.  Send up the FLAG!
                 //$this->MedEx->logging->new_message($data);
             } elseif (($data['msg_type'] == "AVM") && ($data['msg_reply'] == "STOP")) {
@@ -1604,196 +1614,212 @@ class Display extends base
     {
         global $logged_in;
         if (empty($prefs)) {
-            $prefs = sqlFetchArray(sqlStatement("SELECT * FROM medex_prefs"));
+             $prefs = $this->MedEx->getPreferences();
         }
         ?>
-    <div class="row">
-        <div class="col-sm-12 text-center">
-            <div class="showRecalls" id="show_recalls">
-                <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
-                <div name="div_response" id="div_response" class="form-inline"><br />
-                </div>
-                <form action="#" name="save_prefs" id="save_prefs">
-                        <div class="row">
-                            <input type="hidden" name="go" id="go" value="Preferences" />
-                            <div class="col-sm-5 div-center offset-sm-1" id="daform2">
-                                <div class="divTable2">
-                                    <div class="divTableBody prefs">
-                                        <div class="divTableRow">
-                                            <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
-                                            <div class="divTableCell indent20">
-                                                <?php echo $prefs['ME_username']; ?>
-                                            </div>
-                                        </div>
-                                        <div class="divTableRow">
-                                            <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
-                                            <div class="divTableCell indent20">
-                                                <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
-                                                <?php
-                                                if ($prefs['ME_hipaa_default_override'] == '1') {
-                                                    echo 'checked ="checked"';
-                                                }
-                                                ?> />
-                                                <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
-                                                       data-toggle='tooltip'
-                                                       data-placement='auto right'
-                                                       title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
-                                                        <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
-                                                        <?php echo xlt('Assume patients receive HIPAA policy'); ?>
-                                                 </label><br />
-                                                 <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes'] == '1') {
-                                                            echo "checked='checked'";} ?> /><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
-                                                           <?php echo xlt('Assume patients permit Messaging'); ?></label>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <div class="showRecalls" id="show_recalls">
+                    <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
+                    <div name="div_response" id="div_response"><br />
+                    </div>
+                    <form action="#" name="save_prefs" id="save_prefs">
+                            <div class="row">
+                                <input type="hidden" name="go" id="go" value="Preferences" />
+                                <div class="col-sm-5 div-center offset-sm-1" id="daform2">
+                                    <div class="divTable2">
+                                        <div class="divTableBody prefs">
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
+                                                <div class="divTableCell indent20">
+                                                    <?php echo $prefs['ME_username']; ?>
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enable Facility'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
                                                 <div class="divTableCell indent20">
+                                                    <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
+                                                    <?php
+                                                    if ($prefs['ME_hipaa_default_override'] == '1') {
+                                                        echo 'checked ="checked"';
+                                                    }
+                                                    ?> />
+                                                    <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
+                                                           data-toggle='tooltip'
+                                                           data-placement='auto right'
+                                                           title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
+                                                            <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
+                                                            <?php echo xlt('Assume patients receive HIPAA policy'); ?>
+                                                     </label><br />
+                                                     <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes'] == '1') {
+                                                                echo "checked='checked'";} ?> /><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
+                                                               <?php echo xlt('Assume patients permit Messaging'); ?></label>
+                                                    </div>
+                                                </div>
+                                                <div class="divTableRow">
+                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Enable Facility'); ?></div>
+                                                    <div class="divTableCell indent20">
+                                                        <?php
+                                                        $count = "1";
+                                                        $query = "SELECT * FROM facility";
+                                                        $result = sqlStatement($query);
+                                                        while ($fac = sqlFetchArray($result)) {
+                                                            $checked = "";
+                                                            if ($prefs) {
+                                                                $facs = explode('|', $prefs['ME_facilities']);
+                                                                foreach ($facs as $place) {
+                                                                    if ($place == $fac['id']) {
+                                                                        $checked = 'checked ="checked"';
+                                                                    }
+                                                                }
+                                                            }
+                                                            ?>
+                                                        <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>" />
+                                                        <label for="facility_<?php echo attr($fac['id']); ?>"><?php echo text($fac['name']); ?></label><br /><?php
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                                <div class="divTableRow">
+                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Included Providers'); ?></div>
+                                                    <div class="divTableCell indent20">
                                                     <?php
                                                     $count = "1";
-                                                    $query = "SELECT * FROM facility";
-                                                    $result = sqlStatement($query);
-                                                    while ($fac = sqlFetchArray($result)) {
+                                                    $ures = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
+                                                    while ($prov = sqlFetchArray($ures)) {
                                                         $checked = "";
+                                                        $suffix = "";
                                                         if ($prefs) {
-                                                            $facs = explode('|', $prefs['ME_facilities']);
-                                                            foreach ($facs as $place) {
-                                                                if ($place == $fac['id']) {
+                                                            $provs = explode('|', $prefs['ME_providers']);
+                                                            foreach ($provs as $doc) {
+                                                                if ($doc == $prov['id']) {
                                                                     $checked = 'checked ="checked"';
                                                                 }
                                                             }
                                                         }
-                                                        ?>
-                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>" />
-                                                    <label for="facility_<?php echo attr($fac['id']); ?>"><?php echo text($fac['name']); ?></label><br /><?php
-                                                    }
-                                                    ?>
-                                                </div>
-                                            </div>
-                                            <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Included Providers'); ?></div>
-                                                <div class="divTableCell indent20">
-                                                <?php
-                                                $count = "1";
-                                                $ures = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
-                                                while ($prov = sqlFetchArray($ures)) {
-                                                    $checked = "";
-                                                    $suffix = "";
-                                                    if ($prefs) {
-                                                        $provs = explode('|', $prefs['ME_providers']);
-                                                        foreach ($provs as $doc) {
-                                                            if ($doc == $prov['id']) {
-                                                                $checked = 'checked ="checked"';
-                                                            }
+                                                        if (!empty($prov['suffix'])) {
+                                                            $suffix = ', ' . $prov['suffix'];
                                                         }
-                                                    }
-                                                    if (!empty($prov['suffix'])) {
-                                                        $suffix = ', ' . $prov['suffix'];
+                                                        ?>
+                                                        <input <?php echo $checked; ?> class="update" type="checkbox" name="providers[]" id="provider_<?php echo attr($prov['id']); ?>" value="<?php echo attr($prov['id']); ?>">
+                                                        <label for="provider_<?php echo attr($prov['id']); ?>"><?php echo text($prov['fname']) . " " . text($prov['lname']) . text($suffix); ?></label><br /><?php
                                                     }
                                                     ?>
-                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="providers[]" id="provider_<?php echo attr($prov['id']); ?>" value="<?php echo attr($prov['id']); ?>">
-                                                    <label for="provider_<?php echo attr($prov['id']); ?>"><?php echo text($prov['fname']) . " " . text($prov['lname']) . text($suffix); ?></label><br /><?php
-                                                }
-                                                ?>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Labels'); ?></div>
-                                                <div class="divTableCell indent20">
-                                                <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
-                                                        echo "checked='checked'";} ?> />
-                                                    <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto' title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
-                                                        <?php echo xlt('Use Avery Labels'); ?></label>
-                                                    <select class="update form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="chart_label_type" name="chart_label_type">
-                                                                    <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
-                                                                        echo "selected";} ?>>5160</option>
-                                                                    <option value='2' <?php if ($prefs['LABELS_choice'] == '2') {
-                                                                        echo "selected";} ?>>5161</option>
-                                                                    <option value='3' <?php if ($prefs['LABELS_choice'] == '3') {
-                                                                        echo "selected";} ?>>5162</option>
-                                                                    <option value='4' <?php if ($prefs['LABELS_choice'] == '4') {
-                                                                        echo "selected";} ?>>5163</option>
-                                                                    <option value='5' <?php if ($prefs['LABELS_choice'] == '5') {
-                                                                        echo "selected";} ?>>5164</option>
-                                                                    <option value='6' <?php if ($prefs['LABELS_choice'] == '6') {
-                                                                        echo "selected";} ?>>8600</option>
-                                                                    <option value='7' <?php if ($prefs['LABELS_choice'] == '7') {
-                                                                        echo "selected";} ?>>L7163</option>
-                                                                    <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
-                                                                        echo "selected";} ?>>3422</option>
-                                                                </select>
-
+                                                <div class="divTableRow">
+                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Labels'); ?></div>
+                                                    <div class="divTableCell indent20">
+                                                    <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
+                                                            echo "checked='checked'";} ?> />
+                                                        <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto' title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
+                                                            <?php echo xlt('Use Avery Labels'); ?></label>
+                                                        <select class="update form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="chart_label_type" name="chart_label_type">
+                                                                        <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
+                                                                            echo "selected";} ?>>5160</option>
+                                                                        <option value='2' <?php if ($prefs['LABELS_choice'] == '2') {
+                                                                            echo "selected";} ?>>5161</option>
+                                                                        <option value='3' <?php if ($prefs['LABELS_choice'] == '3') {
+                                                                            echo "selected";} ?>>5162</option>
+                                                                        <option value='4' <?php if ($prefs['LABELS_choice'] == '4') {
+                                                                            echo "selected";} ?>>5163</option>
+                                                                        <option value='5' <?php if ($prefs['LABELS_choice'] == '5') {
+                                                                            echo "selected";} ?>>5164</option>
+                                                                        <option value='6' <?php if ($prefs['LABELS_choice'] == '6') {
+                                                                            echo "selected";} ?>>8600</option>
+                                                                        <option value='7' <?php if ($prefs['LABELS_choice'] == '7') {
+                                                                            echo "selected";} ?>>L7163</option>
+                                                                        <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
+                                                                            echo "selected";} ?>>3422</option>
+                                                                    </select>
+    
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Postcards'); ?></div>
-                                                <div class="divTableCell indent20">
-                                                <!--
-                                                    <input type="checkbox" class="update" name="POSTCARDS_local" id="POSTCARDS_local" value="1" <?php if ($prefs['POSTCARDS_local']) {
-                                                        echo "checked='checked'";} ?>" />
-                                                    <label for="POSTCARDS_local" name="POSTCARDS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to print postcards locally'); ?>'><?php echo xlt('Print locally'); ?></label><br />
-                                                    <input type="checkbox" class="update" name="POSTCARDS_remote" id="POSTCARDS_remote" value="1" <?php if ($prefs['POSTCARDS_remote']) {
-                                                        echo "checked='checked'";} ?>" />
-                                                    <label for="POSTCARDS_remote" name="POSTCARDS_remote" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to send postcards via MedEx'); ?>'><?php echo xlt('Print remotely'); ?></label>
-                                                -->
-                                                    <label for="postcards_top" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br />
-                                                    <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
+                                                <div class="divTableRow">
+                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Postcards'); ?></div>
+                                                    <div class="divTableCell indent20">
+                                                    <!--
+                                                        <input type="checkbox" class="update" name="POSTCARDS_local" id="POSTCARDS_local" value="1" <?php if ($prefs['POSTCARDS_local']) {
+                                                            echo "checked='checked'";} ?>" />
+                                                        <label for="POSTCARDS_local" name="POSTCARDS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to print postcards locally'); ?>'><?php echo xlt('Print locally'); ?></label><br />
+                                                        <input type="checkbox" class="update" name="POSTCARDS_remote" id="POSTCARDS_remote" value="1" <?php if ($prefs['POSTCARDS_remote']) {
+                                                            echo "checked='checked'";} ?>" />
+                                                        <label for="POSTCARDS_remote" name="POSTCARDS_remote" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to send postcards via MedEx'); ?>'><?php echo xlt('Print remotely'); ?></label>
+                                                    -->
+                                                        <label for="postcards_top" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br />
+                                                        <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
+                                                    </div>
                                                 </div>
+                                            <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
+                                            <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                             </div>
-                                        <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
-                                        <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                         </div>
-                                    </div>
                                 </div>
-                                 <div class="col-sm-5 div-center" id="daform2">
+                                <div class="col-sm-5 div-center" id="daform3">
                                     <div class="divTable2">
-                                        <div class="divTableBody prefs">
-                                            <?php if (count($logged_in['products']['ordered']) > '0') { ?>
+                                        <div class="divTableRow">
+                                            <div class="divTableCell divTableHeading"><?php echo xlt('Sync Frequency'); ?></div>
+                                            <div class="divTableCell indent20">
+                                                <input name="execute_interval"
+                                                       id="execute_interval"
+                                                       class="form-control-range update"
+                                                       min="0" max="360" step="1"
+                                                       type="range"
+                                                       value="<?php echo attr($prefs['execute_interval']); ?>">
+                                                <span id="active_sync"><?php  echo xlt('During the work-day, syncs occurs every'); ?>
+                                                    <span id="display_interval"><?php echo text($prefs['execute_interval']); ?></span> <?php echo xlt('minutes'); ?>
+                                                </span>
+                                                <span id="paused"><?php echo xlt("Synchronization with MedEx is paused"); ?></span>
+                                            </div>
+                                        </div>
+                                        <?php if (count($logged_in['products']['ordered']) > '0') { ?>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enabled Services'); ?></div>
+                                            <div class="divTableCell divTableHeading"><?php echo xlt('Enabled Services'); ?></div>
+                                            <div class="divTableCell">
+                                                <ul>
+                                                    <?php
+                                                    foreach ($logged_in['products']['ordered'] as $service) {
+                                                        ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
+                                                        <?php echo $service['list'];
+                                                    } ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                            <?php
+                                        }
+                                        if (!empty($logged_in['products']['not_ordered'])) {
+                                            ?>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
                                                 <div class="divTableCell">
                                                     <ul>
-                                                        <?php
-                                                        foreach ($logged_in['products']['ordered'] as $service) {
-                                                            ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
-                                                            <?php echo $service['list'];
-                                                        } ?>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <?php }
-                                            if (!empty($logged_in['products']['not_ordered'])) {
-                                                ?>
-<div class="divTableRow">
-<div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
-    <div class="divTableCell">
-    <ul>
-                                                <?php
-                                                foreach ($logged_in['products']['not_ordered'] as $service) {
-                                                    ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
                                                     <?php
-                                                    if ($service['product_id'] == '54') {
-                                                        ?>
-                    <div style="margin-left: 10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                                                    foreach ($logged_in['products']['not_ordered'] as $service) {
+                                                        ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
                                                         <?php
-                                                    }
-                                                } ?>
+                                                        if ($service['product_id'] == '54') {
+                                                            ?>
+                                                            <div style="margin-left: 10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                                                            <?php
+                                                        }
+                                                    } ?>
                                                     </ul>
                                                 </div>
                                             </div>
-                                                <?php } ?>
+                                            <?php
+                                        } ?>
+                                        
                                         </div>
-                                    </div>
                                 </div>
-                               <div class="col-sm-1"></div>
                             </div>
+                            <div class="col-sm-1"></div>
                             <div class="clearfix text-center" id="msg bottom"><br />
                             </div>
                     </form>
                 </div>
             </div>
         </div>
-            <?php
+        <?php
     }
     public function display_recalls($logged_in)
     {
@@ -2080,6 +2106,8 @@ class Display extends base
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
         global $MedEx;
+        $count_facilities = 0;
+        $count_providers = 0;
         $process = array();
         if (empty($recalls)) {
             return false;
@@ -2800,13 +2828,42 @@ class Display extends base
         $fields = array();
         $fields = $_REQUEST;
         if (!empty($_REQUEST['pid']) && $_REQUEST['pid'] != 'find') {
+            $this->syncPat($_REQUEST['pid'], $logged_in);
+        } elseif ($_REQUEST['show'] == 'pat_list') {
+            $responseA = $this->syncPat($_REQUEST['show'], $logged_in);
+            $fields['pid_list'] = $responseA['pid_list'];
+            $fields['list_hits']  = $responseA['list_hits'];
+        }
+
+        $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token=' . $logged_in['token'] . "&r=" . $logged_in['display']));
+        $this->curl->setData($fields);
+        $this->curl->makeRequest();
+        $response = $this->curl->getResponse();
+
+        if (isset($response['success'])) {
+            echo $response['success'];
+        } elseif (isset($response['error'])) {
+            $this->lastError = $response['error'];
+        }
+        return false;
+    }
+
+    public function TM_bot($logged_in)
+    {
+        $fields = array();
+        $fields = $_REQUEST;
+        if (!empty($_REQUEST['pid']) && $_REQUEST['pid'] != 'find') {
             $responseA = $this->syncPat($_REQUEST['pid'], $logged_in);
         } elseif ($_REQUEST['show'] == 'pat_list') {
             $responseA = $this->syncPat($_REQUEST['show'], $logged_in);
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token=' . $logged_in['token'] . "&r=" . $logged_in['display']));
+        $fields['providerID'] = $_SESSION['authUserID'];
+        $fields['token'] = $logged_in['token'];
+        $fields['pc_eid'] = "1234";
+
+        $this->curl->setUrl($this->MedEx->getUrl('custom/TM_bot'));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
@@ -3264,8 +3321,7 @@ class MedEx
     public function login($force = '')
     {
         $info = array();
-        $query = "SELECT * FROM medex_prefs";
-        $info = sqlFetchArray(sqlStatement($query));
+        $info = $this->getPreferences();
 
         if (
             empty($info) ||
@@ -3302,6 +3358,17 @@ class MedEx
         }
     }
 
+    public function getPreferences()
+    {
+        $query = "SELECT * FROM medex_prefs";
+        $info = sqlFetchArray(sqlStatement($query));
+        $sql = "SELECT * from background_services where name='MedEx'";
+        $back = sqlFetchArray(sqlStatement($sql));
+        $info['execute_interval'] = $back['execute_interval'];
+        $info['active'] = $back['active'];
+        $info['running'] = $back['running'];
+        return $info;
+    }
     public function getUrl($method)
     {
         return $this->url . $method; }

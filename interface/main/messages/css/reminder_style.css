@@ -313,6 +313,12 @@ input[type="radio"] {
   padding-left: 20px;
 }
 
+.btn {
+  border: 1px solid var(--black) !important;
+  border-radius: 4px;
+  padding: 5px;
+}
+
 .btn1 {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;

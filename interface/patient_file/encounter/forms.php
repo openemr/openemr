@@ -929,7 +929,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
         }
         ?>
 <br />
-<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
+<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename($doc_iter['name']));?></a>
         <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>

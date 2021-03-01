@@ -221,9 +221,6 @@ assets:
     summernote-ext-nugget:
         basePath: '%assets_static_relative%/summernote-nugget/plugins/nugget/'
         script: summernote-ext-nugget.js
-    shortcut:
-        basePath: '%assets_static_relative%/manual-added-packages/shortcut.js-2-01-B/'
-        script: shortcut.js
     underscore:
         basePath: '%assets_static_relative%/underscore/'
         script: underscore-min.js
