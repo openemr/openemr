@@ -1,4 +1,5 @@
 <?php
+
 /**
  * gad-7 form using form api     view.php
  * open a previously completed GAD-7 form for further editing
@@ -14,8 +15,8 @@ include_once("gad7.inc");  // common strings etc
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use Mpdf\Mpdf;  /* used to generate a pdf of the form */
 /*  strings used in menus */
-$menu_strings_array = array (0=>'Not at all',1=>'Several days',2=>'More than half the days',3=>'Nearly every day');
-$menu_difficulty_array = array (0=>'Not at all',1=>'Somewhat difficult',2=>'Very difficult',3=>'Extremely difficult');
+$menu_strings_array = array (0 => 'Not at all',1 => 'Several days',2 => 'More than half the days',3 => 'Nearly every day');
+$menu_difficulty_array = array (0 => 'Not at all',1 => 'Somewhat difficult',2 => 'Very difficult',3 => 'Extremely difficult');
 formHeader("Form: Gad-7");
 $returnurl = 'encounter_top.php';   // ?? update top of encounter window when done - maybe
 ?>
@@ -33,7 +34,6 @@ $obj = formFetch("form_gad7", $_GET["id"]); ?>
 // stuff that uses embedded php must go here, not in the include javascript file - it must be executed on server side before page is sent to client. included javascript is only executed on the client
 // get scores from previous saving of the form
 var gad7_score = 0;
-//var all_scores_text = "<?php //echo $obj{"scores_array"}; ?>";
 
 function create_q8 (question, menue){
  // create the question - the second part is italicised
@@ -49,10 +49,10 @@ function create_q8 (question, menue){
 
 // populate the   the menue
          menue.options[0] = new Option ( "<?php echo xlt($str_not     ); ?>", "0");
-         menue.options[1] = new Option ( "<?php echo xlt($str_somewhat); ?>", "1" );
-         menue.options[2] = new Option ( "<?php echo xlt($str_very    ); ?>", "2"  );
-         menue.options[3] = new Option ( "<?php echo xlt($str_extremely);?>", "3" );
-         menue.options[4] = new Option ( "<?php echo xlt($str_default);  ?>", "undef"  );
+         menue.options[1] = new Option ( "<?php echo xlt($str_somewhat); ?>", "1");
+         menue.options[2] = new Option ( "<?php echo xlt($str_very    ); ?>", "2");
+         menue.options[3] = new Option ( "<?php echo xlt($str_extremely);?>", "3");
+         menue.options[4] = new Option ( "<?php echo xlt($str_default);  ?>", "undef");
 }
 // check user really wants to exit without saving new answers
 function nosave_exit() {
@@ -86,8 +86,8 @@ return ( conf );
     </select>
 <script language="JavaScript">
      // set the default to the previous value - so it is displayed in the menue box
-    document.my_form.nervous_score.options[<?php echo text ($obj{'nervous_score'}); ?>].defaultSelected=true;
-    var i = <?php echo text ($obj{'nervous_score'}); ?> ; //the value from last time
+    document.my_form.nervous_score.options[<?php echo text($obj['nervous_score']); ?>].defaultSelected=true;
+    var i = <?php echo text($obj['nervous_score']); ?> ; //the value from last time
     gad7_score += i;
     all_scores[0] = i;
 </script>
@@ -105,7 +105,7 @@ return ( conf );
  </select>
 <script language="JavaScript">
      // set the default to the previous value - so it is displayed in the menue box
-     var i = <?php echo text($obj{'control_worry_score'} ); ?>; //the value from last time
+     var i = <?php echo text($obj['control_worry_score']); ?>; //the value from last time
    document.my_form.control_worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[1] = i;
@@ -125,7 +125,7 @@ return ( conf );
     </select>
        <script language="JavaScript">
      // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj{'worry_score'}); ?> ; //the value from last time
+      var i = <?php echo text($obj['worry_score']); ?> ; //the value from last time
     document.my_form.worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[2] = i;
@@ -144,7 +144,7 @@ return ( conf );
  </select>
 <script language="JavaScript">
      // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj{'relax_score'}); ?> ; //the value from last time
+      var i = <?php echo text($obj['relax_score']); ?> ; //the value from last time
     document.my_form.relax_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[3] = i;
@@ -163,7 +163,7 @@ return ( conf );
     </select>
 <script language="JavaScript">
      // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj{'restless_score'}); ?> ; //the value from last time
+     var i = <?php echo text($obj['restless_score']); ?> ; //the value from last time
     document.my_form.restless_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[4] = i;
@@ -182,7 +182,7 @@ return ( conf );
     </select>
 <script language="JavaScript">
      // set the previous value to the default - so it is displayed in the menue box
-       var i = <?php echo text($obj{'irritable_score'}); ?> ; //the value from last time
+       var i = <?php echo text($obj['irritable_score']); ?> ; //the value from last time
     document.my_form.irritable_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[5] = i;
@@ -201,7 +201,7 @@ return ( conf );
     </select>
 <script language="JavaScript">
      // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj{'fear_score'});?> ; //the value from last time
+     var i = <?php echo text($obj['fear_score']);?> ; //the value from last time
     document.my_form.fear_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[6] = i;
@@ -230,8 +230,8 @@ return ( conf );
   <SCRIPT LANGUAGE="JavaScript">
 // only display the final question if the score is > 0
 // pass the function the answer previously entered onto the form
-manage_question_8 ("<?php echo text ($obj{"difficulty"}); ?>"); //do we need q8
-update_score ("undef",gad7_score ); //display total from last time
+manage_question_8 ("<?php echo text($obj["difficulty"]); ?>"); //do we need q8
+update_score ("undef",gad7_score); //display total from last time
  </script>
  <br>
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B"   >
