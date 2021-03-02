@@ -818,7 +818,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
     <div class="container">
-        <div class="row">
+        <div class="flex-row">
             <div class="col-12">
                 <h3>
                     <?php echo text($formtitle);
@@ -1044,7 +1044,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         }
 
                         echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
-                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive' style='display:" . attr($display_style) . ";'>\n";
+                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive clearfix' style='display:" . attr($display_style) . ";'>\n";
                     }
 
                     $group_table_active = true;

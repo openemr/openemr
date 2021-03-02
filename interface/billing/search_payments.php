@@ -526,10 +526,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             </td>
                                             <td>
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : htmlspecialchars($Payer); ?></a>-->
-                                                <a class="medium_modal" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
+                                                <a class="medium_modal" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
                                             </td>
                                             <td>
-                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
+                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                             </td>
                                             <td class="text-left">
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php
