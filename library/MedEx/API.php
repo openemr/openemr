@@ -1482,10 +1482,10 @@ class Logging extends base
                     fputs($std_log, $key . ": " . $value . "\n");
                 }
             } else {
-               fputs($std_log, "\nDATA= " . $data . "\n");
+                fputs($std_log, "\nDATA= " . $data . "\n");
             }
         } catch (\Exception $e) {
-            fwrite($std_log, $e->getMessage()."\n");
+            fwrite($std_log, $e->getMessage() . "\n");
         }
         fclose($std_log);
         return true;
@@ -1503,7 +1503,7 @@ class Display extends base
         function toggle_menu() {
                 var x = document.getElementById('hide_nav');
                 if (x.style.display === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'show',
                         success: function (data) {
                             x.style.display = 'block';
@@ -1511,7 +1511,7 @@ class Display extends base
                         });
 
                 } else {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'hide',
                         success: function (data) {
                             x.style.display = 'none';
@@ -1529,11 +1529,11 @@ class Display extends base
         }
         </script>
         <i class="fa fa-caret-<?php
-            if ($setting_bootstrap_submenu == 'hide') {
-                echo 'down';
-            } else {
-                echo 'up';
-            } ?> menu_arrow" style="position:fixed;left:5px;top:4px;z-index:1200;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+        if ($setting_bootstrap_submenu == 'hide') {
+            echo 'down';
+        } else {
+            echo 'up';
+        } ?> menu_arrow" style="position:fixed;left:5px;top:4px;z-index:1200;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
           
         <div id="hide_nav">
             <nav id="navbar_oe" class="navbar navbar-expand-sm navbar-light bgcolor2" name="kiosk_hide" data-role="page banner navigation">
@@ -2893,12 +2893,12 @@ class Display extends base
         $fields['providerID'] = $_SESSION['authUserID'];
         $fields['token'] = $logged_in['token'];
         $fields['pc_eid'] = $data['pc_eid'];
-        
+
         $this->curl->setUrl($this->MedEx->getUrl('custom/TM_bot'));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        
+
         if (isset($response['error'])) {
             $this->lastError = $response['error'];
         }
@@ -3337,17 +3337,17 @@ class MedEx
 
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        
-        if ($info['force']=='1') {
+
+        if ($info['force'] == '1') {
             return $response;
         }
-        
+
         if (!empty($response['token'])) {
             $response['practice']   = $this->practice->sync($response['token']);
             $response['generate']   = $this->events->generate($response['token'], $response['campaigns']['events']);
             $response['success']    = "200";
         }
-        
+
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
         return $response;
