@@ -27,3 +27,7 @@ ccdaservice/node_modules
 
 # testing
 .phpunit.result.cache
+
+#ruthkonyn fork
+.directory
+

@@ -13,7 +13,6 @@
 
  require_once("../../globals.php");
  require_once("$srcdir/api.inc");
- //use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 
 // menu strings
 $str_default = 'Please select an answer';
