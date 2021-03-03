@@ -29,5 +29,5 @@ ccdaservice/node_modules
 .phpunit.result.cache
 
 #ruthkonyn fork
-.directory
+*/.directory
 
