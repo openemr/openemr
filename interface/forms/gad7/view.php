@@ -13,15 +13,16 @@
 
 include_once("gad7.inc");  // common strings etc
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
+use OpenEMR\Core\Header;
 use Mpdf\Mpdf;  /* used to generate a pdf of the form */
 /*  strings used in menus */
 $menu_strings_array = array (0 => 'Not at all',1 => 'Several days',2 => 'More than half the days',3 => 'Nearly every day');
 $menu_difficulty_array = array (0 => 'Not at all',1 => 'Somewhat difficult',2 => 'Very difficult',3 => 'Extremely difficult');
-formHeader("Form: Gad-7");
-$returnurl = 'encounter_top.php';   // ?? update top of encounter window when done - maybe
 ?>
 <html><head>
- <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+ <head>
+    <title><?php echo $string_form_title; ?> </title>
+    <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 <?php // read in the values from the filled in form held in db

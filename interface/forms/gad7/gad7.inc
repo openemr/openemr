@@ -28,6 +28,7 @@ $str_nosave_exit = "Close form without saving answers";
 $str_nosave_confirm = "Are you sure you'd like to quit without saving your answers?";
 
 $str_form_name = "General Anxiety Disorder 7 (GAD-7)";
+$str_form_title = "GAD-7";
 
 $str_q8 = xlt('How difficult have these problems made it to do work, take care of things at home, or get along with other people? ');
 $str_q8_2 = xlt('(This question is optional and not included in the final score)');

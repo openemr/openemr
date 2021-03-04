@@ -12,11 +12,15 @@
 
 require_once("gad7.inc"); //common strings, other includes etc
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
-formHeader("Form: GAD-7");
-$returnurl = 'encounter_top.php';   // update top of encounter window when done
+use OpenEMR\Core\Header;
+//formHeader("Form: GAD-7");
+//$returnurl = 'encounter_top.php';   // update top of encounter window when done
 ?>
-<html><head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<html>
+<head>
+<!-- <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css"> -->
+    <title><?php echo $string_form_title; ?> </title>
+    <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 <script LANGUAGE="JavaScript">
