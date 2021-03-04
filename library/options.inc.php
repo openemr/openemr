@@ -385,9 +385,9 @@ function generate_form_field($frow, $currvalue)
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
-    // generic single-selection list or single-selection list with search or Race and Ethnicity or single-selection list with comment support.
+    // generic single-selection list or single-selection list with search or single-selection list with comment support.
     // These data types support backup lists.
-    if ($data_type == 1 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+    if ($data_type == 1 || $data_type == 43 || $data_type == 46) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $lbfchange = "processCommentField(" . attr_js($field_id) . ");" . $lbfchange;
@@ -1311,7 +1311,7 @@ function generate_form_field($frow, $currvalue)
         echo parse_static_text($frow);
     } elseif ($data_type == 34) {
         // $data_type == 33
-        // Race and Ethnicity. After added support for backup lists, this is now the same as datatype 1; so have migrated it there.
+        // Race and Ethnicity. After added support for backup lists, this is now the same as datatype 36; so have migrated it there.
         // $data_type == 33
 
         $arr = explode("|*|*|*|", $currvalue);
@@ -1332,7 +1332,7 @@ function generate_form_field($frow, $currvalue)
             $disabled,
             $lbfchange
         );
-    } elseif ($data_type == 36) { //multiple select, supports backup list
+    } elseif ($data_type == 36 || $data_type == 33) { //multiple select, supports backup list
         echo generate_select_list(
             "form_$field_id",
             $list_id,
@@ -1454,7 +1454,7 @@ function generate_print_field($frow, $currvalue)
 
     // generic single-selection list
     //  Supports backup lists.
-    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
+    if (false && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
                 $fld_length = 3;
@@ -1893,9 +1893,16 @@ function generate_print_field($frow, $currvalue)
         }
 
         echo "</table>";
-    } elseif ($data_type == 27 || $data_type == 1 || $data_type == 26 || $data_type == 33) {
+    } elseif ($data_type == 27 || $data_type == 1 || $data_type == 26 || $data_type == 46) {
         // a set of labeled radio buttons
         // In this special case, fld_length is the number of columns generated.
+
+        if ($data_type == 46) {
+            // support for single-selection list with comment support
+            $selectedValues = explode("|", $currvalue);
+            $currvalue = $selectedValues[0];
+        }
+
         $cols = max(1, ($frow['fld_length'] ?? null));
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
@@ -1918,6 +1925,13 @@ function generate_print_field($frow, $currvalue)
             }
 
             echo ">" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
+            if ($data_type == 46) {
+                // support for single-selection list with comment support
+                $resnote = $selectedValues[1] ?? null;
+                if (!empty($resnote)) {
+                    echo " (" . text($resnote) . ")";
+                }
+            }
             echo "</td>";
         }
 
@@ -2063,7 +2077,7 @@ function generate_print_field($frow, $currvalue)
             }
         }
         echo "</table>";
-    } elseif ($data_type == 36) { //Multi-select. Supports backup lists.
+    } elseif ($data_type == 36 || $data_type == 33) { //Multi-select. Supports backup lists.
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
                 $fld_length = 3;
@@ -2189,7 +2203,7 @@ function generate_display_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature
-    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+    if ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", $currvalue);
@@ -2200,8 +2214,8 @@ function generate_display_field($frow, $currvalue)
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
           $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
-        // only supported in data types 1,26,33,43,46
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
+        // only supported in data types 1,26,43,46
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $$data_type == 43 || $data_type == 46)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
@@ -2575,7 +2589,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 35) { // facility
         $urow = $facilityService->getById($currvalue);
         $s = htmlspecialchars($urow['name'], ENT_NOQUOTES);
-    } elseif ($data_type == 36) { // Multi select. Supports backup lists
+    } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
         $i = 0;
         foreach ($values_array as $value) {
@@ -2643,8 +2657,8 @@ function generate_plaintext_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature, or radio buttons
-    //  Supports backup lists (for datatypes 1,26,33,43)
-    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+    //  Supports backup lists (for datatypes 1,26,43)
+    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 43 || $data_type == 46) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", $currvalue);
@@ -2658,8 +2672,8 @@ function generate_plaintext_field($frow, $currvalue)
         );
         $s = xl_list_label($lrow['title']);
         //if there is no matching value in the corresponding lists check backup list
-        // only supported in data types 1,26,33,43
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
+        // only supported in data types 1,26,43
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list, $currvalue));
             $s = xl_list_label($lrow['title']);
@@ -2909,7 +2923,7 @@ function generate_plaintext_field($frow, $currvalue)
         $facilityService = new FacilityService();
         $facility = $facilityService->getById($currvalue);
         $s = $facility['name'];
-    } elseif ($data_type == 36) { // Multi select. Supports backup lists
+    } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
 
         $i = 0;
@@ -3704,7 +3718,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             } else {
                 $value = "$resnote|$restype|$resdate";
             }
-        } elseif ($data_type == 36 || $data_type == 44 || $data_type == 45) {
+        } elseif ($data_type == 36 || $data_type == 44 || $data_type == 45 || $data_type == 33) {
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $key => $valueofkey) {
@@ -3790,13 +3804,6 @@ function generate_layout_validation($form_id)
                 "   return false;\n" .
                 "  }\n";
                 break;
-            case 33:
-                echo
-                " if (f.$fldname.selectedIndex <= 0) {\n" .
-                "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
-                " }\n";
-                break;
             case 27: // radio buttons
                 echo
                 " var i = 0;\n" .
@@ -3822,6 +3829,7 @@ function generate_layout_validation($form_id)
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
                 " } \n";
                 break;
+            case 33:
             case 36: // multi select
                 echo
                 " var multi_select=f['$fldname" . "[]']; \n " .
