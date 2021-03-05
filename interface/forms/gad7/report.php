@@ -7,6 +7,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    ruth moulton
+ * @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -52,17 +53,17 @@ function gad7_report($pid, $encounter, $cols, $id)
         // print the total
         switch (intdiv($gad7_total, 5)) {
             case 0:
-                $exp = $str_score_analysis [0];
+                $exp = $str_score_analysis[0];
                 break;
             case 1:
             case 2:
-                $exp = $str_score_analysis [5];
+                $exp = $str_score_analysis[5];
                 break;
             default:
-                $exp = $str_score_analysis [15];
+                $exp = $str_score_analysis[15];
         }
 
-          print "<td><span class=bold>" . xlt($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . $exp . "</span></td>";
+          print "<td><span class=bold>" . xlt($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }
 
     print "</tr></table>";

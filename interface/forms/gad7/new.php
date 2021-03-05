@@ -6,19 +6,18 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    ruth moulton
+ * @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("gad7.inc"); //common strings, other includes etc
+
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
-//formHeader("Form: GAD-7");
-//$returnurl = 'encounter_top.php';   // update top of encounter window when done
 ?>
 <html>
 <head>
-<!-- <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css"> -->
     <title><?php echo $string_form_title; ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
@@ -26,7 +25,6 @@ use OpenEMR\Core\Header;
 <script LANGUAGE="JavaScript">
 var no_qs = 8; // number of questions in the form
 </script>
-<!-- include common bits of java script -->
 <SCRIPT
   src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js">
  </script>
@@ -57,7 +55,7 @@ function create_q8 ( question, menue){
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all());" >
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <br></br>
-<span   ><font size=4><?php echo xlt($str_form_name); ?></font></span>
+<span><font size=4><?php echo xlt($str_form_name); ?></font></span>
 <br></br>
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B" >
  &nbsp &nbsp
@@ -168,7 +166,7 @@ function create_q8 ( question, menue){
  </table>
  <br></br>
  <SCRIPT LANGUAGE="JavaScript">
-function  check_all (){
+function  check_all(){
    // has each question been answered and save scores
     var  flag=false;
     var list='';
@@ -203,12 +201,10 @@ return ( conf );
 </script>
 <table frame=hsides><tr><td>
  <span id="show_gad7_score"><b>Total GAD-7 score:</b> </td>
-  <!-- input type="hidden" name="total"> </input> </td> -->
  </table>
  <script LANGUAGE="JavaScript">
 update_score("undef",gad7_score);
  </script>
- <!-- input type="hidden" name="scores_array" -->
  <br></br>
  <table>
  <tr><td>

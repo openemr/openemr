@@ -2,6 +2,7 @@
 // @package   OpenEMR
 // @link      http://www.open-emr.org
 // @author    ruth moulton
+// @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
 // @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 //
 // java script routines, must be before any html lines that might trigger events.
