@@ -767,7 +767,8 @@ function writeFieldLine($linedata)
         $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-        $linedata['data_type'] == 36 || $linedata['data_type'] == 43
+        $linedata['data_type'] == 36 || $linedata['data_type'] == 43 ||
+        $linedata['data_type'] == 46
     ) {
         $type = "";
         $disp = "style='display: none'";
@@ -805,7 +806,7 @@ function writeFieldLine($linedata)
     if (
         $linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 36 ||
-        $linedata['data_type'] == 43
+        $linedata['data_type'] == 43 || $linedata['data_type'] == 46
     ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .
