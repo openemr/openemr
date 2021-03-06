@@ -499,20 +499,19 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     margin-top: -20px;
   }
 
-  .tabSpan {
-    border-left: 1px solid $gray !important;
-    border-right: 1px solid $gray !important;
-    border-top: 4px solid $gray !important;
-  }
-
   .tabNotchosen {
     border-bottom: 1px solid $gray !important;
     border-left: 0 !important;
     border-right: 0 !important;
     border-top: 0 !important;
+    background-color: #fffffff0 !important;
+    display: block;
+    box-shadow: 3px 4px 11px gray;
   }
-
-  /*openrmr5.0.2 edit_globals vertical menu*/
+  #patient_caret {
+    font-style: smaller;
+  }
+  /*openemr5.0.2 edit_globals vertical menu*/
   /*bootstrap navbar */
   .navbar-collapse.collapse.in {
     background-color: $light !important;
@@ -525,7 +524,47 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     color: $dark;
   }
 }
+.navbar-expand-xl {
+  box-shadow: 1px 2px 6px #80808073;
+}
+#mainBox > nav {
+  background-color: #C9DBF2 !important;
+  padding: 0px;
+  box-shadow: 0 0 5px #939393;
+  z-index: 10;
+}
+#mainbox > div {
+  margin: 0;
+  z-index: 1;
+  background-color: #C9DBF2 !important;
+  padding: 0px;
+}
+
+#attendantData {
+  background-color: #C9DBF2 !important;
+}
+#tabs_div {
+  z-index: auto;
+  background-color: #c9dbf2 !important;
+  box-shadow: inset 0px -2px 3px #80808850;
+}
+#tabsControl {
+  background: unset;
+}
+.tabSpan {
+  box-shadow: 0px -2px 3px #80808850;
+}
+
 
 /*search any*/
 @import "../navigation-slide/manilla";
 @import "../oe-bootstrap";
+
+.btn-primary {
+  color: #0f0f0f;
+  background-color: #c9dbf2;
+  border-color: #00000073;
+}
+.btn-group {
+  color: #000;
+}

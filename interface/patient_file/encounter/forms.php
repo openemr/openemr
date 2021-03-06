@@ -492,7 +492,7 @@ function findPosY(obj) {
 
 </head>
 <body>
-<dl>
+<nav>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
@@ -695,7 +695,7 @@ if ($StringEcho) {
     <td class="align-top"><?php echo $StringEcho; ?></td>
   </tr>
 </table>
-</dl>
+</nav>
 <!-- Form menu stop -->
 <!-- *************** -->
 

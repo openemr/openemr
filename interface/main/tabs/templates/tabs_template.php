@@ -14,7 +14,7 @@
 
 <script type="text/html" id="tabs-controls">
     <div class="tabControls" data-bind="with: tabs">
-        <div class="tabNotchosen w-1">
+        <div class="w-1">
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </div>
         <!-- ko  foreach: tabsList -->
