@@ -42,7 +42,7 @@ class UserService
     {
         $sql = "SELECT * FROM `users` `U`
             JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
-            WHERE `google_signin_email` = ? LIMIT 1";
+            WHERE `google_signin_email` = ? and active = 1 LIMIT 1";
         return sqlQuery($sql, [$email]);
     }
 

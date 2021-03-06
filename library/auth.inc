@@ -54,18 +54,10 @@ if (
         $_POST['used_google_signin'] &&
         $_POST['google_signin_token']
     ) {
-        $user = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
-        if ($user !== false) {
-            // Make sure user is in an auth group
-            $authGroup = UserService::getAuthGroupForUser($user['username']);
-            if ($authGroup !== false) {
-                $login_success = true;
-                AuthUtils::setSessionVariables($user['username'], $user['password'], $user, $authGroup);
-            }
-        }
+        $login_success = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
+
     } else {
-        $authUtils = new AuthUtils('login');
-        $login_success = $authUtils->confirmPassword($_POST['authUser'], $passTemp);
+        $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
     }
 
     if (false === $login_success) {

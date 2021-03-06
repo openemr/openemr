@@ -272,7 +272,7 @@ class AuthUtils
         $ip = collectIpAddresses();
 
         // Check to ensure username and password are not empty
-        if ((empty($username) || empty($password))) {
+        if (empty($username) || empty($password)) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -400,7 +400,7 @@ class AuthUtils
                 error_log('OpenEMR Error : OpenEMR is not working because broken function.');
                 die("OpenEMR Error : OpenEMR is not working because broken function.");
             }
-            self::setSessionVariables($username, $hash, $userInfo, $authGroup);
+            self::setUserSessionVariables($username, $hash, $userInfo, $authGroup);
             EventAuditLogger::instance()->newEvent('login', $username, $authGroup, 1, "success: " . $ip['ip_string']);
         } elseif ($this->apiAuth) {
             // Set up class variables that the api will need to collect (log for API is done outside)
@@ -972,23 +972,46 @@ class AuthUtils
     static public function verifyGoogleSignIn($token)
     {
         $return = false;
-        if (!empty($token)) {
-            $client = new Google_Client([
-                'client_id' => $GLOBALS['google_signin_client_id']]);  // Specify the CLIENT_ID of the app that accesses the backend
-            $payload = $client->verifyIdToken($token);
-            if ($payload) {
-                //See if email address exists in user table
-                $user = UserService::getUserByGoogleSigninEmail($payload['email']);
-                if ($user !== false) {
-                    $_SESSION['GoogleSignInPayload'] = $payload;
-                    $_SESSION['user_logged_in_with_google'] = true;
-                    $_SESSION['google_signin_token'] = $token;
-                    $return = $user;
-                }
+        $event = 'login';
+        $beginLog = 'Google Failure';
+        $ip = collectIpAddresses();
+        $client = new Google_Client([
+            'client_id' => $GLOBALS['google_signin_client_id']]);  // Specify the CLIENT_ID of the app that accesses the backend
+        $payload = $client->verifyIdToken($token);
+        if ($payload) {
+            //See if email address exists in user table and is active.
+            $user = UserService::getUserByGoogleSigninEmail($payload['email']);
+            if(!$user){
+                EventAuditLogger::instance()->newEvent(
+                    $event,
+                    $payload['email'],
+                    '',
+                    0,
+                    $beginLog . ": " . $ip['ip_string'] . " non active employee or Google mail " .
+                    " not in user table"
+                );
+                return false;
+
+            }
+
+            //Ensure that the user is in an auth group
+            $authGroup = UserService::getAuthGroupForUser($user['username']);
+            if(!$authGroup){
+                EventAuditLogger::instance()->newEvent(
+                    $event,
+                    $user['username'],
+                    '',
+                    0,
+                    $beginLog . ": " . $ip['ip_string'] . " user does not belong to acl group "
+                );
+
+              return false;
             }
         }
 
-        return $return;
+        EventAuditLogger::instance()->newEvent('auth', $user['username'], $authGroup, 1, "Auth success via Google LogIn: " . $ip['ip_string']);
+        AuthUtils::setUserSessionVariables($user['username'], $user['password'], $user, $authGroup);
+        return true;
     }
 
     /**
@@ -998,7 +1021,7 @@ class AuthUtils
      * @param array $userInfo
      * @param $authGroup
      */
-    public static function setSessionVariables($username, $hash, $userInfo, $authGroup)
+    public static function setUserSessionVariables($username, $hash, $userInfo, $authGroup)
     {
         // Set up session environment
         $_SESSION['authUser'] = $username; // username
