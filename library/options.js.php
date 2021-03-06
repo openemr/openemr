@@ -62,6 +62,20 @@ function updateAgeString(fieldid, asof, format, description) {
   document.getElementById('span_' + fieldid).innerHTML = age;
 }
 
+// Function to support datatype 46 - single-selection list with comment support
+function processCommentField(fieldId) {
+    if (document.getElementById("form_" + fieldId) != null) {
+        if (document.getElementById("form_" + fieldId).options[document.getElementById("form_" + fieldId).selectedIndex].value.match(/^comment_/)) {
+            if (document.getElementById("form_text_" + fieldId).style.display == "none") {
+                document.getElementById("form_text_" + fieldId).style.display = "inline-block";
+            }
+        } else {
+            document.getElementById("form_text_" + fieldId).value = "";
+            document.getElementById("form_text_" + fieldId).style.display = "none";
+        }
+    }
+}
+
 // Function to show or hide form fields (and their labels) depending on "skip conditions"
 // defined in the layout.
 //
