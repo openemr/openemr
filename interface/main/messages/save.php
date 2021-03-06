@@ -130,7 +130,7 @@ if ($_REQUEST['MedEx'] == "start") {
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
             sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
-            $info = $MedEx->login('1');
+            $info = $MedEx->login('2');
 
             if ($info['token']) {
                 $info['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" . xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
