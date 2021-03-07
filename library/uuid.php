@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-function autoPopulateAllMissingUuids() {
+function autoPopulateAllMissingUuids()
+{
     UuidRegistry::populateAllMissingUuids();
 }
