@@ -8,13 +8,10 @@
  */
 
 "use strict";
-var net = require('net');
-var to_json = require('xmljson').to_json;
-var bbg = require('oe-blue-button-generate');
-//var bbm = require('blue-button-model'); //for use set global-not needed here
-//var fs = require('fs');
-//var bb = require('blue-button');
-var fs = require('fs');
+const net = require('net');
+const to_json = require('xmljson').to_json;
+const bbg = require(__dirname + '/oe-blue-button-generate');
+const fs = require('fs');
 
 var server = net.createServer();
 var conn = ''; // make our connection scope global to script
@@ -23,74 +20,9 @@ var all = "";
 var npiProvider = "";
 var npiFacility = "";
 
-// some useful routines for populating template sections
-function validate(toValidate, ref, retObj) {
-    for (var p in ref) {
-        if (typeof ref[p].dataType === "undefined") {
-            retObj[p] = {};
-            if (!toValidate[p]) toValidate[p] = {};
-            validate(toValidate[p], ref[p], retObj[p]);
-        } else {
-            if (typeof toValidate === "undefined") toValidate = {};
-            var trimmed = trim(toValidate[p]);
-            retObj[p] = typeEnforcer(ref[p].dataType, trimmed);
-        }
-    }
-    return retObj;
-}
-
-function typeEnforcer(type, val) {
-    var validVal;
-    switch (type) {
-        case "boolean":
-            if (typeof val === "string") {
-                validVal = val.toLowerCase() === "true";
-            } else {
-                validVal = !!val;
-            }
-            break;
-        case "string":
-            if ((val === null) || (val === "undefined") || (typeof val === "undefined")) {
-                validVal = '';
-            } else if (typeof val == "object") {
-                validVal = '';
-            } else {
-                validVal = trim(String(val));
-            }
-            break;
-        case "array":
-            if (typeof val === 'undefined' || val === null) {
-                validVal = [];
-            } else if (Array.isArray(val)) {
-                validVal = [];
-                val.forEach(function (v) {
-                    validVal.push(trim(v));
-                });
-            } else {
-                validVal = [trim(val)];
-            }
-            break;
-        case "integer":
-            var asInt = parseInt(val, 10);
-            if (isNaN(asInt)) asInt = 0;
-            validVal = asInt;
-            break;
-        case "number":
-            var asNum = parseFloat(val);
-            if (isNaN(asNum)) asNum = 0;
-            validVal = asNum;
-            break;
-    }
-    return validVal;
-}
-
 function trim(s) {
     if (typeof s === 'string') return s.trim();
     return s;
-}
-
-function safeId(s) {
-    return trim(s).toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/\-+$/, '');
 }
 
 function fDate(str) {
@@ -1860,7 +1792,7 @@ function genCcda(pd) {
     let xml = bbg.generateCCD(doc);
 
     // Debug
-    /*fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
+    fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
         if (err) {
             return console.log(err);
         }
@@ -1871,7 +1803,7 @@ function genCcda(pd) {
             return console.log(err);
         }
         console.log("Xml saved!");
-    });*/
+    });
 
     return xml;
 }
