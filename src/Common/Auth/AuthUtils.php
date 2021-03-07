@@ -1029,7 +1029,7 @@ class AuthUtils
                     $beginLog . ": " . $ip['ip_string'] . " user does not belong to  group "
                 );
 
-              return false;
+                return false;
             }
 
 
@@ -1047,8 +1047,6 @@ class AuthUtils
                 EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
                 return false;
             }
-
-
         }
 
         EventAuditLogger::instance()->newEvent('auth', $user['username'], $authGroup, 1, "Auth success via Google LogIn: " . $ip['ip_string']);
@@ -1076,5 +1074,4 @@ class AuthUtils
             $_SESSION['userauthorized'] = '1';
         }
     }
-
 }

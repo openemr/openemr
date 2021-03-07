@@ -24,12 +24,13 @@ use OpenEMR\Services\UserService;
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
 if (
-    isset($_GET['auth']) && ($_GET['auth'] == "login")
+    isset($_GET['auth'])
+    && ($_GET['auth'] == "login")
     && isset($_POST['new_login_session_management'])
     && (
         // Either normal login or google sign-in
-        (isset($_POST['authUser']) && isset($_POST['clearPass'])) ||
-        ($GLOBALS['google_signin_enabled'] && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        (isset($_POST['authUser']) && isset($_POST['clearPass']))
+        || ($GLOBALS['google_signin_enabled'] && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
     )
 ) {
     // Attempt login
