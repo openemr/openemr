@@ -19,6 +19,7 @@ require_once("$srcdir/payment_jav.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\InsuranceCompanyService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -26,7 +27,7 @@ if (!empty($_POST)) {
     }
 }
 
-$search_options = array("Demographics" => xl("Demographics"),"Problems" => xl("Problems"),"Medications" => xl("Medications"),"Allergies" => xl("Allergies"),"Lab results" => xl("Lab Results"),"Communication" => xl("Communication"));
+$search_options = array("Demographics" => xl("Demographics"),"Problems" => xl("Problems"),"Medications" => xl("Medications"),"Allergies" => xl("Allergies"),"Lab results" => xl("Lab Results"),"Communication" => xl("Communication"), "Insurance Companies" => xl("Insurance Companies"));
 $comarr = array("allow_sms" => xl("Allow SMS"),"allow_voice" => xl("Allow Voice Message"),"allow_mail" => xl("Allow Mail Message"),"allow_email" => xl("Allow Email"));
 $_POST['form_details'] = true;
 
@@ -213,7 +214,7 @@ $communication = trim($_POST["communication"] ?? '');
                                 </td>
                                 <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='col-form-label'>
-                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
+                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}if(this.value == 'Insurance Companies'){ $('#insurance_companies').val('');$('#ins_co').show();}else{ $('#insurance_companies').val('');$('#ins_co').hide();}">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
                                             <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
@@ -224,6 +225,18 @@ $communication = trim($_POST["communication"] ?? '');
                                 <td >
                                     <span id="com_pref" style="display: none">
                                     <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
+                                        <option> <?php echo xlt('All'); ?></option>
+                                        <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
+                                        <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
+                                        <option value="allow_mail" <?php echo ($communication == "allow_mail") ? "selected" : ""; ?>><?php echo xlt('Allow Mail Message'); ?></option>
+                                        <option value="allow_email" <?php echo ($communication == "allow_email") ? "selected" : ""; ?>><?php echo xlt('Allow Email'); ?></option>
+                                    </select>
+                                    </span>
+                                </td>
+
+                                <td >
+                                    <span id="ins_co" style="display: none">
+                                    <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
                                         <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
                                         <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
@@ -328,6 +341,8 @@ $communication = trim($_POST["communication"] ?? '');
                 case "Communication":
                     $sqlstmt = $sqlstmt . ",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
                     break;
+                case "Insurance Company":
+
             }
 
             //from
@@ -350,6 +365,9 @@ $communication = trim($_POST["communication"] ?? '');
 							left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
 							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                     break;
+                case "Insurance Companies":
+                    $sqlstmt = $sqlstmt . "left outer join insurance_data as id on id.pid = pd.pid";
+                    break;    
             }
 
             //WHERE Conditions started
@@ -373,6 +391,10 @@ $communication = trim($_POST["communication"] ?? '');
                 case "Communication":
                     $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
                     break;
+                case "Insurance Companies":
+                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
+                    break;
+    
             }
 
             if (strlen($patient_id) != 0) {
