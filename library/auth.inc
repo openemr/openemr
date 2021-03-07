@@ -56,7 +56,6 @@ if (
         $_POST['google_signin_token']
     ) {
         $login_success = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
-
     } else {
         $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
     }
