@@ -40,8 +40,8 @@ class UserService
      */
     public static function getUserByGoogleSigninEmail($email)
     {
-        $sql = "SELECT * FROM `users` `U`
-            JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
+        $sql = "SELECT *, U.username as user_username, US.username as usersecure_username FROM `users` `U`
+            LEFT JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
             WHERE `google_signin_email` = ? and active = 1 LIMIT 1";
         return sqlQuery($sql, [$email]);
     }

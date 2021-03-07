@@ -981,6 +981,7 @@ class AuthUtils
         if ($payload) {
             //See if email address exists in user table and is active.
             $user = UserService::getUserByGoogleSigninEmail($payload['email']);
+
             if(!$user){
                 EventAuditLogger::instance()->newEvent(
                     $event,
@@ -988,6 +989,32 @@ class AuthUtils
                     '',
                     0,
                     $beginLog . ": " . $ip['ip_string'] . " non active employee or Google mail " .
+                    " not in user table"
+                );
+                return false;
+
+            }
+
+            if($user && !$user['usersecure_username']){
+                EventAuditLogger::instance()->newEvent(
+                    $event,
+                    $payload['email'],
+                    '',
+                    0,
+                    $beginLog . ": " . $ip['ip_string'] . " user login is not configured " .
+                    " not in user table"
+                );
+                return false;
+
+            }
+
+            if($user && $user['active'] === 0){
+                EventAuditLogger::instance()->newEvent(
+                    $event,
+                    $payload['email'],
+                    '',
+                    0,
+                    $beginLog . ": " . $ip['ip_string'] . " user is not active " .
                     " not in user table"
                 );
                 return false;
@@ -1002,11 +1029,29 @@ class AuthUtils
                     $user['username'],
                     '',
                     0,
-                    $beginLog . ": " . $ip['ip_string'] . " user does not belong to acl group "
+                    $beginLog . ": " . $ip['ip_string'] . " user does not belong to  group "
                 );
 
               return false;
             }
+
+
+           //Check for acl group:
+            // Check to ensure user is in a group (and collect the group name)
+            $authGroup = privQuery("select `name` from `groups` where BINARY `user` = ?", array($user['username']));
+            if (empty($authGroup) || empty($authGroup['name'])) {
+                EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
+
+                return false;
+            }
+
+            // Check to ensure user is in a acl group
+            if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
+                EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
+                return false;
+            }
+
+
         }
 
         EventAuditLogger::instance()->newEvent('auth', $user['username'], $authGroup, 1, "Auth success via Google LogIn: " . $ip['ip_string']);

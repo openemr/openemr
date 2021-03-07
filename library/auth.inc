@@ -60,7 +60,7 @@ if (
         $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
     }
 
-    if (false === $login_success) {
+    if ($login_success !== true) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
         if (function_exists('sodium_memzero')) {
