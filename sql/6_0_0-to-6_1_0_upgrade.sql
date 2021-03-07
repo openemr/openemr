@@ -543,3 +543,16 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','DISC' ,'DISC' ,60,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Other','Other',70,0);
 #EndIf
+
+#IfNotRow2D issue_types category default type medical_device
+INSERT INTO `issue_types` (`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('35','default','medical_device','Medical Devices','Device','I','0','0');
+#EndIf
+
+#IfMissingColumn lists udi
+ALTER TABLE `lists` ADD COLUMN `udi` varchar(255) default NULL;
+#EndIf
+
+#IfMissingColumn lists udi_data
+ALTER TABLE `lists` ADD COLUMN `udi_data` text;
+#EndIf
+

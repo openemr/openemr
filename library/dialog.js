@@ -511,7 +511,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     var waitHtml =
         '<div class="loadProgress text-center">' +
-        '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span>' +
+        '<span class="fa fa-circle-notch fa-spin fa-3x text-primary"></span>' +
         '</div>';
 
     var headerhtml =

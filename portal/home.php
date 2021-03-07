@@ -299,7 +299,7 @@ foreach ($msgs as $i) {
         }
 
         function startAssessment(param, assessmentOID) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
 
             $.ajax({
                 url: '../library/ajax/easipro_util.php',

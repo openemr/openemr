@@ -46,7 +46,7 @@ use OpenEMR\OeUI\OemrUI;
         });
 
         function listForms(param) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
 
             top.restoreSession();
             $.ajax({
@@ -190,7 +190,7 @@ use OpenEMR\OeUI\OemrUI;
         }
 
         function orderForm(param) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Ordering'); ?>);
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Ordering'); ?>);
 
             let selectedForm = $('#form-list').find('input:checked');
             if (selectedForm.length > 0) {
