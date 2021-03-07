@@ -12,6 +12,8 @@
  *    The construct accepts an associative array in order to allow easy addition of
  *    fields and new sql columns in the uuid_registry table.
  *
+ *    When add support for a new table uuid, need to add it to the populateAllMissingUuids function.
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Gerhard Brink <gjdbrink@gmail.com>
@@ -23,6 +25,7 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
 use Ramsey\Uuid\Generator\CombGenerator;
 use Ramsey\Uuid\UuidFactory;
@@ -144,15 +147,64 @@ class UuidRegistry
         return $uuid;
     }
 
+    // Generic function to update all missing uuids (to be primarily used in service that is run intermittently; should not use anywhere else)
+    // When add support for a new table uuid, need to add it here
+    //  Will log by default
+    public static function populateAllMissingUuids($log = true)
+    {
+        $logEntryComment = '';
+
+        // Standard updates
+        $counter = (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to patient_data, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to form_encounter, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to users, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to facility, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'immunizations']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to immunizations, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to lists, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'prescriptions']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to prescriptions, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'ccda']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to ccda, ' : '';
+
+        // Updates with custom id sql column
+        $counter = (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to drugs, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to procedure_order, ' : '';
+        $counter = (new UuidRegistry(['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id']))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to procedure_results, ' : '';
+
+        // Updates on vertical tables
+        $counter = (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids();
+        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to facility_user_ids, ' : '';
+
+        // log it
+        if ($log && !empty($logEntryComment)) {
+            $logEntryComment = rtrim($logEntryComment, ',');
+            EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+        }
+    }
+
     // Generic function to create missing uuids in a sql table (table needs an `id` column to work)
+    //  This function returns the number of missing uuids that were populated
     public function createMissingUuids()
     {
+        // set up counter
+        $counter = 0;
+
         // Empty should be NULL, but to be safe also checking for empty and null bytes
         $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         while ($row = sqlFetchArray($resultSet)) {
             if (!$this->table_vertical) {
                 // standard case, add missing uuid
                 sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
+                $counter++;
             } else {
                 // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
                 $stringQuery = "";
@@ -178,8 +230,11 @@ class UuidRegistry
                 }
                 // Now populate
                 sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
+                $counter++;
             }
         }
+
+        return $counter;
     }
 
     // Generic function to see if there are missing uuids in a sql table (table needs an `id` column to work)
