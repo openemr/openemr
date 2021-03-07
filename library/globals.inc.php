@@ -2968,7 +2968,7 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable OpenEMR FHIR System Scopes.')
         ),
-        
+
         'google_signin_enabled' => array(
             xl('Enable Google Sign-In'),
             'bool',

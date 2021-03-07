@@ -40,7 +40,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
-use \Google_Client;
+use Google_Client;
 use OpenEMR\Services\UserService;
 
 class AuthUtils
@@ -969,7 +969,7 @@ class AuthUtils
      * @param $token
      * @return array|bool
      */
-    static public function verifyGoogleSignIn($token)
+    public static function verifyGoogleSignIn($token)
     {
         $return = false;
         $event = 'login';
@@ -982,7 +982,7 @@ class AuthUtils
             //See if email address exists in user table and is active.
             $user = UserService::getUserByGoogleSigninEmail($payload['email']);
 
-            if(!$user){
+            if (!$user) {
                 EventAuditLogger::instance()->newEvent(
                     $event,
                     $payload['email'],
@@ -992,10 +992,9 @@ class AuthUtils
                     " not in user table"
                 );
                 return false;
-
             }
 
-            if($user && !$user['usersecure_username']){
+            if ($user && !$user['usersecure_username']) {
                 EventAuditLogger::instance()->newEvent(
                     $event,
                     $payload['email'],
@@ -1005,10 +1004,9 @@ class AuthUtils
                     " not in user table"
                 );
                 return false;
-
             }
 
-            if($user && $user['active'] === 0){
+            if ($user && $user['active'] === 0) {
                 EventAuditLogger::instance()->newEvent(
                     $event,
                     $payload['email'],
@@ -1018,12 +1016,11 @@ class AuthUtils
                     " not in user table"
                 );
                 return false;
-
             }
 
             //Ensure that the user is in an auth group
             $authGroup = UserService::getAuthGroupForUser($user['username']);
-            if(!$authGroup){
+            if (!$authGroup) {
                 EventAuditLogger::instance()->newEvent(
                     $event,
                     $user['username'],
