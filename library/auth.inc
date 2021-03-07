@@ -30,7 +30,7 @@ if (
     && (
         // Either normal login or google sign-in
         (isset($_POST['authUser']) && isset($_POST['clearPass']))
-        || ($GLOBALS['google_signin_enabled'] && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        || (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id']) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
     )
 ) {
     // Attempt login
@@ -51,12 +51,15 @@ if (
 
     $login_success = false;
     if (
-        $GLOBALS['google_signin_enabled'] &&
-        $_POST['used_google_signin'] &&
-        $_POST['google_signin_token']
+        !empty($GLOBALS['google_signin_enabled']) &&
+        !empty($GLOBALS['google_signin_client_id']) &&
+        !empty($_POST['used_google_signin']) &&
+        !empty($_POST['google_signin_token'])
     ) {
+        // google sign-in
         $login_success = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
     } else {
+        // normal login
         $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
     }
 

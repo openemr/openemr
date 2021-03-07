@@ -12,13 +12,17 @@
  *                     doing Esign or changing mfa setting.
  *     2. LDAP (Active Directory) is also supported. In these cases, the login counter and
  *         expired password mechanisms are ignored.
- *     3. Timing attack prevention. The time will be the same for a user that does not exist versus a user
+ *     3. Google sign in is also supported (via Google Workspace with Google Open ID) via the static function
+ *         verifyGoogleSignIn($token). In this case, the login counter and expired password mechanisms
+ *         are ignored.
+ *     4. Timing attack prevention. The time will be the same for a user that does not exist versus a user
  *         that does exist. This is done in standard authentication and ldap authentication by simulating
  *         the password verification in each via the preventTimingAttack() function.
  *        (There is one issue in this mechanism when using ldap with a user that is excluded from it. In
  *         that case unable to avoid timing differences. That feature is really only meant for configuration and
  *         debugging and recommend inactivating that excluded user when not needed, which will then mitigate
  *         this issue.)
+ *        (note this mechanism is not used in the Google sign)
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -28,19 +32,19 @@
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Auth;
 
+use Google_Client;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
-use Google_Client;
 use OpenEMR\Services\UserService;
 
 class AuthUtils
@@ -974,72 +978,73 @@ class AuthUtils
         $event = 'login';
         $beginLog = 'Google Failure';
         $ip = collectIpAddresses();
-        $client = new Google_Client([
-            'client_id' => $GLOBALS['google_signin_client_id']]);  // Specify the CLIENT_ID of the app that accesses the backend
-        $payload = $client->verifyIdToken($token);
-        if ($payload) {
-            //See if email address exists in user table and is active.
-            $user = UserService::getUserByGoogleSigninEmail($payload['email']);
 
-            if (!$user) {
-                EventAuditLogger::instance()->newEvent(
-                    $event,
-                    $payload['email'],
-                    '',
-                    0,
-                    $beginLog . ": " . $ip['ip_string'] . " non active employee or Google mail " .
-                    " not in user table"
-                );
-                return false;
-            }
-
-            if ($user && !$user['usersecure_username']) {
-                EventAuditLogger::instance()->newEvent(
-                    $event,
-                    $payload['email'],
-                    '',
-                    0,
-                    $beginLog . ": " . $ip['ip_string'] . " user login is not configured " .
-                    " not in user table"
-                );
-                return false;
-            }
-
-            if ($user && $user['active'] === 0) {
-                EventAuditLogger::instance()->newEvent(
-                    $event,
-                    $payload['email'],
-                    '',
-                    0,
-                    $beginLog . ": " . $ip['ip_string'] . " user is not active " .
-                    " not in user table"
-                );
-                return false;
-            }
-
-            // Ensure that the user is in an auth group
-            $authGroup = UserService::getAuthGroupForUser($user['username']);
-            if (!$authGroup) {
-                EventAuditLogger::instance()->newEvent(
-                    $event,
-                    $user['username'],
-                    '',
-                    0,
-                    $beginLog . ": " . $ip['ip_string'] . " user does not belong to  group "
-                );
-
-                return false;
-            }
-
-            // Check to ensure user is in a acl group
-            if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
-                EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
-                return false;
-            }
+        if (empty($token)) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin attempt failed because of empty token");
+            return false;
         }
 
-        EventAuditLogger::instance()->newEvent('auth', $user['username'], $authGroup, 1, "Auth success via Google LogIn: " . $ip['ip_string']);
-        AuthUtils::setUserSessionVariables($user['username'], $user['password'], $user, $authGroup);
+        if (empty($GLOBALS['google_signin_client_id'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin attempt failed because of empty app client id");
+            return false;
+        }
+
+        // Specify the CLIENT_ID of the app that accesses the backend
+        $client = new Google_Client(['client_id' => $GLOBALS['google_signin_client_id']]);
+        $payload = $client->verifyIdToken($token);
+
+        // ensure verify id token was successful
+        if (empty($payload)) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin verify id attempt failed");
+            return false;
+        }
+
+        // ensure verify id token returned an email
+        if (empty($payload['email'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin verify id attempt failed (empty email)");
+            return false;
+        }
+
+        // collect user info
+        $user = privQuery("select `id`, `username`, `authorized`, `see_auth`, `active` from `users` where `google_signin_email` = ?", [$payload['email']]);
+
+        // ensure user exists
+        if (empty($user['id']) || empty($user['username'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " Google mail '" . $payload['email'] . "' not in user table");
+            return false;
+        }
+
+        // ensure user is active
+        if (empty($user['active'])) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' is not active");
+            return false;
+        }
+
+        // Ensure that the user is in an auth group
+        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        if (empty($authGroup)) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' does not belong to a group ");
+            return false;
+        }
+
+        // Check to ensure user is in a acl group
+        if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user with Google mail '" . $payload['email'] . "' is not in any phpGACL groups");
+            return false;
+        }
+
+        // collect secure user info
+        $userSecure = privQuery("SELECT `password` FROM `users_secure` WHERE BINARY `username` = ?", [$user['username']]);
+
+        // ensure user is configured for login
+        if (empty($userSecure['password'])) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' is not configured for login");
+            return false;
+        }
+
+        // drumroll... the user is authenticated by google
+        EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 1, "Auth success via Google LogIn by user with Google mail '" . $payload['email'] . "' : " . $ip['ip_string']);
+        AuthUtils::setUserSessionVariables($user['username'], $userSecure['password'], $user, $authGroup);
         return true;
     }
 

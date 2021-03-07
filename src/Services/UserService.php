@@ -33,20 +33,6 @@ class UserService
     }
 
     /**
-     * Return a user given their Google email. If no user found, return false.
-     *
-     * @param $email
-     * @return array|false|null
-     */
-    public static function getUserByGoogleSigninEmail($email)
-    {
-        $sql = "SELECT *, U.username as user_username, US.username as usersecure_username FROM `users` `U`
-            LEFT JOIN `users_secure` `US` ON `U`.`username` = `US`.`username`
-            WHERE `google_signin_email` = ? and active = 1 LIMIT 1";
-        return sqlQuery($sql, [$email]);
-    }
-
-    /**
      * Given a username, heck to ensure user is in a group (and collect the group name)
      * Returns the group name if successful, or false if failure
      *

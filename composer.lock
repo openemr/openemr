@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d4ac134526a9310ae01b1a3204cd074",
+    "content-hash": "b56a18d526887f3ec1f872081c101e1e",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1998,29 +1998,25 @@
         },
         {
             "name": "laminas/laminas-i18n",
-            "version": "2.11.0",
+            "version": "2.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-i18n.git",
-                "reference": "85678f444b6dcb48e8a04591779e11c24e5bb901"
+                "reference": "48883436c6fa1f9ef001af295e3a40003c5cfbf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-i18n/zipball/85678f444b6dcb48e8a04591779e11c24e5bb901",
-                "reference": "85678f444b6dcb48e8a04591779e11c24e5bb901",
+                "url": "https://api.github.com/repos/laminas/laminas-i18n/zipball/48883436c6fa1f9ef001af295e3a40003c5cfbf2",
+                "reference": "48883436c6fa1f9ef001af295e3a40003c5cfbf2",
                 "shasum": ""
             },
             "require": {
-                "ext-intl": "*",
                 "laminas/laminas-stdlib": "^2.7 || ^3.0",
                 "laminas/laminas-zendframework-bridge": "^1.0",
-                "php": "^7.3 || ~8.0.0"
-            },
-            "conflict": {
-                "phpspec/prophecy": "<1.9.0"
+                "php": "^5.6 || ^7.0"
             },
             "replace": {
-                "zendframework/zend-i18n": "^2.10.1"
+                "zendframework/zend-i18n": "self.version"
             },
             "require-dev": {
                 "laminas/laminas-cache": "^2.6.1",
@@ -2028,12 +2024,13 @@
                 "laminas/laminas-config": "^2.6",
                 "laminas/laminas-eventmanager": "^2.6.2 || ^3.0",
                 "laminas/laminas-filter": "^2.6.1",
-                "laminas/laminas-servicemanager": "^3.2.1",
+                "laminas/laminas-servicemanager": "^2.7.5 || ^3.0.3",
                 "laminas/laminas-validator": "^2.6",
                 "laminas/laminas-view": "^2.6.3",
-                "phpunit/phpunit": "^9.3"
+                "phpunit/phpunit": "^5.7.27 || ^6.5.14 || ^7.5.16"
             },
             "suggest": {
+                "ext-intl": "Required for most features of Laminas\\I18n; included in default builds of PHP",
                 "laminas/laminas-cache": "Laminas\\Cache component",
                 "laminas/laminas-config": "Laminas\\Config component",
                 "laminas/laminas-eventmanager": "You should install this package to use the events in the translator",
@@ -2045,6 +2042,10 @@
             },
             "type": "library",
             "extra": {
+                "branch-alias": {
+                    "dev-master": "2.9.x-dev",
+                    "dev-develop": "2.10.x-dev"
+                },
                 "laminas": {
                     "component": "Laminas\\I18n",
                     "config-provider": "Laminas\\I18n\\ConfigProvider"
@@ -2073,13 +2074,7 @@
                 "rss": "https://github.com/laminas/laminas-i18n/releases.atom",
                 "source": "https://github.com/laminas/laminas-i18n"
             },
-            "funding": [
-                {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
-                }
-            ],
-            "time": "2020-10-24T13:14:32+00:00"
+            "time": "2019-12-31T17:09:58+00:00"
         },
         {
             "name": "laminas/laminas-inputfilter",

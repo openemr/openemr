@@ -112,7 +112,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
     <?php
-    if ($GLOBALS['google_signin_enabled'] && $GLOBALS['google_signin_client_id']) { ?>
+    if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
         <meta name="google-signin-client_id" content="<?php echo $GLOBALS['google_signin_client_id']; ?>">
     <?php } ?>
     <script>
@@ -302,7 +302,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 <button id="login-button" type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
             </div>
             <div class="form-group">
-                  <?php if ($GLOBALS['google_signin_enabled'] && $GLOBALS['google_signin_client_id']) { ?>
+                  <?php if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
                 <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
                 <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
                 <div id="google-signin" onclick="return do_google_signin();">
@@ -370,14 +370,14 @@ if ($GLOBALS['login_page_layout'] == 'left') {
   </form>
 </body>
 </html>
-<?php if ($GLOBALS['google_signin_enabled'] && $GLOBALS['google_signin_client_id']) { ?>
+<?php if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
 <script type="text/javascript">
 
     // This variable controls whether we should login to OpenEMR
     // so we only login if "Sign in with Google button" was clicked
     let google_signin = false;
 
-    // Hide the google signout link uneless we are signed-in
+    // Hide the google signout link unless we are signed-in
     // This isn't really ever displayed, because once we sign-in with google,
     // we automatically log into the app
     $('#google-signout').hide();
