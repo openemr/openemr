@@ -29,6 +29,8 @@ if (!empty($_POST)) {
 
 $search_options = array("Demographics" => xl("Demographics"),"Problems" => xl("Problems"),"Medications" => xl("Medications"),"Allergies" => xl("Allergies"),"Lab results" => xl("Lab Results"),"Communication" => xl("Communication"), "Insurance Companies" => xl("Insurance Companies"));
 $comarr = array("allow_sms" => xl("Allow SMS"),"allow_voice" => xl("Allow Voice Message"),"allow_mail" => xl("Allow Mail Message"),"allow_email" => xl("Allow Email"));
+// get array of all insurance companies from function in patient.inc
+$ins_cos = getInsuranceProviders();
 $_POST['form_details'] = true;
 
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
@@ -46,6 +48,7 @@ $form_lab_results = trim($_POST["form_lab_results"] ?? '');
 $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
+$insurance_company = trim($_POST["insurance_company"] ?? '');
 ?>
 <html>
     <head>
@@ -194,6 +197,14 @@ $communication = trim($_POST["communication"] ?? '');
                     echo "(" . xlt('All') . ")";
                 }
             }  ?></span>
+            <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
+            if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies") && ($_POST['insurance_company'] != "")) {
+                if (isset($ins_cos[$_POST['insurance_company']])) {
+                    echo "(" . text($ins_cos[$_POST['insurance_company']]) . ")";
+                } else {
+                    echo "(" . xlt('All') . ")";
+                }
+            }  ?></span>
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
@@ -238,10 +249,10 @@ $communication = trim($_POST["communication"] ?? '');
                                     <span id="ins_co" style="display: none">
                                     <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
-                                        <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
-                                        <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
-                                        <option value="allow_mail" <?php echo ($communication == "allow_mail") ? "selected" : ""; ?>><?php echo xlt('Allow Mail Message'); ?></option>
-                                        <option value="allow_email" <?php echo ($communication == "allow_email") ? "selected" : ""; ?>><?php echo xlt('Allow Email'); ?></option>
+                                        <?php foreach ($ins_cos as $ins_co) { ?>
+                                            <option value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
+                                        <?php } ?>
+                                    </select>
                                     </select>
                                     </span>
                                 </td>
@@ -316,7 +327,7 @@ $communication = trim($_POST["communication"] ?? '');
 						pd.pid AS patient_id,
 						DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
 						pd.sex AS patient_sex,
-						pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
+						pd.race AS patient_race,pd.ethnicity AS patient_ethnic,
 						concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
@@ -366,7 +377,7 @@ $communication = trim($_POST["communication"] ?? '');
 							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                     break;
                 case "Insurance Companies":
-                    $sqlstmt = $sqlstmt . "left outer join insurance_data as id on id.pid = pd.pid";
+                    $sqlstmt = $sqlstmt . " left outer join insurance_data as id on id.pid = pd.pid";
                     break;    
             }
 
@@ -457,7 +468,7 @@ $communication = trim($_POST["communication"] ?? '');
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
                 case "Demographics":
-                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
+                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
                     break;
             }
 
@@ -538,7 +549,7 @@ $communication = trim($_POST["communication"] ?? '');
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['patient_race'] = $row['patient_race'];
-                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                     } elseif ($srch_option == "Lab results") {
                         $patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
@@ -562,7 +573,7 @@ $communication = trim($_POST["communication"] ?? '');
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['patient_race'] = $row['patient_race'];
-                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                     }
                     $patFinalDataArr[] = $patInfoArr;
