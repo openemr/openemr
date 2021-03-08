@@ -137,9 +137,9 @@ if ($GLOBALS['medex_enable'] == '1') {
     $logged_in = $results;
     $logged_in = $results;
     if (!empty($logged_in['token'])) {
-        $current_events = $icons['SMS']['READ']['html'] . " " . xlt("On-line");
+        $current_events = xlt("On-line");
     } else {
-        $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
+        $current_events = xlt("Currently off-line");
     }
 }
 
@@ -177,8 +177,9 @@ if (!$_REQUEST['flb_table']) {
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
+                        <div class="row">
                           <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                            <div class="text-center row align-items-center">
+                            <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
                                 <select id="form_apptcat" name="form_apptcat" class="form-control form-control-sm" onchange="refineMe('apptcat');">
@@ -262,7 +263,7 @@ if (!$_REQUEST['flb_table']) {
                                   </select>
                               </div>
                             </div>
-                            <div class="row mt-3">
+                            <div class="col-4 mt-3 nowrap row">
                               <?php
                                 if ($GLOBALS['ptkr_date_range'] == '1') {
                                     $type = 'date';
@@ -271,48 +272,41 @@ if (!$_REQUEST['flb_table']) {
                                     $type = 'hidden';
                                     $style = 'display:none;';
                                 } ?>
-                              <label class="col-form-label col-sm" for="flow_from"><?php echo xlt('From'); ?>:</label>
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                              <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
+                              <div class="col-sm-9" style="<?php echo $style; ?>">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
                               </div>
-                              <label class="col-form-label col-sm" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                              <label class="col-form-label col-sm-3 text-right" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
+                              <div class="col-sm-9" style="<?php echo $style; ?>">
                                   <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
                               </div>
 
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                              <div class="col-sm-12 mt-3 mx-auto" style="<?php echo $style; ?>">
                                   <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
                                   <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                               </div>
-
-                              <?php if ($GLOBALS['medex_enable'] == '1') { ?>
-                              <div class="col-sm text-center">
-                                  <div class="text-center">
-                                      <span class="font-weight-bold" style="text-decoration:underline; font-size:1.2em;">MedEx <?php echo xlt('Reminders'); ?></span><br/>
-                                      <div class="text-left blockquote" style="width: 65%; margin: 5px auto;">
-                                          <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
-                                              target="_medex">
-                                              <?php echo $current_events; ?>
-                                          </a>
-                                      </div>
-                                  </div>
-                              </div>
-                              <?php } ?>
                             </div>
-                            <div class="row">
-                              <div class="col-sm text-center">
+                            <div class="col-4 mt-3 row">
+                                <div class="col-sm-12 text-center">
                                     <!-- Patient Name Section -->
-                                    <div class="col-sm-12 mt-2">
                                       <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();" />
+                                </div>
+                                <div class="col-sm-12 text-center">
+                                        <!-- Patient ID Section -->
+                                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
+                                </div>
+                                <div class="col-sm-12 mx-auto">
+                                    <div class="text-center pt-3 mx-auto">
+                                   
+                                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                                          <b>MedEx:</b>
+                                                <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
+                                                   target="_medex">
+                                                    <?php echo $current_events; ?>
+                                                </a>
+                                          <?php } ?>
                                     </div>
                                 </div>
-                                <div class="col-sm text-center">
-                                        <!-- Patient ID Section -->
-                                        <div class="col-12 mt-2">
-                                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
-                                        </div>
-                                </div>
-
                             </div>
                             <div id="message" class="warning"></div>
                         </form>
@@ -329,7 +323,7 @@ if (!$_REQUEST['flb_table']) {
                     </div>
                     <h2><?php echo xlt('Loading data'); ?>...</h2>
                 </div>
-                <div id="flb_table" name="flb_table" class="mx-auto">
+                <div id="flb_table" name="flb_table" class="w-100">
             <?php
 } else {
     //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
