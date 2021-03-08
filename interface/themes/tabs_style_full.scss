@@ -148,16 +148,12 @@ body {
 }
 
 .tabNotchosen {
-  background-color: transparent !important;
   border-bottom: 1px solid var(--primary);
   border-left: 0;
   border-right: 0;
   border-top: 4px solid transparent !important;
   display: block;
-
-  &:hover {
-    background: var(--light);
-  }
+  opacity:80%;
 }
 
 .tabsNoHover {
