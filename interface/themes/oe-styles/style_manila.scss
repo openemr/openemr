@@ -433,11 +433,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     text-decoration: none;
   }
 
-  #refreshme,
-  #setting_cog {
-    @include font-size("0.7rem");
-  }
-
   .calendar {
     z-index: 2;
   }
@@ -561,7 +556,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../oe-bootstrap";
 
 .btn-primary {
-  color: #0f0f0f;
+  color: #000;
   background-color: #c9dbf2;
   border-color: #00000073;
 }

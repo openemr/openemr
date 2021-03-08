@@ -29,10 +29,12 @@ h1 {
 .nav-tabs > li {
   border: 0.5px solid var(--gray400);
   margin-bottom: 0;
-}
-
-.nav-tabs > li .active {
-  border-bottom: 0;
+  position:relative;
+  float: left;
+  margin-bottom: -1px;
+  display: block;
+  min-width:80px;
+  height:40px;
 }
 
 .nav-tabs > li > a {
@@ -193,7 +195,7 @@ h1 {
   border: 0.5px solid var(--gray);
   border-radius: 3px;
   display: table-cell;
-  min-height: 29px;
+  min-height: 37px;
   padding: 5px 10px;
   vertical-align: middle;
 }
@@ -542,4 +544,26 @@ td.right {
 
 .ui-autocomplete {
   position: relative;
+}
+
+#medex-recall-nav{
+  position: relative;
+  top: 7px;
+}
+
+.tab-content {
+  position: relative;
+  z-index: 2;
+}
+
+#patient_caret {
+   position:fixed;
+   left:5px;
+   top:10px;
+   z-index:1200;
+ }
+
+#hide_nav {
+  position:absolute;
+  top:0px;
 }
