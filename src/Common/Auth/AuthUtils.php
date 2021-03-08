@@ -971,7 +971,6 @@ class AuthUtils
      */
     public static function verifyGoogleSignIn($token)
     {
-        $return = false;
         $event = 'login';
         $beginLog = 'Google Failure';
         $ip = collectIpAddresses();
@@ -1018,7 +1017,7 @@ class AuthUtils
                 return false;
             }
 
-            //Ensure that the user is in an auth group
+            // Ensure that the user is in an auth group
             $authGroup = UserService::getAuthGroupForUser($user['username']);
             if (!$authGroup) {
                 EventAuditLogger::instance()->newEvent(
@@ -1032,19 +1031,9 @@ class AuthUtils
                 return false;
             }
 
-
-           //Check for acl group:
-            // Check to ensure user is in a group (and collect the group name)
-            $authGroup = privQuery("select `name` from `groups` where BINARY `user` = ?", array($user['username']));
-            if (empty($authGroup) || empty($authGroup['name'])) {
-                EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
-
-                return false;
-            }
-
             // Check to ensure user is in a acl group
             if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
-                EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
+                EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
                 return false;
             }
         }
