@@ -300,7 +300,7 @@ class AuthUtils
 
         // Check to ensure user is in a group (and collect the group name)
         $authGroup = UserService::getAuthGroupForUser($username);
-        if ($authGroup === false) {
+        if (empty($authGroup)) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -967,11 +967,11 @@ class AuthUtils
     }
 
     /**
-     * Validates a google ID token and returns a user on success. If validation
+     * Validates a google ID token and returns true on success. If validation
      * fails, return false.
      *
      * @param $token
-     * @return array|bool
+     * @return bool
      */
     public static function verifyGoogleSignIn($token)
     {
