@@ -169,39 +169,33 @@ class UuidRegistry
         //  procedure_order (with custom id procedure_order_id)
         //  procedure_result (with custom id procedure_result_id)
         //  users
-        $counter = (new UuidRegistry(['table_name' => 'ccda']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to ccda, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to drugs, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to facility, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to facility_user_ids, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to form_encounter, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'immunizations']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to immunizations, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'insurance_companies']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to insurance_companies, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'insurance_data']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to insurance_data, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to lists, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to patient_data, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'prescriptions']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to prescriptions, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to procedure_order, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to procedure_results, ' : '';
-        $counter = (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
-        $logEntryComment .= ($counter > 0) ? 'added ' . $counter . ' uuids to users, ' : '';
+        self::appendPopulateLog('ccda', (new UuidRegistry(['table_name' => 'ccda']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('drugs', (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('facility', (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('facility_user_ids', (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('form_encounter', (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('immunizations', (new UuidRegistry(['table_name' => 'immunizations']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('insurance_companies', (new UuidRegistry(['table_name' => 'insurance_companies']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('insurance_data', (new UuidRegistry(['table_name' => 'insurance_data']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('lists', (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('patient_data', (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('prescriptions', (new UuidRegistry(['table_name' => 'prescriptions']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('procedure_order', (new UuidRegistry(['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('procedure_result', (new UuidRegistry(['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('users', (new UuidRegistry(['table_name' => 'users']))->createMissingUuids(), $logEntryComment);
 
         // log it
         if ($log && !empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ',');
+            $logEntryComment = rtrim($logEntryComment, ', ');
             EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+        }
+    }
+
+    // Helper function for above populateAllMissingUuids function
+    private static function appendPopulateLog($table, $count, &$logEntry)
+    {
+        if ($count > 0) {
+            $logEntry .= 'added ' . $count . ' uuids to ' . $table . ', ';
         }
     }
 
