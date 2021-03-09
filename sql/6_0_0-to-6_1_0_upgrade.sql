@@ -149,11 +149,11 @@
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate insurance_companies
-#EndIf
-
 #IfNotIndex insurance_companies uuid
 CREATE UNIQUE INDEX `uuid` ON `insurance_companies` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate insurance_companies
 #EndIf
 
 #IfMissingColumn insurance_data uuid
