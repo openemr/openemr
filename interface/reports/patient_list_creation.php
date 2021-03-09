@@ -27,10 +27,28 @@ if (!empty($_POST)) {
     }
 }
 
-$search_options = array("Demographics" => xl("Demographics"),"Problems" => xl("Problems"),"Medications" => xl("Medications"),"Allergies" => xl("Allergies"),"Lab results" => xl("Lab Results"),"Communication" => xl("Communication"), "Insurance Companies" => xl("Insurance Companies"));
-$comarr = array("allow_sms" => xl("Allow SMS"),"allow_voice" => xl("Allow Voice Message"),"allow_mail" => xl("Allow Mail Message"),"allow_email" => xl("Allow Email"));
+$search_options = array
+(
+    "Demographics"        => xl("Demographics"),
+    "Problems"            => xl("Problems"),
+    "Medications"         => xl("Medications"),
+    "Allergies"           => xl("Allergies"),
+    "Lab results"         => xl("Lab Results"),
+    "Communication"       => xl("Communication"),
+    "Insurance Companies" => xl("Insurance Companies")
+);
+
+$comarr = array
+(
+    "allow_sms"   => xl("Allow SMS"),
+    "allow_voice" => xl("Allow Voice Message"),
+    "allow_mail"  => xl("Allow Mail Message"),
+    "allow_email" => xl("Allow Email")
+);
+
 // get array of all insurance companies from function in patient.inc
 $ins_cos = getInsuranceProviders();
+
 $_POST['form_details'] = true;
 
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
@@ -120,12 +138,10 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 
                 $('#date_error').css("display", "none");
 
-                if(diff < 0) //negative
+                if (diff < 0) //negative
                 {
                     $('#date_error').css("display", "inline");
-                }
-                else
-                {
+                } else {
                     $("#form_refresh").attr("value","true");
                     top.restoreSession();
                     $("#theform").submit();
@@ -155,8 +171,13 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                         }
                     }
                 });
+
                 <?php if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Communication")) { ?>
                     $('#com_pref').show();
+                <?php } ?>
+
+                <?php if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies")) { ?>
+                    $('#ins_co').show();
                 <?php } ?>
 
                 $('.datetimepicker').datetimepicker({
