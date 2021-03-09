@@ -309,11 +309,11 @@ if (!$_REQUEST['flb_table']) {
                                 </div>
                             </div>
                             <div id="message" class="warning"></div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-
+        </div>
     <div class="row-fluid">
         <div class="col-md-12">
             <div class="text-center row mx-auto divTable">
