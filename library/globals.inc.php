@@ -2040,6 +2040,20 @@ $GLOBALS_METADATA = array(
             xl('Key for multiple database credentials encryption')
         ),
 
+        'google_signin_enabled' => array(
+            xl('Enable Google Sign-In'),
+            'bool',
+            '0',
+            xl('Enable Authentication Using Google Sign-in')
+        ),
+
+        'google_signin_client_id' => array(
+            xl('Google Sign-In Client ID'),
+            'text',
+            '',
+            xl('This Client ID Is Provided By Google For Your App (Required For Google Sign-in)')
+        ),
+
         'gbl_ldap_enabled' => array(
             xl('Use LDAP for Authentication'),
             'bool',
