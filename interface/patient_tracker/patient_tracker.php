@@ -263,7 +263,6 @@ if (!$_REQUEST['flb_table']) {
                                   </select>
                               </div>
                             </div>
-                            <div class="col-4 mt-3 nowrap row">
                               <?php
                                 if ($GLOBALS['ptkr_date_range'] == '1') {
                                     $type = 'date';
