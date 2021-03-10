@@ -285,9 +285,9 @@ if (!$_REQUEST['flb_table']) {
 
                               <div class="col-sm-12 mt-3 mx-auto">
                                   <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
+                                  <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                               </div>
                             </div>
-                            <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                             <div class="col-4 mt-3 row">
                                 <div class="col-sm-12 text-center">
                                     <!-- Patient Name Section -->
