@@ -272,20 +272,22 @@ if (!$_REQUEST['flb_table']) {
                                     $type = 'hidden';
                                     $style = 'display:none;';
                                 } ?>
+                            <div class="col-4 mt-3 nowrap row" style="<?php echo $style; ?>">
+                              
                               <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
-                              <div class="col-sm-9" style="<?php echo $style; ?>">
+                              <div class="col-sm-9">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
                               </div>
                               <label class="col-form-label col-sm-3 text-right" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
-                              <div class="col-sm-9" style="<?php echo $style; ?>">
+                              <div class="col-sm-9">
                                   <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
                               </div>
 
-                              <div class="col-sm-12 mt-3 mx-auto" style="<?php echo $style; ?>">
+                              <div class="col-sm-12 mt-3 mx-auto">
                                   <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
-                                  <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                               </div>
                             </div>
+                            <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                             <div class="col-4 mt-3 row">
                                 <div class="col-sm-12 text-center">
                                     <!-- Patient Name Section -->
