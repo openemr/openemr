@@ -199,7 +199,8 @@ class UuidRegistry
         }
     }
 
-    // Generic function to create missing uuids in a sql table (table needs an `id` column to work)
+    // Generic function to create missing uuids in a sql table
+    //  This function works in "blocks" of 1000 to avoid mysql/mariadb death when updating a super large (>500K) amount of uuids in one table
     //  This function returns the number of missing uuids that were populated
     public function createMissingUuids()
     {
