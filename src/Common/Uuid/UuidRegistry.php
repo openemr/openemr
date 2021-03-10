@@ -210,7 +210,13 @@ class UuidRegistry
         $done = false;
         while (!$done) {
             // just maximum of 1000 at a time to attempt to speed things up and not break when inserting a large number of uuids
-            $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+            if (!$this->table_vertical) {
+                // in this standard case, can decrease memory use by just collecting the id
+                $resultSet = sqlStatementNoLog("SELECT `" . $this->table_id . "` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+            } else {
+                // in this more complicated case (ie. vertical table), need to collect all columns
+                $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+            }
             if (sqlNumRows($resultSet) < 1000) {
                 $done = true;
             }
