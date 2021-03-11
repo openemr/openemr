@@ -104,7 +104,7 @@ if (
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
-    echo "<br />";
+    echo "<br /><br /><br />";
 }
 
 if (!empty($_REQUEST['go'])) { ?>
@@ -896,7 +896,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                             })
                         };
-                        return x;
                     },
                     cache: true
                 }

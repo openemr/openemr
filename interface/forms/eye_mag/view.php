@@ -187,7 +187,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
-      ?>
+      
       <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-1-10-2/jquery.min.js"></script>
       <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 

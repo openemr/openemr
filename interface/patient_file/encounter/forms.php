@@ -492,7 +492,7 @@ function findPosY(obj) {
 
 </head>
 <body>
-<dl>
+<nav>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
@@ -695,7 +695,7 @@ if ($StringEcho) {
     <td class="align-top"><?php echo $StringEcho; ?></td>
   </tr>
 </table>
-</dl>
+</nav>
 <!-- Form menu stop -->
 <!-- *************** -->
 
@@ -1082,7 +1082,7 @@ if (
             }
         }
 
-        echo "<a class='btn btn-primary btn-sm collapse-button-form text-white' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+        echo "<a class='btn btn-primary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";
