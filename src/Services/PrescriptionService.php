@@ -37,7 +37,7 @@ class PrescriptionService extends BaseService
         (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::DRUG_TABLE, 'table_id' => 'drug_id']))->createMissingUuids();
     }
 
     /**
