@@ -1881,7 +1881,7 @@ class Display extends base
         $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 
         $recalls = $this->get_recalls($from_date, $to_date);
-        
+
         $processed = $this->recall_board_process($logged_in, $recalls, $events);
         ob_start();
 
@@ -2596,36 +2596,36 @@ class Display extends base
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                     <?php
-                                $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
+                                    $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                $defaultProvider = $_SESSION['authUserID'];
+                                    $defaultProvider = $_SESSION['authUserID'];
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                if (count($_SESSION['pc_username']) >= 1) {
-                                    // get the numeric ID of the first provider in the array
-                                    $pc_username = $_SESSION['pc_username'];
-                                    $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
-                                    $defaultProvider = $firstProvider['id'];
-                                }
+                                    if (count($_SESSION['pc_username']) >= 1) {
+                                        // get the numeric ID of the first provider in the array
+                                        $pc_username = $_SESSION['pc_username'];
+                                        $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
+                                        $defaultProvider = $firstProvider['id'];
+                                    }
                                 // if we clicked on a provider's schedule to add the event, use THAT.
-                                if ($userid) {
-                                    $defaultProvider = $userid;
-                                }
-        
-                                echo "<select class='form-control' name='new_provider' id='new_provider' style='width: 95%;'>";
-                                while ($urow = sqlFetchArray($ures)) {
-                                    echo "    <option value='" . attr($urow['id']) . "'";
-                                    if ($urow['id'] == $defaultProvider) {
-                                        echo " selected";
+                                    if ($userid) {
+                                        $defaultProvider = $userid;
                                     }
-                                    echo ">" . text($urow['lname']);
-                                    if ($urow['fname']) {
-                                        echo ", " . text($urow['fname']);
+
+                                    echo "<select class='form-control' name='new_provider' id='new_provider' style='width: 95%;'>";
+                                    while ($urow = sqlFetchArray($ures)) {
+                                        echo "    <option value='" . attr($urow['id']) . "'";
+                                        if ($urow['id'] == $defaultProvider) {
+                                            echo " selected";
+                                        }
+                                        echo ">" . text($urow['lname']);
+                                        if ($urow['fname']) {
+                                            echo ", " . text($urow['fname']);
+                                        }
+                                        echo "</option>\n";
                                     }
-                                    echo "</option>\n";
-                                }
-                                echo "</select>";
-                                ?>
+                                    echo "</select>";
+                                    ?>
                             </div>
                     </div>
                     <div class="row divTableBody prefs">

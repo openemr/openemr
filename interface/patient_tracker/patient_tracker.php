@@ -621,7 +621,7 @@ if (!$_REQUEST['flb_table']) {
                             data-pname="' . attr($ptname) . '"
                             class="text-small"
                             style="background-color:' . attr($bgcolor) . ';" >';
-                        
+
                         if ($GLOBALS['ptkr_show_pid']) {
                             ?>
                             <td class="detail text-center" name="kiosk_hide">
@@ -747,10 +747,10 @@ if (!$_REQUEST['flb_table']) {
                         </td>
                         <td class="detail text-center">
                             <?php
-                             if (strtotime($newend) != '') {
-                                echo text(oeFormatTime(substr($newend,11))) ;
-                             }
-                             ?>
+                            if (strtotime($newend) != '') {
+                                echo text(oeFormatTime(substr($newend, 11))) ;
+                            }
+                            ?>
                         </td>
                         <?php
                         if ($GLOBALS['ptkr_show_staff'] == '1') {
