@@ -495,14 +495,15 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   }
 
   .tabNotchosen {
+    background-color: #fffffff0 !important;
     border-bottom: 1px solid $gray !important;
     border-left: 0 !important;
     border-right: 0 !important;
     border-top: 0 !important;
-    background-color: #fffffff0 !important;
+    box-shadow: 3px 4px 11px $gray;
     display: block;
-    box-shadow: 3px 4px 11px gray;
   }
+
   #patient_caret {
     font-style: smaller;
   }
@@ -519,35 +520,41 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     color: $dark;
   }
 }
+
 .navbar-expand-xl {
   box-shadow: 1px 2px 6px #80808073;
 }
+
 #mainBox > nav {
-  background-color: #C9DBF2 !important;
-  padding: 0px;
+  background-color: #c9dbf2 !important;
   box-shadow: 0 0 5px #939393;
+  padding: 0;
   z-index: 10;
 }
+
 #mainbox > div {
+  background-color: #c9dbf2 !important;
   margin: 0;
+  padding: 0;
   z-index: 1;
-  background-color: #C9DBF2 !important;
-  padding: 0px;
 }
 
 #attendantData {
-  background-color: #C9DBF2 !important;
-}
-#tabs_div {
-  z-index: auto;
   background-color: #c9dbf2 !important;
-  box-shadow: inset 0px -2px 3px #80808850;
 }
+
+#tabs_div {
+  background-color: #c9dbf2 !important;
+  box-shadow: inset 0 -2px 3px #80808850;
+  z-index: auto;
+}
+
 #tabsControl {
   background: unset;
 }
+
 .tabSpan {
-  box-shadow: 0px -2px 3px #80808850;
+  box-shadow: 0 -2px 3px #80808850;
 }
 
 
@@ -556,10 +563,11 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../oe-bootstrap";
 
 .btn-primary {
-  color: #000;
   background-color: #c9dbf2;
   border-color: #00000073;
+  color: #000;
 }
+
 .btn-group {
   color: #000;
 }

@@ -28,13 +28,13 @@ h1 {
 
 .nav-tabs > li {
   border: 0.5px solid var(--gray400);
-  margin-bottom: 0;
-  position:relative;
-  float: left;
-  margin-bottom: -1px;
   display: block;
-  min-width:80px;
-  height:40px;
+  float: left;
+  height: 40px;
+  margin-bottom: 0;
+  margin-bottom: -1px;
+  min-width: 80px;
+  position: relative;
 }
 
 .nav-tabs > li > a {
@@ -546,7 +546,7 @@ td.right {
   position: relative;
 }
 
-#medex-recall-nav{
+#medex-recall-nav {
   position: relative;
   top: 7px;
 }
@@ -557,13 +557,13 @@ td.right {
 }
 
 #patient_caret {
-   position:fixed;
-   left:5px;
-   top:10px;
-   z-index:1200;
- }
+  left: 5px;
+  position: fixed;
+  top: 10px;
+  z-index: 1200;
+}
 
 #hide_nav {
-  position:absolute;
-  top:0px;
+  position: absolute;
+  top: 0;
 }
