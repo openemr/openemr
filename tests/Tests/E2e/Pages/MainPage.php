@@ -13,7 +13,7 @@ class MainPage
     private const ADMINISTRATION_MENU = '//div[@id="mainMenu"]//div[text()="Administration"]';
     private const USERS_SUBMENU = '//div[@id="mainMenu"]//div[text()="Users"]';
 
-    private const ACTIVE_TAB = "//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabNotchosen '))]";
+    private const ACTIVE_TAB = "//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]";
 
     private $crawler;
     private $client;
