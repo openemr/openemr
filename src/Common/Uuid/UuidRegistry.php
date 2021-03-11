@@ -199,7 +199,8 @@ class UuidRegistry
         }
     }
 
-    // Generic function to create missing uuids in a sql table (table needs an `id` column to work)
+    // Generic function to create missing uuids in a sql table
+    //  This function works in "blocks" of 1000 to avoid mysql/mariadb death when updating a super large (>500K) amount of uuids in one table
     //  This function returns the number of missing uuids that were populated
     public function createMissingUuids()
     {
@@ -207,38 +208,51 @@ class UuidRegistry
         $counter = 0;
 
         // Empty should be NULL, but to be safe also checking for empty and null bytes
-        $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
-        while ($row = sqlFetchArray($resultSet)) {
+        $done = false;
+        while (!$done) {
+            // just maximum of 1000 at a time to attempt to speed things up and not break when inserting a large number of uuids
             if (!$this->table_vertical) {
-                // standard case, add missing uuid
-                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
-                $counter++;
+                // in this standard case, can decrease memory use by just collecting the id
+                $resultSet = sqlStatementNoLog("SELECT `" . $this->table_id . "` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
             } else {
-                // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
-                $stringQuery = "";
-                $arrayQuery = [];
-                $prependAnd = false;
-                foreach ($this->table_vertical as $column) {
-                    if ($prependAnd) {
-                        $stringQuery .= " AND `" . $column . "` = ? ";
-                    } else {
-                        $stringQuery .= " `" . $column . "` = ? ";
-                    }
-                    $arrayQuery[] = $row[$column];
-                    $prependAnd = true;
-                }
-                // First, see if it has already been set
-                $setUuid = sqlQueryNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery, $arrayQuery)['uuid'];
-                if (!empty($setUuid)) {
-                    // Already set
-                    array_unshift($arrayQuery, $setUuid);
+                // in this more complicated case (ie. vertical table), need to collect all columns
+                $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+            }
+            if (sqlNumRows($resultSet) < 1000) {
+                $done = true;
+            }
+            while ($row = sqlFetchArray($resultSet)) {
+                if (!$this->table_vertical) {
+                    // standard case, add missing uuid
+                    sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
+                    $counter++;
                 } else {
-                    // Not already set, so create
-                    array_unshift($arrayQuery, $this->createUuid());
+                    // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
+                    $stringQuery = "";
+                    $arrayQuery = [];
+                    $prependAnd = false;
+                    foreach ($this->table_vertical as $column) {
+                        if ($prependAnd) {
+                            $stringQuery .= " AND `" . $column . "` = ? ";
+                        } else {
+                            $stringQuery .= " `" . $column . "` = ? ";
+                        }
+                        $arrayQuery[] = $row[$column];
+                        $prependAnd = true;
+                    }
+                    // First, see if it has already been set
+                    $setUuid = sqlQueryNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery, $arrayQuery)['uuid'];
+                    if (!empty($setUuid)) {
+                        // Already set
+                        array_unshift($arrayQuery, $setUuid);
+                    } else {
+                        // Not already set, so create
+                        array_unshift($arrayQuery, $this->createUuid());
+                    }
+                    // Now populate
+                    sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
+                    $counter++;
                 }
-                // Now populate
-                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
-                $counter++;
             }
         }
 
