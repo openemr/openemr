@@ -109,7 +109,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             ?>
                             <div>
                                 <fieldset>
-                                    <legend><?php echo xlt('Provide Password for') . " " . $user_full_name; ?></legend>
+                                    <legend><?php echo xlt('Provide Password for') . " " . text($user_full_name); ?></legend>
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <?php if ($error == "auth") { ?>
@@ -170,7 +170,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
                             ?>
                             <fieldset>
-                                <legend><?php echo xlt('Register TOTP Key for') . " " . $user_full_name; ?></legend>
+                                <legend><?php echo xlt('Register TOTP Key for') . " " . text($user_full_name); ?></legend>
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <?php if (!$doesExist) { ?>

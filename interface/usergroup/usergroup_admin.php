@@ -277,12 +277,10 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlStatement("select distinct username from users where username != ''");
+        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
         $doit = true;
-        while ($row = sqlFetchArray($res)) {
-            if ($doit == true && $row['username'] == trim($_POST['rumple'])) {
-                $doit = false;
-            }
+        if (!empty($res['username'])) {
+            $doit = false;
         }
 
         if ($doit == true) {
