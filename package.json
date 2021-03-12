@@ -88,7 +88,7 @@
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.19.2",
     "@eastdesire/jscolor": "2.4.5",
-    "jspdf": "2.1.1",
+    "jspdf": "2.3.1",
     "jszip": "3.5.0",
     "knockout": "3.5.1",
     "konva": "7.1.0",
