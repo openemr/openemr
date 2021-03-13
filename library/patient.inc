@@ -141,7 +141,7 @@ function getInsuranceProvidersExtra()
             case $GLOBALS['insurance_information'] = '6':
                 $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
                     ", " . $row['state'] . ", " . $row['zip'] . ", " . $row['cms_id'] . ")";
-                break;                
+                break;
             case $GLOBALS['insurance_information'] = '7':
                 preg_match("/\d+/", $row['line1'], $matches);
                 $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
