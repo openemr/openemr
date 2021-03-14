@@ -1352,7 +1352,7 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Save codes history')
-        ),        
+        ),
 
         'enable_percent_pricing' => array(
             xl('Enable percent-based price levels'),
