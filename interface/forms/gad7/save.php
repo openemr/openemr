@@ -5,8 +5,8 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author   ruth moulton
- * @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
+ * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
+ * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */

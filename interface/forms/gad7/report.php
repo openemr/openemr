@@ -6,8 +6,8 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    ruth moulton
- * @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
+ * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
+ * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -20,14 +20,15 @@ function gad7_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $gad7_total = 0;
+    $value = 0;
 
-    $str_values = [0 => 'Not at all (0)',1 => 'Several days (1)',2 => 'More than half of days (2)',3 => 'Nearly every day (3)'];
+    $str_values = [0 => xl('Not at all') . ' (0)',1 => xl('Several days') . ' (1)',2 => xl('More than half of days') . ' (2)',3 => xl('Nearly every day') . ' (3)'];
 
-    $str_difficulty_values = [0 => 'Not at all (0)',1 => "Somewhat difficult (1)", 2 => "Very difficult (2)", 3 => "Extremely difficult (3)", 'undef' => 'not answered'];
+    $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
 
-    $str_issues = ["nervous_score" => "Feeling nervous","control_worry_score" => "Not controlling worry","worry_score" => "Worrying","relax_score" => "Trouble relaxing","restless_score" => "Being restless","irritable_score" => "Being irritable","fear_score" => "Feeling afraid", "difficulty" => "Difficulty working etc.","total" => "Total GAD-7 score"];
+    $str_issues = ["nervous_score" => xl('Feeling nervous'),"control_worry_score" => xl('Not controlling worry'),"worry_score" => xl('Worrying'),"relax_score" => xl('Trouble relaxing'),"restless_score" => xl('Being restless'),"irritable_score" => xl('Being irritable'),"fear_score" => xl('Feeling afraid'), "difficulty" => xl('Difficulty working etc.'),"total" => xl('Total GAD-7 score')];
 
-    $str_score_analysis = [0 => "No anxiety disorder", 5 => "Mild anxiety disorder", 15 => "Severe anxiety disorder"];
+    $str_score_analysis = [0 => xl('No anxiety disorder'), 5 => xl('Mild anxiety disorder'), 15 => xl('Severe anxiety disorder')];
 
     $data = formFetch("form_gad7", $id);
 
@@ -39,10 +40,12 @@ function gad7_report($pid, $encounter, $cols, $id)
                 continue;
             }
             if ($key == "difficulty") {
-                print "<td><span class=bold>" . xlt($str_issues[$key]) . ": </span><span class=text>" . text($str_difficulty_values [$value]) . "</span></td>";
+                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_difficulty_values [$value]) . "</span></td>";
             } else {
-                print "<td><span class=bold>" . xlt($str_issues[$key]) . ": </span><span class=text>" . text($str_values [$value]) . "</span></td>";
-                $gad7_total += $value;
+                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_values [$value]) . "</span></td>";
+                if (is_numeric($value)){
+                    $gad7_total += $value;
+                    }
             }
             $count++;
             if ($count == $cols) {
@@ -63,7 +66,7 @@ function gad7_report($pid, $encounter, $cols, $id)
                 $exp = $str_score_analysis[15];
         }
 
-          print "<td><span class=bold>" . xlt($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
+          print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }
 
     print "</tr></table>";

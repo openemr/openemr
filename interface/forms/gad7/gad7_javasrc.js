@@ -2,8 +2,8 @@
 // @package   OpenEMR
 // @link      http://www.open-emr.org
 // @author    ruth moulton
-// @copyright Copyright (c) 2021 ruth moulton ruth@muswell.me.uk
-// @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+// @author    Ruth Moulton <moulton ruth@muswell.me.uk>
+// @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
 //
 // java script routines, must be before any html lines that might trigger events.
 // Keep the score  and manage question 8 - which is only visible when score > 0
@@ -21,8 +21,7 @@ var place = null; // where stuff should go on the form
 var the_total_text = null; //where the total itself is displayed
 var total_digits = null;  //element to hold the displayed digits
 var view_start = true; // edit is starting up, we need to read in the previous scores from DB
-var str_score_analysis = [" No anxiety disorder", " Mild anxiety disorder", " Severe anxiety disorder"];
-
+var str_score_analysis = [" " + xl("No anxiety disorder"), " " + xl("Mild anxiety disorder"), " " + xl("Severe anxiety disorder")];
 /**
  * manage question 8 - it is only be displayed when the score is not zero. It's answer is not
  * included in the score.
@@ -121,10 +120,4 @@ function update_score(index, new_score){  //index is the number of the question,
 function record_score_q8 (score) {
     all_scores[7] = Number(score); // record the scores for a review/edit of the form
 }
-function  save_scores (){
-   //   save scores when submitting the form after updating it
-  // for (i=0;  i<no_qs; i++){
-  //     document.my_form.scores_array.value += String(all_scores[i]);
-  //   }
-    return true;
-}
+
