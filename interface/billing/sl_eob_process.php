@@ -625,7 +625,7 @@ function era_callback(&$out)
                         'This claim is now re-queued for secondary paper billing'
                     );
                 }
-            }            
+            }
         }
     }
 }
