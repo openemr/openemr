@@ -106,8 +106,8 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, addresses.line1, addresses.line2, addresses.city,
-            addresses.state, addresses.zip
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+            addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
             AND insurance_companies.inactive != 1
@@ -138,6 +138,10 @@ function getInsuranceProvidersExtra()
                     ", " . $row['state'] . ", " . $row['zip'] . ")";
                 break;
             case $GLOBALS['insurance_information'] = '6':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
+                    ", " . $row['state'] . ", " . $row['zip'] . ", " . $row['cms_id'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '7':
                 preg_match("/\d+/", $row['line1'], $matches);
                 $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
                     "," . $matches[0] . ")";

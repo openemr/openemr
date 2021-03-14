@@ -1858,9 +1858,10 @@ $GLOBALS_METADATA = array(
                 '3' => xl('Address and State'),
                 '4' => xl('Address, State and Postal Code'),
                 '5' => xl('Address, City, State and Postal Code'),
-                '6' => xl('Postal Code and Box Number')
+                '6' => xl('Address, City, State, Postal Code, Payer ID'),
+                '7' => xl('Postal Code and Box Number')
             ),
-            '5',                              // default
+            '6',                              // default
             xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
         ),
 
