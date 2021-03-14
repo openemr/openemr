@@ -38,14 +38,14 @@ var gad7_score = 0;
 
 function create_q8(question, menue){
  // create the question - the second part is italicised
-       var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8 ); ?>));
+       var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8); ?>));
        question.appendChild(text);
        var new_line = document.createElement("br"); // second part is in italics
        var ital = document.createElement("i"); // second part is in italics
-       var question_2 = document.createTextNode(jsAttr(<?php echo js_escape($str_q8_2 ); ?>));
-       ital.appendChild(question_2);
+       var question_2 = document.createTextNode(jsAttr(<?php echo js_escape($str_q8_2); ?>));
+       ital.appendChild(question_2) ;
        question.name = "eighth";
-          question.appendChild(new_line);
+       question.appendChild(new_line);
        question.appendChild(ital);
 
 // populate the   the menue
