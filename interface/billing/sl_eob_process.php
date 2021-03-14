@@ -625,33 +625,7 @@ function era_callback(&$out)
                         'This claim is now re-queued for secondary paper billing'
                     );
                 }
-            }
-
-            if ($out['corrected'] == '1') {
-                if ($GLOBALS['update_mbi']) {
-                    if ($primary && (substr($inslabel, 3) == 1)) {
-                        $updated_ins = (new InsuranceService())->getOneByPid($pid, "primary");
-                        $updated_ins['provider'] = $insurance_id;
-                        $updated_ins['policy_number'] = $out['corrected_mbi'];
-                        (new InsuranceService())->update($pid, "primary", $updated_ins);
-                    } else { // tbd secondary medicare
-                        // (new InsuranceService())->update($pid, "secondary", array($insurance_id, '', $out['corrected_mbi']));
-                        // will need to add method to insurance service to return policy type
-                    }
-
-                    writeMessageLine(
-                        $bgcolor,
-                        'infdetail',
-                        "The policy number has been updated to " . $out['corrected_mbi']
-                    );
-                } else {
-                    writeMessageLine(
-                        $bgcolor,
-                        'infdetail',
-                        "The policy number could be updated to " . $out['corrected_mbi'] . " if you enable it in globals"
-                    );
-                }
-            }
+            }            
         }
     }
 }
