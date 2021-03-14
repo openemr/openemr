@@ -43,9 +43,9 @@ function gad7_report($pid, $encounter, $cols, $id)
                 print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_difficulty_values [$value]) . "</span></td>";
             } else {
                 print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_values [$value]) . "</span></td>";
-                if (is_numeric($value)){
+                if (is_numeric($value)) {
                     $gad7_total += $value;
-                    }
+                }
             }
             $count++;
             if ($count == $cols) {

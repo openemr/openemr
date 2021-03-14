@@ -39,7 +39,7 @@ var gad7_score = 0; // total score
 // javascript is only executed on the client
 function create_q8(question, menue){
  // create the 8th question - the second part is italicised. Only displayed if score > 0
-    var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8 ); ?>));
+    var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8); ?>));
     question.appendChild(text);
     var new_line = document.createElement("br"); // second part is in italics
     var ital = document.createElement("i"); // second part is in italics
@@ -65,7 +65,7 @@ function create_q8(question, menue){
  &nbsp &nbsp
  <input type="button" value="<?php echo text($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
 <br></br>
-<span class="text"> <h2><?php echo xlt('How often have you * been bothered by the following over the past 2 weeks?'); ?></h2> </span>
+<span class="text"> <h2><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></h2> </span>
 <table><tr>
 <td>
 <span class="text" ><?php echo xlt('Feeling nervous, anxious, or on edge'); ?></span>
