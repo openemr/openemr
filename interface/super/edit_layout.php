@@ -1529,7 +1529,7 @@ if (!empty($res)) {
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
 <div class="form-group">
     <label for="renamegroupname"><?php echo xlt('Group Name'); ?>:</label>
-    <input type="text" class="form-control" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
+    <input type="text" class="form-control" size="20" maxlength="130" name="renamegroupname" id="renamegroupname" />
 </div>
 <div class="form-group">
     <label for="renamegroupparent"><?php echo xlt('Parent'); ?>:</label>
@@ -1545,7 +1545,7 @@ if (!empty($res)) {
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
 <span class='font-weight-bold'>
 <?php echo xlt('Group Name'); ?>:
-<input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
+<input type="text" size="20" maxlength="130" name="newgroupname" id="newgroupname" />
 &nbsp;&nbsp;
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('newgroupparent', $layout_id); ?>
@@ -1583,9 +1583,9 @@ foreach ($sources as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewid" class="form-control" id="gnewid" value="" size="10" maxlength="31"
+<td><input type="text" name="gnewid" class="form-control" id="gnewid" value="" size="10" maxlength="131"
      onclick='FieldIDClicked(this)' /> </td>
-<td><input type="text" name="gnewtitle" class="form-control" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
+<td><input type="text" name="gnewtitle" class="form-control" id="gnewtitle" value="" size="20" maxlength="163" /> </td>
 <td>
 <select class='form-control' name="gnewuor" id="gnewuor">
 <option value="0"><?php echo xlt('Unused'); ?></option>
@@ -1607,7 +1607,7 @@ foreach ($datatypes as $key => $value) {
 <td><input class="form-control" type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" /></td>
 <td><input class="form-control" type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
 <td><input class="form-control" type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
-<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="form-control listid" />
+<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="300" class="form-control listid" />
     <select class='form-control' name='gcontextName' id='gcontextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1617,7 +1617,7 @@ foreach ($datatypes as $key => $value) {
         ?>
     </select>
 </td>
-<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="form-control listid" /></td>
+<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="300" class="form-control listid" /></td>
 <td><input class="form-control" type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3" /> </td>
 <td><input class="form-control" type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3" /> </td>
 <td><select name="gnewedit_options[]" id="gnewedit_options" class="form-control typeAddons" multiple value="" size="3"></select>
@@ -1669,8 +1669,8 @@ foreach ($sources as $key => $value) {
 ?>
     </select>
    </td>
-   <td ><input type="text" class="form-control" name="newid" id="newid" value="" size="10" maxlength="31" onclick='FieldIDClicked(this)' /> </td>
-   <td><input type="text" class="form-control" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
+   <td ><input type="text" class="form-control" name="newid" id="newid" value="" size="10" maxlength="131" onclick='FieldIDClicked(this)' /> </td>
+   <td><input type="text" class="form-control" name="newtitle" id="newtitle" value="" size="20" maxlength="163" /> </td>
    <td>
     <select class='form-control' name="newuor" id="newuor">
      <option value="0"><?php echo xlt('Unused'); ?></option>

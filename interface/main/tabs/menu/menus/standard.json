@@ -963,7 +963,7 @@
           {
             "label": "Layouts",
             "menu_id": "adm0",
-            "target": "adm",
+            "target": "adm2sh",
             "url": "/interface/super/edit_layout.php",
             "children": [],
             "requirement": 0,
@@ -974,8 +974,8 @@
           },
           {
             "label": "Lists",
-            "menu_id": "adm0",
-            "target": "adm",
+            "menu_id": "ad10",
+            "target": "adm1",
             "url": "/interface/super/edit_list.php",
             "children": [],
             "requirement": 0,
