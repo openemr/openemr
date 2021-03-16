@@ -6,11 +6,13 @@
  * one of them to be selected.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -85,14 +87,19 @@ if (
     $where = addwhere($where, 'p.number', $phone_parts[1]);
 }
 
- $query = "SELECT " .
-  "i.id, i.name, i.attn, " .
-  "a.line1, a.line2, a.city, a.state, a.zip, " .
-  "p.area_code, p.prefix, p.number " .
-  "FROM insurance_companies AS i, addresses AS a, phone_numbers AS p " .
-  "WHERE a.foreign_id = i.id AND p.foreign_id = i.id$where " .
-  "ORDER BY i.name, a.zip";
- $res = sqlStatement($query);
+$query = "SELECT " .
+    "i.id, i.name, i.attn, " .
+    "a.line1, a.line2, a.city, a.state, a.zip, " .
+    "p.area_code, p.prefix, p.number " .
+    "FROM insurance_companies AS i, addresses AS a, phone_numbers AS p " .
+    "WHERE a.foreign_id = i.id ";
+
+if (!empty($phone_parts)) {
+    $query .= "AND p.foreign_id = i.id ";
+}
+
+$query .= $where . " ORDER BY i.name, a.zip";
+$res = sqlStatement($query);
 ?>
 <html>
 <head>
