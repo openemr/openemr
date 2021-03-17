@@ -883,7 +883,7 @@ class AuthUtils
      *  argon hashing and wish to allow larger passwords).
      *
      * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password too long?
+     * @return boolean      is the password short enough?
      */
     private function testMaximumPasswordLength(&$pwd)
     {
