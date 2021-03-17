@@ -249,7 +249,12 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
         if (isset($_POST["google_signin_email"])) {
-            sqlStatement("update users set google_signin_email = ? where id = ? ", array($_POST["google_signin_email"], $_POST["id"]));
+            if (empty($_POST["google_signin_email"])) {
+                $googleSigninEmail = null;
+            } else {
+                $googleSigninEmail = $_POST["google_signin_email"];
+            }
+            sqlStatement("update users set google_signin_email = ? where id = ? ", array($googleSigninEmail, $_POST["id"]));
         }
 
         // Set the access control group of user
