@@ -1943,6 +1943,16 @@ $GLOBALS_METADATA = array(
             xl('Minimum length of password.')
         ),
 
+        'gbl_maximum_password_length' => array(
+            xl('Maximum Password Length'),
+            array(
+                '0' => xl('No Maximum'),
+                '72' => '72',
+            ),
+            '72',                             // default
+            xl('Maximum length of password (Recommend using the default value of 72 unless you know what you are doing).')
+        ),
+
         'password_history' => array(
             xl('Require Unique Passwords'),
             array(

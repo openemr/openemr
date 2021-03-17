@@ -538,7 +538,13 @@ class AuthUtils
         }
 
         // Ensure password is long enough, if this option is on (note LDAP skips this)
-        if ((!$ldapDummyPassword) && (!$this->testPasswordLength($newPwd))) {
+        if ((!$ldapDummyPassword) && (!$this->testMinimumPasswordLength($newPwd))) {
+            $this->clearFromMemory($newPwd);
+            return false;
+        }
+
+        // Ensure password is not too long (note LDAP skips this)
+        if ((!$ldapDummyPassword) && (!$this->testMaximumPasswordLength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
@@ -847,16 +853,43 @@ class AuthUtils
     }
 
     /**
-     * Does the new password meet the length requirements?
+     * Does the new password meet the minimum length requirements?
      *
      * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password long enough?
      */
-    private function testPasswordLength(&$pwd)
+    private function testMinimumPasswordLength(&$pwd)
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
             if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
                 $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Does the new password meet the maximum length requirement?
+     *
+     * The maximum characters used in BCRYPT hash algorithm is 72 (the additional characters
+     *  are simply truncated, so does not break things, but it does give the erroneous
+     *  impression that they are used to create the hash; for example, if I created a
+     *  password with 100 characters, then only the first 72 characters would be needed
+     *  when authenticate), which is why the 'Maximum Password Length' global setting is
+     *  set to this number in default installations. Recommend only changing the
+     *  'Maximum Password Length' global setting if know what you are doing (for example, if using
+     *  argon hashing and wish to allow larger passwords).
+     *
+     * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
+     * @return boolean      is the password too long?
+     */
+    private function testMaximumPasswordLength(&$pwd)
+    {
+        if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
+            if (strlen($pwd) > $GLOBALS['gbl_maximum_password_length']) {
+                $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . $GLOBALS['gbl_maximum_password_length'];
                 return false;
             }
         }
