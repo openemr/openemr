@@ -21,9 +21,9 @@ module.exports = OIDs = {
             "VACSAF": "Vaccine safety concerns"
         }
     },
-    "2.16.840.1.113883.6.103": {
-        name: "ICD-9-CM",
-        uri: "http://www.cms.gov/medicare-coverage-database/staticpages/icd-9-code-lookup.aspx"
+    "2.16.840.1.113883.6.90": {
+        name: "ICD-10-CM",
+        uri: "http://www.cms.gov/medicare-coverage-database/staticpages/icd-10-code-lookup.aspx"
     },
     "2.16.840.1.113883.6.233": {
         name: "US Department of Veterans Affairs",

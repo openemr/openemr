@@ -220,7 +220,7 @@ exports.instructions = {
             dataKey: "code",
             required: true
         },
-        fieldLevel.text(leafLevel.nextReference("instruction")),
+        //fieldLevel.text(leafLevel.nextReference("instruction")),
         fieldLevel.statusCodeCompleted
     ]
 };

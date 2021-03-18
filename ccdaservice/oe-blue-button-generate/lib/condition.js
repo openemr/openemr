@@ -1,6 +1,7 @@
 "use strict";
 
 exports.keyExists = function (key) {
+    let bu = key;
     return function (input) {
         return input.hasOwnProperty(key);
     };

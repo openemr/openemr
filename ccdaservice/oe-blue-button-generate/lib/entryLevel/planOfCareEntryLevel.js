@@ -156,7 +156,6 @@ var goal = {
 };
 
 var intervention = {
-
     key: "code",
     attributes: {
         "code": leafLevel.deepInputProperty("code"),

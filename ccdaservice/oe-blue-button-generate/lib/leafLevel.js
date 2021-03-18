@@ -63,6 +63,16 @@ exports.typeCE = {
     "xsi:type": "CE"
 };
 
+// Tables render first, so each table ID will sequence index referenceKey
+// of the same referenceKey for template reference. e.g ID="result1" ... ID="severity1"
+exports.nextTableReference = function (referenceKey) {
+    return function (input, context) {
+        return context.nextTableReference(referenceKey);
+    };
+};
+
+// For our template references to table content ID.
+// e.g <text><reference value="#result1"/></text>
 exports.nextReference = function (referenceKey) {
     return function (input, context) {
         return context.nextReference(referenceKey);
@@ -75,12 +85,19 @@ exports.sameReference = function (referenceKey) {
     };
 };
 
-exports.deepInputProperty = function (deepProperty, defaultValue) {
+exports.deepInputProperty = function (deepProperty, defaultValue, plus = "") {
     return function (input) {
-        var value = bbuo.deepValue(input, deepProperty);
+        let value = bbuo.deepValue(input, deepProperty);
         value = bbuo.exists(value) ? value : defaultValue;
         if (typeof value !== 'string') {
             value = value.toString();
+        }
+        if (plus) {
+            let valuePlus = bbuo.deepValue(input, plus);
+            if (typeof valuePlus !== 'string') {
+                valuePlus = valuePlus.toString();
+            }
+            value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value;
         }
         return value;
     };

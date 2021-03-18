@@ -1,6 +1,6 @@
 "use strict";
 
-var libxmljs = require("libxmljs");
+var libxmljs = require("libxmljs2");
 
 exports.newDocument = function () {
     return new libxmljs.Document();

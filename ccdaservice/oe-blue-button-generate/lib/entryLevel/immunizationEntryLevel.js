@@ -112,7 +112,7 @@ exports.immunizationActivity = {
         fieldLevel.uniqueId,
         fieldLevel.id,
         fieldLevel.text(leafLevel.nextReference("immunization")),
-        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTimeIVL_TS, required], {
             key: "repeatNumber",
             attributes: {
                 value: leafLevel.inputProperty("sequence_number")

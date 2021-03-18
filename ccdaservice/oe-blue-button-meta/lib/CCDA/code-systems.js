@@ -18,7 +18,7 @@ var codeSystems = {
     "MediSpan DDID": ["2.16.840.1.113883.6.253"],
     "ActPriority": ["2.16.840.1.113883.5.7"],
     "InsuranceType Code": ["2.16.840.1.113883.6.255.1336"],
-    "ICD-9-CM": ["2.16.840.1.113883.6.103"]
+    "ICD-10-CM": ["2.16.840.1.113883.6.90"]
 };
 
 var sections_entries_codes = {

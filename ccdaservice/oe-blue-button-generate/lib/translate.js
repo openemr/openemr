@@ -53,6 +53,9 @@ var precisionToFormat = {
 
 exports.time = function (input) {
     var m = moment.parseZone(input.date);
+    /*if (m._isValid !== true) {
+        return "";
+    }*/
     var formatSpec = precisionToFormat[input.precision];
     var result = m.format(formatSpec);
     return result;

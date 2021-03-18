@@ -25,7 +25,7 @@ var medicationInformation = {
                 attributes: leafLevel.code,
                 content: [{
                     key: "originalText",
-                    text: leafLevel.inputProperty("unencoded_name"),
+                    //text: leafLevel.inputProperty("unencoded_name"),
                     content: [{
                         key: "reference",
                         attributes: {
@@ -67,7 +67,7 @@ var medicationSupplyOrder = {
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.17"),
         fieldLevel.id,
         fieldLevel.statusCodeCompleted,
-        fieldLevel.effectiveTime, {
+        fieldLevel.effectiveTimeIVL_TS, {
             key: "repeatNumber",
             attributes: {
                 value: leafLevel.input
@@ -112,7 +112,7 @@ var medicationDispense = {
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.18"),
         fieldLevel.id,
         fieldLevel.statusCodeCompleted,
-        fieldLevel.effectiveTime, {
+        fieldLevel.effectiveTimeIVL_TS, {
             key: "product",
             content: medicationInformation,
             dataKey: "product"
@@ -153,7 +153,7 @@ exports.medicationActivity = {
             text: leafLevel.input,
             dataKey: "sig"
         },
-        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTimeIVL_TS, required], {
             key: "effectiveTime",
             attributes: {
                 "xsi:type": "PIVL_TS",

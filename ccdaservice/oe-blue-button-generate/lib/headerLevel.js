@@ -49,13 +49,13 @@ var patient = exports.patient = {
             attributes: leafLevel.codeFromName("2.16.840.1.113883.5.1076"),
             dataKey: "religion"
         }, {
-            key: "ethnicGroupCode",
-            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
-            dataKey: "ethnicity"
-        }, {
             key: "raceCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "race"
+        }, {
+            key: "ethnicGroupCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "ethnicity"
         }, {
             key: "guardian",
             content: [{
@@ -134,7 +134,17 @@ var provider = exports.provider = {
         typeCode: "PRF"
     },
     content: [
-        [fieldLevel.effectiveTime, key("time"), dataKey("date_time")], {
+        {
+            key: "functionCode",
+            attributes: {
+                "code": "PP",
+                "displayName": "Primary Performer",
+                "codeSystem": "2.16.840.1.113883.12.443",
+                "codeSystemName": "Provider Role"
+            },
+            content: [{ key: "originalText",text: "Primary Care Provider"}]
+        },
+        {
             key: "assignedEntity",
             content: [{
                 key: "id",
@@ -147,9 +157,30 @@ var provider = exports.provider = {
                 key: "code",
                 attributes: leafLevel.code,
                 dataKey: "type"
-            },
-
-                {
+            }, {
+                key: "addr",
+                attributes: {
+                    use: leafLevel.use("use")
+                },
+                content: [{
+                    key: "country",
+                    text: leafLevel.inputProperty("country")
+                }, {
+                    key: "state",
+                    text: leafLevel.inputProperty("state")
+                }, {
+                    key: "city",
+                    text: leafLevel.inputProperty("city")
+                }, {
+                    key: "postalCode",
+                    text: leafLevel.inputProperty("zip")
+                }, {
+                    key: "streetAddressLine",
+                    text: leafLevel.input,
+                    dataKey: "street_lines"
+                }],
+                dataKey: "address"
+            }, {
                     key: "telecom",
                     attributes: [{
                         use: "WP",
@@ -200,6 +231,29 @@ var attributed_provider = exports.attributed_provider = {
             }
         }],
         dataKey: "phone"
+    }, {
+        key: "addr",
+        attributes: {
+            use: leafLevel.use("use")
+        },
+        content: [{
+            key: "country",
+            text: leafLevel.inputProperty("country")
+        }, {
+            key: "state",
+            text: leafLevel.inputProperty("state")
+        }, {
+            key: "city",
+            text: leafLevel.inputProperty("city")
+        }, {
+            key: "postalCode",
+            text: leafLevel.inputProperty("zip")
+        }, {
+            key: "streetAddressLine",
+            text: leafLevel.input,
+            dataKey: "street_lines"
+        }],
+        dataKey: "address"
     }],
     dataKey: "attributed_provider"
 };
@@ -233,8 +287,38 @@ var headerAuthor = exports.headerAuthor = {
                     extension: leafLevel.inputProperty("extension")
                 },
                 dataKey: 'author.identifiers',
-            },
-                {
+            }, {
+                    key: "addr",
+                    attributes: {
+                        use: leafLevel.use("use")
+                    },
+                    content: [{
+                        key: "country",
+                        text: leafLevel.inputProperty("country")
+                    }, {
+                        key: "state",
+                        text: leafLevel.inputProperty("state")
+                    }, {
+                        key: "city",
+                        text: leafLevel.inputProperty("city")
+                    }, {
+                        key: "postalCode",
+                        text: leafLevel.inputProperty("zip")
+                    }, {
+                        key: "streetAddressLine",
+                        text: leafLevel.input,
+                        dataKey: "street_lines"
+                    }],
+                    dataKey: "author.address"
+                },{
+                    key: "telecom",
+                    attributes: {
+                        value: leafLevel.inputProperty("number"),
+                        use: leafLevel.inputProperty("type")
+                    },
+                    dataKey: "author.phone",
+                    //dataTransform: translate.telecom
+                }, {
                     key: "assignedPerson",
                     content: {
                         key: "name",
@@ -255,9 +339,8 @@ var headerAuthor = exports.headerAuthor = {
                             }],
                         dataKey: "author.name",
                         dataTransform: translate.name
-                    }
-                },
-                {
+                    } // content
+                }, {
                     key: "representedOrganization",
                     content: [
                         {
@@ -270,7 +353,7 @@ var headerAuthor = exports.headerAuthor = {
                             key: "name",
                             text: leafLevel.input,
                             dataKey: "name"
-                        },{
+                        }, {
                             key: "telecom",
                             attributes: {
                                 value: leafLevel.inputProperty("value"),
@@ -306,7 +389,7 @@ var headerAuthor = exports.headerAuthor = {
                     ],
                     dataKey: "author.organization"
                 }
-            ]
+            ] // content
         }
     ],
     dataKey: "meta.ccda_header.author"
@@ -411,6 +494,7 @@ var providers = exports.providers = {
             classCode: "PCPR"
         },
         content: [
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("providers.date_time"), required],
             provider
         ]
     },

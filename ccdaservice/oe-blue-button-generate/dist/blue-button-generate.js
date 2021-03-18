@@ -1066,7 +1066,7 @@ exports.medicationActivity = {
             text: leafLevel.input,
             dataKey: "sig"
         },
-        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTimeIVL_TS, required], {
             key: "effectiveTime",
             attributes: {
                 "xsi:type": "PIVL_TS",
@@ -2642,6 +2642,36 @@ var effectiveTime = exports.effectiveTime = {
     existsWhen: condition.eitherKeyExists('point', 'low', 'high', 'center')
 };
 
+var effectiveTimeIVL_TS = exports.effectiveTimeIVL_TS = {
+    key: "effectiveTime",
+    attributes: {
+        "xsi:type": "IVL_TS",
+        "value": leafLevel.time,
+    },
+    attributeKey: 'point',
+    content: [{
+        key: "low",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'low',
+    }, {
+        key: "high",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'high',
+    }, {
+        key: "center",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'center',
+    }],
+    dataKey: 'date_time',
+    existsWhen: condition.eitherKeyExists('point', 'low', 'high', 'center')
+};
+
 exports.text = function (referenceMethod) {
     return {
         key: "text",
@@ -2846,13 +2876,13 @@ var patient = exports.patient = {
             attributes: leafLevel.codeFromName("2.16.840.1.113883.5.1076"),
             dataKey: "religion"
         }, {
-            key: "ethnicGroupCode",
-            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
-            dataKey: "ethnicity"
-        }, {
             key: "raceCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "race"
+        }, {
+            key: "ethnicGroupCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "ethnicity"
         }, {
             key: "guardian",
             content: [{
@@ -5313,7 +5343,7 @@ var codeSystems = {
     "MediSpan DDID": ["2.16.840.1.113883.6.253"],
     "ActPriority": ["2.16.840.1.113883.5.7"],
     "InsuranceType Code": ["2.16.840.1.113883.6.255.1336"],
-    "ICD-9-CM": ["2.16.840.1.113883.6.103"]
+    "ICD-10-CM": ["2.16.840.1.113883.6.90"]
 };
 
 var sections_entries_codes = {
@@ -6170,7 +6200,7 @@ var CCDA = {
 		},
 		{"name": "Social History",
 			"templateIds": ["2.16.840.1.113883.10.20.22.2.17"]
-		}		
+		}
     ]
     */
 };
@@ -8172,9 +8202,9 @@ module.exports = OIDs = {
             "VACSAF": "Vaccine safety concerns"
         }
     },
-    "2.16.840.1.113883.6.103": {
-        name: "ICD-9-CM",
-        uri: "http://www.cms.gov/medicare-coverage-database/staticpages/icd-9-code-lookup.aspx"
+    "2.16.840.1.113883.6.90": {
+        name: "ICD-10-CM",
+        uri: "http://www.cms.gov/medicare-coverage-database/staticpages/icd-10-code-lookup.aspx"
     },
     "2.16.840.1.113883.6.233": {
         name: "US Department of Veterans Affairs",
@@ -18214,7 +18244,7 @@ exports.not = function (fn) {
             doy : 6  // The week that contains Jan 1st is the first week of the year.
         },
 
-        _invalidDate: 'Invalid date',
+        _invalidDate: 'nullFlavor="NI"',
         invalidDate: function () {
             return this._invalidDate;
         }
@@ -22814,7 +22844,7 @@ module.exports = function(arr, obj){
         return this._longDateFormat[key];
     }
 
-    var defaultInvalidDate = 'Invalid date';
+    var defaultInvalidDate = 'nullFlavor=NI';
 
     function invalidDate () {
         return this._invalidDate;
@@ -23637,13 +23667,13 @@ Script.prototype.runInContext = function (context) {
     if (!(context instanceof Context)) {
         throw new TypeError("needs a 'context' argument.");
     }
-    
+
     var iframe = document.createElement('iframe');
     if (!iframe.style) iframe.style = {};
     iframe.style.display = 'none';
-    
+
     document.body.appendChild(iframe);
-    
+
     var win = iframe.contentWindow;
     var wEval = win.eval, wExecScript = win.execScript;
 
@@ -23652,7 +23682,7 @@ Script.prototype.runInContext = function (context) {
         wExecScript.call(win, 'null');
         wEval = win.eval;
     }
-    
+
     forEach(Object_keys(context), function (key) {
         win[key] = context[key];
     });
@@ -23661,11 +23691,11 @@ Script.prototype.runInContext = function (context) {
             win[key] = context[key];
         }
     });
-    
+
     var winKeys = Object_keys(win);
 
     var res = wEval.call(win, this.code);
-    
+
     forEach(Object_keys(win), function (key) {
         // Avoid copying circular objects like `top` and `window` by only
         // updating existing context properties or new properties in the `win`
@@ -23680,9 +23710,9 @@ Script.prototype.runInContext = function (context) {
             defineProp(context, key, win[key]);
         }
     });
-    
+
     document.body.removeChild(iframe);
-    
+
     return res;
 };
 

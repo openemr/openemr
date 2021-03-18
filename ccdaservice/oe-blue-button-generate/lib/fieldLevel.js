@@ -137,6 +137,35 @@ var effectiveTime = exports.effectiveTime = {
     existsWhen: condition.eitherKeyExists('point', 'low', 'high', 'center')
 };
 
+var effectiveTimeIVL_TS = exports.effectiveTimeIVL_TS = {
+    key: "effectiveTime",
+    attributes: {
+        "xsi:type": "IVL_TS"
+    },
+    //attributeKey: 'point',
+    content: [{
+        key: "low",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'low',
+    }, {
+        key: "high",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'high',
+    }, {
+        key: "center",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'center',
+    }],
+    dataKey: 'date_time',
+    existsWhen: condition.eitherKeyExists('point', 'low', 'high', 'center')
+};
+
 exports.text = function (referenceMethod) {
     return {
         key: "text",

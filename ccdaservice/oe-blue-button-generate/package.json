@@ -36,9 +36,7 @@
     },
     "bundleDependencies": true,
     "dependencies": {
-        "file": "./../oe-blue-button-meta",
-        "file": "./../oe-blue-button-util",
-        "libxmljs": "^0.19.5",
+        "libxmljs2": "0.26.6",
         "moment": "~2.19.3",
         "uuid": "^2.0.1"
     },

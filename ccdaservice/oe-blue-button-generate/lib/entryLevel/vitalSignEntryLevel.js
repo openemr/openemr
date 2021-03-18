@@ -51,7 +51,7 @@ var vitalSignObservation = {
             required: true
         }, {
             key: "interpretationCode",
-            attributes: leafLevel.codeFromName("2.16.840.1.113883.5.83"),
+            attributes: {"nullFlavor": "NI"}, //leafLevel.codeFromName("2.16.840.1.113883.5.83"),
             dataKey: "interpretations"
         }
     ],
@@ -79,11 +79,12 @@ exports.vitalSignsOrganizer = {
                 code: leafLevel.inputProperty("status")
             }
         },
-        [fieldLevel.effectiveTime, required], {
+        [fieldLevel.effectiveTime, required], [{
             key: "component",
             content: vitalSignObservation,
+            dataKey: "vital_list",
             required: true
-        }
+        }]
     ],
     notImplemented: [
         "constant statusCode"

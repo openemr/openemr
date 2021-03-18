@@ -68,14 +68,14 @@ var getText = function (topArrayKey, headers, values) {
     return result;
 };
 
-var alllergiesTextHeaders = ["Substance", "Overall Severity", "Reaction", "Reaction Severity", "Status"];
+/*var alllergiesTextHeaders = ["Substance", "Overall Severity", "Reaction", "Reaction Severity", "Status"];
 var allergiesTextRow = [
     leafLevel.deepInputProperty("observation.allergen.name", ""),
     leafLevel.deepInputProperty("observation.severity.code.name", ""),
     leafLevel.deepInputProperty("observation.reactions.0.reaction.name", ""),
     leafLevel.deepInputProperty("observation.reactions.0.severity.code.name", ""),
     leafLevel.deepInputProperty("observation.status.name", "")
-];
+];*/
 
 exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     return {
@@ -108,7 +108,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     };
 };
 
-var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
+/*var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
 var medicationsTextRow = [ // Name, did not find class in the medication blue-button-data
     function (input) {
         var value = bbuo.deepValue(input, 'product.product.name');
@@ -123,7 +123,7 @@ var medicationsTextRow = [ // Name, did not find class in the medication blue-bu
     },
     leafLevel.deepInputProperty("supply.repeatNumber", ""),
     leafLevel.deepInputDate("supply.date_time.point", "")
-];
+];*/
 
 exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
     return {
@@ -319,7 +319,8 @@ exports.immunizationsSectionEntriesOptional = function (htmlHeader, na) {
                     text: na,
                     existsWhen: condition.keyDoesntExist("immunizations")
 
-                }, {
+                },
+                htmlHeader, {
                     key: "entry",
                     attributes: {
                         "typeCode": "DRIV"
@@ -413,7 +414,8 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     text: na,
                     existsWhen: condition.keyDoesntExist("social_history")
 
-                }, {
+                },
+                htmlHeader, {
                     key: "entry",
                     attributes: {
                         typeCode: "DRIV"
@@ -447,10 +449,11 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
                     text: na,
                     existsWhen: condition.keyDoesntExist("vitals")
 
-                }, {
+                },
+                htmlHeader, {
                     key: "entry",
                     attributes: {
-                        typeCode: "DRIV"
+                        "typeCode": "DRIV"
                     },
                     content: [
                         [entryLevel.vitalSignsOrganizer, required]
