@@ -4,6 +4,7 @@ CCD's can be generated from the Onsite Patient Portal or the Carecoordination Mo
 ## Prepare
 * If not already completed, you must install/initialize the CCM features by going to the Modules->Manage Modules top menu then click Unregistered tab and install the necessary components.
 * Add any appropriate settings like granting Access Control for the appropriate users. Menu item: Modules->Manage Modules->Access Control->General->Care Coordination.
+* Ensure all appropriate fields are populated in Modules->Manage Modules Settings tab such as Author, Primary Care Provider and so forth.
 * Ignore any errors that do not throw you back to command prompt when using npm install as some libs need to be compiled and is verbose about it.
 ## Updating
 Whenever there are new versions or updates, be sure to navigate into the ccdaservice directory and run:
@@ -27,7 +28,7 @@ Navigate to: openemr/ccdaservice and run the following to install requires depen
 * Ensure system variable NODE_PATH is set i.e %USERPROFILE%\AppData\Roaming\npm\node_modules.
 
 Navigate to: openemr/ccdaservice and run the following from an elevated PowerShell or CMD.exe (run as Administrator):
-- npm install --global --production windows-build-tools
+- npm install --global --production windows-build-tools. (Deprecated) No longer required unless for some reason your environment doesn't have libxmljs binary available.
 - npm install --production
 ### Use
 * CCDA service must be enabled in OpenEMR's menu Globals->Connectors.
@@ -38,5 +39,5 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 ### Tools
 * The nodejs ccda service now starts on demand.
 #### License
-   	    Copyright 2018-2019 sjpadgett@gmail.com
+   	    Copyright 2018-2021 sjpadgett@gmail.com
         https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

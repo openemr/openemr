@@ -130,7 +130,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
-                $content            = $this->socket_get($this->data);
+                $content = $this->socket_get($this->data);
 
                 // TODO: Is this supposed to be mispelled by the mirth server like this??  Seems odd...
                 if ($content == 'Authetication Failure') {
@@ -138,14 +138,8 @@ class EncounterccdadispatchController extends AbstractActionController
                     die();
                 }
 
-                $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
-		<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-		<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
-		xmlns="urn:hl7-org:v3"
-		xmlns:mif="urn:hl7-org:v3/mif">
-		<!--';
-                $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
+                $content = trim($content);
+
                 $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                 if (!$view) {
                     if ($hie_hook) {
@@ -179,14 +173,8 @@ class EncounterccdadispatchController extends AbstractActionController
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
             $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
             $content            = $this->socket_get($this->data);
-            $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
-            <?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-            <ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
-            xmlns="urn:hl7-org:v3"
-            xmlns:mif="urn:hl7-org:v3/mif">
-            <!--';
-            $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
+
+            $content = trim($content);
             $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
             echo $content;
             die;
