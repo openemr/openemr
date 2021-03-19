@@ -699,7 +699,7 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (trim($claim->billing_options['icn_resubmission_number'] ?? null) > 3) {
+        if (strlen(trim($claim->billing_options['icn_resubmission_number'] ?? null)) > 3) {
             ++$edicount;
             error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
@@ -1726,7 +1726,7 @@ class X125010837P
                 "*" . $claim->providerNumberType() .
                 "*" . $claim->providerNumber() .
                 "~\n";
-            } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
+            } elseif ($claim->providerNumber() && !$claim->providerNumberType()) {
                 $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
             }
 
@@ -2093,7 +2093,7 @@ class X125010837P
                 "*" . "D8" .
                 "*" . $claim->onsetDate() .
                 "~\n";
-        } else if (
+        } elseif (
             $claim->miscOnsetDate()
             && $claim->miscOnsetDate() !== $claim->serviceDate()
             && $claim->box14Qualifier()
@@ -2187,7 +2187,7 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (trim($claim->billing_options['icn_resubmission_number']) > 3) {
+        if (strlen(trim($claim->billing_options['icn_resubmission_number'] ?? null)) > 3) {
             ++$edicount;
             error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
