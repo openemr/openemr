@@ -19,7 +19,6 @@ require_once("$srcdir/payment_jav.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\InsuranceCompanyService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
