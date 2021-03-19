@@ -47,7 +47,7 @@ $comarr = array
 );
 
 // get array of all insurance companies from function in patient.inc
-$ins_cos = getInsuranceProviders();
+$insarr = getInsuranceProviders();
 
 $_POST['form_details'] = true;
 
@@ -58,7 +58,7 @@ $patient_id = trim($_POST["patient_id"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
-$sql_ethnicity = $_POST["cpms_ethnicity"] ?? '';
+$sql_ethnicity = $_POST["ethnicity"] ?? '';
 $sql_race = $_POST["race"] ?? '';
 $form_drug_name = trim($_POST["form_drug_name"] ?? '');
 $form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
@@ -67,6 +67,7 @@ $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
 $insurance_company = trim($_POST["insurance_company"] ?? '');
+$insurance_provider = trim($_POST["insurance_provider"] ?? '');
 ?>
 <html>
     <head>
@@ -220,8 +221,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
             }  ?></span>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies") && ($_POST['insurance_company'] != "")) {
-                if (isset($ins_cos[$_POST['insurance_company']])) {
-                    echo "(" . text($ins_cos[$_POST['insurance_company']]) . ")";
+                if (isset($insarr[$_POST['insurance_company']])) {
+                    echo "(" . text($insarr[$_POST['insurance_company']]) . ")";
                 } else {
                     echo "(" . xlt('All') . ")";
                 }
@@ -270,8 +271,9 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                                     <span id="ins_co" style="display: none">
                                     <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
-                                        <?php foreach ($ins_cos as $ins_co) { ?>
+                                        <?php foreach ($insarr as $ins_id => $ins_co) { ?>
                                             <option value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
+                                            <input type="hidden" name="insurance_provider" id="insurance_provider" value="<?php echo attr($ins_id); ?>" />
                                         <?php } ?>
                                     </select>
                                     </select>
@@ -305,6 +307,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 
                                 <td class='col-form-label'><?php echo xlt('Gender'); ?>:</td>
                                 <td colspan="2"><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
+                                <td class='col-form-label'><?php echo xlt('Ethnicity'); ?>:</td>
+                                <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
                             </tr>
 
                         </table>
@@ -348,7 +352,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 						pd.pid AS patient_id,
 						DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
 						pd.sex AS patient_sex,
-						pd.race AS patient_race,pd.ethnicity AS patient_ethnic,
+						pd.race AS patient_race,
+                        pd.ethnicity AS patient_ethnic,
 						concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
@@ -373,7 +378,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 case "Communication":
                     $sqlstmt = $sqlstmt . ",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
                     break;
-                case "Insurance Company":
+                case "Insurance Companies":
+                    $sqlstmt = $sqlstmt . ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
 
             }
 
@@ -398,7 +404,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                     break;
                 case "Insurance Companies":
-                    $sqlstmt = $sqlstmt . " left outer join insurance_data as id on id.pid = pd.pid";
+                    $sqlstmt = $sqlstmt . " left outer join insurance_data as id on id.pid = pd.pid
+                            left outer join insurance_companies as ic on ic.id = id.provider";
                     break;    
             }
 
@@ -424,7 +431,7 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                     $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
                     break;
                 case "Insurance Companies":
-                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
+                    $whr_stmt .= " AND id.type = 'primary' ";
                     break;
     
             }
@@ -449,6 +456,11 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 array_push($sqlBindArray, $sql_gender);
             }
 
+            if (strlen($sql_ethnicity) != 0) {
+                $whr_stmt = $whr_stmt . "   and pd.ethnicity = ?";
+                array_push($sqlBindArray, $sql_ethnicity);
+            }
+
             if ($srch_option == "Communication" && strlen($communication) > 0) {
                 if ($communication == "allow_sms") {
                     $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
@@ -459,6 +471,11 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 } elseif ($communication == "allow_email") {
                     $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
                 }
+            }
+
+            if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0) {
+                $whr_stmt = $whr_stmt . " AND id.provider = ?";
+                array_push($sqlBindArray, $insurance_provider);
             }
 
             //Sorting By filter fields
@@ -488,6 +505,15 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
+                case "Insurance Companies":
+                    //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "insurance_companies");
+                    if ($sortby == "") {
+                        $sortby = $sort[6];
+                    }
+
+                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;    
                 case "Demographics":
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
                     break;
@@ -532,8 +558,10 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                     break;
                 case "Demographics":
                     $odrstmt = " ORDER BY patient_date asc";
-                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
+                case "Insurance Companies":
+                    $odrstmt = " ORDER BY ins_provider asc";
+                    break;    
             }
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
@@ -588,6 +616,13 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                         $patInfoArr['communications'] = $row['communications'];
+                    } elseif ($srch_option == "Insurance Companies") {
+                        $patInfoArr['patient_date'] = $row['patient_date'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                        $patInfoArr['insurance_companies'] = $row['ins_name'];
                     } elseif ($srch_option == "Demographics") {
                         $patInfoArr['patient_date'] = $row['patient_date'];
                         $patInfoArr['patient_name'] = $row['patient_name'];
@@ -624,6 +659,7 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                             <td width="5%" class="font-weight-bold"><?php echo xlt('PID');?></td>
                             <td width="5%" class="font-weight-bold"><?php echo xlt('Age');?></td>
                             <td width="10%" class="font-weight-bold"><?php echo xlt('Gender');?></td>
+                            <td width="10%" class="font-weight-bold"><?php echo xlt('Ethnicity');?></td>
                             <td colspan='4' class="font-weight-bold"><?php echo xlt('Provider');?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
@@ -672,8 +708,9 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                             <td width="5%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
                             <td width="5%"><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
                             <td width="10%"><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
-                            <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[5]; ?></td>
-                            <td ><strong><?php echo xlt('Communication');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td ><strong><?php echo xlt('Communication');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" >
@@ -682,18 +719,43 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['communications']);?></td>
+                               </tr>
+                        <?php }
+                    } elseif ($srch_option == "Insurance Companies") { ?>
+                        <tr style="font-size:15px;">
+                            <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
+                            <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td ><strong><?php echo xlt('Insurance Companies');?></strong><?php echo $sortlink[7]; ?></td>
+                        </tr>
+                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                                <tr bgcolor = "#CCCCCC" >
+                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                    <td ><?php echo text($patDetailVal['users_provider']);?></td>
+                                    <td ><?php echo text($patDetailVal['insurance_companies']);?></td>
                                </tr>
                         <?php }
                     } elseif ($srch_option == "Demographics") { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
-                            <td width="15%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
                             <td width="5%"><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
                             <td width="10%"><strong><?php echo xlt('Gender'); ?></strong><?php echo $sortlink[4]; ?></td>
-                            <td width="20%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Ethnicity'); ?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="20%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[6]; ?></td>
                             <td colspan=5><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
                             <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
@@ -703,6 +765,7 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $patDetailVal['patient_race']); ?></td>
                                     <td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
