@@ -380,7 +380,6 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                     break;
                 case "Insurance Companies":
                     $sqlstmt = $sqlstmt . ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
-
             }
 
             //from
@@ -406,7 +405,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                 case "Insurance Companies":
                     $sqlstmt = $sqlstmt . " left outer join insurance_data as id on id.pid = pd.pid
                             left outer join insurance_companies as ic on ic.id = id.provider";
-                    break;    
+                    break;
             }
 
             //WHERE Conditions started
@@ -433,7 +432,6 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                 case "Insurance Companies":
                     $whr_stmt .= " AND id.type = 'primary' ";
                     break;
-    
             }
 
             if (strlen($patient_id) != 0) {
@@ -513,7 +511,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                     }
 
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-                    break;    
+                    break;
                 case "Demographics":
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
                     break;
@@ -561,7 +559,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                     break;
                 case "Insurance Companies":
                     $odrstmt = " ORDER BY ins_provider asc";
-                    break;    
+                    break;
             }
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
