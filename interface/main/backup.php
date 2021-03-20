@@ -25,7 +25,7 @@
  * @author    Bill Cernansky (www.mi-squared.com)
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2008-2014, 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2008-2014, 2016, 2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -33,11 +33,17 @@
 
 set_time_limit(0);
 require_once("../globals.php");
+require_once("$srcdir/layout.inc.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+function csvtext($s) {
+    return str_replace('"', '""', $s);
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -60,9 +66,25 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
+// When automatically including lists used in selected layouts, these lists are not included.
+$excluded_lists = array(
+    'allergy_issue_list',
+    'boolean',
+    'education_level',
+    'ethrace',
+    'Gender',
+    'genhivhist',
+    'occupations',
+    'Relation_to_Client',
+    'sex',
+    'Sexual_Orientation',
+    'yesno',
+);
+
 $BTN_TEXT_CREATE = xl('Create Backup');
 $BTN_TEXT_EXPORT = xl('Export Configuration');
 $BTN_TEXT_IMPORT = xl('Import Configuration');
+$BTN_TEXT_LOG = xl('Backup/Delete Log Data');
 // ViSolve: Create Log  Backup button
 $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 
@@ -80,6 +102,10 @@ if (!empty($_POST['form_import'])) {
 //ViSolve: Assign Unique Number for the Log Creation
 if (!empty($_POST['form_backup'])) {
     $form_step = 301;
+}
+
+if (!empty($_POST['form_logarchive'])) {
+    $form_step = 401;
 }
 
 // When true the current form will submit itself after a brief pause.
@@ -136,12 +162,278 @@ if ($form_step == 104) {
     unlink($EXPORT_FILE);
     exit(0);
 }
+
+// CSV export of lists.
+//
+if ($form_step == 102.1) {
+    if (is_array($_POST['form_sel_lists'] ?? '')) {
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Type: application/force-download; charset=utf-8");
+        header("Content-Disposition: attachment; filename=lists.csv");
+        header("Content-Description: File Transfer");
+        // Prepend a BOM (Byte Order Mark) header to mark the data as UTF-8.  See:
+        // http://stackoverflow.com/questions/155097/microsoft-excel-mangles-diacritics-in-csv-files
+        // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
+        echo "\xEF\xBB\xBF";
+        // CSV headers:
+        echo '"' . xl('List'     ) . '",';
+        echo '"' . xl('ID'       ) . '",';
+        echo '"' . xl('Title'    ) . '",';
+        echo '"' . xl('Translated') . '",';
+        echo '"' . xl('Order'    ) . '",';
+        echo '"' . xl('Default'  ) . '",';
+        echo '"' . xl('Active'   ) . '",';
+        echo '"' . xl('Global ID') . '",';
+        echo '"' . xl('Notes'    ) . '",';
+        echo '"' . xl('Codes'    ) . '"';
+        echo "\n";
+        foreach ($_POST['form_sel_lists'] as $listid) {
+            $res = sqlStatement(
+                "SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title",
+                array($listid)
+            );
+            while ($row = sqlFetchArray($res)) {
+                $xtitle = xl_list_label($row['title']);
+                if ($xtitle === $row['title']) {
+                    $xtitle = '';
+                }
+                echo '"' . csvtext($row['list_id']) . '",';
+                echo '"' . csvtext($row['option_id']) . '",';
+                echo '"' . csvtext($row['title']) . '",';
+                echo '"' . csvtext($xtitle) . '",';
+                echo '"' . csvtext($row['seq']) . '",';
+                echo '"' . csvtext($row['is_default']) . '",';
+                echo '"' . csvtext($row['activity']) . '",';
+                echo '"' . csvtext($row['mapping']) . '",';
+                echo '"' . csvtext($row['notes']) . '",';
+                echo '"' . csvtext($row['codes']) . '"';
+                echo "\n";
+            }
+        }
+    }
+    exit(0);
+}
+
+// CSV export of layouts.
+//
+if ($form_step == 102.2) {
+    if (is_array($_POST['form_sel_layouts'] ?? '')) {
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Type: application/force-download; charset=utf-8");
+        header("Content-Disposition: attachment; filename=layouts.csv");
+        header("Content-Description: File Transfer");
+        // Prepend a BOM (Byte Order Mark) header to mark the data as UTF-8.  See:
+        // http://stackoverflow.com/questions/155097/microsoft-excel-mangles-diacritics-in-csv-files
+        // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
+        echo "\xEF\xBB\xBF";
+        // CSV headers:
+        echo '"' . xl('Form'       ) . '",';
+        echo '"' . xl('Order'      ) . '",';
+        echo '"' . xl('Source'     ) . '",';
+        echo '"' . xl('Group'      ) . '",';
+        echo '"' . xl('ID'         ) . '",';
+        echo '"' . xl('Label'      ) . '",';
+        echo '"' . xl('Translated' ) . '",';
+        echo '"' . xl('UOR'        ) . '",';
+        echo '"' . xl('Type'       ) . '",';
+        echo '"' . xl('Width'      ) . '",';
+        echo '"' . xl('Height'     ) . '",';
+        echo '"' . xl('Max'        ) . '",';
+        echo '"' . xl('List'       ) . '",';
+        echo '"' . xl('Label Cols' ) . '",';
+        echo '"' . xl('Data Cols'  ) . '",';
+        echo '"' . xl('Options'    ) . '",';
+        echo '"' . xl('Description') . '",';
+        echo '"' . xl('Translated' ) . '",';
+        echo '"' . xl('Conditions' ) . '"';
+        echo "\n";
+        foreach ($_POST['form_sel_layouts'] as $layoutid) {
+            $res = sqlStatement(
+                "SELECT l.*, p.grp_title FROM layout_options AS l " .
+                "JOIN layout_group_properties AS p ON p.grp_form_id = l.form_id AND " .
+                "p.grp_group_id = l.group_id AND p.grp_activity = 1 " .
+                "WHERE l.form_id = ? ORDER BY l.group_id, l.seq, l.title",
+                array($layoutid)
+            );
+            while ($row = sqlFetchArray($res)) {
+                $xtitle = xl_layout_label($row['title']);
+                if ($xtitle === $row['title']) {
+                    $xtitle = '';
+                }
+                $xdesc = $row['description'];
+                if (substr($xdesc, 0, 1) != '<') {
+                    $xdesc = xl_layout_label($xdesc);
+                }
+                if ($xdesc === $row['description']) {
+                    $xdesc = '';
+                }
+                echo '"' . csvtext($row['form_id'     ]) . '",';
+                echo '"' . csvtext($row['seq'         ]) . '",';
+                echo '"' . csvtext($sources[$row['source']]) . '",';
+                echo '"' . csvtext($row['grp_title'   ]) . '",';
+                echo '"' . csvtext($row['field_id'    ]) . '",';
+                echo '"' . csvtext($row['title'       ]) . '",';
+                echo '"' . csvtext($xtitle             ) . '",';
+                echo '"' . csvtext($UOR[$row['uor']]   ) . '",';
+                echo '"' . csvtext($datatypes[$row['data_type']]) . '",';
+                echo '"' . csvtext($row['fld_length'  ]) . '",';
+                echo '"' . csvtext($row['fld_rows'    ]) . '",';
+                echo '"' . csvtext($row['max_length'  ]) . '",';
+                echo '"' . csvtext($row['list_id'     ]) . '",';
+                echo '"' . csvtext($row['titlecols'   ]) . '",';
+                echo '"' . csvtext($row['datacols'    ]) . '",';
+                echo '"' . csvtext($row['edit_options']) . '",';
+                echo '"' . csvtext($row['description' ]) . '",';
+                echo '"' . csvtext($xdesc              ) . '",';
+                echo '"' . csvtext($row['conditions'  ]) . '"';
+                echo "\n";
+            }
+        }
+    }
+    exit(0);
+}
+
+// CSV export of old log entries.
+//
+if ($form_step == 402) {
+    $end_date = fixDate($_POST['form_end_date'], '');
+    if ($end_date) {
+
+        // This is the "filename" for the Content-Disposition header.
+        $filename = "log_archive_{$end_date}.csv";
+
+        $outfile = tempnam($GLOBALS['temporary_files_dir'], 'OET');
+        if ($outfile === FALSE) {
+            die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OET') failed.\n");
+        }
+        $hout = fopen($outfile, "w");
+        $wcount = 0;
+
+        // Prepend a BOM (Byte Order Mark) header to mark the data as UTF-8.  See:
+        // http://stackoverflow.com/questions/155097/microsoft-excel-mangles-diacritics-in-csv-files
+        // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
+        $out = "\xEF\xBB\xBF";
+        // CSV headers:
+        $out .= '"' . xl('id'        ) . '",';
+        $out .= '"' . xl('date'      ) . '",';
+        $out .= '"' . xl('event'     ) . '",';
+        $out .= '"' . xl('user'      ) . '",';
+        $out .= '"' . xl('groupname' ) . '",';
+        $out .= '"' . xl('comments'  ) . '",';
+        $out .= '"' . xl('user_notes') . '",';
+        $out .= '"' . xl('patient_id') . '",';
+        $out .= '"' . xl('success'   ) . '",';
+        $out .= '"' . xl('checksum'  ) . '",';
+        $out .= '"' . xl('crt_user'  ) . '"';
+        $out .= "\n";
+        fwrite($hout, $out);
+
+        // Somewhere there's a memory leak in the ADODB stuff. We do multiple selects to
+        // work around this.
+        $lastid = 0;
+        while (true) {
+            $res = sqlStatementNoLog(
+                "SELECT * FROM `log` WHERE `date` <= ? AND `id` > ? ORDER BY `id` LIMIT 50000",
+                array("$end_date 23:59:59", $lastid)
+            );
+            if (!sqlNumRows($res)) {
+                break;
+            }
+            while ($row = sqlFetchArray($res)) {
+                $out  = '"' . csvtext($row['id'        ]) . '",' .
+                        '"' . csvtext($row['date'      ]) . '",' .
+                        '"' . csvtext($row['event'     ]) . '",' .
+                        '"' . csvtext($row['user'      ]) . '",' .
+                        '"' . csvtext($row['groupname' ]) . '",' .
+                        '"' . csvtext($row['comments'  ]) . '",' .
+                        '"' . csvtext($row['user_notes']) . '",' .
+                        '"' . csvtext($row['patient_id']) . '",' .
+                        '"' . csvtext($row['success'   ]) . '",' .
+                        '"' . csvtext($row['checksum'  ]) . '",' .
+                        '"' . csvtext($row['crt_user'  ]) . '"' .
+                        "\n";
+                if (!fwrite($hout, $out)) {
+                    die("fwrite() failed!");
+                }
+                $lastid = $row['id'];
+            }
+        }
+
+        fclose($hout);
+
+        // Do compression if requested (it is!)
+        if (true) {
+            $zip = new ZipArchive();
+            $zippedoutfile = tempnam($GLOBALS['temporary_files_dir'], 'OEZ');
+            if ($zippedoutfile === FALSE) {
+                die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OEZ') failed.\n");
+            }
+            if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== TRUE) {
+                die(xl('Cannot create file') . " '$zipname'\n");
+            }
+            if (!$zip->addFile($outfile, $filename)) {
+                die(xl('Cannot add to archive') . " '$zipname'\n");
+            }
+            $zip->close();
+            $filename .= '.zip';
+            unlink($outfile);
+            $outfile = $zippedoutfile;
+        }
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Type: application/force-download; charset=utf-8");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Content-Description: File Transfer");
+        header("Content-Length: " . filesize($outfile));
+        readfile($outfile);
+        unlink($outfile);
+    } else {
+        die(xl("End date is missing!"));
+    }
+    exit(0);
+}
+
 ?>
 <html>
 
 <head>
-<?php Header::setupHeader(); ?>
+<?php Header::setupHeader(['datetime-picker']); ?>
 <title><?php echo xlt('Backup'); ?></title>
+
+<script>
+
+$(function () {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
+// Called from export page or log archive page to specify what it will do.
+//   102   = SQL export of selected tables, lists and layouts
+//   102.1 = Download selected lists as CSV
+//   102.2 = download selected layouts as CSV
+//   402   = CSV export of log archive
+//   405   = Delete from the log
+//
+function export_submit(step) {
+    var f = document.forms[0];
+    f.form_step.value = step;
+    top.restoreSession();
+    f.submit();
+}
+
+</script>
+
 </head>
 
 <body class="body_top">
@@ -191,6 +483,10 @@ if ($form_step == 0) {
         echo "  <td><input class='btn btn-secondary' type='submit' name='form_import' value='" . attr($BTN_TEXT_IMPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Upload configuration data') . "</td>\n";
         echo " </tr>\n";
+        echo " <tr>\n";
+        echo "  <td><input class='btn btn-secondary' type='submit' name='form_logarchive' value='" . attr($BTN_TEXT_LOG) . "' /></td>\n";
+        echo "  <td>" . xlt('Download and/or delete log data') . "</td>\n";
+        echo " </tr>\n";
     }
 
 // ViSolve : Add ' Create Log table backup Button'
@@ -230,14 +526,14 @@ if ($form_step == 1) {
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
         " --routines" .
-        " --hex-blob --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     } else {
         $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
         " -p" . escapeshellarg($sqlconf["pass"]) .
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
-        " --hex-blob --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
+        " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     }
 
@@ -325,6 +621,8 @@ if ($form_step == 101) {
     echo " " . xlt('Document Categories') . "<br />\n";
     echo "<input type='checkbox' name='form_cb_feesheet' value='1' />\n";
     echo " " . xlt('Fee Sheet Options') . "<br />\n";
+    echo "<input type='checkbox' name='form_cb_lab_config' value='1' />\n";
+    echo " " . xlt('Lab Configuration') . "<br />\n";
     echo "<input type='checkbox' name='form_cb_lang' value='1' />\n";
     echo " " . xlt('Translations') . "<br />\n";
 
@@ -338,8 +636,8 @@ if ($form_step == 101) {
         echo "<option value='" . attr($lrow['option_id']) . "'";
         echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
     }
-
     echo "</select>\n";
+    echo "<br /><a href='#' onclick='export_submit(102.1)'>" . xlt('Download CSV') . "</a>";
 
     // Multi-select for layouts.
     echo "</td><td valign='top'>\n";
@@ -352,40 +650,48 @@ if ($form_step == 101) {
         echo "<option value='" . attr($key) . "'";
         echo ">" . text($key) . ": " . text(xl_layout_label($lrow['grp_title'])) . "</option>\n";
     }
-
     echo "</select>\n";
-
+    echo "<br /><a href='#' onclick='export_submit(102.2)'>" . xlt('Download CSV') . "</a>";
     echo "</td>\n</tr>\n</table>\n";
-    echo "&nbsp;<br /><input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
+
+    // Option to auto-export lists referenced by the chosen layouts.
+    echo "&nbsp;<br /><input type='checkbox' name='form_cb_addlists' value='1' />\n";
+    echo " " . xlt('Include all lists referenced in chosen layouts') . "<br />\n";
+
+    echo "<br /><input class='btn btn-primary' type='submit' onclick='export_submit(102)' value='" . xla('Continue') . "' />\n";
 }
 
 if ($form_step == 102) {
     $tables = '';
-    if ($_POST['form_cb_services'  ]) {
+    if (!empty($_POST['form_cb_services'  ])) {
         $tables .= ' codes';
     }
 
-    if ($_POST['form_cb_products'  ]) {
+    if (!empty($_POST['form_cb_products'  ])) {
         $tables .= ' drugs drug_templates';
     }
 
-    if ($_POST['form_cb_prices'    ]) {
+    if (!empty($_POST['form_cb_prices'    ])) {
         $tables .= ' prices';
     }
 
-    if ($_POST['form_cb_categories']) {
+    if (!empty($_POST['form_cb_categories'])) {
         $tables .= ' categories categories_seq';
     }
 
-    if ($_POST['form_cb_feesheet'  ]) {
+    if (!empty($_POST['form_cb_feesheet'  ])) {
         $tables .= ' fee_sheet_options';
     }
 
-    if ($_POST['form_cb_lang'      ]) {
+    if (!empty($_POST['form_cb_lab_config'])) {
+        $tables .= ' procedure_type procedure_providers procedure_questions';
+    }
+
+    if (!empty($_POST['form_cb_lang'      ])) {
         $tables .= ' lang_languages lang_constants lang_definitions';
     }
 
-    if ($tables || is_array($_POST['form_sel_lists']) || is_array($_POST['form_sel_layouts'])) {
+    if ($tables || is_array($_POST['form_sel_lists'] ?? '') || is_array($_POST['form_sel_layouts'] ?? '')) {
         $form_status .= xla('Creating export file') . "...<br />";
         echo nl2br($form_status);
         if (file_exists($EXPORT_FILE)) {
@@ -396,7 +702,6 @@ if ($form_step == 102) {
 
         // The substitutions below use perl because sed's not usually on windows systems.
         $perl = $PERL_PATH . DIRECTORY_SEPARATOR . 'perl';
-
 
         # This condition was added because the windows operating system uses different syntax for the shell commands.
         # The test is if it is the windows operating system.
@@ -414,14 +719,14 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
-                    " --hex-blob --opt --quote-names $mysql_ssl " .
+                    " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             } else {
                 $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
-                    " --hex-blob --opt --quote-names $mysql_ssl " .
+                    " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             }
             if (IS_WINDOWS) {
@@ -438,10 +743,30 @@ if ($form_step == 102) {
                  " -p" . escapeshellarg($sqlconf["pass"]) .
                  " -h " . escapeshellarg($sqlconf["host"]) .
                  " --port=" . escapeshellarg($sqlconf["port"]) .
-                 " --hex-blob --skip-opt --quote-names --complete-insert --no-create-info $mysql_ssl";
+                 " --hex-blob --skip-opt --quote-names --no-tablespaces --complete-insert" .
+                 " --no-create-info --skip-comments $mysql_ssl";
+
         // Individual lists.
-        if (is_array($_POST['form_sel_lists'])) {
-            foreach ($_POST['form_sel_lists'] as $listid) {
+        $form_sel_lists = is_array($_POST['form_sel_lists'] ?? '') ? $_POST['form_sel_lists'] : array();
+        if (!empty($_POST['form_cb_addlists']) && is_array($_POST['form_sel_layouts'] ?? '')) {
+            // Include all lists referenced by the exported layouts.
+            foreach ($_POST['form_sel_layouts'] as $layoutid) {
+                $tmpres = sqlStatement(
+                    "SELECT a.list_id FROM layout_options AS a " .
+                    "JOIN list_options AS i ON i.list_id = 'lists' AND i.option_id = a.list_id AND " .
+                    "i.activity = 1 AND i.option_value = 0 " .
+                    "WHERE a.form_id = ? AND a.list_id != '' AND a.uor > 0",
+                    array($layoutid)
+                );
+                while ($tmprow = sqlFetchArray($tmpres)) {
+                    if (!in_array($tmprow['list_id'], $form_sel_lists) && !in_array($tmprow['list_id'], $excluded_lists)) {
+                        $form_sel_lists[] = $tmprow['list_id'];
+                    }
+                }
+            }
+        }
+        if (!empty($form_sel_lists)) {
+            foreach ($form_sel_lists as $listid) {
                 // skip if have backtic(s)
                 if (strpos($listid, '`') !== false) {
                     echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
@@ -478,7 +803,9 @@ if ($form_step == 102) {
         }
 
         // Individual layouts.
-        if (is_array($_POST['form_sel_layouts'])) {
+        if (is_array($_POST['form_sel_layouts'] ?? '')) {
+            $do_history_repair = false;
+            $do_demographics_repair = false;
             foreach ($_POST['form_sel_layouts'] as $layoutid) {
                 // skip if have backtic(s)
                 if (strpos($layoutid, '`') !== false) {
@@ -492,34 +819,56 @@ if ($form_step == 102) {
                     echo xlt("Skipping missing layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }
-                if (IS_WINDOWS) {
-                    # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                } else {
-                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                // Windows uses the & to join statements.
+                $cmdsep = IS_WINDOWS ? ' & ' : ';';
+                $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";'" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . $cmdsep;
+                $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";'" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . $cmdsep;
+                $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
+                    escapeshellarg($sqlconf["dbase"]) . " layout_group_properties" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . $cmdsep;
+                $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
+                    escapeshellarg($sqlconf["dbase"]) . " layout_options" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . $cmdsep;
+
+                // History and demographics exports will get special treatment.
+                if (substr($layoutid, 0, 3) == 'HIS') {
+                    $do_history_repair = true;
                 }
-                if (IS_WINDOWS) {
-                    # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " &;";
-                } else {
-                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                if (substr($layoutid, 0, 3) == 'DEM') {
+                    $do_demographics_repair = true;
                 }
-                if (IS_WINDOWS) {
-                    # windows uses the & to join statements.
-                    $cmd .= $dumppfx . ' --where="grp_form_id = \'' . add_escape_custom($layoutid) . "'\" " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
-                    $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= $dumppfx . ' --where="form_id = \'' . add_escape_custom($layoutid) . '\' ORDER BY group_id, seq, title" '  .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
-                    $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                } else {
-                    $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_group_properties";
-                    $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
-                    $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
-                        escapeshellarg($sqlconf["dbase"]) . " layout_options" ;
-                    $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
-                }
+            }
+            // If any HIS* layouts were exported then also write SQL to add missing history_data columns.
+            if ($do_history_repair) {
+                $cmd .= "echo \"SET sql_mode = '';\"                  >> $EXPORT_FILE;";
+                $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"SELECT CONCAT(\"                      >> $EXPORT_FILE;";
+                $cmd .= "echo \"'ALTER TABLE history_data ',\"        >> $EXPORT_FILE;";
+                $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> $EXPORT_FILE;";
+                $cmd .= "echo \")\"                                   >> $EXPORT_FILE;";
+                $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> $EXPORT_FILE;";
+                $cmd .= "echo \"(lo.form_id LIKE 'HIS%' OR lo.source = 'H') AND lo.field_id NOT IN\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'history_data')\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"INTO @sql;\"                          >> $EXPORT_FILE;";
+                $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> $EXPORT_FILE;";
+                $cmd .= "echo \"EXECUTE stmt;\"                       >> $EXPORT_FILE;";
+            }
+            // If the DEM layout was exported then also write SQL to add missing patient_data columns.
+            if ($do_demographics_repair) {
+                $cmd .= "echo \"SET sql_mode = '';\"                  >> $EXPORT_FILE;";
+                $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"SELECT CONCAT(\"                      >> $EXPORT_FILE;";
+                $cmd .= "echo \"'ALTER TABLE patient_data ',\"        >> $EXPORT_FILE;";
+                $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> $EXPORT_FILE;";
+                $cmd .= "echo \")\"                                   >> $EXPORT_FILE;";
+                $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> $EXPORT_FILE;";
+                $cmd .= "echo \"(lo.form_id LIKE 'DEM%' OR lo.source = 'D') AND lo.field_id NOT IN\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data')\" >> $EXPORT_FILE;";
+                $cmd .= "echo \"INTO @sql;\"                          >> $EXPORT_FILE;";
+                $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> $EXPORT_FILE;";
+                $cmd .= "echo \"EXECUTE stmt;\"                       >> $EXPORT_FILE;";
             }
         }
     } else {
@@ -542,7 +891,7 @@ if ($form_step == 201) {
     echo xlt('otherwise you will destroy references to/from existing data.') . "\n";
     echo "<br />&nbsp;<br />\n";
     echo xlt('File to upload') . ":\n";
-    echo "<input type='hidden' name='MAX_FILE_SIZE' value='4000000' />\n";
+    echo "<input type='hidden' name='MAX_FILE_SIZE' value='32000000' />\n";
     echo "<input type='file' name='userfile' /><br />&nbsp;<br />\n";
     echo "<input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
 }
@@ -604,11 +953,40 @@ if ($form_step == 301) {
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
-    " --hex-blob --opt --quote-names -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
+    " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;
 // 301 If ends here.
+}
+
+if ($form_step == 401) {
+    echo "<p><b>&nbsp;" . xlt('Download or Delete Old Log Entries') . ":</b></p>";
+    $tmprow = sqlQuery("SELECT COUNT(*) AS count, MIN(date) AS date FROM log");
+    echo "<p>&nbsp;" . xlt('The log has') . ' ' . $tmprow['count'] . ' '  .
+        xlt('entries with the oldest dated') . ' ' . $tmprow['date'] . ".</p>";
+    // Default end date is end of year 2 years ago, ensuring 1 full year of log remaining.
+    $end_date = fixDate($_POST['form_end_date'] ?? '', (date('Y') - 2) . '-12-31');
+    echo "<p>&nbsp;" . xlt('Select an end date. Entries after this date will not be downloaded or deleted.') . " ";
+    echo "<input type='text' class='datepicker' name='form_end_date' id='form_end_date' size='10' " .
+        "value='" . attr(oeFormatShortDate($end_date)) . "' " .
+        "onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd' />";
+    echo "</p>\n";
+    echo "<p><input type='button' onclick='export_submit(402)' value='" . xla('Download Log Entries as Zipped CSV') . "' />&nbsp;\n";
+    echo "<input type='button' onclick='export_submit(405)' value='" . xla('Delete Log Entries') . "' /></p>\n";
+}
+
+if ($form_step == 405) {
+    // Process log delete, then optimize to reclaim the file space.
+    $end_date = fixDate($_POST['form_end_date'], '');
+    if ($end_date) {
+        sqlStatement("DELETE FROM log WHERE date <= ?", array("$end_date 23:59:59"));
+        sqlStatement("OPTIMIZE TABLE log");
+    } else {
+        die(xl("End date is missing!"));
+    }
+    $form_step = -1;
+    $auto_continue = true;
 }
 
 ++$form_step;
