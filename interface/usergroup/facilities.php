@@ -175,6 +175,8 @@ $(function () {
                         <thead>
                             <tr>
                                 <th><?php echo xlt('Name'); ?></th>
+                                <th><?php echo xlt('Tax ID'); ?></th>
+                                <th><?php echo xlt('NPI'); ?></th>
                                 <th><?php echo xlt('Billing Address'); ?></th>
                                 <th><?php echo xlt('Mailing Address'); ?></th>
                                 <th><?php echo xlt('Phone'); ?></th>
@@ -225,6 +227,8 @@ $(function () {
                                     ?>
                             <tr height="22">
                                  <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($iter3["federal_ein"]); ?>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($iter3["facility_npi"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet . $varcity . $varstate . $iter3["country_code"] . " " . $iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet . $varmcity . $varmstate . $iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
