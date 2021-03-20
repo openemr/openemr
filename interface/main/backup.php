@@ -41,7 +41,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
-function csvtext($s) {
+function csvtext($s)
+{
     return str_replace('"', '""', $s);
 }
 
@@ -178,16 +179,16 @@ if ($form_step == 102.1) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo '"' . xl('List'     ) . '",';
-        echo '"' . xl('ID'       ) . '",';
-        echo '"' . xl('Title'    ) . '",';
+        echo '"' . xl('List') . '",';
+        echo '"' . xl('ID') . '",';
+        echo '"' . xl('Title') . '",';
         echo '"' . xl('Translated') . '",';
-        echo '"' . xl('Order'    ) . '",';
-        echo '"' . xl('Default'  ) . '",';
-        echo '"' . xl('Active'   ) . '",';
+        echo '"' . xl('Order') . '",';
+        echo '"' . xl('Default') . '",';
+        echo '"' . xl('Active') . '",';
         echo '"' . xl('Global ID') . '",';
-        echo '"' . xl('Notes'    ) . '",';
-        echo '"' . xl('Codes'    ) . '"';
+        echo '"' . xl('Notes') . '",';
+        echo '"' . xl('Codes') . '"';
         echo "\n";
         foreach ($_POST['form_sel_lists'] as $listid) {
             $res = sqlStatement(
@@ -231,25 +232,25 @@ if ($form_step == 102.2) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo '"' . xl('Form'       ) . '",';
-        echo '"' . xl('Order'      ) . '",';
-        echo '"' . xl('Source'     ) . '",';
-        echo '"' . xl('Group'      ) . '",';
-        echo '"' . xl('ID'         ) . '",';
-        echo '"' . xl('Label'      ) . '",';
-        echo '"' . xl('Translated' ) . '",';
-        echo '"' . xl('UOR'        ) . '",';
-        echo '"' . xl('Type'       ) . '",';
-        echo '"' . xl('Width'      ) . '",';
-        echo '"' . xl('Height'     ) . '",';
-        echo '"' . xl('Max'        ) . '",';
-        echo '"' . xl('List'       ) . '",';
-        echo '"' . xl('Label Cols' ) . '",';
-        echo '"' . xl('Data Cols'  ) . '",';
-        echo '"' . xl('Options'    ) . '",';
+        echo '"' . xl('Form') . '",';
+        echo '"' . xl('Order') . '",';
+        echo '"' . xl('Source') . '",';
+        echo '"' . xl('Group') . '",';
+        echo '"' . xl('ID') . '",';
+        echo '"' . xl('Label') . '",';
+        echo '"' . xl('Translated') . '",';
+        echo '"' . xl('UOR') . '",';
+        echo '"' . xl('Type') . '",';
+        echo '"' . xl('Width') . '",';
+        echo '"' . xl('Height') . '",';
+        echo '"' . xl('Max') . '",';
+        echo '"' . xl('List') . '",';
+        echo '"' . xl('Label Cols') . '",';
+        echo '"' . xl('Data Cols') . '",';
+        echo '"' . xl('Options') . '",';
         echo '"' . xl('Description') . '",';
-        echo '"' . xl('Translated' ) . '",';
-        echo '"' . xl('Conditions' ) . '"';
+        echo '"' . xl('Translated') . '",';
+        echo '"' . xl('Conditions') . '"';
         echo "\n";
         foreach ($_POST['form_sel_layouts'] as $layoutid) {
             $res = sqlStatement(
@@ -277,8 +278,8 @@ if ($form_step == 102.2) {
                 echo '"' . csvtext($row['grp_title'   ]) . '",';
                 echo '"' . csvtext($row['field_id'    ]) . '",';
                 echo '"' . csvtext($row['title'       ]) . '",';
-                echo '"' . csvtext($xtitle             ) . '",';
-                echo '"' . csvtext($UOR[$row['uor']]   ) . '",';
+                echo '"' . csvtext($xtitle) . '",';
+                echo '"' . csvtext($UOR[$row['uor']]) . '",';
                 echo '"' . csvtext($datatypes[$row['data_type']]) . '",';
                 echo '"' . csvtext($row['fld_length'  ]) . '",';
                 echo '"' . csvtext($row['fld_rows'    ]) . '",';
@@ -288,7 +289,7 @@ if ($form_step == 102.2) {
                 echo '"' . csvtext($row['datacols'    ]) . '",';
                 echo '"' . csvtext($row['edit_options']) . '",';
                 echo '"' . csvtext($row['description' ]) . '",';
-                echo '"' . csvtext($xdesc              ) . '",';
+                echo '"' . csvtext($xdesc) . '",';
                 echo '"' . csvtext($row['conditions'  ]) . '"';
                 echo "\n";
             }
@@ -302,12 +303,11 @@ if ($form_step == 102.2) {
 if ($form_step == 402) {
     $end_date = fixDate($_POST['form_end_date'], '');
     if ($end_date) {
-
         // This is the "filename" for the Content-Disposition header.
         $filename = "log_archive_{$end_date}.csv";
 
         $outfile = tempnam($GLOBALS['temporary_files_dir'], 'OET');
-        if ($outfile === FALSE) {
+        if ($outfile === false) {
             die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OET') failed.\n");
         }
         $hout = fopen($outfile, "w");
@@ -318,17 +318,17 @@ if ($form_step == 402) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         $out = "\xEF\xBB\xBF";
         // CSV headers:
-        $out .= '"' . xl('id'        ) . '",';
-        $out .= '"' . xl('date'      ) . '",';
-        $out .= '"' . xl('event'     ) . '",';
-        $out .= '"' . xl('user'      ) . '",';
-        $out .= '"' . xl('groupname' ) . '",';
-        $out .= '"' . xl('comments'  ) . '",';
+        $out .= '"' . xl('id') . '",';
+        $out .= '"' . xl('date') . '",';
+        $out .= '"' . xl('event') . '",';
+        $out .= '"' . xl('user') . '",';
+        $out .= '"' . xl('groupname') . '",';
+        $out .= '"' . xl('comments') . '",';
         $out .= '"' . xl('user_notes') . '",';
         $out .= '"' . xl('patient_id') . '",';
-        $out .= '"' . xl('success'   ) . '",';
-        $out .= '"' . xl('checksum'  ) . '",';
-        $out .= '"' . xl('crt_user'  ) . '"';
+        $out .= '"' . xl('success') . '",';
+        $out .= '"' . xl('checksum') . '",';
+        $out .= '"' . xl('crt_user') . '"';
         $out .= "\n";
         fwrite($hout, $out);
 
@@ -369,10 +369,10 @@ if ($form_step == 402) {
         if (true) {
             $zip = new ZipArchive();
             $zippedoutfile = tempnam($GLOBALS['temporary_files_dir'], 'OEZ');
-            if ($zippedoutfile === FALSE) {
+            if ($zippedoutfile === false) {
                 die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OEZ') failed.\n");
             }
-            if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== TRUE) {
+            if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== true) {
                 die(xl('Cannot create file') . " '$zipname'\n");
             }
             if (!$zip->addFile($outfile, $filename)) {
