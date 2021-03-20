@@ -41,11 +41,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
-function csvtext($s)
-{
-    return str_replace('"', '""', $s);
-}
-
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -200,16 +195,16 @@ if ($form_step == 102.1) {
                 if ($xtitle === $row['title']) {
                     $xtitle = '';
                 }
-                echo '"' . csvtext($row['list_id']) . '",';
-                echo '"' . csvtext($row['option_id']) . '",';
-                echo '"' . csvtext($row['title']) . '",';
-                echo '"' . csvtext($xtitle) . '",';
-                echo '"' . csvtext($row['seq']) . '",';
-                echo '"' . csvtext($row['is_default']) . '",';
-                echo '"' . csvtext($row['activity']) . '",';
-                echo '"' . csvtext($row['mapping']) . '",';
-                echo '"' . csvtext($row['notes']) . '",';
-                echo '"' . csvtext($row['codes']) . '"';
+                echo csvEscape($row['list_id']) . ',';
+                echo csvEscape($row['option_id']) . ',';
+                echo csvEscape($row['title']) . ',';
+                echo csvEscape($xtitle) . ',';
+                echo csvEscape($row['seq']) . ',';
+                echo csvEscape($row['is_default']) . ',';
+                echo csvEscape($row['activity']) . ',';
+                echo csvEscape($row['mapping']) . ',';
+                echo csvEscape($row['notes']) . ',';
+                echo csvEscape($row['codes']) . '';
                 echo "\n";
             }
         }
@@ -272,25 +267,25 @@ if ($form_step == 102.2) {
                 if ($xdesc === $row['description']) {
                     $xdesc = '';
                 }
-                echo '"' . csvtext($row['form_id'     ]) . '",';
-                echo '"' . csvtext($row['seq'         ]) . '",';
-                echo '"' . csvtext($sources[$row['source']]) . '",';
-                echo '"' . csvtext($row['grp_title'   ]) . '",';
-                echo '"' . csvtext($row['field_id'    ]) . '",';
-                echo '"' . csvtext($row['title'       ]) . '",';
-                echo '"' . csvtext($xtitle) . '",';
-                echo '"' . csvtext($UOR[$row['uor']]) . '",';
-                echo '"' . csvtext($datatypes[$row['data_type']]) . '",';
-                echo '"' . csvtext($row['fld_length'  ]) . '",';
-                echo '"' . csvtext($row['fld_rows'    ]) . '",';
-                echo '"' . csvtext($row['max_length'  ]) . '",';
-                echo '"' . csvtext($row['list_id'     ]) . '",';
-                echo '"' . csvtext($row['titlecols'   ]) . '",';
-                echo '"' . csvtext($row['datacols'    ]) . '",';
-                echo '"' . csvtext($row['edit_options']) . '",';
-                echo '"' . csvtext($row['description' ]) . '",';
-                echo '"' . csvtext($xdesc) . '",';
-                echo '"' . csvtext($row['conditions'  ]) . '"';
+                echo csvEscape($row['form_id'     ]) . ',';
+                echo csvEscape($row['seq'         ]) . ',';
+                echo csvEscape($sources[$row['source']]) . ',';
+                echo csvEscape($row['grp_title'   ]) . ',';
+                echo csvEscape($row['field_id'    ]) . ',';
+                echo csvEscape($row['title'       ]) . ',';
+                echo csvEscape($xtitle) . ',';
+                echo csvEscape($UOR[$row['uor']]) . ',';
+                echo csvEscape($datatypes[$row['data_type']]) . ',';
+                echo csvEscape($row['fld_length'  ]) . ',';
+                echo csvEscape($row['fld_rows'    ]) . ',';
+                echo csvEscape($row['max_length'  ]) . ',';
+                echo csvEscape($row['list_id'     ]) . ',';
+                echo csvEscape($row['titlecols'   ]) . ',';
+                echo csvEscape($row['datacols'    ]) . ',';
+                echo csvEscape($row['edit_options']) . ',';
+                echo csvEscape($row['description' ]) . ',';
+                echo csvEscape($xdesc) . ',';
+                echo csvEscape($row['conditions'  ]) . '';
                 echo "\n";
             }
         }
@@ -301,14 +296,14 @@ if ($form_step == 102.2) {
 // CSV export of old log entries.
 //
 if ($form_step == 402) {
-    $end_date = fixDate($_POST['form_end_date'], '');
-    if ($end_date) {
+    if (!empty($_POST['form_end_date'])) {
+        $end_date = DateToYYYYMMDD($_POST['form_end_date']);
         // This is the "filename" for the Content-Disposition header.
         $filename = "log_archive_{$end_date}.csv";
 
         $outfile = tempnam($GLOBALS['temporary_files_dir'], 'OET');
         if ($outfile === false) {
-            die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OET') failed.\n");
+            die("tempnam('" . text($GLOBALS['temporary_files_dir']) . "','OET') failed.\n");
         }
         $hout = fopen($outfile, "w");
         $wcount = 0;
@@ -344,17 +339,17 @@ if ($form_step == 402) {
                 break;
             }
             while ($row = sqlFetchArray($res)) {
-                $out  = '"' . csvtext($row['id'        ]) . '",' .
-                        '"' . csvtext($row['date'      ]) . '",' .
-                        '"' . csvtext($row['event'     ]) . '",' .
-                        '"' . csvtext($row['user'      ]) . '",' .
-                        '"' . csvtext($row['groupname' ]) . '",' .
-                        '"' . csvtext($row['comments'  ]) . '",' .
-                        '"' . csvtext($row['user_notes']) . '",' .
-                        '"' . csvtext($row['patient_id']) . '",' .
-                        '"' . csvtext($row['success'   ]) . '",' .
-                        '"' . csvtext($row['checksum'  ]) . '",' .
-                        '"' . csvtext($row['crt_user'  ]) . '"' .
+                $out  = csvEscape($row['id'        ]) . ',' .
+                        csvEscape($row['date'      ]) . ',' .
+                        csvEscape($row['event'     ]) . ',' .
+                        csvEscape($row['user'      ]) . ',' .
+                        csvEscape($row['groupname' ]) . ',' .
+                        csvEscape($row['comments'  ]) . ',' .
+                        csvEscape($row['user_notes']) . ',' .
+                        csvEscape($row['patient_id']) . ',' .
+                        csvEscape($row['success'   ]) . ',' .
+                        csvEscape($row['checksum'  ]) . ',' .
+                        csvEscape($row['crt_user'  ]) . '' .
                         "\n";
                 if (!fwrite($hout, $out)) {
                     die("fwrite() failed!");
@@ -370,13 +365,13 @@ if ($form_step == 402) {
             $zip = new ZipArchive();
             $zippedoutfile = tempnam($GLOBALS['temporary_files_dir'], 'OEZ');
             if ($zippedoutfile === false) {
-                die("tempnam('" . $GLOBALS['temporary_files_dir'] . "','OEZ') failed.\n");
+                die("tempnam('" . text($GLOBALS['temporary_files_dir']) . "','OEZ') failed.\n");
             }
             if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== true) {
-                die(xl('Cannot create file') . " '$zipname'\n");
+                die(xlt('Cannot create file') . " '$zipname'\n");
             }
             if (!$zip->addFile($outfile, $filename)) {
-                die(xl('Cannot add to archive') . " '$zipname'\n");
+                die(xlt('Cannot add to archive') . " '$zipname'\n");
             }
             $zip->close();
             $filename .= '.zip';
@@ -394,7 +389,7 @@ if ($form_step == 402) {
         readfile($outfile);
         unlink($outfile);
     } else {
-        die(xl("End date is missing!"));
+        die(xlt("End date is missing!"));
     }
     exit(0);
 }
@@ -966,7 +961,10 @@ if ($form_step == 401) {
     echo "<p>&nbsp;" . xlt('The log has') . ' ' . $tmprow['count'] . ' '  .
         xlt('entries with the oldest dated') . ' ' . $tmprow['date'] . ".</p>";
     // Default end date is end of year 2 years ago, ensuring 1 full year of log remaining.
-    $end_date = fixDate($_POST['form_end_date'] ?? '', (date('Y') - 2) . '-12-31');
+    $end_date = (date('Y') - 2) . '-12-31';
+    if (!empty($_POST['form_end_date'])) {
+        $end_date = DateToYYYYMMDD($_POST['form_end_date']);
+    }
     echo "<p>&nbsp;" . xlt('Select an end date. Entries after this date will not be downloaded or deleted.') . " ";
     echo "<input type='text' class='datepicker' name='form_end_date' id='form_end_date' size='10' " .
         "value='" . attr(oeFormatShortDate($end_date)) . "' " .
@@ -978,12 +976,18 @@ if ($form_step == 401) {
 
 if ($form_step == 405) {
     // Process log delete, then optimize to reclaim the file space.
-    $end_date = fixDate($_POST['form_end_date'], '');
-    if ($end_date) {
-        sqlStatement("DELETE FROM log WHERE date <= ?", array("$end_date 23:59:59"));
+    if (!empty($_POST['form_end_date'])) {
+        $end_date = DateToYYYYMMDD($_POST['form_end_date']);
+        sqlStatement(
+            "DELETE log, lce, al FROM log " .
+            "LEFT JOIN log_comment_encrypt AS lce ON lce.log_id = log.id " .
+            "LEFT JOIN api_log AS al ON al.log_id = log.id " .
+            "WHERE log.date <= ?",
+            array("$end_date 23:59:59")
+        );
         sqlStatement("OPTIMIZE TABLE log");
     } else {
-        die(xl("End date is missing!"));
+        die(xlt("End date is missing!"));
     }
     $form_step = -1;
     $auto_continue = true;
