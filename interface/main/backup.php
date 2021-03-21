@@ -174,16 +174,16 @@ if ($form_step == 102.1) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo '"' . xl('List') . '",';
-        echo '"' . xl('ID') . '",';
-        echo '"' . xl('Title') . '",';
-        echo '"' . xl('Translated') . '",';
-        echo '"' . xl('Order') . '",';
-        echo '"' . xl('Default') . '",';
-        echo '"' . xl('Active') . '",';
-        echo '"' . xl('Global ID') . '",';
-        echo '"' . xl('Notes') . '",';
-        echo '"' . xl('Codes') . '"';
+        echo csvEscape(xl('List')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Title')) . ',';
+        echo csvEscape(xl('Translated')) . ',';
+        echo csvEscape(xl('Order')) . ',';
+        echo csvEscape(xl('Default')) . ',';
+        echo csvEscape(xl('Active')) . ',';
+        echo csvEscape(xl('Global ID')) . ',';
+        echo csvEscape(xl('Notes')) . ',';
+        echo csvEscape(xl('Codes')) . '';
         echo "\n";
         foreach ($_POST['form_sel_lists'] as $listid) {
             $res = sqlStatement(
@@ -227,25 +227,25 @@ if ($form_step == 102.2) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo '"' . xl('Form') . '",';
-        echo '"' . xl('Order') . '",';
-        echo '"' . xl('Source') . '",';
-        echo '"' . xl('Group') . '",';
-        echo '"' . xl('ID') . '",';
-        echo '"' . xl('Label') . '",';
-        echo '"' . xl('Translated') . '",';
-        echo '"' . xl('UOR') . '",';
-        echo '"' . xl('Type') . '",';
-        echo '"' . xl('Width') . '",';
-        echo '"' . xl('Height') . '",';
-        echo '"' . xl('Max') . '",';
-        echo '"' . xl('List') . '",';
-        echo '"' . xl('Label Cols') . '",';
-        echo '"' . xl('Data Cols') . '",';
-        echo '"' . xl('Options') . '",';
-        echo '"' . xl('Description') . '",';
-        echo '"' . xl('Translated') . '",';
-        echo '"' . xl('Conditions') . '"';
+        echo csvEscape(xl('Form')) . ',';
+        echo csvEscape(xl('Order')) . ',';
+        echo csvEscape(xl('Source')) . ',';
+        echo csvEscape(xl('Group')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Label')) . ',';
+        echo csvEscape(xl('Translated')) . ',';
+        echo csvEscape(xl('UOR')) . ',';
+        echo csvEscape(xl('Type')) . ',';
+        echo csvEscape(xl('Width')) . ',';
+        echo csvEscape(xl('Height')) . ',';
+        echo csvEscape(xl('Max')) . ',';
+        echo csvEscape(xl('List')) . ',';
+        echo csvEscape(xl('Label Cols')) . ',';
+        echo csvEscape(xl('Data Cols')) . ',';
+        echo csvEscape(xl('Options')) . ',';
+        echo csvEscape(xl('Description')) . ',';
+        echo csvEscape(xl('Translated')) . ',';
+        echo csvEscape(xl('Conditions')) . '';
         echo "\n";
         foreach ($_POST['form_sel_layouts'] as $layoutid) {
             $res = sqlStatement(

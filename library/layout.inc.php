@@ -5,7 +5,7 @@
 *
 * Things related to layout based forms in general.
 *
-* Copyright (C) 2017-2020 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2017-2021 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ $datatypes = array(
 );
 
 // These are the data types that can reference a list.
-$typesUsingList = array(1, 21, 22, 23, 25, 26, 27, 32, 33, 34, 36, 37, 43);
+$typesUsingList = array(1, 21, 22, 23, 25, 26, 27, 32, 33, 34, 36, 37, 43, 46);
 
 $sources = array(
     'F' => xl('Form'),
