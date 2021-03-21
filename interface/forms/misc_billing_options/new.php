@@ -13,18 +13,19 @@
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (C) 2017-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
 require_once("$srcdir/user.inc");
+require_once("$srcdir/pid.inc");
+require_once("$srcdir/encounter.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -32,8 +33,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 if (isset($_REQUEST['isBilling'])) {
+    $is_from_billing_manager = true;
     $pid = $_SESSION['billpid'] = $_REQUEST['pid'];
+    if ($pid != $_SESSION["pid"]) {
+        setpid($pid);
+    }
     $encounter = $_SESSION['billencounter'] = $_REQUEST['enc'];
+    if ($encounter != $_SESSION["encounter"]) {
+        setencounter($encounter);
+    }
 } elseif (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
@@ -80,6 +88,10 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <?php if ($is_from_billing_manager) { ?>
+                    <input type="hidden" name="billencounter" value="<?php echo attr($encounter); ?>" />
+                    <input type="hidden" name="billpid" value="<?php echo attr($pid); ?>" />
+                <?php } ?>
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
