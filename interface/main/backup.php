@@ -313,17 +313,17 @@ if ($form_step == 402) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         $out = "\xEF\xBB\xBF";
         // CSV headers:
-        $out .= '"' . xl('id') . '",';
-        $out .= '"' . xl('date') . '",';
-        $out .= '"' . xl('event') . '",';
-        $out .= '"' . xl('user') . '",';
-        $out .= '"' . xl('groupname') . '",';
-        $out .= '"' . xl('comments') . '",';
-        $out .= '"' . xl('user_notes') . '",';
-        $out .= '"' . xl('patient_id') . '",';
-        $out .= '"' . xl('success') . '",';
-        $out .= '"' . xl('checksum') . '",';
-        $out .= '"' . xl('crt_user') . '"';
+        $out .= csvEscape(xl('id')) . ',';
+        $out .= csvEscape(xl('date')) . ',';
+        $out .= csvEscape(xl('event')) . ',';
+        $out .= csvEscape(xl('user')) . ',';
+        $out .= csvEscape(xl('groupname')) . ',';
+        $out .= csvEscape(xl('comments')) . ',';
+        $out .= csvEscape(xl('user_notes')) . ',';
+        $out .= csvEscape(xl('patient_id')) . ',';
+        $out .= csvEscape(xl('success')) . ',';
+        $out .= csvEscape(xl('checksum')) . ',';
+        $out .= csvEscape(xl('crt_user')) . '';
         $out .= "\n";
         fwrite($hout, $out);
 
