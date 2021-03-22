@@ -66,7 +66,6 @@ $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
 $insurance_company = trim($_POST["insurance_company"] ?? '');
-$insurance_provider = trim($_POST["insurance_provider"] ?? '');
 ?>
 <html>
     <head>
@@ -246,7 +245,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                                 </td>
                                 <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='col-form-label'>
-                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}if(this.value == 'Insurance Companies'){ $('#insurance_companies').val('');$('#ins_co').show();}else{ $('#insurance_companies').val('');$('#ins_co').hide();}">
+                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}if(this.value == 'Insurance Companies'){ $('#insurance_companies').val('');$('#ins_co').show();}else{ $('#insurance_companies').val('');$('#ins_co').hide();}">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
                                             <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
@@ -271,8 +270,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                                     <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
                                         <?php foreach ($insarr as $ins_id => $ins_co) { ?>
-                                            <option value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
-                                            <input type="hidden" name="insurance_provider" id="insurance_provider" value="<?php echo attr($ins_id); ?>" />
+                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_co)) ? 'selected' : ''; ?> value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
                                         <?php } ?>
                                     </select>
                                     </select>
@@ -429,7 +427,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                     $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
                     break;
                 case "Insurance Companies":
-                    $whr_stmt .= " AND id.type = 'primary' ";
+                    $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
                     break;
             }
 
@@ -472,7 +470,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
 
             if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0) {
                 $whr_stmt = $whr_stmt . " AND id.provider = ?";
-                array_push($sqlBindArray, $insurance_provider);
+                array_push($sqlBindArray, $insurance_company);
             }
 
             //Sorting By filter fields
@@ -564,6 +562,9 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
                 if ($_POST['sortby'] == "communications") {
                     $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
+                } elseif ($_POST['sortby'] == "insurance_companies") {
+                    $odrstmt = "ORDER BY ins_provider " . escape_sort_order($_POST['sortorder']);
+
                 } else {
                     $odrstmt = "ORDER BY " . escape_identifier($_POST['sortby'], $sort, true) . " " . escape_sort_order($_POST['sortorder']);
                 }
@@ -618,6 +619,7 @@ $insurance_provider = trim($_POST["insurance_provider"] ?? '');
                         $patInfoArr['patient_name'] = $row['patient_name'];
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                         $patInfoArr['insurance_companies'] = $row['ins_name'];
                     } elseif ($srch_option == "Demographics") {
