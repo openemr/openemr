@@ -33,7 +33,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 if (isset($_REQUEST['isBilling'])) {
-
     $pid = $_REQUEST['pid'];
     SessionUtil::setSession('billpid', $pid);
 
@@ -47,7 +46,6 @@ if (isset($_REQUEST['isBilling'])) {
     if ($encounter != $_SESSION["encounter"]) {
         setencounter($encounter);
     }
-
 } elseif (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
