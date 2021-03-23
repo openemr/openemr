@@ -33,15 +33,21 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 if (isset($_REQUEST['isBilling'])) {
-    $is_from_billing_manager = true;
-    $pid = $_SESSION['billpid'] = $_REQUEST['pid'];
+
+    $pid = $_REQUEST['pid'];
+    SessionUtil::setSession('billpid', $pid);
+
     if ($pid != $_SESSION["pid"]) {
         setpid($pid);
     }
-    $encounter = $_SESSION['billencounter'] = $_REQUEST['enc'];
+
+    $encounter = $_REQUEST['enc'];
+    SessionUtil::setSession('billencounter', $encounter);
+
     if ($encounter != $_SESSION["encounter"]) {
         setencounter($encounter);
     }
+
 } elseif (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
@@ -88,10 +94,6 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <?php if ($is_from_billing_manager) { ?>
-                    <input type="hidden" name="billencounter" value="<?php echo attr($encounter); ?>" />
-                    <input type="hidden" name="billpid" value="<?php echo attr($pid); ?>" />
-                <?php } ?>
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">

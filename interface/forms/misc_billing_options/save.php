@@ -28,9 +28,9 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 // From billing manager so do stuff
-if (isset($_POST['billencounter'])) {
-    $pid = $_POST['billpid'];
-    $encounter = $_POST['billencounter'];
+if (isset($_SESSION['billencounter'])) {
+    $pid = $_SESSION['billpid'];
+    $encounter = $_SESSION['billencounter'];
     echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
 }
 if (!$encounter) { // comes from globals.php
@@ -163,7 +163,7 @@ if (empty($id)) {
     );
 }
 
-if (isset($_POST['billencounter'])) {
+if (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
     echo "<script>dlgclose('SubmitTheScreen')</script>";
 } else {
