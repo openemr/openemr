@@ -97,19 +97,19 @@ foreach ($msgs as $i) {
     <?php } ?>
 
     <script>
-        $(function () {
-           if($('body').css('direction') == "rtl") {
-             $('.float-left').each(function() {
-               $(this).addClass('float-right').removeClass('float-left');
-             });
-             $('.dropdown-menu-right').each(function() {
-               $(this).removeClass('dropdown-menu-right');
-             });
-             $('.dropdown-menu-md-right').each(function() {
-               $(this).removeClass('dropdown-menu-md-right');
-             });
-           }
-            $("#profilereport").load("get_profile.php", {}, function () {
+        $(function() {
+            if ($('body').css('direction') == "rtl") {
+                $('.float-left').each(function() {
+                    $(this).addClass('float-right').removeClass('float-left');
+                });
+                $('.dropdown-menu-right').each(function() {
+                    $(this).removeClass('dropdown-menu-right');
+                });
+                $('.dropdown-menu-md-right').each(function() {
+                    $(this).removeClass('dropdown-menu-md-right');
+                });
+            }
+            $("#profilereport").load("get_profile.php", {}, function() {
                 $("table").addClass("table table-sm");
                 $(".demographics td").removeClass("label");
                 $(".demographics td").addClass("bold");
@@ -204,7 +204,7 @@ foreach ($msgs as $i) {
                 }
             });
             $('#popwait').addClass('d-none');
-            $('#callccda').click(function () {
+            $('#callccda').click(function() {
                 $('#popwait').removeClass('d-none');
             });
         });
@@ -488,7 +488,6 @@ foreach ($msgs as $i) {
                             <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#procard" data-toggle="collapse" data-parent="#cardgroup"><i class="fa fa-edit"></i> <?php echo xlt("Patient Reported Outcomes"); ?></a></li>
                         <?php } ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature"><i class="fas fa-file-signature"></i> <?php echo xlt('Signature on File'); ?></a></li>
-                        <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fa fa-ban"></i> <?php echo xlt('Logout'); ?></a></li>
                     </ul>
                 </nav>
 
