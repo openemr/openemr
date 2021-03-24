@@ -21,6 +21,20 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
 
+    /**
+     * Returns the token expiration date for the given token id.
+     * @param $tokenId string The access token id
+     * @param $clientId string The client id
+     * @param number $userId  The id of the openemr user the token corresponds to
+     * @return string|null The expiration date or null if there was no token found
+     */
+    public function getTokenExpiration($tokenId, $clientId, $userId = null)
+    {
+        $result = sqlQueryNoLog("SELECT `expiry` FROM `api_token` WHERE `token` = ? AND `client_id` = ? AND `user_id` = ?", [$tokenId, $clientId, $userId]);
+        $authTokenExpiration = $result['expiry'] ?? null;
+        return $authTokenExpiration;
+    }
+
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
         $access_token = (string) $accessTokenEntity;
@@ -31,13 +45,10 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $scope = \json_encode($accessTokenEntity->getScopes());
 
         $sql = " INSERT INTO api_token SET";
-        $sql .= " `token_api` = ?,";
         $sql .= " `user_id` = ?,";
         $sql .= " `token` = ?,";
-        $sql .= " `token_auth` = ?,";
-        $sql .= " `auth_user_id` = ?,";
         $sql .= " `expiry` = ?, `client_id` = ?, `scope` = ?";
-        sqlStatement($sql, ['', $user_id, $unique_id, $access_token, '', $exp_date, $client_id, $scope]);
+        sqlStatementNoLog($sql, [$user_id, $unique_id, $exp_date, $client_id, $scope]);
     }
 
     public function revokeAccessToken($tokenId)

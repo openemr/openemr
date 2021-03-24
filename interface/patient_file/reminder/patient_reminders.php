@@ -40,9 +40,9 @@ use OpenEMR\OeUI\OemrUI;
 <?php
 $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 $mode = ($_GET['mode']) ? $_GET['mode'] : "simple";
-$sortby = $_GET['sortby'];
-$sortorder = $_GET['sortorder'];
-$begin = $_GET['begin'];
+$sortby = $_GET['sortby'] ?? null;
+$sortorder = $_GET['sortorder'] ?? null;
+$begin = $_GET['begin'] ?? null;
 
 if (!empty($patient_id)) {
     //Only update one patient
@@ -149,7 +149,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, b.fname, b.lname " .
                   "FROM `patient_reminders` as a, `patient_data` as b " .
-                  "WHERE a.active='1' AND a.pid=b.pid " . $add_sql;
+                  "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '');
                 $result = sqlStatement($sql, $sqlBindArray);
                 if (sqlNumRows($result) != 0) {
                     $total = sqlNumRows($result);
@@ -262,7 +262,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
                                 "a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
                     "FROM `patient_reminders` as a, `patient_data` as b " .
-                    "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
+                    "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '') .
                     "ORDER BY " . $escapedsortby . " " .
                       escape_sort_order($sortorder) . " " .
                     "LIMIT " . escape_limit($begin) . ", " .

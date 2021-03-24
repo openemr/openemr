@@ -97,19 +97,19 @@ foreach ($msgs as $i) {
     <?php } ?>
 
     <script>
-        $(function() {
-            if ($('body').css('direction') == "rtl") {
-                $('.float-left').each(function() {
-                    $(this).addClass('float-right').removeClass('float-left');
-                });
-                $('.dropdown-menu-right').each(function() {
-                    $(this).removeClass('dropdown-menu-right');
-                });
-                $('.dropdown-menu-md-right').each(function() {
-                    $(this).removeClass('dropdown-menu-md-right');
-                });
-            }
-            $("#profilereport").load("get_profile.php", {}, function() {
+        $(function () {
+           if($('body').css('direction') == "rtl") {
+             $('.float-left').each(function() {
+               $(this).addClass('float-right').removeClass('float-left');
+             });
+             $('.dropdown-menu-right').each(function() {
+               $(this).removeClass('dropdown-menu-right');
+             });
+             $('.dropdown-menu-md-right').each(function() {
+               $(this).removeClass('dropdown-menu-md-right');
+             });
+           }
+            $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table table-sm");
                 $(".demographics td").removeClass("label");
                 $(".demographics td").addClass("bold");
@@ -204,7 +204,7 @@ foreach ($msgs as $i) {
                 }
             });
             $('#popwait').addClass('d-none');
-            $('#callccda').click(function() {
+            $('#callccda').click(function () {
                 $('#popwait').removeClass('d-none');
             });
         });

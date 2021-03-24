@@ -135,29 +135,11 @@ if ($GLOBALS['medex_enable'] == '1') {
     $prefs = sqlFetchArray($preferences);
     $results = json_decode($prefs['status'], true);
     $logged_in = $results;
-    if (!empty($prefs)) {
-        foreach ($results['campaigns']['events'] as $event) {
-            if ($event['M_group'] != 'REMINDER') {
-                continue;
-            }
-            $icon = $icons[$event['M_type']]['SCHEDULED']['html'];
-            if ($event['E_timing'] == '1') {
-                $action = xl("before");
-            }
-            if ($event['E_timing'] == '2') {
-                $action = xl("before (PM)");
-            }
-            if ($event['E_timing'] == '3') {
-                $action = xl("after");
-            }
-            if ($event['E_timing'] == '4') {
-                $action = xl("after (PM)");
-            }
-            $days = ($event['E_fire_time'] == '1') ? xl("day") : xl("days");
-            $current_events .= $icon . " &nbsp; " . (int)$event['E_fire_time'] . " " . text($days) . " " . text($action) . "<br />";
-        }
+    $logged_in = $results;
+    if (!empty($logged_in['token'])) {
+        $current_events = xlt("On-line");
     } else {
-        $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
+        $current_events = xlt("Currently off-line");
     }
 }
 
@@ -195,8 +177,9 @@ if (!$_REQUEST['flb_table']) {
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
+                        <div class="row">
                           <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                            <div class="text-center row align-items-center">
+                            <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
                                 <select id="form_apptcat" name="form_apptcat" class="form-control form-control-sm" onchange="refineMe('apptcat');">
@@ -280,7 +263,6 @@ if (!$_REQUEST['flb_table']) {
                                   </select>
                               </div>
                             </div>
-                            <div class="row mt-3">
                               <?php
                                 if ($GLOBALS['ptkr_date_range'] == '1') {
                                     $type = 'date';
@@ -289,55 +271,50 @@ if (!$_REQUEST['flb_table']) {
                                     $type = 'hidden';
                                     $style = 'display:none;';
                                 } ?>
-                              <label class="col-form-label col-sm" for="flow_from"><?php echo xlt('From'); ?>:</label>
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                            <div class="col-4 mt-3 nowrap row" style="<?php echo $style; ?>">
+                              
+                              <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
+                              <div class="col-sm-9">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
                               </div>
-                              <label class="col-form-label col-sm" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                              <label class="col-form-label col-sm-3 text-right" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
+                              <div class="col-sm-9">
                                   <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
                               </div>
 
-                              <div class="col-sm" style="<?php echo $style; ?>">
+                              <div class="col-sm-12 mt-3 mx-auto">
                                   <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
                                   <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                               </div>
-
-                              <?php if ($GLOBALS['medex_enable'] == '1') { ?>
-                              <div class="col-sm text-center">
-                                  <div class="text-center">
-                                      <span class="font-weight-bold" style="text-decoration:underline; font-size:1.2em;">MedEx <?php echo xlt('Reminders'); ?></span><br/>
-                                      <div class="text-left blockquote" style="width: 65%; margin: 5px auto;">
-                                          <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
-                                              target="_medex">
-                                              <?php echo $current_events; ?>
-                                          </a>
-                                      </div>
-                                  </div>
-                              </div>
-                              <?php } ?>
                             </div>
-                            <div class="row">
-                              <div class="col-sm text-center">
+                            <div class="col-4 mt-3 row">
+                                <div class="col-sm-12 text-center">
                                     <!-- Patient Name Section -->
-                                    <div class="col-sm-12 mt-2">
                                       <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();" />
+                                </div>
+                                <div class="col-sm-12 text-center">
+                                        <!-- Patient ID Section -->
+                                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
+                                </div>
+                                <div class="col-sm-12 mx-auto">
+                                    <div class="text-center pt-3 mx-auto">
+                                   
+                                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                                          <b>MedEx:</b>
+                                                <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
+                                                   target="_medex">
+                                                    <?php echo $current_events; ?>
+                                                </a>
+                                          <?php } ?>
                                     </div>
                                 </div>
-                                <div class="col-sm text-center">
-                                        <!-- Patient ID Section -->
-                                        <div class="col-12 mt-2">
-                                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
-                                        </div>
-                                </div>
-
                             </div>
                             <div id="message" class="warning"></div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-
+        </div>
     <div class="row-fluid">
         <div class="col-md-12">
             <div class="text-center row mx-auto divTable">
@@ -347,7 +324,7 @@ if (!$_REQUEST['flb_table']) {
                     </div>
                     <h2><?php echo xlt('Loading data'); ?>...</h2>
                 </div>
-                <div id="flb_table" name="flb_table">
+                <div id="flb_table" name="flb_table" class="w-100">
             <?php
 } else {
     //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
@@ -366,13 +343,13 @@ if (!$_REQUEST['flb_table']) {
     }
     ?>
                 <div class="col-sm-12 text-center m-1">
-                <div class="d-none d-sm-block">
+                <div class=" d-sm-block">
                     <span id="status_summary">
                         <?php
-                        $statuses_output = "<span class='text badge badge-dark'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
+                        $statuses_output = "<span class='text badge badge-light'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
                         unset($appointments_status['count_all']);
                         foreach ($appointments_status as $status_symbol => $count) {
-                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-dark'>" . text($count) . "</span></span>";
+                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-light'>" . text($count) . "</span></span>";
                         }
                         echo $statuses_output;
                         ?>
@@ -387,9 +364,9 @@ if (!$_REQUEST['flb_table']) {
                     <a class="btn btn-primary btn-setting" data-toggle="collapse" href="#collapseSetting">
                         <?php echo xlt('Setting'); ?>
                     </a>
-                    <a class='btn btn-primary text-white btn-refresh' id='refreshme'><?php echo xlt('Refresh'); ?></a>
-                    <a class='btn btn-primary text-white btn-print' onclick="print_FLB();"> <?php echo xlt('Print'); ?></a>
-                    <a class='btn btn-primary text-white' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?></a>
+                    <a class='btn btn-primary btn-refresh' id='refreshme'><?php echo xlt('Refresh'); ?></a>
+                    <a class='btn btn-primary btn-print' onclick="print_FLB();"> <?php echo xlt('Print'); ?></a>
+                    <a class='btn btn-primary' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?></a>
                     <div class="collapse mt-2 mb-2" id="collapseSetting">
                         <input type='checkbox' name='setting_new_window' id='setting_new_window' value='<?php echo attr($setting_new_window); ?>' <?php echo attr($setting_new_window); ?> />
                         <?php echo xlt('Open Patient in New Window'); ?>
@@ -402,7 +379,7 @@ if (!$_REQUEST['flb_table']) {
                     <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
-                            <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
                             </td>
                         <?php } ?>
@@ -410,51 +387,51 @@ if (!$_REQUEST['flb_table']) {
                             <?php echo xlt('Patient'); ?>
                         </td>
                         <?php if ($GLOBALS['ptkr_visit_reason'] == '1') { ?>
-                            <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Reason'); ?>
                             </td>
                         <?php } ?>
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
-                            <td class="dehead text-center d-none d-md-table-cell text-ovr-dark" name="kiosk_hide">
+                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Encounter'); ?>
                             </td>
                         <?php } ?>
 
                         <?php if ($GLOBALS['ptkr_date_range'] == '1') { ?>
-                            <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Date'); ?>
                             </td>
                         <?php } ?>
                         <td class="dehead text-center text-ovr-dark">
                             <?php echo xlt('Appt Time'); ?>
                         </td>
-                        <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark">
+                        <td class="dehead text-center text-ovr-dark">
                             <?php echo xlt('Arrive Time'); ?>
                         </td>
-                        <td class="dehead text-center d-block d-table-cell d-sm-none text-ovr-dark">
+                        <td class="dehead text-center d-block d-sm-none text-ovr-dark">
                             <?php echo xlt('Arrival'); ?>
                         </td>
-                        <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark">
+                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
                             <?php echo xlt('Appt Status'); ?>
                         </td>
-                        <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark">
+                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
                             <?php echo xlt('Current Status'); ?>
                         </td>
                         <td class="dehead text-center d-block d-table-cell d-sm-none text-ovr-dark">
                             <?php echo xlt('Current'); ?>
                         </td>
-                        <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                        <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                             <?php echo xlt('Visit Type'); ?>
                         </td>
                         <?php if (count($chk_prov) > 1) { ?>
-                            <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark">
+                            <td class="dehead text-center d-sm-table-cell text-ovr-dark">
                                 <?php echo xlt('Provider'); ?>
                             </td>
                         <?php } ?>
                         <td class="dehead text-center text-ovr-dark">
                             <?php echo xlt('Total Time'); ?>
                         </td>
-                        <td class="dehead text-center d-none d-sm-table-cell text-ovr-dark">
+                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
                             <?php echo xlt('Check Out Time'); ?>
                         </td>
                         <td class="dehead text-center d-block d-table-cell d-sm-none text-ovr-dark">
@@ -462,17 +439,17 @@ if (!$_REQUEST['flb_table']) {
                         </td>
                         <?php
                         if ($GLOBALS['ptkr_show_staff']) { ?>
-                            <td class="dehead text-center d-none d-md-table-cell text-ovr-dark" name="kiosk_hide">
+                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Updated By'); ?>
                             </td>
                             <?php
                         }
                         if ($_REQUEST['kiosk'] != '1') {
                             if ($GLOBALS['drug_screen']) { ?>
-                                <td class="dehead center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                                <td class="dehead center text-ovr-dark" name="kiosk_hide">
                                     <?php echo xlt('Random Drug Screen'); ?>
                                 </td>
-                                <td class="dehead center d-none d-sm-table-cell text-ovr-dark" name="kiosk_hide">
+                                <td class="dehead center text-ovr-dark" name="kiosk_hide">
                                     <?php echo xlt('Drug Screen Completed'); ?>
                                 </td>
                                 <?php
@@ -643,25 +620,22 @@ if (!$_REQUEST['flb_table']) {
                             data-pid="' . attr($appointment['pc_pid']) . '"
                             data-pname="' . attr($ptname) . '"
                             class="text-small"
-                            bgcolor="' . attr($bgcolor) . '" >';
+                            style="background-color:' . attr($bgcolor) . ';" >';
+
                         if ($GLOBALS['ptkr_show_pid']) {
                             ?>
-                            <td class="detail d-none d-sm-table-cell text-center" name="kiosk_hide">
+                            <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($appt_pid); ?>
                             </td>
                             <?php
                         }
 
                         ?>
-                        <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                        <td class="detail text-center" name="kiosk_hide">
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname); ?></a>
                         </td>
-                        <td class="detail text-center d-block d-table-cell d-sm-none" style="white-space: normal;" name="kiosk_hide">
-                            <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
-                                <?php echo text($ptname_short); ?></a>
-                        </td>
-
+                        
                         <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
@@ -669,12 +643,12 @@ if (!$_REQUEST['flb_table']) {
 
                         <!-- reason -->
                         <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
-                            <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                            <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($reason_visit) ?>
                             </td>
                         <?php } ?>
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
-                            <td class="detail text-center d-none d-md-table-cell" name="kiosk_hide">
+                            <td class="detail text-center" name="kiosk_hide">
                                 <?php
                                 if ($appt_enc != 0) {
                                     echo text($appt_enc);
@@ -683,7 +657,7 @@ if (!$_REQUEST['flb_table']) {
                             </td>
                         <?php } ?>
                         <?php if ($GLOBALS['ptkr_date_range'] == '1') { ?>
-                            <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                            <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
                             </td>
@@ -698,11 +672,11 @@ if (!$_REQUEST['flb_table']) {
                             }
                             ?>
                         </td>
-                        <td class="detail text-center d-none d-sm-table-cell">
+                        <td class="detail text-center ">
                             <?php if (empty($tracker_id)) { //for appt not yet with tracker id and for recurring appt ?>
-                            <a class="btn btn-primary btn-sm text-white" onclick="return calendarpopup(<?php echo attr_js($appt_eid) . "," . attr_js($date_squash); // calls popup for add edit calendar event?>)">
+                            <a class="btn btn-primary btn-sm" onclick="return calendarpopup(<?php echo attr_js($appt_eid) . "," . attr_js($date_squash); // calls popup for add edit calendar event?>)">
                             <?php } else { ?>
-                                <a class="btn btn-primary btn-sm text-white" onclick="return bpopup(<?php echo attr_js($tracker_id); // calls popup for patient tracker status?>)">
+                                <a class="btn btn-primary btn-s" onclick="return bpopup(<?php echo attr_js($tracker_id); // calls popup for patient tracker status?>)">
                             <?php } ?>
                             <?php
                             if ($appointment['room'] > '') {
@@ -744,12 +718,12 @@ if (!$_REQUEST['flb_table']) {
                         //end time in current status
                         echo "</td>";
                         ?>
-                        <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                        <td class="detail text-center" name="kiosk_hide">
                             <?php echo xlt($appointment['pc_title']); ?>
                         </td>
                         <?php
                         if (count($chk_prov) > 1) { ?>
-                            <td class="detail text-center d-none d-sm-table-cell">
+                            <td class="detail text-center  d-sm-table-cell">
                                 <?php echo text($docname); ?>
                             </td>
                             <?php
@@ -772,20 +746,23 @@ if (!$_REQUEST['flb_table']) {
                             echo text($appointment['pc_time']); ?>
                         </td>
                         <td class="detail text-center">
-
-
+                            <?php
+                            if (strtotime($newend) != '') {
+                                echo text(oeFormatTime(substr($newend, 11))) ;
+                            }
+                            ?>
                         </td>
                         <?php
                         if ($GLOBALS['ptkr_show_staff'] == '1') {
                             ?>
-                                <td class="detail text-center d-none d-md-table-cell" name="kiosk_hide">
+                                <td class="detail text-center" name="kiosk_hide">
                                     <?php echo text($appointment['user']) ?>
                                 </td>
                             <?php
                         }
                         if ($GLOBALS['drug_screen']) {
                             if (strtotime($newarrive) != '') { ?>
-                                <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                                <td class="detail text-center" name="kiosk_hide">
                                     <?php
                                     if ($appointment['random_drug_test'] == '1') {
                                         echo xlt('Yes');
@@ -795,10 +772,10 @@ if (!$_REQUEST['flb_table']) {
                                 </td>
                                 <?php
                             } else { ?>
-                                <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide"></td>
+                                <td class="detail text-center" name="kiosk_hide"></td>
                             <?php }
                             if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
-                                <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide">
+                                <td class="detail text-center" name="kiosk_hide">
                                     <?php
                                     if (strtotime($newend) != '') {
                                         // the following block allows the check box for drug screens to be disabled once the status is check out ?>
@@ -812,7 +789,7 @@ if (!$_REQUEST['flb_table']) {
                                 </td>
                                 <?php
                             } else { ?>
-                                <td class="detail text-center d-none d-sm-table-cell" name="kiosk_hide"></td>
+                                <td class="detail text-center" name="kiosk_hide"></td>
                             <?php }
                         }
                         ?>
@@ -855,14 +832,9 @@ function myLocalJS()
         //this can be refined to redact HIPAA material using @media print options.
         top.restoreSession();
         window.parent.$("[name='flb']").attr('allowFullscreen', 'true');
-        <?php
-        if ($_REQUEST['kiosk'] == '1') { ?>
-            $("[name='kiosk_hide']").hide();
-            $("[name='kiosk_show']").show();
-        <?php } else { ?>
-            $("[name='kiosk_hide']").show();
-            $("[name='kiosk_show']").hide();
-        <?php  }   ?>
+        $("[name='kiosk_hide']").show();
+        $("[name='kiosk_show']").hide();
+ 
         function print_FLB() {
             window.print();
         }
@@ -1054,6 +1026,7 @@ function myLocalJS()
             $("#kiosk").val('1');
             $("[name='kiosk_hide']").hide();
             $("[name='kiosk_show']").show();
+            
             var i = document.getElementById("flb_table");
             // go full-screen
             if (i.requestFullscreen) {
@@ -1066,6 +1039,19 @@ function myLocalJS()
                 i.msRequestFullscreen();
             }
             // refreshMe();
+        }
+        
+        function KioskUp() {
+            var kv = $("#kiosk").val();
+            if (kv == '0') {
+                $("#kiosk").val('1');
+                $("[name='kiosk_hide']").show();
+                $("[name='kiosk_show']").hide();
+            } else {
+                $("#kiosk").val('0');
+                $("[name='kiosk_hide']").hide();
+                $("[name='kiosk_show']").show();
+            }
         }
 
         $(function () {
@@ -1083,19 +1069,10 @@ function myLocalJS()
                 window.dispatchEvent(event);
             };
 
-            addEventListener('windowed', function (e) {
-                $("#kiosk").val('');
-                $("[name='kiosk_hide']").show();
-                $("[name='kiosk_show']").hide();
-                //alert(e.type);
-            }, false);
-            addEventListener('fullscreen', function (e) {
-                $("#kiosk").val('1');
-                $("[name='kiosk_hide']").hide();
-                $("[name='kiosk_show']").show();
-                //alert(e.type);
-            }, false);
-
+            ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
+                eventType => document.addEventListener(eventType, KioskUp, false)
+            );
+           
             <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
                 var reftime = <?php echo js_escape($GLOBALS['pat_trkr_timer']); ?>;
                 var parsetime = reftime.split(":");

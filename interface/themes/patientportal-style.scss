@@ -145,8 +145,9 @@ body > .header {
 
 /* left side - contains sidebar */
 .left-side {
-  max-width: 12rem;
+  max-width: max-content;
   order: 1;
+  width: auto;
 }
 
 /* right side - contins main content */
@@ -1776,13 +1777,17 @@ body > .header {
 
 .card {
   border: 0;
-  margin: 0.75rem;
+  margin: 0.5rem;
 
   .card-header {
-    @include font-size("1.2rem");
+    @include font-size("1.1rem");
     padding: 0.3125rem 0.625rem;
     text-transform: capitalize;
   }
+}
+
+.card-body {
+  padding: 0.25rem;
 }
 
 .card-header {

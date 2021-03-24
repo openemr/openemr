@@ -139,32 +139,32 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         function doSubmit(action) {
             top.restoreSession();
             return new Promise(function(resolve, reject) {
-                if (action !== 'btn-continue') {
-                    var showLog = function() {
-                        $("#view-log-link").click();
-                    };
-                    // Pre-open a dialog and target dialogs iframe for content from billing_process
-                    // text or PDF.
-                    dlgopen('', 'ValidateShowBatch', 875, 500, false, '', {
-                        buttons: [{
-                                text: '<?php echo xlt("Logs"); ?>',
-                                close: false,
-                                style: 'default btn-sm',
-                                click: showLog
-                            },
-                            {
-                                text: '<i class="fa fa-thumbs-up"></i>&nbsp;<?php echo xlt("Close"); ?>',
-                                close: true,
-                                style: 'default btn-sm'
-                            }
-                        ],
-                        //onClosed: 'SubmitTheScreen', // future and/or example of onClosed.
-                        sizeHeight: 'full'
-                    });
-                    // target content from submit to dialogs iframe
-                    document.update_form.target = 'ValidateShowBatch';
-                }
+                var showLog = function() {
+                    $("#view-log-link").click();
+                };
+                // Pre-open a dialog and target dialogs iframe for content from billing_process
+                // text or PDF.
+                dlgopen('', 'ValidateShowBatch', 875, 500, false, '', {
+                    buttons: [{
+                            text: '<?php echo xlt("Logs"); ?>',
+                            close: false,
+                            style: 'default btn-sm',
+                            click: showLog
+                        },
+                        {
+                            text: '<i class="fa fa-thumbs-up"></i>&nbsp;<?php echo xlt("Close"); ?>',
+                            close: true,
+                            style: 'default btn-sm'
+                        }
+                    ],
+                    //onClosed: 'SubmitTheScreen', // future and/or example of onClosed.
+                    sizeHeight: 'full'
+                });
+                // target content from submit to dialogs iframe
+                document.update_form.target = 'ValidateShowBatch';
+
                 // Now submit form and populate dialog.
+                top.restoreSession(); // Not sure if this is needed but something in billing is causing 'SITE ID' error
                 document.update_form.submit();
                 // go fulfill the promise.
                 resolve(true);
@@ -677,8 +677,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
                         $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
-                            $_REQUEST['final_this_page_criteria'][0] = "(form_encounter.date between '" . date("Y-m-d 00:00:00") . "' and '" . date("Y-m-d 23:59:59") . "')";
-                            $_REQUEST['final_this_page_criteria'][1] = "billing.billed = '0'";
+                            $_REQUEST['final_this_page_criteria'][0] = "form_encounter.date|between|" . date("Y-m-d 00:00:00") . "|" . date("Y-m-d 23:59:59");
+                            $_REQUEST['final_this_page_criteria'][1] = "billing.billed|=|0";
                             $_REQUEST['final_this_page_criteria_text'][0] = xl("Date of Service = Today");
                             $_REQUEST['final_this_page_criteria_text'][1] = xl("Billing Status = Unbilled");
                             $_REQUEST['date_master_criteria_form_encounter_date'] = "today";
@@ -728,7 +728,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             <?php } ?>
                             <?php if ($GLOBALS['ub04_support']) { ?>
                             <li class="nav-item">
-                                <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12" title="<?php echo xla('Generate Institutional X12 837I') ?>">
+                                <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate Institutional X12 837I') ?>">
                                     <?php echo xlt('Generate X12 837I') ?>
                                 </button>
                             </li>
@@ -855,11 +855,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     $my_authorized = $_POST["authorized"];
                 }
             } else {
-                $from_date = $_POST["from_date"];
-                $to_date = $_POST["to_date"];
-                $code_type = $_POST["code_type"];
-                $unbilled = $_POST["unbilled"];
-                $my_authorized = $_POST["authorized"];
+                $from_date = $_POST["from_date"] ?? null;
+                $to_date = $_POST["to_date"] ?? null;
+                $code_type = $_POST["code_type"] ?? null;
+                $unbilled = $_POST["unbilled"] ?? null;
+                $my_authorized = $_POST["authorized"] ?? null;
             }
 
             if ($my_authorized == "on") {
@@ -956,6 +956,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
                                         echo "<tr>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr><td colspan='9' height='5'></td></tr>\n\n";
+                                        $encount = $encount ?? null;
                                         ++$encount;
                                     }
                                 }
@@ -1007,7 +1008,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = "#" . (($encount & 1) ? "FFFAEF" : "F8F8FF");
+                                $bgcolor = "#" . ((($encount ?? null) & 1) ? "FFFAEF" : "F8F8FF");
                                 echo "<tr><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
@@ -1107,7 +1108,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         )
                                     );
                                     $count = 0;
-                                    $default_x12_partner = $iter['ic_x12id'];
+                                    $default_x12_partner = $iter['ic_x12id'] ?? null;
                                     $prevtype = '';
 
                                     while ($row = sqlFetchArray($result)) {
@@ -1183,7 +1184,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         );
 
                                         if ($crow['bill_process']) {
-                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type']) . " " . text($crow['target']) . " " . xlt("billing to ") . text($irow['name']);
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type'] ?? '') . " " . text($crow['target'] ?? '') . " " . xlt("billing to ") . text($irow['name'] ?? '');
                                                 ++$lcount;
                                         } elseif ($crow['status'] < 6) {
                                             if ($crow['status'] > 1) {
@@ -1316,8 +1317,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($tmpbpr == '0' && $iter['billed']) {
                                     $tmpbpr = '2';
                                 }
-                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr($CheckBoxBilling * 1) . "'>&nbsp;</td>\n";
-                                $CheckBoxBilling++;
+                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? null) * 1) . "'>&nbsp;</td>\n";
+                                $CheckBoxBilling = ($CheckBoxBilling ?? null) + 1;
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }

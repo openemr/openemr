@@ -1,6 +1,15 @@
 <?php
 
-//our api for 3rd party developers
+/**
+ * old api for 3rd parties
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 
 use OpenEMR\Billing\BillingUtilities;

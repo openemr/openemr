@@ -20,22 +20,16 @@ var app = {
 	 * @param string containerId (default = 'alert')
 	 */
 	appendAlert: function(message,style, timeout,containerId) {
-        if (!timeout) timeout = 5000;
-
-		signerAlertMsg("Error: " + message, timeout);
+	    if (!message) {
+	        return;
+        }
+        timeout = 60000; // mostly errors so make long.
+        if (typeof signerAlertMsg !== 'undefined') {
+            signerAlertMsg("Error: " + message, timeout);
+        } else {
+            alert("Error: " + message);
+        }
 	},
-
-	/**
-	 * Remove an alert that has been previously shown
-	 * @param string element id
-	 */
-	removeAlert: function(id) {
-
-		$("#"+id).slideUp('fast', function(){
-			$("#"+id).remove();
-		});
-	},
-
 	/**
 	 * show the progress bar
 	 * @param the id of the element containing the progress bar
@@ -43,47 +37,35 @@ var app = {
 	showProgress: function(elementId)
 	{
 		$('#'+elementId).show();
-		// $('#'+elementId).animate({width:'150'},'fast');
+		$('#'+elementId).animate({width:'150'},'fast');
 	},
 
 	/**
-	 * hide the progress bar
-	 * @param the id of the element containing the progress bar
-	 */
+     * hide the progress bar
+     * @param elementId
+     */
 	hideProgress: function(elementId)
 	{
 		setTimeout("$('#"+elementId+"').hide();",100);
-		// $('#'+elementId).animate({width:'0'},'fast');
+		$('#'+elementId).animate({width:'0'},'fast');
 	},
 
 	/**
-	 * Escape unsafe HTML chars to prevent xss injection
-	 * @param string potentially unsafe value
-	 * @returns string safe value
-	 */
+     * Escape unsafe HTML chars to prevent xss injection
+     * @returns string safe value
+     * @param unsafe
+     */
 	escapeHtml: function(unsafe) {
 		return _.escape(unsafe);
 	},
-
 	/**
-	 * return true if user interface should be limited based on browser support
-	 * @returns bool
-	 */
-	browserSucks: function() {
-		isIE6 = navigator.userAgent.match(/msie [6]/i) && !window.XMLHttpRequest;
-		isIE7 = navigator.userAgent.match(/msie [7]/i);
-		isIE8 = navigator.userAgent.match(/msie [8]/i);
-		return isIE6 || isIE7 || isIE8;
-	},
-
-	/**
-	 * Accept string in the following format: 'YYYY-MM-DD hh:mm:ss' or 'YYYY-MM-DD'
-	 * If a date object is passed in, it will be returned as-is.  if a time-only
-	 * value is provided, then it will be given the date of 1970-01-01
-	 * @param string | date:
-	 * @param defaultDate if the provided string can't be parsed, return this instead (default is Now)
-	 * @returns Date
-	 */
+     * Accept string in the following format: 'YYYY-MM-DD hh:mm:ss' or 'YYYY-MM-DD'
+     * If a date object is passed in, it will be returned as-is.  if a time-only
+     * value is provided, then it will be given the date of 1970-01-01
+     * @param str
+     * @param defaultDate if the provided string can't be parsed, return this instead (default is Now)
+     * @returns Date
+     */
 	parseDate: function(str, defaultDate) {
 
 		// don't re-parse a date obj
@@ -92,8 +74,10 @@ var app = {
 		if (typeof(defaultDate) == 'undefined') defaultDate = ''; //new Date();
 
 		// if the value passed in was blank, default to today
-		if (str == '' || typeof(str) == 'undefined') {
-			if (console) console.log('app.parseDate: empty or undefined date value');
+		if (str === '' || typeof(str) === 'undefined') {
+			if (console) {
+			    console.log('app.parseDate: empty or undefined date value');
+            }
 			return defaultDate;
 		}
 		return str;
@@ -110,30 +94,18 @@ var app = {
 	},
 
 	/**
-	 * A server error should contain json data, but if a fatal php error occurs it
-	 * may contain html.  the function will parse the return contents of an
-	 * error response and return the error message
-	 * @param server response
-	 */
+     * A server error should contain json data, but if a fatal php error occurs it
+     * may contain html.  the function will parse the return contents of an
+     * error response and return the error message
+     * @param resp
+     */
 	getErrorMessage: function(resp) {
+	    if (!resp) {
+	        return '';
+        }
 
-		var msg = 'An unknown error occured';
-		/*try	{
-			var json = $.parseJSON(resp.responseText);
-			msg = json.message;
-		} catch (error)	{
-
-			var parts = resp.responseText.split(app.errorLandmarkStart);
-
-			if (parts.length > 1) {
-				var parts2 = parts[1].split(app.errorLandmarkEnd);
-				msg = parts2[0];
-			} else {
-                msg = resp.responseText;
-            }
-		}*/
         msg = resp.responseText;
-		return msg ? msg : 'Unknown server error';
+		return msg ? msg : '';
 	},
 
 	version: 1.1

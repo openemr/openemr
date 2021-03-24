@@ -59,6 +59,12 @@ body {
   padding: 0;
 }
 
+#mainBox > nav {
+  font-size: small;
+  line-height: 14px;
+  z-index: 10;
+}
+
 #mainBox > div {
   flex: 0 1 auto;
   margin: 0;
@@ -74,13 +80,9 @@ body {
 }
 
 #mainBox .logo {
-  height: 20px;
-  margin-bottom: auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0.1875rem;
-  padding: 0;
-  width: 20px;
+  height: 14px;
+  line-height: 16px;
+  width: 14px;
   z-index: 10000;
 }
 
@@ -121,7 +123,7 @@ body {
 .tabControls {
   display: flex;
   flex-direction: row;
-  margin: -9px 0 0;
+  margin: -14px 0 0;
   overflow: auto;
   padding: 9px 0 0;
 }
@@ -134,7 +136,7 @@ body {
   flex: 0 1 auto;
   margin: 0;
   overflow: visible;
-  padding: 0.3125rem 0.4375rem;
+  padding: 0.1125rem 0.4375rem;
   white-space: nowrap;
 }
 
@@ -147,7 +149,6 @@ body {
 }
 
 .tabNotchosen {
-  background-color: transparent !important;
   border-bottom: 1px solid var(--black);
   display: block;
 }
@@ -159,10 +160,6 @@ body {
   border-right: 0;
   border-top: 4px solid transparent;
   display: block;
-}
-
-#attendantData {
-  min-height: 4rem;
 }
 
 .patientCurrentEncounter {
@@ -452,11 +449,6 @@ body {
 #menu_icon {
   cursor: pointer;
   margin: 12px 25px;
-}
-
-#patient_caret {
-  font-size: 2rem;
-  margin-top: -5px;
 }
 
 @media (max-width: 768px) {

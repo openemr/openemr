@@ -23,6 +23,24 @@ class ClientEntity implements ClientEntityInterface
 
     protected $userId;
     protected $clientRole;
+    protected $scopes;
+    protected $launchUri;
+
+    protected $jwks;
+
+    protected $jwksUri;
+
+    /**
+     * Confidential apps or apps with a 'launch' scope must be manually authorized by an adminstrator before their
+     * client can be used.
+     * @var bool
+     */
+    protected $isEnabled;
+
+    public function __construct()
+    {
+        $this->scopes = [];
+    }
 
     public function setName($name): void
     {
@@ -37,6 +55,16 @@ class ClientEntity implements ClientEntityInterface
     public function setIsConfidential($set): void
     {
         $this->isConfidential = $set;
+    }
+
+    public function setIsEnabled($set): void
+    {
+        $this->isEnabled = $set === 1 || $set === true;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->isEnabled;
     }
 
     public function setUserId($id): void
@@ -57,5 +85,84 @@ class ClientEntity implements ClientEntityInterface
     public function getClientRole()
     {
         return $this->clientRole;
+    }
+
+    public function getScopes()
+    {
+        return $this->scopes;
+    }
+    public function setScopes($scopes)
+    {
+        // clear out the scopes if our scopes are empty
+        if (empty($scopes)) {
+            $this->scopes = [];
+            return;
+        }
+
+        if (is_string($scopes)) {
+            $scopes = explode(" ", $scopes);
+        } else if (!is_array($scopes)) {
+            throw new \InvalidArgumentException("scopes parameter must be a valid array or string");
+        }
+        $this->scopes = $scopes;
+    }
+
+    /**
+     * Checks if a given entity
+     * @param $scope
+     * @return bool
+     */
+    public function hasScope($scope)
+    {
+        return in_array($scope, $this->scopes);
+    }
+
+    /**
+     * Returns the registered launch URI (as a string).
+     *
+     * @params $launchParams string A URL query string params to append to the launch uri.
+     * @return string
+     */
+    public function getLaunchUri($launchParams = '')
+    {
+        $launchParams = isset($launchParams) ? $launchParams : '';
+        return $this->launchUri . $launchParams;
+    }
+
+    public function setLaunchUri($uri): void
+    {
+        $this->launchUri = $uri;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJwks()
+    {
+        return $this->jwks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJwksUri()
+    {
+        return $this->jwksUri;
+    }
+
+    /**
+     * @param string $jwks
+     */
+    public function setJwks($jwks): void
+    {
+        $this->jwks = $jwks;
+    }
+
+    /**
+     * @param string $jwksUri
+     */
+    public function setJwksUri($jwksUri): void
+    {
+        $this->jwksUri = $jwksUri;
     }
 }

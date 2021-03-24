@@ -176,20 +176,20 @@ endforeach;
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
-                                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>">
+                                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="care_plan_type_1" class="h5"><?php echo xlt('Type'); ?>:</label>
                                                 <select name="care_plan_type[]" id="care_plan_type_1" class="form-control care_plan_type">
                                                     <option value=""></option>
                                                     <?php foreach ($care_plan_type as $value) :
-                                                        $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
+                                                        $selected = ($value['value'] == ($obj["care_plan_type"] ?? '')) ? 'selected="selected"' : '';
                                                         ?>
                                                         <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                                                     <?php endforeach;?>
@@ -197,7 +197,7 @@ endforeach;
                                             </div>
                                             <div class="forms col-md-4">
                                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
+                                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj["description"] ?? ''); ?></textarea>
                                             </div>
                                             <div class="forms col-md-2">
                                                 <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>

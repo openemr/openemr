@@ -1,10 +1,10 @@
 <?php
 
 /**
- * start/destroy session/cookie for OpenEMR or OpenEMR (patient) portal
+ * start/destroy session/cookie for OpenEMR or OpenEMR patient-portal or OpenEMR oauth2
  *
  * OpenEMR session/cookie strategy:
- *  1. The vital difference between the OpenEMR and OpenEMR (patient) portal session/cookie is the
+ *  1. The vital difference between the OpenEMR and OpenEMR patient-portal/oauth2 session/cookie is the
  *     cookie_httponly setting.
  *     a. For core OpenEMR, need to set cookie_httponly to false, since javascript needs to be able to
  *        access/modify the cookie to support separate logins in OpenEMR. This is important
@@ -12,11 +12,12 @@
  *        separate patients via separate logins by same users. This is done via custom
  *        restore_session() javascript function; session IDs are effectively saved in the
  *        top level browser window.
- *     b. For (patient) portal OpenEMR, setting cookie_httponly to true. Since only one patient will
+ *     b. For (patient) portal OpenEMR and oauth2, setting cookie_httponly to true. Since only one patient will
  *        be logging into the patient portal, can set this to true, which will help to prevent XSS
  *        vulnerabilities.
- *  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
- *     order to prevent csrf vulnerabilities. Note this setting also is set in core
+ *  2. Set the cookie_samesite to Strict in in order to prevent csrf vulnerabilities.
+ *     Exception to this is the oauth2 session which requires Lax to allow a get request from
+ *     outside origin to function correctly. Note the Strict setting also is set in core
  *     OpenEMR restoreSession() javascript function so it is maintained when the session id
  *     is changed in the cookie (also is used in the transmit_form() function in login.php
  *     and standardSessionCookieDestroy() function to avoid browser warnings).
@@ -27,11 +28,9 @@
  *  5. Using sid_length of 48 to optimize security.
  *  6. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
  *     often too small.
- *  7. For core OpenEMR, setting cookie_path to improve security when using different OpenEMR instances
+ *  7. For core OpenEMR and oauth2, setting cookie_path to improve security when using different OpenEMR instances
  *     on same server to prevent session conflicts.
  *  8. Centralize session/cookie destroy.
- *     a.  For core OpenEMR, destroy the session, but keep the cookie.
- *     b.  For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
  *  9. Session locking. To prevent session locking, which markedly decreases performance in core OpenEMR
  *     there are 3 functions for setting and unsetting session variables. These allow
  *     running OpenEMR core without session lock (by not allowing writing to session) unless need to
@@ -39,20 +38,25 @@
  *     is to use the standard php session locking on code that works on critical session variables during
  *     authorization related scripts and in cases of single process use (such as with command line scripts
  *     and non-local api calls) since there is no performance benefit in single process use.
- *  10. For OpenEMR 6.0.0 added a oauth session, which at this time requires following settings:
- *      cookie_samesite = None
- *      cookie_secure = true
- *      use_strict_mode = false
+ *  10. For OpenEMR 6.0.0 added a oauth2 session, which requires following settings:
+ *      cookie_samesite = None (In theory, should just need Lax (since just GET requests), however, need None for Smart Apps used
+ *                              within OpenEMR to work)
+ *      cookie_secure = true (issuer needs to be https, so makes sense to support this setting; also need since
+ *                            cookie_samesite is set to None)
+ *  11. For OpenEMR 6.0.0 added a api session, which requires following settings:
+ *      cookie_secure = true (oauth needs to be https, so makes sense to support this setting)
  *
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Session;
+
+use OpenEMR\Common\Logging\SystemLogger;
 
 class SessionUtil
 {
@@ -62,15 +66,21 @@ class SessionUtil
     private static $use_strict_mode = true;
     private static $use_cookies = true;
     private static $use_only_cookies = true;
+    private static $use_cookie_samesite = "Strict";
+    private static $use_cookie_httponly = true;
+    private static $use_cookie_secure = false;
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         session_start([
             'read_and_close' => $read_only,
-            'cookie_samesite' => "Strict",
+            'cookie_samesite' => self::$use_cookie_samesite,
+            'cookie_secure' => self::$use_cookie_secure,
             'name' => 'OpenEMR',
             'cookie_httponly' => false,
-            'cookie_path' => $web_root ?: '/',
+            'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
             'sid_bits_per_character' => self::$sid_bits_per_character,
             'sid_length' => self::$sid_length,
@@ -120,20 +130,22 @@ class SessionUtil
 
     public static function coreSessionDestroy(): void
     {
-        self::standardSessionCookieDestroy();
-    }
-
-    public static function apiSessionCookieDestroy(): void
-    {
+        (new SystemLogger())->debug(
+            "Destroying core session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 
     public static function portalSessionStart(): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         session_start([
-            'cookie_samesite' => "Strict",
+            'cookie_samesite' => self::$use_cookie_samesite,
+            'cookie_secure' => self::$use_cookie_secure,
             'name' => 'PortalOpenEMR',
-            'cookie_httponly' => true,
+            'cookie_httponly' => self::$use_cookie_httponly,
             'gc_maxlifetime' => self::$gc_maxlifetime,
             'sid_bits_per_character' => self::$sid_bits_per_character,
             'sid_length' => self::$sid_length,
@@ -145,21 +157,57 @@ class SessionUtil
 
     public static function portalSessionCookieDestroy(): void
     {
+        // Note there is no system logger here since that class does not
+        //  yet exist in this context.
         self::standardSessionCookieDestroy();
     }
 
-    public static function oauthSessionStart(): void
+    public static function apiSessionStart($web_root): void
     {
-        session_id('authserverOpenEMR');
+        (new SystemLogger())->debug(
+            "Creating apiSessionStart cookie",
+            ['cookie.name' => 'apiOpenEMR']
+        );
+        session_start([
+            'cookie_samesite' => self::$use_cookie_samesite,
+            'cookie_secure' => true,
+            'name' => 'apiOpenEMR',
+            'cookie_httponly' => self::$use_cookie_httponly,
+            'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
+            'gc_maxlifetime' => self::$gc_maxlifetime,
+            'sid_bits_per_character' => self::$sid_bits_per_character,
+            'sid_length' => self::$sid_length,
+            'use_strict_mode' => self::$use_strict_mode,
+            'use_cookies' => self::$use_cookies,
+            'use_only_cookies' => self::$use_only_cookies
+        ]);
+    }
+
+    public static function apiSessionCookieDestroy(): void
+    {
+        (new SystemLogger())->debug(
+            "Destroying api session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
+        self::standardSessionCookieDestroy();
+    }
+
+    public static function oauthSessionStart($web_root): void
+    {
+        (new SystemLogger())->debug(
+            "Creating oauthSessionStart cookie",
+            ['cookie.name' => 'authserverOpenEMR']
+        );
         session_start([
             'cookie_samesite' => "None",
             'cookie_secure' => true,
             'name' => 'authserverOpenEMR',
-            'cookie_httponly' => true,
+            'cookie_httponly' => self::$use_cookie_httponly,
+            'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
             'sid_bits_per_character' => self::$sid_bits_per_character,
             'sid_length' => self::$sid_length,
-            'use_strict_mode' => false,
+            'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
             'use_only_cookies' => self::$use_only_cookies
         ]);
@@ -167,6 +215,10 @@ class SessionUtil
 
     public static function oauthSessionCookieDestroy(): void
     {
+        (new SystemLogger())->debug(
+            "Destroying oauth session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 

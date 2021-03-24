@@ -136,43 +136,13 @@ class PatientDAO extends Phreezable
     public $Religion;
 
     /** @var string */
-    public $Interpretter;
-
-    /** @var string */
-    public $Migrantseasonal;
-
-    /** @var string */
     public $FamilySize;
-
-    /** @var string */
-    public $MonthlyIncome;
-
-    /** @var string */
-    public $BillingNote;
-
-    /** @var string */
-    public $Homeless;
-
-    /** @var date */
-    public $FinancialReview;
 
     /** @var string */
     public $Pubpid;
 
     /** @var int */
     public $Pid;
-
-    /** @var string */
-    public $Genericname1;
-
-    /** @var string */
-    public $Genericval1;
-
-    /** @var string */
-    public $Genericname2;
-
-    /** @var string */
-    public $Genericval2;
 
     /** @var string */
     public $HipaaMail;
@@ -192,77 +162,8 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $HipaaAllowemail;
 
-    /** @var string */
-    public $Squad;
-
-    /** @var int */
-    public $Fitness;
-
-    /** @var string */
-    public $ReferralSource;
-
-    /** @var string */
-    public $Usertext1;
-
-    /** @var string */
-    public $Usertext2;
-
-    /** @var string */
-    public $Usertext3;
-
-    /** @var string */
-    public $Usertext4;
-
-    /** @var string */
-    public $Usertext5;
-
-    /** @var string */
-    public $Usertext6;
-
-    /** @var string */
-    public $Usertext7;
-
-    /** @var string */
-    public $Usertext8;
-
-    /** @var string */
-    public $Userlist1;
-
-    /** @var string */
-    public $Userlist2;
-
-    /** @var string */
-    public $Userlist3;
-
-    /** @var string */
-    public $Userlist4;
-
-    /** @var string */
-    public $Userlist5;
-
-    /** @var string */
-    public $Userlist6;
-
-    /** @var string */
-    public $Userlist7;
-
-    /** @var string */
-    public $Pricelevel;
-
     /** @var date */
     public $Regdate;
-
-    /** @var date */
-    public $Contrastart;
-
-    /** @var string */
-    public $CompletedAd;
-
-    /** @var date */
-    public $AdReviewed;
-
-    /** @var string */
-    public $Vfc;
 
     /** @var string */
     public $Mothersname;
@@ -282,24 +183,9 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $AllowPatientPortal;
 
-    /** @var date */
-    public $DeceasedDate;
-
-    /** @var string */
-    public $DeceasedReason;
-
-    /** @var int */
-    public $SoapImportStatus;
-
-    /** @var string */
-    public $CmsportalLogin;
-
     /** @var int */
     public $CareTeam;
 
     /** @var string */
     public $County;
-
-    /** @var string */
-    public $Industry;
 }

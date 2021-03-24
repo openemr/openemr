@@ -1,0 +1,35 @@
+name: Syntax
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.3', '7.4', '8.0', '8.1']
+    name: PHP ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Check PHP Syntax
+        run: |
+          failSyntax=false
+          if find . -type f -name "*.php" -exec php -l {} \; 2>&1 >/dev/null | grep "^"; then failSyntax=true; fi
+          if find . -type f -name "*.inc" -exec php -l {} \; 2>&1 >/dev/null | grep "^"; then failSyntax=true; fi
+          if $failSyntax; then
+            exit 1
+          fi

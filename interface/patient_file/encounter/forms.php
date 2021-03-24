@@ -492,7 +492,7 @@ function findPosY(obj) {
 
 </head>
 <body>
-<dl>
+<nav>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
@@ -695,7 +695,7 @@ if ($StringEcho) {
     <td class="align-top"><?php echo $StringEcho; ?></td>
   </tr>
 </table>
-</dl>
+</nav>
 <!-- Form menu stop -->
 <!-- *************** -->
 
@@ -929,7 +929,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
         }
         ?>
 <br />
-<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
+<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename($doc_iter['name']));?></a>
         <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
@@ -1082,7 +1082,7 @@ if (
             }
         }
 
-        echo "<a class='btn btn-primary btn-sm collapse-button-form text-white' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+        echo "<a class='btn btn-primary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";

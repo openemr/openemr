@@ -54,7 +54,12 @@ while ($row = sqlFetchArray($res)) {
     if ($coljson) {
         $coljson .= ", ";
     }
-    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
+
+    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"";
+    if ($title1 == xl('Name')) {
+        $coljson .= ", \"mRender\": wrapInLink";
+    }
+    $coljson .= "}";
     if ($orderjson) {
         $orderjson .= ", ";
     }
@@ -101,6 +106,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 
     table.dataTable tbody tr {
         background-color: var(--white) !important;
+        cursor: pointer;
     }
 
     table.dataTable.row-border tbody th,
@@ -283,6 +289,13 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
             // Filter on the column (the index) of this element
             oTable.fnFilter(this.value, $("thead input").index(this));
         });
+
+        $('#pt_table').on('mouseenter', 'tbody tr', function() {
+            $(this).find('a').css('text-decoration', 'underline');
+        });
+        $('#pt_table').on('mouseleave', 'tbody tr', function() {
+            $(this).find('a').css('text-decoration', '');
+        });
         // OnClick handler for the rows
         $('#pt_table').on('click', 'tbody tr', function () {
             // ID of a row element is pid_{value}
@@ -303,6 +316,14 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
             }
         });
     });
+
+    function wrapInLink(data, type, full) {
+        if (type == 'display') {
+            return '<a href="">' + data + "</a>";
+        } else {
+            return data;
+        }
+    }
 
     function openNewTopWindow(pid) {
         document.fnew.patientID.value = pid;
@@ -406,6 +427,12 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 
     <script>
         document.addEventListener('touchstart', {});
+    </script>
+
+    <script>
+        $(function() {
+            $('div.dataTables_filter input').focus();
+        });
     </script>
 </body>
 </html>

@@ -97,9 +97,9 @@ class GlobalConfig
             require_once 'verysimple/HTTP/RequestUtil.php';
             RequestUtil::NormalizeUrlRewrite();
 
-            require_once 'verysimple/Phreeze/Controller.php';
-            Controller::$SmartyViewPrefix = '';
-            Controller::$DefaultRedirectMode = 'header';
+            require_once 'verysimple/Phreeze/PortalController.php';
+            PortalController::$SmartyViewPrefix = '';
+            PortalController::$DefaultRedirectMode = 'header';
 
             self::$IS_INITIALIZED = true;
         }

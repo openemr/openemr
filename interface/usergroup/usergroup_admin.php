@@ -7,8 +7,12 @@
  * @link      http://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -67,7 +71,7 @@ $set_active_msg = 0;
 $show_message = 0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
-if (is_array($_POST['access_group'])) {
+if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
     $mail_id = explode(".", $SMTP_HOST);
     for ($i = 0; $i < $bg_count; $i++) {
@@ -144,10 +148,21 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($GLOBALS['restrict_user_facility'] && $_POST["schedule_facility"]) {
+            $sqlBindArray = [];
+            $scheduledFacilityString = "";
+            foreach ($_POST["schedule_facility"] as $scheduledFacility) {
+                $scheduledFacilityString .= "?,";
+                array_push($sqlBindArray, $scheduledFacility);
+            }
+            if (!empty($scheduledFacilityString)) {
+                $scheduledFacilityString = substr($scheduledFacilityString, 0, -1);
+            }
+            array_unshift($sqlBindArray, $_POST["id"]);
             sqlStatement("delete from users_facility
             where tablename='users'
             and table_id= ?
-            and facility_id not in (" . add_escape_custom(implode(",", $_POST['schedule_facility'])) . ")", array($_POST["id"]));
+            and facility_id not in (" . $scheduledFacilityString . ")", $sqlBindArray);
+
             foreach ($_POST["schedule_facility"] as $tqvar) {
                 sqlStatement("replace into users_facility set
                 facility_id = ?,
@@ -181,10 +196,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
         }
 
-        $tqvar  = $_POST["authorized"] ? 1 : 0;
-        $actvar = $_POST["active"]     ? 1 : 0;
-        $calvar = $_POST["calendar"]   ? 1 : 0;
-        $portalvar = $_POST["portal_user"] ? 1 : 0;
+        $tqvar  = (!empty($_POST["authorized"])) ? 1 : 0;
+        $actvar = (!empty($_POST["active"]))     ? 1 : 0;
+        $calvar = (!empty($_POST["calendar"]))   ? 1 : 0;
+        $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
@@ -233,6 +248,14 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         if (isset($_POST["supervisor_id"])) {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
+        if (isset($_POST["google_signin_email"])) {
+            if (empty($_POST["google_signin_email"])) {
+                $googleSigninEmail = null;
+            } else {
+                $googleSigninEmail = $_POST["google_signin_email"];
+            }
+            sqlStatement("update users set google_signin_email = ? where id = ? ", array($googleSigninEmail, $_POST["id"]));
+        }
 
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
@@ -252,19 +275,17 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 /* To refresh and save variables in mail frame  - Arb*/
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "new_user") {
-        if ($_POST["authorized"] != "1") {
+        if (empty($_POST["authorized"]) || $_POST["authorized"] != "1") {
             $_POST["authorized"] = 0;
         }
 
-        $calvar = $_POST["calendar"] ? 1 : 0;
-        $portalvar = $_POST["portal_user"] ? 1 : 0;
+        $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
+        $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlStatement("select distinct username from users where username != ''");
+        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
         $doit = true;
-        while ($row = sqlFetchArray($res)) {
-            if ($doit == true && $row['username'] == trim($_POST['rumple'])) {
-                $doit = false;
-            }
+        if (!empty($res['username'])) {
+            $doit = false;
         }
 
         if ($doit == true) {
@@ -308,8 +329,9 @@ if (isset($_POST["mode"])) {
                 $insertUserSQL,
                 trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
             );
-            error_log(errorLogEscape($authUtilsNewPassword->getErrorMessage()));
-            $alertmsg .= $authUtilsNewPassword->getErrorMessage();
+            if (!empty($authUtilsNewPassword->getErrorMessage())) {
+                $alertmsg .= $authUtilsNewPassword->getErrorMessage();
+            }
             if ($success) {
                 //set the facility name from the selected facility_id
                 sqlStatement(
@@ -554,7 +576,7 @@ function authorized_clicked() {
                                 $isMfa = xl('no');
                             }
 
-                            if ($checkPassExp) {
+                            if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
                                 $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
@@ -570,7 +592,7 @@ function authorized_clicked() {
                                 <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
                                 echo '<td>';
-                                if (AuthUtils::useActiveDirectory($iter["username"])) {
+                                if (AuthUtils::useActiveDirectory($iter["username"]) || empty($iter["active"])) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<div class="alert alert-success" role="alert">' . xlt('Not Applicable') . '</div>';
                                 } elseif (strtotime($current_date) > strtotime($grace_time)) {

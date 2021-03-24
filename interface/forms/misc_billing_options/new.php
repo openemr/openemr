@@ -13,18 +13,19 @@
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (C) 2017-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
 require_once("$srcdir/user.inc");
+require_once("$srcdir/pid.inc");
+require_once("$srcdir/encounter.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -32,8 +33,19 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 if (isset($_REQUEST['isBilling'])) {
-    $pid = $_SESSION['billpid'] = $_REQUEST['pid'];
-    $encounter = $_SESSION['billencounter'] = $_REQUEST['enc'];
+    $pid = $_REQUEST['pid'];
+    SessionUtil::setSession('billpid', $pid);
+
+    if ($pid != $_SESSION["pid"]) {
+        setpid($pid);
+    }
+
+    $encounter = $_REQUEST['enc'];
+    SessionUtil::setSession('billencounter', $encounter);
+
+    if ($encounter != $_SESSION["encounter"]) {
+        setencounter($encounter);
+    }
 } elseif (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }

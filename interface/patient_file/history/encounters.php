@@ -717,9 +717,9 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                                         $binfo[$i] .= '&nbsp;';
                                     }
                                 } else {
-                                    $binfo[1] .= text(oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']));
+                                    $binfo[1] .= text(oeFormatMoney($arinvoice[$codekey]['chg'] + ($arinvoice[$codekey]['adj'] ?? null)));
                                     $binfo[2] .= text(oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']));
-                                    $binfo[3] .= text(oeFormatMoney($arinvoice[$codekey]['adj']));
+                                    $binfo[3] .= text(oeFormatMoney($arinvoice[$codekey]['adj'] ?? null));
                                     $binfo[4] .= text(oeFormatMoney($arinvoice[$codekey]['bal']));
                                     unset($arinvoice[$codekey]);
                                 }

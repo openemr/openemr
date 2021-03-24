@@ -101,7 +101,7 @@ function docancel() {
         <div class="row">
             <div class="col-sm-12">
                 <fieldset>
-                    <legend><?php echo xlt('Register U2F Key for') . " " . $user_full_name; ?></legend>
+                    <legend><?php echo xlt('Register U2F Key for') . " " . text($user_full_name); ?></legend>
                     <div class='col-sm-12'>
                         <p><?php echo xlt("Instructions");?>:
                             <ul>

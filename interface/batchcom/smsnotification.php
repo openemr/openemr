@@ -142,7 +142,7 @@ $sms_gateway = array ('CLICKATELL','TMB4');
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <label for="message"><?php echo xlt('SMS Text Usable Tags: '); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
+                    <label for="message"><?php echo xlt('SMS Text Usable Tags:'); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
                     <textarea class="form-control" cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>

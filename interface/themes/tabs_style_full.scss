@@ -120,7 +120,6 @@ body {
 }
 
 .tabControls {
-  background: var(--light);
   display: flex;
   flex-direction: row;
   margin: 0;
@@ -149,16 +148,12 @@ body {
 }
 
 .tabNotchosen {
-  background-color: transparent !important;
   border-bottom: 1px solid var(--primary);
   border-left: 0;
   border-right: 0;
   border-top: 4px solid transparent !important;
   display: block;
-
-  &:hover {
-    background: var(--light);
-  }
+  opacity: 80%;
 }
 
 .tabsNoHover {
@@ -446,7 +441,7 @@ div.menuLabel:hover {
 }
 
 #patient_caret {
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-top: -5px;
 }
 

@@ -53,8 +53,7 @@
                     <td class="problem_info"><input type="checkbox" data-bind="visible: $data.prob_id()==null && $data.allowed_to_create_problem_from_diagnosis()=='TRUE', checked: create_problem" title="<?php echo xla('Check to create problem from this diagnosis');?>"/></td>
                     <td class="info" data-bind="text: code, attr:{title:code_type}"></td>
                     <td class="info">
-                        <span title="<?php echo xla('Click to edit description'); ?>" data-bind="text: description, visible: !edit_mode(), event: {click: start_edit}"></span>
-                        <input class="description form-control" type="text" data-bind="valueUpdate: 'afterkeydown',value: description, visible: edit_mode(), event: {blur: end_edit, keydown:edit_key},hasfocus: edit_mode()"/>
+                        <span data-bind="text: description"></span>
                     </td>
                 </tr>
             </tbody>

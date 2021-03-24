@@ -501,6 +501,27 @@
           "eob"
         ],
         "global_req": "enable_edihistory_in_left_menu"
+      },
+      {
+        "label": "Claim File Tracker",
+        "menu_id": "biltrk0",
+        "target": "biltrk",
+        "url": "/interface/billing/billing_tracker.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+            [
+                "acct",
+                "eob",
+                "write"
+            ],
+            [
+                "acct",
+                "bill",
+                "write"
+            ]
+        ],
+        "global_req": "auto_sftp_claims_to_x12_partner"
       }
     ],
     "requirement": 0,
@@ -1109,6 +1130,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "API Clients",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/smart/admin-client.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
@@ -1140,7 +1173,7 @@
         ]
       },
       {
-        "label": "Addr Book",
+        "label": "Address Book",
         "menu_id": "adb0",
         "target": "adm",
         "url": "/interface/usergroup/addrbook_list.php",
@@ -1218,21 +1251,23 @@
               "super"
             ],
             "global_req": [
-              "erx_enable",
-              "newcrop_user_role"
+              "erx_enable"
             ]
           },
           {
             "label":"Weno Management",
             "menu_id":"adm0",
             "target":"adm",
-            "url":"/interface/weno/admin.php",
+            "url":"/interface/weno/facilities.php",
             "children":[],
             "requirement":0,
             "acl_req": [
               "admin",
               "super"
-            ]
+            ],
+              "global_req": [
+                  "weno_rx_enable"
+              ]
           }
         ],
         "requirement": 0,
@@ -1307,6 +1342,21 @@
             ],
             "global_req": "!disable_prescriptions"
           },
+            {
+                "label":"Prescription Log",
+                "menu_id":"rep0",
+                "target":"rep",
+                "url":"/interface/weno/rxlogmanager.php",
+                "children":[],
+                "requirement":0,
+                "acl_req": [
+                    "patients",
+                    "rx"
+                ],
+                "global_req": [
+                    "weno_rx_enable"
+                ]
+            },
           {
             "label": "Patient List Creation",
             "menu_id": "rep0",
@@ -2010,7 +2060,7 @@
         "global_req": "!disable_chart_tracker"
       },
       {
-        "label": "Ofc Notes",
+        "label": "Office Notes",
         "menu_id": "ono0",
         "target": "msc",
         "url": "/interface/main/onotes/office_comments.php",
@@ -2022,7 +2072,7 @@
         ]
       },
       {
-        "label": "BatchCom",
+        "label": "Batch Communication Tool",
         "menu_id": "adm0",
         "target": "msc",
         "url": "/interface/batchcom/batchcom.php",
@@ -2138,7 +2188,7 @@
         "global_req": "!ippf_specific"
       },
       {
-        "label": "Appts",
+        "label": "Appointments",
         "menu_id": "Popup:Appts",
         "url": "/interface/reports/appointments_report.php?patient=",
         "target": "pop",

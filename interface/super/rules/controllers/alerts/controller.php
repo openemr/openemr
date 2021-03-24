@@ -44,9 +44,9 @@ class Controller_alerts extends BaseController
 
 
         $ids = $_POST["id"];
-        $actives = $_POST["active"];
+        $actives = $_POST["active"] ?? null;
         $passives =  $_POST["passive"];
-        $reminders =  $_POST["reminder"];
+        $reminders =  $_POST["reminder"] ?? null;
                 $access_controls = $_POST["access_control"];
 
 
@@ -59,21 +59,21 @@ class Controller_alerts extends BaseController
 
         $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
-            if ($actives[$i] == "on") {
+            if (!empty($actives[$i]) && ($actives[$i] == "on")) {
                 $actives_final[] = "1";
             } else {
                 $actives_final[] = "0";
                 ;
             }
 
-            if ($passives[$i] == "on") {
+            if (!empty($passives[$i]) && ($passives[$i] == "on")) {
                 $passives_final[] = "1";
             } else {
                 $passives_final[] = "0";
                 ;
             }
 
-            if ($reminders[$i] == "on") {
+            if (!empty($reminders[$i]) && ($reminders[$i] == "on")) {
                 $reminders_final[] = "1";
             } else {
                 $reminders_final[] = "0";

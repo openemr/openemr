@@ -46,9 +46,11 @@ function is_clinic($code)
         $code = substr($code, 0, $i);
     }
 
-    return ($bcodes['CPT4'][xl('Lab')][$code]     ||
-    $bcodes['CPT4'][xl('Immunizations')][$code] ||
-    $bcodes['HCPCS'][xl('Therapeutic Injections')][$code]);
+    return (
+        !empty($bcodes['CPT4'][xl('Lab')][$code])   ||
+        !empty($bcodes['CPT4'][xl('Immunizations')][$code]) ||
+        !empty($bcodes['HCPCS'][xl('Therapeutic Injections')][$code])
+    );
 }
 
 function bucks($amount)
@@ -696,7 +698,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             } // end details
                             $doctotal1   += $amount1;
                             $doctotal2   += $amount2;
+
+                            $grandtotal1 = $grandtotal1 ?? null;
                             $grandtotal1 += $amount1;
+
+                            $grandtotal2 = $grandtotal2 ?? null;
                             $grandtotal2 += $amount2;
                         }
                         ?>

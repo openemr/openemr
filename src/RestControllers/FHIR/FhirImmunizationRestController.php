@@ -38,22 +38,24 @@ class FhirImmunizationRestController
     /**
      * Queries for a single FHIR immunization resource by FHIR id
      * @param $fhirId The FHIR immunization resource id (uuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirImmunizationService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        $processingResult = $this->fhirImmunizationService->getOne($fhirId, $puuidBind);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
      * Queries for FHIR immunization resources using various search parameters.
      * Search parameters include:
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirImmunizationService->getAll($searchParams);
+        $processingResult = $this->fhirImmunizationService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

@@ -37,7 +37,7 @@
 
 if (!empty($_POST['callback_key'])) {
     $MedEx = new MedExApi\MedEx('MedExBank.com');
-    $response = $MedEx->login('1');
+    $response = $MedEx->login('2');
     header('Content-type: application/json');
     echo json_encode($response);
     exit;

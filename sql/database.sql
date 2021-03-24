@@ -111,11 +111,7 @@ CREATE TABLE `api_token` (
   `user_id` varchar(40) DEFAULT NULL,
   `token` varchar(128) DEFAULT NULL,
   `expiry` datetime DEFAULT NULL,
-  `token_auth` text,
-  `token_api` varchar(4) DEFAULT NULL,
-  `patient_id` bigint(20) NOT NULL,
   `client_id` varchar(80) DEFAULT NULL,
-  `auth_user_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
@@ -188,7 +184,12 @@ INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `functio
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
-
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP', 'SFTP Claims to X12 Partner Service', 0, 0, '2021-01-18 11:25:10', 1, 'start_X12_SFTP', '/library/billing_sftp_service.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
 -- --------------------------------------------------------
 
 --
@@ -272,7 +273,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57, 'patients|docs');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
@@ -301,6 +302,8 @@ INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients
 INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
+-- @bradymiller is this the right aco for this?  We really don't want people with patient stuff to have access to this doc
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super');
 
 -- --------------------------------------------------------
 
@@ -1069,8 +1072,8 @@ CREATE TABLE `clinical_rules_log` (
 DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
-  `code_text` varchar(255) NOT NULL default '',
-  `code_text_short` varchar(255) NOT NULL default '',
+  `code_text` text,
+  `code_text_short` text,
   `code` varchar(25) NOT NULL default '',
   `code_type` smallint(6) default NULL,
   `modifier` varchar(12) NOT NULL default '',
@@ -1195,6 +1198,7 @@ CREATE TABLE `documents` (
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
+  `date_expires` datetime default NULL,
   `url` varchar(255) default NULL,
   `thumb_url` varchar(255) default NULL,
   `mimetype` varchar(255) default NULL,
@@ -1220,10 +1224,13 @@ CREATE TABLE `documents` (
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `document_data` MEDIUMTEXT,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `foreign_reference_id` bigint(20) default NULL,
+  `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
+  KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
   KEY `owner` (`owner`)
 ) ENGINE=InnoDB;
 
@@ -1657,6 +1664,7 @@ CREATE TABLE `facility` (
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   `iban` varchar(50) default NULL,
   `info` TEXT,
+  `weno_id` VARCHAR(10) DEFAULT NULL,
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -1665,7 +1673,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '');
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -2792,7 +2800,7 @@ CREATE TABLE `icd10_dx_order_code` (
   `formatted_dx_code`   varchar(10),
   `valid_for_coding`    char,
   `short_desc`          varchar(60),
-  `long_desc`           varchar(300),
+  `long_desc`           text,
   `active` tinyint default 0,
   `revision` int default 0,
   KEY `formatted_dx_code` (`formatted_dx_code`),
@@ -2811,7 +2819,7 @@ CREATE TABLE `icd10_pcs_order_code` (
   `pcs_code`            varchar(7),
   `valid_for_coding`    char,
   `short_desc`          varchar(60),
-  `long_desc`           varchar(300),
+  `long_desc`           text,
   `active` tinyint default 0,
   `revision` int default 0,
   KEY `pcs_code` (`pcs_code`),
@@ -2974,6 +2982,7 @@ CREATE TABLE `immunizations` (
 DROP TABLE IF EXISTS `insurance_companies`;
 CREATE TABLE `insurance_companies` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16)   DEFAULT NULL,
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
@@ -2984,7 +2993,8 @@ CREATE TABLE `insurance_companies` (
   `inactive` int(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -2996,6 +3006,7 @@ CREATE TABLE `insurance_companies` (
 DROP TABLE IF EXISTS `insurance_data`;
 CREATE TABLE `insurance_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16)   DEFAULT NULL,
   `type` enum('primary','secondary','tertiary') default NULL,
   `provider` varchar(255) default NULL,
   `plan_name` varchar(255) default NULL,
@@ -3026,6 +3037,7 @@ CREATE TABLE `insurance_data` (
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
   `policy_type` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -3249,7 +3261,7 @@ CREATE TABLE `layout_options` (
   `form_id` varchar(31) NOT NULL default '',
   `field_id` varchar(31) NOT NULL default '',
   `group_id` varchar(31) NOT NULL default '',
-  `title` varchar(63) NOT NULL default '',
+  `title` text,
   `seq` int(11) NOT NULL default '0',
   `data_type` tinyint(3) NOT NULL default '0',
   `uor` tinyint(1) NOT NULL default '1',
@@ -3277,20 +3289,21 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 5, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 5, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 6, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
-
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 7, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 7, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 8, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 9, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 10, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 11, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 12, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 13, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 14, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 15, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 16, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 17, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 9, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 10, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 11, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 12, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 13, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 14, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 15, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 16, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 17, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 18, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 19, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
@@ -3476,8 +3489,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Mrs.', 'Mrs.', 2, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Ms.', 'Ms.', 3, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Dr.', 'Dr.', 4, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('sex', 'Female', 'Female', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('sex', 'Male', 'Male', 2, 0);
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'Female', 'Female', 1, 0, 'HL7:F');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'Male', 'Male', 2, 0, 'HL7:M');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'UNK', 'Unknown', 10, 0, 'HL7:UNK');
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'married', 'Married', 1, 0, 'M');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'single', 'Single', 2, 0, 'S');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'divorced', 'Divorced', 3, 0, 'D');
@@ -4052,6 +4068,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','rec','Recommendation' ,40,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','fgp','Custom Favorite Group' ,50,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','for','Custom Favorite Item' ,60,0);
+
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value) VALUES ('lists','Procedure_Billing','Procedure Billing',0, 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','T','Third-Party',10,1,1);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','P','Self Pay',20,0,1);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('Procedure_Billing','C','Bill Clinic',30,0,1);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_body_site','Procedure Body Sites', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_body_site','arm'    ,'Arm'    ,10,0);
@@ -6347,6 +6368,23 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'sexual_orientation', 'Sexual Orientation', '1');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','20430005','Straight or heterosexual',10,0,0,'SNOMED:20430005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','38628009','Lesbian, gay or homosexual',20,0,0,'SNOMED:38628009');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','42035005','Bisexual',30,0,0,'SNOMED:42035005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','comment_OTH','Something else, please describe',40,0,0,'HL7:OTH');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','UNK','Don\'t know',50,0,0,'HL7:UNK');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','ASKU','Choose not to disclose',60,0,0,'HL7:ASKU');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'gender_identity', 'Gender Identity', '1');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446151000124109','Identifies as Male',10,0,0,'SNOMED:446151000124109');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446141000124107','Identifies as Female',20,0,0,'SNOMED:446141000124107');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','407377005','Female-to-Male (FTM)/Transgender Male/Trans Man',30,0,0,'SNOMED:407377005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','407376001','Male-to-Female (MTF)/Transgender Female/Trans Woman',40,0,0,'SNOMED:407376001');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446131000124102','Genderqueer, neither exclusively male nor female',50,0,0,'SNOMED:446131000124102');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','comment_OTH','Additional gender category or other, please specify',60,0,0,'HL7:OTH');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','ASKU','Choose not to disclose',70,0,0,'HL7:ASKU');
+
 -- --------------------------------------------------------
 
 --
@@ -7055,6 +7093,8 @@ CREATE TABLE `patient_data` (
   `guardianphone` TEXT,
   `guardianworkphone` TEXT,
   `guardianemail` TEXT,
+  `sexual_orientation` TEXT,
+  `gender_identity` TEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -8305,6 +8345,7 @@ CREATE TABLE `users` (
   `billname` varchar(255) default NULL,
   `email` varchar(255) default NULL,
   `email_direct` varchar(255) NOT NULL default '',
+  `google_signin_email` VARCHAR(255) UNIQUE DEFAULT NULL,
   `url` varchar(255) default NULL,
   `assistant` varchar(255) default NULL,
   `organization` varchar(255) default NULL,
@@ -8501,6 +8542,14 @@ CREATE TABLE `x12_partners` (
   `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
+  `x12_gs03` varchar(15) DEFAULT NULL,
+  `x12_submitter_name` varchar(255) DEFAULT NULL,
+  `x12_sftp_login` varchar(255) DEFAULT NULL,
+  `x12_sftp_pass` varchar(255) DEFAULT NULL,
+  `x12_sftp_host` varchar(255) DEFAULT NULL,
+  `x12_sftp_port` varchar(255) DEFAULT NULL,
+  `x12_sftp_local_dir` varchar(255) DEFAULT NULL,
+  `x12_sftp_remote_dir` varchar(255) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -8737,8 +8786,9 @@ CREATE TABLE `procedure_providers` (
   `orders_path`  varchar(255) NOT NULL DEFAULT '',
   `results_path` varchar(255) NOT NULL DEFAULT '',
   `notes`        text,
-  `lab_director` bigint(20) NOT NULL DEFAULT '0',
-  `active`       tinyint(1) NOT NULL DEFAULT '1',
+  `lab_director` bigint(20)   NOT NULL DEFAULT '0',
+  `active`       tinyint(1)   NOT NULL DEFAULT '1',
+  `type`         varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`ppid`)
 ) ENGINE=InnoDB;
 
@@ -8768,6 +8818,7 @@ CREATE TABLE `procedure_type` (
   `seq`                 int(11)      NOT NULL default 0  COMMENT 'sequence number for ordering',
   `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
   `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
+  `transport`           varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`procedure_type_id`),
   KEY parent (parent)
 ) ENGINE=InnoDB;
@@ -8802,27 +8853,36 @@ CREATE TABLE `procedure_questions` (
 
 DROP TABLE IF EXISTS `procedure_order`;
 CREATE TABLE `procedure_order` (
-  `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
-  `uuid`                   binary(16)   DEFAULT NULL,
-  `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
-  `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
-  `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
-  `date_collected`         datetime     DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           date         DEFAULT NULL,
-  `order_priority`         varchar(31)  NOT NULL DEFAULT '',
-  `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
+  `procedure_order_id`     bigint(20)       NOT NULL AUTO_INCREMENT,
+  `uuid`                   binary(16)       DEFAULT NULL,
+  `provider_id`            bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
+  `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
+  `date_ordered`           date             DEFAULT NULL,
+  `order_priority`         varchar(31)      NOT NULL DEFAULT '',
+  `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text,
-  `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
-  `control_id`             varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
-  `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
-  `specimen_type`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
-  `specimen_location`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
-  `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field',
-  `date_transmitted`       datetime     DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
-  `clinical_hx`            varchar(255) NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
-  `external_id`            varchar(20) DEFAULT NULL,
-  `history_order`          enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
-  `order_diagnosis`        varchar(255) DEFAULT '' COMMENT 'primary order diagnosis',
+  `activity`               tinyint(1)       NOT NULL DEFAULT 1  COMMENT '0 if deleted',
+  `control_id`             varchar(255)     NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
+  `lab_id`                 bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
+  `specimen_type`          varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
+  `specimen_location`      varchar(31)      NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
+  `specimen_volume`        varchar(30)      NOT NULL DEFAULT '' COMMENT 'from a text input field',
+  `date_transmitted`       datetime         DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
+  `clinical_hx`            varchar(255)     NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
+  `external_id`            varchar(20)      DEFAULT NULL,
+  `history_order`          enum('0','1')    DEFAULT '0'         COMMENT 'references order is added for history purpose only.',
+  `order_diagnosis`        varchar(255)     DEFAULT ''          COMMENT 'primary order diagnosis',
+  `billing_type`           varchar(4)       DEFAULT NULL,
+  `specimen_fasting`       varchar(31)      DEFAULT NULL,
+  `order_psc`              tinyint(4)       DEFAULT NULL,
+  `order_abn`              varchar(31)      NOT NULL DEFAULT 'not_required',
+  `collector_id`           bigint(11)       NOT NULL DEFAULT 0,
+  `account`                varchar(60)      DEFAULT NULL,
+  `account_facility`       int(11)          DEFAULT NULL,
+  `provider_number`        varchar(30)      DEFAULT NULL,
+  `procedure_order_type`   varchar(32)      NOT NULL DEFAULT 'laboratory_test',
   PRIMARY KEY (`procedure_order_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY datepid (date_ordered, patient_id),
@@ -8837,14 +8897,16 @@ CREATE TABLE `procedure_order` (
 
 DROP TABLE IF EXISTS `procedure_order_code`;
 CREATE TABLE `procedure_order_code` (
-  `procedure_order_id`  bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
-  `procedure_order_seq` int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
-  `procedure_code`      varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
-  `procedure_name`      varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
-  `procedure_source`    char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
-  `diagnoses`           text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
-  `do_not_send`         tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
-  `procedure_order_title` varchar( 255 ) NULL DEFAULT NULL,
+  `procedure_order_id`      bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq`     int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
+  `procedure_code`          varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
+  `procedure_name`          varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
+  `procedure_source`        char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
+  `diagnoses`               text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
+  `do_not_send`             tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
+  `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
+  `procedure_type`          varchar(31) DEFAULT NULL,
+  `transport`               varchar(31) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
@@ -8861,6 +8923,7 @@ CREATE TABLE `procedure_answers` (
   `question_code`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'references procedure_questions.question_code',
   `answer_seq`          int(11)      NOT NULL COMMENT 'supports multiple-choice questions. answer_seq, incremented in code',
   `answer`              varchar(255) NOT NULL DEFAULT '' COMMENT 'answer data',
+  `procedure_code`      varchar(31)  DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
 ) ENGINE=InnoDB;
 
@@ -10496,6 +10559,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'ODVITREOUS', 'clear', 504, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'clear', 505, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -10516,6 +10580,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'OSVITREOUS', 'clear', 506, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'clear', 515, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -11387,8 +11452,8 @@ CREATE TABLE `codes_history` (
   `financial_reporting` tinyint(1),
   `category` varchar(255),
   `code_type_name` varchar(255),
-  `code_text` varchar(255),
-  `code_text_short` varchar(24),
+  `code_text` text,
+  `code_text_short` text,
   `prices` text,
   `action_type` varchar(25),
   `update_by` varchar(255),
@@ -11568,44 +11633,46 @@ CREATE TABLE `medex_icons` (
 -- Dumping data for table `medex_icons`
 --
 
+
 INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `i_html`, `i_blob`) VALUES
-(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="fa fa-commenting-o fa-fw"></i>', ''),
-(2, 'SMS', 'NotAllowed', '', '<span class="fa-stack" title="SMS not possible"><i class="fa fa-commenting-o fa-stack-1x fa-fw"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-commenting-o fa-inverse fa-flip-horizontal fa-fw" aria-hidden="true"></i></span>', ''),
-(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="padding:5px;background-color:green;"><i class="fa fa-commenting-o fa-inverse fa-fw"></i></span>', ''),
-(8, 'SMS', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="padding:5px;background-color:#000;color:#fff;"><i class="fa fa-terminal fa-fw"></i></span>', ''),
-(10, 'SMS', 'STOP', '', '<span class="btn btn-danger" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'><i class="fa fa-commenting" aria-hidden="true"> STOP</i></span>', ''),
-(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fa fa-phone fa-fw"></span>', ''),
-(12, 'AVM', 'NotAllowed', '', '<span class="fa-stack" title="Automated Voice Messages are not allowed"><i class="fa fa-phone fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fa fa-phone fa-fw"></i></span>', ''),
-(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-volume-control-phone fa-fw"></i></span>', ''),
-(15, 'AVM', 'FAILED', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-phone fa-fw"></i></span>', ''),
-(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fa fa-phone fa-inverse fa-fw"></i></span>', ''),
-(17, 'AVM', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(18, 'AVM', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
-(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fa fa-phone" aria-hidden="true"> STOP</i></span>', ''),
-(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fa fa-envelope-o fa-fw"></span>', ''),
-(21, 'EMAIL', 'NotAllowed', '', '<span class="fa-stack" title="EMAIL is not possible"><i class="fa fa-envelope-o fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(23, 'EMAIL', 'SENT', '', '<span class="btn" style="padding:5px;background-color:yellow;color:black;" title="EMAIL Message sent, not opened"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(24, 'EMAIL', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-inverse fa-fw" aria-hidden="true"></i></a>', ''),
-(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient\'s email address." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(26, 'EMAIL', 'CONFIRMED', '', '<a class="btn btn-success" style="padding:5px;background-color: green;" title="Confirmed by E-Mail" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i></a>', ''),
-(27, 'EMAIL', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(28, 'EMAIL', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
-(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fa fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
-(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fa fa-image fa-fw"></i></span>', ''),
-(31, 'POSTCARD', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fa fa-image fa-fw" aria-hidden="true"></i></a>', ''),
-(32, 'POSTCARD', 'FAILED', '', '<span class="fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fa fa-image fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fa fa-image fa-fw"></i></span>', ''),
-(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
-(37, 'SMS', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(38, 'AVM', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(39, 'EMAIL', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', '');
+(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="far fa-comment-dots fa-fw"></i>', ''),
+(2, 'SMS', 'NotAllowed', '', '<span class="fas fa-stack" title="SMS not possible"><i title="SMS is not possible." class="fas fa-comment-dots fa-fw"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="background-color:yellow;"><i aria-hidden="true" class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="background-color:#146abd;"><i aria-hidden="true" class="fas fa-comment-dots fa-inverse fa-flip-horizontal fa-fw"></i></span>', ''),
+(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="background-color:#ffc4c4;"><i aria-hidden="true" class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="background-color:green;"><i aria-hidden="true" class="fas fa-comment-dots fa-inverse fa-flip-horizontal fa-fw"></i></span>', ''),
+(8, 'SMS', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call"><i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="background-color:#000;color:#fff;"><i class="fas fa-terminal fa-fw"></i></span>', ''),
+(10, 'SMS', 'STOP', '', '<span class="btn btn-danger fas fa-comment-dots" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'> STOP</span>', ''),
+(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fas fa-phone fa-fw"></span>', ''),
+(12, 'AVM', 'NotAllowed', '', '<span class="fas fa-stack" title="Automated Voice Messages are not allowed"><i class="fas fa-phone fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fas fa-phone fa-fw"></i></span>', ''),
+(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="background-color:yellow;"><i class="fas fa-phone-volume fa-reverse fa-fw"></i></span>', ''),
+(15, 'AVM', 'FAILED', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="background-color:#ffc4c4;"><i class="fas fa-phone fa-fw"></i></span>', ''),
+(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fas fa-phone fa-inverse fa-fw"></i></span>', ''),
+(17, 'AVM', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call">\r\n<i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(18, 'AVM', 'Other', '', '<span class="fas fa-stack fa-lg"><i class="fas fa-square fa-stack-2x"></i><i class="fas fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
+(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fas fa-phone" aria-hidden="true"> STOP</i></span>', ''),
+(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fas fa-envelope fa-fw"></span>', ''),
+(21, 'EMAIL', 'NotAllowed', '', '<span class="fas fa-stack" title="EMAIL is not possible"><i class="fas fa-envelope fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(23, 'EMAIL', 'SENT', '', '<span class="btn" style="background-color:yellow;" title="EMAIL Message sent, not opened"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(24, 'EMAIL', 'READ', '', '<span class="btn" style="background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Read via email"><i aria-hidden="true" class="fas fa-envelope fa-inverse fa-fw"></i></span>', ''),
+(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient\'s email address." style="background-color:#ffc4c4;"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(26, 'EMAIL', 'CONFIRMED', '', '<span class="btn" title="Confirmed by E-Mail" aria-label="Confirmed via email" style="background-color: green;"><i aria-hidden="true" class="fas fa-envelope fa-inverse fa-fw"></i></span>', ''),
+(27, 'EMAIL', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call"><i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(28, 'EMAIL', 'Other', '', '<span class="fas fa-stack fa-lg"><i class="fas fa-square fa-stack-2x"></i><i class="fas fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
+(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fas fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
+(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fas fa-image fa-fw"></i></span>', ''),
+(31, 'POSTCARD', 'READ', '', '<span class="btn" style="background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fas fa-image fa-fw" aria-hidden="true"></i></span>', ''),
+(32, 'POSTCARD', 'FAILED', '', '<span class="fas fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fas fa-image fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fas fa-image fa-fw"></i></span>', ''),
+(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fas fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
+(37, 'SMS', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>', ''),
+(38, 'AVM', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>    ', ''),
+(39, 'EMAIL', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>', '');
+
 
 -- --------------------------------------------------------
 
@@ -12251,7 +12318,7 @@ CREATE TABLE `oauth_clients` (
 `client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(120) DEFAULT NULL,
+`client_secret` text,
 `registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
@@ -12263,6 +12330,14 @@ CREATE TABLE `oauth_clients` (
 `user_id` varchar(40) DEFAULT NULL,
 `site_id` varchar(64) DEFAULT NULL,
 `is_confidential` tinyint(1) NOT NULL DEFAULT '1',
+`logout_redirect_uris` text,
+`jwks_uri` text,
+`jwks` text,
+`initiate_login_uri` text,
+`endorsements` text,
+`policy_uri` text,
+`tos_uri` text,
+`is_enabled` tinyint(1) NOT NULL DEFAULT '0',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 
@@ -12270,13 +12345,46 @@ DROP TABLE IF EXISTS `oauth_trusted_user`;
 CREATE TABLE `oauth_trusted_user` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `user_id` varchar(80) DEFAULT NULL,
-`user_role` varchar(16) DEFAULT NULL,
 `client_id` varchar(80) DEFAULT NULL,
 `scope` text,
 `persist_login` tinyint(1) DEFAULT '0',
 `time` timestamp NULL DEFAULT NULL,
+`code` text,
+`session_cache` text,
+`grant_type` varchar(32) DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
-KEY `clients_id` (`client_id`),
-KEY `user_role` (`user_role`)
+KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `x12_remote_tracker`;
+CREATE TABLE `x12_remote_tracker` (
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`x12_partner_id` int(11) NOT NULL,
+`x12_filename` varchar(255) NOT NULL,
+`status` varchar(255) NOT NULL,
+`claims` text,
+`messages` text,
+`created_at` datetime DEFAULT NULL,
+`updated_at` datetime DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `export_job`;
+CREATE TABLE `export_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `client_id` varchar(80) NOT NULL,
+  `status` varchar(40) NOT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `resource_include_time` datetime DEFAULT NULL,
+  `output_format` varchar(128) NOT NULL,
+  `request_uri` varchar(128) NOT NULL,
+  `resources` text,
+  `output` text,
+  `errors` text,
+  `access_token_id` text,
+  UNIQUE (`uuid`),
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB COMMENT='fhir export jobs';

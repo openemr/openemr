@@ -206,7 +206,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
 <?php if (!$PDF_OUTPUT) { ?>
     <?php // if the track_anything form exists, then include the styling
-    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
         <?php Header::setupAssets('track-anything'); ?>
     <?php  } ?>
 
@@ -301,8 +301,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                                     if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                                                 preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                                                $form_id_arr[] = add_escape_custom($res_search[2]);
-                                                $form_dir_arr[] = add_escape_custom($res_search[1]);
+                                                $form_id_arr[] = add_escape_custom($res_search[2] ?? '');
+                                                $form_dir_arr[] = add_escape_custom($res_search[1] ?? '');
                                     }
                                 }
 
@@ -685,7 +685,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                                         echo "<img src='$from_file_tmp_web_name'><br /><br />";
                                         $tmp_files_remove[] = $from_file_tmp_web_name;
                                     } else {
-                                        echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        if ($extension === '.pdf' || $extension === '.zip') {
+                                            echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
+                                        } else {
+                                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        }
                                     }
                                 }
                             } // end if-else

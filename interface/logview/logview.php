@@ -104,7 +104,7 @@ if (!empty($_GET)) {
                         $err_message = 1;
                     }
 
-                    if ($_GET["form_patient"]) {
+                    if (!empty($_GET["form_patient"])) {
                         $form_patient = isset($_GET["form_patient"]) ? $_GET["form_patient"] : "";
                     }
 
@@ -113,7 +113,7 @@ if (!empty($_GET)) {
                     $form_user = isset($_REQUEST['form_user']) ? $_REQUEST['form_user'] : '';
                     $form_pid = isset($_REQUEST['form_pid']) ? $_REQUEST['form_pid'] : '';
 
-                    if ($form_patient == '') {
+                    if (empty($form_patient)) {
                         $form_pid = '';
                     }
 
@@ -151,7 +151,7 @@ if (!empty($_GET)) {
                                 </div>
                                 <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('Patient'); ?>:</label>
                                 <div class="col-sm-3">
-                                    <input type='text' size='20' class='form-control' name='form_patient' id='form_patient' style='cursor:pointer;' value='<?php echo $form_patient ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+                                    <input type='text' size='20' class='form-control' name='form_patient' id='form_patient' style='cursor:pointer;' value='<?php echo (!empty($form_patient)) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
                                     <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
                                 </div>
                             </div>
@@ -270,7 +270,7 @@ if (!empty($_GET)) {
                                     </select>
                                 </div>
                             </div>
-                            <input type="hidden" name="event" value="<?php echo attr($event); ?>" />
+                            <input type="hidden" name="event" value="<?php echo attr($event ?? ''); ?>" />
                             <div class="btn-group" role="group">
                                 <a href="javascript:document.theform.submit();" class="btn btn-secondary btn-save"><?php echo xlt('Submit'); ?></a>
                             </div>

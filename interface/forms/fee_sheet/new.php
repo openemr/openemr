@@ -209,7 +209,7 @@ function echoServiceLines()
                 if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' /></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -295,7 +295,7 @@ function echoServiceLines()
             echo "<input type='text' class='form-control' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
             "size='11' />";
             echo " &nbsp;Qty:&nbsp;";
-            echo "<input type='text' class='form-control text-right' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            echo "<input type='text' class='form-control text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
             echo "<select class='form-control' name='bill[" . attr($lino) . "][ndcuom]'>";
@@ -568,7 +568,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'select2']);?>
+<?php Header::setupHeader(['common', 'knockout', 'select2']);?>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
@@ -1163,7 +1163,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             $justify    = $bline['justify'] ?? null;
                                             $notecodes  = trim($bline['notecodes'] ?? null);
-                                             $provider_id = 0 + (int)$bline['provid'];
+                                            $provider_id = 0 + (int)$bline['provid'];
                                         }
 
                                         if ($iter['code_type'] == 'COPAY') { // moved copay display to below
@@ -1395,9 +1395,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     if ($newtype == 'HCPCS' && $ndc_applies) {
                                                         $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                                                         "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                                                        "ORDER BY date DESC LIMIT 1", array($newtype,$code));
+                                                        "ORDER BY date DESC LIMIT 1", array($newtype, $code));
                                                         if (!empty($tmp)) {
                                                             $ndc_info = $tmp['ndc_info'];
+                                                        } else {
+                                                            $tmp = sqlQuery("SELECT ndc_number FROM drugs WHERE " .
+                                                                "related_code = ? AND active = 1", array($newtype . ":" . $code));
+                                                            if (!empty($tmp)) {
+                                                                $ndc_info = $tmp['ndc_number'];
+                                                            }
                                                         }
                                                     }
                                                     $fs->addServiceLineItem(array(

@@ -4,8 +4,8 @@
  * OemrUI class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @link      https://www.open-emr.org
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -73,13 +73,13 @@ class OemrUI
     {
         global $v_js_includes;
 
-        $this->heading = ($arrOeUiSettings['include_patient_name'] && !empty($arrOeUiSettings['heading_title'])) ? $arrOeUiSettings['heading_title'] . " - " . getPatientNameFirstLast($_SESSION['pid']) : $arrOeUiSettings['heading_title'];
-        $this->expandable = $arrOeUiSettings['expandable'];
-        $this->arrFiles = $arrOeUiSettings['expandable_files'];
-        $this->arrAction = array($arrOeUiSettings['action'], $arrOeUiSettings['action_title'], $arrOeUiSettings['action_href']);
-        $this->display_help_icon = $arrOeUiSettings['show_help_icon'];
-        $this->help_file = $arrOeUiSettings['help_file_name'];
-        if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
+        $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientNameFirstLast($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
+        $this->expandable = $arrOeUiSettings['expandable'] ?? null;
+        $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
+        $this->arrAction = array(($arrOeUiSettings['action'] ?? null), ($arrOeUiSettings['action_title'] ?? null), ($arrOeUiSettings['action_href'] ?? null));
+        $this->display_help_icon = $arrOeUiSettings['show_help_icon'] ?? null;
+        $this->help_file = $arrOeUiSettings['help_file_name'] ?? null;
+        if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
             $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
     }
@@ -393,39 +393,74 @@ EXP;
     private function headerActionJs($arrAction = array())
     {
         $arrAction = $this->arrAction;
+        $page = str_replace(" ", "", $this->heading);
+
+        // Build the labels for when the icon is moused-over
+        $labels = "";
+        if ($arrAction[0] == 'search') {
+            $labels .= "var showTitle = " .  xlj('Click to show search') . "\r\n;";
+            $labels .= "var hideTitle = " . xlj('Click to hide search') . "\r\n;";
+        } elseif ($arrAction[0] == 'reveal' || $arrAction[0] == 'conceal') {
+            $labels .= "var hideTitle = " .  xlj('Click to Hide') . "\r\n;";
+            $labels .= "var showTitle = " . xlj('Click to Show') . "\r\n;";
+        }
+
+        // Build the classes for which icon to display whien hiding, showing, etc.
+        $actionClasses = "";
+        if ($arrAction[0] == 'search') {
+            $actionClasses .= "var showActionClass = 'fa-search-plus'; \r\n";
+            $actionClasses .= "var hideActionClass = 'fa-search-minus'; \r\n";
+        } elseif ($arrAction[0] == 'reveal') {
+            $actionClasses .= "var showActionClass = 'fa-eye'; \r\n";
+            $actionClasses .= "var hideActionClass = 'fa-eye-slash'; \r\n";
+        } elseif ($arrAction[0] == 'conceal') {
+            $actionClasses .= "var showActionClass = 'fa-eye-slash'; \r\n";
+            $actionClasses .= "var hideActionClass = 'fa-eye'; \r\n";
+        }
+
         $action_top_js = <<<SHWTOP
         <script>
         $(function () {
+            $labels
+            $actionClasses
             $('#show_hide').click(function () {
                 var elementTitle = '';
 SHWTOP;
         echo $action_top_js . "\r\n";
 
-        if ($arrAction[0] == 'search') {
-            echo "var showTitle = " .  xlj('Click to show search') . "\r\n;";
-            echo "var hideTitle = " . xlj('Click to hide search') . "\r\n;";
-        } elseif ($arrAction[0] == 'reveal' || $arrAction[0] == 'conceal') {
-            echo "var hideTitle = " .  xlj('Click to Hide') . "\r\n;";
-            echo "var showTitle = " . xlj('Click to Show') . "\r\n;";
-        }
-
-        if ($arrAction[0] == 'search') {
-            echo "$(this).toggleClass('fa-search-plus fa-search-minus'); \r\n";
-        } elseif ($arrAction[0] == 'reveal') {
-            echo "$(this).toggleClass('fa-eye fa-eye-slash'); \r\n";
-        } elseif ($arrAction[0] == 'conceal') {
-            echo "$(this).toggleClass('fa-eye-slash fa-eye'); \r\n";
-        }
-
                 $action_bot_js = <<<SHWBOT
+
+                $(this).toggleClass(showActionClass + ' ' + hideActionClass);
+
                 $('.hideaway').toggle(500);
-                if ($(this).is('.fa-eye') || $(this).is('.fa-search-plus')) {
+                if ($(this).is('.' + showActionClass)) {
                     elementTitle = showTitle;
-                } else if ($(this).is('.fa-eye-slash') || $(this).is('.fa-search-minus')) {
+                } else if ($(this).is('.' + hideActionClass)) {
                     elementTitle = hideTitle;
                 }
                 $(this).prop('title', elementTitle);
-            });
+
+                // Remember our hideaway setting in local storage. If it's visible, show it on next page load
+                localStorage.setItem('display#$page', elementTitle);
+            }); // End of show_hide click()
+
+            // Use localStorage to remember your last setting
+            // Simulate 'click-to-show' if display is set to 'true', or null if there's no setting (default)
+            // getItem() returns a string which is why we have to check for the string 'true'
+            const elementTitle = localStorage.getItem('display#$page');
+            let shouldDisplay = false;
+            if (typeof hideTitle != 'undefined' &&
+                (elementTitle == hideTitle || elementTitle == null)) {
+                shouldDisplay = true
+            }
+
+            // We display if we remember we're showing it, but we don't intentionally hide it (no else here to hide)
+            // Because the hideaway is probably shown by default for a reason like in the billing manager
+            if (shouldDisplay) {
+                $('.hideaway').show(500);
+                $('#show_hide').removeClass(showActionClass);
+                $('#show_hide').addClass(hideActionClass);
+            }
         });
         </script>
 SHWBOT;

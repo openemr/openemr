@@ -51,7 +51,7 @@ $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0)
 
 // If we are saving, then save.
 //
-if ($_POST['formaction'] == 'save' && $list_id) {
+if (!empty($_POST['formaction']) && ($_POST['formaction'] == 'save') && $list_id) {
     $opt = $_POST['opt'];
     if ($list_id == 'feesheet') {
         // special case for the feesheet list
@@ -199,6 +199,18 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     $notes = trim($iter['notes']);
                 }
 
+                if (preg_match("/Eye_QP_/", $list_id)) {
+                    if (preg_match("/^[BLR]/", $id)) {
+                        $stuff = explode("_", $id)[0];
+                        $iter['mapping'] = substr($stuff, 1);
+                        $iter['subtype'] = substr($stuff, 0, 1);
+                    } else {
+                        $stuff = explode("_", $id)[0];
+                        $iter['mapping'] = substr($stuff, 2);
+                        $iter['subtype'] = substr($stuff, 0, 2);
+                    }
+                }
+
                 // Delete the list item
                 sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
                 if (strlen($id) <= 0 && strlen(trim($iter['title'])) <= 0 && empty($id) && empty($iter['title'])) {
@@ -214,21 +226,21 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                         $id,
                         trim($iter['title']),
                         trim($iter['seq']),
-                        trim($iter['default']),
+                        trim($iter['default'] ?? 0),
                         $value,
-                        trim($iter['mapping']),
+                        trim($iter['mapping'] ?? ''),
                         $notes,
                         trim($iter['codes']),
-                        trim($iter['toggle_setting_1']),
-                        trim($iter['toggle_setting_2']),
-                        trim($iter['activity']),
-                        trim($iter['subtype'])
+                        trim($iter['toggle_setting_1'] ?? 0),
+                        trim($iter['toggle_setting_2'] ?? 0),
+                        trim($iter['activity'] ?? 0),
+                        trim($iter['subtype'] ?? '')
                     )
                 );
             }
         }
     }
-} elseif ($_POST['formaction'] == 'addlist') {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == 'addlist')) {
     // make a new list ID from the new list name
     $newlistID = $_POST['newlistname'];
     $newlistID = preg_replace("/\W/", "_", $newlistID);
@@ -246,7 +258,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         // send error and continue.
         echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
     }
-} elseif ($_POST['formaction'] == 'deletelist') {
+} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == 'deletelist')) {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
     // delete the list from the master list-of-lists
@@ -1046,7 +1058,7 @@ function writeITLine($it_array)
                          * Keep proper list name (otherwise list name changes according to
                          * the options shown on the screen).
                          */
-                        $list_id_container = $_GET["list_id_container"];
+                        $list_id_container = $_GET["list_id_container"] ?? null;
                         if (isset($_GET["list_id_container"]) && strlen($list_id_container) > 0) {
                             $list_id = $list_id_container;
                         }

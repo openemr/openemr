@@ -36,8 +36,8 @@ use OpenEMR\Core\Header;
         <div class="container-fluid mb-3">
             <form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <input type='hidden' name='m' value='<?php echo attr($_GET['m']); ?>' />
-                <input type='hidden' name='edit' value='<?php echo attr($_GET['edit']); ?>' />
+                <input type='hidden' name='m' value='<?php echo attr($_GET['m'] ?? ''); ?>' />
+                <input type='hidden' name='edit' value='<?php echo attr($_GET['edit'] ?? ''); ?>' />
                 <!-- <span class="title"><?php echo xlt('Multi Language Tool'); ?></span> -->
                 <ui class="nav nav-pills">
                     <li class="nav-item" id="li-definition">

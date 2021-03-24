@@ -29,7 +29,7 @@ $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();
 
 //this part download the CSV file after the click on the href link
-if ($_GET['download_file'] == 1) {
+if (!empty($_GET['download_file']) && ($_GET['download_file'] == 1)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -97,7 +97,7 @@ if (!empty($_POST['sync'])) {
 
 <body class="body_top">
 <?php
-if ($saved) {
+if (!empty($saved)) {
     echo "<p style='color:green'>" .
         xlt('Successfully Completed');
         "</p>\n";

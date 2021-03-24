@@ -401,13 +401,16 @@ function getRecEmployerData($pid)
     //$return["lname"][0..n]["value"]
     $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid));
 
+    $retar = [];
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 continue;
             } else {
                 $curdate = $result["date"];
-                if (($retar[$key][$arcount[$key]]["value"] != $val)) {
+
+                $arcount[$key] = $arcount[$key] ?? null;
+                if (empty($retar[$key][$arcount[$key]]["value"]) || ($retar[$key][$arcount[$key]]["value"] != $val)) {
                     $arcount[$key]++;
                     $retar[$key][$arcount[$key]]["value"] = $val;
                     $retar[$key][$arcount[$key]]["date"] = $curdate;

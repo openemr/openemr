@@ -7,7 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Terry Hill <teryhill@yahoo.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +23,10 @@
 if ($this->trow) {
     $row = $this->trow;
 }
+$exclude = array();
+if ($this->exclude) {
+    $exclude = $this->exclude;
+}
 
     echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
     $_SESSION['whereto'] = 'profilecard';
@@ -31,7 +35,6 @@ if ($this->trow) {
 ?>
 
 <script>
-
     // bring in the datepicker and datetimepicker localization and setting elements
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
@@ -44,6 +47,8 @@ if ($this->trow) {
             if (!page.isInitialized) page.init();
         },1000);
     });
+    // profile excludes global from layouts via PatientController
+    const exclude = <?php echo js_escape($exclude); ?>;
 </script>
 <?php if (attr($this->register)) {?>
 <style>
@@ -79,18 +84,24 @@ if ($this->trow) {
         </div>
         <form onsubmit="return false;">
             <fieldset>
-            <div class="form-row">
-                <!-- <div class="col-sm-auto px-3 form-group plist-group" id="idInputContainer">
-                    <label class="plist-label" for="id">Id</label>
-                    <div class="controls inline-inputs">
-                        <span class="form-control uneditable-input" id="id"><%= _.escape(item.get('id') || '') %></span>
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
+            <div class="form-row mb-2 pb-2">
             <div class="col-sm-auto px-3 form-group plist-group" id="provideridInputContainer">
-                    <label class="plist-label" for="providerid"><?php echo xlt('Select Primary Physician')?></label>
+                    <label class="plist-label" for="providerid"><?php echo xlt('Current Physician')?></label>
                     <div class="controls inline-inputs">
-                        <select class="form-control" id="providerid"  value="<%= _.escape(item.get('providerid') || '') %>"></select>
+                        <select class="form-control" id="providerid" value="<?php echo $row['providerid'] ?>">
+                            <?php
+                            echo "<option value='1'>" . xlt('Administrator Assign') . "</option>";
+                            foreach ($this->users_list as $user) {
+                                $user_name = text($user['fname'] . ' ' . $user['lname']);
+                                $id = attr($user['id']);
+                                echo "<option value='$id'";
+                                if ((int)$id === (int)$row['providerid']) {
+                                    echo " selected";
+                                }
+                                echo ">$user_name</option>";
+                            }
+                            ?>
+                        </select>
                         <span class="help-inline"></span>
                     </div>
             </div>
@@ -104,14 +115,6 @@ if ($this->trow) {
                  <span class="help-inline"></span>
                 </div>
             </div>
-
-            <!-- <div class="col-sm-auto px-3 form-group plist-group" id="financialInputContainer">
-                    <label class="plist-label" for="financial"><?php echo xlt('Financial')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="financial" placeholder="Financial" value="<%= _.escape(item.get('financial') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
                 <div class="col-sm-auto px-3 form-group plist-group" id="fnameInputContainer">
                     <label class="plist-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                     <div class="controls inline-inputs">
@@ -282,7 +285,20 @@ if ($this->trow) {
                 <div class="col-sm-auto px-3 form-group plist-group dynhide" id="refProvideridInputContainer">
                     <label class="plist-label" for="refProviderid"><?php echo xlt('Referral Provider')?></label>
                     <div class="controls inline-inputs">
-                        <select  disabled class="form-control" id="refProviderid"  value="<%= _.escape(item.get('refProviderid') || '') %>"></select>
+                        <select  disabled class="form-control" id="refProviderid"  value="<?php echo $row['refProviderid'] ?>">
+                            <?php
+                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
+                            foreach ($this->users_list as $user) {
+                                $user_name = text($user['fname'] . ' ' . $user['lname']);
+                                $id = attr($user['id']);
+                                echo "<option value='$id'";
+                                if ((int)$id === (int)$row['refProviderid']) {
+                                    echo " selected";
+                                }
+                                echo ">$user_name</option>";
+                            }
+                            ?>
+                        </select>
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -344,25 +360,25 @@ if ($this->trow) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
-                    <label class="plist-label" for="referralSource"><?php echo xlt('How Referred')?></label><br />
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
+                    <label class="plist-label" for="referralSource"><?php /*echo xlt('How Referred')*/?></label><br />
                     <div class="controls inline-inputs">
                         <?php
-                      # Generate drop down list for Referral Source
+/*                      # Generate drop down list for Referral Source
                         echo generate_select_list('referralSource', 'refsource', $row['referralSource'], xl('Referral Source'), 'Unassigned', "form-control");
-                        ?>
+                        */?>
                         <span class="help-inline"></span>
                     </div>
-                </div>
-                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
-                    <label class="plist-label" for="regdate"><?php echo xlt('Registration Date')?></label>
+                </div>-->
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
+                    <label class="plist-label" for="regdate"><?php /*echo xlt('Registration Date')*/?></label>
                     <div class="controls inline-inputs">
                         <div class="input-group">
                             <input disabled id="regdate" type="text" class="form-control jquery-date-picker" value="<%= item.get('regdate') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="mothersnameInputContainer">
                     <label class="plist-label" for="mothersname"><?php echo xlt('Mothers Name')?></label>
                     <div class="controls inline-inputs">
@@ -468,345 +484,40 @@ if ($this->trow) {
                 <div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
                     <label class="plist-label" for="careTeam"><?php echo xlt('Care Team')?></label>
                     <div class="controls inline-inputs">
-                        <select class="form-control" id="careTeam" placeholder="<?php echo xla('Care Team'); ?>" value="<%= _.escape(item.get('careTeam') || '') %>"></select>
+                        <!-- disabled for now. Patient doesn't have a need to select what care team they belong -->
+                        <select disabled class="form-control" id="careTeam"
+                            title="<?php echo xla('Care Team'); ?>" value="<?php echo $row['careTeam']; ?>">
+                            <?php
+                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
+                            foreach ($this->users_list as $user) {
+                                $user_name = text($user['fname'] . ' ' . $user['lname']);
+                                $id = attr($user['id']);
+                                echo "<option value='$id'";
+                                if ((int)$id === (int)$row['careTeam']) {
+                                    echo " selected";
+                                }
+                                echo ">$user_name</option>";
+                            }
+                            ?>
+                        </select>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="col-sm-auto px-3 form-group plist-group dynhide" id="noteInputContainer">
-                    <label class="plist-label" style="color:green" for="note"><?php echo xlt('Message to Reviewer')?></label>
+                    <label class="plist-label" style="color:green" for="note"><?php echo xlt('Comments about change request')?></label>
                     <div class="controls inline-inputs">
-                        <textarea class="form-control" id="note" rows="1" style='min-width:180px'><%= _.escape("To Admin: ") %></textarea>
+                        <textarea class="form-control" id="note" rows="2" col="160" style='min-width:380px'><%= _.escape("To Admin: ") %></textarea>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 </div>
             </fieldset>
         </form>
-
 </script>
-
     <div id="collectionAlert"></div>
     <div id="modelAlert"></div>
-    <div id="patientCollectionContainer" class="collectionContainer"></div><!--  -->
+    <div id="patientCollectionContainer" class="collectionContainer"></div>
     <div id="patientModelContainer" class="modelContainer"></div>
 </div> <!-- /container -->
-<?php //$this->display('_Footer.tpl.php');?>
 </body>
 </html>
-                <!-- <div class="form-group plist-group" id="ethnoracialInputContainer">
-                    <label class="plist-label" for="ethnoracial"><?php echo xlt('Ethnoracial')?></label><br />
-                    <div class="controls inline-inputs">
-                    <?php
-                      # Generate drop down list for Ethnoracial
-                      //echo generate_select_list('ethnoracial', 'ethrace', $row['ethnoracial'], xl('Ethnoracial'), 'Unassigned', "form-control");
-                    ?>
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-                <!-- <div class="form-group plist-group" id="interpretterInputContainer">
-                    <label class="plist-label" for="interpretter"><?php //echo xlt('Interpreter')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="interpretter" placeholder="<?php //echo xla('Interpreter')?>" value="<%= _.escape(item.get('interpretter') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="migrantseasonalInputContainer">
-                    <label class="plist-label" for="migrantseasonal"><?php //echo xlt('Migrant Seasonal')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="migrantseasonal" placeholder="<?php //echo xla('Migrant Seasonal')?>" value="<%= _.escape(item.get('migrantseasonal') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-                <!-- <div class="form-group plist-group" id="industryInputContainer">
-                    <label class="plist-label" for="industry"><?php //echo xlt('Industry')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="industry" placeholder="<?php //echo xla('Industry')?>" value="<%= _.escape(item.get('industry') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="occupationInputContainer">
-                    <label class="plist-label" for="occupation"><?php //echo xlt('Occupation')?></label>
-                    <div class="controls inline-inputs">
-                        <textarea class="form-control" id="occupation" rows="1" style='min-width:90px'><%= _.escape(item.get('occupation') || '') %></textarea>
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-            <!--<div class="form-group plist-group" id="referrerInputContainer">
-                    <label class="plist-label" for="referrer"><?php //echo xlt('Referrer')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="referrer" placeholder="<?php //echo xla('Referrer')?>" value="<%= _.escape(item.get('referrer') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="referreridInputContainer">
-                    <label class="plist-label" for="referrerid"><?php //echo xlt('Referrerid')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="referrerid" placeholder="<?php //echo xla('Referrerid')?>" value="<%= _.escape(item.get('referrerid') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>-->
-                                <!-- <div class="form-group plist-group" id="monthlyIncomeInputContainer">
-                    <label class="plist-label" for="monthlyIncome"><?php //echo xlt('Monthly Income')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="monthlyIncome" placeholder="<?php //echo xla('Monthly Income')?>" value="<%= _.escape(item.get('monthlyIncome') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="billingNoteInputContainer">
-                    <label class="plist-label" for="billingNote"><?php //echo xlt('Billing Note')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="billingNote" placeholder="<?php //echo xla('Billing Note')?>" value="<%= _.escape(item.get('billingNote') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="homelessInputContainer">
-                    <label class="plist-label" for="homeless"><?php //echo xlt('Homeless')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="homeless" placeholder="<?php //echo xla('Homeless')?>" value="<%= _.escape(item.get('homeless') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="financialReviewInputContainer">
-                    <label class="plist-label" for="financialReview"><?php //echo xlt('Financial Review')?></label>
-                    <div class="controls inline-inputs">
-                        <div class="input-group">
-                            <input id="financialReview" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('financialReview') %>" />
-                        </div>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="pubpidInputContainer">
-                    <label class="plist-label" for="pubpid"><?php //echo xlt('Pubpid')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="pubpid" placeholder="<?php //echo xla('Pubpid')?>" value="<%= _.escape(item.get('pubpid') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-
-                <div class="form-group plist-group" id="genericname1InputContainer">
-                    <label class="plist-label" for="genericname1"><?php //echo xlt('Genericname1')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="genericname1" placeholder="<?php //echo xla('Genericname1')?>" value="<%= _.escape(item.get('genericname1') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="genericval1InputContainer">
-                    <label class="plist-label" for="genericval1"><?php //echo xlt('Genericval1')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="genericval1" placeholder="<?php //echo xla('Genericval1')?>" value="<%= _.escape(item.get('genericval1') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="genericname2InputContainer">
-                    <label class="plist-label" for="genericname2"><?php //echo xlt('Genericname2')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="genericname2" placeholder="<?php //echo xla('Genericname2')?>" value="<%= _.escape(item.get('genericname2') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="genericval2InputContainer">
-                    <label class="plist-label" for="genericval2"><?php //echo xlt('Genericval2')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="genericval2" placeholder="<?php //echo xla('Genericval2')?>" value="<%= _.escape(item.get('genericval2') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-                <!-- <div class="form-group plist-group" id="squadInputContainer">
-                    <label class="plist-label" for="squad"><?php //echo xlt('Squad')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="squad" placeholder="<?php //echo xla('Squad')?>" value="<%= _.escape(item.get('squad') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="fitnessInputContainer">
-                    <label class="plist-label" for="fitness"><?php //echo xlt('Fitness')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="fitness" placeholder="<?php //echo xla('Fitness')?>" value="<%= _.escape(item.get('fitness') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-               <!-- <div class="form-group plist-group" id="allowPatientPortalInputContainer">
-                    <label class="plist-label" for="allowPatientPortal"><?php //echo xlt('Allow Patient Portal')?></label>
-                    <div class="controls inline-inputs">
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO"<% if (item.get('allowPatientPortal')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES"<% if (item.get('allowPatientPortal')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal2" name="allowPatientPortal" type="radio" value=""<% if (item.get('allowPatientPortal')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="deceasedDateInputContainer">
-                    <label class="plist-label" for="deceasedDate"><?php //echo xlt('Deceased Date')?></label>
-                    <div class="controls inline-inputs">
-                        <div class="input-group">
-                            <input id="deceasedDate" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('deceasedDate') %>" />
-                        </div>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="deceasedReasonInputContainer">
-                    <label class="plist-label" for="deceasedReason"><?php //echo xlt('Deceased Reason')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="deceasedReason" placeholder="<?php //echo xla('Deceased Reason')?>" value="<%= _.escape(item.get('deceasedReason') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="soapImportStatusInputContainer">
-                    <label class="plist-label" for="soapImportStatus"><?php //echo xlt('Soap Import Status')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="soapImportStatus" placeholder="<?php //echo xla('Soap Import Status')?>" value="<%= _.escape(item.get('soapImportStatus') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="cmsportalLoginInputContainer">
-                    <label class="plist-label" for="cmsportalLogin"><?php //echo xlt('Cmsportal Login')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="cmsportalLogin" placeholder="<?php //echo xla('Cmsportal Login')?>" value="<%= _.escape(item.get('cmsportalLogin') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-                        <!--        <div class="form-group plist-group" id="contrastartInputContainer">
-                    <label class="plist-label" for="contrastart"><?php //echo xlt('Contrastart')?></label>
-                    <div class="controls inline-inputs">
-                        <div class="input-group">
-                            <input id="contrastart" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('contrastart') %>" />
-                        </div>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="completedAdInputContainer">
-                    <label class="plist-label" for="completedAd"><?php //echo xlt('Completed Ad')?></label>
-                    <div class="controls inline-inputs">
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd0" name="completedAd" type="radio" value="NO"<% if (item.get('completedAd')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd1" name="completedAd" type="radio" value="YES"<% if (item.get('completedAd')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
-                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd2" name="completedAd" type="radio" value=""<% if (item.get('completedAd')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="adReviewedInputContainer">
-                    <label class="plist-label" for="adReviewed"><?php //echo xlt('Ad Reviewed')?></label>
-                    <div class="controls inline-inputs">
-                        <div class="input-group">
-                            <input id="adReviewed" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('adReviewed') %>" />
-                        </div>
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="vfcInputContainer">
-                    <label class="plist-label" for="vfc"><?php //echo xlt('Vfc')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="vfc" placeholder="<?php //echo xla('Vfc')?>" value="<%= _.escape(item.get('vfc') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div> -->
-                                <!-- <div class="form-group plist-group" id="usertext1InputContainer">
-                    <label class="plist-label" for="usertext1"><?php //echo xlt('Usertext1')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext1" placeholder="<?php //echo xla('Usertext1')?>" value="<%= _.escape(item.get('usertext1') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext2InputContainer">
-                    <label class="plist-label" for="usertext2"><?php //echo xlt('Usertext2')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext2" placeholder="<?php //echo xla('Usertext2')?>" value="<%= _.escape(item.get('usertext2') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext3InputContainer">
-                    <label class="plist-label" for="usertext3"><?php //echo xlt('Usertext3')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext3" placeholder="<?php //echo xla('Usertext3')?>" value="<%= _.escape(item.get('usertext3') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext4InputContainer">
-                    <label class="plist-label" for="usertext4"><?php //echo xlt('Usertext4')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext4" placeholder="<?php //echo xla('Usertext4')?>" value="<%= _.escape(item.get('usertext4') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext5InputContainer">
-                    <label class="plist-label" for="usertext5"><?php //echo xlt('Usertext5')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext5" placeholder="<?php //echo xla('Usertext5')?>" value="<%= _.escape(item.get('usertext5') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext6InputContainer">
-                    <label class="plist-label" for="usertext6"><?php //echo xlt('Usertext6')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext6" placeholder="<?php //echo xla('Usertext6')?>" value="<%= _.escape(item.get('usertext6') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext7InputContainer">
-                    <label class="plist-label" for="usertext7"><?php //echo xlt('Usertext7')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext7" placeholder="<?php //echo xla('Usertext7')?>" value="<%= _.escape(item.get('usertext7') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="usertext8InputContainer">
-                    <label class="plist-label" for="usertext8"><?php //echo xlt('Usertext8')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="usertext8" placeholder="<?php //echo xla('Usertext8')?>" value="<%= _.escape(item.get('usertext8') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist1InputContainer">
-                    <label class="plist-label" for="userlist1"><?php //echo xlt('Userlist1')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist1" placeholder="<?php //echo xla('Userlist1')?>" value="<%= _.escape(item.get('userlist1') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist2InputContainer">
-                    <label class="plist-label" for="userlist2"><?php //echo xlt('Userlist2')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist2" placeholder="<?php //echo xla('Userlist2')?>" value="<%= _.escape(item.get('userlist2') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist3InputContainer">
-                    <label class="plist-label" for="userlist3"><?php //echo xlt('Userlist3')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist3" placeholder="<?php //echo xla('Userlist3')?>" value="<%= _.escape(item.get('userlist3') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist4InputContainer">
-                    <label class="plist-label" for="userlist4"><?php //echo xlt('Userlist4')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist4" placeholder="<?php //echo xla('Userlist4')?>" value="<%= _.escape(item.get('userlist4') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist5InputContainer">
-                    <label class="plist-label" for="userlist5"><?php //echo xlt('Userlist5')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist5" placeholder="<?php //echo xla('Userlist5')?>" value="<%= _.escape(item.get('userlist5') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist6InputContainer">
-                    <label class="plist-label" for="userlist6"><?php //echo xlt('Userlist6')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist6" placeholder="<?php //echo xla('Userlist6')?>" value="<%= _.escape(item.get('userlist6') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="userlist7InputContainer">
-                    <label class="plist-label" for="userlist7"><?php //echo xlt('Userlist7')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="userlist7" placeholder="<?php //echo xla('Userlist7')?>" value="<%= _.escape(item.get('userlist7') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>
-                <div class="form-group plist-group" id="pricelevelInputContainer">
-                    <label class="plist-label" for="pricelevel"><?php //echo xlt('Pricelevel')?></label>
-                    <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="pricelevel" placeholder="<?php //echo xla('Pricelevel')?>" value="<%= _.escape(item.get('pricelevel') || '') %>">
-                        <span class="help-inline"></span>
-                    </div>
-                </div>-->

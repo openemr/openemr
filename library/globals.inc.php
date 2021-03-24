@@ -14,16 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// $GLOBALS['print_command'] is the
-// Print command for spooling to printers, used by statements.inc.php
-// This is the command to be used for printing (without the filename).
-// The word following "-P" should be the name of your printer.  This
-// example is designed for 8.5x11-inch paper with 1-inch margins,
-// 10 CPI, 6 LPI, 65 columns, 54 lines per page.
-//
-// IF lpr services are installed on Windows this setting will be similar
-// Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
-
 //  Current supported languages:    // Allow capture of term for translation:
 //   Albanian                       // xl('Albanian')
 //   Amharic                        // xl('Amharic')
@@ -49,12 +39,14 @@
 //   Georgian                       // xl('Georgian')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
+//   Gujarati                       // xl('Gujarati')
 //   Hebrew                         // xl('Hebrew')
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
 //   Japanese                       // xl('Japanese')
 //   Korean                         // xl('Korean')
+//   Lao                            // xl('Lao')
 //   Lithuanian                     // xl('Lithuanian')
 //   Marathi                        // xl('Marathi')
 //   Mongolian                      // xl('Mongolian')
@@ -149,7 +141,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message');
+    'erx_import_status_message',
+    'weno_provider_password');
 
 // Gets array of time zones supported by PHP.
 //
@@ -1361,19 +1354,27 @@ $GLOBALS_METADATA = array(
             xl('Save codes history')
         ),
 
-        'update_mbi' => array(
-            xl('Update policy number from ERA'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Update policy number from ERA')
-        ),
-
         'enable_percent_pricing' => array(
             xl('Enable percent-based price levels'),
             'bool',                           // data type
             '0',                              // default
             xl('Enable percent-based price levels')
-        )
+        ),
+
+        'gen_x12_based_on_ins_co' => array(
+            xl('Generate X-12 Based On Insurance Company'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For sending claims directly to insurance company, based on X12 Partner Settings')
+        ),
+
+        'auto_sftp_claims_to_x12_partner' => array(
+            xl('Automatically SFTP Claims To X12 Partner'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For automatically sending claims that are generated in EDI directory to the X12 partner using SFTP credentials X12 Partner Settings')
+        ),
+
     ),
 
     // E-Sign Tab
@@ -1867,9 +1868,10 @@ $GLOBALS_METADATA = array(
                 '3' => xl('Address and State'),
                 '4' => xl('Address, State and Postal Code'),
                 '5' => xl('Address, City, State and Postal Code'),
-                '6' => xl('Postal Code and Box Number')
+                '6' => xl('Address, City, State, Postal Code, Payer ID'),
+                '7' => xl('Postal Code and Box Number')
             ),
-            '5',                              // default
+            '6',                              // default
             xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
         ),
 
@@ -1939,6 +1941,16 @@ $GLOBALS_METADATA = array(
             ),
             '9',                              // default
             xl('Minimum length of password.')
+        ),
+
+        'gbl_maximum_password_length' => array(
+            xl('Maximum Password Length'),
+            array(
+                '0' => xl('No Maximum'),
+                '72' => '72',
+            ),
+            '72',                             // default
+            xl('Maximum length of password (Recommend using the default value of 72 unless you know what you are doing).')
         ),
 
         'password_history' => array(
@@ -2032,6 +2044,20 @@ $GLOBALS_METADATA = array(
             xl('Key for multiple database credentials encryption')
         ),
 
+        'google_signin_enabled' => array(
+            xl('Enable Google Sign-In'),
+            'bool',
+            '0',
+            xl('Enable Authentication Using Google Sign-in')
+        ),
+
+        'google_signin_client_id' => array(
+            xl('Google Sign-In Client ID'),
+            'text',
+            '',
+            xl('This Client ID Is Provided By Google For Your App (Required For Google Sign-in)')
+        ),
+
         'gbl_ldap_enabled' => array(
             xl('Use LDAP for Authentication'),
             'bool',
@@ -2078,7 +2104,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'gbl_auth_bcrypt_hash_cost' => array(
-            xl('Authentication Token Bcrypt Hash Cost'),
+            xl('Authentication Bcrypt Hash Cost'),
             array(
                 'DEFAULT' => xl('PHP Default'),
                 '5' => '5',
@@ -2214,155 +2240,6 @@ $GLOBALS_METADATA = array(
             xl('Authentication SHA512 hash rounds number.')
         ),
 
-        'gbl_token_hash_algo' => array(
-            xl('Hash Algorithm for Token'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                'BCRYPT' => 'Bcrypt',
-                'ARGON2I' => 'Argon2I',
-                'ARGON2ID' => 'Argon2ID',
-                'SHA512HASH' => 'SHA512 (ONC 2015)',
-            ),
-            'DEFAULT',                // default
-            xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_bcrypt_hash_cost' => array(
-            xl('Token Bcrypt Hash Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token bcrypt hash cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_memory_cost' => array(
-            xl('Token Argon Hash Memory Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '512' => '512',
-                '1024' => '1024',
-                '2048' => '2048',
-                '4096' => '4096',
-                '8192' => '8192',
-                '16384' => '16384',
-                '32768' => '32768',
-                '65536' => '65536',
-                '131072' => '131072',
-                '262144' => '262144',
-                '524288' => '524288',
-                '1048576' => '1048576',
-                '2097152' => '2097152',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash memory cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_time_cost' => array(
-            xl('Token Argon Hash Time Cost'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '1' => '1',
-                '2' => '2',
-                '3' => '3',
-                '4' => '4',
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash time cost. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_argon_hash_thread_cost' => array(
-            xl('Token Argon Hash Thread Number'),
-            array(
-                'DEFAULT' => xl('PHP Default'),
-                '1' => '1',
-                '2' => '2',
-                '3' => '3',
-                '4' => '4',
-                '5' => '5',
-                '6' => '6',
-                '7' => '7',
-                '8' => '8',
-                '9' => '9',
-                '10' => '10',
-                '11' => '11',
-                '12' => '12',
-                '13' => '13',
-                '14' => '14',
-                '15' => '15',
-                '16' => '16',
-                '17' => '17',
-                '18' => '18',
-                '19' => '19',
-                '20' => '20',
-            ),
-            'DEFAULT',                // default
-            xl('Token argon hash thread number. Suggest PHP Default unless you know what you are doing.')
-        ),
-
-        'gbl_token_sha512_rounds' => array(
-            xl('Token SHA512 Hash Rounds Number'),
-            array(
-                '1000' => '1000',
-                '5000' => '5000',
-                '10000' => '10000',
-                '15000' => '15000',
-                '20000' => '20000',
-                '30000' => '30000',
-                '40000' => '40000',
-                '50000' => '50000',
-                '75000' => '75000',
-                '100000' => '100000',
-                '200000' => '200000',
-                '300000' => '300000',
-                '400000' => '400000',
-                '500000' => '500000',
-                '750000' => '750000',
-                '1000000' => '1000000',
-                '2000000' => '2000000',
-                '3000000' => '3000000',
-                '4000000' => '4000000',
-                '5000000' => '5000000',
-                '6000000' => '6000000',
-                '7000000' => '7000000',
-                '8000000' => '8000000',
-                '9000000' => '9000000',
-            ),
-            '100000',                // default
-            xl('Token SHA512 hash rounds number.')
-        ),
     ),
 
     // Notifications Tab
@@ -2831,6 +2708,16 @@ $GLOBALS_METADATA = array(
             xl('Individual pages can override 2nd and 3rd options by implementing a log message.')
         ),
 
+        'system_error_logging' => array(
+            xl('System Error Logging Options'),
+            array(
+                'WARNING' => xl('Standard Error Logging'),
+                'DEBUG' => xl('Debug Error Logging'),
+            ),
+            'WARNING',                        // default
+            xl('System Error Logging Options.')
+        ),
+
     ),
 
     // Miscellaneous Tab
@@ -2915,13 +2802,6 @@ $GLOBALS_METADATA = array(
             xl('List used by above Country Data Type option.')
         ),
 
-        'print_command' => array(
-            xl('Print Command'),
-            'text',                           // data type
-            'lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72',
-            xl('Shell command for printing from the server.')
-        ),
-
         'default_chief_complaint' => array(
             xl('Default Reason for Visit'),
             'text',                           // data type
@@ -2962,13 +2842,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             '/var/spool/hylafax',             // default
             xl('Location where Hylafax stores faxes.')
-        ),
-
-        'hylafax_enscript' => array(
-            xl('Hylafax Enscript Command'),
-            'text',                           // data type
-            'enscript -M Letter -B -e^ --margins=36:36:36:36', // default
-            xl('Enscript command used by Hylafax.')
         ),
 
         'enable_scanner' => array(
@@ -3028,7 +2901,7 @@ $GLOBALS_METADATA = array(
         'portal_onsite_two_register' => array(
             xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
-            '1',
+            '0',
             xl('Enable Patient Portal new patient to self register.')
         ),
 
@@ -3080,10 +2953,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for oauth2 and fhir)'),
+            xl('Site Address (required for OAuth2 and FHIR)'),
             'text',
             '',
-            xl('Site Address (required for oauth2 and fhir). Example is') . ' https://localhost:8300 .'
+            xl('Site Address (required for OAuth2 and FHIR). Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(
@@ -3101,35 +2974,36 @@ $GLOBALS_METADATA = array(
         ),
 
         'rest_portal_api' => array(
-            xl('Enable OpenEMR Patient Portal REST API'),
+            xl('Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
         ),
 
-        'rest_portal_fhir_api' => array(
-            xl('Enable OpenEMR Patient Portal FHIR REST API'),
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
             'bool',
             '0',
-            xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
+            xl('Enable OpenEMR FHIR System Scopes.')
         ),
 
-        'fhir_enable' => array(
-            xl('Enable FHIR Provider Client Service'),
+        'oauth_password_grant' => array(
+            xl('Enable OAuth2 Password Grant (Not considered secure)'),
             array(
-                0 => xl('Disabled'),
-                1 => xl('HAPI FHIR'),
-                2 => xl('Smart on FHIR'),
+                0 => xl('Off (Recommended setting)'),
+                1 => xl('On for Users Role'),
+                2 => xl('On for Patient Role'),
+                3 => xl('On for Both Roles')
             ),
             '0',
-            xl('Enable FHIR Provider Client Service')
+            xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
 
-        'fhir_base_url' => array(
-            xl('FHIR Server Base Address'),
-            'text',
-            'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URL for FHIR Server.')
+        'cc_front_payments' => array(
+            xl('Accept Credit Card transactions from Front Payments'),
+            'bool',
+            '0',
+            xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
         ),
 
         'payment_gateway' => array(
@@ -3298,28 +3172,28 @@ $GLOBALS_METADATA = array(
             xl('Enable Weno eRx Service'),
             'bool',
             '0',
-            xl('Enable Weno eRx Service') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
+            xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
         ),
 
-        'weno_account_id' => array(
-            xl('Weno eRx Account Id'),
-            'text',
-            '137',
-            xl('Account Id issued for Weno eRx service.')
+        'weno_rx_enable_test' => array(
+            xl('Enable Weno eRx Service Test mode'),
+            'bool',
+            '1',
+            xl('Enable Weno eRx Service Test mode')
         ),
 
-        'weno_account_pass' => array(
-            xl('Weno eRx Account Pass'),
+        'weno_encryption_key' => array(
+            xl('Weno Encryption Key'),
             'encrypted',                      // data type
-            '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
-            xl('Account Id issued for Weno eRx service.')
+            '',
+            xl('Encryption key issued by Weno eRx service.')
         ),
 
-        'weno_provider_id' => array(
-            xl('Weno eRx Clinic ID'),
-            'text',
-            'C36275',
-            xl('Account Id issued for Your clinics eRx service.')
+        'weno_provider_password' => array(
+            xl('Weno Provider Account Password'),
+            'encrypted',                      // data type
+            '',
+            xl('Each provider needs to set this under user settings. This should be blank')
         ),
 
         'ccda_alt_service_enable' => array(

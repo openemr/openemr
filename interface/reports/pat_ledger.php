@@ -262,7 +262,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         }
 
         $print_adj = '';
-        if ($adj_amt != 0) {
+        if (!empty($adj_amt)) {
             $print_adj = oeFormatMoney($adj_amt);
         }
 
@@ -275,7 +275,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $print .= "<td class='detail text-right'>" . text($print_bal) . "&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
-        if ($pmt['follow_up_note'] != '') {
+        if (!empty($pmt['follow_up_note'])) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
             $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
             $print .= "<td class='detail' colspan='2'>&nbsp;</td>";
@@ -902,12 +902,12 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);
             $events = fetchNextXAppts($current_date2, $form_pid);
-            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-            $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-            if (strlen($events[0]['umname']) != 0) {
+            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate'] ?? null);
+            $next_appoint_time = substr(($events[0]['pc_startTime'] ?? ''), 0, 5);
+            if (strlen($events[0]['umname'] ?? '') != 0) {
                 $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
             } else {
-                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+                $next_appoint_provider = ($events[0]['ufname'] ?? '') . ' ' .  ($events[0]['ulname'] ?? '');
             }
 
             if (strlen($next_appoint_time) != 0) { ?>

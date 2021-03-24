@@ -23,7 +23,7 @@ require_once dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
-$ignoreAuth = 1;
+$ignoreAuth_onsite_portal = true;
 
 //includes
 require_once '../interface/globals.php';

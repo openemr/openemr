@@ -105,7 +105,9 @@ function cascwin(url, winname, width, height, options) {
         newx = 0;
         newy = 0;
     }
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
 
     // MS IE version detection taken from
     // http://msdn2.microsoft.com/en-us/library/ms537509.aspx
@@ -290,7 +292,9 @@ if (typeof alertMsg !== "function") {
                 setting: value
             },
             beforeSend: function () {
-                top.restoreSession();
+                if (typeof top.restoreSession === 'function') {
+                    top.restoreSession();
+                }
             },
             error: function (jqxhr, status, errorThrown) {
                 console.log(errorThrown);
@@ -363,7 +367,10 @@ if (typeof dlgclose !== "function") {
 * */
 function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
     // A matter of Legacy
     if (forceNewWindow) {
         return dlgOpenWindow(url, winname, width, height);
@@ -426,6 +433,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         sizeHeight: 'auto', // 'full' will use as much height as allowed
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
+        allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
         resolvePromiseOn: '' // this may be useful values are init, shown, show, confirm, alert and closed which coincide with dialog events.
     };
@@ -448,6 +456,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (url) {
         if (url[0] === "/") {
             fullURL = url
+        } else if (opts.allowExternal === true) {
+            var checkUrl = new URL(url);
+            // we only allow http & https protocols to be launched
+            if (checkUrl.protocol === "http:" || checkUrl.protocol == "https:") {
+                fullURL = url;
+            }
         } else {
             fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
         }

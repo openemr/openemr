@@ -119,10 +119,11 @@ class FhirObservationService extends FhirServiceBase
      * Performs a FHIR Observation Resource lookup by FHIR Resource ID
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Observation Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->observationService->getOne($fhirResourceId);
+        $processingResult = $this->observationService->getOne($fhirResourceId, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -138,11 +139,12 @@ class FhirObservationService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->observationService->getAll($openEMRSearchParameters, false);
+        return $this->observationService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())

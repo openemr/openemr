@@ -12,32 +12,40 @@
  *                     doing Esign or changing mfa setting.
  *     2. LDAP (Active Directory) is also supported. In these cases, the login counter and
  *         expired password mechanisms are ignored.
- *     3. Timing attack prevention. The time will be the same for a user that does not exist versus a user
+ *     3. Google sign in is also supported (via Google Workspace with Google Open ID) via the static function
+ *         verifyGoogleSignIn($token). In this case, the login counter and expired password mechanisms
+ *         are ignored.
+ *     4. Timing attack prevention. The time will be the same for a user that does not exist versus a user
  *         that does exist. This is done in standard authentication and ldap authentication by simulating
  *         the password verification in each via the preventTimingAttack() function.
  *        (There is one issue in this mechanism when using ldap with a user that is excluded from it. In
  *         that case unable to avoid timing differences. That feature is really only meant for configuration and
  *         debugging and recommend inactivating that excluded user when not needed, which will then mitigate
  *         this issue.)
+ *        (note this mechanism is not used in the Google sign)
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Auth;
 
+use Google_Client;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Services\UserService;
 
 class AuthUtils
 {
@@ -291,8 +299,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a group (and collect the group name)
-        $authGroup = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
-        if (empty($authGroup) || empty($authGroup['name'])) {
+        $authGroup = UserService::getAuthGroupForUser($username);
+        if (empty($authGroup)) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -301,7 +309,7 @@ class AuthUtils
 
         // Check to ensure user is in a acl group
         if (AclExtended::aclGetGroupTitles($username) == 0) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -313,7 +321,7 @@ class AuthUtils
             " WHERE BINARY `username` = ?";
         $userSecure = privQuery($getUserSecureSQL, [$username]);
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -323,7 +331,7 @@ class AuthUtils
         if (self::useActiveDirectory($username)) {
             // ldap authentication
             if (!$this->activeDirectoryValidation($username, $password)) {
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -331,7 +339,7 @@ class AuthUtils
             // standard authentication
             // First, ensure the user hash is a valid hash
             if (!AuthHash::hashValid($userSecure['password'])) {
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
@@ -342,7 +350,7 @@ class AuthUtils
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
                 }
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -364,7 +372,7 @@ class AuthUtils
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             if (!$this->checkLoginFailedCounter($username)) {
                 $this->incrementLoginFailedCounter($username);
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -372,7 +380,7 @@ class AuthUtils
 
         // Check to ensure password not expired if this option is set (note ldap skips this)
         if (!$this->checkPasswordNotExpired($username)) {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
             $this->clearFromMemory($password);
             return false;
         }
@@ -396,25 +404,15 @@ class AuthUtils
                 error_log('OpenEMR Error : OpenEMR is not working because broken function.');
                 die("OpenEMR Error : OpenEMR is not working because broken function.");
             }
-
-            // Set up session environment
-            $_SESSION['authUser'] = $username;                     // username
-            $_SESSION['authPass'] = $hash;                         // user hash used to confirm session in authCheckSession()
-            $_SESSION['authUserID'] = $userInfo['id'];             // user id
-            $_SESSION['authProvider'] = $authGroup['name'];        // user group
-            $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
-            // Some users may be able to authorize without being providers:
-            if ($userInfo['see_auth'] > '2') {
-                $_SESSION['userauthorized'] = '1';
-            }
-            EventAuditLogger::instance()->newEvent('login', $username, $authGroup['name'], 1, "success: " . $ip['ip_string']);
+            self::setUserSessionVariables($username, $hash, $userInfo, $authGroup);
+            EventAuditLogger::instance()->newEvent('login', $username, $authGroup, 1, "success: " . $ip['ip_string']);
         } elseif ($this->apiAuth) {
             // Set up class variables that the api will need to collect (log for API is done outside)
             $this->userId = $userInfo['id'];
-            $this->userGroup = $authGroup['name'];
+            $this->userGroup = $authGroup;
         } else {
             // Log for authentication that are done, which are not api auth or login auth
-            EventAuditLogger::instance()->newEvent('auth', $username, $authGroup['name'], 1, "Auth success: " . $ip['ip_string']);
+            EventAuditLogger::instance()->newEvent('auth', $username, $authGroup, 1, "Auth success: " . $ip['ip_string']);
         }
         return true;
     }
@@ -540,7 +538,13 @@ class AuthUtils
         }
 
         // Ensure password is long enough, if this option is on (note LDAP skips this)
-        if ((!$ldapDummyPassword) && (!$this->testPasswordLength($newPwd))) {
+        if ((!$ldapDummyPassword) && (!$this->testMinimumPasswordLength($newPwd))) {
+            $this->clearFromMemory($newPwd);
+            return false;
+        }
+
+        // Ensure password is not too long (note LDAP skips this)
+        if ((!$ldapDummyPassword) && (!$this->testMaximumPasswordLength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
@@ -584,7 +588,7 @@ class AuthUtils
                     " VALUES (?,?,?,NOW()) ";
                 privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
             } else {
-                $this->errorMessage = xl("Missing user credentials:" . $targetUser);
+                $this->errorMessage = xl("Missing user credentials") . ":" . $targetUser;
                 $this->clearFromMemory($newPwd);
                 return false;
             }
@@ -849,16 +853,43 @@ class AuthUtils
     }
 
     /**
-     * Does the new password meet the length requirements?
+     * Does the new password meet the minimum length requirements?
      *
      * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password long enough?
      */
-    private function testPasswordLength(&$pwd)
+    private function testMinimumPasswordLength(&$pwd)
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
             if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
-                $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
+                $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Does the new password meet the maximum length requirement?
+     *
+     * The maximum characters used in BCRYPT hash algorithm is 72 (the additional characters
+     *  are simply truncated, so does not break things, but it does give the erroneous
+     *  impression that they are used to create the hash; for example, if I created a
+     *  password with 100 characters, then only the first 72 characters would be needed
+     *  when authenticate), which is why the 'Maximum Password Length' global setting is
+     *  set to this number in default installations. Recommend only changing the
+     *  'Maximum Password Length' global setting if know what you are doing (for example, if using
+     *  argon hashing and wish to allow larger passwords).
+     *
+     * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
+     * @return boolean      is the password short enough?
+     */
+    private function testMaximumPasswordLength(&$pwd)
+    {
+        if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
+            if (strlen($pwd) > $GLOBALS['gbl_maximum_password_length']) {
+                $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . $GLOBALS['gbl_maximum_password_length'];
                 return false;
             }
         }
@@ -965,6 +996,109 @@ class AuthUtils
             sodium_memzero($password);
         } else {
             $password = '';
+        }
+    }
+
+    /**
+     * Validates a google ID token and returns true on success. If validation
+     * fails, return false.
+     *
+     * @param $token
+     * @return bool
+     */
+    public static function verifyGoogleSignIn($token)
+    {
+        $event = 'login';
+        $beginLog = 'Google Failure';
+        $ip = collectIpAddresses();
+
+        if (empty($token)) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin attempt failed because of empty token");
+            return false;
+        }
+
+        if (empty($GLOBALS['google_signin_client_id'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin attempt failed because of empty app client id");
+            return false;
+        }
+
+        // Specify the CLIENT_ID of the app that accesses the backend
+        $client = new Google_Client(['client_id' => $GLOBALS['google_signin_client_id']]);
+        $payload = $client->verifyIdToken($token);
+
+        // ensure verify id token was successful
+        if (empty($payload)) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin verify id attempt failed");
+            return false;
+        }
+
+        // ensure verify id token returned an email
+        if (empty($payload['email'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin verify id attempt failed (empty email)");
+            return false;
+        }
+
+        // collect user info
+        $user = privQuery("select `id`, `username`, `authorized`, `see_auth`, `active` from `users` where `google_signin_email` = ?", [$payload['email']]);
+
+        // ensure user exists
+        if (empty($user['id']) || empty($user['username'])) {
+            EventAuditLogger::instance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " Google mail '" . $payload['email'] . "' not in user table");
+            return false;
+        }
+
+        // ensure user is active
+        if (empty($user['active'])) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' is not active");
+            return false;
+        }
+
+        // Ensure that the user is in an auth group
+        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        if (empty($authGroup)) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' does not belong to a group ");
+            return false;
+        }
+
+        // Check to ensure user is in a acl group
+        if (AclExtended::aclGetGroupTitles($user['username']) == 0) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user with Google mail '" . $payload['email'] . "' is not in any phpGACL groups");
+            return false;
+        }
+
+        // collect secure user info
+        $userSecure = privQuery("SELECT `password` FROM `users_secure` WHERE BINARY `username` = ?", [$user['username']]);
+
+        // ensure user is configured for login
+        if (empty($userSecure['password'])) {
+            EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' is not configured for login");
+            return false;
+        }
+
+        // drumroll... the user is authenticated by google
+        EventAuditLogger::instance()->newEvent($event, $user['username'], $authGroup, 1, "Auth success via Google LogIn by user with Google mail '" . $payload['email'] . "' : " . $ip['ip_string']);
+        AuthUtils::setUserSessionVariables($user['username'], $userSecure['password'], $user, $authGroup);
+        return true;
+    }
+
+    /**
+     * Given an associative array representing the user, set the session variables
+     * @param $username
+     * @param $hash
+     * @param array $userInfo
+     * @param $authGroup
+     */
+    public static function setUserSessionVariables($username, $hash, $userInfo, $authGroup)
+    {
+        // Set up session environment
+        $_SESSION['authUser'] = $username; // username
+        $_SESSION['authPass'] = $hash; // user hash used to confirm session in authCheckSession()
+        $_SESSION['authUserID'] = $userInfo['id']; // user id
+        $_SESSION['authProvider'] = $authGroup; // user group
+        $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
+        // Some users may be able to authorize without being providers:
+        if ($userInfo['see_auth'] > '2') {
+            $_SESSION['userauthorized'] = '1';
         }
     }
 }

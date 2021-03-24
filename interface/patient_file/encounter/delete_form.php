@@ -34,7 +34,7 @@ if (file_exists($deleteform)) {
 // when the Cancel button is pressed, where do we go?
 $returnurl = 'forms.php';
 
-if ($_POST['confirm']) {
+if (!empty($_POST['confirm'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }

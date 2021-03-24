@@ -18,7 +18,7 @@ if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
     require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal_two = true;
+        $ignoreAuth_onsite_portal = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         exit;
@@ -86,7 +86,7 @@ $from_trend_form = !empty($is_lbf);
 // Yet another invocation from somewhere other than encounter.
 // don't show any action buttons.
 $from_lbf_edit = isset($_GET['isShow']) ? 1 : 0;
-$patient_portal = $ignoreAuth_onsite_portal_two ? 1 : 0;
+$patient_portal = $ignoreAuth_onsite_portal ? 1 : 0;
 $from_lbf_edit = $patient_portal ? 1 : $from_lbf_edit;
 // This is true if the page is loaded into an iframe in add_edit_issue.php.
 $from_issue_form = !empty($_REQUEST['from_issue_form']);
@@ -818,14 +818,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
     <div class="container">
-        <div class="row">
+        <div class="flex-row">
             <div class="col-12">
                 <h3>
                     <?php echo text($formtitle);
                     if ($is_core) {
                         echo  " " . xlt('for') . ' ';
-                        echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
+                        echo text($enrow['fname'] ?? '') . ' ' . text($enrow['mname'] ?? '') . ' ' . text($enrow['lname'] ?? '');
+                        echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'] ?? '', 0, 10)));
                     } ?>
                 </h3>
                 <?php
@@ -842,7 +842,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
                 // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $form_provider_id);
+                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', ($form_provider_id ?? ''));
                 }
                 // If appropriate build a drop-down selector of issues of this type for this patient.
                 // We skip this if in an issue form tab because removing and adding visit form tabs is
@@ -868,7 +868,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 ?>
             </div>
 
-            <?php $cmsportal_login = $enrow['cmsportal_login'];
+            <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
     } // end not from trend form
     ?>
 
@@ -948,7 +948,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
 
                     if ($currvalue === '') {
-                        $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+                        $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
                     }
 
                     if ($currvalue === false) {
@@ -1044,7 +1044,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         }
 
                         echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
-                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive' style='display:" . attr($display_style) . ";'>\n";
+                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive clearfix' style='display:" . attr($display_style) . ";'>\n";
                     }
 
                     $group_table_active = true;
@@ -1128,7 +1128,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         $titlecols = $CPR;
                         echo "<td class='border-top-0 align-top' colspan='" . attr($titlecols) . "'";
                     } else {
-                        echo "<td class='border-top-0 align-top text-nowrap' colspan='" . attr($titlecols) . "'";
+                        // unsure why this was set to always text-nowrap. will monitor and perhaps this should be
+                        // an option in line options.
+                        echo "<td class='border-top-0 align-top text-wrap' colspan='" . attr($titlecols) . "'";
                     }
                     echo " class='";
                     echo ($frow['uor'] == 2) ? "required" : "font-weight-bold";
@@ -1634,7 +1636,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         $(function () {
             window.addEventListener("message", (e) => {
                 if (event.origin !== window.location.origin) {
-                    signerAlertMsg(<?php echo xlj("Request is not same origin!)") ?>, 15000);
+                    signerAlertMsg(<?php echo xlj("Request is not same origin!") ?>, 15000);
                     return false;
                 }
                 if (e.data.submitForm === true) {

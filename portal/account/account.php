@@ -21,7 +21,7 @@ if (
     ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
     ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
 ) {
-    $ignoreAuth_onsite_portal_two = true;
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
@@ -67,7 +67,7 @@ if ($action == 'set_lang') {
         echo xlt("This account already exists.") . "\r\n\r\n" .
             xlt("We are sorry you are having troubles with your account.") . "\r\n" .
             xlt("Please contact your provider.") . "\r\n" .
-            xlt("Reference this Account Number ") . $rtn;
+            xlt("Reference this Account Number") . " " . $rtn;
         exit();
     }
     $rtn = getNewPid();

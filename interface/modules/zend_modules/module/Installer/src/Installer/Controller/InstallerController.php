@@ -44,7 +44,7 @@ class InstallerController extends AbstractActionController
     {
         $this->listenerObject = new Listener();
         $this->InstallerTable = $installerTable;
-        $this->dbAdapter = $adapter;
+        $this->dbAdapter = $adapter ?? null;
     }
 
     public function nolayout()
@@ -156,20 +156,20 @@ class InstallerController extends AbstractActionController
                 if ($div = $this->InstallModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL");
                 }
             } elseif ($request->getPost('modAction') == 'upgrade_acl') {
                 if ($div = $this->UpgradeModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL");
                 }
             } elseif ($request->getPost('modAction') == "unregister") {
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
         }
         $output = "";
-        if (is_array($div)) {
+        if (!empty($div) && is_array($div)) {
             $output = implode("<br />\n", $div);
         }
         echo json_encode(["status" => $status, "output" => $output]);

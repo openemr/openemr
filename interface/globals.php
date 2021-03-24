@@ -43,8 +43,8 @@ if (!isset($ignoreAuth)) {
 }
 
 // Same for onsite
-if (!isset($ignoreAuth_onsite_portal_two)) {
-    $ignoreAuth_onsite_portal_two = false;
+if (!isset($ignoreAuth_onsite_portal)) {
+    $ignoreAuth_onsite_portal = false;
 }
 
 // Is this windows or non-windows? Create a boolean definition.
@@ -99,7 +99,7 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
-* If a session already exists, then this means portal (or oauth2) is being used, which
+* If a session already exists, then this means portal or oauth2 or api is being used, which
 *   has already created a portal session/cookie, so will bypass setting of
 *   the core OpenEMR session/cookie.
 * $sessionAllowWrite = 1 | true | string then normal operation
@@ -123,7 +123,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     if (!empty($_GET['site'])) {
         $tmp = $_GET['site'];
     } else {
-        if (empty($ignoreAuth)) {
+        if (empty($ignoreAuth) && empty($ignoreAuth_onsite_portal)) {
             // mdsupport - Don't die if logout menu link is called from expired session.
             // Eliminate this code when close method is available for session management.
             if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
@@ -174,8 +174,6 @@ $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id']
 
 // Set a site-specific uri root path.
 $GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
-
-require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
@@ -491,6 +489,10 @@ if (!empty($glrow)) {
     $GLOBALS['ippf_specific'] = false;
 }
 
+// Migrated this to populate after the standard globals in order to support globals that require
+//  more security.
+require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
+
 // Need to utilize a session since library/sql.inc is established before there are any globals established yet.
 //  This means that the first time, it will be skipped even if the global is turned on. However,
 //  after that it will then be turned on via the session.
@@ -567,7 +569,7 @@ $GLOBALS['include_de_identification'] = 0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
-if (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
+if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
 
@@ -615,9 +617,9 @@ if (!file_exists($webserver_root . "/interface/modules/")) {
 $encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
-    $_SESSION['pid'] = $_GET['pid'];
+    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
-    $_SESSION['pid'] = $_POST['pid'];
+    OpenEMR\Common\Session\SessionUtil::setSession('pid', $_POST['pid']);
 }
 
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];

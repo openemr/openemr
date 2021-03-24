@@ -29,7 +29,7 @@ if (!$thisauth) {
     exit();
 }
 
-if ($_POST['add']) {
+if (!empty($_POST['add'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -47,7 +47,7 @@ if ($_POST['add']) {
         $err = 'y';
     }
 
-    if ($err == 'y') {
+    if (!empty($err) && ($err == 'y')) {
         $val_constant = $_POST['constant_name'];
     } else {
             //insert into the main table
@@ -72,7 +72,7 @@ if ($_POST['add']) {
     <!-- Constant Name -->
     <div class="form-group">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>
-        <input type="text" class="form-control" id="constantName" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>">
+        <input type="text" class="form-control" id="constantName" name="constant_name" size="100" value="<?php echo attr($val_constant ?? ''); ?>">
     </div>
     <!-- Submit Button -->
     <div class="form-group">

@@ -490,7 +490,7 @@ if (!empty($_POST['form_refresh'])) {
                 ++$docrow['encounters'];
             }
 
-            if ($_POST['form_details']) {
+            if (!empty($_POST['form_details'])) {
                 ?>
          <tr>
           <td>

@@ -87,7 +87,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             $(".iframe_small").on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 400, 170, '', '', {
+                dlgopen('', '', 400, 250, '', '', {
                     buttons: [
                         {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                     ],
@@ -100,7 +100,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             $(".iframe_medium").on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 450, 250, '', '', {
+                dlgopen('', '', 450, 300, '', '', {
                     buttons: [
                         {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                     ],
@@ -113,7 +113,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             $(".iframe_abvmedium").on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 700, 500, '', '', {
+                dlgopen('', '', 700, 550, '', '', {
                     buttons: [
                         {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                     ],

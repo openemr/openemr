@@ -4,11 +4,13 @@
  * Facilities.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,7 +31,7 @@ $facilityService = new FacilityService();
 $alertmsg = '';
 
 /*      Inserting New facility                  */
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
+if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $newFacility = array(
         "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
         "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
@@ -108,9 +110,9 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
     $facilityService->updateFacility($newFacility);
 
     // Update facility name for all users with this facility.
-    // This is necassary because some provider based code uses facility name for lookups instead of facility id.
+    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
     //
-    $facilityService->updateUsersFacility($newFacility['name'], $newFacility['fid']);
+    $facilityService->updateUsersFacility($newFacility['name'], $newFacility['id']);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -175,6 +177,8 @@ $(function () {
                         <thead>
                             <tr>
                                 <th><?php echo xlt('Name'); ?></th>
+                                <th><?php echo xlt('Tax ID'); ?></th>
+                                <th><?php echo xlt('NPI'); ?></th>
                                 <th><?php echo xlt('Billing Address'); ?></th>
                                 <th><?php echo xlt('Mailing Address'); ?></th>
                                 <th><?php echo xlt('Phone'); ?></th>
@@ -225,6 +229,8 @@ $(function () {
                                     ?>
                             <tr height="22">
                                  <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($iter3["federal_ein"]); ?>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($iter3["facility_npi"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet . $varcity . $varstate . $iter3["country_code"] . " " . $iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet . $varmcity . $varmstate . $iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>

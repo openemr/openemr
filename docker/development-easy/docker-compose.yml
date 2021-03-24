@@ -42,15 +42,19 @@ services:
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
       DEVELOPER_TOOLS: "yes"
-      XDEBUG_IDE_KEY: PHPSTORM
+      XDEBUG_ON: 1
       XDEBUG_PROFILER_ON: 1
+      # setting xdebug client host for cases where xdebug.discover_client_host fails
+      XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_site_addr_oath: 'http://localhost:8300'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
+      OPENEMR_SETTING_oauth_password_grant: 3
+      OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
       OPENEMR_SETTING_rest_fhir_api: 1
       OPENEMR_SETTING_rest_portal_api: 1
-      OPENEMR_SETTING_rest_portal_fhir_api: 1
       OPENEMR_SETTING_portal_onsite_two_enable: 1
       OPENEMR_SETTING_ccda_alt_service_enable: 3
       OPENEMR_SETTING_couchdb_host: couchdb
@@ -59,7 +63,6 @@ services:
       OPENEMR_SETTING_couchdb_pass: password
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
-      OPENEMR_SETTING_user_debug: 3
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
