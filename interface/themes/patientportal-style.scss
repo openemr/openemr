@@ -155,6 +155,10 @@ body > .header {
   order: 2;
 }
 
+.portal-content {
+  margin-top: 65px;
+}
+
 /*
     By default the layout is not fixed but if you add the class .fixed to the body element
     the sidebar and the navbar will automatically become poisitioned fixed
@@ -360,6 +364,9 @@ body > .header {
     position: relative;
     top: 0;
     #{$right}: 0;
+  }
+  .portal-content {
+    margin-top: 0;
   }
 }
 
