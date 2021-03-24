@@ -1247,7 +1247,7 @@ class Claim
     public function cptNOC($prockey)
     {
         return in_array($this->cptCode($prockey), Claim::NOC_CODES);
-    }    
+    }
 
     public function cptDescription($prockey)
     {
