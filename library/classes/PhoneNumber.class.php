@@ -191,7 +191,6 @@ class PhoneNumber extends ORDataObject
             $this->prefix = '';
             $this->number = '';
         }
-
     }
 
     function toString($html = false)

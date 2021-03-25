@@ -370,7 +370,7 @@ class InsuranceCompany extends ORDataObject
         $this->address->persist($this->id);
         foreach ($this->phone_numbers as $phone) {
             $phone->persist($this->id);
-        }        
+        }
     }
 
     function utility_insurance_companies_array()
@@ -433,4 +433,4 @@ class InsuranceCompany extends ORDataObject
             return $string;
         }
     }
-} //End Of InsuranceCompanies
+}
