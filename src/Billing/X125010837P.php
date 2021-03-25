@@ -2695,8 +2695,14 @@ class X125010837P
 
             ++$edicount;
             $out .= "SV1" .     // Segment SV1, Professional Service. Page 400.
-                "*" . "HC:" . $claim->cptKey($prockey) .
-                "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
+                "*" . "HC:" . $claim->cptKey($prockey);
+
+                // need description of service for NOC items
+            if ($claim->cptNOC($prockey)) {
+                $out .= ":::::" . $claim->cptDescription($prockey);
+            }
+
+                $out .= "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
                 "*" . "UN" .
                 "*" . $claim->cptUnits($prockey) .
                 "*" .
