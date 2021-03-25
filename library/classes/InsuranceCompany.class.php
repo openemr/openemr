@@ -50,7 +50,7 @@ class InsuranceCompany extends ORDataObject
 {
     var $id;
     var $name;
-    var $phone;
+    var $phone_numbers;
     var $attn;
     var $cms_id;
     var $alt_cms_id;
@@ -141,11 +141,12 @@ class InsuranceCompany extends ORDataObject
         $this->id = $id;
         $this->name = "";
         $this->_table = "insurance_companies";
-        $phone  = new PhoneNumber();
+        $phone = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
-        $this->phone = $phone;
+        $fax = new PhoneNumber();
+        $fax->set_type(TYPE_FAX);
         $this->address = new Address();
-        $this->phone_numbers = array();
+        $this->phone_numbers = array($phone, $fax);
         if ($id != "") {
             $this->populate();
         }
@@ -288,14 +289,28 @@ class InsuranceCompany extends ORDataObject
             $p->set_type($type);
             $p->set_phone($num);
             $this->phone_numbers[] = $p;
-            //print_r($this->phone_numbers);
-            //echo "num is now:" . $p->get_phone_display()  . "<br />";
         }
     }
 
     function set_phone($phone)
     {
         $this->_set_number($phone, TYPE_WORK);
+    }
+
+    function set_fax($fax)
+    {
+        $this->_set_number($fax, TYPE_FAX);
+    }
+
+    function get_fax()
+    {
+        foreach ($this->phone_numbers as $phone) {
+            if ($phone->type == TYPE_FAX) {
+                return $phone->get_phone_display();
+            }
+        }
+
+        return "";
     }
 
     function set_x12_receiver_id($id)
@@ -355,7 +370,7 @@ class InsuranceCompany extends ORDataObject
         $this->address->persist($this->id);
         foreach ($this->phone_numbers as $phone) {
             $phone->persist($this->id);
-        }
+        }        
     }
 
     function utility_insurance_companies_array()
