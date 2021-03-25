@@ -62,11 +62,11 @@ $logger = $billingProcessor->execute();
 <?php
     $logger->onLogComplete();
     $hlog = $logger->hlog();
-    if (!empty($hlog)) {
-        if ($GLOBALS['drive_encryption']) {
-            $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
-        }
-        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
+if (!empty($hlog)) {
+    if ($GLOBALS['drive_encryption']) {
+        $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
     }
+    file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
+}
 ?>
 </body>
