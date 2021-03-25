@@ -6,22 +6,112 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-foreach (glob($GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/*.tpl") as $filename) {
-    $basefile = basename($filename, ".tpl");
-    $btnname = str_replace('_', ' ', $basefile);
-    $btnfile = $basefile . '.tpl';
+if ($include_auth !== true) {
+    die('Not allowed');
+}
+$dir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/";
 
-    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')" . ';"' . ">$btnname</a></li>";
+$dir_list = get_template_list($dir);
+render_template_list($dir_list);
+
+function get_template_list($root_directory)
+{
+    global $pid;
+
+    $gen_const = xlt("From Provider");
+    $rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
+    $category_list = array();
+    while ($row = sqlFetchArray($rtn)) {
+        $category_list[] = $row;
+    }
+
+    // default templates first
+    $dir_list = get_template_dir_array($root_directory) ?? [];
+    // does patient have any special documents.
+    if (!empty($pid)) {
+        $pid_path = convert_safe_file_dir_name($pid . "_tpls");
+        $dir_list[$gen_const] = get_template_dir_array($root_directory . $pid_path);
+    }
+    // get only directories from our category list
+    foreach ($category_list as $cat) {
+        if (substr($root_directory, -1) !== "/") {
+            $root_directory .= "/";
+        }
+        if ($cat_dir_iter = get_template_dir_array($root_directory . convert_safe_file_dir_name($cat['option_id']))) {
+            $dir_list[$cat['title']] = $cat_dir_iter;
+        }
+    }
+
+    return $dir_list;
 }
 
-foreach (glob($GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/" . $pid . "/*.tpl") as $filename) {
-    $basefile = basename($filename, ".tpl");
-    $btnname = str_replace('_', ' ', $basefile);
-    $btnfile = $basefile . '.tpl';
+function render_template_list($tree)
+{
+    global $pid, $cuser;
 
-    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')" . '";' . ">$btnname</a></li>";
+    foreach ($tree as $key => $file) {
+        if (is_array($file)) {
+            $is_category = $key;
+            if (strpos($is_category, "_tpls") > 0) {
+                if (($pid . "_tpls") === $is_category) {
+                    $is_category = "From Provider";
+                } else {
+                    continue;
+                }
+            }
+            $cat_name = text(ucwords(str_replace('_', ' ', $is_category)));
+            echo "<li class='text-center'><h5 class='mb-0'>$cat_name</h5></li>\n";
+            foreach ($file as $filename) {
+                if (is_array($filename)) {
+                    continue;
+                }
+                $basefile = basename($filename, ".tpl");
+                $btnname = text(ucwords(str_replace('_', ' ', $basefile)));
+                $btnfile = attr($key . "/" . $filename);
+                echo '<li class="nav-item mb-1"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . ' href="#" onclick="page.newDocument(' . "$pid,'$cuser','$btnfile')" . '"' . ">$btnname</a></li>\n";
+            }
+            echo '<strong><hr class="mb-2 mt-1" /></strong>';
+            continue;
+        }
+        // default template
+        $basefile = basename($file, ".tpl");
+        $btnname = text(ucwords(str_replace('_', ' ', $basefile)));
+        $btnfile = attr($file);
+        if ($btnname === "Help") {
+            continue;
+        }
+        echo '<li class="nav-item mb-1"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . ' href="#" onclick="page.newDocument(' . "$pid,'$cuser','$btnfile')" . '"' . ">$btnname</a></li>\n";
+    }
 }
+
+function get_template_dir_array($dir): array
+{
+    $ret_val = array();
+    if (substr($dir, -1) !== "/") {
+        $dir .= "/";
+    }
+
+    if (false === $d = @dir($dir)) {
+        return [];
+    }
+    while (false !== ($entry = $d->read())) {
+        if ($entry[0] === "." || substr($entry, -3) !== 'tpl') {
+            continue;
+        }
+        if (is_dir("$dir$entry")) {
+            continue;
+        }
+
+        if (is_readable("$dir$entry")) {
+            $ret_val[] = text($entry);
+        }
+    }
+    $d->close();
+
+    return $ret_val;
+}
+
