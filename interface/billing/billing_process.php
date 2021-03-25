@@ -60,8 +60,8 @@ $logger = $billingProcessor->execute();
     </div>
 </html>
 <?php
-    $logger->onLogComplete();
-    $hlog = $logger->hlog();
+$logger->onLogComplete();
+$hlog = $logger->hlog();
 if (!empty($hlog)) {
     if ($GLOBALS['drive_encryption']) {
         $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
