@@ -2708,7 +2708,7 @@ class X125010837P
             "*" .
             "*" .
             "*";
-            
+
             $dia = $claim->diagIndexArray($prockey);
             $i = 0;
             foreach ($dia as $dindex) {
