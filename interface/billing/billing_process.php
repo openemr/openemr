@@ -14,7 +14,7 @@
  * @copyright Copyright (c) 2014-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -61,5 +61,12 @@ $logger = $billingProcessor->execute();
 </html>
 <?php
     $logger->onLogComplete();
+    $hlog = $logger->hlog();
+    if (!empty($hlog)) {
+        if ($GLOBALS['drive_encryption']) {
+            $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
+        }
+        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
+    }
 ?>
 </body>
