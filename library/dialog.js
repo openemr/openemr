@@ -799,15 +799,20 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // sizing for modals with iframes
     function SizeModaliFrame(e, minSize) {
-        let viewPortHt;
-        let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-        jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
-        viewPortHt = where.window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
-        frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
+        let viewPortHt = where.window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        let frameContentHt = 0;
+        let idoc = null;
+        try {
+            idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
+            jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
+            frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
+        } catch(err){
+            frameContentHt = minSize + 40;
+        }
+        frameContentHt = frameContentHt <= minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
         size = (frameContentHt / viewPortHt * 100).toFixed(1);
-        size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
+        size = size + 'vh';
         jQuery(e.currentTarget).parents('div.modal-content').css({'height': size});
 
         return size;
