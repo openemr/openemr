@@ -196,8 +196,10 @@ function getTemplateList($dir, $location = "")
             </div>
                 <button class="btn btn-success ml-2" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Dashboard'); ?></button>
             </div>
-            <input type='hidden' name="up_dir" value='<?php global $patient_dir;echo $patient_dir; ?>' />
-            <input type='hidden' name="doc_category" value='<?php global $cat_dir;echo $cat_dir; ?>' />
+            <input type='hidden' name="up_dir" value='<?php global $patient_dir;
+            echo $patient_dir; ?>' />
+            <input type='hidden' name="doc_category" value='<?php global $cat_dir;
+            echo $cat_dir; ?>' />
         </form>
         <hr>
         <div class='row'>
@@ -256,7 +258,7 @@ function getTemplateList($dir, $location = "")
             echo "<thead>\n";
             echo "<tr>\n" .
                 "<th>" . xlt("Template") . " - <i>" . xlt("Click to edit") . "</i></th>" .
-                "<th>" . xlt("Category") ."</th><th>" . xlt("Location") . "</th><th>" . xlt("Size") . "</th><th>" . xlt("Last Modified") . "</th>" .
+                "<th>" . xlt("Category") . "</th><th>" . xlt("Location") . "</th><th>" . xlt("Size") . "</th><th>" . xlt("Last Modified") . "</th>" .
                 "</tr>\n";
             echo "</thead>\n";
             echo "<tbody>\n";

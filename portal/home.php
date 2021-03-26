@@ -588,7 +588,7 @@ foreach ($msgs as $i) {
                         </div>
                         <?php } ?>
                       <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                        ?>
+                            ?>
                         <div class="card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>

@@ -13,9 +13,9 @@
 if ($include_auth !== true) {
     die('Not allowed');
 }
-$dir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/";
+$base_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/";
 
-$dir_list = get_template_list($dir);
+$dir_list = get_template_list($base_dir);
 render_template_list($dir_list);
 
 function get_template_list($root_directory)
@@ -34,14 +34,17 @@ function get_template_list($root_directory)
     // does patient have any special documents.
     if (!empty($pid)) {
         $pid_path = convert_safe_file_dir_name($pid . "_tpls");
-        $dir_list[$gen_const] = get_template_dir_array($root_directory . $pid_path);
+        $dir_list[$gen_const] = get_template_dir_array($root_directory . $pid_path, $pid_path);
     }
     // get only directories from our category list
     foreach ($category_list as $cat) {
+        if (stripos($cat['option_id'], 'repository') !== false) {
+            continue;
+        }
         if (substr($root_directory, -1) !== "/") {
             $root_directory .= "/";
         }
-        if ($cat_dir_iter = get_template_dir_array($root_directory . convert_safe_file_dir_name($cat['option_id']))) {
+        if ($cat_dir_iter = get_template_dir_array($root_directory . convert_safe_file_dir_name($cat['option_id']), $cat['option_id'])) {
             $dir_list[$cat['title']] = $cat_dir_iter;
         }
     }
@@ -56,14 +59,8 @@ function render_template_list($tree)
     foreach ($tree as $key => $file) {
         if (is_array($file)) {
             $is_category = $key;
-            if (strpos($is_category, "_tpls") > 0) {
-                if (($pid . "_tpls") === $is_category) {
-                    $is_category = "From Provider";
-                } else {
-                    continue;
-                }
-            }
-            $cat_name = text(ucwords(str_replace('_', ' ', $is_category)));
+
+            $cat_name = text($is_category);
             echo "<li class='text-center'><h5 class='mb-0'>$cat_name</h5></li>\n";
             foreach ($file as $filename) {
                 if (is_array($filename)) {
@@ -71,7 +68,7 @@ function render_template_list($tree)
                 }
                 $basefile = basename($filename, ".tpl");
                 $btnname = text(ucwords(str_replace('_', ' ', $basefile)));
-                $btnfile = attr($key . "/" . $filename);
+                $btnfile = attr($filename);
                 echo '<li class="nav-item mb-1"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . ' href="#" onclick="page.newDocument(' . "$pid,'$cuser','$btnfile')" . '"' . ">$btnname</a></li>\n";
             }
             echo '<strong><hr class="mb-2 mt-1" /></strong>';
@@ -88,7 +85,7 @@ function render_template_list($tree)
     }
 }
 
-function get_template_dir_array($dir): array
+function get_template_dir_array($dir, $cat_dir = ''): array
 {
     $ret_val = array();
     if (substr($dir, -1) !== "/") {
@@ -107,11 +104,10 @@ function get_template_dir_array($dir): array
         }
 
         if (is_readable("$dir$entry")) {
-            $ret_val[] = text($entry);
+            $ret_val[] = text($cat_dir ? ($cat_dir . '/') . $entry : $entry);
         }
     }
     $d->close();
 
     return $ret_val;
 }
-
