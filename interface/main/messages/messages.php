@@ -531,7 +531,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body = nl2br(text(oeFormatPatientNote($body)));
                                                 // echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
-                                                echo "<input type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' value='$body'>";
+                                                // echo "<input type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' value='$body'>";
+                                                echo "<textarea type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' rows='5' readonly>" . text($body) . "</textarea>";
                                             }
 
                                             ?>
