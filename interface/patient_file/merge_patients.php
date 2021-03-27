@@ -22,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
-$PRODUCTION = true;
+$PRODUCTION = false;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -92,6 +92,55 @@ function updateRows($tblname, $colname, $source_pid, $target_pid)
         }
     }
 }
+
+function mergeRows($tblname, $colname, $source_pid, $target_pid)
+{
+    global $PRODUCTION;
+    $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+    $count = $crow['count'];
+    if ($count) {
+        $ssel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE 'pid' = ?";
+        $sres = sqlStatement($ssel, array($source_pid));
+        while ($srow = sqlFetchArray($sres)) {
+            $s_array[] = $srow;
+        }
+        $tsel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE 'pid' = ?";
+        $tres = sqlStatement($tsel, array($target_pid));
+        while ($trow = sqlFetchArray($tres)) {
+            $t_array[] = $trow;
+        }
+        $f_array_t = array_filter($t_array, "comp1", ARRAY_FILTER_USE_BOTH);
+        $f_array_s = array_filter($s_array, "comp2", ARRAY_FILTER_USE_BOTH);
+        $m_array = array_merge($f_array_t, $f_array_s);
+
+        var_dump($m_array);
+
+        //$sql = "REPLACE INTO " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+        echo "<br />$sql ($count)";
+        if ($PRODUCTION) {
+            sqlStatement($sql, array($target_pid, $source_pid));
+        }        
+    }
+}
+
+function comp1($var) { 
+    global $s_array; 
+    foreach($s_array as $key => $value) {
+        if ($value['type'] == $var['type']) {
+            return ((strcmp($var['date'], $value['date'])) < 0);
+        }
+    }
+    return $var;
+}
+
+function comp2($var) {  
+    global $t_array;
+    foreach($t_array as $key => $value) {
+        if ($value['type'] == $var['type']) {
+            return ((strcmp($var['date'], $value['date'])) > 0);
+        }
+    }
+}  
 
 if (!empty($_POST['form_submit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -209,6 +258,8 @@ if (!empty($_POST['form_submit'])) {
             // Documents already handled.
         } elseif ($tblname == 'openemr_postcalendar_events') {
             updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
+        } elseif ($tblname == 'lists_touch') {
+            mergeRows($tblname, 'pid', $source_pid, $target_pid);            
         } elseif ($tblname == 'log') {
             // Don't mess with log data.
         } else {
