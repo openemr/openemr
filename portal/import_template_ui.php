@@ -291,7 +291,7 @@ function getTemplateList($dir, $location = "")
                     });
 
                     $("#ptstatus").text($("#sel_pt").find(":selected").text());
-                    $("#ptstatus").append(xl(" to Category "));
+                    $("#ptstatus").append(' ' + xl("to Category") + ' ');
                     $("#ptstatus").append($("#doc_category").find(":selected").text());
                 });
             </script>
