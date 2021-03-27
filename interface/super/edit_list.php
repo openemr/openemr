@@ -438,15 +438,7 @@ function writeOptionLine(
         echo "</td>\n";
     }
 
-    // IPPF includes the ability to map each list item to a "master" identifier.
-    // Sports teams use this for some extra info for fitness levels.
-    //
-    if ($GLOBALS['ippf_specific'] || $list_id == 'fitness') {
-        echo "  <td>";
-        echo "<input type='text' name='opt[" . attr($opt_line_no) . "][mapping]' value='" .
-            attr($mapping) . "' size='12' maxlength='15' class='optin' />";
-        echo "</td>\n";
-    } elseif ($list_id == 'apptstat' || $list_id == 'groupstat') {
+    if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
         echo "  <td>";
         echo "<input type='text' class='jscolor' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
@@ -456,14 +448,6 @@ function writeOptionLine(
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][apptstat_timealert]' value='" .
             attr($apptstat_timealert) . "' size='2' maxlength='2' class='optin' />";
         echo "</td>\n";
-    } else {
-        echo "  <td>";
-        echo "<input type='text' name='opt[" . attr($opt_line_no) . "][notes]' value='" .
-            attr($notes) . "' size='25' maxlength='255' class='optin' ";
-        echo "/>";
-        echo "</td>\n";
-    }
-    if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         echo "  <td>";
         echo "<input type='checkbox' name='opt[" . attr($opt_line_no) . "][toggle_setting_1]' value='1' " .
             "onclick='defClicked(" . attr($opt_line_no) . ")' class='optin'$checked_tog1 />";
@@ -472,7 +456,22 @@ function writeOptionLine(
         echo "<input type='checkbox' name='opt[" . attr($opt_line_no) . "][toggle_setting_2]' value='1' " .
             "onclick='defClicked(" . attr($opt_line_no) . ")' class='optin'$checked_tog2 />";
         echo "</td>\n";
+    } else {
+        // IPPF includes the ability to map each list item to a "master" identifier.
+        // Sports teams use this for some extra info for fitness levels.
+        if ($GLOBALS['ippf_specific'] || $list_id == 'fitness') {
+            echo "  <td>";
+            echo "<input type='text' name='opt[" . attr($opt_line_no) . "][mapping]' value='" .
+                attr($mapping) . "' size='12' maxlength='15' class='optin' />";
+            echo "</td>\n";
+        }
+        echo "  <td>";
+        echo "<input type='text' name='opt[" . attr($opt_line_no) . "][notes]' value='" .
+            attr($notes) . "' size='25' maxlength='255' class='optin' ";
+        echo "/>";
+        echo "</td>\n";
     }
+
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][codes]' title='" .
         xla('Clinical Term Code(s)') . "' value='" .

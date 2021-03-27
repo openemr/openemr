@@ -458,4 +458,88 @@ VALUES
 #IfNotRow2D list_options list_id lists option_id Document_Template_Categories
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
+
+#IfMissingColumn layout_group_properties grp_save_close
+ALTER TABLE `layout_group_properties` ADD COLUMN `grp_save_close` tinyint(1) not null default 0;
+#EndIf
+
+#IfMissingColumn layout_group_properties grp_init_open
+ALTER TABLE `layout_group_properties` ADD COLUMN `grp_init_open` tinyint(1) not null default 0;
+UPDATE layout_group_properties AS p, layout_options AS o SET p.grp_init_open = 1 WHERE
+  o.form_id = p.grp_form_id AND o.group_id = p.grp_group_id AND o.uor > 0 AND o.edit_options LIKE '%I%';
+UPDATE layout_group_properties AS p SET p.grp_init_open = 1 WHERE p.grp_group_id = '1' AND
+  (SELECT count(*) FROM layout_options AS o WHERE o.form_id = p.grp_form_id AND o.uor > 0 AND o.edit_options LIKE '%I%') = 0;
+#EndIf
+
+#IfMissingColumn layout_group_properties grp_last_update
+ALTER TABLE `layout_group_properties` ADD COLUMN `grp_last_update` timestamp NULL;
+#EndIf
+
+#---------- Support for Referrals section of LBFs. ----------#
+#IfMissingColumn layout_group_properties grp_referrals
+ALTER TABLE `layout_group_properties` ADD COLUMN `grp_referrals` tinyint(1) not null default 0;
+#EndIf
+
+#IfMissingColumn drug_sales trans_type
+ALTER TABLE drug_sales
+  ADD trans_type tinyint NOT NULL DEFAULT 1 COMMENT '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment';
+UPDATE drug_sales SET trans_type = 4 WHERE pid = 0 AND xfer_inventory_id != 0;
+UPDATE drug_sales SET trans_type = 5 WHERE trans_type = 1 AND pid = 0 AND fee = 0;
+UPDATE drug_sales SET trans_type = 2 WHERE trans_type = 1 AND pid = 0 AND quantity >= 0;
+UPDATE drug_sales SET trans_type = 3 WHERE trans_type = 1 AND pid = 0;
+#EndIf
+
+#IfMissingColumn ar_activity post_date
+ALTER TABLE ar_activity
+  ADD post_date date DEFAULT NULL COMMENT 'Posting date if specified at payment time';
+UPDATE ar_activity SET post_date = post_time;
+#EndIf
+
+#IfMissingColumn form_encounter shift
+ALTER TABLE form_encounter ADD shift varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id shift
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','shift','Shifts', 1, 0);
+#EndIf
+
+#IfMissingColumn form_encounter voucher_number
+ALTER TABLE form_encounter ADD voucher_number varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number';
+#EndIf
+
+#IfMissingColumn billing chargecat
+ALTER TABLE `billing` ADD COLUMN `chargecat` varchar(31) default '';
+#EndIf
+
+#IfMissingColumn drug_sales chargecat
+ALTER TABLE `drug_sales` ADD COLUMN `chargecat` varchar(31) default '';
+#EndIf
+
+#IfMissingColumn voids reason
+ALTER TABLE `voids` ADD COLUMN `reason` VARCHAR(31) default '';
+#EndIf
+
+#IfMissingColumn voids notes
+ALTER TABLE `voids` ADD COLUMN `notes` VARCHAR(255) default '';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id void_reasons
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','void_reasons','Void Reasons',1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','one'  ,'Reason 1',10,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','two'  ,'Reason 2',20,0);
+#EndIf
+
+#IfNotIndex log patient_id
+CREATE INDEX `patient_id` ON `log` (`patient_id`);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id paymethod
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','paymethod','Payment Methods', 1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Cash' ,'Cash' ,10,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Check','Check',20,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','MC'   ,'MC'   ,30,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','VISA' ,'VISA' ,40,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','AMEX' ,'AMEX' ,50,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','DISC' ,'DISC' ,60,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Other','Other',70,0);
 #EndIf

@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -132,6 +132,8 @@ getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
 $formhistory = 0 + $lobj['grp_repeats'];
+$grp_last_update = $lobj['grp_last_update'];
+
 if (!empty($lobj['grp_columns'])) {
     $CPR = (int)$lobj['grp_columns'];
 }
@@ -153,6 +155,13 @@ if ($lobj['grp_products']) {
 if ($lobj['grp_diags']) {
     $LBF_DIAGS_SECTION = $lobj['grp_diags'] == '*' ? '' : $lobj['grp_diags'];
 }
+
+$LBF_REFERRALS_SECTION = !empty($lobj['grp_referrals']);
+
+$LBF_SECTION_DISPLAY_STYLE = $lobj['grp_init_open'] ? 'block' : 'none';
+
+// $LBF_ENABLE_SAVE_CLOSE = !empty($lobj['grp_save_close']);
+$LBF_ENABLE_SAVE_CLOSE = !empty($GLOBALS['gbl_form_save_close']);
 
 // Check access control.
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
@@ -177,7 +186,7 @@ if (!$from_trend_form) {
 
 // If Save was clicked, save the info.
 //
-if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POST['bn_save_continue'])) {
+if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POST['bn_save_continue']) || !empty($_POST['bn_save_close'])) {
     $newid = 0;
     if (!$formid) {
         // Creating a new form. Get the new form_id by inserting and deleting a dummy row.
@@ -313,6 +322,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         }
     }
 
+    if (!$alertmsg && !empty($_POST['bn_save_close'])) {
+        $alertmsg = FeeSheet::closeVisit($pid, $visitid);
+    }
+
     if (!$formid) {
         $formid = $newid;
     }
@@ -369,6 +382,10 @@ if (empty($is_core)) {
 
         .RO {
             border-width: 1px solid var(--gray600) !important;
+        }
+
+        .linkcolor {
+            color:blue;
         }
 
     </style>
@@ -538,9 +555,14 @@ if (empty($is_core)) {
                 frcd = frc;
                 frc = f[matches[1]];
             }
-            // For LBFs we will allow only one code in a field.
-            var s = ''; // frc.value;
-            var sd = ''; // frcd ? frcd.value : s;
+            // Allow only one code in a field unless edit option E is present.
+            var s = '';
+            var sd = '';
+            if ((' ' + frc.className + ' ').indexOf(' EditOptionE ') > -1) {
+                s = frc.value;
+                sd = frcd ? frcd.value : s;
+            }
+            //
             if (code) {
                 if (s.length > 0) {
                     s += ';';
@@ -591,6 +613,7 @@ if (empty($is_core)) {
 
         // Validation logic for form submission.
         // Added prevent restoreSession for remotes
+        var submitButtonName = '';
         function validate(f, restore = true) {
             var errMsgs = new Array();
             <?php generate_layout_validation($formname); ?>
@@ -598,12 +621,44 @@ if (empty($is_core)) {
             // that these warning messages are not appropriate for layout based visit forms.
             //
             // if (window.jsLineItemValidation && !jsLineItemValidation(f)) return false;
+
+            if (submitButtonName == 'bn_save_close') {
+                // For "Save and Close Visit" we check for unsaved form data in the sibling iframes.
+                for (var i = 0; i < parent.frames.length; ++i) {
+                    var w = parent.frames[i];
+                    var tmpId = w.name;
+                    if (tmpId.indexOf('enctabs-') == 0 && tmpId != window.name) {
+                        if (typeof w.somethingChanged !== 'undefined' && w.somethingChanged) {
+                            alert(<?php echo xlj('Hold on! You have unsaved changes in another form. Please just Save this form and then complete the other one.'); ?>);
+                            return false;
+                        }
+                    }
+                }
+            }
+
             somethingChanged = false; // turn off "are you sure you want to leave"
             if (restore) {
-            top.restoreSession();
+                top.restoreSession();
             }
 
             return true;
+        }
+
+        // Called to open the data entry form of a specified encounter form instance.
+        // TBD: Move this to TabsWrapper.class.php.
+        function openLBFEncounterForm(formdir, formname, formid) {
+            top.restoreSession();
+            var url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?formname=" ?>' +
+                encodeURIComponent(formdir) + '&id=' + encodeURIComponent(formid);
+            parent.twAddFrameTab('enctabs', formname, url);
+            return false;
+        }
+
+        function openLBFNewForm(formdir, formname) {
+            top.restoreSession();
+            var url = '<?php echo "$rootdir/patient_file/encounter/load_form.php?formname=" ?>' +
+                encodeURIComponent(formdir);
+            parent.twAddFrameTab('enctabs', formname, url);
         }
 
         <?php
@@ -883,19 +938,21 @@ if (empty($is_core)) {
             <?php
             $shrow = getHistoryData($pid);
 
+            /**********************************************************
             // Determine if this layout uses edit option "I" anywhere.
             // If not we default to only the first group being initially open.
             $tmprow = sqlQuery("SELECT form_id FROM layout_options " .
                 "WHERE form_id = ? AND uor > 0 AND edit_options LIKE '%I%' " .
                 "LIMIT 1", array($formname));
             $some_group_is_open = !empty($tmprow['form_id']);
+            **********************************************************/
 
             $fres = sqlStatement("SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND uor > 0 " .
                 "ORDER BY group_id, seq", array($formname));
             $cell_count = 0;
             $item_count = 0;
-            $display_style = 'block';
+            // $display_style = 'block';
 
             // This string is the active group levels. Each leading substring represents an instance of nesting.
             $group_levels = '';
@@ -937,7 +994,7 @@ if (empty($is_core)) {
                 }
 
                 // Accumulate action conditions into a JSON expression for the browser side.
-                accumActionConditions($field_id, $condition_str, $frow['conditions']);
+                accumActionConditions($frow, $condition_str);
 
                 $currvalue = '';
 
@@ -1028,17 +1085,14 @@ if (empty($is_core)) {
                         $group_table_active = false;
                     }
                     $group_levels .= $this_levels[$i++];
-                    $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
-                    $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
-
+                    $grouprow = $grparr[substr($group_levels, 0, $i)];
+                    $gname = $grouprow['grp_title'];
+                    $subtitle = xl_layout_label($grouprow['grp_subtitle']);
                     // Compute a short unique identifier for this group.
                     $group_seq = 'lbf' . $group_levels;
                     $group_name = $gname;
 
-                    if ($some_group_is_open) {
-                        // Must have edit option "I" in first item for its group to be initially open.
-                        $display_style = isOption($edit_options, 'I') === false ? 'none' : 'block';
-                    }
+                    $display_style = $grouprow['grp_init_open'] ? 'block' : 'none';
 
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
@@ -1059,7 +1113,7 @@ if (empty($is_core)) {
                         echo "<tr><td class='font-weight-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
                     }
 
-                    $display_style = 'none';
+                    // $display_style = 'none';
 
                     // Initialize historical data array and write date headers.
                     $historical_ids = array();
@@ -1233,7 +1287,7 @@ if (empty($is_core)) {
                 }
             }
 
-            $display_style = 'none';
+            $display_style = $LBF_SECTION_DISPLAY_STYLE;
 
             if (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION)) {
                 $fs->loadServiceItems();
@@ -1249,7 +1303,7 @@ if (empty($is_core)) {
                 echo " /><strong>" . xlt('Services') . "</strong></span>\n";
                 echo "<div id='div_fs_services' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
-                $display_style = 'none';
+                // $display_style = 'none';
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_SERVICES_SECTION) {
@@ -1316,8 +1370,13 @@ if (empty($is_core)) {
                     }
                     echo "</select>&nbsp;&nbsp;\n";
                 }
+                $tmp_provider_id = $fs->provider_id ? $fs->provider_id : 0;
+                if (!$tmp_provider_id && $userauthorized) {
+                    // Default to the logged-in user if they are a provider.
+                    $tmp_provider_id = $_SESSION['authUserID'];
+                }
                 echo xlt('Main Provider') . ": ";
-                echo $fs->genProviderSelect("form_fs_provid", ' ', $fs->provider_id);
+                echo $fs->genProviderSelect("form_fs_provid", ' ', $tmp_provider_id);
                 echo "\n";
                 echo "</p>\n";
 
@@ -1365,7 +1424,7 @@ if (empty($is_core)) {
                 echo " /><strong>" . xlt('Products') . "</strong></span>\n";
                 echo "<div id='div_fs_products' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
-                $display_style = 'none';
+                // $display_style = 'none';
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_PRODUCTS_SECTION) {
@@ -1459,7 +1518,7 @@ if (empty($is_core)) {
                 echo " /><b>" . xlt('Diagnoses') . "</b></span>\n";
                 echo "<div id='div_fs_diags' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
-                $display_style = 'none';
+                // $display_style = 'none';
 
                 // If there are associated codes, generate a checkbox for each one.
                 if ($LBF_DIAGS_SECTION) {
@@ -1534,6 +1593,94 @@ if (empty($is_core)) {
                 echo "</div>\n";
             } // End Diagnoses Section
 
+            if ($LBF_REFERRALS_SECTION) {
+                // Create the checkbox and div for the Referrals Section.
+                echo "<br /><span class='bold'><input type='checkbox' name='form_cb_referrals' value='1' " .
+                    "onclick='return divclick(this, \"div_referrals\");'";
+                if ($display_style == 'block') {
+                    echo " checked";
+                }
+                echo " /><b>" . xlt('Referrals') . "</b></span>\n";
+                echo "<div id='div_referrals' class='section' style='display:" . attr($display_style) . ";'>\n";
+                echo "<center>\n";
+                // $display_style = 'none';
+
+                // Generate a table row for each referral in the visit.
+                echo "<table cellpadding='0' cellspacing='5' id='referrals_table'>\n";
+                echo " <tr>\n";
+                echo "  <td class='bold'>" . xlt('Date') . "&nbsp;</td>\n";
+                echo "  <td class='bold'>" . xlt('Type') . "&nbsp;</td>\n";
+                echo "  <td class='bold'>" . xlt('Reason') . "&nbsp;</td>\n";
+                echo "  <td class='bold'>" . xlt('Referred To') . "&nbsp;</td>\n";
+                echo "  <td class='bold'>" . xlt('Requested Service') . "</td>\n";
+                echo " </tr>\n";
+
+                $refres = sqlStatement(
+                    "SELECT f.form_id, " .
+                    "d1.field_value AS refer_external, " .
+                    "d2.field_value AS body, " .
+                    "lo.title AS refer_type, " .
+                    "ut.organization, " .
+                    "CONCAT(ut.fname,' ', ut.lname) AS referto_name, " .
+                    "d4.field_value AS refer_related_code, " .
+                    "d5.field_value AS refer_date " .
+                    "FROM forms AS f " .
+                    "LEFT JOIN lbf_data AS d1 ON d1.form_id = f.form_id AND d1.field_id = 'refer_external' " .
+                    "LEFT JOIN list_options AS lo ON list_id = 'reftype' and option_id = d1.field_value " .
+                    "LEFT JOIN lbf_data AS d2 ON d2.form_id = f.form_id AND d2.field_id = 'body' " .
+                    "LEFT JOIN lbf_data AS d3 ON d3.form_id = f.form_id AND d3.field_id = 'refer_to' " .
+                    "LEFT JOIN users AS ut ON ut.id = d3.field_value " .
+                    "LEFT JOIN lbf_data AS d4 ON d4.form_id = f.form_id AND d4.field_id = 'refer_related_code' " .
+                    "LEFT JOIN lbf_data AS d5 ON d5.form_id = f.form_id AND d5.field_id = 'refer_date' " .
+                    "WHERE " .
+                    "f.pid = ? AND f.encounter = ? AND f.formdir = 'LBFref' AND f.deleted = 0 " .
+                    "ORDER BY refer_date, f.form_id",
+                    array($pid, $encounter)
+                );
+
+                while ($refrow = sqlFetchArray($refres)) {
+                    $svcstring = '';
+                    if (!empty($refrow['refer_related_code'])) {
+                        // Get referred services.
+                        $relcodes = explode(';', $refrow['refer_related_code']);
+                        foreach ($relcodes as $codestring) {
+                            if ($codestring === '') {
+                                continue;
+                            }
+                            ++$svccount;
+                            list($codetype, $code) = explode(':', $codestring);
+                            $rrow = sqlQuery(
+                                "SELECT code_text FROM codes WHERE " .
+                                "code_type = ? AND code = ? " .
+                                "ORDER BY active DESC, id ASC LIMIT 1",
+                                array($code_types[$codetype]['id'], $code)
+                            );
+                            $code_text = empty($rrow['code_text']) ? '' : $rrow['code_text'];
+                            if ($svcstring) {
+                                $svcstring .= '<br />';
+                            }
+                            $svcstring .= text("$code: $code_text");
+                        }
+                    }
+                    echo " <tr style='cursor:pointer;cursor:hand' " .
+                        "onclick=\"openLBFEncounterForm('LBFref', 'Referral', " .
+                        attr_js($refrow['form_id']) . ")\">\n";
+                    echo "  <td class='text linkcolor'>" . text(oeFormatShortDate($refrow['refer_date'])) . "&nbsp;</td>\n";
+                    echo "  <td class='text linkcolor'>" . text($refrow['refer_type']) . "&nbsp;</td>\n";
+                    echo "  <td class='text linkcolor'>" . text($refrow['body']) . "&nbsp;</td>\n";
+                    echo "  <td class='text linkcolor'>" . text($refrow['organization'] ? $refrow['organization'] : $refrow['referto_name']) . "&nbsp;</td>\n";
+                    echo "  <td class='text linkcolor'>" . $svcstring . "&nbsp;</td>\n";
+                    echo " </tr>\n";
+                }
+
+                echo " <tr style='cursor:pointer;cursor:hand' onclick=\"openLBFNewForm('LBFref', 'Referral')\">\n";
+                echo "  <td class='bold linkcolor' colspan='5'>" . xlt('Create New Referral') . "</td>\n";
+                echo " </tr>\n";
+                echo "</table>\n";
+                echo "</center>\n";
+                echo "</div>\n";
+            } // End Referrals Section
+
             ?>
             <br />
 
@@ -1549,19 +1696,31 @@ if (empty($is_core)) {
                         }
                         ?>
                         <button type="submit" class="btn btn-primary btn-save" name="bn_save"
-                                value="<?php echo xla('Save'); ?>">
+                            onclick='submitButtonName = this.name;'
+                            value="<?php echo xla('Save'); ?>">
                             <?php echo xlt('Save'); ?>
                         </button>
 
                         <button type='submit' class="btn btn-secondary" name='bn_save_continue'
-                                value='<?php echo xla('Save and Continue') ?>'>
+                            onclick='submitButtonName = this.name;'
+                            value='<?php echo xla('Save and Continue') ?>'>
                             <?php echo xlt('Save and Continue'); ?>
                         </button>
+
+                        <?php if ($LBF_ENABLE_SAVE_CLOSE) { ?>
+                        <button type='submit' class="btn btn-secondary" name='bn_save_close'
+                            onclick='submitButtonName = this.name;'
+                            value='<?php echo xla('Save and Close Visit') ?>'>
+                            <?php echo xlt('Save and Close Visit'); ?>
+                        </button>
+                        <?php } ?>
+
                         <?php
                         if (!$from_issue_form) {
                             ?>
                             <button type='submit' class="btn btn-secondary" name='bn_save_print'
-                                    value='<?php echo xla('Save and Print') ?>'>
+                                onclick='submitButtonName = this.name;'
+                                value='<?php echo xla('Save and Print') ?>'>
                                 <?php echo xlt('Save and Print'); ?>
                             </button>
                             <?php
@@ -1601,6 +1760,11 @@ if (empty($is_core)) {
             <?php if (!$from_trend_form) { // end row and container divs ?>
         </div>
     </div>
+
+    <p style='text-align:center' class='small'>
+                <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+    </p>
+
 <?php } ?>
 
     <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>'/>

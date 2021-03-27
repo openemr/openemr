@@ -200,6 +200,38 @@ class FeeSheet
         return intval($providerid);
     }
 
+    // Close the designated visit, making sure it has no charges.
+    //
+    public static function closeVisit($pid, $encounter)
+    {
+        $tmp1 = sqlQuery(
+            "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
+            "pid = ? AND encounter = ? AND billed = 0",
+            array($pid, $encounter)
+        );
+        $tmp2 = sqlQuery(
+            "SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
+            "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
+            array($pid, $encounter)
+        );
+        if ($tmp1['sum'] + $tmp2['sum'] == 0) {
+            $this_bill_date = date('Y-m-d H:i:s');
+            sqlStatement(
+                "update drug_sales SET billed = 1, bill_date = ? WHERE " .
+                "pid = ? AND encounter = ? AND billed = 0",
+                array($this_bill_date, $pid, $encounter)
+            );
+            sqlStatement(
+                "UPDATE billing SET billed = 1, bill_date = ? WHERE " .
+                "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
+                array($this_bill_date, $pid, $encounter)
+            );
+        } else {
+            return xl('Cannot close because there are charges. Check out instead.');
+        }
+        return '';
+    }
+
   // Log a message that is easy for the Re-Opened Visits Report to interpret.
   //
     public function logFSMessage($action)
@@ -1229,32 +1261,7 @@ class FeeSheet
         // generally useful.  It provides the ability to mark an encounter as billed
         // directly from the Fee Sheet, if there are no charges.
         if ($mark_as_closed) {
-            $tmp1 = sqlQuery(
-                "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
-                "pid = ? AND encounter = ? AND billed = 0",
-                array($this->pid, $this->encounter)
-            );
-            $tmp2 = sqlQuery(
-                "SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
-                "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
-                array($this->pid, $this->encounter)
-            );
-            if ($tmp1['sum'] + $tmp2['sum'] == 0) {
-                  sqlStatement(
-                      "update drug_sales SET billed = 1 WHERE " .
-                      "pid = ? AND encounter = ? AND billed = 0",
-                      array($this->pid, $this->encounter)
-                  );
-                    sqlStatement(
-                        "UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
-                        "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
-                        array($this->pid, $this->encounter)
-                    );
-            } else {
-                  // Would be good to display an error message here... they clicked
-                  // Save and Close but the close could not be done.  However the
-                  // framework does not provide an easy way to do that.
-            }
+            $this->closeVisit($this->pid, $this->encounter);
         }
     }
 

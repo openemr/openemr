@@ -8,7 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -198,8 +198,11 @@ if (!empty($_POST['bn_upload'])) {
 $lastcat = '';
 $lastlayout = '';
 
-$res = sqlStatement("SELECT grp_form_id, grp_title, grp_mapping, grp_services FROM layout_group_properties " .
-  "WHERE grp_group_id = '' AND grp_activity = 1 AND grp_services != '' ORDER BY grp_mapping, grp_title, grp_form_id");
+$res = sqlStatement(
+    "SELECT grp_form_id, grp_title, grp_mapping, grp_services, grp_activity " .
+    "FROM layout_group_properties WHERE " .
+    "grp_group_id = '' AND grp_services != '' ORDER BY grp_mapping, grp_title, grp_form_id"
+);
 
 while ($row = sqlFetchArray($res)) {
   // $jobj = json_decode($row['notes'], true);
@@ -220,7 +223,8 @@ while ($row = sqlFetchArray($res)) {
         echo "  <td class='detail'>";
         if ($row['grp_form_id'] != $lastlayout) {
             $lastlayout = $row['grp_form_id'];
-            echo text($row['grp_title']);
+            $suffix = $row['grp_activity'] ? '' : (' (' . xl('inactive') . ')');
+            echo text($row['grp_title'] . $suffix);
         }
         echo "&nbsp;</td>\n";
 
