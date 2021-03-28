@@ -22,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
-$PRODUCTION = false;
+$PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -101,37 +101,43 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
     if ($count) {
         $source_array = array();
         $source_sel = "SELECT * FROM " . $tblname . " WHERE `pid` = ?";
-        $source_res = sqlStatement($source_sel, array('16527'));
+        $source_res = sqlStatement($source_sel, array($source_pid));
 
         $target_array = array();
         $target_sel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE `pid` = ?";
-        $target_res = sqlStatement($target_sel, array('16512'));
+        $target_res = sqlStatement($target_sel, array($target_pid));
 
         while ($source_row = sqlFetchArray($source_res)) {
             while ($target_row = sqlFetchArray($target_res)) {
                 if ($source_row['type'] == $target_row['type']) {
                     if (strcmp($target_row['date'], $source_row['date']) < 0) {
-                        //echo "we should update the target";
-                        $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
-                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                        // we delete the entry from the target since the source has a newer date
+                        $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
+                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . 
+                            " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?  AND `type` = ?";
                         if ($PRODUCTION) {
-                            sqlStatement($sql1, array($target_pid, $source_pid));
-                            sqlStatement($sql2, array($target_pid, $source_pid));
+                            sqlStatement($sql1, array($target_pid, $source_row['type']));
+                            sqlStatement($sql2, array($target_pid, $source_pid, $source_row['type']));
                         }   
                     } else {
-                        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
                         if ($PRODUCTION) {
-                            sqlStatement($sql, array($target_pid, $source_pid));
+                            sqlStatement($sql, array($source_pid, $source_row['type']));
                         }
                     }
                 }
             }
         }
-        //$sql = "REPLACE INTO " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
-        echo "<br />$sql ($count)";
-        if ($PRODUCTION) {
-            sqlStatement($sql, array($target_pid, $source_pid));
-        }        
+        // if there was no target but a source then check count again
+        $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+        $count = $crow['count'];
+        if ($count) {
+            $sql = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+            echo "<br />$sql ($count)";
+            if ($PRODUCTION) {
+                sqlStatement($sql, array($target_pid, $source_pid));
+            }
+        }       
     }
 }
 
