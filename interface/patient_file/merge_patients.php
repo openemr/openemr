@@ -99,22 +99,34 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
     $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
     $count = $crow['count'];
     if ($count) {
-        $ssel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE 'pid' = ?";
-        $sres = sqlStatement($ssel, array($source_pid));
-        while ($srow = sqlFetchArray($sres)) {
-            $s_array[] = $srow;
-        }
-        $tsel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE 'pid' = ?";
-        $tres = sqlStatement($tsel, array($target_pid));
-        while ($trow = sqlFetchArray($tres)) {
-            $t_array[] = $trow;
-        }
-        $f_array_t = array_filter($t_array, "comp1", ARRAY_FILTER_USE_BOTH);
-        $f_array_s = array_filter($s_array, "comp2", ARRAY_FILTER_USE_BOTH);
-        $m_array = array_merge($f_array_t, $f_array_s);
+        $source_array = array();
+        $source_sel = "SELECT * FROM " . $tblname . " WHERE `pid` = ?";
+        $source_res = sqlStatement($source_sel, array('16527'));
 
-        var_dump($m_array);
+        $target_array = array();
+        $target_sel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE `pid` = ?";
+        $target_res = sqlStatement($target_sel, array('16512'));
 
+        while ($source_row = sqlFetchArray($source_res)) {
+            while ($target_row = sqlFetchArray($target_res)) {
+                if ($source_row['type'] == $target_row['type']) {
+                    if (strcmp($target_row['date'], $source_row['date']) < 0) {
+                        //echo "we should update the target";
+                        $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                        if ($PRODUCTION) {
+                            sqlStatement($sql1, array($target_pid, $source_pid));
+                            sqlStatement($sql2, array($target_pid, $source_pid));
+                        }   
+                    } else {
+                        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+                        if ($PRODUCTION) {
+                            sqlStatement($sql, array($target_pid, $source_pid));
+                        }
+                    }
+                }
+            }
+        }
         //$sql = "REPLACE INTO " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
         echo "<br />$sql ($count)";
         if ($PRODUCTION) {
@@ -125,7 +137,7 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
 
 function comp1($var) { 
     global $s_array; 
-    foreach($s_array as $key => $value) {
+    foreach($s_array[0] as $key => $value) {
         if ($value['type'] == $var['type']) {
             return ((strcmp($var['date'], $value['date'])) < 0);
         }
@@ -135,7 +147,7 @@ function comp1($var) {
 
 function comp2($var) {  
     global $t_array;
-    foreach($t_array as $key => $value) {
+    foreach($t_array[0] as $key => $value) {
         if ($value['type'] == $var['type']) {
             return ((strcmp($var['date'], $value['date'])) > 0);
         }
