@@ -113,12 +113,12 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
                     if (strcmp($target_row['date'], $source_row['date']) < 0) {
                         // we delete the entry from the target since the source has a newer date
                         $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
-                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . 
+                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) .
                             " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?  AND `type` = ?";
                         if ($PRODUCTION) {
                             sqlStatement($sql1, array($target_pid, $source_row['type']));
                             sqlStatement($sql2, array($target_pid, $source_pid, $source_row['type']));
-                        }   
+                        }
                     } else {
                         $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
                         if ($PRODUCTION) {
@@ -137,13 +137,14 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
             if ($PRODUCTION) {
                 sqlStatement($sql, array($target_pid, $source_pid));
             }
-        }       
+        }
     }
 }
 
-function comp1($var) { 
-    global $s_array; 
-    foreach($s_array[0] as $key => $value) {
+function comp1($var)
+{
+    global $s_array;
+    foreach ($s_array[0] as $key => $value) {
         if ($value['type'] == $var['type']) {
             return ((strcmp($var['date'], $value['date'])) < 0);
         }
@@ -151,14 +152,15 @@ function comp1($var) {
     return $var;
 }
 
-function comp2($var) {  
+function comp2($var)
+{
     global $t_array;
-    foreach($t_array[0] as $key => $value) {
+    foreach ($t_array[0] as $key => $value) {
         if ($value['type'] == $var['type']) {
             return ((strcmp($var['date'], $value['date'])) > 0);
         }
     }
-}  
+}
 
 if (!empty($_POST['form_submit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -277,7 +279,7 @@ if (!empty($_POST['form_submit'])) {
         } elseif ($tblname == 'openemr_postcalendar_events') {
             updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
         } elseif ($tblname == 'lists_touch') {
-            mergeRows($tblname, 'pid', $source_pid, $target_pid);            
+            mergeRows($tblname, 'pid', $source_pid, $target_pid);
         } elseif ($tblname == 'log') {
             // Don't mess with log data.
         } else {
