@@ -141,27 +141,6 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
     }
 }
 
-function comp1($var)
-{
-    global $s_array;
-    foreach ($s_array[0] as $key => $value) {
-        if ($value['type'] == $var['type']) {
-            return ((strcmp($var['date'], $value['date'])) < 0);
-        }
-    }
-    return $var;
-}
-
-function comp2($var)
-{
-    global $t_array;
-    foreach ($t_array[0] as $key => $value) {
-        if ($value['type'] == $var['type']) {
-            return ((strcmp($var['date'], $value['date'])) > 0);
-        }
-    }
-}
-
 if (!empty($_POST['form_submit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
