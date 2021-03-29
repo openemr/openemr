@@ -111,8 +111,8 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
         while ($source_row = sqlFetchArray($source_res)) {
             while ($target_row = sqlFetchArray($target_res)) {
                 if ($source_row['type'] == $target_row['type']) {
-                    if (strcmp($target_row['date'], $source_row['date']) < 0) {
-                        // we delete the entry from the target since the source has a newer date
+                    if (strcmp($source_row['date'], $target_row['date']) < 0) {
+                        // we delete the entry from the target since the source has an older date
                         $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
                         $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) .
                             " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?  AND `type` = ?";
