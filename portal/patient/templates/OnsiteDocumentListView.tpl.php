@@ -29,9 +29,9 @@ $include_auth = true;
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
 
 if (empty($is_module)) {
-    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
+    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
 } else {
-    $this->assign('title', xlt("Patient Template") . " | " . xlt("Documents"));
+    $this->assign('title', xlt("Document Templates"));
 }
 $this->assign('nav', 'onsitedocuments');
 
@@ -359,7 +359,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             <!-- editor form -->
             <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                 <div id="templatediv" class="card-body border p-2 m-1 bg-white">
-                    <div id="templatecontent" class="template-body bg-white"></div>
+                    <div id="templatecontent" class="template-body bg-white"><div class="text-center"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div></div>
                 </div>
                 <input type="hidden" name="content" id="content" value="" />
                 <input type="hidden" name="cpid" id="cpid" value="" />

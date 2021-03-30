@@ -445,30 +445,31 @@ $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/tem
 // or just templateName
 $wl = explode('/', $form_filename);
 if (count($wl) === 2) {
-    // get cats
-    $rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
     $okay = false;
-    while ($row = sqlFetchArray($rtn)) {
-        if ($row['option_id'] == $wl[0]) {
-            // okay, a good path
-            $okay = true;
+    // test if this is folder for a specific patient
+    if (check_file_dir_name($pid . "_tpls") == $wl[0]) {
+        $okay = true;
+    } else {
+        // get cats
+        $rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
+        while ($row = sqlFetchArray($rtn)) {
+            if ($row['option_id'] == $wl[0]) {
+                // okay, a good path
+                $okay = true;
+            }
         }
     }
     if ($okay === true) {
         $form_filename = $wl[0] . "/" . $wl[1];
     } else {
-        die("invalid path");
+        die(xlt("Invalid Path"));
     }
 } else {
     check_file_dir_name($form_filename);
 }
 
 $templatepath = "$templatedir/$form_filename";
-// test if this is folder with template, if not, must be for a specific patient
-if (!file_exists($templatepath)) {
-    check_file_dir_name($pid);
-    $templatepath = "$templatedir/" . $pid . "/$form_filename";
-}
+
 
 $edata = file_get_contents($templatepath);
 $edata = doSubs($edata);
