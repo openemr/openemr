@@ -101,7 +101,7 @@ function mergeRows($tblname, $colname, $source_pid, $target_pid)
     if ($count) {
         echo "<br />lists_touch count is ($count)";
         $source_array = array();
-        $source_sel = "SELECT * FROM " . $tblname . " WHERE `pid` = ?";
+        $source_sel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE `pid` = ?";
         $source_res = sqlStatement($source_sel, array($source_pid));
 
         $target_array = array();
