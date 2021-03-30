@@ -114,7 +114,8 @@ class BillingLogger
 
     public function appendToLog($message)
     {
-        $this->hlog .= $message;
+        // have the most recent claims on top in the log
+        $this->hlog = $message . $this->hlog;
     }
 
     public function hlog()
