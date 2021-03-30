@@ -63,15 +63,14 @@ class BillingLogger
 
     public function __construct()
     {
-        if ($GLOBALS['billing_log_option'] == 1) {
-            // Set up crypto object
-            $cryptoGen = new CryptoGen();
+        $this->cryptoGen = new CryptoGen();
 
+        if ($GLOBALS['billing_log_option'] == 1) {
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {
                 $this->hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
             }
-            if ($cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $cryptoGen->decryptStandard($this->hlog, null, 'database');
+            if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
+                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, null, 'database');
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';
@@ -88,10 +87,16 @@ class BillingLogger
      *
      * @return false|mixed
      */
-    public function onLogComplete()
+    public function onLogComplete($message)
     {
         if (isset($this->onLogCompleteCallback)) {
             call_user_func($this->onLogCompleteCallback);
+            if (!empty($message)) {
+                if ($GLOBALS['drive_encryption']) {
+                    $message = $this->cryptoGen->encryptStandard($message, null, 'database');
+                }
+                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $message);
+            }
         }
 
         return false;

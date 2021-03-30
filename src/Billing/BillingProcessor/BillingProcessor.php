@@ -97,7 +97,7 @@ class BillingProcessor
     {
         $claims = [];
         // Build the claims we actually want to process from the post
-        // The form pots all claims whether they were selected or not, and we
+        // The form posts all claims whether they were selected or not, and we
         // just want the claims that were selected by the user, which have 'bill'
         // index set on their array
         foreach ($this->post['claims'] as $claimId => $partner_and_payor) {
