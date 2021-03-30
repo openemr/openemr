@@ -19,14 +19,14 @@ namespace OpenEMR\Billing\BillingProcessor;
 
 class BillingClaim implements \JsonSerializable
 {
-    const STATUS_LEAVE_UNCHANGED = -1;
-    const STATUS_LEAVE_UNBILLED = 1;
-    const STATUS_MARK_AS_BILLED = 2;
+    public const STATUS_LEAVE_UNCHANGED = -1;
+    public const STATUS_LEAVE_UNBILLED = 1;
+    public const STATUS_MARK_AS_BILLED = 2;
 
-    const BILL_PROCESS_LEAVE_UNCHANGED = -1;
-    const BILL_PROCESS_OPEN = 0;
-    const BILL_PROCESS_IN_PROGRESS = 1;
-    const BILL_PROCESS_BILLED = 2;
+    public const BILL_PROCESS_LEAVE_UNCHANGED = -1;
+    public const BILL_PROCESS_OPEN = 0;
+    public const BILL_PROCESS_IN_PROGRESS = 1;
+    public const BILL_PROCESS_BILLED = 2;
 
     /**
      * NOT the database id in billing table,
@@ -73,10 +73,10 @@ class BillingClaim implements \JsonSerializable
     /**
      * Options for $payor_type
      */
-    const PRIMARY = 1;
-    const SECONDARY = 2;
-    const TERTIARY = 3;
-    const UNKNOWN = 0;
+    public const PRIMARY = 1;
+    public const SECONDARY = 2;
+    public const TERTIARY = 3;
+    public const UNKNOWN = 0;
 
     /**
      * Indicator for which processing format was selected for x-12

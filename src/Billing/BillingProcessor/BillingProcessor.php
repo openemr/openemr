@@ -156,25 +156,25 @@ class BillingProcessor
         $processing_task = null;
         if (isset($post['bn_reopen'])) {
             $processing_task = new Tasks\TaskReopen();
-        } else if (isset($post['bn_external'])) {
+        } elseif (isset($post['bn_external'])) {
             $processing_task = new Tasks\TaskMarkAsClear();
-        } else if ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
+        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction());
-        } else if ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
+        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction(), true);
-        } else if (isset($post['bn_x12'])) {
+        } elseif (isset($post['bn_x12'])) {
             $processing_task = new Tasks\GeneratorX12($this->extractAction());
-        } else if (isset($post['bn_x12_encounter'])) {
+        } elseif (isset($post['bn_x12_encounter'])) {
             $processing_task = new Tasks\GeneratorX12($this->extractAction(), true);
-        } else if (isset($post['bn_process_hcfa'])) {
+        } elseif (isset($post['bn_process_hcfa'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF($this->extractAction());
-        } else if (isset($post['bn_process_hcfa_form'])) {
+        } elseif (isset($post['bn_process_hcfa_form'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF_IMG($this->extractAction());
-        } else if (isset($post['bn_ub04_x12'])) {
+        } elseif (isset($post['bn_ub04_x12'])) {
             $processing_task = new Tasks\GeneratorUB04X12($this->extractAction());
-        } else if (isset($post['bn_process_ub04_form'])) {
+        } elseif (isset($post['bn_process_ub04_form'])) {
             $processing_task = new Tasks\GeneratorUB04Form_PDF($this->extractAction());
-        } else if (isset($post['bn_external'])) {
+        } elseif (isset($post['bn_external'])) {
             $processing_task = new Tasks\GeneratorExternal($this->extractAction());
         }
 
@@ -199,9 +199,9 @@ class BillingProcessor
         $action = null;
         if (isset($this->post['btn-clear'])) {
             $action = self::VALIDATE_AND_CLEAR;
-        } else if (isset($this->post['btn-validate'])) {
+        } elseif (isset($this->post['btn-validate'])) {
             $action = self::VALIDATE_ONLY;
-        } else if (isset($this->post['btn-continue'])) {
+        } elseif (isset($this->post['btn-continue'])) {
             $action = self::NORMAL;
         }
 
