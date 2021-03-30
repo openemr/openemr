@@ -87,15 +87,15 @@ class BillingLogger
      *
      * @return false|mixed
      */
-    public function onLogComplete($message)
+    public function onLogComplete()
     {
         if (isset($this->onLogCompleteCallback)) {
             call_user_func($this->onLogCompleteCallback);
-            if (!empty($message)) {
+            if (!empty($this->hlog)) {
                 if ($GLOBALS['drive_encryption']) {
-                    $message = $this->cryptoGen->encryptStandard($message, null, 'database');
+                    $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, 'database');
                 }
-                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $message);
+                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $this->hlog);
             }
         }
 

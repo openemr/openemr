@@ -128,8 +128,6 @@ class BillingClaim implements \JsonSerializable
         // Fetch the "target" which is essentially just an indicator for which x-12 partner was used
         $sql = "SELECT x.processing_format from x12_partners as x where x.id =?";
         $result = sqlQuery($sql, [$this->getPartner()]);
-        // assume it's a paper claim
-        $target = "hcfa";
         if (!empty($result['processing_format'])) {
             $target = $result['processing_format'];
         }

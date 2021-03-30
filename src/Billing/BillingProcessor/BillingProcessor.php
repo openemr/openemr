@@ -43,6 +43,7 @@
 namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Billing\BillingProcessor\Tasks;
+use OpenEMR\Common\Session\SessionUtil;
 
 class BillingProcessor
 {
@@ -86,7 +87,9 @@ class BillingProcessor
 
         // What task are we running, as directed by the user. Process the claims using
         // each Processing Task's execute method
-        $this->processClaims($processing_task, $claims);
+        if (!empty($claims)) {
+            $this->processClaims($processing_task, $claims);
+        }
 
         // Return our logger instance so any non-claim-specific data
         // can be written to the screen like notification, alerts, status, etc.
@@ -107,7 +110,7 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor);
-                if ($billingClaim->getPartner() == -1 && $billingClaim->getTarget() != 'hcfa') {
+                if (($billingClaim->getPartner() == -1) && ($_SESSION['bn_x12'])) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
                     continue;
@@ -154,6 +157,7 @@ class BillingProcessor
         // any writing or create a batch to send, we just perform validation
         // Normal operation will submit generate the files and submit
         $processing_task = null;
+        SessionUtil::unsetSession(['bn_x12']);
         if (isset($post['bn_reopen'])) {
             $processing_task = new Tasks\TaskReopen();
         } elseif (isset($post['bn_external'])) {
@@ -163,14 +167,17 @@ class BillingProcessor
         } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction(), true);
         } elseif (isset($post['bn_x12'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12($this->extractAction());
         } elseif (isset($post['bn_x12_encounter'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12($this->extractAction(), true);
         } elseif (isset($post['bn_process_hcfa'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF($this->extractAction());
         } elseif (isset($post['bn_process_hcfa_form'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF_IMG($this->extractAction());
         } elseif (isset($post['bn_ub04_x12'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorUB04X12($this->extractAction());
         } elseif (isset($post['bn_process_ub04_form'])) {
             $processing_task = new Tasks\GeneratorUB04Form_PDF($this->extractAction());

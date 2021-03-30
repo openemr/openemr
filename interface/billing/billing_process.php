@@ -60,6 +60,6 @@ $logger = $billingProcessor->execute();
     </div>
 </html>
 <?php
-$logger->onLogComplete($logger->hlog());
+$logger->onLogComplete();
 ?>
 </body>
