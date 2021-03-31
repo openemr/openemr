@@ -43,6 +43,7 @@
 namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Billing\BillingProcessor\Tasks;
+use OpenEMR\Common\Session\SessionUtil;
 
 class BillingProcessor
 {
@@ -86,7 +87,9 @@ class BillingProcessor
 
         // What task are we running, as directed by the user. Process the claims using
         // each Processing Task's execute method
-        $this->processClaims($processing_task, $claims);
+        if (!empty($claims)) {
+            $this->processClaims($processing_task, $claims);
+        }
 
         // Return our logger instance so any non-claim-specific data
         // can be written to the screen like notification, alerts, status, etc.
@@ -97,7 +100,7 @@ class BillingProcessor
     {
         $claims = [];
         // Build the claims we actually want to process from the post
-        // The form pots all claims whether they were selected or not, and we
+        // The form posts all claims whether they were selected or not, and we
         // just want the claims that were selected by the user, which have 'bill'
         // index set on their array
         foreach ($this->post['claims'] as $claimId => $partner_and_payor) {
@@ -107,7 +110,7 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor);
-                if ($billingClaim->getPartner() == -1) {
+                if (($billingClaim->getPartner() == -1) && ($_SESSION['bn_x12'])) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
                     continue;
@@ -154,27 +157,31 @@ class BillingProcessor
         // any writing or create a batch to send, we just perform validation
         // Normal operation will submit generate the files and submit
         $processing_task = null;
+        SessionUtil::unsetSession(['bn_x12']);
         if (isset($post['bn_reopen'])) {
             $processing_task = new Tasks\TaskReopen();
-        } else if (isset($post['bn_external'])) {
+        } elseif (isset($post['bn_external'])) {
             $processing_task = new Tasks\TaskMarkAsClear();
-        } else if ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
+        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction());
-        } else if ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
+        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction(), true);
-        } else if (isset($post['bn_x12'])) {
+        } elseif (isset($post['bn_x12'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12($this->extractAction());
-        } else if (isset($post['bn_x12_encounter'])) {
+        } elseif (isset($post['bn_x12_encounter'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12($this->extractAction(), true);
-        } else if (isset($post['bn_process_hcfa'])) {
+        } elseif (isset($post['bn_process_hcfa'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF($this->extractAction());
-        } else if (isset($post['bn_process_hcfa_form'])) {
+        } elseif (isset($post['bn_process_hcfa_form'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF_IMG($this->extractAction());
-        } else if (isset($post['bn_ub04_x12'])) {
+        } elseif (isset($post['bn_ub04_x12'])) {
+            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorUB04X12($this->extractAction());
-        } else if (isset($post['bn_process_ub04_form'])) {
+        } elseif (isset($post['bn_process_ub04_form'])) {
             $processing_task = new Tasks\GeneratorUB04Form_PDF($this->extractAction());
-        } else if (isset($post['bn_external'])) {
+        } elseif (isset($post['bn_external'])) {
             $processing_task = new Tasks\GeneratorExternal($this->extractAction());
         }
 
@@ -199,9 +206,9 @@ class BillingProcessor
         $action = null;
         if (isset($this->post['btn-clear'])) {
             $action = self::VALIDATE_AND_CLEAR;
-        } else if (isset($this->post['btn-validate'])) {
+        } elseif (isset($this->post['btn-validate'])) {
             $action = self::VALIDATE_ONLY;
-        } else if (isset($this->post['btn-continue'])) {
+        } elseif (isset($this->post['btn-continue'])) {
             $action = self::NORMAL;
         }
 

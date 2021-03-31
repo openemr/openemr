@@ -8,7 +8,9 @@
           <tr>
               <th>{xlt t='Name'}</th>
               <th>{xlt t='Address'}</th>
-              <th>{xlt t='City, State'}</th>
+              <th>{xlt t='City, State, ZIP'}</th>
+              <th>{xlt t='Phone'}</th>
+              <th>{xlt t='Fax'}</th>
               <th>{xlt t='Payer ID'}</th>
               <th>{xlt t='Default X12 Partner'}</th>
               <th>{xlt t='Deactivated'}</th>
@@ -23,14 +25,16 @@
                   </a>
               </td>
               <td>{$insurancecompany->address->line1|text} {$insurancecompany->address->line2|text}&nbsp;</td>
-              <td>{$insurancecompany->address->city|text} {$insurancecompany->address->state|upper|text}&nbsp;</td>
+              <td>{$insurancecompany->address->city|text} {$insurancecompany->address->state|upper|text} {$insurancecompany->address->zip|text}&nbsp;</td>
+              <td>{$insurancecompany->get_phone()|text}&nbsp;</td>
+              <td>{$insurancecompany->get_fax()|text}&nbsp;</td>
               <td>{$insurancecompany->cms_id|text}&nbsp;</td>
               <td>{$insurancecompany->get_x12_default_partner_name()|text}&nbsp;</td>
               <td>{if $insurancecompany->get_inactive() eq 1}{xlt t='Yes'}{/if}&nbsp;</td>
           </tr>
           {foreachelse}
           <tr>
-              <td colspan="6">{xlt t='No Insurance Companies Found'}</td>
+              <td colspan="8">{xlt t='No Insurance Companies Found'}</td>
           </tr>
           {/foreach}
       </tbody>

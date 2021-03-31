@@ -19,8 +19,8 @@ use OpenEMR\Services\FacilityService;
 
 class Claim
 {
-    const X12_VERSION = '005010X222A1';
-    const NOC_CODES = array('J3301'); // special handling for not otherwise classified HCPCS/CPT, not many so can add more here
+    public const X12_VERSION = '005010X222A1';
+    public const NOC_CODES = array('J3301'); // special handling for not otherwise classified HCPCS/CPT, not many so can add more here
 
     public $pid;               // patient id
     public $encounter_id;      // encounter id

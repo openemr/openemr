@@ -77,6 +77,12 @@
         </div>
     </div>
     <div class="form-row my-sm-2">
+        <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="fax" name="fax" class="form-control" value="{$insurancecompany->get_fax()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
         <label for="cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID'}</label>
         <div class="col-sm-8">
             <input type="text" id="cms_id" name="cms_id" class="form-control" value="{$insurancecompany->get_cms_id()|attr}" onKeyDown="PreventIt(event)">
