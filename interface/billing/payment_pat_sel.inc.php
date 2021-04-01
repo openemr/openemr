@@ -24,8 +24,12 @@ use OpenEMR\Billing\SLEOB;
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.
 //===============================================================================
 if (isset($_POST["mode"])) {
-    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && (($_REQUEST['hidden_patient_code'] ?? null) * 1 > 0)) {
-        $hidden_patient_code = $_REQUEST['hidden_patient_code'];
+    if (
+           ($_POST["mode"] == "search") || $_POST["default_search_patient"] == "default_search_patient"
+    ) {
+        &&
+           (isset($_REQUEST['hidden_patient_code']) && ((int)$_REQUEST['hidden_patient_code']) > 0))
+        ) $hidden_patient_code = $_REQUEST['hidden_patient_code'];
         $RadioPaid = $_REQUEST['RadioPaid'] ?? null;
         if ($RadioPaid == 'Show_Paid') {
             $StringForQuery = '';
