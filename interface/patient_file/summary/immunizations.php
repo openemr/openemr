@@ -93,6 +93,10 @@ if (isset($_GET['mode'])) {
         if ($GLOBALS['observation_results_immunization']) {
             saveImmunizationObservationResults($newid, $_GET);
         }
+        if ($GLOBALS['inhouse_pharmacy'] > 0) {
+            $decreaseInventoriedItem = new InventoryDecrementEvent($_GET['lot_number']);
+            $GLOBALS["kernel"]->getEventDispacher()->dispatch(InventoryDecrementEvent::EVENT_HANDLE, $decreaseInventoriedItem, 10);
+        }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
         EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
