@@ -673,7 +673,11 @@ function getCodeText($code)
             .then(response => response.json())
             .then(data => {
                 if (data.raw_search == null || data.raw_search.udi == null || data.raw_search.udi.udi == null) {
-                    document.getElementById('udi_display').innerHTML = jsText(<?php echo xlj('UDI search failed.'); ?>);
+                    errorMessage = <?php echo xlj('UDI search failed'); ?>;
+                    if (data.raw_search != null && data.raw_search.error != null) {
+                        errorMessage += ': ' + data.raw_search.error;
+                    }
+                    document.getElementById('udi_display').innerHTML = jsText(errorMessage);
                     document.getElementById('udi_data').value = '';
                 } else {
                     let dataJSON = JSON.stringify(data);
