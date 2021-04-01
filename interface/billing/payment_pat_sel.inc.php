@@ -25,11 +25,11 @@ use OpenEMR\Billing\SLEOB;
 //===============================================================================
 if (isset($_POST["mode"])) {
     if (
-           ($_POST["mode"] == "search") || $_POST["default_search_patient"] == "default_search_patient"
+           ($_POST["mode"] == "search") || ($_POST["default_search_patient"] == "default_search_patient") &&
+           isset($_REQUEST['hidden_patient_code']) &&
+           (int)$_REQUEST['hidden_patient_code'] > 0
     ) {
-        &&
-           (isset($_REQUEST['hidden_patient_code']) && ((int)$_REQUEST['hidden_patient_code']) > 0))
-        ) $hidden_patient_code = $_REQUEST['hidden_patient_code'];
+        $hidden_patient_code = $_REQUEST['hidden_patient_code'];
         $RadioPaid = $_REQUEST['RadioPaid'] ?? null;
         if ($RadioPaid == 'Show_Paid') {
             $StringForQuery = '';
