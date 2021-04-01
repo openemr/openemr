@@ -74,10 +74,13 @@ $target_element = $_GET['target_element'] ?? null;
         // Standard function with additional parameter to select which
         // element on the target page to place the selected code into.
         function selcode_target(codetype, code, selector, codedesc, target_element) {
-            if (opener.closed || !opener.set_related_target)
+            if (opener.closed || !opener.set_related_target) {
                 alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
-            else
-                opener.set_related_target(codetype, code, selector, codedesc, target_element);
+            } else {
+                // opener.set_related_target(codetype, code, selector, codedesc, target_element);
+               var msg = opener.set_related(codetype, code, selector, codedesc);
+               if (msg) alert(msg);
+            }
             dlgclose();
             return false;
         }
@@ -191,7 +194,7 @@ $focus = "document.theform.search_term.select();";
                     } else {
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
-                            $itertext = trim($row['code_text']);
+                            $itertext = ucfirst(strtolower(trim($row['code_text'])));
                             if (!empty($target_element)) {
                                 // add a 5th parameter to function to select the target element on the form for placing the code.
                                 $anchor = "<a href='' " .

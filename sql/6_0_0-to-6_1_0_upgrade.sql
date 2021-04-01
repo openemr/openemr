@@ -513,6 +513,24 @@ ALTER TABLE `billing` ADD COLUMN `chargecat` varchar(31) default '';
 
 #IfMissingColumn drug_sales chargecat
 ALTER TABLE `drug_sales` ADD COLUMN `chargecat` varchar(31) default '';
+
+#IfMissingColumn users_facility warehouse_id
+ALTER TABLE `users_facility` ADD COLUMN `warehouse_id` varchar(31) NOT NULL default '';
+ALTER TABLE `users_facility` DROP PRIMARY KEY, ADD PRIMARY KEY (`tablename`,`table_id`,`facility_id`,`warehouse_id`);
+#EndIf
+
+#IfNotColumnType drugs form varchar(31)
+ALTER TABLE `drugs` CHANGE `form`  `form`  varchar(31) NOT NULL default '0';
+#EndIf
+#IfNotColumnType drugs unit varchar(31)
+ALTER TABLE `drugs` CHANGE `unit`  `unit`  varchar(31) NOT NULL default '0';
+#EndIf
+#IfNotColumnType drugs route varchar(31)
+ALTER TABLE `drugs` CHANGE `route` `route` varchar(31) NOT NULL default '0';
+#EndIf
+
+#IfMissingColumn drug_templates pkgqty
+ALTER TABLE `drug_templates` ADD COLUMN `pkgqty` float NOT NULL DEFAULT 1.0 COMMENT 'Number of product items per template item';
 #EndIf
 
 #IfMissingColumn voids reason
@@ -556,3 +574,12 @@ ALTER TABLE `lists` ADD COLUMN `udi` varchar(255) default NULL;
 ALTER TABLE `lists` ADD COLUMN `udi_data` text;
 #EndIf
 
+#IfNotRow globals gl_name gbl_fac_warehouse_restrictions
+INSERT INTO `globals` (gl_name, gl_index, gl_value) SELECT 'gbl_fac_warehouse_restrictions', gl_index, gl_value
+  FROM globals WHERE gl_name = 'restrict_user_facility';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id chargecats
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`)
+  VALUES ('lists','chargecats','Customers', 1,0);
+#EndIf

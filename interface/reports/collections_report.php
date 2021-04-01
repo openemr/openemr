@@ -29,11 +29,16 @@ use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Acl\AclMain;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+}
+
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    die(xl("Unauthorized access."));
 }
 
 $alertmsg = '';

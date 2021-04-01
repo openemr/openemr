@@ -561,8 +561,8 @@ $config = 1; /////////////
         // xl('Menus')
         $gacl->add_object_section('Groups', 'groups', 10, 0, 'ACO');
         // xl('Groups')
-
-
+        $gacl->add_object_section('Inventory', 'inventory', 10, 0, 'ACO');
+        // xl('Inventory')
 
         // Create Accounting ACOs.
         //
@@ -597,8 +597,8 @@ $config = 1; /////////////
         // xl('Batch Communication Tool')
         $gacl->add_object('admin', 'Language Interface Tool', 'language', 10, 0, 'ACO');
         // xl('Language Interface Tool')
-        $gacl->add_object('admin', 'Pharmacy Dispensary', 'drugs', 10, 0, 'ACO');
-        // xl('Pharmacy Dispensary')
+        $gacl->add_object('admin', 'Inventory Administration', 'drugs', 10, 0, 'ACO');
+        // xl('Inventory Administration')
         $gacl->add_object('admin', 'ACL Administration', 'acl', 10, 0, 'ACO');
         // xl('ACL Administration')
         $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
@@ -713,6 +713,25 @@ $config = 1; /////////////
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
+        // Create ACOs for Inventory.
+        //
+        $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
+        // xl('Lots')
+        $gacl->add_object('inventory', 'Sales', 'sales', 20, 0, 'ACO');
+        // xl('Sales')
+        $gacl->add_object('inventory', 'Purchases', 'purchases', 30, 0, 'ACO');
+        // xl('Purchases')
+        $gacl->add_object('inventory', 'Transfers', 'transfers', 40, 0, 'ACO');
+        // xl('Transfers')
+        $gacl->add_object('inventory', 'Adjustments', 'adjustments', 50, 0, 'ACO');
+        // xl('Adjustments')
+        $gacl->add_object('inventory', 'Consumption', 'consumption', 60, 0, 'ACO');
+        // xl('Consumption')
+        $gacl->add_object('inventory', 'Destruction', 'destruction', 70, 0, 'ACO');
+        // xl('Destruction')
+        $gacl->add_object('inventory', 'Reporting', 'reporting', 80, 0, 'ACO');
+        // xl('Reporting')
+
         // Create ARO groups.
         //
         $users = $gacl->add_group('users', 'OpenEMR Users', 0, 'ARO');
@@ -759,6 +778,7 @@ $config = 1; /////////////
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
                 'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
                 'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
+                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
                 'lists' => array('default','state','country','language','ethrace'),
                 'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
                 'sensitivities' => array('normal', 'high'),
@@ -1036,6 +1056,7 @@ $config = 1; /////////////
                 'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
                 'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
                 'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
+                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
                 'lists' => array('default','state','country','language','ethrace'),
                 'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
                 'sensitivities' => array('normal', 'high'),

@@ -1128,7 +1128,7 @@ $GLOBALS_METADATA = array(
         'default_rendering_provider' => array(
             xl('Default Rendering Provider in Fee Sheet'),
             array(
-                '0' => xl('Please Select'),
+                '0' => xl('Logged in User if provider, otherwise Current Provider'),
                 '1' => xl('Current Provider'),
                 '2' => xl('Current Logged in User'),
             ),
@@ -1993,6 +1993,13 @@ $GLOBALS_METADATA = array(
             'num',                            // data type
             '0',                              // default
             xl('Maximum Failed Login Attempts (0 for no maximum).')
+        ),
+
+        'gbl_fac_warehouse_restrictions' => array(
+            xl('Enable Facility/Warehouse Permissions'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable facility/warehouse restrictions in the user administration form.')
         ),
 
         'is_client_ssl_enabled' => array(
@@ -3821,6 +3828,233 @@ $GLOBALS_METADATA = array(
 
     ),
 );
+
+if (!empty($GLOBALS['ippf_specific'])) {
+    $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = array(
+
+        'gbl_menu_stats_ippf' => array(
+            xl('IPPF Statistics Reporting'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('IPPF statistical reports.')
+        ),
+
+        'gbl_menu_stats_gcac' => array(
+            xl('GCAC Statistics Reporting'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('GCAC statistical reports.')
+        ),
+
+        'gbl_menu_stats_ma' => array(
+            xl('MA Statistics Reporting'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('MA statistical reports.')
+        ),
+
+        'gbl_menu_stats_cyp' => array(
+            xl('CYP Statistics Reporting'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('CYP statistical reports.')
+        ),
+
+        'gbl_menu_stats_daily' => array(
+            xl('Daily Statistics Reporting'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Daily statistical reports.')
+        ),
+
+        'gbl_menu_stats_c3' => array(
+            xl('C3 Statistics Reporting'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('C3 statistical reports.')
+        ),
+
+        'gbl_menu_stats_cc' => array(
+            xl('Cervical Cancer Reporting'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Cervical cancer statistical reports.')
+        ),
+
+        'gbl_menu_stats_sinadi' => array(
+            xl('SINADI Report'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Uruguay SINADI statistical report.')
+        ),
+
+        'gbl_menu_visits_by_item' => array(
+            xl('Visits by Item Report'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Visits by Item Report.')
+        ),
+
+        'gbl_menu_acct_trans' => array(
+            xl('Accounting Transactions Export'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Accounting transactions export to CSV')
+        ),
+
+        'gbl_menu_projects' => array(
+            xl('Restricted Projects Reporting'),
+            'bool', // data type
+            '0', // default
+            xl('For IPPF Belize and maybe others')
+        ),
+
+        'gbl_menu_surinam_insurance' => array(
+            xl('LOBI Insurers Report'),
+            'bool', // data type
+            '0', // default
+            xl('For IPPF Suriname and maybe others')
+        ),
+
+        'gbl_menu_netsuite' => array(
+            xl('NetSuite Reports'),
+            'bool', // data type
+            '0', // default
+            xl('For NetSuite financial integration')
+        ),
+
+        'gbl_menu_ive_clients' => array(
+            xl('IVE Client List'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Client List of IVE Activity')
+        ),
+
+        'gbl_menu_shifts' => array(
+            xl('Shifts Reporting'),
+            'bool', // data type
+            '0', // default
+            xl('For IPPF Argentina and maybe others')
+        ),
+
+        'gbl_menu_service_and_client_volume' => array(
+            xl('Service and Client Volume Report'),
+            'bool', // data type
+            '1', // default
+            xl('Service and client volume report')
+        ),
+    );
+
+    $GLOBALS['GLOBALS_METADATA']['IPPF Features'] = array(
+
+        'gbl_rapid_workflow' => array(
+            xl('Rapid Workflow Option'),
+            array(
+                '0'        => xl('None'),
+                'LBFmsivd' => xl('MSI (requires LBFmsivd form)'),
+                'fee_sheet' => xl('Fee Sheet and Checkout'),
+            ),
+            '0',                              // default
+            xl('Activates custom work flow logic')
+        ),
+
+        'gbl_new_acceptor_policy' => array(
+            xl('New Acceptor Policy'),
+            array(
+                '0' => xl('Not applicable'),
+                '1' => xl('Simplified; Contraceptive Start Date on Tally Sheet'),
+                '3' => xl('Contraception Form; Acceptors New to Modern Contraception'),
+            ),
+            '1',                              // default
+            xl('Applicable only for family planning clinics')
+        ),
+
+        'gbl_min_max_months' => array(
+            xl('Min/Max Inventory as Months'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Min/max inventory is expressed as months of supply instead of units')
+        ),
+
+        'gbl_restrict_provider_facility' => array(
+            xl('Restrict Providers by Facility'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Limit service provider selection according to the facility of the logged-in user.')
+        ),
+
+        'gbl_checkout_line_adjustments' => array(
+            xl('Adjustments at Checkout'),
+            array(
+                '0' => xl('Invoice Level Only'),
+                '1' => xl('Line Items Only'),
+                '2' => xl('Invoice and Line Levels'),
+            ),
+            '1',                              // default = line items only
+            xl('Discounts at checkout time may be entered per invoice or per line item or both.')
+        ),
+
+        'gbl_checkout_charges' => array(
+            xl('Unit Price in Checkout and Receipt'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Include line item unit price amounts in checkout and receipts.')
+        ),
+
+        'gbl_charge_categories' => array(
+            xl('Customers in Checkout and Receipt'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Include Customers in checkout and receipts. See the Customers list.')
+        ),
+
+        'gbl_auto_create_rx' => array(
+            xl('Automatically Create Prescriptions'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Prescriptions may be created from the Fee Sheet.')
+        ),
+
+        'gbl_checkout_receipt_note' => array(
+            xl('Checkout Receipt Note'),
+            'text',                           // data type
+            '',
+            xl('This note goes on the bottom of every checkout receipt.')
+        ),
+
+        'gbl_custom_receipt' => array(
+            xl('Custom Checkout Receipt'),
+            array(
+                '0'                                => xl('None'),
+                'checkout_receipt_general.inc.php' => xl('POS Printer'),
+                'checkout_receipt_panama.inc.php'  => xl('Panama'),
+            ),
+            '0',                              // default
+            xl('Present an additional PDF custom receipt after checkout.')
+        ),
+
+        'gbl_ma_ippf_code_restriction' => array(
+            xl('Allow More than one MA/IPPF code mapping'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Disable the restriction of only one IPPF code per MA code in superbill')
+        ),
+
+        'gbl_uruguay_asse_url' => array(
+            xl('Uruguay ASSE URL'),
+            'text',                           // data type
+            '',
+            xl('URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.')
+        ),
+
+        'gbl_uruguay_asse_token' => array(
+            xl('Uruguay ASSE Token'),
+            'text',                           // data type
+            '',
+            xl('Token for connection to ASSE SOAP server')
+        ),
+    );
+} // end if ippf_specific
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));

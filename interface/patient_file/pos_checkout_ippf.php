@@ -1523,7 +1523,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         array($patient_id, $encounter_id)
     );
 
-    $form_amount = $_POST['form_amount'];
+    $form_amount = $_POST['form_totalpay'];
     $lines = $_POST['line'];
 
     for ($lino = 0; !empty($lines[$lino]['code_type']); ++$lino) {
@@ -1531,7 +1531,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         $code_type = $line['code_type'];
         $code      = $line['code'];
         $id        = $line['id'];
-        $chargecat = $line['chargecat'];
+        $chargecat = $line['chargecat'] ?? '';
         $amount    = formatMoneyNumber(trim($line['amount']));
         $linetax   = 0;
 
@@ -1551,7 +1551,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             foreach ($taxes as $taxid => $taxarr) {
                 $taxamount = $line['tax'][$i++] + 0;
                 if ($taxamount != 0) {
-                    addBilling(
+                    BillingUtilities::addBilling(
                         $encounter_id,
                         'TAX',
                         $taxid,
@@ -1723,7 +1723,14 @@ $form_notes  = empty($_GET['form_notes' ]) ? '' : $_GET['form_notes'];
 // If "regen" encounter ID was given, then we must generate a new receipt ID.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
-    BillingUtilities::doVoid($patient_id, $encounter_id, false, '', $form_reason, $form_notes);
+    BillingUtilities::doVoid(
+        $patient_id,
+        $encounter_id,
+        false,
+        '',
+        $form_reason,
+        $form_notes
+    );
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
     $_GET['enc'] = $encounter_id;
 }

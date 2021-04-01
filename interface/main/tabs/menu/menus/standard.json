@@ -560,11 +560,7 @@
         "target": "adm",
         "url": "/interface/drugs/drug_inventory.php",
         "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "drugs"
-        ]
+        "requirement": 0
       },
       {
         "label": "Destroyed",
@@ -573,13 +569,24 @@
         "url": "/interface/reports/destroyed_drugs_report.php",
         "children": [],
         "requirement": 0,
-        "acl_req": [
-          "admin",
-          "drugs"
-        ]
+          "acl_req": [
+            ["admin", "drugs"],
+            ["inventory", "reporting"]
+          ]
       }
     ],
     "requirement": 0,
+    "acl_req": [
+      ["admin", "drugs"],
+      ["inventory", "lots"],
+      ["inventory", "purchases"],
+      ["inventory", "transfers"],
+      ["inventory", "adjustments"],
+      ["inventory", "consumption"],
+      ["inventory", "destruction"],
+      ["inventory", "sales"],
+      ["inventory", "reporting"]
+    ],
     "global_req": "inhouse_pharmacy"
   },
   {
@@ -1743,6 +1750,107 @@
               "acct",
               "rep_a"
             ]
+          },
+          {
+            "label": "Peachtree Export",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/export_accounting_transactions.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ]
+          },
+          {
+            "label": "NetSuite Export",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/netsuite_export.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ],
+            "global_req": "gbl_menu_netsuite"
+          },
+          {
+            "label": "NetSuite Mapping",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/netsuite_mapping.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ],
+            "global_req": "gbl_menu_netsuite"
+          },
+          {
+            "label": "Projects",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/restricted_projects_report.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ],
+            "global_req": "gbl_menu_projects"
+          },
+          {
+            "label": "LOBI Insurers Report",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/surinam_insurance_report.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ],
+            "global_req": "gbl_menu_surinam_insurance"
+          },
+          {
+            "label": "LOBI SZF Report",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/surinam_szf_report.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ],
+            "global_req": "gbl_menu_surinam_insurance"
+          },
+          {
+            "label": "Visit Voids and Changes",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/reopened_visits_report.php?form=0",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ]
+          },
+          {
+            "label": "Visit Voids and Changes",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/reopened_visits_report.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ]
           }
         ],
         "requirement": 0
@@ -1756,36 +1864,28 @@
             "url": "/interface/reports/inventory_list.php",
             "target": "rep",
             "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "admin",
-              "drugs"
-            ]
+            "requirement": 0
           },
           {
             "label": "Activity",
             "url": "/interface/reports/inventory_activity.php",
             "target": "rep",
             "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "admin",
-              "drugs"
-            ]
+            "requirement": 0
           },
           {
             "label": "Transactions",
             "url": "/interface/reports/inventory_transactions.php",
             "target": "rep",
             "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "admin",
-              "drugs"
-            ]
+            "requirement": 0
           }
         ],
         "requirement": 0,
+        "acl_req": [
+          ["admin", "drugs"],
+          ["inventory", "reporting"]
+        ],
         "global_req": "inhouse_pharmacy"
       },
       {
