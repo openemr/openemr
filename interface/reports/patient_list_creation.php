@@ -158,7 +158,6 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 
             $(function () {
                 $(".numeric_only").keydown(function(event) {
-                    //alert(event.keyCode);
                     // Allow only backspace and delete
                     if ( event.keyCode == 46 || event.keyCode == 8 ) {
                         // let it happen, don't do anything
@@ -192,6 +191,28 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                  var win = top.printLogPrint ? top : opener.top;
                  win.printLogPrint(window);
             }
+
+            function srch_option_change(elem) {
+                $('#sortby').val('');
+                $#sortorder').val('');
+
+                if(elem.value == 'Communication') { 
+                    $('#communication').val('');
+                    $('#com_pref').show();
+                } else { 
+                    $('#communication').val('');
+                    $('#com_pref').hide();
+                }
+                
+                if(elem.value == 'Insurance Companies') { 
+                    $('#insurance_companies').val('');
+                    $('#ins_co').show();
+                } else { 
+                    $('#insurance_companies').val('');
+                    $('#ins_co').hide();
+                    }
+            }
+
         </script>
     </head>
 
@@ -245,9 +266,11 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                                 </td>
                                 <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='col-form-label'>
-                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}if(this.value == 'Insurance Companies'){ $('#insurance_companies').val('');$('#ins_co').show();}else{ $('#insurance_companies').val('');$('#ins_co').hide();}">
+                                    <select class="form-control" name="srch_option" id="srch_option" 
+                                        onchange="srch_option_change(this)">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
-                                            <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                            <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> 
+                                            value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -502,9 +525,9 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                     break;
                 case "Insurance Companies":
                     //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "insurance_companies");
+                    $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "insurance_companies");
                     if ($sortby == "") {
-                        $sortby = $sort[6];
+                        $sortby = $sort[7];
                     }
 
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
