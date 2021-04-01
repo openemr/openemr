@@ -19,6 +19,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Events\Inventory\InventoryDecrementEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 
 if (isset($_GET['mode'])) {
