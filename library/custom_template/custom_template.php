@@ -54,6 +54,9 @@ if (empty($isNN)) {
 }
 // either NN context from layout or text template default.
 $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", array($contextName));
+if (empty($isNN) && empty($rowContext)) {
+    $contextName .= " <small><em>(" . xlt("Add Missing Context Template.") . ")</em></small>";
+}
 ?>
 <html>
 <head>
@@ -176,7 +179,8 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_
 <div class="container-fluid">
   <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
   <?php if ($rowContext['cl_list_item_long'] || !$isNN) { ?>
-  <h3 class="text-center"><?php echo text($rowContext['cl_list_item_long']); ?></h3>
+  <!-- don't escape $contextName it's html -->
+  <h3 class="text-center"><?php echo $rowContext['cl_list_item_long'] ? text($rowContext['cl_list_item_long']) : $contextName; ?></h3>
     <div id="tab1" class="tabset_content tabset_content_active">
         <form id="mainForm">
             <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>" />
