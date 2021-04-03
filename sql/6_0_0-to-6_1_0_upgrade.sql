@@ -598,20 +598,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 #EndIf
 
-#IfNotTable form_care_plan
-CREATE TABLE `form_care_plan` (
-  `id` bigint(20) NOT NULL,
-  `date` date DEFAULT NULL,
-  `pid` bigint(20) DEFAULT NULL,
-  `encounter` varchar(255) DEFAULT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) DEFAULT NULL,
-  `activity` tinyint(4) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `codetext` text,
-  `description` text,
-  `external_id` varchar(30) DEFAULT NULL,
-  `care_plan_type` varchar(30) DEFAULT NULL
+#IfNotTable form_clinical_notes
+CREATE TABLE `form_clinical_notes` (
+    `id` bigint(20) NOT NULL,
+    `date` DATE DEFAULT NULL,
+    `pid` bigint(20) DEFAULT NULL,
+    `encounter` varchar(255) DEFAULT NULL,
+    `user` varchar(255) DEFAULT NULL,
+    `groupname` varchar(255) DEFAULT NULL,
+    `authorized` tinyint(4) DEFAULT NULL,
+    `activity` tinyint(4) DEFAULT NULL,
+    `code` varchar(255) DEFAULT NULL,
+    `codetext` text,
+    `description` text,
+    `external_id` VARCHAR(30) DEFAULT NULL,
+    `clinical_notes_type` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB;
+INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`) VALUES ('Clinical Notes', 1, 'clinical_notes', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '', 1, 0, 'encounters|notes');
 #EndIf

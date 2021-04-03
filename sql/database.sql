@@ -7446,7 +7446,7 @@ CREATE TABLE `registry` (
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22;
+) ENGINE=InnoDB AUTO_INCREMENT=25;
 
 --
 -- Inserting data for table `registry`
