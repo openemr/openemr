@@ -185,7 +185,7 @@ $iTotal = $row['count'];
 if (empty($where)) {
     $where = $customWhere;
 } else {
-    $where = "$customWhere AND $where";
+    $where = "$customWhere AND ( $where )";
 }
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
