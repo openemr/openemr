@@ -364,10 +364,10 @@ foreach (
   <td>
    <input type='checkbox' name='form_show_empty' value='1'<?php if ($form_show_empty) {
         echo " checked";} ?> />
-   <?php echo xl('Show empty lots'); ?><br />
+   <?php echo xlt('Show empty lots'); ?><br />
    <input type='checkbox' name='form_show_inactive' value='1'<?php if ($form_show_inactive) {
         echo " checked";} ?> />
-   <?php echo xl('Show inactive'); ?>
+   <?php echo xlt('Show inactive'); ?>
   </td>
   <td>
    <input type='submit' name='form_refresh' value="<?php echo xla('Refresh'); ?>" />
