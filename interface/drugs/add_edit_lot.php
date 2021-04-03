@@ -274,7 +274,7 @@ td {
 <?php } else { // target lot is not known yet ?>
     showOnHand       = false;
 <?php } ?>
-    labelWarehouse = '<?php echo xlt('Destination Warehouse'); ?>';
+    labelWarehouse = <?php echo xlj('Destination Warehouse'); ?>;
   }
   else if (type == '5') { // adjustment
     showCost = false;
