@@ -452,7 +452,7 @@ class EDI270
                 $X12info = self::getX12Partner($row['partner']);
             }
             if ($row['providerID'] === 0 || !$row['provider_npi']) {
-                $error_accum .= xlt("Error") . ": " . xlt("Provider Missing NPI") . "\n";
+                $error_accum .= xlt("Error") . ": " . xlt("Provider Missing NPI or Provider not selected in choices") . "\n";
             }
             if (!$row['eligibility_id']) {
                 $error_accum .= xlt("Error") . ": " . xlt("Missing Insurance Payer Id") . "\n";
