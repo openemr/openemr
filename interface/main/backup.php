@@ -553,7 +553,7 @@ if ($form_step == 202) {
         if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
             $form_status .= xla('Applying') . "...<br />";
             echo nl2br($form_status);
-            $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
+            $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
             " -p" . escapeshellarg($sqlconf["pass"]) .
             " -h " . escapeshellarg($sqlconf["host"]) .
             " --port=" . escapeshellarg($sqlconf["port"]) .
