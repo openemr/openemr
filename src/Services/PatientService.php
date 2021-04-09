@@ -17,6 +17,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
+use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Validators\PatientValidator;
@@ -120,6 +122,11 @@ class PatientService extends BaseService
             $data['pubpid'] = $freshPid;
         }
 
+        // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
+        $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientCreatedEvent::EVENT_HANDLE, $beforePatientCreatedEvent, 10);
+        $data = $beforePatientCreatedEvent->getPatientData();
+
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO patient_data SET ";
         $sql .= $query['set'];
@@ -189,6 +196,12 @@ class PatientService extends BaseService
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
         $table = PatientService::TABLE_NAME;
+
+        // Fire the "before patient updated" event so listeners can do extra processing before data is updated
+        $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $data = $beforePatientUpdatedEvent->getPatientData();
+
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE $table SET ";
         $sql .= $query['set'];
@@ -229,6 +242,11 @@ class PatientService extends BaseService
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
+
+        // Fire the "before patient updated" event so listeners can do extra processing before data is updated
+        $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE patient_data SET ";
