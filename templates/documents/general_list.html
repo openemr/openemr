@@ -42,8 +42,6 @@ border-radius: 4px 0 0 4px!important;
         let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {if !empty($patient_id)}{$patient_id|js_url}{/if} + '&catid=' + {if !empty($category_id)}{$category_id|js_url}{/if} + '&is_module=true&new=' + tname;
 		location.assign(callUrl);
 	{literal}}{/literal}
-	// dropzone javascript asset translation(s)
-    Dropzone.prototype.defaultOptions.dictDefaultMessage = {xlj t='Drop files here to upload'};
 </script>
 <title>{xlt t='Documents'}</title>
 </head>
