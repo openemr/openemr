@@ -393,7 +393,7 @@ EXP;
     private function headerActionJs($arrAction = array())
     {
         $arrAction = $this->arrAction;
-        $page = str_replace(" ", "", $this->heading);
+        $page = attr(str_replace(" ", "", $this->heading));
 
         // Build the labels for when the icon is moused-over
         $labels = "";

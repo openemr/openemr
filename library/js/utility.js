@@ -26,30 +26,33 @@ function xl(string) {
 // html escaping functions - special case when sending js string to html (see codebase for examples)
 //   jsText (equivalent to text() )
 //   jsAttr (equivalent to attr() )
-const htmlEscapesText = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;'
-};
-const htmlEscapesAttr = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;'
-};
-const htmlEscaperText = /[&<>]/g;
-const htmlEscaperAttr = /[&<>"']/g;
-jsText = function(string) {
-    return ('' + string).replace(htmlEscaperText, function(match) {
-        return htmlEscapesText[match];
-    });
-};
-jsAttr = function(string) {
-    return ('' + string).replace(htmlEscaperAttr, function(match) {
-        return htmlEscapesAttr[match];
-    });
-};
+// must be careful assigning const in this script. can't reinit a constant
+if (typeof htmlEscapesText === 'undefined') {
+    const htmlEscapesText = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;'
+    };
+    const htmlEscapesAttr = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;'
+    };
+    const htmlEscaperText = /[&<>]/g;
+    const htmlEscaperAttr = /[&<>"']/g;
+    jsText = function (string) {
+        return ('' + string).replace(htmlEscaperText, function (match) {
+            return htmlEscapesText[match];
+        });
+    };
+    jsAttr = function (string) {
+        return ('' + string).replace(htmlEscaperAttr, function (match) {
+            return htmlEscapesAttr[match];
+        });
+    };
+}
 
 // another useful function
 async function syncFetchFile(fileUrl, type = 'text') {
@@ -344,7 +347,7 @@ function oeSortable(callBackFn) {
         })
     }
 
-};
+}
 
 
 /*
