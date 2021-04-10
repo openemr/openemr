@@ -183,6 +183,7 @@ function setEncounter(id)
 
 function chooseEncounterEvent(data,evt)
 {
+    top.restoreSession();
     setEncounter(data.id());
     goToEncounter(data.id());
 }
@@ -199,6 +200,7 @@ function goToEncounter(encId)
 
 function reviewEncounter(encId)
 {
+    top.restoreSession();
     var url=webroot_url+'/interface/patient_file/encounter/forms.php?review_id=' + encId;
     navigateTab(url,"rev",function () {
         activateTabByName("rev",true);
