@@ -35,7 +35,8 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            sockets \
                            tokenizer \
                            xmlreader \
-                           calendar
+                           calendar \
+                           intl
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini

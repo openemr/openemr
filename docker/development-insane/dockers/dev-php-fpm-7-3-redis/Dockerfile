@@ -36,6 +36,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            tokenizer \
                            xmlreader \
                            calendar \
+                           intl \
                            redis
 
 # Copy over the php.ini conf
