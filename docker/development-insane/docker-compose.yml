@@ -330,9 +330,9 @@ services:
     image: mariadb:10.5
     command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     volumes:
-    - ./sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
-    - ./sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
-    - ./sql-ssl-certs-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
+    - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
+    - ../library/sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ../library/sql-ssl-certs-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb:
@@ -389,10 +389,10 @@ services:
     - 5984:5984
     - 6984:6984
     volumes:
-    - ./couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
-    - ./couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
-    - ./couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
-    - ./couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
+    - ../library/couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
+    - ../library/couchdb-config-ssl-cert-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
+    - ../library/couchdb-config-ssl-cert-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ../library/couchdb-config-ssl-cert-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
     - couchdbvolume:/opt/couchdb/data
     environment:
       COUCHDB_USER: admin
@@ -441,9 +441,9 @@ services:
     - 9157:457
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - ./dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
-    - ./dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
+    - ../library/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ../library/dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
+    - ../library/dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
     - dev-php-fpm-5-6
     - dev-php-fpm-7-0
@@ -464,7 +464,7 @@ services:
     image: openemr/dev-php-fpm:5.6
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0:
@@ -472,7 +472,7 @@ services:
     image: openemr/dev-php-fpm:7.0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1:
@@ -480,7 +480,7 @@ services:
     image: openemr/dev-php-fpm:7.1
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2:
@@ -488,7 +488,7 @@ services:
     image: openemr/dev-php-fpm:7.2
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3:
@@ -496,7 +496,7 @@ services:
     image: openemr/dev-php-fpm:7.3
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4:
@@ -504,7 +504,7 @@ services:
     image: openemr/dev-php-fpm:7.4
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-4/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-4/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0:
@@ -512,7 +512,7 @@ services:
     image: openemr/dev-php-fpm:8.0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-0/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-1:
@@ -520,7 +520,7 @@ services:
     image: openemr/dev-php-fpm:8.1
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-8-1/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-1/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-5-6-redis:
@@ -528,7 +528,7 @@ services:
     image: openemr/dev-php-fpm:5.6-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-0-redis:
@@ -536,7 +536,7 @@ services:
     image: openemr/dev-php-fpm:7.0-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-1-redis:
@@ -544,7 +544,7 @@ services:
     image: openemr/dev-php-fpm:7.1-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-2-redis:
@@ -552,7 +552,7 @@ services:
     image: openemr/dev-php-fpm:7.2-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3-redis:
@@ -560,7 +560,7 @@ services:
     image: openemr/dev-php-fpm:7.3-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-4-redis:
@@ -568,7 +568,7 @@ services:
     image: openemr/dev-php-fpm:7.4-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-7-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-7-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-0-redis:
@@ -576,7 +576,7 @@ services:
     image: openemr/dev-php-fpm:8.0-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-1-redis:
@@ -584,7 +584,7 @@ services:
     image: openemr/dev-php-fpm:8.1-redis
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ./dockers/dev-php-fpm-8-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
