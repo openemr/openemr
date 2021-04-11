@@ -639,7 +639,7 @@ var page = {
             page.onsiteDocument.fetch({
                 success: function () {
                     if (page.isDashboard || page.onsiteDocument.get('denialReason') === 'Locked') {
-                        page.renderModelView(true); // @todo TBD when should delete be allowed?
+                        page.renderModelView(false); // @todo TBD when should delete be allowed?
                     } else {
                         page.renderModelView(true);
                     }
