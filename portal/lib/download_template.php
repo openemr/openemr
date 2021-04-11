@@ -38,7 +38,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 $form_filename = $_POST['docid'];
 $pid = $_POST['pid'];
-$user = $_SESSION['authUserID'];
+$user = $_SESSION['authUserID'] ?? $_SESSION['sessionUser'];
 
 $nextLocation = 0; // offset to resume scanning
 $keyLocation = false; // offset of a potential {string} to replace
@@ -137,12 +137,12 @@ function doSubs($s)
 
         if (keySearch($s, '{PatientSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
