@@ -29,12 +29,25 @@ $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which l
 // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
 // which is needed to import data in the Administration->Other->External Data Loads feature.
 // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-$database->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+$database->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
+$database->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
 // Set mysql to use ssl, if applicable.
 // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
 // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
 if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     if (defined('MYSQLI_CLIENT_SSL')) {
+        if (
+            file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+            file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+        ) {
+            // with client side certificate/key
+            $database->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+            $database->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+        } else {
+            // without client side certificate/key
+            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+        }
         $database->clientFlags = MYSQLI_CLIENT_SSL;
     }
 }
@@ -727,12 +740,25 @@ function getPrivDB()
             // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
             // which is needed to import data in the Administration->Other->External Data Loads feature.
             // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-            $GLOBALS['PRIV_DB']->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
+            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
             // Set mysql to use ssl, if applicable.
             // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
             // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
                 if (defined('MYSQLI_CLIENT_SSL')) {
+                    if (
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+                    ) {
+                        // with client side certificate/key
+                        $GLOBALS['PRIV_DB']->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                        $GLOBALS['PRIV_DB']->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    } else {
+                        // without client side certificate/key
+                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    }
                     $GLOBALS['PRIV_DB']->clientFlags = MYSQLI_CLIENT_SSL;
                 }
             }

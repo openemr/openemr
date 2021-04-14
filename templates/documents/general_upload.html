@@ -69,6 +69,7 @@
 <!-- Drag and drop uploader -->
 <div id="autouploader">
     <form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
+        <div class="dz-message" data-dz-message><span>{xlj t='Drop files here to upload'}</span></div>
         <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
     </form>
 </div>

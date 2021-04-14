@@ -19,7 +19,6 @@
 require_once(dirname(__FILE__) . "/../../../library/sqlconf.php");
 require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(dirname(__FILE__) . "/../../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-require_once(dirname(__FILE__) . "/../../../library/ADODB_mysqli_mod.php");
 
 // Modified 5/2009 by BM for UTF-8 project
 global $host,$port,$login,$pass,$dbase,$db_encoding,$disable_utf8_flag;
@@ -37,7 +36,7 @@ if (!$disable_utf8_flag) {
 
 $pnconfig['modname'] = "PostCalendar";
 $pnconfig['startpage'] = "PostCalendar";
-$pnconfig['dbtype'] = 'mysqli_mod';
+$pnconfig['dbtype'] = 'mysqli';
 $pnconfig['dbtabletype'] = 'MyISAM';
 $pnconfig['dbhost'] = $host;
 $pnconfig['dbport'] = $port;
