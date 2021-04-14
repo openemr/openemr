@@ -1,0 +1,16 @@
+{
+  "name": "openemr/oe-module-inventory",
+  "description": "Inventory Module",
+  "type": "openemr-module",
+  "minimum-stability": "stable",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Sherwin",
+      "email": "sherwingaddis@gmail.com"
+    }
+  ],
+  "require": {
+    "openemr/oe-module-installer-plugin": "^0.1.0"
+  }
+}

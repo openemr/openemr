@@ -9,27 +9,29 @@
 
 namespace OpenEMR\Application\Listener;
 
-use OpenEMR\Inventory\InventoryDecrement;
-use OpenEMR\Events\Inventory\InventoryDecrementEvent;
+use OpenEMR\Events\Inventory\InventoryChangeEvent;
+use Symfony\Component\EventSubscriber\EventSubscriberInterface;
 
 class InventorySubscriber implements EventSubscriberInterface
 {
-    public function __construct()
-    {
-    }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            InventoryDecrementEvent::INVENTORY_UPDATE => 'onDispensingItem'
+            InventoryChangeEvent::INVENTORY_DECREMENT => 'onDispensingItem',
+            InventoryChangeEvent::INVENTORY_INCREMENT => 'onInventoryAdd'
+
         ];
     }
 
-    public function onDispensingItem(InventoryDecrementEvent $decreaseInventoriedItem)
+    public function onDispensingItem(InventoryChangeEvent $event)
     {
-        $inventoryItem = $decreaseInventoriedItem->getInventory();
-        $changeInventoryAmount = new InventoryDecrement();
-        $changeInventoryAmount->decrementInventory($inventoryItem);
-
+        echo "decreased inventory"; var_dump($event);
     }
+
+    public function onInventoryAdd(InventoryChangeEvent $event)
+    {
+        echo "increased inventory"; var_dump($event);
+    }
+
 }
