@@ -30,11 +30,11 @@ class InventorySubscriber implements EventSubscriberInterface
          * This is where the dispatch system can carry out the work of doing the inventory
          * it can be connected to the drug code that currently exist.
          */
-        echo "decreased inventory for "; echo $event->itemToinventory . " is the item to be inventoried";
+        echo "decreased inventory for ". $event->itemToinventory . " is the item to be inventoried";
     }
 
     public function onInventoryAdd(InventoryChangeEvent $event)
     {
-        echo "increased inventory"; echo $event->itemToinventory . " is the item to be inventoried";
+        echo "increased inventory". $event->itemToinventory . " is the item to be inventoried";
     }
 }
