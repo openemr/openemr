@@ -61,8 +61,6 @@ $form_page_y         = $_POST['form_page_y'] ?? '';
 $form_offset_y  = $_POST['form_offset_y'] ?? '';
 $form_y         = $_POST['form_y'] ?? '';
 
-
-
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     if ($is_ins_summary) {
         $form_cb_ssn      = false;
@@ -1404,9 +1402,6 @@ if (empty($_POST['form_csvexport'])) {
     } // end not export
     ?>
 </form>
-<div id="steve">
-hi
-</div>
 </center>
 <script>
     <?php
