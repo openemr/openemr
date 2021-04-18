@@ -1046,7 +1046,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['billing_note']); ?>;
                                     Count++;
                                     <?php
-                                    $enc_billing_note = $rowresult4['billing_note'];
+                                    $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
                                 } ?>
                     </script>
                                 <?php
@@ -1150,7 +1150,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $DivPut = 'yes';
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note) . "</span>";
+                                        $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
                                     $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 
