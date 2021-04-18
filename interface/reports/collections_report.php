@@ -57,6 +57,9 @@ $is_ageby_lad   = strpos(($_POST['form_ageby'] ?? ''), 'Last') !== false;
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
+$form_page_y    = $_POST['form_page_y'] ?? '';
+$form_offset_y  = $_POST['form_offset_y'] ?? '';
+$form_y         = $_POST['form_y'] ?? '';
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     if ($is_ins_summary) {
@@ -359,11 +362,20 @@ if (!empty($_POST['form_csvexport'])) {
         // open dialog to edit an invoice w/o opening encounter.
         function editInvoice(e, id) {
             e.stopPropagation();
+            e.preventDefault();
+            $("#form_page_y").val(e.pageY);      
+            $("#form_offset_y").val(e.offsetY);      
+            $("#form_y").val(e.y);      
             let url = './../billing/sl_eob_invoice.php?id=' + encodeURIComponent(id);
             dlgopen(url,'','modal-lg',750,false,'', {
                 onClosed: 'reSubmit'
             });
         }
+
+        $(function () {
+            let Y = parseFloat($("#form_page_y").val()) - parseFloat($("#form_offset_y").val()) - parseFloat($("#form_y").val());
+            $("html, body").animate({scrollTop: Y}, 800);
+        });
 
         $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
@@ -386,7 +398,7 @@ if (!empty($_POST['form_csvexport'])) {
                 if (ename.indexOf('form_cb[') == 0)
                     f.elements[i].checked = checked;
             }
-        }
+        }        
     </script>
 
 </head>
@@ -403,6 +415,9 @@ if (!empty($_POST['form_csvexport'])) {
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_export' id='form_export' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+<input type='hidden' name='form_page_y' id='form_page_y' value='<?php echo attr($form_page_y); ?>'/>
+<input type='hidden' name='form_offset_y' id='form_offset_y' value='<?php echo attr($form_offset_y); ?>'/>
+<input type='hidden' name='form_y' id='form_y' value='<?php echo attr($form_y); ?>'/>
 
 <table>
  <tr>
