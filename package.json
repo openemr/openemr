@@ -47,7 +47,6 @@
     "gulp-watch": "^5.0.1",
     "minimist": "^1.2.5",
     "napa": "^3.0.0",
-    "popper.js": "^1.16.1",
     "postcss": "^8.2.10",
     "replace-in-file": "^6.2.0",
     "stylelint": "^13.12.0",
