@@ -415,9 +415,9 @@ if (!empty($_POST['form_csvexport'])) {
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_export' id='form_export' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
-<input type='hidden' name='form_page_y' id='form_page_y' value=<?php echo $form_page_y; ?>/>
-<input type='hidden' name='form_offset_y' id='form_offset_y' value=<?php echo $form_offset_y; ?>/>
-<input type='hidden' name='form_y' id='form_y' value=<?php echo $form_y; ?>/>
+<input type='hidden' name='form_page_y' id='form_page_y' value='<?php echo attr($form_page_y); ?>'/>
+<input type='hidden' name='form_offset_y' id='form_offset_y' value='<?php echo attr($form_offset_y); ?>'/>
+<input type='hidden' name='form_y' id='form_y' value='<?php echo attr($form_y); ?>'/>
 
 <table>
  <tr>
