@@ -57,7 +57,7 @@ $is_ageby_lad   = strpos(($_POST['form_ageby'] ?? ''), 'Last') !== false;
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
-$form_page_y         = $_POST['form_page_y'] ?? '';
+$form_page_y    = $_POST['form_page_y'] ?? '';
 $form_offset_y  = $_POST['form_offset_y'] ?? '';
 $form_y         = $_POST['form_y'] ?? '';
 
