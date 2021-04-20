@@ -342,7 +342,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         exit;
     }
 }
-
+// For portal and documents templates we need a fluid container.
+// default container.
+$form_container = "container";
+if (empty($is_core)) {
+    $form_container = "container-fluid";
+}
 ?>
 <html>
 <head>
@@ -799,7 +804,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:var(--white)'";
                       } ?>>
-<div class='container'>
+<div class="<?php echo $form_container ?>">
     <?php
     echo "<form method='post' " .
         "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
@@ -817,7 +822,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
         "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
-    <div class="container">
+    <div class="<?php echo $form_container ?>">
         <div class="flex-row">
             <div class="col-12">
                 <h3>
@@ -1037,13 +1042,11 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
-                        echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-                            "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                        echo "<br /><span><label class='mb-1' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                         if ($display_style == 'block') {
                             echo " checked";
                         }
-
-                        echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
+                        echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label></span>\n";
                         echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive clearfix' style='display:" . attr($display_style) . ";'>\n";
                     }
 

@@ -2164,7 +2164,7 @@ function generate_display_field($frow, $currvalue)
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(text(xl_list_label($currvalue))) .
-            '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
+                '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
         }
     } elseif ($data_type == 2) { // simple text field
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
@@ -3093,9 +3093,13 @@ function display_layout_rows($formtype, $result1, $result2 = '')
         $currvalue  = '';
         $jump_new_row = isOption($frow['edit_options'], 'J');
         $prepend_blank_row = isOption($frow['edit_options'], 'K');
+        $portal_exclude = ($_SESSION["patient_portal_onsite_two"] && isOption($frow['edit_options'], 'EP')) ?? null;
 
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
 
+        if (!empty($portal_exclude)) {
+            continue;
+        }
         if ($formtype == 'DEM') {
             if (strpos($field_id, 'em_') === 0) {
                 // Skip employer related fields, if it's disabled.

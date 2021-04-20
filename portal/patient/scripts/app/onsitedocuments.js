@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -65,14 +65,26 @@ var page = {
             if (page.isDashboard) {
                 $("#topnav").hide();
             }
+            // No dups - turn off buttons if doc exist
+            this.collection.each(function (model, index, list) {
+                var tplname = model.get('docType')
+                if (model.get('denialReason') != 'Locked') {
+                    let parsed = tplname.split(/.*[\/|\\]/)[1];
+                    if (typeof parsed === 'undefined') {
+                        parsed = tplname;
+                    }
+                    $('#' + parsed.slice(0, -4)).hide();
+                }
+            });
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
                 var m = page.onsiteDocuments.get(this.id);
                 page.showDetailDialog(m);
+                $('html,body').animate({scrollTop:0},500);
             });
             // make the headers clickable for sorting
-            $('table.collection thead tr th').click(function (e) {
+            $('table.collection thead tr th').on('click', function (e) {
                 e.preventDefault();
                 var prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
@@ -87,12 +99,12 @@ var page = {
                 page.fetchParams.page = this.id.substr(5);
                 page.fetchOnsiteDocuments(page.fetchParams);
             });
-            // No dups - turn off buttons if doc exist
-            this.collection.each(function (model, index, list) {
-                var tplname = model.get('docType')
-                if (model.get('denialReason') != 'Locked') {
-                    $('#' + tplname.slice(0, -4)).hide();
-                }
+            // Let's scroll to document editor on selection.
+            $('.history-btn').on('click', function (e) {
+                /*e.preventDefault();
+                var m = page.onsiteDocuments.get(this.offsetParent.parentElement.id);
+                page.showDetailDialog(m);
+                $('html,body').animate({scrollTop:0},500);*/
             });
 
             page.isInitialized = true;
@@ -132,6 +144,7 @@ var page = {
                     timepicker: false
                 });
             })
+
             $("#templatecontent").on('focus', ".datetimepicker:not(.hasDatetimepicker)", function () {
                 $(".datetimepicker").datetimepicker({
                     i18n: {
@@ -185,6 +198,7 @@ var page = {
             }
             if (!isPortal) {
                 $("#signTemplate").hide();
+                $("#Help").hide();
                 if (page.isCharted || page.isLocked) {
                     $("#chartTemplate").hide();
                     $("#chartHistory").hide();
@@ -573,7 +587,7 @@ var page = {
                         page.isSaved = false;
                         $("#printTemplate").hide();
                         $("#submitTemplate").hide();
-                        $("#sendTemplate").hide();
+                        //$("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument', templateHtml);
                         if (isPortal) {
                             $('#adminSignature').css('cursor', 'default').off();
@@ -605,6 +619,10 @@ var page = {
         }
         let cdate = page.onsiteDocument.get('createDate');
         let status = page.onsiteDocument.get('denialReason');
+        let cnt = cdate.toString().indexOf("GMT");
+        if (cnt !== -1) {
+            cdate = cdate.toString().substring(0, cnt);
+        }
         $('#docPanelHeader').append(' : ' + currentName + ' Dated: ' + cdate + ' Status: ' + status);
     },
     /**
@@ -621,7 +639,7 @@ var page = {
             page.onsiteDocument.fetch({
                 success: function () {
                     if (page.isDashboard || page.onsiteDocument.get('denialReason') === 'Locked') {
-                        page.renderModelView(false);
+                        page.renderModelView(false); // @todo TBD when should delete be allowed?
                     } else {
                         page.renderModelView(true);
                     }
@@ -634,7 +652,7 @@ var page = {
     },
 
     /**
-     * Render the model template in the popup
+     * Render the model template in the container
      * @param bool show the delete button
      */
     renderModelView: function (showDeleteButton) {
