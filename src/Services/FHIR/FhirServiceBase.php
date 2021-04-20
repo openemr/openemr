@@ -2,7 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\FhirSearchParameterType;
+use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -117,14 +117,13 @@ abstract class FhirServiceBase
 
     /**
      * Executes a FHIR Resource search given a set of parameters.
-     * TODO: This whole search needs to be revisited with the different search types (token for exact match, string fuzzy match, etc)
      * @param $fhirSearchParameters The FHIR resource search parameters
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return processing result
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
-        $oeSearchParameters = array();
+
         $provenanceRequest = false;
         //Checking for provenance reqest
         if (isset($fhirSearchParameters['_revinclude'])) {
@@ -132,19 +131,7 @@ abstract class FhirServiceBase
                 $provenanceRequest = true;
             }
         }
-        foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
-            if (isset($this->resourceSearchParameters[$fhirSearchField])) {
-                $oeSearchFields = $this->resourceSearchParameters[$fhirSearchField];
-                // backwards compatability
-                // use our string matching like before
-                $searchType = $oeSearchFields['type'] ?? FhirSearchParameterType::STRING;
-                $oeSearchFields = $oeSearchFields['fields'] ?? $oeSearchFields;
-                foreach ($oeSearchFields as $index => $oeSearchField) {
-                    $oeSearchParameters[$oeSearchField] = $searchValue;
-                }
-            }
-        }
-
+        $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters, $puuidBind);
 
         $fhirSearchResult = new ProcessingResult();
@@ -164,6 +151,46 @@ abstract class FhirServiceBase
             }
         }
         return $fhirSearchResult;
+    }
+
+    /**
+     * Given the hashmap of search parameters to values it generates a map of search keys to ISearchField objects that
+     * are used to search in the OpenEMR system.  Service classes that extend the base class can override this method
+     *
+     * to either add search fields or change the functionality of the created ISearchFields.
+     *
+     * @param $fhirSearchParameters
+     * @param $puuidBind The patient unique id if searching in a patient context
+     * @return ISearchField[] where the keys are the search fields.
+     */
+    protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind) {
+        $oeSearchParameters = array();
+        $searchFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
+
+        foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
+            // format: <field>{:modifier1|:modifier2}={comparator1|comparator2}[value1{,value2}]
+            // field is the FHIR search field
+            // modifier is the search modifier ie :exact, :contains, etc
+            // comparator is used with dates / numbers, ie :gt, :lt
+            // values can be comma separated and are treated as an OR condition
+            // if the $searchValue is an array then this is treated as an AND condition
+            // if $searchValue is an array and individual fields contains comma separated values the and clause takes
+            // precedence and ALL values will be UNIONED (AND clause).
+            if ($searchFactory->hasSearchField($fhirSearchField)) {
+                $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
+                $oeSearchParameters[$searchField->getName()] = $searchField;
+            }
+
+        }
+
+        // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
+        // we restrict the data to JUST that patient.
+        if ($this instanceof IPatientCompartmentResourceService) {
+            $patientField = $this->getPatientContextSearchField();
+            $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField, [$puuidBind]);
+        }
+
+        return $oeSearchParameters;
     }
 
     /**
