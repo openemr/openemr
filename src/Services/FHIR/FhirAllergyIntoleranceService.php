@@ -212,7 +212,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
 
     /**
      * Performs a FHIR AllergyIntolerance Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR AllergyIntolerance Resource ID.
+     * @param $fhirResourceId //The OpenEMR recordTimestamp when the activity was recorded / updated's FHIR AllergyIntolerance Resource ID.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
     public function getOne($fhirResourceId, $puuidBind = null)

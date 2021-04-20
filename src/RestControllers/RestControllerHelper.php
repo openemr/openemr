@@ -12,17 +12,12 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
-use OpenEMR\FHIR\FhirSearchParameterType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTypeRestfulInteraction;
 use OpenEMR\FHIR\R4\FHIRResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementInteraction;
@@ -164,7 +159,7 @@ class RestControllerHelper
         foreach ($service->getSearchParams() as $fhirSearchField => $searchDefinition) {
             $paramExists = false;
 
-            $type = $searchDefinition['type'] ?? FhirSearchParameterType::STRING;
+            $type = $searchDefinition['type'] ?? SearchFieldType::STRING;
 
             foreach ($capResource->getSearchParam() as $searchParam) {
                 if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {

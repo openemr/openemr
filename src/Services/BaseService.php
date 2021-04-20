@@ -13,6 +13,9 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
@@ -365,6 +368,76 @@ class BaseService
             },
             ARRAY_FILTER_USE_KEY
         );
+    }
+
+    /**
+     * Returns a list of patients matching the search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value is an ISearchField
+     * If an empty array of search criteria is provided, all records are returned.
+     *
+     * The search will grab the intersection of all possible values if $isAndCondition is true, otherwise it returns
+     * the union (logical OR) of the search.
+     *
+     * More complicated searches with various sub unions / intersections can be accomplished through a CompositeSearchField
+     * that allows you to combine multiple search clauses on a single search field.
+     *
+     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
+     * @return ProcessingResult The results of the search.
+     */
+    public function search($search, $isAndCondition = true) {
+        $sqlBindArray = array();
+
+        $selectFields = $this->getFields();
+
+        $selectFields = array_combine($selectFields, $selectFields); // make it a dictionary so we can add/remove this.
+        $from = [$this->getTable()];
+
+        $sql = "SELECT " . implode(",", array_keys($selectFields)) . " FROM " . implode(",", $from);
+
+        $whereClauses = array(
+            'and' => []
+        ,'or' => []
+        );
+
+        if (!empty($search)) {
+            // make sure all the parameters are actual search fields and clean up any field that is a uuid
+            foreach ($search as $key => $field) {
+                if (!$field instanceof ISearchField) {
+                    throw new \InvalidArgumentException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
+                }
+                $whereType = $isAndCondition ? "and" : "or";
+
+                $whereClauses[$whereType][] = SearchFieldStatementResolver::getStatementForSearchField($field);
+            }
+        }
+
+        if (!(empty($whereClauses['or']) && empty($whereClauses['and']))) {
+            $sql .= " WHERE ";
+            $andClauses = [];
+            foreach ($whereClauses['and'] as $clause) {
+                $andClauses[] = $clause->getFragment();
+                $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
+            }
+            $sql = empty($andClauses) ? $sql : $sql . implode(" AND " , $andClauses);
+
+            $orClauses = [];
+            foreach ($whereClauses['or'] as $clause) {
+                $orClauses[] = $clause->getFragment();
+                $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
+            }
+            $sql = empty($orClauses) ? $sql : $sql . "(" . implode(" OR " , $orClauses) . ")";
+        }
+
+        $statementResults = sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $processingResult->addData($row);
+        }
+
+        return $processingResult;
     }
 
     /**
