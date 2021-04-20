@@ -32,13 +32,13 @@ class FhirPatientServiceQueryTest extends TestCase
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
-//        $this->fixtureManager->installPatientFixtures();
+        $this->fixtureManager->installPatientFixtures();
         $this->fhirPatientService = new FhirPatientService();
     }
 
     protected function tearDown(): void
     {
-//        $this->fixtureManager->removePatientFixtures();
+        $this->fixtureManager->removePatientFixtures();
     }
 
     /**
