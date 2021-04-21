@@ -262,5 +262,27 @@
 		"sex" : "Male",
 		"status" : "married",
 		"drivers_license": "10923456789"
+	},
+	{
+		"pubpid" : "test-fixture-1002",
+		"title" : "Mr.",
+		"fname" : "John",
+		"mname": "Colin",
+		"lname" : "Adams",
+		"ss" : "123456789",
+		"street" : "1234 2nd Shorter",
+		"postal_code" : "50641",
+		"city" : "Sacramento",
+		"state" : "CA",
+		"contact_relationship" : "Mr. Brent Kenneth",
+		"phone_contact" : "(619) 952-8321",
+		"phone_home" : "",
+		"phone_biz" : "",
+		"phone_cell" : "(888) 480-5051",
+		"email" : "jcadams@someotherfirm.com",
+		"DOB" : "1955-08-12",
+		"sex" : "Unknown",
+		"status" : "married",
+		"drivers_license": "12943276589"
 	}
 ]

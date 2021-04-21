@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchFieldComparableValue.php Holds the pair of a search value being searched on and the search comparator
  * (equal, not equal, greater than, etc) that will be used for the search.
@@ -13,7 +14,6 @@
 
 namespace OpenEMR\Services\Search;
 
-
 class SearchFieldComparableValue
 {
     /**
@@ -26,7 +26,7 @@ class SearchFieldComparableValue
      */
     private $comparator;
 
-    public function __construct($value, $comparator=SearchComparator::EQUALS)
+    public function __construct($value, $comparator = SearchComparator::EQUALS)
     {
         if (!SearchComparator::isValidComparator($comparator)) {
             throw new \InvalidArgumentException("Invalid comparator of '" . $comparator . "' found");

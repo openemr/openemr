@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchComparator is essentially an ENUM class that holds the types of comparator
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 final class SearchComparator
 {
@@ -33,7 +33,8 @@ final class SearchComparator
     public const ALL_COMPARATORS = [self::EQUALS, self::NOT_EQUALS, self::GREATER_THAN, self::LESS_THAN
         , self::GREATER_THAN_OR_EQUAL_TO, self::LESS_THAN_OR_EQUAL_TO, self::STARTS_AFTER, self::ENDS_BEFORE];
 
-    public static function isValidComparator($comparator) {
+    public static function isValidComparator($comparator)
+    {
         return array_search($comparator, self::ALL_COMPARATORS) !== false;
     }
 }

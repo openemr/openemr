@@ -65,6 +65,12 @@ class FhirPatientServiceQueryTest extends TestCase
 
         return [
             ['identifier', 'test-fixture-789456'],
+            ['gender', 'male'],
+            ['gender', 'female'],
+            ['gender', 'unknown'], // handle unknown gender's
+
+            // need to do a bunch of identifier tests to make sure our token searching is working.
+
             ['address:contains', 'Avenue'],
             ['address:prefix', '789'],
             ['address', '789'], // default is :prefix
@@ -131,21 +137,21 @@ class FhirPatientServiceQueryTest extends TestCase
 
             // range searches for dates.
 
-//            ['email', 'info@pennfirm.com'],
-//            ['family', 'Moses'],
-//            ['gender', 'male'],
-//            ['given', 'Eduardo'],
-//            ['name', 'Mr.'],
-//            ['name', 'Ilias'],
-//            ['name', 'Johnny'],
-//            ['name', 'Jenane'],
-//            ['phone', '(619) 555-4859'],
-//            ['phone', '(619) 555-7821'],
-//            ['phone', '(619) 555-7822'],
-//            ['telecom', 'info@pennfirm.com'],
-//            ['telecom', '(619) 555-4859'],
-//            ['telecom', '(619) 555-7821'],
-//            ['telecom', '(619) 555-7822'],
+            ['email', 'info@pennfirm.com'],
+            ['family', 'Moses'],
+            ['gender', 'male'],
+            ['given', 'Eduardo'],
+            ['name', 'Mr.'],
+            ['name', 'Ilias'],
+            ['name', 'Johnny'],
+            ['name', 'Jenane'],
+            ['phone', '(619) 555-4859'],
+            ['phone', '(619) 555-7821'],
+            ['phone', '(619) 555-7822'],
+            ['telecom', 'info@pennfirm.com'],
+            ['telecom', '(619) 555-4859'],
+            ['telecom', '(619) 555-7821'],
+            ['telecom', '(619) 555-7822'],
         ];
     }
 
@@ -155,11 +161,12 @@ class FhirPatientServiceQueryTest extends TestCase
     public function searchParameterCompoundDataProvider()
     {
         return [
-            ['birthdate', '1960-01-01', 'name', 'Ilias'],
-            ['birthdate', '1960-01-01', 'name', 'Moses'],
-            ['name', 'Ilias', 'birthdate', '1960-01-01'],
-            ['name', 'Moses', 'birthdate', '1960-01-01'],
-            ['name', 'Ilias', 'gender', 'male'],
+            ['birthdate', 'le1960-01-01', 'name:contains', 'lias'], // check operators and comparators work combined
+            ['birthdate', '1945', 'name', 'Moses'], // check defaults work
+            ['birthdate', '1945', 'family', 'Moses'], // check birthdate+family works
+            ['name', 'Ilias', 'birthdate', '1933-03'], // check name+birthdate work
+            ['gender', 'female', 'name', 'Ilias'], // check gender+name works
+            ['birthdate', '1933-03', 'gender', 'female'], // check birthdate+gender works
             ['name', 'Moses', 'gender', 'male'],
         ];
     }
@@ -197,13 +204,13 @@ class FhirPatientServiceQueryTest extends TestCase
      * Tests getAll compound search queries
      * @covers ::getAll
      * @covers ::searchForOpenEMRRecords
-     * @dataProvider searchParameterDataProvider
+     * @dataProvider searchParameterCompoundDataProvider
      */
-//    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value) {
-//        $fhirSearchParameters = [$parameter1 => $parameter1Value, $parameter2 => $parameter2Value];
-//        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
-//        $this->assertGetAllSearchResults($processingResult);
-//    }
+    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value) {
+        $fhirSearchParameters = [$parameter1 => $parameter1Value, $parameter2 => $parameter2Value];
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+    }
 
     /**
      * @covers ::getOne

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DateSearchField.php  Holds the DateSearchField class which is represents a date/datetime search field on a piece of
  * data contained in the OpenEMR system.  The search field will take in an array of values that are in the ISO8601 format
@@ -17,7 +18,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 use OpenEMR\Services\Search\SearchFieldType;
 
@@ -62,11 +62,6 @@ class DateSearchField extends BasicSearchField
 
         $modifier = null;
         parent::__construct($field, SearchFieldType::DATE, $field, $values, $modifier, $isAnd);
-
-        // we can't always control how the parent class is defined, we will make sure we convert our values.
-        // while this means we loop through the values, we skip over any work that's been done before.
-        // TODO: adunsulag is this overly paranoid?  Do we really need to do this?
-        $this->setValues($this->getValues());
     }
 
     public function getDateType()
@@ -112,7 +107,8 @@ class DateSearchField extends BasicSearchField
      * @return SearchFieldComparableValue The created comparable value that will be used for querying against this search field.
      * @throws \InvalidArgumentException if the date format is not a valid ISO8610 format or if the date format does not follow FHIR spec.
      */
-    private function createDateComparableValue($value) : SearchFieldComparableValue {
+    private function createDateComparableValue($value): SearchFieldComparableValue
+    {
 
         // we can't use something like DateTime::createFromFormat to conform with ISO8601 (xml date format)
         // unfortunately php will fill in the date with the current date which does not conform to spec.

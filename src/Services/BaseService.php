@@ -12,11 +12,13 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
+use Psr\Log\LoggerInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
@@ -29,6 +31,11 @@ class BaseService
     private $table;
     private $fields;
     private $autoIncrements;
+
+    /**
+     * @var SystemLogger
+     */
+    private $logger;
 
     private const PREFIXES = array(
         'eq' => "=",
@@ -50,6 +57,7 @@ class BaseService
         $this->table = $table;
         $this->fields = sqlListFields($table);
         $this->autoIncrements = self::getAutoIncrements($table);
+        $this->setLogger(new SystemLogger());
     }
 
     /**
@@ -88,6 +96,16 @@ class BaseService
         }
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
+    }
+
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     /**
@@ -385,7 +403,8 @@ class BaseService
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
      * @return ProcessingResult The results of the search.
      */
-    public function search($search, $isAndCondition = true) {
+    public function search($search, $isAndCondition = true)
+    {
         $sqlBindArray = array();
 
         $selectFields = $this->getFields();
@@ -419,15 +438,17 @@ class BaseService
                 $andClauses[] = $clause->getFragment();
                 $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
             }
-            $sql = empty($andClauses) ? $sql : $sql . implode(" AND " , $andClauses);
+            $sql = empty($andClauses) ? $sql : $sql . implode(" AND ", $andClauses);
 
             $orClauses = [];
             foreach ($whereClauses['or'] as $clause) {
                 $orClauses[] = $clause->getFragment();
                 $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
             }
-            $sql = empty($orClauses) ? $sql : $sql . "(" . implode(" OR " , $orClauses) . ")";
+            $sql = empty($orClauses) ? $sql : $sql . "(" . implode(" OR ", $orClauses) . ")";
         }
+
+//        $this->getLogger()->debug("Executing search sql statement ", ['sql' => $sql, 'bindArray' => $sqlBindArray]);
 
         $statementResults = sqlStatementThrowException($sql, $sqlBindArray);
 

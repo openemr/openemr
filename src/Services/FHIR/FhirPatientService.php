@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -79,6 +80,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient';
 
+    const FIELD_NAME_GENDER = 'sex';
+
     public function __construct()
     {
         parent::__construct();
@@ -94,25 +97,25 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // @see https://www.hl7.org/fhir/patient.html#search
         return  [
             // core FHIR required fields for now
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid'] ),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
             'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['ss', 'pubpid']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname'] ),
-            'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB'] ),
-//            'gender' => new FhirSearchParameterDefinition('gender', FhirSearchParameterType::TOKEN, ['sex'] ),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ['street', 'postal_code', 'city', 'state'] ),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname']),
+            'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB']),
+            'gender' => new FhirSearchParameterDefinition('gender', SearchFieldType::TOKEN, [self::FIELD_NAME_GENDER]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ['street', 'postal_code', 'city', 'state']),
 
             // TODO: adunsulag test the below fields
 
             // these are not standard in US Core
-            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city'] ),
-            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code'] ),
-            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state'] ),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code']),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
 
-            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email'] ),
-            'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname'] ),
-            'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname'] ),
-            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell'] ),
-            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell'] )
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
+            'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell']),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell'])
         ];
     }
 
@@ -534,9 +537,28 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
-        return $this->patientService->search($openEMRSearchParameters, $puuidBind);
+        // do any conversions on the data that we need here
+
+        // we need to process our gender values here.
+//        var_dump($openEMRSearchParameters);
+        if (isset($openEMRSearchParameters[self::FIELD_NAME_GENDER])) {
+            /**
+             * @var $field ISearchField
+             */
+            $field = $openEMRSearchParameters[self::FIELD_NAME_GENDER];
+
+            $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
+                $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
+                return $tokenSearchValue;
+            };
+
+            // need to convert our gender's to a format that are stored in the database.
+            $field->setValues(array_map($upperCaseCode, $field->getValues()));
+        }
+
+        return $this->patientService->search($openEMRSearchParameters);
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
