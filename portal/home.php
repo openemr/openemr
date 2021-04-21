@@ -18,7 +18,7 @@ require_once("verify_session.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("lib/portal_mail.inc");
-require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
+require_once(__DIR__ . "/../library/appointments.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -34,10 +34,7 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-$whereto = 'profilecard';
-if (isset($_SESSION['whereto'])) {
-    $whereto = $_SESSION['whereto'];
-}
+$whereto = $_SESSION['whereto'] ?? 'documentscard';
 
 $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
 $result = getPatientData($pid);
@@ -61,12 +58,10 @@ foreach ($msgs as $i) {
 
     <script>
         var tab_mode = true;
-
         function restoreSession() {
             //dummy functions so the dlgopen function will work in the patient portal
             return true;
         }
-
         var isPortal = 1;
     </script>
     <?php
@@ -184,7 +179,7 @@ foreach ($msgs as $i) {
                 $(".nav-item").removeClass("active");
                 let canHide = $(".navbar-toggler-icon").is(":visible");
                 if (canHide) {
-                    $("[data-toggle='offcanvas']").click();
+                    $("[data-toggle='sidebar-offcanvas']").click();
                 }
             });
             $('#popwait').addClass('d-none');
@@ -232,7 +227,7 @@ foreach ($msgs as $i) {
 
         function changeCredentials(e) {
             title = <?php echo xlj('Please Enter New Credentials'); ?>;
-            dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
+            dlgopen("./account/index_reset.php", '', 575, 500, null, title, {});
         }
 
         <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
@@ -304,7 +299,7 @@ foreach ($msgs as $i) {
         }
 
         function startAssessment(param, assessmentOID) {
-            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Loading'); ?>);
 
             $.ajax({
                 url: '../library/ajax/easipro_util.php',
@@ -350,10 +345,10 @@ foreach ($msgs as $i) {
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="offcanvas" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
-                </button>
                 <!-- Sidebar toggle button-->
-                <ul class="nav navbar-nav flex-row">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                </button>
+                <ul class="nav navbar-nav flex-row sticky-top">
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i>
                             <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
@@ -363,12 +358,12 @@ foreach ($msgs as $i) {
                             <?php
                             foreach ($msgs as $i) {
                                 if ($i['message_status'] == 'New') {
-                                    echo "<div><a class='dropdown-item' href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></div>";
+                                    echo "<div><a class='dropdown-item' href='#secure-msgs-card' data-toggle='collapse' data-parent='#cardgroup'><strong>" . text($i['title']) . "</strong></a></div>";
                                 }
                             }
                             ?>
                             <div>
-                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a>
+                                <a class="dropdown-item" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup"><?php echo xlt('See All Messages'); ?></a>
                             </div>
                         </div>
                     </li>
@@ -396,7 +391,7 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3" id="left-collapse">
+        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3 border-right bg-secondary" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <ul class="nav nav-pills flex-column sticky-top text-dark">
@@ -411,7 +406,8 @@ foreach ($msgs as $i) {
                     <!-- css class was sidebar-menu -->
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-id-card"></i> <?php echo xlt('Profile'); ?></a></li>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-list"></i> <?php echo xlt('Lists'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><i class="fas fa-file-medical"></i> <?php echo xlt('Patient Documents'); ?></a></li>
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#documentscard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-file-medical"></i> <?php echo xlt('Patient Documents'); ?></a>
+                    </li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-calendar-check"></i> <?php echo xlt("Appointment"); ?></a></li>
                     <?php } ?>
@@ -441,7 +437,12 @@ foreach ($msgs as $i) {
                             <?php } ?>
                         </div>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fas fa-envelope"></i> <?php echo xlt('Secure Messaging'); ?></a></li>
+                    <li class="nav-item" data-toggle="pill">
+                        <a class="nav-link" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-envelope"></i> <?php echo xlt('Secure Messaging'); ?>
+                            <span class="badge badge-pill badge-success ml-1"><?php echo text($newcnt); ?>
+                            </span>
+                        </a>
+                    </li>
                     <?php if ($GLOBALS['allow_portal_chat']) { ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagescard" data-toggle="collapse"
                                 data-parent="#cardgroup"><i class="fas fa-comment-medical"></i> <?php echo xlt("Secure Chat"); ?></a></li>
@@ -576,7 +577,7 @@ foreach ($msgs as $i) {
                           </div><!-- /.card-body -->
                       </div>
                       <?php } ?>
-                    <?php if ($GLOBALS['portal_two_ledger']) { ?>
+                      <?php if ($GLOBALS['portal_two_ledger']) { ?>
                         <div class="collapse" id="ledgercard">
                             <div class="card">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
@@ -586,16 +587,29 @@ foreach ($msgs as $i) {
                             </div>
                         </div>
                         <?php } ?>
-                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                        ?>
+                      <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
+                            ?>
                         <div class="card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>
                         </div>
                         <?php } ?>
                     <div class="card collapse" id="profilecard">
-                        <header class="card-header bg-primary text-light"><?php echo xlt('Profile'); ?></header>
                         <div id="profilereport" class="card-body bg-light"></div>
+                    </div>
+                    <div class="collapse" id="documentscard">
+                        <div class="card">
+                            <div id="patdocuments" class="card-body">
+                                <iframe src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="secure-msgs-card">
+                        <div class="card">
+                            <div id="secure-msgs" class="card-body">
+                                <iframe src="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+                            </div>
+                        </div>
                     </div>
             </section>
         </aside><!-- /.right-side -->

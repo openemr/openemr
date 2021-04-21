@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -142,7 +142,6 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
-    <br /><br />
     <div class="container">
         <form action="" method="POST" onsubmit="return process_new_pass()">
             <input style="display:none" type="text" name="dummyuname" />
@@ -166,7 +165,7 @@ if (isset($_POST['submit'])) {
                     <td><strong><?php echo xlt('Confirm Username'); ?><strong></td>
                     <td><input class="form-control" name="confirm_uname" id="confirm_uname" type="text" required
                             title="<?php echo xla('You must confirm this Username.'); ?>"
-                            autocomplete="none" pattern=".{8,20}" value="" />
+                            autocomplete="none" pattern=".{8,80}" value="" />
                     </td>
                 </tr>
                 </tr>

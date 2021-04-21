@@ -19,7 +19,6 @@ require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $_SESSION['whereto'] = 'profilecard';
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
@@ -511,12 +510,12 @@ function getAuthPortalUsers()
         })(); // application end
     </script>
     <ng ng-app="emrMessageApp">
-        <div class="container" id='main' style="display: none">
+        <div class="container-fluid" id='main' style="display: none">
             <div class='my-3'>
-                <h2><i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
+                <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
             </div>
             <div class="row" ng-controller="inboxCtrl">
-                <div class="col-md-2 p-0 m-0 text-left">
+                <div class="col-md-2 p-0 m-0 text-left border-right bg-secondary">
                     <div class="sticky-top">
                         <ul class="nav nav-pills nav-stacked flex-column">
                             <li class="nav-item">
@@ -534,9 +533,9 @@ function getAuthPortalUsers()
                             <li class="nav-item">
                                 <a class="nav-link" href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root'] ?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a>
-                            </li>
+                            <!--<li class="nav-item">
+                                <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php /*echo $GLOBALS['web_root'] */?>/portal/home.php")' ng-show="isPortal"><?php /*echo xlt('Exit'); */?></a>
+                            </li>-->
                         </ul>
                     </div>
                 </div>
