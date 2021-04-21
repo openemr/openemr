@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IFhirExportableResourceService defines the methods a Fhir Resource Service must implement if the resource service
  * interacts with patient data.  It prevents patient data from leaking by making sure that when we are inside a patient
@@ -12,10 +13,10 @@
  */
 
 namespace OpenEMR\Services\FHIR;
+
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 
 interface IPatientCompartmentResourceService
 {
-    public function getPatientContextSearchField() : FhirSearchParameterDefinition;
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition;
 }
-?>

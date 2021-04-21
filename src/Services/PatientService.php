@@ -25,6 +25,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -281,7 +282,9 @@ class PatientService extends BaseService
         // TODO: adunsulag do we want to create a UUID search field so we can handle this properly?
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $values = $search['uuid']->getValues();
-            $mappedValues = array_map(function($v) { return UuidRegistry::uuidToBytes($v); }, $values);
+            $mappedValues = array_map(function (TokenSearchValue $v) {
+                return new TokenSearchValue(UuidRegistry::uuidToBytes($v->getCode()), $v->getSystem());
+            }, $values);
             $search['uuid']->setValues($mappedValues);
         }
 
@@ -308,8 +311,7 @@ class PatientService extends BaseService
         if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
-            }
-            else if (isset($search['uuid'])) {
+            } else if (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
             $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');

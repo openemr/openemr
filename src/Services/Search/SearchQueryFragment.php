@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchQueryFragment represents the a fragment of a SQL where clause that contains both the SQL statement and the
  * parameterized bound values that will be used in the SQL statement.
@@ -10,7 +11,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 class SearchQueryFragment
 {
@@ -62,7 +62,8 @@ class SearchQueryFragment
         $this->fragment = $fragment;
     }
 
-    public function setQueryFragment(string $fragment, $boundValue) {
+    public function setQueryFragment(string $fragment, $boundValue)
+    {
         $this->setFragment($fragment);
         $this->addBoundValue($boundValue);
     }

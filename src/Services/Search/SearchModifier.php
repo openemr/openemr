@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchModifier is an ENUM list of the types of search modifiers that can exist in the system.
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 final class SearchModifier
 {

@@ -132,7 +132,7 @@ abstract class FhirServiceBase
             }
         }
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
-        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters, $puuidBind);
+        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
 
         $fhirSearchResult = new ProcessingResult();
         $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
@@ -163,7 +163,8 @@ abstract class FhirServiceBase
      * @param $puuidBind The patient unique id if searching in a patient context
      * @return ISearchField[] where the keys are the search fields.
      */
-    protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind) {
+    protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind)
+    {
         $oeSearchParameters = array();
         $searchFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
 
@@ -180,7 +181,6 @@ abstract class FhirServiceBase
                 $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
                 $oeSearchParameters[$searchField->getName()] = $searchField;
             }
-
         }
 
         // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
@@ -199,7 +199,7 @@ abstract class FhirServiceBase
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
      */
-    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null);
+    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
 
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * StringSearchField represents a string data field that can be searched on.
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 use OpenEMR\Services\Search\SearchFieldType;
 

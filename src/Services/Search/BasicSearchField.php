@@ -1,4 +1,5 @@
 <?php
+
 /**
  * BasicSearchField implements the ISearchField interface and provides a basic class implementation of all of the search
  * field functionality that child classes can leverage to quickly implement new types of search fields.
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 use OpenEMR\Services\Search\SearchFieldType;
 
@@ -49,7 +49,8 @@ class BasicSearchField implements ISearchField
         return $this->name;
     }
 
-    protected function setName($name) {
+    protected function setName($name)
+    {
         $this->name = $name;
     }
 
@@ -58,7 +59,8 @@ class BasicSearchField implements ISearchField
         return $this->type;
     }
 
-    protected function setType($type) {
+    protected function setType($type)
+    {
         $this->type = $type;
     }
 

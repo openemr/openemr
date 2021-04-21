@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirSearchParameterDefinition represents a field in FHIR that searches can be conducted against.  It defines what fields
  * that FHIR search field maps onto, whether that is a single OpenEMR data field or many fields (composite field).  The
@@ -12,7 +13,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 class FhirSearchParameterDefinition
 {

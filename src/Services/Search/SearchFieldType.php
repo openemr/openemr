@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchFieldType represents the different parameter types that search parameters can be.  Each parameter
  * type has a different way they should be handled per the FHIR search specification.

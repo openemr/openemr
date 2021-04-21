@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CompositeSearchField implements the ISearchField interface and represents a search that covers more than one search
  * field.  The class is heirarchical in that it has a one to many child relationship that can represent multiple complex
@@ -12,7 +13,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 use OpenEMR\Services\Search\SearchFieldType;
 
@@ -79,7 +79,8 @@ class CompositeSearchField implements ISearchField
         $this->values = $values;
     }
 
-    public function addValue($value) {
+    public function addValue($value)
+    {
         $this->values[] = $value;
     }
 
@@ -91,7 +92,7 @@ class CompositeSearchField implements ISearchField
     /**
      * @return ISearchField[]
      */
-    public function getChildren() : array
+    public function getChildren(): array
     {
         return $this->children;
     }
@@ -104,7 +105,8 @@ class CompositeSearchField implements ISearchField
         $this->children = $children;
     }
 
-    public function addChild(ISearchField $child) {
+    public function addChild(ISearchField $child)
+    {
         $this->children[] = $child;
     }
 
@@ -113,8 +115,8 @@ class CompositeSearchField implements ISearchField
         return $this->field;
     }
 
-    public function isAnd() {
+    public function isAnd()
+    {
         return $this->isAnd;
     }
-
 }

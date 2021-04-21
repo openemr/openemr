@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ISearchField represents one more data field(s) in the OpenEMR system that a search will be conducted on.
  * It holds an array of values that will be used in the search (including any comparison operators), and other values
@@ -12,7 +13,6 @@
  */
 
 namespace OpenEMR\Services\Search;
-
 
 interface ISearchField
 {

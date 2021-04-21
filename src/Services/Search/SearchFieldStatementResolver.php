@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SearchFieldStatementResolver is a utility class that takes SearchField's and converts into a SQL SearchQueryFragment
  * with the corresponding SQL statement and bound values that represent that search field.  Nested Composite search
@@ -13,7 +14,6 @@
 
 namespace OpenEMR\Services\Search;
 
-
 class SearchFieldStatementResolver
 {
     const MAX_NESTED_LEVEL = 10;
@@ -26,7 +26,8 @@ class SearchFieldStatementResolver
      * @param int $count The current nested count
      * @return SearchQueryFragment
      */
-    public static function getStatementForSearchField(ISearchField $field, $count = 0) : SearchQueryFragment {
+    public static function getStatementForSearchField(ISearchField $field, $count = 0): SearchQueryFragment
+    {
         // we allow for more complicated searching by allowing combined search fields but there's a limit to how much
         // we want to allow this to happen.
         if ($count > self::MAX_NESTED_LEVEL) {
@@ -37,7 +38,7 @@ class SearchFieldStatementResolver
         } else if ($field instanceof DateSearchField) {
             return self::resolveDateField($field);
         } else if ($field instanceof TokenSearchField) {
-            return self::resolveIdField($field);
+            return self::resolveTokenField($field);
         } else if ($field instanceof CompositeSearchField) {
             return self::resolveCompositeSearchField($field, $count);
         } else {
@@ -51,7 +52,8 @@ class SearchFieldStatementResolver
      * @param DateSearchField $searchField
      * @return SearchQueryFragment
      */
-    public static function resolveDateField(DateSearchField $searchField) {
+    public static function resolveDateField(DateSearchField $searchField)
+    {
         if (empty($searchField->getValues())) {
             throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
         }
@@ -79,13 +81,13 @@ class SearchFieldStatementResolver
                 throw new \InvalidArgumentException("DateSearchField " . $searchField->getField() . " contained value that was not a DatePeriod or DateTime object");
             }
 
-            switch($comparableValue->getComparator()) {
+            switch ($comparableValue->getComparator()) {
                 case SearchComparator::LESS_THAN:
                 case SearchComparator::ENDS_BEFORE:
                     {
                         $operator = "<";
                         $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                    }
+                }
                     break;
                 case SearchComparator::LESS_THAN_OR_EQUAL_TO: {
                     // when dealing with an equal to we need to take the upper range of our fuzzy date interval
@@ -98,7 +100,7 @@ class SearchFieldStatementResolver
                     {
                         $operator = ">";
                         $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                    }
+                }
                     break;
                 case SearchComparator::GREATER_THAN_OR_EQUAL_TO: {
                     // when dealing with an equal to we need to take the lower range of our fuzzy date interval
@@ -149,7 +151,8 @@ class SearchFieldStatementResolver
      * @param $depthCount
      * @return SearchQueryFragment
      */
-    public static function resolveCompositeSearchField(CompositeSearchField $field, $depthCount) : SearchQueryFragment {
+    public static function resolveCompositeSearchField(CompositeSearchField $field, $depthCount): SearchQueryFragment
+    {
         $clauses = [];
         $combinedFragment = new SearchQueryFragment();
         foreach ($field->getChildren() as $searchField) {
@@ -170,18 +173,23 @@ class SearchFieldStatementResolver
      * @param TokenSearchField $searchField
      * @return SearchQueryFragment
      */
-    public static function resolveIdField(TokenSearchField $searchField) {
+    public static function resolveTokenField(TokenSearchField $searchField)
+    {
         if (empty($searchField->getValues())) {
             throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
         }
 
         $searchFragment = new SearchQueryFragment();
-        $modifier = $searchField->getModifier();
+        $modifier = $searchField->getModifier(); // we aren't going to deal with modifiers just yet
         $values = $searchField->getValues();
         $clauses = [];
+
         foreach ($values as $value) {
+            /** @var TokenSearchValue $value  */
             $clauses[] = $searchField->getField() . ' = ?';
-            $searchFragment->addBoundValue($value);
+            // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
+            // field to its representative bound value
+            $searchFragment->addBoundValue($value->getCode());
         }
 
         if (count($clauses) > 1) {
@@ -236,7 +244,8 @@ class SearchFieldStatementResolver
      * @param $dateType
      * @return string
      */
-    public static function getDateFieldFormatForDateType($dateType) {
+    public static function getDateFieldFormatForDateType($dateType)
+    {
         $format = "Y-m-d H:i:s"; // default format is datetime
         if ($dateType == DateSearchField::DATE_TYPE_DATE) {
             $format = "Y-m-d";
