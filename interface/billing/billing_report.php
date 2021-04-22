@@ -532,6 +532,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             border-top: none !important;
         }
 
+        .table tr:nth-child(even) {
+            background-color: rgba(82, 208, 204, 0.82) !important;
+        }
+
         a,
         a:visited,
         a:hover {
@@ -944,7 +948,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             // This dumps all HTML for the previous encounter.
                                 if ($lhtml) {
                                     while ($rcount < $lcount) {
-                                        $rhtml .= "<tr><td colspan='9'></td></tr>";
+                                        $rhtml .= "<tr style='background-color: rgba(82, 208, 204, 0.82)'><td colspan='9'></td></tr>";
                                         ++$rcount;
                                     }
                                     // This test handles the case where we are only listing encounters
