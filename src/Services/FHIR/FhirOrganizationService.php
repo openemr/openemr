@@ -8,6 +8,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\OrganizationService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -41,14 +43,14 @@ class FhirOrganizationService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "email" => ["email"],
-            "phone" => ["phone"],
-            "telecom" => ["email", "phone",],
-            "address" => ["street", "postal_code", "city", "state", "country_code","line1"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["postal_code","zip"],
-            "address-state" => ["state"],
-            "name" => ["name"],
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
         ];
     }
 

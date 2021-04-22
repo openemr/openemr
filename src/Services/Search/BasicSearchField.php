@@ -94,7 +94,7 @@ class BasicSearchField implements ISearchField
      * @param string $modifier
      * @return BasicSearchField
      */
-    protected function setModifier($modifier)
+    public function setModifier($modifier)
     {
         $this->modifier = $modifier;
         return $this;

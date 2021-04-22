@@ -16,4 +16,5 @@ final class SearchModifier
     public const CONTAINS = "contains";
     public const EXACT = "exact";
     public const PREFIX = "prefix"; // default for string
+    public const MISSING = "missing";
 }

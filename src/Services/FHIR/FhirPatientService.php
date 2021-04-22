@@ -104,8 +104,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             'gender' => new FhirSearchParameterDefinition('gender', SearchFieldType::TOKEN, [self::FIELD_NAME_GENDER]),
             'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ['street', 'postal_code', 'city', 'state']),
 
-            // TODO: adunsulag test the below fields
-
             // these are not standard in US Core
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code']),

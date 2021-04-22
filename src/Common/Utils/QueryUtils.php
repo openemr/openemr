@@ -30,15 +30,16 @@ class QueryUtils
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map - Query information (where clause(s), join clause(s), order, data, etc).
+     * @throws SqlQueryException If the query is invalid
      * @return array of associative arrays | one associative array.
      */
     public static function selectHelper($sqlUpToFromStatement, $map)
     {
         $where = isset($map["where"]) ? $map["where"] : null;
-        $data  = isset($map["data"])  ? $map["data"]  : null;
+        $data  = isset($map["data"]) && is_array($map['data']) ? $map["data"]  : [];
         $join  = isset($map["join"])  ? $map["join"]  : null;
         $order = isset($map["order"]) ? $map["order"] : null;
-        $limit = isset($map["limit"]) ? $map["limit"] : null;
+        $limit = isset($map["limit"]) ? intval($map["limit"]) : null;
 
         $sql = $sqlUpToFromStatement;
 
@@ -47,32 +48,18 @@ class QueryUtils
         $sql .= !empty($order) ? " " . $order       : "";
         $sql .= !empty($limit) ? " LIMIT " . $limit : "";
 
-        if (!empty($data)) {
-            if (empty($limit) || $limit > 1) {
-                $multipleResults = sqlStatement($sql, $data);
-                $results = array();
+        $multipleResults = sqlStatementThrowException($sql, $data);
 
-                while ($row = sqlFetchArray($multipleResults)) {
-                    array_push($results, $row);
-                }
+        $results = array();
 
-                return $results;
-            }
-
-            return sqlQuery($sql, $data);
+        while ($row = sqlFetchArray($multipleResults)) {
+            array_push($results, $row);
         }
 
-        if (empty($limit) || $limit > 1) {
-            $multipleResults = sqlStatement($sql);
-            $results = array();
-
-            while ($row = sqlFetchArray($multipleResults)) {
-                array_push($results, $row);
-            }
-
-            return $results;
+        if ($limit === 1) {
+            return $results[0];
         }
 
-        return sqlQuery($sql);
+        return $results;
     }
 }
