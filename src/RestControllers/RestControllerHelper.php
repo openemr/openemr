@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -157,9 +158,13 @@ class RestControllerHelper
         }
         $capResource->addSearchInclude('*');
         foreach ($service->getSearchParams() as $fhirSearchField => $searchDefinition) {
-            $paramExists = false;
 
-            $type = $searchDefinition['type'] ?? SearchFieldType::STRING;
+            /**
+             * @var FhirSearchParameterDefinition $searchDefinition
+             */
+
+            $paramExists = false;
+            $type = $searchDefinition->getType();
 
             foreach ($capResource->getSearchParam() as $searchParam) {
                 if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {

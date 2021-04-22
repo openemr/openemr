@@ -14,6 +14,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 
 /**
  * FHIR Immunization Service
@@ -46,7 +48,7 @@ class FhirImmunizationService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "patient" => ["patient.uuid"]
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['patient.uuid']),
         ];
     }
 

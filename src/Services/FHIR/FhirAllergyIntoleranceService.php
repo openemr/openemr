@@ -16,6 +16,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Common\Uuid;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -51,8 +53,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['lists.pid'],
-            '_id' => ['lists.id']
+            'patient' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.pid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.id']),
         ];
     }
 

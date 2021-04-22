@@ -206,7 +206,8 @@ class FhirPatientServiceQueryTest extends TestCase
      * @covers ::searchForOpenEMRRecords
      * @dataProvider searchParameterCompoundDataProvider
      */
-    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value) {
+    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value)
+    {
         $fhirSearchParameters = [$parameter1 => $parameter1Value, $parameter2 => $parameter2Value];
         $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
         $this->assertGetAllSearchResults($processingResult);

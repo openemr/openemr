@@ -7,6 +7,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\PractitionerRoleService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 
 /**
  * FHIR PractitionerRole Service
@@ -39,8 +41,8 @@ class FhirPractitionerRoleService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "specialty" => ["specialty_code"],
-            "practitioner" => ["user_name"],
+            'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
+            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name'])
         ];
     }
 
