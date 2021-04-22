@@ -11,15 +11,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("gad7.inc.php"); //common strings, other includes etc
+require_once("gad7.inc.php"); //common strings, require_once(globals.php), other includes  etc
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-<!--   <title><?php echo text($string_form_title); ?> </title> -->
-        <title><?php echo $string_form_title; ?> </title>
+    <title><?php echo text($string_form_title); ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
@@ -63,7 +62,7 @@ function create_q8(question, menue){
 <br></br>
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B" >
  &nbsp &nbsp
- <input type="button" value="<?php echo text($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
+ <input type="button" value="<?php echo attr($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
 <br></br>
 <span class="text"> <h2><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></h2> </span>
 <table><tr>
@@ -208,7 +207,7 @@ update_score("undef",gad7_score);
  <tr><td>
  <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B">
  &nbsp &nbsp
- <input type="button" value="<?php echo text($str_nosave_exit); ?>" onclick="top.restoreSession();return(nosave_exit());" style="color: #483D8B">
+ <input type="button" value="<?php echo attr($str_nosave_exit); ?>" onclick="top.restoreSession();return(nosave_exit());" style="color: #483D8B">
  <br><br>
  </table>
 </form>

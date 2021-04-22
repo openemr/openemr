@@ -12,7 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("gad7.inc.php");  // common strings etc
+require_once("gad7.inc.php");  // common strings, require_once(globals.php), other includes etc
+
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
 use Mpdf\Mpdf;  /* used to generate a pdf of the form */
