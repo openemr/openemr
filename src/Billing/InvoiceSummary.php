@@ -141,7 +141,11 @@ class InvoiceSummary
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
-                $code = "Unknown";
+                if($row['account_code'] == "PCP") {
+                    $code = "Copay";
+                } else {
+                    $code = "Unknown";
+                }
             }
 
             if ($row['modifier']) {
