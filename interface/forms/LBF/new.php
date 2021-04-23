@@ -361,12 +361,6 @@ if (
         exit;
     }
 }
-// For portal and documents templates we need a fluid container.
-// default container.
-$form_container = "container";
-if (empty($is_core)) {
-    $form_container = "container-fluid";
-}
 ?>
 <html>
 <head>
@@ -865,15 +859,17 @@ if (empty($is_core)) {
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:var(--white)'";
                       } ?>>
-<div class="<?php echo $form_container ?>">
+<div>
     <?php
-    echo "<form method='post' " .
+    // form-inline is more consistent with the fact that LBFs are not designed for
+    // small devices. In particular we prefer horizontal arrangement of multiple
+    // items in the same row and column.
+    echo "<form method='post' class='form-inline' " .
         "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
         "onsubmit='return validate(this)'>\n";
 
     $cmsportal_login = '';
     $portalres = false;
-
 
     if (!$from_trend_form) {
         $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, p.cmsportal_login, " .
@@ -883,9 +879,7 @@ if (empty($is_core)) {
         "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
         "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
-    <div class="<?php echo $form_container ?>">
-        <div class="flex-row">
-            <div class="col-12">
+            <div>
                 <h3>
                     <?php echo text($formtitle);
                     if ($is_core) {
@@ -908,8 +902,16 @@ if (empty($is_core)) {
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
                 // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', ($form_provider_id ?? ''));
+                    echo FeeSheetHtml::genProviderSelect(
+                        'form_provider_id',
+                        '-- ' . xl("Please Select") . ' --',
+                        ($form_provider_id ?? ''),
+                        false,
+                        '',
+                        false // bootstrap was putting this on a row by itself
+                    );
                 }
+
                 // If appropriate build a drop-down selector of issues of this type for this patient.
                 // We skip this if in an issue form tab because removing and adding visit form tabs is
                 // beyond the current scope of that code.
@@ -941,17 +943,14 @@ if (empty($is_core)) {
             <!-- This is where a chart might display. -->
             <div id="chart"></div>
 
+    <div class="container-fluid">
+        <div class="flex-row">
+            <div class='col-12'>
+
             <?php
             $shrow = getHistoryData($pid);
 
-            /**********************************************************
-            // Determine if this layout uses edit option "I" anywhere.
-            // If not we default to only the first group being initially open.
-            $tmprow = sqlQuery("SELECT form_id FROM layout_options " .
-                "WHERE form_id = ? AND uor > 0 AND edit_options LIKE '%I%' " .
-                "LIMIT 1", array($formname));
-            $some_group_is_open = !empty($tmprow['form_id']);
-            **********************************************************/
+            $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
             $fres = sqlStatement("SELECT * FROM layout_options " .
                 "WHERE form_id = ? AND uor > 0 " .
@@ -989,6 +988,8 @@ if (empty($is_core)) {
                 $source = $frow['source'];
                 $jump_new_row = isOption($edit_options, 'J');
                 $prepend_blank_row = isOption($edit_options, 'K');
+
+                $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
 
                 $graphable = isOption($edit_options, 'G') !== false;
                 if ($graphable) {
@@ -1102,7 +1103,9 @@ if (empty($is_core)) {
 
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
-                        echo "<br /><span><label class='mb-1' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                        // <label> was inheriting .justify-content-center from .form-inline,
+                        // dunno why but we fix that here.
+                        echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                         if ($display_style == 'block') {
                             echo " checked";
                         }
@@ -1306,7 +1309,7 @@ if (empty($is_core)) {
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><strong>" . xlt('Services') . "</strong></span>\n";
+                echo " />&nbsp;<strong>" . xlt('Services') . "</strong></span>\n";
                 echo "<div id='div_fs_services' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 // $display_style = 'none';
@@ -1382,7 +1385,14 @@ if (empty($is_core)) {
                     $tmp_provider_id = $_SESSION['authUserID'];
                 }
                 echo xlt('Main Provider') . ": ";
-                echo $fs->genProviderSelect("form_fs_provid", ' ', $tmp_provider_id);
+                echo $fs->genProviderSelect(
+                    "form_fs_provid",
+                    ' ',
+                    $tmp_provider_id,
+                    false,
+                    '',
+                    false // bootstrap was putting this on a row by itself
+                );
                 echo "\n";
                 echo "</p>\n";
 
@@ -1403,7 +1413,11 @@ if (empty($is_core)) {
                     echo "  <td class='border-top-0 text'>" . text($li['code']) . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text'>" . text($li['code_text']) . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text'>" .
-                        $fs->genProviderSelect("form_fs_bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']) .
+                        $fs->genProviderSelect(
+                            "form_fs_bill[$lino][provid]",
+                            '-- ' . xl("Default") . ' --',
+                            $li['provid']
+                        ) .
                         "  &nbsp;</td>\n";
                     echo "  <td class='border-top-0 text text-right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 text text-right'>\n" .
@@ -1427,7 +1441,7 @@ if (empty($is_core)) {
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><strong>" . xlt('Products') . "</strong></span>\n";
+                echo " />&nbsp;<strong>" . xlt('Products') . "</strong></span>\n";
                 echo "<div id='div_fs_products' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 // $display_style = 'none';
@@ -1521,7 +1535,7 @@ if (empty($is_core)) {
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><b>" . xlt('Diagnoses') . "</b></span>\n";
+                echo " />&nbsp;<b>" . xlt('Diagnoses') . "</b></span>\n";
                 echo "<div id='div_fs_diags' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 // $display_style = 'none';
@@ -1606,7 +1620,7 @@ if (empty($is_core)) {
                 if ($display_style == 'block') {
                     echo " checked";
                 }
-                echo " /><b>" . xlt('Referrals') . "</b></span>\n";
+                echo " />&nbsp;<b>" . xlt('Referrals') . "</b></span>\n";
                 echo "<div id='div_referrals' class='section' style='display:" . attr($display_style) . ";'>\n";
                 echo "<center>\n";
                 // $display_style = 'none';
