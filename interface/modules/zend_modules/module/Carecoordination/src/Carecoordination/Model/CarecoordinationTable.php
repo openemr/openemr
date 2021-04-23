@@ -2051,7 +2051,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function insert_patient($audit_master_id, $document_id)
     {
-        require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc");
+        require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc.php");
         $pid = 0;
         $j = 1;
         $k = 1;

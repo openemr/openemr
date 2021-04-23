@@ -15,7 +15,7 @@
 
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/options.inc.php");
-require_once(dirname(__FILE__) . "/../../library/patient.inc");
+require_once(dirname(__FILE__) . "/../../library/patient.inc.php");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

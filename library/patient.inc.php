@@ -1,7 +1,7 @@
 <?php
 
 /**
- * patient.inc includes functions for manipulating patient information.
+ * patient.inc.php includes functions for manipulating patient information.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -1717,6 +1717,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 array($pid, $encounter)
             );
             $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
             $ptbal = $copay + $amt - $pay;

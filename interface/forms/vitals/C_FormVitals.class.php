@@ -11,7 +11,7 @@
  */
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 require_once("FormVitals.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

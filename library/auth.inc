@@ -93,7 +93,7 @@ if (
     if (AuthUtils::authCheckSession()) {
         // Session is valid
         if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG'])) {
-            require_once("{$GLOBALS['srcdir']}/patient.inc");
+            require_once("{$GLOBALS['srcdir']}/patient.inc.php");
         }
     } else {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)

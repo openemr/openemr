@@ -31,7 +31,7 @@ require_once("./../library/options.inc.php");
 require_once("./../library/lists.inc");
 require_once("./../custom/code_types.inc.php");
 require_once("./../library/forms.inc");
-require_once("./../library/patient.inc");
+require_once("./../library/patient.inc.php");
 
 require_once("./lib/appsql.class.php");
 require_once("./lib/section_fetch.class.php");

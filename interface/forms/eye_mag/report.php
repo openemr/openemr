@@ -33,7 +33,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once(dirname(__FILE__) . "/../../../library/api.inc");
 require_once(dirname(__FILE__) . "/../../../library/lists.inc");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
-require_once(dirname(__FILE__) . "/../../../library/patient.inc");
+require_once(dirname(__FILE__) . "/../../../library/patient.inc.php");
 require_once(dirname(__FILE__) . "/../../../controllers/C_Document.class.php");
 
 use OpenEMR\Services\FacilityService;

@@ -14,7 +14,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 function US_weight($pounds, $mode = 1)
 {
