@@ -252,8 +252,8 @@ function newTherapyGroupEncounter()
 function encounterList()
 {
     var url=webroot_url+'/interface/patient_file/history/encounters.php';
-    navigateTab(url, "enc", function () {
-        activateTabByName("enc",true);
+    navigateTab(url, "enc_past", function () {
+        activateTabByName("enc_past",true);
     });
 }
 
