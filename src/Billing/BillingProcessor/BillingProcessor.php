@@ -160,7 +160,7 @@ class BillingProcessor
         SessionUtil::unsetSession(['bn_x12']);
         if (isset($post['bn_reopen'])) {
             $processing_task = new Tasks\TaskReopen();
-        } elseif (isset($post['bn_external'])) {
+        } elseif (isset($post['bn_mark'])) {
             $processing_task = new Tasks\TaskMarkAsClear();
         } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction());
