@@ -728,6 +728,8 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
                         // Pick up any remaining unmatched invoice items from the accounting
                         // system.  Display them in red, as they should be unusual.
+                        // Except copays aren't unusual but displaying them in red
+                        // helps billers spot them quickly :)
                         if (!empty($arinvoice)) {
                             foreach ($arinvoice as $codekey => $val) {
                                 if ($binfo[0]) {
