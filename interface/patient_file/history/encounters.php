@@ -752,7 +752,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
                     echo "<td class='text'>" . $binfo[0] . "</td>\n";
                     for ($i = 1; $i < 5; ++$i) {
-                        echo "<td class='text right'>" . $binfo[$i] . "</td>\n";
+                        echo "<td class='text-right'>" . $binfo[$i] . "</td>\n";
                     }
                 } /* end if authorized */ else {
                     echo "<td class='text align-top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
