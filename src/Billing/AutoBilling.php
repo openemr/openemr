@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  package   OpenEMR
  *  link      http://www.open-emr.org
@@ -54,15 +55,15 @@ class AutoBilling
          * determine if there is more than one CPT and Dx code
          */
 
-        $howmanycpts = substr_count($cpt, ",,");
-        $howmanydx =substr_count($dx, ",,");
+        $howmanycpts = substr_count($cpt,",,");
+        $howmanydx =substr_count($dx,",,");
 
-        if($howmanycpts > 1 || $howmanydx > 1) {
+        if ($howmanycpts > 1 || $howmanydx > 1) {
             $this->cpts = $cpt;
             $this->dxs = $dx;
         }
 
-        if($howmanydx == 1 && $howmanycpts == 1) {
+        if ($howmanydx == 1 && $howmanycpts == 1) {
             $cpt = str_replace(",,", "", $cpt);
             $dx = str_replace(",,", "", $dx);
             $this->generateBilling($dx, $cpt);
@@ -123,7 +124,6 @@ class AutoBilling
 
         //insert billing if there is note and entry for this particular encounter
         if (empty($hasBilling['encounter'])) {
-
             if (!empty($code)) {
                 try {
                     $codetype = "CPT4";
@@ -171,7 +171,7 @@ class AutoBilling
             "authorized = '1', " .
             "encounter = ?, " .
             "code_text = ?, " .
-            "billed = '0', ".
+            "billed = '0', " .
             "activity = '1', " .
             "modifier = ?, " .
             "units = '1', " .
@@ -243,7 +243,7 @@ class AutoBilling
     private function getCodeFee($code)
     {
         $getFee = "SELECT b.pr_price FROM `codes` AS a, prices AS b WHERE a.code = ? AND a.id = b.pr_id ";
-        $fee = sqlQuery($getFee,array($code));
+        $fee = sqlQuery($getFee, array($code));
         if (empty($fee['pr_price'])) {
             $fees = '0.00';
         } else {
@@ -258,10 +258,10 @@ class AutoBilling
      * @param $enDate
      * @return mixed
      */
-    private function getEventEncounter($pid,$enDate)
+    private function getEventEncounter($pid, $enDate)
     {
-        $d = substr($enDate, 0,-8);
-        $de = $d." 00:00:00";
+        $d = substr($enDate,0,-8);
+        $de = $d . " 00:00:00";
         $sql = "SELECT encounter FROM form_encounter WHERE pid = ? AND date = ?";
         $query_e = sqlQuery($sql, [$pid, $de]);
         return $query_e['encounter'];
@@ -286,7 +286,8 @@ class AutoBilling
      * @param $code
      * @return mixed
      */
-    private function getModifier($code) {
+    private function getModifier($code)
+    {
         $sql = "select modifier from codes where code = ?";
         $isModified = sqlQuery($sql, [$code]);
         return $isModified['modifier'];
@@ -301,7 +302,7 @@ class AutoBilling
      */
     private function getEventProvider($pid, $event_date)
     {
-        $ev = substr($event_date, 0,-8);
+        $ev = substr($event_date,0,-8);
         $sql = "select pc_aid from openemr_postcalendar_events where pc_eventDate = ? AND pc_pid = ? ";
         $provider = sqlQuery($sql, [$ev, $pid]);
         return $provider['pc_aid'];
@@ -318,7 +319,6 @@ class AutoBilling
         $sql = "select count(formdir) as c from forms where pid = ? and encounter = ?";
         $formcount = sqlQuery($sql, [$pid, $enc]);
         return $formcount['c'];
-
     }
 
     /**
@@ -329,7 +329,7 @@ class AutoBilling
      */
     private function getCodeText($description, $codeDes)
     {
-        $desc = "%".$description;
+        $desc = "%" . $description;
         $sql = "select code_text from codes where code_text LIKE ? and code = ?;";
         $codetext = sqlQuery($sql, [$desc, $codeDes]);
         $value = substr($codetext['code_text'], 0, strpos($codetext['code_text'], "-"));
