@@ -216,9 +216,4 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     </div>
 </form>
 
-<script>
-    $("#manage-link").addClass("active");
-    $("#definition-link").removeClass("active");
-    $("#language-link").removeClass("active");
-    $("#constant-link").removeClass("active");
-</script>
+<?php echo activate_lang_tab('manage-link'); ?>

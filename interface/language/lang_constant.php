@@ -81,9 +81,5 @@ if (!empty($_POST['add'])) {
 </form>
 
 <span class="text"><?php echo xlt('Please Note: constants are case sensitive and any string is allowed.'); ?></span>
-<script>
-    $("#constant-link").addClass("active");
-    $("#definition-link").removeClass("active");
-    $("#language-link").removeClass("active");
-    $("#manage-link").removeClass("active");
-</script>
+
+<?php echo activate_lang_tab('constant-link'); ?>

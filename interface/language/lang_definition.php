@@ -315,9 +315,5 @@ if (!empty($_POST['edit'])) {
 }
 
 ?>
-<script>
-    $("#definition-link").addClass("active");
-    $("#language-link").removeClass("active");
-    $("#constant-link").removeClass("active");
-    $("#manage-link").removeClass("active");
-</script>
+
+<?php echo activate_lang_tab('definition-link'); ?>

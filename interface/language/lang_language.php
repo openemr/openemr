@@ -81,9 +81,4 @@ if (!empty($_POST['add'])) {
     </div>
 </form>
 
-<script>
-    $("#language-link").addClass("active");
-    $("#definition-link").removeClass("active");
-    $("#constant-link").removeClass("active");
-    $("#manage-link").removeClass("active");
-</script>
+<?php echo activate_lang_tab('language-link'); ?>
