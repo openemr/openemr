@@ -879,7 +879,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
             ?>
             <div class="table-responsive">
-                <table class="table table-hover table-sm">
+                <table class="table table-sm">
                     <?php
                         $divnos = 0;
                     if ($ret = BillingReport::getBillsBetween("%")) {
@@ -912,7 +912,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $rhtml = "";
                         $lcount = 0;
                         $rcount = 0;
-                        $bgcolor = "";
+                        $bgcolor = "var(--light)";
                         $skipping = false;
 
                         $mmo_empty_mod = false;
@@ -944,7 +944,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             // This dumps all HTML for the previous encounter.
                                 if ($lhtml) {
                                     while ($rcount < $lcount) {
-                                        $rhtml .= "<tr><td colspan='9'></td></tr>";
+                                        $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9'></td></tr>";
                                         ++$rcount;
                                     }
                                     // This test handles the case where we are only listing encounters
@@ -954,8 +954,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $lhtml .= '</div>';
                                             $DivPut = 'no';
                                         }
-                                        echo "<tr>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
-                                        echo "<tr><td colspan='9' height='5'></td></tr>\n\n";
+                                        echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
+                                        echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
                                         $encount = $encount ?? null;
                                         ++$encount;
                                     }
@@ -1008,8 +1008,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = "#" . ((($encount ?? null) & 1) ? "FFFAEF" : "F8F8FF");
-                                echo "<tr><td colspan='9' height='5'></td></tr>\n";
+                                $bgcolor = ((($encount ?? null) & 1) ? "var(--light)" : "var(--gray300)");
+                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
@@ -1252,7 +1252,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             ++$rcount;
 
                             if ($rhtml) {
-                                $rhtml .= "<tr bgcolor='$bgcolor'>\n";
+                                $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'>\n";
                             }
                             $rhtml .= "<td width='50'>";
                             if ($iter['id'] && $oldcode != $iter['code_type']) {
@@ -1345,7 +1345,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $date = $rowMoneyGot['date'];
                                     if ($PatientPay > 0) {
                                         if ($rhtml) {
-                                            $rhtml2 .= "<tr bgcolor='$bgcolor'>\n";
+                                            $rhtml2 .= "<tr style='background-color: " . attr($bgcolor) . ";'>\n";
                                         }
                                         $rhtml2 .= "<td width='50'>";
                                         $rhtml2 .= "<span class='text'>" . xlt('COPAY') . ": </span>";
@@ -1381,7 +1381,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                         if ($lhtml) {
                             while ($rcount < $lcount) {
-                                $rhtml .= "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9'></td></tr>";
+                                $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9'></td></tr>";
                                 ++$rcount;
                             }
                             if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
@@ -1389,8 +1389,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= '</div>';
                                     $DivPut = 'no';
                                 }
-                                echo "<tr bgcolor='" . attr($bgcolor) . "'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
-                                echo "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9' height='5'></td></tr>\n";
+                                echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
+                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                             }
                         }
                     }
