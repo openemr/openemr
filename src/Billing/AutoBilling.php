@@ -55,8 +55,8 @@ class AutoBilling
          * determine if there is more than one CPT and Dx code
          */
 
-        $howmanycpts = substr_count($cpt,",,");
-        $howmanydx =substr_count($dx,",,");
+        $howmanycpts = substr_count($cpt, ",,");
+        $howmanydx = substr_count($dx, ",,");
 
         if ($howmanycpts > 1 || $howmanydx > 1) {
             $this->cpts = $cpt;
@@ -260,7 +260,7 @@ class AutoBilling
      */
     private function getEventEncounter($pid, $enDate)
     {
-        $d = substr($enDate,0,-8);
+        $d = substr($enDate, 0, -8);
         $de = $d . " 00:00:00";
         $sql = "SELECT encounter FROM form_encounter WHERE pid = ? AND date = ?";
         $query_e = sqlQuery($sql, [$pid, $de]);
@@ -302,7 +302,7 @@ class AutoBilling
      */
     private function getEventProvider($pid, $event_date)
     {
-        $ev = substr($event_date,0,-8);
+        $ev = substr($event_date, 0, -8);
         $sql = "select pc_aid from openemr_postcalendar_events where pc_eventDate = ? AND pc_pid = ? ";
         $provider = sqlQuery($sql, [$ev, $pid]);
         return $provider['pc_aid'];
