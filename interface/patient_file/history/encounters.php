@@ -14,7 +14,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("../../../custom/code_types.inc.php");
 if ($GLOBALS['enable_group_therapy']) {

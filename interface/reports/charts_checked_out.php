@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;

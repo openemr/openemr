@@ -34,7 +34,7 @@
 set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

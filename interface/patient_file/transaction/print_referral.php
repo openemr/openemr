@@ -16,7 +16,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 

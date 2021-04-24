@@ -14,7 +14,7 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 
 $CPR = 4; // cells per row
 

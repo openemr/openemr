@@ -23,7 +23,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';

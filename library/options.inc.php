@@ -42,7 +42,7 @@
 // 2 = Show descriptions instead of codes for billing code input
 
 require_once("user.inc");
-require_once("patient.inc.php");
+require_once("patient.inc");
 require_once("lists.inc");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 

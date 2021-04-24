@@ -49,7 +49,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/checkout_receipt_array.inc.php");

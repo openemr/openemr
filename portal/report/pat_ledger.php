@@ -20,7 +20,7 @@ global $ignoreAuth_onsite_portal;
 
 
 require_once('../../interface/globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 

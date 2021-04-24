@@ -17,7 +17,7 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/options.inc.php");
 

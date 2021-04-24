@@ -39,7 +39,7 @@
  */
 
 require_once("../../../../interface/globals.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

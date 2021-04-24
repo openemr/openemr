@@ -15,7 +15,7 @@
     require_once("../../../globals.php");
     require_once("$srcdir/api.inc");
     require_once("$srcdir/forms.inc");
-    require_once("$srcdir/patient.inc.php");
+    require_once("$srcdir/patient.inc");
 
     $providerID = $_REQUEST['providerID'];
 

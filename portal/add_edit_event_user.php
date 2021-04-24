@@ -39,7 +39,7 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Core\Header;

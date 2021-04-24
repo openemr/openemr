@@ -15,7 +15,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

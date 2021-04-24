@@ -15,7 +15,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');

@@ -18,7 +18,7 @@
 $orphanLog = '';
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
     require_once("$include_root/procedure_tools/quest/QuestResultClient.php");

@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("../drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

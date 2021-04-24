@@ -13,7 +13,7 @@
 
 require_once("$include_root/globals.php");
 require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/auth.inc");
 
 use OpenEMR\Common\Acl\AclMain;
