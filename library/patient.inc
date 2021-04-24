@@ -1718,7 +1718,10 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0",
                 array($pid, $encounter)
             );
-            $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            // going to comment this out for now since computing future copays doesn't
+            // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
+            // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
             $ptbal = $copay + $amt - $pay;
