@@ -14,17 +14,21 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSOAP.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Billing\AutoBilling;
 
 class C_FormSOAP extends Controller
 {
 
     var $template_dir;
+    var $codingDone;
 
     function __construct($template_mod = "general")
     {
+        $this->codingDone = $this->hasBilling();
         parent::__construct();
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
+        $this->assign("BILLING", $this->codingDone);
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
@@ -36,6 +40,13 @@ class C_FormSOAP extends Controller
         $form = new FormSOAP();
         $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+    }
+
+    function hasBilling()
+    {
+        $sql = "SELECT id FROM billing WHERE encounter = ? AND activity = 1";
+        $billingEntered = sqlQuery($sql, [$_SESSION['encounter']]);
+        return $billingEntered['id'];
     }
 
     function view_action($form_id)
@@ -58,6 +69,8 @@ class C_FormSOAP extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
+        $billing = new AutoBilling();
+        $billing->billingEntries($_POST['dxcode'], $_POST['cpt']);
 
         $this->form = new FormSOAP($_POST['id']);
         parent::populate_object($this->form);

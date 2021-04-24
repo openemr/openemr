@@ -1,14 +1,44 @@
 <html>
 <head>
 <title>{xlt t='SOAP'}</title>
-{headerTemplate}
+{headerTemplate assets='jquery-ui|jquery-ui-base'}
+    {literal}
+    <script>
+        // handles the call back from the popup
+        function set_related(codetype, code, selector, codedesc) {
+            if (code) {
+                if (codetype == 'ICD10') {
+                    document.getElementById('dxcode').value += code + " - " + codedesc + " ,, \r\n";
+                }
+                if (codetype == 'CPT4') {
+                    document.getElementById('cpt').value += code + " - " + codedesc + " ,, \r\n";
+                }
+                let xhr = new XMLHttpRequest();
+                xhr.onload = function() {
+                    if (this.status == 200) {
+                        console.log(xhr.responseText);
+                    }
+                }
+
+            }
+        }
+        // This invokes the find-code popup.
+        function sel_diagnosis() {
+            dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=ICD10');
+        }
+        function sel_code() {
+            dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=CPT4');
+        }
+    </script>
+    {/literal}
+
 </head>
 <body>
     <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <h2>{xlt t='SOAP'}</h2>
-                <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
+                <form name="soap" id="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
                     <fieldset>
                         <legend>{xlt t='Subjective'}</legend>
@@ -42,6 +72,20 @@
                             </div>
                         </div>
                     </fieldset>
+                    {if empty($BILLING)}
+                    <fieldset>
+                        <div class="container">
+                            <div class="form-group">
+                                <label for="cpt">CPT</label>
+                                <textarea type="text" id="cpt" name="cpt" size="90" class="form-control" onclick="sel_code()" readonly></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="dxcode">Dx: </label>
+                                <textarea type="text" id="dxcode" name="dxcode" size="90" class="form-control" onclick="sel_diagnosis()" readonly></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    {/if}
                     <div class="form-group">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save" name="Submit">{xlt t='Save'}</button>
@@ -82,6 +126,7 @@
             location.href = 'javascript:parent.closeTab(window.name, false)';
         }
         $('#btnClose').click(close);
+
     </script>
     {/literal}
 </body>
