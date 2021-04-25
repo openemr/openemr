@@ -303,7 +303,7 @@ $communication = trim($_POST["communication"] ?? '');
 						pd.pid AS patient_id,
 						DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
 						pd.sex AS patient_sex,
-						pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
+						pd.race AS patient_race,pd.ethnicity AS patient_ethnic,
 						concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
@@ -435,7 +435,7 @@ $communication = trim($_POST["communication"] ?? '');
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
                 case "Demographics":
-                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
+                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
                     break;
             }
 
@@ -516,7 +516,7 @@ $communication = trim($_POST["communication"] ?? '');
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['patient_race'] = $row['patient_race'];
-                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                     } elseif ($srch_option == "Lab results") {
                         $patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
@@ -540,7 +540,7 @@ $communication = trim($_POST["communication"] ?? '');
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['patient_race'] = $row['patient_race'];
-                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                     }
                     $patFinalDataArr[] = $patInfoArr;
