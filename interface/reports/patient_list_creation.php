@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This report lists all the demographics, allergies, problems, medications and 
+ * This report lists all the demographics, allergies, problems, medications and
  * lab results along with race, ethnicity and provider for those items
  *
  * @package   OpenEMR
