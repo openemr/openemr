@@ -61,7 +61,7 @@ $communication = trim($_POST["communication"] ?? '');
                 FromDate = d.date_from.value;
                 ToDate = d.date_to.value;
                 if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
-                    if ( FromDate > ToDate ){
+                    if ( Date.parse(FromDate) > Date.parse(ToDate) ){
                         alert(<?php echo xlj('To date must be later than From date!'); ?>);
                         return false;
                     }
