@@ -37,7 +37,7 @@ $patient_id = trim($_POST["patient_id"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
-$sql_ethnicity = $_POST["cpms_ethnicity"] ?? '';
+$sql_ethnicity = $_POST["ethnicity"] ?? '';
 $sql_race = $_POST["race"] ?? '';
 $form_drug_name = trim($_POST["form_drug_name"] ?? '');
 $form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
@@ -260,6 +260,8 @@ $communication = trim($_POST["communication"] ?? '');
 
                                 <td class='col-form-label'><?php echo xlt('Gender'); ?>:</td>
                                 <td colspan="2"><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
+                                <td class='col-form-label'><?php echo xlt('Ethnicity'); ?>:</td>
+                                <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>                          
                             </tr>
 
                         </table>
@@ -303,7 +305,8 @@ $communication = trim($_POST["communication"] ?? '');
 						pd.pid AS patient_id,
 						DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
 						pd.sex AS patient_sex,
-						pd.race AS patient_race,pd.ethnicity AS patient_ethnic,
+						pd.race AS patient_race,
+                        pd.ethnicity AS patient_ethnic,
 						concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
@@ -393,6 +396,11 @@ $communication = trim($_POST["communication"] ?? '');
             if (strlen($sql_gender) != 0) {
                 $whr_stmt = $whr_stmt . "   and pd.sex = ?";
                 array_push($sqlBindArray, $sql_gender);
+            }
+            
+            if (strlen($sql_ethnicity) != 0) {
+                $whr_stmt = $whr_stmt . "   and pd.ethnicity = ?";
+                array_push($sqlBindArray, $sql_ethnicity);
             }
 
             if ($srch_option == "Communication" && strlen($communication) > 0) {
@@ -570,19 +578,23 @@ $communication = trim($_POST["communication"] ?? '');
                             <td width="5%" class="font-weight-bold"><?php echo xlt('PID');?></td>
                             <td width="5%" class="font-weight-bold"><?php echo xlt('Age');?></td>
                             <td width="10%" class="font-weight-bold"><?php echo xlt('Gender');?></td>
-                            <td colspan='4' class="font-weight-bold"><?php echo xlt('Provider');?></td>
+                            <td width="5%" class="font-weight-bold"><?php echo xlt('Race');?></td>                            
+                            <td width="5%" class="font-weight-bold"><?php echo xlt('Ethnicity');?></td>
+                            <td width="10%" class="font-weight-bold"><?php echo xlt('Provider');?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
-                                <tr bgcolor="#CCCCCC" style="font-size:15px;">
-                                    <td ><?php echo text(oeFormatDateTime($patDetailVal['lists_date'], "global", true)); ?></td>
-                                    <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
-                                    <td ><?php echo text($patDetailVal['lists_title']); ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
-                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
-                                    <td colspan='4'><?php echo text($patDetailVal['users_provider']);?></td>
-                                </tr>
+                            <tr bgcolor="#CCCCCC" style="font-size:15px;">
+                                <td ><?php echo text(oeFormatDateTime($patDetailVal['lists_date'], "global", true)); ?></td>
+                                <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
+                                <td ><?php echo text($patDetailVal['lists_title']); ?></td>
+                                <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                <td ><?php echo text($patDetailVal['patient_race']);?></td>
+                                <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                <td ><?php echo text($patDetailVal['users_provider']);?></td>                                                                                                    
+                            </tr>
                         <?php	}
                     } elseif ($srch_option == "Lab results") { ?>
                         <tr bgcolor="#C3FDB8" align= "left" >
@@ -618,8 +630,10 @@ $communication = trim($_POST["communication"] ?? '');
                             <td width="5%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
                             <td width="5%"><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
                             <td width="10%"><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
-                            <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[5]; ?></td>
-                            <td ><strong><?php echo xlt('Communication');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td width="20%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td ><strong><?php echo xlt('Communication');?></strong><?php echo $sortlink[8]; ?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" >
@@ -628,19 +642,21 @@ $communication = trim($_POST["communication"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['communications']);?></td>
                                </tr>
                         <?php }
                     } elseif ($srch_option == "Demographics") { ?>
                         <tr style="font-size:15px;">
-                            <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
-                            <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
-                            <td width="15%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
                             <td width="5%"><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
-                            <td width="10%"><strong><?php echo xlt('Gender'); ?></strong><?php echo $sortlink[4]; ?></td>
-                            <td width="20%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[5]; ?></td>
-                            <td colspan=5><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('Gender'); ?></strong><?php echo $sortlink[4]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td width="5%"><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td width="10%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
                             <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" style="font-size:15px;">
@@ -649,6 +665,7 @@ $communication = trim($_POST["communication"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $patDetailVal['patient_race']); ?></td>
                                     <td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
