@@ -496,36 +496,9 @@ function findPosY(obj) {
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
-function myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
-{
-    global $attendant_type;
-    $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date, aco_spec FROM registry WHERE ";
-  // select different forms for groups
-    if ($attendant_type == 'pid') {
-        $sql .= "patient_encounter = 1 AND ";
-    } else {
-        $sql .= "therapy_group_encounter = 1 AND ";
-    }
-    $sql .=  "state LIKE ? ORDER BY category, priority, name";
-    if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
-    }
-    $res = sqlStatement($sql, array($state));
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-    return $all;
-}
-
-$reg = myGetRegistered();
+$reg = getFormsByCategory();
 $old_category = '';
-
-  $DivId = 1;
+$DivId = 1;
 
 // To see if the encounter is locked. If it is, no new forms can be created
 $encounterLocked = false;
@@ -587,47 +560,6 @@ if (!empty($reg)) {
     $StringEcho .= '</div>';
 }
 
-if ($StringEcho) {
-    $StringEcho2 = '<div class="clearfix"></div>';
-} else {
-    $StringEcho2 = "";
-}
-
-// This shows Layout Based Form names just like the above.
-//
-if ($encounterLocked === false) {
-    $lres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
-    "FROM layout_group_properties WHERE " .
-    "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
-    "ORDER BY grp_seq, grp_title");
-
-    if (sqlNumRows($lres)) {
-        if (!$StringEcho) {
-            $StringEcho = '<ul>';
-        }
-
-        $StringEcho .= "<div class='dropdown d-inline'>\n";
-        $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" . xlt('Layout Based') . "</button>\n";
-        $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
-        while ($lrow = sqlFetchArray($lres)) {
-            $option_id = $lrow['option_id']; // should start with LBF
-            $title = $lrow['title'];
-            // Check ACO attribute, if any, of this LBF.
-            if (!empty($lrow['grp_aco_spec'])) {
-                $tmp = explode('|', $lrow['grp_aco_spec']);
-                if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-                    continue;
-                }
-            }
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
-            attr_js($rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($option_id)) .
-                ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
-            text(xl_form_title($title)) . "</button>\n";
-        }
-        $StringEcho .= "</div>\n";
-        $StringEcho .= '</div>';
-    }
-}
 if ($StringEcho) {
     $StringEcho2 = '<div class="clearfix"></div>';
 } else {
