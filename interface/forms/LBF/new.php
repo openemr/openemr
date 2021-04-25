@@ -859,7 +859,10 @@ if (
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:var(--white)'";
                       } ?>>
-<div>
+<div class="container-fluid">
+    <div class="row"><!-- was flex-row -->
+        <div class='col-12'>
+
     <?php
     // form-inline is more consistent with the fact that LBFs are not designed for
     // small devices. In particular we prefer horizontal arrangement of multiple
@@ -898,18 +901,15 @@ if (
                 $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
                 if (!$patient_portal) {
-                // Provider selector.
+                    // Provider selector.
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
-                // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect(
-                        'form_provider_id',
+                    echo "<select class='form-control' name='form_provider_id'>";
+                    echo FeeSheetHtml::genProviderOptionList(
                         '-- ' . xl("Please Select") . ' --',
-                        ($form_provider_id ?? ''),
-                        false,
-                        '',
-                        false // bootstrap was putting this on a row by itself
+                        ($form_provider_id ?? '')
                     );
+                    echo "</select>\n";
                 }
 
                 // If appropriate build a drop-down selector of issues of this type for this patient.
@@ -936,6 +936,11 @@ if (
                 ?>
             </div>
 
+        </div><!-- end column -->
+    </div><!-- end row -->
+    <div class="row"><!-- was flex-row -->
+        <div class='col-12'>
+
             <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
     } // end not from trend form
     ?>
@@ -943,9 +948,10 @@ if (
             <!-- This is where a chart might display. -->
             <div id="chart"></div>
 
-    <div class="container-fluid">
-        <div class="flex-row">
-            <div class='col-12'>
+        </div><!-- end column -->
+    </div><!-- end row -->
+    <div class="row"><!-- was flex-row -->
+        <div class='col-12'>
 
             <?php
             $shrow = getHistoryData($pid);
@@ -1110,7 +1116,8 @@ if (
                             echo " checked";
                         }
                         echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label></span>\n";
-                        echo "<div id='div_" . attr($group_seq) . "' class='section table-responsive clearfix' style='display:" . attr($display_style) . ";'>\n";
+                        // table-responsive removed below because it added a scrollbar regardless of screen width.
+                        echo "<div id='div_" . attr($group_seq) . "' class='section clearfix' style='display:" . attr($display_style) . ";'>\n";
                     }
 
                     $group_table_active = true;
@@ -1385,14 +1392,12 @@ if (
                     $tmp_provider_id = $_SESSION['authUserID'];
                 }
                 echo xlt('Main Provider') . ": ";
-                echo $fs->genProviderSelect(
-                    "form_fs_provid",
+                echo "<select class='form-control' name='form_fs_provid'>";
+                echo FeeSheetHtml::genProviderOptionList(
                     ' ',
-                    $tmp_provider_id,
-                    false,
-                    '',
-                    false // bootstrap was putting this on a row by itself
+                    tmp_provider_id
                 );
+                echo "</select>\n";
                 echo "\n";
                 echo "</p>\n";
 
@@ -1704,7 +1709,11 @@ if (
             ?>
             <br />
 
-            <div class="col-12">
+        </div><!-- end column -->
+    </div><!-- end row -->
+    <div class="row"><!-- was flex-row -->
+        <div class='col-12'>
+
                 <div class="btn-group">
                     <?php
                     if (!$from_trend_form && !$from_lbf_edit && $is_core) {
@@ -1776,10 +1785,12 @@ if (
                     ?>
                 </div>
                 <hr>
-            </div>
+
             <?php if (!$from_trend_form) { // end row and container divs ?>
-        </div>
-    </div>
+        </div><!-- end column -->
+    </div><!-- end row -->
+    <div class="row"><!-- was flex-row -->
+        <div class='col-12'>
 
     <p style='text-align:center' class='small'>
                 <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
@@ -1858,6 +1869,10 @@ if (
         parent.postMessage({formid:<?php echo attr($formid) ?>}, window.location.origin);
         <?php } ?>
     </script>
-</div>
+
+        </div><!-- end column -->
+    </div><!-- end row -->
+
+</div><!-- end container -->
 </body>
 </html>
