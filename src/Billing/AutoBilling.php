@@ -14,14 +14,12 @@ use Exception;
 
 class AutoBilling
 {
-    private $rid;
     private $pid;
     private $userid;
 
     public function __construct()
     {
-           $this->rid = $this->getMaxBilling();
-           $this->pid = $_SESSION['pid'];
+        $this->pid = $_SESSION['pid'];
         $this->userid = $_SESSION['authUserID'];
     }
 
