@@ -649,6 +649,7 @@ $communication = trim($_POST["communication"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_race']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['communications']);?></td>
@@ -672,6 +673,7 @@ $communication = trim($_POST["communication"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_race']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $patDetailVal['patient_race']); ?></td>
                                     <td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
