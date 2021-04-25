@@ -1,13 +1,16 @@
 <?php
 
 /**
- * This report lists all the demographics allergies,problems,drugs and lab results
+ * This report lists all the demographics, allergies, problems, medications and 
+ * lab results along with race, ethnicity and provider for those items
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2014 Ensoftek, Inc
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
