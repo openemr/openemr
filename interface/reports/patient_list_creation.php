@@ -358,6 +358,10 @@ $communication = trim($_POST["communication"] ?? '');
             //WHERE Conditions started
             $whr_stmt = "where 1=1";
             switch ($srch_option) {
+                case "Demographics":
+                    $whr_stmt = $whr_stmt . " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
                 case "Medications":
                 case "Allergies":
                     $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
