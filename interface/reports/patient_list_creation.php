@@ -401,7 +401,7 @@ $communication = trim($_POST["communication"] ?? '');
                 $whr_stmt = $whr_stmt . "   and pd.sex = ?";
                 array_push($sqlBindArray, $sql_gender);
             }
-            
+
             if (strlen($sql_ethnicity) != 0) {
                 $whr_stmt = $whr_stmt . "   and pd.ethnicity = ?";
                 array_push($sqlBindArray, $sql_ethnicity);
