@@ -74,13 +74,13 @@ $facilities = $data->getFacilities();
         <input type="<?php echo xla('Submit'); ?>" value="update" id="save_weno_id" class="btn_primary">
     </form>
 
-    <div style="padding-top: 20px">
-        <h3><?php echo xlt('Import/Update Pharmacies') ?></h3>
+  <!--  <div style="padding-top: 20px">
+        <h3><?php //echo xlt('Import/Update Pharmacies') ?></h3>
             <div id="importstatus" style="padding-top: 15px">
-                <button class="btn btn-primary" id="connected" title="<?php echo xla("Weno Connected Phamacies Only");?>">
-                    <i id="loading" class="fa fa-sync fa-spin hide"></i><?php echo xlt('Import/Update')?></button>
+                <button class="btn btn-primary" id="connected" title="<?php //echo xla("Weno Connected Phamacies Only");?>">
+                    <i id="loading" class="fa fa-sync fa-spin hide"></i><?php //echo xlt('Import/Update')?></button>
             </div>
-    </div>
+    </div>-->
 
 </div>
 <script src="weno.js"></script>

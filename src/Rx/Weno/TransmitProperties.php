@@ -23,7 +23,6 @@ class TransmitProperties
     private $locid;
     private $vitals;
     private $subscriber;
-    private $pid;
     private $ncpdp;
     private $cryptoGen;
 
@@ -60,41 +59,53 @@ class TransmitProperties
         if ($this->subscriber == 'self') {
             $relationship = 'Y';
         } else {
-            $relationship = 'N';
+            $relationship = 'Y';
         }
+        $phoneprimary = str_replace("-", "", $this->patient['phone_cell']);
         //create json array
-        $wenObj = [
-                            'UserEmail' => $this->provider_email['email'],
-                          'MD5Password' => md5($this->provider_pass),
-                           "LocationID" => $this->locid['weno_id'],
-                          "TestPatient" => $mode,
-                          'PatientType' => 'Human',
-                         'OrgPatientID' => $this->patient['pid'],
-                             'LastName' => $this->patient['lname'],
-                            'FirstName' => $this->patient['fname'],
-                           'MiddleName' => $this->patient['mname'],
-                               'Prefix' => 'NA',
-                               'Suffix' => 'NA',
-                               "Gender" => $gender[0],
-                          "DateOfBirth" => $this->patient['dob'],
-                         "AddressLine1" => $this->patient['street'],
-                         "AddressLine2" => "NA",
-                                 "City" => $this->patient['city'],
-                                "State" => $this->patient['state'],
-                           "PostalCode" => $this->patient['postal_code'],
-                          "CountryCode" => "US",
-                         "PrimaryPhone" => $this->patient['phone_cell'],
-                          "SupportsSMS" => "Y",
-                         "PatientEmail" => $this->patient['email'],
-                        "PatientHeight" => $this->vitals['height'],
-                        "PatientWeight" => $this->vitals['weight'],
-          "HeightWeightObservationDate" => $heighDate[0],
-        "ResponsiblePartySameAsPatient" => 'Y',
-                      "PatientLocation" => "Home",
-                 "PrimaryPharmacyNCPCP" => $this->ncpdp,
-             "AlternativePharmacyNCPCP" => $this->ncpdp
-        ];
+        $wenObj = [];
+        array_merge(
+            $wenObj,
+            $wenObj['UserEmail'] = $this->provider_email['email'],
+            $wenObj['MD5Password'] = md5($this->provider_pass),
+            $wenObj['LocationID'] = $this->locid['weno_id'],
+            $wenObj['TestPatient'] = $mode,
+            $wenObj['PatientType'] = 'Human',
+            $wenObj['OrgPatientID'] = $this->patient['pid'],
+            $wenObj['LastName'] = $this->patient['lname']
+        );
+        // optional fields (added only if they have a value)
+        //if (isset($this->patient['mname'])) {
+        //    array_merge($wenObj, $wenObj['MiddleName'] = $this->patient['mname']);
+        //};
+        array_merge(
+            $wenObj,
+            $wenObj['FirstName'] = $this->patient['fname'],
+            $wenObj['Gender'] = $gender[0],
+            $wenObj['DateOfBirth'] = $this->patient['dob'],
+            $wenObj['AddressLine1'] = $this->patient['street'],
+            $wenObj['City'] = $this->patient['city'],
+            $wenObj['State'] = $this->patient['state'],
+            $wenObj['PostalCode'] = $this->patient['postal_code'],
+            $wenObj['CountryCode'] = "US",
+            $wenObj['PrimaryPhone'] = $phoneprimary,
+            $wenObj['SupportsSMS'] = 'Y'
+        );
+        // optional fields (added only if they have a value)
+        if (isset($this->patient['email'])) {
+            array_merge($wenObj, $wenObj['PatientEmail'] = $this->patient['email']);
+        };
+        array_merge(
+            $wenObj,
+            $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3),
+            $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3),
+            $wenObj['HeightWeightObservationDate'] = $heighDate[0],
+            $wenObj["ResponsiblePartySameAsPatient"] = $relationship,
+            $wenObj['PatientLocation'] = "Home",
+            //$wenObj['PrimaryPharmacyNCPCP'] = $this->ncpdp,
+            //$wenObj['AlternativePharmacyNCPCP'] = $this->ncpdp,
 
+    );
         return json_encode($wenObj);
     }
 
@@ -105,7 +116,7 @@ class TransmitProperties
     {
         $provider_info = sqlQuery("select email from users where username=? ", [$_SESSION["authUser"]]);
         if (empty($provider_info['email'])) {
-            echo xlt('Provider email address is missing');
+            echo xlt('Provider email address is missing. Go to address book to add providers email address');
             exit;
         } else {
             return $provider_info;
@@ -142,7 +153,7 @@ class TransmitProperties
         //Since the transmitproperties is called in the logproperties
         //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
         if (empty($_SESSION['encounter'])) {
-            return ;
+            die("please select an encounter");
         }
         $missing = 0;
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
@@ -170,12 +181,8 @@ class TransmitProperties
             echo xlt("Street Address incomplete Missing") . "<br>";
             ++$missing;
         }
-        if (empty($patient['email'])) {
-            echo xlt("Email Address Missing") . "<br>";
-            ++$missing;
-        }
         if ($missing > 0) {
-            exit;
+            die('Pleasae add the missing data and try again');
         }
         return $patient;
     }
@@ -190,7 +197,7 @@ class TransmitProperties
         $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         if ($enc_key) {
             $key = substr(hash('sha256', $enc_key, true), 0, 32);
-            $iv = chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2) . chr(0x3) . chr(0x5) . chr(0x7) . chr(0x9) . chr(0x0) . chr(0x1) . chr(0x2);
+            $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
             $ciphertext = base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
             return $ciphertext;
         } else {

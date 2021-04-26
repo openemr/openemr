@@ -13,8 +13,10 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Rx\Weno\Container;
 
-//ensure user has proper access
-if (!AclMain::aclCheckCore('admin', 'super')) {
+/*
+ * access control is on Weno side based on the user login
+ */
+if (!AclMain::aclCheckCore('patient', 'med')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
@@ -30,7 +32,7 @@ if ($logurlparam == 'error') {
     exit;
 }
 
-$url = "https://test.wenoexchange.com/en/EPCS/RxLog?useremail=";
+$url = "https://online.wenoexchange.com/en/EPCS/RxLog?useremail=";
 
 //**warning** do not add urlencode to  $provider_info['email']
 $urlOut = $url . $provider_info['email'] . "&data=" . urlencode($logurlparam);

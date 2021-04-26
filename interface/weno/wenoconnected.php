@@ -14,11 +14,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Rx\Weno\wenoPharmaciesImport;
 
 //ensure user has proper access
-if (!AclMain::aclCheckCore('admin', 'super')) {
+if (!AclMain::aclCheckCore('patient', 'med')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
-
+//Weno has decided to not force the import of pharmacies since they are using the iframe
+//and the pharmacy can be selected at the time of creating the prescription.
 $phIN = new wenoPharmaciesImport();
 
 $status = $phIN->importPharmacy();

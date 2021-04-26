@@ -1,5 +1,4 @@
 <?php
-
 /*
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
@@ -9,6 +8,7 @@
  */
 
 namespace OpenEMR\Rx\Weno;
+
 
 /**
  * Class Container
@@ -29,7 +29,7 @@ class Container
     /**
      * @return TransmitProperties
      */
-    public function getTransmitproperties()
+    public function getTransmitproperties(): TransmitProperties
     {
         if ($this->transmitproperties === null) {
             $this->transmitproperties = new TransmitProperties();
@@ -40,7 +40,7 @@ class Container
     /**
      * @return LogProperties
      */
-    public function getLogproperties()
+    public function getLogproperties(): LogProperties
     {
         if ($this->logproperties === null) {
             $this->logproperties = new LogProperties();
@@ -51,7 +51,7 @@ class Container
     /**
      * @return FacilityProperties
      */
-    public function getFacilityproperties()
+    public function getFacilityproperties(): FacilityProperties
     {
         if ($this->facilityproperties === null) {
             $this->facilityproperties = new FacilityProperties();
