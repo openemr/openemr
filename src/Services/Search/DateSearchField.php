@@ -135,7 +135,7 @@ class DateSearchField extends BasicSearchField
         $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59];
 
         // month
-        if ($matches[3] != '') {
+        if (!empty($matches[3])) {
             $month = intval(substr($matches[3], 1));
             $month = min([max([$month, 1]), 12]);
             $lowerBoundRange['m'] = $month;
@@ -143,7 +143,7 @@ class DateSearchField extends BasicSearchField
         }
 
         // day
-        if ($matches[4] != '') {
+        if (!empty($matches[4])) {
             $day = intval(substr($matches[4], 1));
             $day = min([max([$day, 1]), cal_days_in_month(CAL_GREGORIAN, $upperBoundRange['m'], $upperBoundRange['y'])]);
             $lowerBoundRange['d'] = $day;
@@ -153,7 +153,7 @@ class DateSearchField extends BasicSearchField
         }
 
         // hour:minutes
-        if ($matches[5] != '') {
+        if (!empty($matches[5])) {
             $parts = explode(":", $matches[5]);
             // remove the T and grab the value for the hour
             $hour = intval(substr($parts[0], 1));
@@ -170,7 +170,7 @@ class DateSearchField extends BasicSearchField
         }
 
         // seconds
-        if ($matches[5] != '') {
+        if (!empty($matches[5])) {
             // remove the ':'
             $seconds = intval(substr($matches[5], 1));
             $seconds = min([max([$seconds, 0]), 59]);
