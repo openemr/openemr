@@ -855,22 +855,27 @@ if (
 
     </script>
 </head>
-
-<body class="body_top"<?php if ($from_issue_form) {
+  
+<?php
+echo "<body class='body_top'";
+if ($from_issue_form) {
     echo " style='background-color:var(--white)'";
-                      } ?>>
+}
+echo ">\n";
+
+// form-inline is more consistent with the fact that LBFs are not designed for
+// small devices. In particular we prefer horizontal arrangement of multiple
+// items in the same row and column.
+echo "<form method='post' class='form-inline' " .
+    "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
+    "onsubmit='return validate(this)'>\n";
+?>
+
 <div class="container-fluid">
     <div class="row"><!-- was flex-row -->
         <div class='col-12'>
 
     <?php
-    // form-inline is more consistent with the fact that LBFs are not designed for
-    // small devices. In particular we prefer horizontal arrangement of multiple
-    // items in the same row and column.
-    echo "<form method='post' class='form-inline' " .
-        "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
-        "onsubmit='return validate(this)'>\n";
-
     $cmsportal_login = '';
     $portalres = false;
 
@@ -1803,7 +1808,6 @@ if (
         echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
         echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
     } ?>
-    </form>
 
     <!-- include support for the list-add selectbox feature -->
     <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
@@ -1874,5 +1878,6 @@ if (
     </div><!-- end row -->
 
 </div><!-- end container -->
+</form>
 </body>
 </html>
