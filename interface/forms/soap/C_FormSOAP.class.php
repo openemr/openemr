@@ -20,15 +20,13 @@ class C_FormSOAP extends Controller
 {
 
     var $template_dir;
-    var $codingDone;
 
     function __construct($template_mod = "general")
     {
-        $this->codingDone = $this->hasBilling();
         parent::__construct();
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
-        $this->assign("BILLING", $this->codingDone);
+        $this->assign("BILLING", $this->hasBilling());
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
