@@ -21,13 +21,15 @@ use OpenEMR\Core\Header;
 function activate_lang_tab($linkid)
 {
     $s = "<script>\n";
-    foreach (array(
+    foreach (
+        array(
         'language-link',
         'definition-link',
         'constant-link',
         'manage-link',
         'csv-link',
-    ) as $id) {
+        ) as $id
+    ) {
         $s .= "\$('#$id')." . ($id == $linkid ? 'addClass' : 'removeClass') . "('active');\n";
     }
     $s .= "</script>\n";
