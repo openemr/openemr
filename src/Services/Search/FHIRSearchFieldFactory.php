@@ -127,10 +127,37 @@ class FHIRSearchFieldFactory
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME);
         } else if ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
+        } else if ($type == SearchFieldType::REFERENCE) {
+            return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers);
         } else {
             // default is a string token
             return new StringSearchField($fieldName, $fhirSearchValues, $modifier);
         }
+    }
+
+    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers) {
+        $referenceOptions = $this->resourceSearchParameters[$fieldName] ?? [];
+
+        // reference field needs the following
+        // resource name
+        // resource id
+        $normalizedValues = [];
+        foreach ($fhirSearchValues as $searchValue) {
+            $id = $searchValue;
+            if (strpos($searchValue, '://') !== false) {
+                // TODO: adunsulag need to support absolute URL reference for our own FHIR server, don't support searching
+                // on external FHIR URLs
+                throw new \InvalidArgumentException("Absolute URL references not supported at this point in time");
+            }
+            else if (strpos($searchValue, '/') !== false) {
+                $parts = explode('/', $searchValue);
+                $type = $parts[0];
+                $id = $parts[1];
+            }
+
+
+        }
+        throw new \BadMethodCallException("Number search parameter not implemented yet");
     }
 
     /**
