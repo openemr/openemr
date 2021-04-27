@@ -30,11 +30,17 @@ class FhirSearchParameterDefinition
      */
     private $mappedFields;
 
-    public function __construct($name, $type, $mappedFields)
+    /**
+     * @var string[]
+     */
+    private $options;
+
+    public function __construct($name, $type, $mappedFields, $options = array())
     {
         $this->name = $name;
         $this->type = $type;
         $this->mappedFields = $mappedFields;
+        $this->options = $options;
     }
 
     /**
@@ -59,5 +65,9 @@ class FhirSearchParameterDefinition
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getOptions() : array {
+        return $this->options;
     }
 }

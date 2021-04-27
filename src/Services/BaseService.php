@@ -449,11 +449,19 @@ class BaseService
 
         $processingResult = new ProcessingResult();
         foreach ($records as $row) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $processingResult->addData($row);
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Allows any mapping data conversion or other properties needed by a service to be returned.
+     * @param $row The record returned from the database
+     */
+    protected function createResultRecordFromDatabaseResult($row) {
+        return $row;
     }
 
     /**
@@ -505,8 +513,14 @@ class BaseService
         }
         foreach ($joins as $tableDefinition) {
             $clause .= $tableDefinition['type'] . ' `' . $tableDefinition['table'] . "` `{$tableDefinition['alias']}` "
-                . ' ON `' . $this->getTable() . '`.`' . $tableDefinition['column']
+                . ' ON `';
+            if (isset($tableDefinition['join_clause'])) {
+                $clause .= $tableDefinition['join_clause'];
+            } else {
+                $table = $tableDefinition['join_table'] ?? $this->getTable();
+                $clause .= $table . '`.`' . $tableDefinition['column']
                 . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
+            }
         }
         return $clause;
     }
