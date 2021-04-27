@@ -503,7 +503,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
-    var vpht = where.innerHeight;
+    let vpht = where.innerHeight;
+    if (height <= 300) {
+        height = 300;
+    }
     mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
