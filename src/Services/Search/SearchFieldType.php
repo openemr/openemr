@@ -27,4 +27,6 @@ class SearchFieldType
 
     // we added datetime so we could better distinguish between types of dates here.
     const DATETIME = 'datetime';
+
+    const REFERENCE = 'reference';
 }

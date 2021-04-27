@@ -130,7 +130,10 @@ abstract class FhirServiceBase
             if ($fhirSearchParameters['_revinclude'] == 'Provenance:target') {
                 $provenanceRequest = true;
             }
+            // once we've got our flag we clear it as it doesn't map to anything in our search parameters.
+            unset($fhirSearchParameters['_revinclude']);
         }
+
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
 
