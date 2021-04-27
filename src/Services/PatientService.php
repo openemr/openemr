@@ -278,7 +278,8 @@ class PatientService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        // we are going to convert our uuid parameter
+        // when we deal with uuids we need to convert to bytes... the inverse happens
+        // in our createResultRecordFromDatabaseResult
         // TODO: adunsulag do we want to create a UUID search field so we can handle this properly?
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $values = $search['uuid']->getValues();
@@ -292,6 +293,14 @@ class PatientService extends BaseService
         return parent::search($search, $isAndCondition);
     }
 
+    protected function createResultRecordFromDatabaseResult($record)
+    {
+        if (!empty($record['uuid'])) {
+            $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+        }
+
+        return $record;
+    }
 
 
     /**
