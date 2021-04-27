@@ -128,7 +128,6 @@ function isRegistered($directory, $state = 1)
 
 function getTherapyGroupCategories()
 {
-
     return array('');
 }
 
@@ -137,30 +136,35 @@ function getTherapyGroupCategories()
 //
 function getFormsByCategory($state = '1', $lbfonly = false)
 {
+    global $attendant_type;
     $all = array();
     if (!$lbfonly) {
-      // First get the traditional form types from the registry table.
+        // First get the traditional form types from the registry table.
         $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-        "unpackaged, date, priority, aco_spec FROM registry WHERE " .
-        "state LIKE ? ORDER BY category, priority, name";
+            "unpackaged, date, priority, aco_spec FROM registry WHERE ";
+        if (($attendant_type ?? 'pid') == 'pid') {
+            $sql .= "patient_encounter = 1 AND ";
+        } else {
+            $sql .= "therapy_group_encounter = 1 AND ";
+        }
+        $sql .= "state LIKE ? ORDER BY category, priority, name";
         $res = sqlStatement($sql, array($state));
         if ($res) {
             while ($row = sqlFetchArray($res)) {
-              // Skip fee_sheet from list of registered forms.
-                if ($row['directory'] != 'fee_sheet') {
-                  // Flag this entry as not LBF
-                    $row['LBF'] = false;
-                    $all[] = $row;
-                }
+                // Flag this entry as not LBF
+                $row['LBF'] = false;
+                $all[] = $row;
             }
         }
     }
 
-  // Merge LBF form types into the registry array of form types.
-  // Note that the mapping value is used as the category name.
-    $lres = sqlStatement("SELECT * FROM layout_group_properties " .
-    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
-    "ORDER BY grp_mapping, grp_seq, grp_title");
+    // Merge LBF form types into the registry array of form types.
+    // Note that the mapping value is used as the category name.
+    $lres = sqlStatement(
+        "SELECT * FROM layout_group_properties " .
+        "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
+        "ORDER BY grp_mapping, grp_seq, grp_title"
+    );
     while ($lrow = sqlFetchArray($lres)) {
         $rrow = array();
         $rrow['category']  = $lrow['grp_mapping'] ? $lrow['grp_mapping'] : 'Clinical';
@@ -173,9 +177,9 @@ function getFormsByCategory($state = '1', $lbfonly = false)
         $all[] = $rrow;
     }
 
-  // Sort by category, priority, is lbf, name.
+    // Sort by category, priority, is lbf, name.
     usort($all, function ($a, $b) {
-      // Anonymous functions supported as of PHP 5.3. Yay!
+        // Anonymous functions supported as of PHP 5.3. Yay!
         if ($a['category'] == $b['category']) {
             if ($a['priority'] == $b['priority']) {
                 if ($a['LBF'] == $b['LBF']) {
@@ -186,7 +190,7 @@ function getFormsByCategory($state = '1', $lbfonly = false)
                     }
                     return $name1 < $name2 ? -1 : 1;
                 } else {
-                  // Sort LBF with the same priority after standard forms
+                    // Sort LBF with the same priority after standard forms
                     return $b['LBF'] ? -1 : 1;
                 }
             }
