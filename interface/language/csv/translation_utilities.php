@@ -49,21 +49,7 @@ function find_or_create_constant($constant)
     }
 }
 
-function update_metainfo($constant, $definition, $source, $set_source = false)
-{
-    if ($source != "") {
-        $sqlUpdate = " UPDATE ippf_lang_definitions set " . $source . "= ? where BINARY constant_name = ?";
-        $parameters = array($definition, $constant);
-        sqlStatement($sqlUpdate, $parameters);
-        if ($set_source) {
-            $sqlUpdate = " UPDATE ippf_lang_definitions set source = ? where BINARY constant_name = ?";
-            $parameters = array($source, $constant);
-            sqlStatement($sqlUpdate, $parameters);
-        }
-    }
-}
-
-function verify_translation($constant, $definition, $language, $replace = true, $source = "", $set_metainfo = false, $preview = false)
+function verify_translation($constant, $definition, $language, $replace = true, $source = "", $preview = false)
 {
     if (empty($constant) || empty($definition)) {
         return '[1]' . xl("Empty Definition");
@@ -85,16 +71,9 @@ function verify_translation($constant, $definition, $language, $replace = true, 
                     $sqlUpdate = " UPDATE lang_definitions SET definition=? WHERE def_id=?";
                     if (!$preview) {
                         $result = sqlStatement($sqlUpdate, array($definition,$row['def_id']));
-                        if ($set_metainfo) {
-                            update_metainfo($constant, $definition, $source, true);}
                     }
                     return '[3]' . xl('Update From') . ':' . $row['definition'] . ' => ' . $definition . ' (' . xl('for') . ': ' . $constant . ')';
                 } else {
-                    if (!$preview) {
-                        if ($set_metainfo) {
-                            update_metainfo($constant, $definition, $source, false);
-                        }
-                    }
                     return '[4]' . xl('Definition Not Updated') . ': ' . xl('Current') . $row['definition'] . '|' . $infoText;
                 }
             }
@@ -114,9 +93,6 @@ function verify_translation($constant, $definition, $language, $replace = true, 
             $sqlInsert = " INSERT INTO lang_definitions (cons_id,lang_id,definition) VALUES (?,?,?) ";
             if (!$preview) {
                 $id = sqlInsert($sqlInsert, array($cons_id, $language, $definition));
-                if ($set_metainfo) {
-                    update_metainfo($constant, $definition, $source, true);
-                }
             }
             return '[5]' . xl('Create') . ':' . $constant . ' => ' . $definition;
         }

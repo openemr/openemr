@@ -52,7 +52,6 @@ if (!$errmsg) {
             $lang_id,
             true,
             "",
-            false,
             $preview
         );
         if (strpos($result, '[2]') !== 0) { // Definition Exists

@@ -64,7 +64,7 @@ if (count($file_contents) === 0) {
 
     <div id="verify" data-bind="visible: mode()=='verify' ">
         <h1>
-            <?php echo xlt('Verify Contents to apply to') . ' ' . $lang_description; ?>
+            <?php echo xlt('Verify Contents to apply to') . ' ' . text($lang_description); ?>
         </h1>
         <span><?php echo xlt('Choose constant column'); ?></span> <select data-bind="options: header,optionsText: 'text', value: constant_choice" ></select><br>
 
@@ -84,7 +84,7 @@ if (count($file_contents) === 0) {
                     $row = $file_contents[$idx];
                     echo "<tr>";
                     foreach ($row as $cell) {
-                        echo "<td>" . $cell . "</td>";
+                        echo "<td>" . text($cell) . "</td>";
                     }
                     echo "</tr>";
                 }
@@ -143,7 +143,7 @@ if (count($file_contents) === 0) {
     <!-- /ko -->
 
     <!-- ko if:loading() -->
-        <span data-bind="text:processingStatus"></span><img src='<?php echo $webroot . "/interface/pic/ajax-loader.gif"; ?>'/>
+        <span data-bind="text:processingStatus"></span><i class="fa fa-spinner fa-spin"></i>
     <!-- /ko -->
 </script>
 
