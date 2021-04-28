@@ -12,6 +12,7 @@
 
 // This script is ajax-loaded into a div by validate_csv.php, so much of
 // the normal framework does not apply.
+header('Content-Type: application/json');
 
 require_once("../../globals.php");
 require_once("translation_utilities.php");
@@ -54,14 +55,14 @@ if (!$errmsg) {
             false,
             $preview
         );
-        if (strpos($result, xl('Definition Exists') . ':') !== 0) {
-            if (strpos($result, xl('Empty Definition')) !== 0) {
+        if (strpos($result, '[2]') !== 0) { // Definition Exists
+            if (strpos($result, '[1]') !== 0) { // Empty Definition
                 if ($result) {
                     array_push($changed, $result);
-                    if (strpos($result, xl('Update From') . ':') === 0) {
-                        array_push($updated, $result);
-                    } else if (strpos($result, xl('Create') . ':') === 0) {
-                        array_push($created, $result);
+                    if (strpos($result, '[3]') === 0) {
+                        array_push($updated, substr($result, 3));
+                    } else if (strpos($result, '[5]') === 0) {
+                        array_push($created, substr($result, 3));
                     }
                 }
             } else {

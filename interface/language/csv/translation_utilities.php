@@ -66,7 +66,7 @@ function update_metainfo($constant, $definition, $source, $set_source = false)
 function verify_translation($constant, $definition, $language, $replace = true, $source = "", $set_metainfo = false, $preview = false)
 {
     if (empty($constant) || empty($definition)) {
-        return xl("Empty Definition");
+        return '[1]' . xl("Empty Definition");
     }
     $cons_id = find_or_create_constant($constant);
     $whereClause = " lang_id = ? and cons_id = ? ";
@@ -79,7 +79,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
             $row = sqlFetchArray($result);
             $row['definition'] = iconv('utf-8', 'utf-8', $row['definition']);
             if ($row['definition'] === $definition) {
-                return xl('Definition Exists') . ':' . $infoText;
+                return '[2]' . xl('Definition Exists') . ':' . $infoText;
             } else {
                 if ($replace) {
                     $sqlUpdate = " UPDATE lang_definitions SET definition=? WHERE def_id=?";
@@ -88,14 +88,14 @@ function verify_translation($constant, $definition, $language, $replace = true, 
                         if ($set_metainfo) {
                             update_metainfo($constant, $definition, $source, true);}
                     }
-                    return xl('Update From') . ':' . $row['definition'] . ' => ' . $definition . ' (' . xl('for') . ': ' . $constant . ')';
+                    return '[3]' . xl('Update From') . ':' . $row['definition'] . ' => ' . $definition . ' (' . xl('for') . ': ' . $constant . ')';
                 } else {
                     if (!$preview) {
                         if ($set_metainfo) {
                             update_metainfo($constant, $definition, $source, false);
                         }
                     }
-                    return xl('Definition Not Updated') . ': ' . xl('Current') . $row['definition'] . '|' . $infoText;
+                    return '[4]' . xl('Definition Not Updated') . ': ' . xl('Current') . $row['definition'] . '|' . $infoText;
                 }
             }
         }
@@ -118,7 +118,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
                     update_metainfo($constant, $definition, $source, true);
                 }
             }
-            return xl('Create') . ':' . $constant . ' => ' . $definition;
+            return '[5]' . xl('Create') . ':' . $constant . ' => ' . $definition;
         }
     }
 }
@@ -153,8 +153,8 @@ function verify_file($filename, $language, $replace = true, $source_name = '', $
                 $definition = str_replace("\r\n", "\n", $data[$definition_column]);
                 if (!$first || $constant != 'constant_name') {
                     $result = verify_translation($constant, $definition, $language, $replace, $source_name);
-                    if ((strpos($result, xl('Definition Exists') . ':') !== 0) && (strpos($result, xl('Empty Definition')) !== 0)) {
-                        echo  text($result) . "<br>";
+                    if ((strpos($result, '[2]') !== 0) && (strpos($result, '[1]') !== 0)) {
+                        echo text(substr($result, 3)) . "<br>";
                     }
                 }
                 $first = false;
