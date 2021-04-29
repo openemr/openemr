@@ -467,8 +467,8 @@ class FeeSheet
         // Get the matching entry from the codes table.
         $sqlArray = array();
         $query = "SELECT id, units, code_text, revenue_code FROM codes WHERE " .
-        "code_type = ? AND code = ? AND modifier = ?";
-        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code, $modifier);
+        "code_type = ? AND code = ?";
+        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code);
         if ($modifier) {
             $query .= " AND modifier = ?";
             array_push($sqlArray, $modifier);
@@ -1127,7 +1127,7 @@ class FeeSheet
                 } elseif (!$del) { // Otherwise it's a new item...
                     $logarr = array($code_type, $code, '', $pricelevel, $fee, $units, $provid, '');
                     $this->logFSMessage(xl('Item added'), '', $logarr);
-                    $code_text = lookup_code_descriptions($code_type . ":" . $code);
+                    $code_text = lookup_code_descriptions($code_type . ":" . $code . ":" . $modifier);
                     BillingUtilities::addBilling(
                         $this->encounter,
                         $code_type,
