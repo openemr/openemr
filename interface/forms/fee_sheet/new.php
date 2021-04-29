@@ -526,7 +526,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
     $main_provid = 0 + ($_POST['ProviderID'] ?? 0);
-    $main_supid  = 0 + ($_POST['SupervisorID'] ?? 0);
+    $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
     $fs->save(
         $_POST['bill'],

@@ -467,8 +467,8 @@ class FeeSheet
         // Get the matching entry from the codes table.
         $sqlArray = array();
         $query = "SELECT id, units, code_text, revenue_code FROM codes WHERE " .
-        "code_type = ? AND code = ?";
-        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code);
+        "code_type = ? AND code = ? AND modifier = ?";
+        array_push($sqlArray, ($code_types[$codetype]['id'] ?? ''), $code, $modifier);
         if ($modifier) {
             $query .= " AND modifier = ?";
             array_push($sqlArray, $modifier);
