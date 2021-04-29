@@ -197,51 +197,57 @@ class EncounterccdadispatchController extends AbstractActionController
     public function socket_get($data)
     {
         $output = "";
+        $system = new System();
 
         // Create a TCP Stream Socket
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($socket === false) {
-            throw new Exception("Socket Creation Failed");
+            throw new \Exception("Socket Creation Failed");
         }
-
-        $system = new System();
-        // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
-        if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
-            $path = $GLOBALS['fileroot'] . "/ccdaservice";
-            if (IS_WINDOWS) {
-                // TODO: we need to test the system commands / escape commands on windows.
-                $cmd = "node " . $path . "/serveccda.js";
-                $pipeHandle = popen("start /B " . $cmd, "r");
-                if ($pipeHandle === false) {
-                    throw new Exception("Failed to start local ccdaservice");
+        // Let's check if server is already running
+        $server_active = socket_connect($socket, "localhost", "6661");
+        if ($server_active === false) {
+            // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
+            if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
+                $path = $GLOBALS['fileroot'] . "/ccdaservice";
+                if (IS_WINDOWS) {
+                    // node server is quite with errors(hidden process) so we'll do redirect of tty
+                    // to generally Windows/Temp.
+                    $redirect_errors = " > " .
+                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
+                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
+                    $pipeHandle = popen("start /B " . $cmd, "r");
+                    if ($pipeHandle === false) {
+                        throw new Exception("Failed to start local ccdaservice");
+                    }
+                    if (pclose($pipeHandle) === -1) {
+                        error_log("Failed to close pipehandle for ccdaservice");
+                    }
+                } else {
+                    $command = 'nodejs';
+                    if (!$system->command_exists($command)) {
+                        if ($system->command_exists('node')) {
+                            // older or custom Ubuntu systems that have node rather than nodejs command
+                            $command = 'node';
+                        } else {
+                            error_log("Node is not installed on the system.  Connection failed");
+                            throw new \Exception('Connection Failed.');
+                        }
+                    }
+                    $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
+                    exec($cmd . " > /dev/null &");
                 }
-                if (pclose($pipeHandle) === -1) {
-                    error_log("Failed to close pipehandle for ccdaservice");
+                sleep(2); // give cpu a rest
+                $result = socket_connect($socket, "localhost", "6661");
+                if ($result === false) { // hmm something is amiss with service. user will likely try again.
+                    error_log("Failed to start and connect to local ccdaservice server on port 6661");
+                    throw new \Exception("Connection Failed");
                 }
             } else {
-                $command = 'nodejs';
-                if (!$system->command_exists($command)) {
-                    if ($system->command_exists('node')) { // older or custom Ubuntu systems that have node rather than nodejs command
-                        $command = 'node';
-                    } else {
-                        error_log("Node is not installed on the system.  Connection failed");
-                        throw new Exception('Connection Failed.');
-                    }
-                }
-                $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
-                exec($cmd . " > /dev/null &");
+                error_log("C-CDA Service is not enabled in Global Settings");
+                throw new \Exception("Please Enable C-CDA Alternate Service in Global Settings");
             }
-            sleep(2); // give cpu a rest
-            $result = socket_connect($socket, "localhost", "6661");
-            if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                throw new Exception("Connection Failed");
-            }
-        } else {
-            error_log("C-CDA Service is not enabled in Global Settings");
-            throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
         }
-
 
         $data = chr(11) . $data . chr(28) . "\r";
         // Write to socket!
