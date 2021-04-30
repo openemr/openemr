@@ -697,6 +697,7 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 continue;
             }
 
+            // added $modifier for HCPCS and other internal codesets so can grab
             list($codetype, $code, $modifier) = explode(':', $codestring);
             $table_id = $code_types[$codetype]['external'] ?? '';
             if (isset($code_external_tables[$table_id])) {
