@@ -218,7 +218,7 @@ function fees_are_used()
 }
 
 /**
- * Checks is modifiers are applicable to any of the code types.
+ * Checks if modifiers are applicable to any of the code types.
  * (If a code type is not set to show in the fee sheet, then is ignored)
  *
  * @param  boolean $fee_sheet Will ignore code types that are not shown in the fee sheet
