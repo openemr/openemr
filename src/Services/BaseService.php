@@ -249,7 +249,9 @@ class BaseService
     public function selectHelper($sqlUpToFromStatement, $map)
     {
         $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        $records = is_array($records) ? $records : [$records];
+        if ($records !== null) {
+            $records = is_array($records) ? $records : [$records];
+        }
         return $records;
     }
 

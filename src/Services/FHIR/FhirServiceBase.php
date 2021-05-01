@@ -146,7 +146,7 @@ abstract class FhirServiceBase
                 $fhirResource = $this->parseOpenEMRRecord($oeRecord);
                 $fhirSearchResult->addData($fhirResource);
                 if ($provenanceRequest) {
-                    $provenanceResource = $this->createProvenanceResource($oeRecord);
+                    $provenanceResource = $this->createProvenanceResource($fhirResource);
                     if ($provenanceResource) {
                         $fhirSearchResult->addData($provenanceResource);
                     }
@@ -211,7 +211,7 @@ abstract class FhirServiceBase
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    abstract public function createProvenanceResource($dataRecord = array(), $encode = false);
+    abstract public function createProvenanceResource($dataRecord, $encode = false);
 
     /*
     * public function to return search params
