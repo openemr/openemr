@@ -284,6 +284,98 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
+  build_apache_74_106:
+    name: PHP 7.4 - Apache - MariaDB 10.6
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_DIR: apache_74_106
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
   build_apache_74_104:
     name: PHP 7.4 - Apache - MariaDB 10.4
     runs-on: ubuntu-20.04
