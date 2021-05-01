@@ -155,6 +155,7 @@ docker pull openemr/dev-php-fpm:7.1-redis
 docker pull openemr/dev-php-fpm:7.0-redis
 docker pull openemr/dev-php-fpm:5.6-redis
 docker pull openemr/dev-nginx
+docker pull mariadb:10.6
 docker pull mariadb:10.5
 docker pull mariadb:10.4
 docker pull mariadb:10.3
