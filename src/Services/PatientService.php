@@ -379,7 +379,8 @@ class PatientService extends BaseService
                         sex,
                         race,
                         ethnicity,
-                        status
+                        status,
+                        `language`
                 FROM patient_data
                 WHERE uuid = ?";
 

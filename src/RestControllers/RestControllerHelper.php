@@ -39,6 +39,9 @@ class RestControllerHelper
      */
     const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
 
+    // @see https://www.hl7.org/fhir/search.html#table
+    const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
+
     /**
      * Configures the HTTP status code and payload returned within a response.
      *
@@ -156,8 +159,14 @@ class RestControllerHelper
         if (empty($service)) {
             return; // nothing to do here as the service isn't defined.
         }
-        $capResource->addSearchInclude('*');
-        foreach ($service->getSearchParams() as $fhirSearchField => $searchDefinition) {
+        if (empty($capResource->getSearchInclude())) {
+            $capResource->addSearchInclude('*');
+        }
+        if ($service instanceof IResourceUSCIGProfileService && empty($capResource->getSearchRevInclude())) {
+            $capResource->addSearchRevInclude(self::FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE);
+        }
+        $searchParams = $service->getSearchParams();
+        foreach ($searchParams as $fhirSearchField => $searchDefinition) {
 
             /**
              * @var FhirSearchParameterDefinition $searchDefinition
@@ -209,11 +218,14 @@ class RestControllerHelper
             $operation->setName($operationName);
             $operation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
 
-            $extension = new FHIRExtension();
-            $extension->setValueCode(new FHIRCode('SHOULD'));
-            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
-            $operation->addExtension($extension);
-            $capResource->addOperation($operation);
+            // TODO: adunsulag so the Single Patient API fails on this expectation being here yet the Multi-Patient API failed when it wasn't here
+            // need to investigate what, if anything we are missing, perhaps another extension definition that tells the inferno server
+            // that this should be parsed in a single patient context??
+//            $extension = new FHIRExtension();
+//            $extension->setValueCode(new FHIRCode('SHOULD'));
+//            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
+//            $operation->addExtension($extension);
+//            $capResource->addOperation($operation);
         }
     }
 

@@ -2,11 +2,13 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\OrganizationService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -333,5 +335,17 @@ class FhirOrganizationService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    public function getPrimaryBusinessEntityReference() {
+        $organization = $this->organizationService->getPrimaryBusinessEntity();
+        if (!empty($organization)) {
+            $ref = new FHIRReference();
+            $ref->setType("Organization");
+            $uuid = UuidRegistry::uuidToString($organization['uuid']);
+            $ref->setReference("Organization/" . $uuid);
+            return $ref;
+        }
+        return null;
     }
 }

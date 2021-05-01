@@ -21,6 +21,16 @@ class OrganizationService extends BaseService
 {
 
     /**
+     * @var \OpenEMR\Services\FacilityService
+     */
+    private $facilityService;
+
+    /**
+     * @var \OpenEMR\Services\InsuranceCompanyService
+     */
+    private $insuranceService;
+
+    /**
      * Default constructor.
      */
     public function __construct()
@@ -83,6 +93,10 @@ class OrganizationService extends BaseService
 
 
         return $processingResult;
+    }
+
+    public function getPrimaryBusinessEntity() {
+        return $this->facilityService->getPrimaryBusinessEntity();
     }
 
     public function getAll($search = array(), $isAndCondition = true)
