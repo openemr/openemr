@@ -72,7 +72,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mariadb is version 10.5; mariadb-ssl is version 10.5 with support for ssl; mariadb-old is version 10.4; mariadb-very-old is version 10.3; mariadb-very-very-old is version 10.2)
+#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' or `mariadb-dev` (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mariadb is version 10.5; mariadb-ssl is version 10.5 with support for ssl; mariadb-old is version 10.4; mariadb-very-old is version 10.3; mariadb-very-very-old is version 10.2; mariadb-dev is version 10.6)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -325,6 +325,12 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+  mariadb-dev:
+    restart: always
+    image: mariadb:10.6
+    command: ['mysqld','--character-set-server=utf8mb4']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
   mariadb-ssl:
     restart: always
     image: mariadb:10.5
@@ -381,7 +387,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mariadb-ssl
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-dev,mysql,mysql-old,mariadb-ssl
   couchdb:
     restart: always
     image: couchdb
