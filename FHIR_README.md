@@ -156,6 +156,7 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
   "resourceType": "Patient",
   "identifier": [ { "system": "urn:oid:1.2.36.146.595.217.0.1", "value": "12345" } ],
   "name": [ {
+      "use": "official",
       "family": "Chalmers",
       "given": [ "Peter", "James" ]
   } ],
