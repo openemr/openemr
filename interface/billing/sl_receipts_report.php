@@ -187,12 +187,12 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                     <table class='text'>
                         <tr>
-<td class='col-form-label'>
-<?php echo xlt('Facility'); ?>:
-</td>
-<td>
-<?php dropdown_facility($form_facility, 'form_facility'); ?>
-</td>
+                            <td class='col-form-label'>
+                                <?php echo xlt('Facility'); ?>:
+                            </td>
+                            <td>
+                            <?php dropdown_facility($form_facility, 'form_facility'); ?>
+                            </td>
                             <td class='col-form-label'>
                                 <?php echo xlt('Provider'); ?>:
                             </td>
