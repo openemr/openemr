@@ -606,7 +606,7 @@ use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 //   to only see the data of the one patient)
 RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/AllergyIntolerance" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirAllergyIntoleranceRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -628,7 +628,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },"GET /fhir/CarePlan" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirCarePlanRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -651,7 +651,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -674,7 +674,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Condition" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirConditionRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -698,7 +698,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
-        $return = (new FhirCoverageRestController())->getAll($_GET);
+        $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -710,7 +710,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Device" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDeviceRestController())->getAll($_GET);
+        $return = (new FhirDeviceRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -722,7 +722,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDiagnosticReportRestController())->getAll($_GET);
+        $return = (new FhirDiagnosticReportRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -734,7 +734,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     'GET /fhir/DocumentReference' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDocumentReferenceRestController())->getAll($_GET);
+        $return = (new FhirDocumentReferenceRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -755,7 +755,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $response;
     },
     "GET /fhir/Encounter" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirEncounterRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -778,7 +778,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Goal" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirGoalRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -804,7 +804,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
-        $exportParams = $_GET;
+        $exportParams = $request->getQueryParams();
         $exportParams['groupId'] = $groupId;
         $return = $fhirExportService->processExport(
             $exportParams,
@@ -816,7 +816,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirImmunizationRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -840,7 +840,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Location" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "med");
-        $return = (new FhirLocationRestController())->getAll($_GET);
+        $return = (new FhirLocationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -852,7 +852,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "med");
-        $return = (new FhirMedicationRestController())->getAll($_GET);
+        $return = (new FhirMedicationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -863,7 +863,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/MedicationRequest" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirMedicationRequestRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -887,7 +887,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FhirOrganizationRestController())->getAll($_GET);
+        $return = (new FhirOrganizationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -912,7 +912,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
+        $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
@@ -949,7 +949,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
-        $params = $_GET;
+        $params = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             //  Note in Patient context still have to return a bundle even if it is just one resource. (ie.
@@ -968,7 +968,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
         $return = $fhirExportService->processExport(
-            $_GET,
+            $request->getQueryParams(),
             'Patient',
             $request->getHeader('Accept'),
             $request->getHeader('Prefer')
@@ -992,7 +992,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Person" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPersonRestController())->getAll($_GET);
+        $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -1004,7 +1004,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPractitionerRestController())->getAll($_GET);
+        $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -1030,7 +1030,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPractitionerRoleRestController())->getAll($_GET);
+        $return = (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
@@ -1041,13 +1041,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
-        $getParams = $_GET;
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirProcedureRestController())->getAll($getParams, $request->getPatientUUIDString());
+            $return = (new FhirProcedureRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirProcedureRestController())->getAll($getParams);
+            $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
         return $return;
@@ -1092,7 +1091,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
         $return = $fhirExportService->processExport(
-            $_GET,
+            $request->getQueryParams(),
             'System',
             $request->getHeader('Accept'),
             $request->getHeader('Prefer')
@@ -1105,7 +1104,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     // @see https://ibm.github.io/FHIR/guides/FHIRBulkOperations/
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $jobUuidString = $_GET['job'];
+        $jobUuidString = $request->getQueryParam('job');
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
         $fhirExportService = new FhirExportRestController($request);
@@ -1115,7 +1114,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $job = $_GET['job'];
+        $job = $request->getQueryParam('job');
         $fhirExportService = new FhirExportRestController($request);
         $return = $fhirExportService->processDeleteExportForJob($job);
         RestConfig::apiLog($return);
