@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
@@ -125,7 +126,6 @@ abstract class FhirServiceBase
      */
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
-
         $provenanceRequest = false;
         //Checking for provenance reqest
         if (isset($fhirSearchParameters['_revinclude'])) {
@@ -140,6 +140,7 @@ abstract class FhirServiceBase
         try {
             $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
 
+            (new SystemLogger())->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
             // gives a ton of information but this can be helpful in debugging this stuff.
 //            array_walk($oeSearchParameters, function ($v) {
 //                echo $v;
@@ -163,6 +164,7 @@ abstract class FhirServiceBase
                 }
             }
         } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(), 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
