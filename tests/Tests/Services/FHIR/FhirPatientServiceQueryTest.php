@@ -214,18 +214,20 @@ class FhirPatientServiceQueryTest extends TestCase
     }
 
     /**
+     * Uses the getAll method so we can't pass unless that is working.
      * @covers ::getOne
      */
     public function testGetOne()
     {
-        $actualResult = $this->fhirPatientService->getAll(['state' => 'CA']);
-        $this->assertGreaterThan(0, $actualResult->getData());
+        $actualResult = $this->fhirPatientService->getAll([]);
+        $this->assertNotEmpty($actualResult->getData(), "Get All should have returned a result");
 
-        $expectedId = $actualResult->getData()[0]->getId();
+        $this->assertInstanceOf(FhirPatient::class, $actualResult->getData()[0], "Instance returned should have been the correct patient class");
+        $expectedId = $actualResult->getData()[0]->getId()->getValue();
 
         $actualResult = $this->fhirPatientService->getOne($expectedId);
         $this->assertGreaterThan(0, $actualResult->getData());
-        $actualId = $actualResult->getData()[0]->getId();
+        $actualId = $actualResult->getData()[0]->getId()->getValue();
 
         $this->assertEquals($expectedId, $actualId);
     }

@@ -67,7 +67,8 @@ class FhirSearchParameterDefinition
         return $this->name;
     }
 
-    public function getOptions() : array {
+    public function getOptions(): array
+    {
         return $this->options;
     }
 }

@@ -26,6 +26,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Validators\ProcessingResult;
 
 class RestControllerHelper
 {
@@ -135,12 +136,14 @@ class RestControllerHelper
      * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
      * @return array|mixed
      */
-    public static function handleFhirProcessingResult($processingResult, $successStatusCode)
+    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode)
     {
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+        } elseif (count($processingResult->getData()) <= 0) {
+            http_response_code(404);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();

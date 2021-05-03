@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -112,6 +113,7 @@ abstract class FhirServiceBase
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
+     * TODO: adunsulag should this method be protected?  Sure looks like the subclasses let this be public...
      */
     abstract protected function getOne($fhirResourceId);
 
@@ -133,25 +135,36 @@ abstract class FhirServiceBase
             // once we've got our flag we clear it as it doesn't map to anything in our search parameters.
             unset($fhirSearchParameters['_revinclude']);
         }
-
-        $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
-        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
-
         $fhirSearchResult = new ProcessingResult();
-        $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
-        $fhirSearchResult->setValidationMessages($oeSearchResult->getValidationMessages());
 
-        if ($oeSearchResult->isValid()) {
-            foreach ($oeSearchResult->getData() as $index => $oeRecord) {
-                $fhirResource = $this->parseOpenEMRRecord($oeRecord);
-                $fhirSearchResult->addData($fhirResource);
-                if ($provenanceRequest) {
-                    $provenanceResource = $this->createProvenanceResource($fhirResource);
-                    if ($provenanceResource) {
-                        $fhirSearchResult->addData($provenanceResource);
+        try {
+            $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
+
+            // gives a ton of information but this can be helpful in debugging this stuff.
+//            array_walk($oeSearchParameters, function ($v) {
+//                echo $v;
+//            });
+            $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
+
+
+            $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
+            $fhirSearchResult->setValidationMessages($oeSearchResult->getValidationMessages());
+
+            if ($oeSearchResult->isValid()) {
+                foreach ($oeSearchResult->getData() as $index => $oeRecord) {
+                    $fhirResource = $this->parseOpenEMRRecord($oeRecord);
+                    $fhirSearchResult->addData($fhirResource);
+                    if ($provenanceRequest) {
+                        $provenanceResource = $this->createProvenanceResource($fhirResource);
+                        if ($provenanceResource) {
+                            $fhirSearchResult->addData($provenanceResource);
+                        }
                     }
                 }
             }
+        } catch (SearchFieldException $exception) {
+            // put our exception information here
+            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
     }
@@ -172,17 +185,23 @@ abstract class FhirServiceBase
         $searchFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
 
         foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
-            // format: <field>{:modifier1|:modifier2}={comparator1|comparator2}[value1{,value2}]
-            // field is the FHIR search field
-            // modifier is the search modifier ie :exact, :contains, etc
-            // comparator is used with dates / numbers, ie :gt, :lt
-            // values can be comma separated and are treated as an OR condition
-            // if the $searchValue is an array then this is treated as an AND condition
-            // if $searchValue is an array and individual fields contains comma separated values the and clause takes
-            // precedence and ALL values will be UNIONED (AND clause).
-            if ($searchFactory->hasSearchField($fhirSearchField)) {
-                $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
-                $oeSearchParameters[$searchField->getName()] = $searchField;
+            try {
+                // format: <field>{:modifier1|:modifier2}={comparator1|comparator2}[value1{,value2}]
+                // field is the FHIR search field
+                // modifier is the search modifier ie :exact, :contains, etc
+                // comparator is used with dates / numbers, ie :gt, :lt
+                // values can be comma separated and are treated as an OR condition
+                // if the $searchValue is an array then this is treated as an AND condition
+                // if $searchValue is an array and individual fields contains comma separated values the and clause takes
+                // precedence and ALL values will be UNIONED (AND clause).
+                if ($searchFactory->hasSearchField($fhirSearchField)) {
+                    $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
+                    $oeSearchParameters[$searchField->getName()] = $searchField;
+                } else {
+                    throw new SearchFieldException($fhirSearchField, xlt("This search field does not exist or is not supported"));
+                }
+            } catch (\InvalidArgumentException $exception) {
+                throw new SearchFieldException($fhirSearchField, "The search field argument was invalid, improperly formatted, or could not be parsed", $exception->getCode(), $exception);
             }
         }
 

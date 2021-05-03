@@ -15,7 +15,9 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
@@ -87,7 +89,21 @@ class BaseService
      */
     public function getSelectFields(): array
     {
-        return $this->fields;
+        // since we are often joining a bunch of fields we need to make sure we normalize our regular field array by adding
+        // the table name for our own table values.
+        $fields = $this->getFields();
+        $normalizedFields = [];
+        // processing is cheap
+        foreach ($fields as $field) {
+            $normalizedFields[] = '`' . $this->getTable() . '`.`' . $field . '`';
+        }
+
+        return $normalizedFields;
+    }
+
+    public function getUuidFields(): array
+    {
+        return [];
     }
 
     /**
@@ -397,62 +413,32 @@ class BaseService
      */
     public function search($search, $isAndCondition = true)
     {
-        $sqlBindArray = array();
-
-        $selectFields = $this->getSelectFields();
-
-        $selectFields = array_combine($selectFields, $selectFields); // make it a dictionary so we can add/remove this.
-        $from = [$this->getTable()];
-
-        $sql = "SELECT " . implode(",", array_keys($selectFields)) . " FROM " . implode(",", $from);
-
-        $join = $this->getSelectJoinClauses();
-
-        $whereClauses = array(
-            'and' => []
-        ,'or' => []
-        );
-
-        if (!empty($search)) {
-            // make sure all the parameters are actual search fields and clean up any field that is a uuid
-            foreach ($search as $key => $field) {
-                if (!$field instanceof ISearchField) {
-                    throw new \InvalidArgumentException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
-                }
-                $whereType = $isAndCondition ? "and" : "or";
-
-                $whereClauses[$whereType][] = SearchFieldStatementResolver::getStatementForSearchField($field);
-            }
-        }
-        $where = '';
-
-        if (!(empty($whereClauses['or']) && empty($whereClauses['and']))) {
-            $where = " WHERE ";
-            $andClauses = [];
-            foreach ($whereClauses['and'] as $clause) {
-                $andClauses[] = $clause->getFragment();
-                $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
-            }
-            $where = empty($andClauses) ? $where : $where . implode(" AND ", $andClauses);
-
-            $orClauses = [];
-            foreach ($whereClauses['or'] as $clause) {
-                $orClauses[] = $clause->getFragment();
-                $sqlBindArray = array_merge($sqlBindArray, $clause->getBoundValues());
-            }
-            $where = empty($orClauses) ? $where : $where . "(" . implode(" OR ", $orClauses) . ")";
-        }
-
-        $records = $this->selectHelper($sql, [
-            'join' => $join
-            ,'where' => $where
-            ,'data' => $sqlBindArray
-        ]);
-
         $processingResult = new ProcessingResult();
-        foreach ($records as $row) {
-            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-            $processingResult->addData($resultRecord);
+        try {
+            $selectFields = $this->getSelectFields();
+
+            $selectFields = array_combine($selectFields, $selectFields); // make it a dictionary so we can add/remove this.
+            $from = [$this->getTable()];
+            $sql = "SELECT " . implode(",", array_keys($selectFields)) . " FROM " . implode(",", $from);
+            $join = $this->getSelectJoinClauses();
+            $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+
+            $selectHelperMap = [
+                'join' => $join
+                , 'where' => $whereFragment->getFragment()
+                , 'data' => $whereFragment->getBoundValues()
+            ];
+            $records = $this->selectHelper($sql, $selectHelperMap);
+
+            if (!empty($records)) {
+                foreach ($records as $row) {
+                    $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                    $processingResult->addData($resultRecord);
+                }
+            }
+        } catch (SearchFieldException $exception) {
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
         return $processingResult;
@@ -462,7 +448,19 @@ class BaseService
      * Allows any mapping data conversion or other properties needed by a service to be returned.
      * @param $row The record returned from the database
      */
-    protected function createResultRecordFromDatabaseResult($row) {
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $uuidFields = $this->getUuidFields();
+        if (empty($uuidFields)) {
+            return $row;
+        } else {
+            // convert all of our byte columns to strings
+            foreach ($uuidFields as $fieldName) {
+                if (isset($row[$fieldName])) {
+                    $row[$fieldName] = UuidRegistry::uuidToString($row[$fieldName]);
+                }
+            }
+        }
         return $row;
     }
 

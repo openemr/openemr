@@ -119,4 +119,17 @@ class CompositeSearchField implements ISearchField
     {
         return $this->isAnd;
     }
+
+    /**
+     * Useful for debugging, you can echo the object to see its values.
+     * @return string
+     */
+    public function __toString()
+    {
+        $values = $this->getValues ?? [];
+        $children = $this->getChildren() ?? [];
+
+        return "(field=" . $this->getField() . ",type=" . $this->getType()
+            . ",values=[" . implode(",", $values) . "],children=[{" . implode("},{", $children) . "}])";
+    }
 }

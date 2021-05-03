@@ -27,6 +27,7 @@ class SearchQueryFragment
 
     public function __construct($fragment = "", $boundValues = null)
     {
+        $this->setFragment($fragment);
         $this->boundValues = is_array($boundValues) ? $boundValues : [];
     }
 

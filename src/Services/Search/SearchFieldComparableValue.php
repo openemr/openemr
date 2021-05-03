@@ -50,4 +50,17 @@ class SearchFieldComparableValue
     {
         return $this->value;
     }
+
+    public function __toString()
+    {
+        $value = $this->getValue() || "";
+        if (is_object($value)) {
+            if (method_exists($value, '__toString')) {
+                $value = $value->__toString();
+            } else {
+                $value = get_class($value);
+            }
+        }
+        return "(value=" . $value . ",comparator=" . $this->getComparator() ?? "" . ")";
+    }
 }

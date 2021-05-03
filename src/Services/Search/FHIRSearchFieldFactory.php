@@ -102,12 +102,12 @@ class FHIRSearchFieldFactory
     /**
      * Creates a ISearchField for the given type
      * @param $type a value from SearchFieldType
-     * @param $fieldName The name of the search field
+     * @param $field string|ServiceField The name of the search field or a service field definition
      * @param $fhirSearchValues The values that will be searched on
      * @param string[] $modifiers Any search modifiers such as :exact or :contains
      * @return DateSearchField|StringSearchField|TokenSearchField
      */
-    private function createFieldForType($type, $fieldName, $fhirSearchValues, $modifiers = null)
+    private function createFieldForType($type, $field, $fhirSearchValues, $modifiers = null)
     {
         // we currently only support a single modifier, not going to support multiple modifiers right now in the system
         $modifier = is_array($modifiers) ? array_pop($modifiers) : null;
@@ -117,8 +117,16 @@ class FHIRSearchFieldFactory
             $fhirSearchValues = explode($fhirSearchValues);
         }
 
+        $isUUID = false;
+        if ($field instanceof ServiceField) {
+            $fieldName = $field->getField();
+            $isUUID = $field->getType() == ServiceField::TYPE_UUID ? true : false;
+        } else {
+            $fieldName = $field;
+        }
+
         if ($type == SearchFieldType::TOKEN) {
-            return new TokenSearchField($fieldName, $fhirSearchValues);
+            return new TokenSearchField($fieldName, $fhirSearchValues, $isUUID);
         } else if ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
         } else if ($type == SearchFieldType::DATE) {
@@ -135,7 +143,8 @@ class FHIRSearchFieldFactory
         }
     }
 
-    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers) {
+    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers)
+    {
         $referenceOptions = $this->resourceSearchParameters[$fieldName] ?? [];
 
         // reference field needs the following
@@ -148,14 +157,11 @@ class FHIRSearchFieldFactory
                 // TODO: adunsulag need to support absolute URL reference for our own FHIR server, don't support searching
                 // on external FHIR URLs
                 throw new \InvalidArgumentException("Absolute URL references not supported at this point in time");
-            }
-            else if (strpos($searchValue, '/') !== false) {
+            } else if (strpos($searchValue, '/') !== false) {
                 $parts = explode('/', $searchValue);
                 $type = $parts[0];
                 $id = $parts[1];
             }
-
-
         }
         throw new \BadMethodCallException("Number search parameter not implemented yet");
     }
