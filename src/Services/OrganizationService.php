@@ -52,6 +52,9 @@ class OrganizationService extends BaseService
     {
         $facilityOrgs = array();
         foreach ($facilityRecords as $index => $org) {
+            if (isset($org['uuid'])) {
+                $org['uuid'] = UuidRegistry::uuidToString($org['uuid']);
+            }
             $address = array();
             if (isset($org['street'])) {
                 $org['line1'] = $org['street'];
@@ -66,6 +69,9 @@ class OrganizationService extends BaseService
     {
         $insuranceOrgs = array();
         foreach ($insuranceRecords as $index => $org) {
+            if (isset($org['uuid'])) {
+                $org['uuid'] = UuidRegistry::uuidToString($org['uuid']);
+            }
             if (isset($org['zip'])) {
                 $org['postal_code'] = $org['zip'];
             }
@@ -73,6 +79,10 @@ class OrganizationService extends BaseService
                 $org['country_code'] = $org['country'];
             }
             $org['orgType'] = "insurance";
+            // TODO: @adunsulag check with code reviewers to make sure this is the right value for an insurance org
+            // since the callers of this service are 'viewing' an organization which is a facade over insurance & facility
+            // we need to make sure both records have the same column.
+            $org['service_location'] = 0;
             array_push($insuranceOrgs, $org);
         }
         return $insuranceOrgs;
@@ -95,15 +105,23 @@ class OrganizationService extends BaseService
         return $processingResult;
     }
 
-    public function getPrimaryBusinessEntity() {
+    public function getPrimaryBusinessEntity()
+    {
         return $this->facilityService->getPrimaryBusinessEntity();
+    }
+
+    public function search($search = array(), $isAndCondition = true)
+    {
+        $facilityResult = $this->facilityService->search($search, $isAndCondition);
+        $insuranceResult = $this->insuranceService->search($search, $isAndCondition);
+        return $this->processResults($facilityResult, $insuranceResult);
     }
 
     public function getAll($search = array(), $isAndCondition = true)
     {
 
-        $facilityResult = $this->facilityService->getAll($search = array(), $isAndCondition = true);
-        $insuranceResult = $this->insuranceService->getAll($search = array(), $isAndCondition = true);
+        $facilityResult = $this->facilityService->getAll($search, $isAndCondition);
+        $insuranceResult = $this->insuranceService->getAll($search, $isAndCondition);
         return $this->processResults($facilityResult, $insuranceResult);
     }
 

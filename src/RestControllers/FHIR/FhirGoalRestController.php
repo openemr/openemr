@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirGoalRestController.php
  * @package openemr

@@ -23,6 +23,9 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class FhirOrganizationRestController
 {
+    /**
+     * @var FhirOrganizationService
+     */
     private $fhirOrganizationService;
     private $fhirService;
     private $fhirValidationService;
@@ -51,6 +54,7 @@ class FhirOrganizationRestController
     {
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
         $bundleEntries = array();
+        // TODO: adunsulag why isn't this work done in the fhirService->createBundle?
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
+use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -55,6 +56,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @var PatientService
      */
     private $patientService;
+
+    /**
+     * @var ListService
+     */
+    private $listService;
 
     /**
      * Note requirements for US Core are:
@@ -90,6 +96,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         parent::__construct();
         $this->patientService = new PatientService();
+        $this->listService = new ListService();
     }
 
     /**
@@ -161,7 +168,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRPatientSummaryText(FHIRPatient $patientResource, $dataRecord) {
+    private function parseOpenEMRPatientSummaryText(FHIRPatient $patientResource, $dataRecord)
+    {
 
         $narrativeText = '';
         if (!empty($dataRecord['fname'])) {
@@ -177,16 +185,17 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             );
             $patientResource->setText($text);
         }
-
     }
 
-    private function parseOpenEMRDateOfBirth(FHIRPatient $patientResource, $dateOfBirth) {
+    private function parseOpenEMRDateOfBirth(FHIRPatient $patientResource, $dateOfBirth)
+    {
         if (isset($dateOfBirth)) {
             $patientResource->setBirthDate($dateOfBirth);
         }
     }
 
-    private function parseOpenEMRPatientName(FHIRPatient $patientResource, $dataRecord) {
+    private function parseOpenEMRPatientName(FHIRPatient $patientResource, $dataRecord)
+    {
 
         $name = new FHIRHumanName();
         $name->setUse('official');
@@ -209,7 +218,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $patientResource->addName($name);
     }
 
-    private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord) {
+    private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord)
+    {
         $address = new FHIRAddress();
         // TODO: we don't track start and end periods for dates so what value should go here...?
         $addressPeriod = new FHIRPeriod();
@@ -246,7 +256,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRPatientTelecom(FHIRPatient $patientResource, $dataRecord) {
+    private function parseOpenEMRPatientTelecom(FHIRPatient $patientResource, $dataRecord)
+    {
 
         if (!empty($dataRecord['phone_home'])) {
             $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_home'], 'home'));
@@ -265,7 +276,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRGenderAndBirthSex(FHIRPatient $patientResource, $sex) {
+    private function parseOpenEMRGenderAndBirthSex(FHIRPatient $patientResource, $sex)
+    {
         // @see https://www.hl7.org/fhir/us/core/ValueSet-birthsex.html
         $genderValue = $sex ?? 'Unknown';
         $birthSex = "UNK";
@@ -283,36 +295,30 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $birthSexExtension->setValueCode($birthSex);
         $patientResource->addExtension($birthSexExtension);
         $patientResource->setGender($gender);
-
-
     }
-    private function parseOpenEMRRaceRecord(FHIRPatient $patientResource, $race) {
+    private function parseOpenEMRRaceRecord(FHIRPatient $patientResource, $race)
+    {
         $code = 'UNK';
         $display = xlt("Unknown");
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
         $raceExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
 
-        // detailed race is in select 'notes' AS code,title AS display, title AS text FROM list_options table where list_id=race AND notes=$dataRecord['race']
         $ombCategory = new FHIRExtension();
         $ombCategory->setUrl("ombCategory");
         $ombCategoryCoding = new FHIRCoding();
         $ombCategoryCoding->setSystem(new FHIRUri("urn:oid:2.16.840.1.113883.6.238"));
         if (isset($race)) {
-
-            $result = sqlStatementThrowException("select `notes` AS code, `title` as display, `title` as text FROM `list_options` lo WHERE `lo`.`list_id`='race' "
-                . " AND `lo`.`option_id`=?", [$race]);
-            $record = sqlFetchArray($result);
+            $record = $this->listService->getListOption('race', $race);
             if (empty($record)) {
                 // TODO: adunsulag need to handle a data missing exception here
-            }
-            else if ($race === 'declne_to_specfy') {
+            } else if ($race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
             } else {
-                $code = $record['code'];
-                $display = $record['display'];
+                $code = $record['notes'];
+                $display = $record['title'];
             }
 
             $ombCategoryCoding->setCode($code);
@@ -328,9 +334,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $patientResource->addExtension($raceExtension);
     }
 
-    private function parseOpenEMREthnicityRecord(FHIRPatient $patientResource, $ethnicity) {
+    private function parseOpenEMREthnicityRecord(FHIRPatient $patientResource, $ethnicity)
+    {
         // TODO: this is a required field, so not sure what we want to do if this is missing?
-        // data found in select 'notes' AS code,title AS display, title AS text FROM list_options table where list_id=ethnicity AND notes=$dataRecord['ethnicity']
         if (!empty($ethnicity)) {
             $ethnicityExtension = new FHIRExtension();
             $ethnicityExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
@@ -344,28 +350,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $coding = new FHIRCoding();
             $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
 
-            $result = sqlStatementThrowException("select `notes` AS code, `title` as display, `title` as text FROM `list_options` lo WHERE `lo`.`list_id`='ethnicity' "
-                . " AND `lo`.`option_id`=?", [$ethnicity]);
-            $record = sqlFetchArray($result);
+            $record = $this->listService->getListOption('ethnicity', $ethnicity);
             if (empty($record)) {
                 // TODO: stephen put a data missing reason where the coding could not be found for some reason
             } else {
-                $coding->setCode($record['code']);
-                $coding->setDisplay($record['display']);
+                $coding->setCode($record['notes']);
+                $coding->setDisplay($record['title']);
                 $coding->setSystem("urn:oid:2.16.840.1.113883.6.238");
-                $textExtension->setValueString($record['display']);
+                $textExtension->setValueString($record['title']);
             }
-//            // 2135-2 is Hispanic or Latino
-//            // 2186-5 is Not Hispanic or Latino
-//            if ($dataRecord['ethnicity'] != 'not_hisp_or_latin') {
-//                $coding->setCode("2135-2");
-//                $coding->setDisplay("Hispanic or Latino");
-//                $codeableConcept->setText("Hispanic or Latino");
-//            } else {
-//                $coding->setCode("2186-5");
-//                $coding->setDisplay("Not Hispanic or Latino");
-//                $codeableConcept->setText("Not Hispanic or Latino");
-//            }
+
             $ombCategoryExtension->setValueCoding($coding);
             $ethnicityExtension->addExtension($ombCategoryExtension);
             $ethnicityExtension->addExtension($textExtension);
@@ -374,7 +368,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRSocialSecurityRecord(FHIRPatient $patientResource, $ssn) {
+    private function parseOpenEMRSocialSecurityRecord(FHIRPatient $patientResource, $ssn)
+    {
         // Not sure what to do here but this is on the 2021 HL7 US Core page about SSN
         // * The Patient’s Social Security Numbers SHOULD NOT be used as a patient identifier in Patient.identifier.value.
         // There is increasing concern over the use of Social Security Numbers in healthcare due to the risk of identity
@@ -392,10 +387,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 )
             );
         }
-
     }
 
-    private function parseOpenEMRPublicPatientIdentifier(FHIRPatient $patientResource, $pubpid) {
+    private function parseOpenEMRPublicPatientIdentifier(FHIRPatient $patientResource, $pubpid)
+    {
         if (!empty($pubpid)) {
             $patientResource->addIdentifier(
             // not sure if the SystemURI for PT should be the same or not.
@@ -410,19 +405,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRCommunicationRecord(FHIRPatient $patientResource, $language) {
-        $result = sqlStatementThrowException("select `notes` AS code, `title` as display, `title` as text FROM `list_options` lo WHERE `lo`.`list_id`='language' "
-            . " AND `lo`.`option_id`=?", [$language]);
-        $record = sqlFetchArray($result);
+    private function parseOpenEMRCommunicationRecord(FHIRPatient $patientResource, $language)
+    {
+        $record = $this->listService->getListOption('language', $language);
         if (!empty($record)) {
             $communication = new FHIRPatientCommunication();
             $languageConcept = new FHIRCodeableConcept();
             $language = new FHIRCoding();
             $language->setSystem(new FHIRUri("http://hl7.org/fhir/us/core/ValueSet/simple-language"));
-            $language->setCode(new FHIRCode($record['code']));
-            $language->setDisplay(xlt($record['display']));
+            $language->setCode(new FHIRCode($record['notes']));
+            $language->setDisplay(xlt($record['title']));
             $languageConcept->addCoding($language);
-            $languageConcept->setText(xlt($record['text']));
+            $languageConcept->setText(xlt($record['title']));
             $communication->setLanguage($languageConcept);
             $patientResource->addCommunication($communication);
         }

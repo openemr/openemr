@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirDeviceRestController.php
  * @package openemr

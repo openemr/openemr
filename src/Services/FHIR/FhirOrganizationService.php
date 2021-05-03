@@ -11,7 +11,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\OrganizationService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -45,6 +49,7 @@ class FhirOrganizationService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
             'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
@@ -308,16 +313,7 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function getOne($fhirResourceId)
     {
-        $processingResult = $this->organizationService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
+        return $this->getAll(['_id' => $fhirResourceId]);
     }
 
     /**
@@ -329,7 +325,7 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
+        $processingResult = $this->organizationService->search($openEMRSearchParameters, false);
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
@@ -337,7 +333,8 @@ class FhirOrganizationService extends FhirServiceBase
         // TODO: If Required in Future
     }
 
-    public function getPrimaryBusinessEntityReference() {
+    public function getPrimaryBusinessEntityReference()
+    {
         $organization = $this->organizationService->getPrimaryBusinessEntity();
         if (!empty($organization)) {
             $ref = new FHIRReference();

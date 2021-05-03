@@ -101,7 +101,7 @@ class BasicSearchField implements ISearchField
     }
 
     /**
-     * @return null
+     * @return mixed[]
      */
     public function getValues()
     {
@@ -136,5 +136,15 @@ class BasicSearchField implements ISearchField
     {
         $this->isAnd = $isAnd;
         return $this;
+    }
+
+    /**
+     * Useful for debugging, you can echo the object to see its values.
+     * @return string
+     */
+    public function __toString()
+    {
+        return "(field=" . $this->getField() . ",type=" . $this->getType()
+            . ",values=[" . implode(",", $this->getValues()) . "],modifier=" . ($this->getModifier() ?? "") . ")";
     }
 }

@@ -11,14 +11,18 @@
 
 namespace OpenEMR\Services\Search;
 
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\Services\Search\SearchFieldType;
 
 class TokenSearchField extends BasicSearchField
 {
-    public function __construct($field, $values)
+    /**
+     * @var boolean True if the token represents a UUID that is a binary field in the database
+     */
+    private $isUUID;
+
+    public function __construct($field, $values, $isUUID = false)
     {
+        $this->isUUID = $isUUID;
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
@@ -43,6 +47,6 @@ class TokenSearchField extends BasicSearchField
             throw new \InvalidArgumentException("Token value must be a valid string");
         }
 
-        return TokenSearchValue::buildFromFHIRString($value);
+        return TokenSearchValue::buildFromFHIRString($value, $this->isUUID);
     }
 }
