@@ -277,7 +277,7 @@ function printPatientBilling($pid)
     while ($result = sqlFetchArray($res)) {
         echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";
-        echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : text($result['code']);
+        echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : (text($result['code']) . ":" . text($result['modifier']));
         echo " - " . wordwrap(text($result['code_text']), 70, "\n", true) . "</span>";
         echo "<br />\n";
     }

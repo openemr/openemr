@@ -822,7 +822,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             if ($res[1] == 'newpatient') {
                                 // display billing info
                                 $bres = sqlStatement(
-                                    "SELECT b.date, b.code, b.code_text " .
+                                    "SELECT b.date, b.code, b.code_text, b.modifier " .
                                     "FROM billing AS b, code_types AS ct WHERE " .
                                     "b.pid = ? AND " .
                                     "b.encounter = ? AND " .
@@ -834,7 +834,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
                                     echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
-                                        text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
+                                        text($brow['code']) . ":" . text($brow['modifier']) . " " . text($brow['code_text']) . "</div><br />\n";
                                 }
                             }
 
