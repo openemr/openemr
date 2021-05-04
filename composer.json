@@ -43,7 +43,7 @@
         "paragonie/multi-factor": "0.2.2",
         "particle/validator": "2.3.4",
         "pear/archive_tar": "1.4.13",
-        "phpmailer/phpmailer": "6.4.0",
+        "phpmailer/phpmailer": "6.4.1",
         "phpoffice/phpspreadsheet": "1.17.1",
         "phpseclib/phpseclib": "2.0.31",
         "ramsey/uuid": "4.1.1",
