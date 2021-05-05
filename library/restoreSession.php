@@ -18,6 +18,7 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
+$scparams = session_get_cookie_params();
 ?>
 // login.php makes sure the session ID captured here is different for each
 // new login.  We maintain it here because most browsers do not have separate
@@ -28,7 +29,15 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 var oemr_session_name = <?php echo json_encode(urlencode(session_name())); ?>;
 var oemr_session_id   = <?php echo json_encode(urlencode(session_id())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
-//
+
+var oemr_scp_lifetime = <?php echo $scparams['lifetime']; ?>; // must be numeric
+var oemr_scp_path = <?php echo js_escape($scparams['path']); ?>;
+var oemr_scp_domain = <?php echo js_escape($scparams['domain']); ?>;
+var oemr_scp_secure = <?php echo js_escape($scparams['secure']); ?>;
+var oemr_scp_samesite = <?php echo empty($scparams['samesite']) ? '' : js_escape($scparams['samesite']); ?>;
+var oemr_cookie = '';
+var oemr_change_count = 0; // debugging
+
 function restoreSession() {
     <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
         var ca = document.cookie.split('; ');
@@ -38,16 +47,40 @@ function restoreSession() {
                 <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
                     alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
                 <?php } ?>
-                <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
-                    // Using the SameSite setting when using php version 7.3.0 or above
-                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>' + '; SameSite=Strict';
-                <?php } else { ?>
-                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>';
-                <?php } ?>
+                // It's important that the cookie parameters duplicate what PHP assigned.
+                oemr_cookie = oemr_session_name + '=' + oemr_session_id +
+                    '; path=' + oemr_scp_path +
+                    '; domain=' + oemr_scp_domain;
+                if (oemr_scp_lifetime) {
+                    var d = new Date();
+                    d.setTime(d.getTime() + (oemr_scp_lifetime * 1000));
+                    oemr_cookie += '; expires=' + d.toUTCString();
+                }
+                if (oemr_scp_samesite) {
+                    oemr_cookie += '; SameSite=' + oemr_scp_samesite;
+                }
+                document.cookie = oemr_cookie;
+                ++oemr_change_count; // debugging
             }
         }
     <?php } ?>
     return true;
+}
+
+// Debugging support. Call this from an onclick handler somewhere for some
+// insight into the state of the PHP session cookie.
+//
+function restoreSessionInfo() {
+    alert(
+        'session_id = ' + oemr_session_id   + '\n' +
+        'cookie = '     + document.cookie   + '\n' +
+        'lifetime = '   + oemr_scp_lifetime + '\n' +
+        'path = '       + oemr_scp_path     + '\n' +
+        'domain = '     + oemr_scp_domain   + '\n' +
+        'secure = '     + oemr_scp_secure   + '\n' +
+        'samesite = '   + oemr_scp_samesite + '\n' +
+        'count = '      + oemr_change_count
+    );
 }
 
 // Pages that have a Print button or link should call this to initialize it for logging.
