@@ -13,7 +13,7 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ray Magauran <magauran@medexbank.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -272,7 +272,7 @@ if (!$_REQUEST['flb_table']) {
                                     $style = 'display:none;';
                                 } ?>
                             <div class="col-4 mt-3 nowrap row" style="<?php echo $style; ?>">
-                              
+
                               <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
                               <div class="col-sm-9">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
@@ -298,7 +298,7 @@ if (!$_REQUEST['flb_table']) {
                                 </div>
                                 <div class="col-sm-12 mx-auto">
                                     <div class="text-center pt-3 mx-auto">
-                                   
+
                                         <?php if ($GLOBALS['medex_enable'] == '1') { ?>
                                           <b>MedEx:</b>
                                                 <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
@@ -635,7 +635,7 @@ if (!$_REQUEST['flb_table']) {
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname); ?></a>
                         </td>
-                        
+
                         <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
@@ -830,16 +830,16 @@ function myLocalJS()
     <script>
         var auto_refresh = null;
         //this can be refined to redact HIPAA material using @media print options.
-        top.restoreSession();
         window.parent.$("[name='flb']").attr('allowFullscreen', 'true');
         $("[name='kiosk_hide']").show();
         $("[name='kiosk_show']").hide();
- 
+
         function print_FLB() {
             window.print();
         }
 
         function toggleSelectors() {
+            top.restoreSession();
             if ($("#flb_selectors").css('display') === 'none') {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
@@ -1026,7 +1026,7 @@ function myLocalJS()
             $("#kiosk").val('1');
             $("[name='kiosk_hide']").hide();
             $("[name='kiosk_show']").show();
-            
+
             var i = document.getElementById("flb_table");
             // go full-screen
             if (i.requestFullscreen) {
@@ -1040,7 +1040,7 @@ function myLocalJS()
             }
             // refreshMe();
         }
-        
+
         function KioskUp() {
             var kv = $("#kiosk").val();
             if (kv == '0') {
@@ -1072,7 +1072,7 @@ function myLocalJS()
             ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
                 eventType => document.addEventListener(eventType, KioskUp, false)
             );
-           
+
             <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
                 var reftime = <?php echo js_escape($GLOBALS['pat_trkr_timer']); ?>;
                 var parsetime = reftime.split(":");
@@ -1112,6 +1112,7 @@ function myLocalJS()
             // mdsupport - Immediately post changes to setting_new_window
             $('body').on('click', '#setting_new_window', function () {
                 $('#setting_new_window').val(this.checked ? 'checked' : ' ');
+                top.restoreSession();
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
@@ -1120,10 +1121,8 @@ function myLocalJS()
                 });
             });
 
-
             $('#filter_submit').click(function (e) {
                 e.preventDefault;
-                top.restoreSession;
                 refreshMe();
             });
 
