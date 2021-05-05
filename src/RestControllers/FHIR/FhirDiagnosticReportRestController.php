@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirDiagnostReportRestController.php
+ * FhirDiagnosticReportRestController.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
