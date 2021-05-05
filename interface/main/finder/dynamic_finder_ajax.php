@@ -24,9 +24,10 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+// No checking csrf.
+//  1. Not needed since not state changes in this script
+//  2. It will cause potential session clash fails that throws a popup which messes things up
+//     when opening a patient in a new window.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
