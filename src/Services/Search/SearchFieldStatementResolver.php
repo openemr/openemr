@@ -84,38 +84,29 @@ class SearchFieldStatementResolver
             switch ($comparableValue->getComparator()) {
                 case SearchComparator::LESS_THAN:
                 case SearchComparator::ENDS_BEFORE:
-                    {
                         $operator = "<";
                         $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                }
-                    break;
-                case SearchComparator::LESS_THAN_OR_EQUAL_TO: {
+                break;
+                case SearchComparator::LESS_THAN_OR_EQUAL_TO:
                     // when dealing with an equal to we need to take the upper range of our fuzzy date interval
                     $operator = "<=";
                     $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                }
-                    break;
+                break;
                 case SearchComparator::GREATER_THAN:
                 case SearchComparator::STARTS_AFTER:
-                    {
                         $operator = ">";
                         $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                }
-                    break;
-                case SearchComparator::GREATER_THAN_OR_EQUAL_TO: {
+                break;
+                case SearchComparator::GREATER_THAN_OR_EQUAL_TO:
                     // when dealing with an equal to we need to take the lower range of our fuzzy date interval
                     $operator = ">=";
                     $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                }
-                    break;
-                case SearchComparator::NOT_EQUALS: {
+                break;
+                case SearchComparator::NOT_EQUALS:
                     $operator = "!=";
-                }
                 break;
                 default:
-                {
                     $operator = "=";
-                }
                 break;
             }
             // for equality and also inequality (!=) we have to make sure we deal with the fuzzy ranges since search can
