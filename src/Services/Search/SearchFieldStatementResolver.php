@@ -86,28 +86,28 @@ class SearchFieldStatementResolver
                 case SearchComparator::ENDS_BEFORE:
                         $operator = "<";
                         $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                break;
+                    break;
                 case SearchComparator::LESS_THAN_OR_EQUAL_TO:
                     // when dealing with an equal to we need to take the upper range of our fuzzy date interval
                     $operator = "<=";
                     $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                break;
+                    break;
                 case SearchComparator::GREATER_THAN:
                 case SearchComparator::STARTS_AFTER:
                         $operator = ">";
                         $dateSearchString = $upperBoundDateRange->format($dateFormat);
-                break;
+                    break;
                 case SearchComparator::GREATER_THAN_OR_EQUAL_TO:
                     // when dealing with an equal to we need to take the lower range of our fuzzy date interval
                     $operator = ">=";
                     $dateSearchString = $lowerBoundDateRange->format($dateFormat);
-                break;
+                    break;
                 case SearchComparator::NOT_EQUALS:
                     $operator = "!=";
-                break;
+                    break;
                 default:
                     $operator = "=";
-                break;
+                    break;
             }
             // for equality and also inequality (!=) we have to make sure we deal with the fuzzy ranges since search can
             // specify date ranges of just Year, Year+Month, Year+month+day, Year+month+day+hour&minute, Year+month+day+hour&minute+second
