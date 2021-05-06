@@ -11,7 +11,7 @@
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
-function dap_report( $pid, $encounter, $cols, $id)
+function dap_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column
     $count = 0;

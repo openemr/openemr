@@ -33,7 +33,7 @@ class C_FormDAP extends Controller
     function default_action()
     {
         $form = new FormDAP();
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -41,12 +41,11 @@ class C_FormDAP extends Controller
     {
         if (is_numeric($form_id)) {
             $form = new FormDAP($form_id);
-        }
-        else {
+        } else {
             $form = new FormDAP();
         }
 
-        $this->assign("data",$form);
+        $this->assign("data", $form);
 
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
@@ -54,8 +53,10 @@ class C_FormDAP extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->form = new FormDAP($_POST['id']);
         parent::populate_object($this->form);
 

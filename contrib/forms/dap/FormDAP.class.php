@@ -10,17 +10,17 @@
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormDAP extends ORDataObject {
-
+class FormDAP extends ORDataObject
+{
     /**
      *
      * @access public
@@ -45,12 +45,11 @@ class FormDAP extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id= "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -126,7 +125,7 @@ class FormDAP extends ORDataObject {
     }
     function set_user($u)
     {
-        if(!empty($u)) {
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -136,7 +135,7 @@ class FormDAP extends ORDataObject {
     }
     function set_data($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->data = $data;
         }
     }
@@ -146,7 +145,7 @@ class FormDAP extends ORDataObject {
     }
     function set_assessment($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->assessment = $data;
         }
     }
@@ -156,12 +155,13 @@ class FormDAP extends ORDataObject {
     }
     function set_plan($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->plan = $data;
         }
     }
 
-    function persist() {
+    function persist()
+    {
         parent::persist();
     }
 }

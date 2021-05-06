@@ -11,8 +11,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
-require ("C_FormDAP.class.php");
+require("C_FormDAP.class.php");
 
 $c = new C_FormDAP();
 echo $c->default_action();
-
