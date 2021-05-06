@@ -158,7 +158,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 // This forces the server to create a new session ID.
                 var olddate = new Date();
                 olddate.setFullYear(olddate.getFullYear() - 1);
-                var mycookie = <?php echo json_encode(session_name()); ?> + '=' + <?php echo json_encode(session_id()); ?> +
+                var mycookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> +
                     '; path=' + <?php echo json_encode($scparams['path']); ?> +
                     '; domain=' + <?php echo json_encode($scparams['domain']); ?> +
                     '; expires=' + olddate.toGMTString();
