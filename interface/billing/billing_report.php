@@ -1085,7 +1085,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                     $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
-
+                                $prior_auth = getPriorAuth($iter['enc_pid']);
+                                if ($prior_auth !== 'None') {
+                                    $lhtml .= "<span>&nbsp;&nbsp; Authorization#: " . $prior_auth . "</span>";
+                                }
                                 if ($iter['id']) {
                                     $lcount += 2;
                                     $lhtml .= "<br />\n";
