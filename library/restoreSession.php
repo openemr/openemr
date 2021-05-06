@@ -30,7 +30,7 @@ var oemr_session_name = <?php echo json_encode(urlencode(session_name())); ?>;
 var oemr_session_id   = <?php echo json_encode(urlencode(session_id())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
 
-var oemr_scp_lifetime = <?php echo $scparams['lifetime']; ?>; // must be numeric
+var oemr_scp_lifetime = <?php echo js_escape($scparams['lifetime']); ?>;
 var oemr_scp_path = <?php echo js_escape($scparams['path']); ?>;
 var oemr_scp_domain = <?php echo js_escape($scparams['domain']); ?>;
 var oemr_scp_secure = <?php echo js_escape($scparams['secure']); ?>;
