@@ -18,7 +18,6 @@ class FormDAP extends ORDataObject {
      * @access public
      */
 
-
     /**
      *
      * static
@@ -52,12 +51,12 @@ class FormDAP extends ORDataObject {
         $this->pid = $GLOBALS['pid'];
         if ($id != "") {
             $this->populate();
-            //$this->date = $this->get_date();
+//$this->date = $this->get_date();
         }
     }
     function populate() {
         parent::populate();
-        //$this->temp_methods = parent::_load_enum("temp_locations",false);
+//$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
     function toString($html = false) {
@@ -140,5 +139,5 @@ class FormDAP extends ORDataObject {
     function persist() {
         parent::persist();
     }
-}	// end of Form
+}
 

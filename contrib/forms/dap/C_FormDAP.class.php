@@ -1,16 +1,18 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormDAP.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-class C_FormDAP extends Controller {
+class C_FormDAP extends Controller
+{
 
     var $template_dir;
 
-    function __construct($template_mod = "general") {
+    function __construct($template_mod = "general")
+    {
         parent::__construct();
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
@@ -20,20 +22,21 @@ class C_FormDAP extends Controller {
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
-    function default_action() {
+    function default_action()
+    {
         $form = new FormDAP();
         $this->assign("data",$form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function view_action($form_id) {
+    function view_action($form_id)
+    {
         if (is_numeric($form_id)) {
             $form = new FormDAP($form_id);
         }
         else {
             $form = new FormDAP();
         }
-        $dbconn = $GLOBALS['adodb']['db'];
 
         $this->assign("data",$form);
 
@@ -41,7 +44,8 @@ class C_FormDAP extends Controller {
 
     }
 
-    function default_action_process() {
+    function default_action_process()
+    {
         if ($_POST['process'] != "true")
             return;
         $this->form = new FormDAP($_POST['id']);
@@ -51,8 +55,7 @@ class C_FormDAP extends Controller {
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
-        if(empty($_POST['id']))
-        {
+        if (empty($_POST['id'])) {
             addForm($GLOBALS['encounter'], "DAP", $this->form->id, "dap", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
