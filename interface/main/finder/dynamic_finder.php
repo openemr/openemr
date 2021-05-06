@@ -335,6 +335,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         e.preventDefault();
         let target = uspfx + "patient_finder_exact_search";
         let val = el.checked ? ' checked' : ' ';
+        top.restoreSession();
         $.post("../../../library/ajax/user_settings.php",
             {
                 target: target,
