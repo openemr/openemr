@@ -160,19 +160,23 @@ if ($GLOBALS['login_page_layout'] == 'left') {
             element.disabled = true;
             // nothing fancy. mainly for mobile.
             element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText(<?php echo xlj("Authenticating"); ?>);
-            <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+            <?php if (session_name()) { ?>
+                <?php $scparams = session_get_cookie_params(); ?>
                 // Delete the session cookie by setting its expiration date in the past.
                 // This forces the server to create a new session ID.
                 var olddate = new Date();
                 olddate.setFullYear(olddate.getFullYear() - 1);
-                <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
-                    // Using the SameSite setting when using php version 7.3.0 or above, which avoids browser warnings when cookie is not 'secure' and SameSite is not set to anything
-                    document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString() + '; SameSite=Strict';
-                <?php } else { ?>
-                    document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
-                <?php } ?>
+                var mycookie = <?php echo json_encode(session_name()); ?> + '=' + <?php echo json_encode(session_id()); ?> +
+                    '; path=' + <?php echo json_encode($scparams['path']); ?> +
+                    '; domain=' + <?php echo json_encode($scparams['domain']); ?> +
+                    '; expires=' + olddate.toGMTString();
+                var samesite = <?php echo json_encode(empty($scparams['samesite']) ? '' : $scparams['samesite']); ?>;
+                if (samesite) {
+                    mycookie += '; SameSite=' + samesite;
+                }
+                document.cookie = mycookie;
             <?php } ?>
-            document.forms[0].submit();
+            return true;
         }
     </script>
 </head>
