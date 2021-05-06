@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS `form_dap` (
 `groupname` varchar(255) default NULL,
 `authorized` tinyint(4) default 0,
 `activity` tinyint(4) default 0,
-`data` text default NULL,
-`assessment` text default NULL,
-`plan` text default NULL,
+`data` text,
+`assessment` text,
+`plan` text,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;

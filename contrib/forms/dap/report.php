@@ -1,9 +1,15 @@
 <?php
 
-//------------Forms generated from formsWiz
+/*
+ *  @package OpenEMR
+ *  @link    http://www.open-emr.org
+ *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ *  @copyright Copyright (c) 2020.  Sherwin Gaddis <sherwingaddis@gmail.com>
+ *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once(dirname(__FILE__) . '/../../globals.php');
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once(dirname(__FILE__) . '/../../globals.php');
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function dap_report( $pid, $encounter, $cols, $id)
 {
@@ -20,7 +26,7 @@ function dap_report( $pid, $encounter, $cols, $id)
                 $value = "yes";
             }
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

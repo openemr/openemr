@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *  @package OpenEMR
+ *  @link    http://www.open-emr.org
+ *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ *  @copyright Copyright (c) 2020.  Sherwin Gaddis <sherwingaddis@gmail.com>
+ *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
 define("EVENT_VEHICLE",1);
@@ -37,7 +45,8 @@ class FormDAP extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id= "", $_prefix = "")	{
+    function __construct($id= "", $_prefix = "")
+    {
         if (is_numeric($id)) {
             $this->id = $id;
         }
@@ -51,17 +60,17 @@ class FormDAP extends ORDataObject {
         $this->pid = $GLOBALS['pid'];
         if ($id != "") {
             $this->populate();
-//$this->date = $this->get_date();
         }
     }
-    function populate() {
+    function populate()
+    {
         parent::populate();
-//$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function toString($html = false) {
+    function toString($html = false)
+    {
         $string .= "\n"
-            ."ID: " . $this->id . "\n";
+            . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);
@@ -70,68 +79,84 @@ class FormDAP extends ORDataObject {
             return $string;
         }
     }
-    function set_id($id) {
+    function set_id($id)
+    {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
-    function get_id() {
+    function get_id()
+    {
         return $this->id;
     }
-    function set_pid($pid) {
+    function set_pid($pid)
+    {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
-    function get_pid() {
+    function get_pid()
+    {
         return $this->pid;
     }
-    function set_activity($tf) {
+    function set_activity($tf)
+    {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
         }
     }
-    function get_activity() {
+    function get_activity()
+    {
         return $this->activity;
     }
 
-    function get_date() {
+    function get_date()
+    {
         return $this->date;
     }
-    function set_date($dt) {
+    function set_date($dt)
+    {
         if (!empty($dt)) {
             $this->date = $dt;
         }
     }
-    function get_user() {
+    function get_user()
+    {
         return $this->user;
     }
-    function set_user($u) {
-        if(!empty($u)){
+    function set_user($u)
+    {
+        if(!empty($u)) {
             $this->user = $u;
         }
     }
-    function get_data() {
+    function get_data()
+    {
         return $this->data;
     }
-    function set_data($data) {
-        if(!empty($data)){
+    function set_data($data)
+    {
+        if(!empty($data)) {
             $this->data = $data;
         }
     }
-    function get_assessment() {
+    function get_assessment()
+    {
         return $this->assessment;
     }
-    function set_assessment($data) {
-        if(!empty($data)){
+    function set_assessment($data)
+    {
+        if(!empty($data)) {
             $this->assessment = $data;
         }
     }
-    function get_plan() {
+    function get_plan()
+    {
         return $this->plan;
     }
-    function set_plan($data) {
-        if(!empty($data)){
+    function set_plan($data)
+    {
+        if(!empty($data)) {
             $this->plan = $data;
         }
     }
@@ -140,4 +165,3 @@ class FormDAP extends ORDataObject {
         parent::persist();
     }
 }
-
