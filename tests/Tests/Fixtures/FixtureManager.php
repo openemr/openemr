@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Database\QueryUtils;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -27,6 +28,11 @@ class FixtureManager
 
     private $patientFixtures;
     private $fhirPatientFixtures;
+
+    /**
+     * @var
+     */
+    private $fhirAllergyIntoleranceFixtures;
 
     public function __construct()
     {
@@ -87,7 +93,15 @@ class FixtureManager
             $sqlBinds = array();
 
             foreach ($fixture as $field => $fieldValue) {
-                $sqlColumnValues .= $field . " = ?, ";
+                // not sure I like table specific comparisons here...
+                if ($tableName == 'lists' && $field == 'pid') {
+                    $sqlColumnValues .= "pid = (SELECT id FROM patient_data WHERE pubpid=? LIMIT 1) ,";
+                } else {
+                    $sqlColumnValues .= $field . " = ?, ";
+                }
+//                if ($field === 'uuid') {
+//                    $fieldValue = UuidRegistry::uuidToBytes($fieldValue);
+//                }
                 array_push($sqlBinds, $fieldValue);
             }
 
@@ -101,10 +115,9 @@ class FixtureManager
                 $uuidPatient = $this->getUuid("patient_data");
                 array_push($sqlBinds, $uuidPatient);
             }
-
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
 
-            $isInserted = sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $isInserted = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
             if ($isInserted) {
                 $insertCount += 1;
             }
@@ -134,6 +147,15 @@ class FixtureManager
     public function getPatientFixtures()
     {
         return $this->patientFixtures;
+    }
+
+    public function getAllergyIntoleranceFixtures()
+    {
+        if (empty($this->fhirAllergyIntoleranceFixtures))
+        {
+            $this->fhirAllergyIntoleranceFixtures = $this->loadJsonFile("allergy-intolerance.json");
+        }
+        return $this->fhirAllergyIntoleranceFixtures;
     }
 
     /**
@@ -188,6 +210,25 @@ class FixtureManager
         // remove the patients
         $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
         sqlStatement($delete, array($bindVariable));
+    }
+
+    public function installAllergyIntoleranceFixtures() {
+        $this->installPatientFixtures();
+        return $this->installFixtures("lists", $this->getAllergyIntoleranceFixtures());
+    }
+
+    public function removeAllergyIntoleranceFixtures() {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $ids = QueryUtils::fetchTableColumn("SELECT `id` FROM `patient_data` WHERE `pubpid` LIKE ?"
+            , 'id', [$pubpid]);
+
+        if (!empty($ids)) {
+            $count = count($ids) - 1;
+            $where = "WHERE pid = ? " . str_repeat("OR pid = ? ", $count);
+            $sqlStatement = "DELETE FROM `lists` " . $where;
+            QueryUtils::sqlStatementThrowException($sqlStatement, $ids);
+        }
+        $this->removePatientFixtures();
     }
 
     /**

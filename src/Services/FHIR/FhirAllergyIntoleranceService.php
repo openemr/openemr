@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use Google\Service;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
@@ -18,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Common\Uuid;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -53,8 +55,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.pid']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.id']),
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('allergy_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
