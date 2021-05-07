@@ -1,0 +1,11 @@
+[{
+  "type": "allergy",
+  "title": "penicillin",
+  "pid": "test-fixture-789456"
+}
+  ,{
+  "type": "allergy",
+  "title": "penicillin",
+  "pid": "test-fixture-8"
+}
+]
