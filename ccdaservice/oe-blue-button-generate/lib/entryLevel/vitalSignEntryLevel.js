@@ -15,6 +15,7 @@ var vitalSignObservation = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.27", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.27"),
         fieldLevel.id, {
             key: "code",

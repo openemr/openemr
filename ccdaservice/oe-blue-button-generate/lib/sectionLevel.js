@@ -1,3 +1,4 @@
+/* For HTML rendering.*/
 "use strict";
 
 var bbu = require("../../oe-blue-button-util");
@@ -157,7 +158,7 @@ exports.problemsSectionEntriesRequired = {
     content: [{
         key: "section",
         content: [
-            fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5"),
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.5.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5.1"),
             fieldLevel.templateCode("ProblemSection"),
             fieldLevel.templateTitle("ProblemSection"), {

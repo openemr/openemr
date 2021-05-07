@@ -381,10 +381,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $code = $code_text = $code_rx = $code_text_rx = $code_snomed = $code_text_snomed = $reaction_text = $reaction_code = '';
                 $get_code_details = explode(':', $single_code);
 
-                if ($get_code_details[0] == 'RXNORM') {
+                if ($get_code_details[0] == 'RXNORM' || $get_code_details[0] == 'RXCUI') {
                     $code_rx = $get_code_details[1];
                     $code_text_rx = lookup_code_descriptions($single_code);
-                } elseif ($get_code_details[0] == 'SNOMED') {
+                } elseif ($get_code_details[0] == 'SNOMED' || $get_code_details[0] == 'SNOMED-CT') {
                     $code_snomed = $get_code_details[1];
                     $code_text_snomed = lookup_code_descriptions($row['code']);
                 } else {
@@ -541,7 +541,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $split_codes = explode(';', $row['code']);
             foreach ($split_codes as $key => $single_code) {
                 $get_code_details = explode(':', $single_code);
-
+                $code_type = $get_code_details[0];
+                $code_type = ($code_type == 'SNOMED' || $code_type == 'SNOMED-CT') ? "SNOMED CT" : "ICD-10-CM";
                 $code = $get_code_details[1];
                 $code_text = lookup_code_descriptions($single_code);
 
@@ -573,6 +574,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 						<sha_extension>" . xmlEscape("ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7") . "</sha_extension>
 						<title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
 						<code>" . ($code ? xmlEscape($code) : 0) . "</code>
+						<code_type>" . ($code ? xmlEscape($code_type) : 0) . "</code_type>
 						<code_text>" . xmlEscape(($code_text ? $code_text : 'NULL')) . "</code_text>
 						<age>" . xmlEscape($age) . "</age>
 						<start_date_table>" . xmlEscape($row['begdate']) . "</start_date_table>

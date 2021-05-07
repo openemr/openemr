@@ -329,6 +329,24 @@ function populateMedication(pd) {
             },
             "repeatNumber": "0",
             "quantity": "0",
+            "product": {
+                "identifiers": [{
+                    "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                    "extension": "UNK"
+                }],
+                "unencoded_name": pd.drug,
+                "product": {
+                    "name": pd.drug,
+                    "code": cleanCode(pd.rxnorm),
+                    /*"translations": [{
+                        "name": pd.drug,
+                        "code": pd.rxnorm,
+                        "code_system_name": "RXNORM"
+                    }],*/
+                    "code_system_name": "RXNORM"
+                },
+                //"manufacturer": ""
+            },
             "author": {
                 "date_time": {
                     "point": {
@@ -649,12 +667,16 @@ function populateProblem(pd) {
             "identifier": pd.sha_extension,
             "extension": pd.extension || "UNK"
         }],
+        "translations": [{
+            "name": "Condition",
+            "code": "75323-6",
+            "code_system_name": "LOINC"
+        }],
         "problem": {
             "code": {
                 "name": trim(pd.title),
                 "code": cleanCode(pd.code),
-                "code_system": "2.16.840.1.113883.6.90",
-                "code_system_name": "ICD10"
+                "code_system_name": trim(pd.code_type)
             },
             "date_time": {
                 "low": {
@@ -711,8 +733,8 @@ function populateProcedure(pd) {
         "procedure": {
             "name": pd.description,
             "code": cleanCode(pd.code),
-            "code_system": "2.16.840.1.113883.6.12",
-            "code_system_name": "CPT4"
+            //"code_system": "2.16.840.1.113883.6.12",
+            "code_system_name": "SNOMED CT"
         },
         "identifiers": [{
             "identifier": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
@@ -966,7 +988,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bpd),
             "unit": "mm[Hg]"
-        },/* {
+        }, {
                 "identifiers": [{
                     "identifier": pd.sha_extension,
                     "extension": pd.extension_pulse
@@ -1026,7 +1048,7 @@ function populateVital(pd) {
                 "interpretations": ["Normal"],
                 "value": parseFloat(pd.temperature),
                 "unit": "degF"
-            },*/
+            },
             {
                 "identifiers": [{
                     "identifier": pd.sha_extension,

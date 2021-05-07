@@ -83,7 +83,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.6.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6.1"),
                 fieldLevel.templateCode("AllergiesSection"),
                 fieldLevel.templateTitle("AllergiesSection"), {
@@ -162,7 +162,7 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.5.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5.1"),
                 fieldLevel.templateCode("ProblemSection"),
                 fieldLevel.templateTitle("ProblemSection"), {
@@ -182,7 +182,6 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
                     dataKey: "problems",
                     required: true
                 }, {
-
                     key: "entry",
                     existsWhen: condition.keyExists("problems_comment"),
                     content: {

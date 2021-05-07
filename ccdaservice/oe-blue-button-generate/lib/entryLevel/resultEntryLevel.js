@@ -15,6 +15,7 @@ var resultObservation = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.2", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.2"),
         fieldLevel.id, {
             key: "code",

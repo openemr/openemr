@@ -3,14 +3,14 @@
 var headerLevel = require('./headerLevel');
 var fieldLevel = require('./fieldLevel');
 var leafLevel = require('./leafLevel');
-var sectionLevel = require('./sectionLevel');
+//var sectionLevel = require('./sectionLevel');
 var contentModifier = require("./contentModifier");
 var condition = require("./condition");
 
 var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
-exports.ccd = {
+/*exports.ccd = {
     key: "ClinicalDocument",
     attributes: {
         "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -98,7 +98,7 @@ exports.ccd = {
             dataKey: 'data'
         }
     ]
-};
+}*/;
 
 var sectionLevel2 = require('./sectionLevel2');
 

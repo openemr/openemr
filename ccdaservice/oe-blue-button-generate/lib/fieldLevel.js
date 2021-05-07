@@ -24,6 +24,16 @@ exports.templateId = function (id) {
     };
 };
 
+exports.templateIdExt = function (id, ext) {
+    return {
+        key: "templateId",
+        attributes: {
+            "root": id,
+            "extension": ext
+        }
+    };
+};
+
 exports.templateCode = function (name) {
     var raw = templateCodes[name];
     var result = {
