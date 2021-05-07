@@ -74,6 +74,7 @@ class RxList
         $page = RxList::getPage($query);
         $tokens = RxList::parse2tokens($page);
         $hash = RxList::tokens2hash($tokens);
+        if (!empty($hash)) {
         foreach ($hash as $index => $data) {
             unset($my_data);
             foreach ($data as $k => $v) {
@@ -94,6 +95,7 @@ class RxList
             $list[trim($my_data['name']) . $synonym] =
                 trim($my_data['name']);
         }
+    }
 
         return $list;
     } // end function RxList::get_list
