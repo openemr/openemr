@@ -247,7 +247,7 @@ class edih_x12_file
         $str_html = '<p>' . PHP_EOL;
         if (count($this->message)) {
             foreach ($this->message as $msg) {
-                $str_html .= $msg . '<br />' . PHP_EOL;
+                $str_html .= text($msg) . '<br />' . PHP_EOL;
             }
 
             $str_html .= PHP_EOL . '</p>' . PHP_EOL;

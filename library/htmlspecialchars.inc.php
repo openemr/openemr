@@ -77,6 +77,21 @@ function csvEscape($text)
 }
 
 /**
+ *
+ * references: https://stackoverflow.com/questions/3426090/how-do-you-make-strings-xml-safe
+ *             https://www.php.net/htmlspecialchars
+ *             https://www.php.net/XMLWriter
+ *
+ *
+ * Escapes & < > ' "
+ * TODO: not sure if need to escape ' and ", which are escaping for now (via the ENT_QUOTES flag)
+ */
+function xmlEscape($text)
+{
+    return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES);
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-

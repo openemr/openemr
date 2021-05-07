@@ -35,7 +35,7 @@ class Form_Controller extends Abstract_Controller
         $form->formDir = $this->getRequest()->getParam('formdir', '');
         $form->formId = $this->getRequest()->getParam('formid', 0);
         $form->encounterId = $this->getRequest()->getParam('encounterid', 0);
-        $form->userId = $GLOBALS['authUserID'];
+        $form->userId = $GLOBALS['authUserID'] ?? null;
         $form->action = '#';
         $signable = new Form_Signable($form->formId, $form->formDir, $form->encounterId);
         $form->showLock = false;

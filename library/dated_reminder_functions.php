@@ -310,7 +310,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
         is_numeric($patID)
     ) {
 // ------- check for valid recipient
-        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', array($sendDMTo)));
+        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', array($sendDMTo ?? '')));
         if ($cRow == 0) {
             return false;
         }
@@ -355,8 +355,8 @@ function logRemindersArray()
     $input = array();
     // set blank string for the query
     $where = '';
-    $sentBy = $_GET['sentBy'];
-    $sentTo = $_GET['sentTo'];
+    $sentBy = $_GET['sentBy'] ?? '';
+    $sentTo = $_GET['sentTo'] ?? '';
 //------------------------------------------
 // ----- HANDLE SENT BY FILTER
     if (!empty($sentBy)) {
@@ -450,7 +450,7 @@ function logRemindersArray()
         $reminders[$i]['message'] = $drRow['dr_message_text'];
         $reminders[$i]['fromName'] = $drRow['ffname'] . ' ' . $drRow['fmname'] . ' ' . $drRow['flname'];
         $reminders[$i]['ToName'] = $drRow['tfname'] . ' ' . $drRow['tmname'] . ' ' . $drRow['tlname'];
-        $reminders[$i]['processedByName'] = (empty($prRow) ? 'N/A' : $prRow['ptitle'] . ' ' . $prRow['pfname'] . ' ' . $prRow['pmname'] . ' ' . $prRow['plname']);
+        $reminders[$i]['processedByName'] = (empty($prRow) ? 'N/A' : ($prRow['ptitle'] ?? '') . ' ' . $prRow['pfname'] . ' ' . $prRow['pmname'] . ' ' . $prRow['plname']);
     }
 
 // --------- END OF loop through the results

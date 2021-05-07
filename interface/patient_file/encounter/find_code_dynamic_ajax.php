@@ -249,9 +249,9 @@ if ($what == 'codes') {
         $where2 = "AND (li.list_id LIKE '%$sSearch%' OR li.title LIKE '%$sSearch%')";
     }
 } elseif ($what == 'groups') {
-    $sellist .= "DISTINCT lo.group_id AS code, lp.grp_title AS description";
-    $from = "layout_options AS lo, layout_group_properties AS lp";
-    $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_form_id = lo.form_id AND lp.grp_group_id = lo.group_id";
+    $sellist .= "DISTINCT lp.grp_group_id AS code, lp.grp_title AS description";
+    $from = "layout_group_properties AS lp";
+    $where1 = "WHERE lp.grp_form_id LIKE '" . add_escape_custom($layout_id) . "' AND lp.grp_group_id != ''";
     if ($searchTerm !== "") {
         $sSearch = add_escape_custom($searchTerm);
         $where2 = "AND lp.grp_title LIKE '%$sSearch%'";
@@ -272,7 +272,7 @@ if ($what == 'fields' && $source == 'V') {
   // Get total number of rows with no filtering.
     $iTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $orderby"));
   // Get total number of rows after filtering.
-    $iFilteredTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $where2 $orderby"));
+    $iFilteredTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby"));
 }
 
 // Build the output data array.
@@ -309,18 +309,20 @@ if ($what == 'fields' && $source == 'V') {
         $start,
         $number
     );
-    while ($row = sqlFetchArray($res)) {
-        $arow = array('DT_RowId' => genFieldIdString(array(
-          'code' => $row['code'],
-          'description' => $row['code_text'],
-          'codetype' => $codetype,
-        )));
-        $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
-        $arow[] = $row['code_text'];
-        $out['aaData'][] = $arow;
+    if (!empty($res)) {
+        while ($row = sqlFetchArray($res)) {
+            $arow = array('DT_RowId' => genFieldIdString(array(
+              'code' => $row['code'],
+              'description' => $row['code_text'],
+              'codetype' => $codetype,
+            )));
+            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            $arow[] = $row['code_text'];
+            $out['aaData'][] = $arow;
+        }
     }
 } else {
-    $query = "SELECT $sellist FROM $from $where1 $where2 $orderby $limit";
+    $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
         $arow = array('DT_RowId' => genFieldIdString($row));

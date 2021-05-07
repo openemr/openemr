@@ -32,8 +32,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     exit;
 }
 
-$ignoreAuth = true;
-global $ignoreAuth;
+$ignoreAuth_onsite_portal = true;
+global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/forms.inc");
@@ -570,11 +570,12 @@ if ($printable) {
     echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
     echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
-    // Use logo if it exists as 'practice_logo.gif' in the site dir
-    // old code used the global custom dir which is no longer a valid
-    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-    if (file_exists($practice_logo)) {
-        echo "<img src='$practice_logo' align='left'><br />\n";
+    $practice_logo = "";
+    $plogo = glob("$OE_SITE_DIR/images/*");// let's give the user a little say in image format.
+    $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
+    if (!empty($plogo)) {
+        $k = current(array_keys($plogo));
+        $practice_logo = $plogo[$k];
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
@@ -796,6 +797,9 @@ foreach ($ar as $key => $val) {
                 $d = new Document($document_id);
                 $fname = basename($d->get_name());
                 $extension = substr($fname, strrpos($fname, "."));
+                if (strtolower($extension) == '.zip' || strtolower($extension) == '.dcm') {
+                    continue;
+                }
                 echo "<h1>" . xlt('Document') . " '" . text($fname) . "-" . text($d->get_id()) . "'</h1>";
 
                 $notes = $d->get_notes();

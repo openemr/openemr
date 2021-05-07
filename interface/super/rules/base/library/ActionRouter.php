@@ -42,13 +42,13 @@ class ActionRouter
 
         $result = $this->perform($this->action);
 
-        $forward = $result->_forward;
+        $forward = $result->_forward ?? null;
         if ($forward) {
             $this->perform($forward);
             return;
         }
 
-        $_redirect = $result->_redirect;
+        $_redirect = $result->_redirect ?? null;
         if ($_redirect) {
             $baseTemplatesDir = base_dir() . "base/template";
             require($baseTemplatesDir . "/redirect.php");
@@ -65,7 +65,7 @@ class ActionRouter
         $result = $this->controller->viewBean;
 
         // resolve view location
-        $viewName = $result->_view;
+        $viewName = $result->_view ?? null;
         $view_location = $this->path . "/view/" . $viewName;
         if (!is_file($view_location)) {
             // try common
@@ -76,7 +76,7 @@ class ActionRouter
         $viewBean = $result;
 
         // set helpers
-        $helpers = $viewBean->helpers;
+        $helpers = $viewBean->helpers ?? null;
         if (!is_null($helpers)) {
             foreach ($helpers as $helper) {
                 $helperPath = $this->resolveHelper($helper);
@@ -95,7 +95,7 @@ class ActionRouter
         $viewBean->_webRoot = $this->webRoot;
         $viewBean->_view_body = $view_location;
 
-        $template = $this->resolveTemplate($result->_template);
+        $template = $this->resolveTemplate($result->_template ?? null);
         require($template);
 
         return $result;

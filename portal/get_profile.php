@@ -35,7 +35,7 @@ require_once("./../library/patient.inc");
 
 require_once("./lib/appsql.class.php");
 require_once("./lib/section_fetch.class.php");
-// $fetchsec = new FetchSection ();
+
 $appsql = new ApplicationTable();
 $pending = $appsql->getPortalAudit($pid, 'review');
 $N = 7;
@@ -43,8 +43,7 @@ $N = 7;
 
 <style>
     .insurance .table .bold {
-        font-weight: bold;
-        font-size: 14px;
+        font-weight: normal;
     }
 
     .insurance .table .text {
@@ -52,26 +51,21 @@ $N = 7;
     }
 
     .demographics .groupname.bold {
-        font-size: 18px;
+        font-size: 1rem;
         color: var(--primary);
     }
 
     .demographics table .bold {
         font-weight: normal;
-        font-size: 16px;
-        color: var(--success);
-        padding: 1px;
         border-top: 0;
     }
 
     .demographics table .text {
         font-weight: normal;
-        font-size: 15px;
         color: var(--danger);
     }
 
     .demographics .table td {
-        padding: 1px;
         border-top: 0;
     }
 
@@ -81,15 +75,15 @@ $N = 7;
 <div class='demographics table-responsive' id='DEM'>
 
     <?php
-                $result1 = getPatientData($pid);
-                $result2 = getEmployerData($pid);
+    $result1 = getPatientData($pid);
+    $result2 = getEmployerData($pid);
     ?>
     <div class="card">
             <header class="card-header border border-bottom-0"><?php echo xlt('Profile Demographics'); ?>
             <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white" style="font-size: 14px">' . xlt('Pending Review') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white">' . xlt('Pending Review') . '</button>';
             } else {
-                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white" style="font-size: 14px">' . xlt('Revise') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white">' . xlt('Revise') . '</button>';
             }
             ?>
             </header>

@@ -13,7 +13,6 @@
  */
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once(__DIR__ . "/src/Common/Session/SessionUtil.php");
 
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -23,9 +22,12 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+
 
 // also a handy place to add utility methods
 // TODO before v6 release: refactor http_response_code(); for psr responses.
@@ -41,9 +43,6 @@ class RestConfig
     /** @var portal routemap is an  of patterns and routes */
     public static $PORTAL_ROUTE_MAP;
 
-    /** @var portal fhir routemap is an  of patterns and routes */
-    public static $PORTAL_FHIR_ROUTE_MAP;
-
     /** @var app root is the root directory of the application */
     public static $APP_ROOT;
 
@@ -52,7 +51,7 @@ class RestConfig
     // you can guess what the rest are!
     public static $VENDOR_DIR;
     public static $SITE;
-
+    public static $apisBaseFullUrl;
     public static $webserver_root;
     public static $web_root;
     public static $server_document_root;
@@ -194,6 +193,7 @@ class RestConfig
 
     public static function verifyAccessToken()
     {
+        $logger = new SystemLogger();
         $response = self::createServerResponse();
         $request = self::createServerRequest();
         $server = new ResourceServer(
@@ -203,13 +203,36 @@ class RestConfig
         try {
             $raw = $server->validateAuthenticatedRequest($request);
         } catch (OAuthServerException $exception) {
+            $logger->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
             return $exception->generateHttpResponse($response);
         } catch (\Exception $exception) {
+            $logger->error("RestConfig->verifyAccessToken() Exception", ["message" => $exception->getMessage()]);
             return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
                 ->generateHttpResponse($response);
         }
 
         return $raw;
+    }
+
+    public static function isTrustedUser($clientId, $userId)
+    {
+        $trustedUserService = new TrustedUserService();
+        $response = self::createServerResponse();
+        try {
+            if (!$trustedUserService->isTrustedUser($clientId, $userId)) {
+                (new SystemLogger())->debug(
+                    "invalid Trusted User.  Refresh Token revoked or logged out",
+                    ['clientId' => $clientId, 'userId' => $userId]
+                );
+                throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid _request', 400);
+            }
+            return $trustedUserService->getTrustedUser($clientId, $userId);
+        } catch (OAuthServerException $exception) {
+            return $exception->generateHttpResponse($response);
+        } catch (\Exception $exception) {
+            return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
+                ->generateHttpResponse($response);
+        }
     }
 
     public static function createServerResponse(): ResponseInterface
@@ -234,7 +257,7 @@ class RestConfig
 
     public static function destroySession(): void
     {
-        OpenEMR\Common\Session\SessionUtil::apiSessionCookieDestroy();
+        SessionUtil::apiSessionCookieDestroy();
     }
 
     public static function getPostData($data)
@@ -256,14 +279,42 @@ class RestConfig
         return null;
     }
 
-    public static function authorization_check($section, $value): void
+    public static function authorization_check($section, $value, $user = ''): void
     {
-        $result = AclMain::aclCheckCore($section, $value);
+        $result = AclMain::aclCheckCore($section, $value, $user);
         if (!$result) {
             if (!self::$notRestCall) {
                 http_response_code(401);
             }
             exit();
+        }
+    }
+
+    // Main function to check scope
+    //  Use cases:
+    //     Only sending $scopeType would be for something like 'openid'
+    //     For using all 3 parameters would be for something like 'user/Organization.write'
+    //       $scopeType = 'user', $resource = 'Organization', $permission = 'write'
+    public static function scope_check($scopeType, $resource = null, $permission = null): void
+    {
+        if (!empty($GLOBALS['oauth_scopes'])) {
+            // Need to ensure has scope
+            if (empty($resource)) {
+                // Simply check to see if $scopeType is an allowed scope
+                $scope = $scopeType;
+            } else {
+                // Resource scope check
+                $scope = $scopeType . '/' . $resource . '.' . $permission;
+            }
+            if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
+                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
+                http_response_code(401);
+                exit;
+            }
+        } else {
+            (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
+            http_response_code(401);
+            exit;
         }
     }
 
@@ -277,46 +328,6 @@ class RestConfig
         self::$notRestCall = true;
     }
 
-    public static function get_bearer_token(): string
-    {
-        $parse = preg_split("/[\s,]+/", $_SERVER["HTTP_AUTHORIZATION"]);
-        if (strtoupper(trim($parse[0])) !== 'BEARER') {
-            return '';
-        }
-
-        return trim($parse[1]);
-    }
-
-    public static function verify_api_request($resource, $api): void
-    {
-        $api = strtolower(trim($api));
-        if (self::is_fhir_request($resource)) {
-            if ($api !== 'fhir') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_portal_request($resource)) {
-            if ($api !== 'port') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_portal_fhir_request($resource)) {
-            if ($api !== 'pofh') {
-                http_response_code(401);
-                exit();
-            }
-        } elseif (self::is_api_request($resource)) {
-            if ($api !== 'oemr') {
-                http_response_code(401);
-                exit();
-            }
-        } else {
-            // somebody is up to no good
-            http_response_code(401);
-            exit();
-        }
-    }
-
     public static function is_fhir_request($resource): bool
     {
         return stripos(strtolower($resource), "/fhir/") !== false;
@@ -327,37 +338,61 @@ class RestConfig
         return stripos(strtolower($resource), "/portal/") !== false;
     }
 
-    public static function is_portal_fhir_request($resource): bool
-    {
-        return stripos(strtolower($resource), "/portalfhir/") !== false;
-    }
-
     public static function is_api_request($resource): bool
     {
         return stripos(strtolower($resource), "/api/") !== false;
     }
 
-    public static function authentication_check($resource): void
+    public static function skipApiAuth($resource): bool
     {
-        if (!self::is_authentication($resource)) {
-            $token = $_SERVER["HTTP_X_API_TOKEN"];
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            // we don't authenticate OPTIONS requests
+            return true;
+        }
+
+        // ensure 1) sane site and 2) ensure the site exists on filesystem before even considering for skip api auth
+        if (empty(self::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', self::$SITE) || !file_exists(__DIR__ . '/sites/' . self::$SITE)) {
+            error_log("OpenEMR Error - api site error, so forced exit");
+            http_response_code(400);
+            exit();
+        }
+        // let the capability statement for FHIR or the SMART-on-FHIR through
+        if (
+            $resource === ("/" . self::$SITE . "/fhir/metadata") ||
+            $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")
+        ) {
+            return true;
+        } else {
+            return false;
         }
     }
 
     public static function apiLog($response = '', $requestBody = ''): void
     {
+        $logResponse = $response;
+
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
         //  and when api log option is set
-        if (!$GLOBALS['is_local_api'] && $GLOBALS['api_log_option']) {
+        if (!$GLOBALS['is_local_api'] && !self::$notRestCall && $GLOBALS['api_log_option']) {
             if ($GLOBALS['api_log_option'] == 1) {
                 // Do not log the response and requestBody
-                $response = '';
+                $logResponse = '';
                 $requestBody = '';
+            }
+            if ($response instanceof ResponseInterface) {
+                if (self::shouldLogResponse($response)) {
+                    $body = $response->getBody();
+                    $logResponse = $body->getContents();
+                    $body->rewind();
+                } else {
+                    $logResponse = 'Content not application/json - Skip binary data';
+                }
+            } else {
+                $logResponse = (!empty($logResponse)) ? json_encode($response) : '';
             }
 
             // convert pertinent elements to json
             $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
-            $response = (!empty($response)) ? json_encode($response) : '';
 
             // prepare values and call the log function
             $event = 'api';
@@ -373,7 +408,7 @@ class RestConfig
                 'request' => $GLOBALS['resource'],
                 'request_url' => $url,
                 'request_body' => $requestBody,
-                'response' => $response
+                'response' => $logResponse
             ];
             if ($patientId === 0) {
                 $patientId = null; //entries in log table are blank for no patient_id, whereas in api_log are 0, which is why above $api value uses 0 when empty
@@ -401,36 +436,59 @@ class RestConfig
         echo $response->getBody();
     }
 
-    public function getUserAccount($userId, $userRole = 'users')
+    /**
+     * If the FHIR System scopes enabled or not.  True if its turned on, false otherwise.
+     * @return bool
+     */
+    public static function areSystemScopesEnabled()
     {
-        if (!is_numeric($userId)) {
-            $uuidreg = new UuidRegistry();
-            $userId = $uuidreg::uuidToBytes($userId);
-        }
-
-        switch ($userRole) {
-            case 'users':
-                $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `id` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
-                }
-                break;
-            case 'patient':
-                $account_sql = "SELECT `pid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data`";
-                if (is_numeric($userId)) {
-                    $account_sql .= " WHERE `pid` = ?";
-                } else {
-                    $account_sql .= " WHERE `uuid` = ?";
-                }
-                break;
-            default:
-                return null;
-        }
-
-        return sqlQueryNoLog($account_sql, array($userId));
+        return $GLOBALS['rest_system_scopes_api'] === '1';
     }
+
+    public function authenticateUserToken($tokenId, $clientId, $userId): bool
+    {
+        $ip = collectIpAddresses();
+
+        // check for token
+        $accessTokenRepo = new AccessTokenRepository();
+        $authTokenExpiration = $accessTokenRepo->getTokenExpiration($tokenId, $clientId, $userId);
+
+        if (empty($authTokenExpiration)) {
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for client[" . $clientId . "] and user " . $userId . ".");
+            return false;
+        }
+
+        // Ensure token not expired (note an expired token should have already been caught by oauth2, however will also check here)
+        $currentDateTime = date("Y-m-d H:i:s");
+        $expiryDateTime = date("Y-m-d H:i:s", strtotime($authTokenExpiration));
+        if ($expiryDateTime <= $currentDateTime) {
+            EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token expired for client[" . $clientId . "] and user " . $userId . ".");
+            return false;
+        }
+
+        // Token authentication passed
+        EventAuditLogger::instance()->newEvent('api', '', '', 1, "API success: " . $ip['ip_string'] . ". Token successfully used for client[" . $clientId . "] and user " . $userId . ".");
+        return true;
+    }
+
+    /**
+     * Checks if we should log the response interface (we don't want to log binary documents or anything like that)
+     * We only log requests with a content-type of any form of json fhir+application/json or application/json
+     * @param ResponseInterface $response
+     * @return bool If the request should be logged, false otherwise
+     */
+    private static function shouldLogResponse(ResponseInterface $response)
+    {
+        if ($response->hasHeader("Content-Type")) {
+            $contentType = $response->getHeaderLine("Content-Type");
+            if ($contentType === 'application/json') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /** prevents external cloning */
     private function __clone()

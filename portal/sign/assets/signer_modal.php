@@ -14,13 +14,14 @@ require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
-if (!$is_portal) {
+if (empty($is_portal)) {
     session_destroy();
     require_once(__DIR__ . '/../../../interface/globals.php');
 } else {
     require_once __DIR__ . "/../../verify_session.php";
 }
 
+$aud = "admin-signature";
 $cuser = attr($_SESSION['authUserID'] ?? "-patient-");
 $cpid = attr($_SESSION['pid'] ?? "0");
 $api_id = $_SESSION['api_csrf_token'] ?? ''; // portal doesn't do remote
@@ -45,8 +46,9 @@ $vars = "<script>const msgSignator='" . $msg7 . "';const msgNoSign='" . $msg8 . 
 $vars .= "<script>const msgNeedSign='" . $msg10 . "';const msgCheckIn='" . $msg11 . "';const msgFail='" . $msg12 . "';const msgAnswering='" . $msg14 . "';</script>\n";
 $vars .= "<script>var apiToken=" . js_escape($api_id) . ";</script>\n";
 // override templates or source to ensure these are set correctly for signer api.
-// you'll always have two signatures, portal(not witnessed, thats coming) and clinic.
+// you'll always have two signatures, portal(not witnessed, that's coming) and clinic.
 if ($is_portal) {
+    $aud = "patient-signature";
     $vars .= "<script>var isPortal=" . js_escape($is_portal) . ";var cuser=" . js_escape($cuser) . ";var cpid=" . js_escape($cpid) . ";</script>\n";
 }
 // short & sweet dynamic modal
@@ -65,7 +67,7 @@ $vars
                         <div class='description'>$msg4</div>
                         <div class='btn-group signature-pad-actions bg-light'>
                                 <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
-                                <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='patient-signature' id='signatureModal'>$msg1</button>
+                                <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='$aud' id='signatureModal'>$msg1</button>
                                 <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display: none'>$msg6</button>
                                 <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>$msg2</button>
                                 <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>

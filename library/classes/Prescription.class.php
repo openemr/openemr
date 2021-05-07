@@ -119,6 +119,7 @@ class Prescription extends ORDataObject
     var $patient;
     var $pharmacist;
     var $date_added;
+    var $txDate;
     var $date_modified;
     var $pharmacy;
     var $start_date;

@@ -131,7 +131,7 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
         if(typeof afterLoadFunction !== 'function'){
             $( "body" ).off( "load", "iframe[name='"+name+"']");
         } else {
-            $("iframe[name='"+name+"']").on('load', function () {
+            $("iframe[name='"+name+"']").one('load', function () {
                 afterLoadFunction();
             });
         }
@@ -183,6 +183,7 @@ function setEncounter(id)
 
 function chooseEncounterEvent(data,evt)
 {
+    top.restoreSession();
     setEncounter(data.id());
     goToEncounter(data.id());
 }
@@ -199,6 +200,7 @@ function goToEncounter(encId)
 
 function reviewEncounter(encId)
 {
+    top.restoreSession();
     var url=webroot_url+'/interface/patient_file/encounter/forms.php?review_id=' + encId;
     navigateTab(url,"rev",function () {
         activateTabByName("rev",true);

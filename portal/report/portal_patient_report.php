@@ -30,8 +30,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     exit;
 }
 
-$ignoreAuth = true;
-global $ignoreAuth;
+$ignoreAuth_onsite_portal = true;
+global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/lists.inc");
@@ -49,7 +49,7 @@ $auth_relaxed  = true; //AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = true; //AclMain::aclCheckCore('patients'  , 'med');
 $auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
-$ignoreAuth = 1;
+$ignoreAuth_onsite_portal = true;
 ?>
 
 <?php Header::setupAssets('textformat'); ?>
@@ -619,12 +619,17 @@ if ($db->ErrorMsg()) {
 }
 
 while ($result && !$result->EOF) {
-    echo "<li class='bold'>";
-    echo '<input type="checkbox" name="documents[]" value="' .
-        $result->fields['id'] . '">';
-    echo '&nbsp;&nbsp;<i>' .  text(xl_document_category($result->fields['name'])) . "</i>";
-    echo '&nbsp;&nbsp;' . xlt('Name') . ': <i>' . text($result->fields['document_name']) . '-' . text($result->fields['id']) . "</i>";
-    echo '</li>';
+    $fname = basename($result->fields['url']);
+    $extension = strtolower(substr($fname, strrpos($fname, ".")));
+    if ($extension !== '.zip' && $extension !== '.dcm') {
+        echo "<li class='bold'>";
+        echo '<input type="checkbox" name="documents[]" value="' .
+            $result->fields['id'] . '">';
+        echo '&nbsp;&nbsp;<i>' . text(xl_document_category($result->fields['name'])) . "</i>";
+        echo '&nbsp;&nbsp;' . xlt('Name') . ': <i>' . text(basename($result->fields['url'])) . "</i>";
+        echo '</li>';
+    }
+
     $result->MoveNext();
 }
 ?>
@@ -653,7 +658,7 @@ initReport = function(){
     $(".issuecheckbox").click(function() { issueClick(this); });
 
     // check/uncheck all Forms of an encounter
-    $(".encounter").click(function() { SelectForms($(this)); });
+    $(".encounter").click(function() { SelectForms(this); });
 
     function showCustom(){
         var formval = $( "#report_form" ).serializeArray();
@@ -849,17 +854,16 @@ $(function () {
 // select/deselect the Forms related to the selected Encounter
 // (it ain't pretty code folks)
 var SelectForms = function (selectedEncounter) {
-    if ($(selectedEncounter).attr("checked")) {
-        $(selectedEncounter).parent().children().each(function(i, obj) {
-            $(this).children().each(function(i, obj) {
-                $(this).attr("checked", "checked");
+    if ($(selectedEncounter).prop("checked")) {
+        $(selectedEncounter).parent().children().each(function (i, obj) {
+            $(this).children().each(function (i, obj) {
+                $(this).prop("checked", true);
             });
         });
-    }
-    else {
-        $(selectedEncounter).parent().children().each(function(i, obj) {
-            $(this).children().each(function(i, obj) {
-                $(this).removeAttr("checked");
+    } else {
+        $(selectedEncounter).parent().children().each(function (i, obj) {
+            $(this).children().each(function (i, obj) {
+                $(this).prop("checked", false);
             });
         });
     }
@@ -868,11 +872,11 @@ var SelectForms = function (selectedEncounter) {
 // When an issue is checked, auto-check all the related encounters and forms
 function issueClick(issue) {
     // do nothing when unchecked
-    if (! $(issue).attr("checked")) return;
+    if (!$(issue).prop("checked")) return;
 
-    $("#report_form :checkbox").each(function(i, obj) {
+    $("#report_form :checkbox").each(function (i, obj) {
         if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {
-            $(this).attr("checked", "checked");
+            $(this).prop("checked", true);
         }
 
     });

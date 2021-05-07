@@ -30,6 +30,17 @@
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
+ * Return the name of the OpenEMR database.
+ *
+ * @return string
+ */
+function databaseName()
+{
+    $row = sqlQuery("SELECT database() AS dbname");
+    return $row['dbname'];
+}
+
+/**
  * Check if a Sql table exists.
  *
  * @param string $tblname Sql Table Name
@@ -371,8 +382,8 @@ function ImportDrugInformation()
  */
 function getTablesList($arg = array())
 {
-    $binds = array();
-    $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
+    $binds = array(databaseName());
+    $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';
 
     if (!empty($arg['engine'])) {
         $binds[] = $arg['engine'];
@@ -974,31 +985,33 @@ function upgradeFromSqlFile($filename, $path = '')
             // convert all *text types to use default null setting
         } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
-                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment`
+                "SELECT col.`table_name` AS table_name, col.`column_name` AS column_name,
+      col.`data_type` AS data_type, col.`column_comment` AS column_comment
       FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab
       ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
       WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
-      AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
+      AND col.is_nullable = 'NO' AND col.table_schema = ? AND tab.table_type = 'BASE TABLE'",
+                array(databaseName())
             );
-            if (sqlNumRows($items_to_convert) == 0) {
-                $skipping = true;
-            } else {
-                $skipping = false;
-                echo '<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n";
-                flush_echo();
-                while ($item = sqlFetchArray($items_to_convert)) {
-                    if (!empty($item['column_comment'])) {
-                        $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']) . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
-                    } else {
-                        $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']));
-                    }
-
-                    // If above query didn't work, then error will be outputted via the sqlStatement function.
-                    echo "<p class='text-success'>" . text($item['table_name']) . "." . text($item['column_name']) . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</p>\n";
+            $skipping = true;
+            while ($item = sqlFetchArray($items_to_convert)) {
+                if (empty($item['table_name'])) {
+                    continue;
+                }
+                if ($skipping) {
+                    $skipping = false;
+                    echo '<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n";
                     flush_echo();
                 }
+                if (!empty($item['column_comment'])) {
+                    $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']) . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
+                } else {
+                    $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']));
+                }
+                // If above query didn't work, then error will be outputted via the sqlStatement function.
+                echo "<p class='text-success'>" . text($item['table_name']) . "." . text($item['column_name']) . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</p>\n";
+                flush_echo();
             }
-
             if ($skipping) {
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
@@ -1014,25 +1027,29 @@ function upgradeFromSqlFile($filename, $path = '')
             $tables_skip_migration = array('form_eye_mag');
 
             $tables_list = getTablesList(array('engine' => 'MyISAM'));
-            if (count($tables_list) == 0) {
-                $skipping = true;
-            } else {
-                $skipping = false;
-                echo '<p>Starting migration to InnoDB, please wait.</p>', "\n";
-                flush_echo();
-                foreach ($tables_list as $k => $t) {
-                    if (in_array($t, $tables_skip_migration)) {
-                        printf('<p class="text-success">Table %s was purposefully skipped and NOT migrated to InnoDB.</p>', $t);
-                        continue;
-                    }
 
-                    $res = MigrateTableEngine($t, 'InnoDB');
-                    if ($res === true) {
-                        printf('<p class="text-success">Table %s migrated to InnoDB.</p>', $t);
-                    } else {
-                        printf('<p class="text-danger">Error migrating table %s to InnoDB</p>', $t);
-                        error_log(sprintf('Error migrating table %s to InnoDB', errorLogEscape($t)));
-                    }
+            $skipping = true;
+            foreach ($tables_list as $k => $t) {
+                if (empty($t)) {
+                    continue;
+                }
+                if ($skipping) {
+                    $skipping = false;
+                    echo '<p>Starting migration to InnoDB, please wait.</p>', "\n";
+                    flush_echo();
+                }
+
+                if (in_array($t, $tables_skip_migration)) {
+                    printf('<p class="text-success">Table %s was purposefully skipped and NOT migrated to InnoDB.</p>', $t);
+                    continue;
+                }
+
+                $res = MigrateTableEngine($t, 'InnoDB');
+                if ($res === true) {
+                    printf('<p class="text-success">Table %s migrated to InnoDB.</p>', $t);
+                } else {
+                    printf('<p class="text-danger">Error migrating table %s to InnoDB</p>', $t);
+                    error_log(sprintf('Error migrating table %s to InnoDB', errorLogEscape($t)));
                 }
             }
 
@@ -1045,8 +1062,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;
@@ -1067,8 +1084,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;
@@ -1083,8 +1100,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " vertical table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " vertical table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " vertical table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;

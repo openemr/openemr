@@ -183,7 +183,7 @@ if (!isset($_GET["mode"])) {
             // sort array in assending order
                 sort($user_final_list);
                 sort($provider_final_list);
-                $all4 = array_natsort($ret, pid, fulname, asc);
+                $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
 
                 if ($_POST['end_of_day_provider_only'] == 1) {
                     $run_provider = 1;

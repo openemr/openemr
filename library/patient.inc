@@ -7,13 +7,16 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
 
 $facilityService = new FacilityService();
 
@@ -106,8 +109,8 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, addresses.line1, addresses.line2, addresses.city,
-            addresses.state, addresses.zip
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+            addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
             AND insurance_companies.inactive != 1
@@ -138,6 +141,10 @@ function getInsuranceProvidersExtra()
                     ", " . $row['state'] . ", " . $row['zip'] . ")";
                 break;
             case $GLOBALS['insurance_information'] = '6':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
+                    ", " . $row['state'] . ", " . $row['zip'] . ", " . $row['cms_id'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '7':
                 preg_match("/\d+/", $row['line1'], $matches);
                 $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
                     "," . $matches[0] . ")";
@@ -642,10 +649,10 @@ function getByPatientDemographicsFilter(
         }
 
         if ($val == 'pid') {
-            $where .= " " . add_escape_custom($val) . " = ? ";
+            $where .= " " . escape_sql_column_name($val, ['patient_data']) . " = ? ";
                 array_push($sqlBindArray, $searchTerm);
         } else {
-            $where .= " " . add_escape_custom($val) . " like ? ";
+            $where .= " " . escape_sql_column_name($val, ['patient_data']) . " like ? ";
                 array_push($sqlBindArray, $searchTerm . "%");
         }
 
@@ -1044,61 +1051,38 @@ function pdValueOrNull($key, $value)
     }
 }
 
-// Create or update patient data from an array.
-//
+/**
+ * Create or update patient data from an array.
+ *
+ * This is a wrapper function for the PatientService which is now the single point
+ * of patient creation and update.
+ *
+ * If successful, returns the pid of the patient
+ *
+ * @param $pid
+ * @param $new
+ * @param false $create
+ * @return mixed
+ */
 function updatePatientData($pid, $new, $create = false)
 {
-  /*******************************************************************
-    $real = getPatientData($pid);
-    foreach ($new as $key => $value)
-        $real[$key] = $value;
-    $real['date'] = "'+NOW()+'";
-    $real['id'] = "";
-    $sql = "insert into patient_data set ";
-    foreach ($real as $key => $value)
-        $sql .= $key." = '$value', ";
-    $sql = substr($sql, 0, -2);
-    return sqlInsert($sql);
-  *******************************************************************/
-
-  // The above was broken, though seems intent to insert a new patient_data
-  // row for each update.  A good idea, but nothing is doing that yet so
-  // the code below does not yet attempt it.
-
-    if ($create) {
-        $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
-        foreach ($new as $key => $value) {
-            if ($key == 'id') {
-                continue;
-            }
-
-            $sql .= ", `$key` = " . pdValueOrNull($key, $value);
-        }
-
-        // add a uuid for the new patient
-        $sql .= ", `uuid` ='" . add_escape_custom((new UuidRegistry(['table_name' => 'patient_data']))->createUuid()) . "'";
-
-        $db_id = sqlInsert($sql);
+    // Create instance of patient service
+    $patientService = new PatientService();
+    if (
+        $create === true ||
+        $pid === null
+    ) {
+        $result = $patientService->databaseInsert($new);
     } else {
-        $db_id = $new['id'];
-        $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '" . add_escape_custom($db_id) . "'");
-        // Check for brain damage:
-        if ($pid != $rez['pid']) {
-            $errmsg = "Internal error: Attempt to change patient data with pid = '" .
-            text($rez['pid']) . "' when current pid is '" . text($pid) . "' for id '" . text($db_id) . "'";
-            die($errmsg);
-        }
-
-        $sql = "UPDATE patient_data SET date = NOW()";
-        foreach ($new as $key => $value) {
-            $sql .= ", `$key` = " . pdValueOrNull($key, $value);
-        }
-
-        $sql .= " WHERE id = '" . add_escape_custom($db_id) . "'";
-        sqlStatement($sql);
+        $new['pid'] = $pid;
+        $result = $patientService->databaseUpdate($new);
     }
 
-    return $db_id;
+    // From the returned patient data array
+    // retrieve the data and return the pid
+    $pid = $result['pid'];
+
+    return $pid;
 }
 
 function newEmployerData(
@@ -1198,6 +1182,13 @@ function newInsuranceData(
 
     if (strlen($type) <= 0) {
         return false;
+    }
+
+    if (is_null($accept_assignment)) {
+        $accept_assignment = "TRUE";
+    }
+    if (is_null($policy_type)) {
+        $policy_type = "";
     }
 
     // If empty dates were passed, then null.
@@ -1727,7 +1718,10 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0",
                 array($pid, $encounter)
             );
-            $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            // going to comment this out for now since computing future copays doesn't
+            // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
+            // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
             $ptbal = $copay + $amt - $pay;
@@ -1750,6 +1744,39 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
     }
 
     return sprintf('%01.2f', $balance);
+}
+
+function get_patient_balance_excluding($pid, $excluded = -1)
+{
+    // We join form_encounter here to make sure we only count amounts for
+    // encounters that exist.  We've had some trouble before with encounters
+    // that were deleted but leaving line items in the database.
+    $brow = sqlQuery(
+        "SELECT SUM(b.fee) AS amount " .
+        "FROM billing AS b, form_encounter AS fe WHERE " .
+        "b.pid = ? AND b.encounter != 0 AND b.encounter != ? AND b.activity = 1 AND " .
+        "fe.pid = b.pid AND fe.encounter = b.encounter",
+        array($pid, $excluded)
+    );
+    $srow = sqlQuery(
+        "SELECT SUM(s.fee) AS amount " .
+        "FROM drug_sales AS s, form_encounter AS fe WHERE " .
+        "s.pid = ? AND s.encounter != 0 AND s.encounter != ? AND " .
+        "fe.pid = s.pid AND fe.encounter = s.encounter",
+        array($pid, $excluded)
+    );
+    $drow = sqlQuery(
+        "SELECT SUM(a.pay_amount) AS payments, " .
+        "SUM(a.adj_amount) AS adjustments " .
+        "FROM ar_activity AS a, form_encounter AS fe WHERE " .
+        "a.deleted IS NULL AND a.pid = ? AND a.encounter != 0 AND a.encounter != ? AND " .
+        "fe.pid = a.pid AND fe.encounter = a.encounter",
+        array($pid, $excluded)
+    );
+    return sprintf(
+        '%01.2f',
+        $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments']
+    );
 }
 
 // Function to check if patient is deceased.

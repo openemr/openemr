@@ -39,7 +39,7 @@ if (!$result) { //If there are no disclosures recorded
   <br />
   <br />
     <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
-    vitals_report('', '', 2, $result['id']);
+    vitals_report('', '', 1, $result['id']);
     ?>  <span class='text'>
   <br />
   <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo xlt('Click here to view and graph all vitals.');?></a>

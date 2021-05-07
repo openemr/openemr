@@ -461,8 +461,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #EndIf
 
-#IfNotColumnType codes code_text_short varchar(255)
-ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#IfNotColumnType codes code_text_short text
+ALTER TABLE `codes` MODIFY `code_text_short` text;
 #EndIf
 
 #IfNotColumnTypeDefault amendments created_time timestamp NULL
@@ -577,11 +577,11 @@ ALTER TABLE `uuid_registry` ADD `document_drive` tinyint(4) NOT NULL DEFAULT '0'
 ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate patient_data
-#EndIf
-
 #IfNotIndex patient_data uuid
 CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate patient_data
 #EndIf
 
 #IfNotColumnTypeDefault insurance_data subscriber_DOB date NULL
@@ -622,11 +622,11 @@ CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 ALTER TABLE `form_encounter` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate form_encounter
-#EndIf
-
 #IfNotIndex form_encounter uuid
 CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_encounter
 #EndIf
 
 #IfMissingColumn form_encounter class_code
@@ -684,11 +684,11 @@ ALTER TABLE `users` ADD `supervisor_id` INT(11) NOT NULL DEFAULT '0';
 ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate users
-#EndIf
-
 #IfNotIndex users uuid
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate users
 #EndIf
 
 #IfMissingColumn uuid_registry table_vertical
@@ -699,22 +699,22 @@ ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '
 ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
-#EndIf
-
 #IfNotIndex facility_user_ids uuid
 CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
 #EndIf
 
 #IfMissingColumn facility uuid
 ALTER TABLE `facility` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate facility
-#EndIf
-
 #IfNotIndex facility uuid
 CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate facility
 #EndIf
 
 #IfNotRow codes code_text respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular
@@ -1910,22 +1910,22 @@ ALTER TABLE `documents` ADD `document_data` MEDIUMTEXT;
 ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate immunizations
-#EndIf
-
 #IfNotIndex immunizations uuid
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate immunizations
 #EndIf
 
 #IfMissingColumn lists uuid
 ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate lists
-#EndIf
-
 #IfNotIndex lists uuid
 CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate lists
 #EndIf
 
 #IfMissingColumn lists verification
@@ -1962,11 +1962,11 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdateId procedure_order procedure_order_id
-#EndIf
-
 #IfNotIndex procedure_order uuid
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdateId procedure_order procedure_order_id
 #EndIf
 
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
@@ -1989,22 +1989,22 @@ UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#adb5bd' WHERE `pc_c
 ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdateId drugs drug_id
-#EndIf
-
 #IfNotIndex drugs uuid
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdateId drugs drug_id
 #EndIf
 
 #IfMissingColumn prescriptions uuid
 ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate prescriptions
-#EndIf
-
 #IfNotIndex prescriptions uuid
 CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate prescriptions
 #EndIf
 
 #IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
@@ -2047,11 +2047,11 @@ ALTER TABLE `automatic_notification` DROP COLUMN `notification_sent_date`;
 ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdateId procedure_result procedure_result_id
-#EndIf
-
 #IfNotIndex procedure_result uuid
 CREATE UNIQUE INDEX `uuid` ON `procedure_result` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdateId procedure_result procedure_result_id
 #EndIf
 
 #IfNotColumnType form_bronchitis user varchar(50)
@@ -2235,11 +2235,11 @@ ALTER TABLE `ccda` ADD `hash` varchar(255) DEFAULT NULL;
 ALTER TABLE `ccda` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
-#IfUuidNeedUpdate ccda
-#EndIf
-
 #IfNotIndex ccda uuid
 CREATE UNIQUE INDEX `uuid` ON `ccda` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate ccda
 #EndIf
 
 #IfNotColumnTypeDefault form_prior_auth date datetime NULL
@@ -2295,7 +2295,7 @@ CREATE TABLE `oauth_clients` (
 `client_id` varchar(80) NOT NULL,
 `client_role` varchar(20) DEFAULT NULL,
 `client_name` varchar(80) NOT NULL,
-`client_secret` varchar(120) DEFAULT NULL,
+`client_secret` text,
 `registration_token` varchar(80) DEFAULT NULL,
 `registration_uri_path` varchar(40) DEFAULT NULL,
 `register_date` datetime DEFAULT NULL,
@@ -2315,15 +2315,13 @@ PRIMARY KEY (`client_id`)
 CREATE TABLE `oauth_trusted_user` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `user_id` varchar(80) DEFAULT NULL,
-`user_role` varchar(16) DEFAULT NULL,
 `client_id` varchar(80) DEFAULT NULL,
 `scope` text,
 `persist_login` tinyint(1) DEFAULT '0',
 `time` timestamp NULL DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `accounts_id` (`user_id`),
-KEY `clients_id` (`client_id`),
-KEY `user_role` (`user_role`)
+KEY `clients_id` (`client_id`)
 ) ENGINE=InnoDB;
 #EndIf
 
@@ -2342,10 +2340,103 @@ UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
 ALTER TABLE `oauth_clients` CHANGE `client_id` `client_id` varchar(80) NOT NULL;
 #EndIf
 
-#IfNotColumnType oauth_clients client_secret varchar(120)
-ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` varchar(120) DEFAULT NULL;
+#IfNotColumnType oauth_clients client_secret text
+ALTER TABLE `oauth_clients` CHANGE `client_secret` `client_secret` text;
 #EndIf
 
 #IfNotColumnType oauth_clients registration_token varchar(80)
 ALTER TABLE `oauth_clients` CHANGE `registration_token` `registration_token` varchar(80) DEFAULT NULL;
 #EndIf
+
+#IfColumn api_token token_auth
+ALTER TABLE `api_token` DROP COLUMN `token_auth`;
+#EndIf
+
+#IfColumn api_token token_api
+ALTER TABLE `api_token` DROP COLUMN `token_api`;
+#EndIf
+
+#IfColumn api_token patient_id
+ALTER TABLE `api_token` DROP COLUMN `patient_id`;
+#EndIf
+
+#IfColumn api_token auth_user_id
+ALTER TABLE `api_token` DROP COLUMN `auth_user_id`;
+#EndIf
+
+#IfMissingColumn oauth_trusted_user code
+ALTER TABLE `oauth_trusted_user` ADD `code` text;
+#EndIf
+
+#IfMissingColumn oauth_trusted_user session_cache
+ALTER TABLE `oauth_trusted_user` ADD `session_cache` text;
+#EndIf
+
+#IfNotColumnType codes code_text text
+ALTER TABLE `codes` MODIFY `code_text` text;
+#EndIf
+
+#IfNotColumnType codes_history code_text text
+ALTER TABLE `codes_history` MODIFY `code_text` text;
+#EndIf
+
+#IfNotColumnType codes_history code_text_short text
+ALTER TABLE `codes_history` MODIFY `code_text_short` text;
+#EndIf
+
+#IfNotColumnType icd10_dx_order_code long_desc text
+ALTER TABLE `icd10_dx_order_code` MODIFY `long_desc` text;
+#EndIf
+
+#IfNotColumnType icd10_pcs_order_code long_desc text
+ALTER TABLE `icd10_pcs_order_code` MODIFY `long_desc` text;
+#EndIf
+
+#IfColumn api_token user_role
+ALTER TABLE `api_token` DROP COLUMN `user_role`;
+#EndIf
+
+#IfColumn oauth_trusted_user user_role
+ALTER TABLE `oauth_trusted_user` DROP COLUMN `user_role`;
+#EndIf
+
+#IfMissingColumn oauth_clients logout_redirect_uris
+ALTER TABLE `oauth_clients` ADD `logout_redirect_uris` text;
+#EndIf
+
+#IfMissingColumn oauth_trusted_user grant_type
+ALTER TABLE `oauth_trusted_user` ADD COLUMN `grant_type` varchar(32) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType layout_options title text
+ALTER TABLE `layout_options` CHANGE `title` `title` TEXT;
+#EndIf
+
+#IfMissingColumn oauth_clients jwks_uri
+ALTER TABLE `oauth_clients` ADD `jwks_uri` TEXT;
+ALTER TABLE `oauth_clients` ADD `jwks` TEXT;
+ALTER TABLE `oauth_clients` ADD `initiate_login_uri` TEXT;
+#EndIf
+
+#IfMissingColumn oauth_clients endorsements
+ALTER TABLE `oauth_clients` ADD `endorsements` TEXT;
+ALTER TABLE `oauth_clients` ADD `policy_uri` TEXT;
+ALTER TABLE `oauth_clients` ADD `tos_uri` TEXT;
+#EndIf
+
+#IfMissingColumn oauth_clients is_enabled
+ALTER TABLE `oauth_clients` ADD `is_enabled` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfNotRow codes code_text meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "meningococcal polysaccharide (groups A, C, Y, W-135) tetanus toxoid conjugate vaccine .5mL dose, preservative free", "meningococcal polysaccharide (groups A, C, Y, W-135) TT conjugate", 203, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "influenza, seasonal vaccine, quadrivalent, adjuvanted, .5mL dose, preservative free", "Influenza vaccine, quadrivalent, adjuvanted", 205, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "smallpox monkeypox vaccine, live attenuated, preservative free (National Stockpile)", "Smallpox monkeypox vaccine (National Stockpile)", 206, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose", "COVID-19, mRNA, LNP-S, PF, 100 mcg/0.5 mL dose", 207, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose", "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose", 208, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 (COVID-19) vaccine, vector non-replicating, recombinant spike protein-ChAdOx1, preservative free, 0.5 mL ", "COVID-19 vaccine, vector-nr, rS-ChAdOx1, PF, 0.5 mL", 210, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+

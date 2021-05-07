@@ -123,10 +123,11 @@ if (empty($form_code)) {
     $query_codes = "c.id in (";
     $codes = '';
     foreach ($form_code as $code) {
-        $codes .= $code . ',';
+        $codes .= '?,';
+        array_push($sqlBindArray, $code);
     }
     $codes = substr($codes, 0, -1);
-    $query_codes .= add_escape_custom($codes) . ") and ";
+    $query_codes .= $codes . ") and ";
 }
 
 $query .= "i.patient_id=p.pid and " .

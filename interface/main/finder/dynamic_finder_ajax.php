@@ -19,14 +19,14 @@
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+// Not checking csrf for good reasons.
+//  1. Not needed since no state changes in this script
+//  2. It will cause potential session clash fails because it throws a popup which messes things up
+//     when opening a patient in a new window.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
@@ -185,7 +185,7 @@ $iTotal = $row['count'];
 if (empty($where)) {
     $where = $customWhere;
 } else {
-    $where = "$customWhere AND $where";
+    $where = "$customWhere AND ( $where )";
 }
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];

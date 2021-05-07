@@ -14,22 +14,35 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 class UserRepository extends UserEntity implements UserRepositoryInterface
 {
+    public function getCustomUserEntityByUserCredentials(
+        $userrole,
+        $username,
+        $password,
+        $email,
+        $grantType,
+        ClientEntityInterface $clientEntity
+    ) {
+        $user = new UserEntity();
+        if (!empty($userrole) && !empty($username) && !empty($password)) {
+            if (!$user->getAccountByPassword($userrole, $username, $password, $email)) {
+                return false;
+            }
+
+            return $user;
+        }
+        return false;
+    }
+
     public function getUserEntityByUserCredentials(
         $username,
         $password,
         $grantType,
         ClientEntityInterface $clientEntity
     ) {
-        $user = new UserEntity();
-        if ($username && $password) {
-            $user->getAccountByPassword($username, $password);
-        }
-        return $user;
+        return false;
     }
 }

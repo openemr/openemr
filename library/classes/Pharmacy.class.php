@@ -12,6 +12,7 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 define("TRANSMIT_PRINT", 1);
 define("TRANSMIT_EMAIL", 2);
 define("TRANSMIT_FAX", 3);
+define("TRANSMIT_ERX", 4);
 
 /**
  * class Pharmacy
@@ -29,6 +30,8 @@ class Pharmacy extends ORDataObject
     var $transmit_method;
     var $email;
     var $transmit_method_array; //set in constructor
+    var $pageno;
+    var $state;
     var $npi;
     var $ncpdp;
 
@@ -38,10 +41,11 @@ class Pharmacy extends ORDataObject
     function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
+        $this->state = $this->getState();
         $this->name = "";
         $this->email = "";
         $this->transmit_method = 1;
-        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"));
+        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx"));
         $this->_table = "pharmacies";
         $phone  = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
@@ -243,7 +247,11 @@ class Pharmacy extends ORDataObject
         $pharmacies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
+            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " ";
+        if ($GLOBALS['weno_rx_enable']) {
+            $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
+        }
+        $sql .= add_escape_custom($sort);
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);
@@ -254,6 +262,13 @@ class Pharmacy extends ORDataObject
         }
 
         return $pharmacies;
+    }
+
+    function getState()
+    {
+        $sql = "SELECT state FROM facility";
+        $res = sqlQuery($sql);
+        return $res['state'];
     }
 
     function toString($html = false)
@@ -271,6 +286,18 @@ class Pharmacy extends ORDataObject
         } else {
             return $string;
         }
+    }
+
+    function totalPages()
+    {
+        $sql = "select count(*) AS numberof from " . escape_table_name($this->_table);
+        $count = sqlQuery($sql);
+        return $count['numberof'];
+    }
+
+    function getPageno()
+    {
+        return $this->pageno = 1;
     }
 } // end of Pharmacy
 /*$p = new Pharmacy("1");

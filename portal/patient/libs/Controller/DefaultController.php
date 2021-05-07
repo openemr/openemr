@@ -3,7 +3,7 @@
 /** @package Openemr::Controller */
 
 /** import supporting libraries */
-require_once("AppBaseController.php");
+require_once("AppBasePortalController.php");
 
 /**
  * DefaultController is the entry point to the application
@@ -15,7 +15,7 @@ require_once("AppBaseController.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class DefaultController extends AppBaseController
+class DefaultController extends AppBasePortalController
 {
 
     /**

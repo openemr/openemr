@@ -31,6 +31,7 @@ use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -206,7 +207,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
 <?php if (!$PDF_OUTPUT) { ?>
     <?php // if the track_anything form exists, then include the styling
-    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
         <?php Header::setupAssets('track-anything'); ?>
     <?php  } ?>
 
@@ -301,8 +302,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                                     if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                                                 preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                                                $form_id_arr[] = add_escape_custom($res_search[2]);
-                                                $form_dir_arr[] = add_escape_custom($res_search[1]);
+                                                $form_id_arr[] = add_escape_custom($res_search[2] ?? '');
+                                                $form_dir_arr[] = add_escape_custom($res_search[1] ?? '');
                                     }
                                 }
 
@@ -685,7 +686,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                                         echo "<img src='$from_file_tmp_web_name'><br /><br />";
                                         $tmp_files_remove[] = $from_file_tmp_web_name;
                                     } else {
-                                        echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        if ($extension === '.pdf' || $extension === '.zip') {
+                                            echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
+                                        } else {
+                                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                        }
                                     }
                                 }
                             } // end if-else
@@ -717,7 +722,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         preg_match('/^(.*)_(\d+)$/', $key, $res);
                         $rowid = $res[2];
-                        $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
+                        $irow = sqlQuery("SELECT type, title, comments, diagnosis, udi_data " .
                                         "FROM lists WHERE id = ?", array($rowid));
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
@@ -728,8 +733,15 @@ function zip_content($source, $destination, $content = '', $create = true)
                         }
 
                         echo "<div class='text issue'>";
-                        echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
-                        echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                        if ($prevIssueType == "medical_device") {
+                            echo "<span class='issue_title'><span class='font-weight-bold'>" . xlt('Title') . ": </span>" . text($irow['title']) . "</span><br>";
+                            echo "<span class='issue_title'>" . (new MedicalDevice($irow['udi_data']))->fullOutputHtml() . "</span>";
+                            echo "<span class='issue_comments'> " . text($irow['comments']) . "</span><br><br>\n";
+                        } else {
+                            echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
+                            echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                        }
+
                         // Show issue's chief diagnosis and its description:
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
@@ -810,7 +822,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             if ($res[1] == 'newpatient') {
                                 // display billing info
                                 $bres = sqlStatement(
-                                    "SELECT b.date, b.code, b.code_text " .
+                                    "SELECT b.date, b.code, b.code_text, b.modifier " .
                                     "FROM billing AS b, code_types AS ct WHERE " .
                                     "b.pid = ? AND " .
                                     "b.encounter = ? AND " .
@@ -822,7 +834,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
                                     echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
-                                        text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
+                                        text($brow['code']) . ":" . text($brow['modifier']) . " " . text($brow['code_text']) . "</div><br />\n";
                                 }
                             }
 

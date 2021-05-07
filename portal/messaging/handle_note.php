@@ -17,7 +17,7 @@ require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $ignoreAuth = true;
+    $ignoreAuth_onsite_portal = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();

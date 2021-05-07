@@ -331,13 +331,13 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
   save_certificate_settings();
 }*/
 
-if ($_POST["mode"] == "create_client_certificate") {
+if (!empty($_POST["mode"]) && ($_POST["mode"] == "create_client_certificate")) {
     create_client_cert();
-} elseif ($_POST["mode"] == "download_certificates") {
+} elseif (!empty($_POST["mode"]) && ($_POST["mode"] == "download_certificates")) {
     create_and_download_certificates();
 }
 
-if ($_SESSION["zip_error"]) {
+if (!empty($_SESSION["zip_error"])) {
     $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
     SessionUtil::unsetSession('zip_error');
 }

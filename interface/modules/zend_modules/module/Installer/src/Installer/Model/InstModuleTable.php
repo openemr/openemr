@@ -337,7 +337,7 @@ class InstModuleTable
                 $values[0],
                 $values[1],
                 $values[2],
-                $values[3],
+                ($values[3] ?? null),
                 $id,
             );
             $resp = $this->applicationTable->zQuery($sql, $params);
@@ -743,7 +743,7 @@ class InstModuleTable
             $check = $row;
         }
 
-        if (is_array($check) && (count($check) > 0)) {
+        if (!empty($check) && is_array($check) && (count($check) > 0)) {
             if ($check['mod_active'] == "1") {
                 return "Enabled";
             } else {

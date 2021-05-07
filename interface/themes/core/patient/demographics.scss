@@ -16,7 +16,7 @@
     .label_custom {
       @include font-size("0.8rem");
       font-weight: bold;
-      text-align: $right;
+      text-align: $left;
       vertical-align: top;
     }
 
@@ -25,6 +25,12 @@
       padding-right: 6px;
       text-align: $left;
       vertical-align: top;
+    }
+
+    .form-control {
+      display: inline;
+      height: auto;
+      width: auto;
     }
   }
 }

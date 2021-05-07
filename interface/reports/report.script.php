@@ -154,7 +154,7 @@
         var i;
         for (i = elSel.length - 1; i >= 0; i--) {
             OptionValue = elSel.options[i].value;
-            OptionValue = OptionValue.split(seperator);
+            OptionValue = OptionValue.split('|' + seperator.trim());
             if (OptionValue[0] == value0) {
                 return i;
             }
@@ -168,8 +168,8 @@
         var i;
         for (i = elSel.length - 1; i >= 0; i--) {
             OptionValue = elSel.options[i].value;
-            OptionValue = OptionValue.split(' between ');
-            if (OptionValue[0] == '(' + value0) {
+            OptionValue = OptionValue.split('|between|');
+            if (OptionValue[0] == value0) {
                 return i;
             }
         }
@@ -180,10 +180,10 @@
         var elOptNew = document.createElement('option');
         if (Type == 'radio' || Type == 'query_drop_down') {
             elOptNew.text = text0 + seperator + text1;
-            elOptNew.value = value0 + seperator + "'" + value1 + "'";
+            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
         } else if (Type == 'radio_like') {
             elOptNew.text = text0 + ' = ' + text1;
-            elOptNew.value = value0 + seperator + "'" + value1 + "'";
+            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
         }
         var elSel = document.getElementById('final_this_page_criteria');
         TheOptionIndex = checkOptionExist(value0, seperator);
@@ -207,9 +207,9 @@
         var elOptNew = document.createElement('option');
         elOptNew.text = text0 + seperator + text1;
         if (Type == 'text') {
-            elOptNew.value = value0 + seperator + "'" + value1 + "'";
+            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1;
         } else if (Type == 'text_like') {
-            elOptNew.value = value0 + seperator + "'" + value1 + "%'";
+            elOptNew.value = value0 + "|" + seperator.trim() + "|" + value1 + "%";
         }
         var elSel = document.getElementById('final_this_page_criteria');
         TheOptionIndex = checkOptionExist(value0, seperator);
@@ -237,10 +237,10 @@
         FromDateValue = document.getElementById(FromDate).value;
         ToDateValue = document.getElementById(ToDate).value;
         if (Type == 'date') {
-            elOptNew.value = "(" + value0 + " between '" + FromDateValue + "' and '" + ToDateValue + "')";
+            elOptNew.value = value0 + "|between|" + FromDateValue + "|" + ToDateValue;
         }
         if (Type == 'datetime') {
-            elOptNew.value = "(" + value0 + " between '" + FromDateValue + " 00:00:00' and '" + ToDateValue + " 23:59:59')";
+            elOptNew.value = value0 + "|between|" + FromDateValue + " 00:00:00|" + ToDateValue + " 23:59:59";
         }
         var elSel = document.getElementById('final_this_page_criteria');
         TheOptionIndex = checkOptionExistDateCriteria(value0);

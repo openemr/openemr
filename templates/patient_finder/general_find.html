@@ -59,7 +59,7 @@ a {
 <input type="hidden" name="pid" value="{$hidden_ispid|attr}" />
 </form>
 <table>
-{if count($result_set) > 0}
+{if !empty($result_set) && count($result_set) > 0}
 	<tr>
 		<td>{xlt t='Results Found For Search'} '{$search_string|text}'</td>
 	</tr>

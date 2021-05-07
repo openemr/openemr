@@ -98,17 +98,6 @@
         ]
     },
     {
-        "label": "Publish",
-        "menu_id": "publish",
-        "target": "main",
-        "on_click":"doPublish();return false;",
-        "url": "",
-        "pid":"false",
-        "children": [],
-        "requirement": 0,
-        "global_req":"fhir_enable"
-    },
-    {
         "label": "Modules",
         "children": [],
         "requirement": 0

@@ -104,7 +104,7 @@ if (
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
-    echo "<br />";
+    echo "<br /><br /><br />";
 }
 
 if (!empty($_REQUEST['go'])) { ?>
@@ -529,9 +529,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                                $body = nl2br(text(oeFormatPatientNote($body)));
-                                                // echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
-                                                echo "<input type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' value='$body'>";
+                                                $body = text(oeFormatPatientNote($body));
+                                                echo "<textarea type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' rows='3' readonly>" . $body . "</textarea>";
                                             }
 
                                             ?>
@@ -896,7 +895,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                             })
                         };
-                        return x;
                     },
                     cache: true
                 }

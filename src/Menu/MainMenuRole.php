@@ -65,7 +65,8 @@ class MainMenuRole extends MenuRole
         $updatedMenuEvent = $this->dispatcher->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent($menu_parsed));
 
         $menu_restrictions = array();
-        $this->menuApplyRestrictions($updatedMenuEvent->getMenu(), $menu_restrictions);
+        $tmp = $updatedMenuEvent->getMenu();
+        $this->menuApplyRestrictions($tmp, $menu_restrictions);
         $updatedRestrictions = $this->dispatcher->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($menu_restrictions));
 
         return $updatedRestrictions->getMenu();

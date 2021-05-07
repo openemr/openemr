@@ -5,7 +5,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -67,7 +67,10 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
+            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
             $codes[$code]['chg'] += $amount;
+
+            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
             $codes[$code]['bal'] += $amount;
 
             // Pass the code type, code and code_text fields
@@ -80,7 +83,7 @@ class InvoiceSummary
 
             // Add the details if they want 'em.
             if ($with_detail) {
-                if (!$codes[$code]['dtl']) {
+                if (empty($codes[$code]['dtl'])) {
                     $codes[$code]['dtl'] = array();
                 }
 
@@ -138,7 +141,11 @@ class InvoiceSummary
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
-                $code = "Unknown";
+                if ($row['account_code'] == "PCP") {
+                    $code = "Copay";
+                } else {
+                    $code = "Unknown";
+                }
             }
 
             if ($row['modifier']) {
@@ -149,6 +156,8 @@ class InvoiceSummary
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];
             $codes[$code]['chg'] -= $row['adj_amount'];
+
+            $codes[$code]['adj'] = $codes[$code]['adj'] ?? null;
             $codes[$code]['adj'] += $row['adj_amount'];
             if ($ins_id) {
                 $codes[$code]['ins'] = $ins_id;
@@ -174,9 +183,9 @@ class InvoiceSummary
                     $tmp['chg'] = 0 - $row['adj_amount'];
                     $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim($row['follow_up_note'])) : $row['memo'];
                     $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
-                    $tmp['rsn'] = str_replace("Ins1", $ins_data['primary'], $tmp['rsn']);
-                    $tmp['rsn'] = str_replace("Ins2", $ins_data['secondary'], $tmp['rsn']);
-                    $tmp['rsn'] = str_replace("Ins3", $ins_data['tertiary'], $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins1", ($ins_data['primary'] ?? ''), $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins2", ($ins_data['secondary'] ?? ''), $tmp['rsn']);
+                    $tmp['rsn'] = str_replace("Ins3", ($ins_data['tertiary'] ?? ''), $tmp['rsn']);
                     $tmpkey = $paydate . $keysuff1++;
                 } else {
                     $tmpkey = $paydate . $keysuff2++;

@@ -92,7 +92,7 @@ class FormROS extends ORDataObject
     var $edema = "N/A";
     var $legpain_cramping = "N/A";
     var $history_murmur = "N/A";
-    var $arryhmia = "N/A";
+    var $arrythmia = "N/A";
     var $heart_problem = "N/A";
     var $dysphagia = "N/A";
     var $heartburn = "N/A";

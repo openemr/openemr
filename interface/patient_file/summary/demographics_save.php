@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-
+global $pid;
 // Check authorization.
 if ($pid) {
     if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
@@ -61,8 +61,10 @@ while ($frow = sqlFetchArray($fres)) {
         $table = 'employer_data';
     }
 
-    //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
-    if (isset($_POST["form_$field_id"])) {
+    // Get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
+    // *unless* the data_type is a checkbox ("21"), because if the checkbox is unchecked, then it will not
+    // have a value set on the form, it will be empty.
+    if (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }

@@ -36,7 +36,7 @@ class FhirLocationRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirLocationService->getOne($fhirId);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**

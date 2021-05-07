@@ -251,7 +251,6 @@ a {
 #DEM .label_custom {
   font-size: 0.8rem;
   font-weight: bold;
-  text-align: right;
   vertical-align: bottom;
 }
 
@@ -259,6 +258,12 @@ a {
   font-size: 0.8rem;
   text-align: left;
   vertical-align: bottom;
+}
+
+#DEM .form-control {
+  display: inline;
+  height: auto;
+  width: auto;
 }
 
 .tinylogocontainer {

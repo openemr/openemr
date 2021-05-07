@@ -56,7 +56,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                     form_eye_base.id=forms.form_id and
                     forms.deleted != '1' and
                     forms.pid =form_eye_base.pid and
-                    forms.formdir='eye_mag' and form_eye_base.pid=? ORDER BY encounter_date DESC LIMIT 10";
+                    forms.formdir='eye_mag' and form_eye_base.pid=? ORDER BY encounter_date DESC LIMIT 20";
                     // Unlike the obj data(PMSFH,Clinical,IMPPLAN etc), this data is static.
                     // It only needs to be passed once to the client side.
         $result     = sqlStatement($query, array($pid));
@@ -71,7 +71,6 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             $dated = new DateTime($prior['encounter_date']);
             $dated = $dated->format('Y-m-d');
             $oeexam_date = oeFormatShortDate($dated);
-
             foreach ($tables as $table) {
                 $sql = "SELECT * from " . $table . " WHERE id=?";
                 $sub_data = sqlStatement($sql, array($prior['id']));
@@ -81,6 +80,8 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 }
             }
             $priors[$i] = $prior;
+            $priors[$i]['encounter_date'] = $oeexam_date;
+
             if (($i > 0) && ($prior['PLAN'])) {
                 //this plan is a todo list for next visit, which is $i-1 actually
                 $j = $i - 1;
@@ -89,7 +90,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             }
 
             $selected = '';
-            $priors[$i]['visit_date'] = $prior['encounter_date'];
+            $priors[$i]['visit_date'] = $oeexam_date;
             $priors[$i]['exam_date'] = $oeexam_date;
             if ($id_to_show == $prior['form_id']) {
                 $selected = 'selected="selected"';
@@ -102,7 +103,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         }
     } else {
         //priors[] exists, containing the visits data AND the priors[earlier] field at the end, so iterate through all but the last one.
-        $visit_count = count($priors) - 1;
+        //$visit_count = count($priors) - 1;
         for ($i = 0; $i < count($priors); $i++) {
             if ($form_id == $priors[$i]['id']) {
                 $selected = 'selected=selected';
@@ -128,19 +129,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         $later   = "0";
     }
 
-    if ($GLOBALS['date_display_format'] == 1) {      // mm/div/yyyy
-        $priors[$i]['encounter_date'] = date("m/d/Y", strtotime($priors[$i]['encounter_date']));
-        $priors[$earlier]['encounter_date'] = date("m/d/Y", strtotime($priors[$earlier]['encounter_date']));
-        $priors[$later]['encounter_date'] = date("m/d/Y", strtotime($priors[$later]['encounter_date']));
-        $priors[0]['encounter_date'] = date("m/d/Y", strtotime($priors[0]['encounter_date']));
-        $priors[$current]['encounter_date'] = date("m/d/Y", strtotime($priors[$current]['encounter_date']));
-    } else {
-        $priors[$i]['encounter_date'] = date("d/m/Y", strtotime($priors[$i]['encounter_date']));
-        $priors[$earlier]['encounter_date'] = date("d/m/Y", strtotime($priors[$earlier]['encounter_date']));
-        $priors[$later]['encounter_date'] = date("d/m/Y", strtotime($priors[$later]['encounter_date']));
-        $priors[0]['encounter_date'] = date("d/m/Y", strtotime($priors[0]['encounter_date']));
-        $priors[$current]['encounter_date'] = date("d/m/Y", strtotime($priors[$current]['encounter_date']));
-    }
+
     //current visit =[0]
     if (!$priors[$current]['PLAN']) {
         $priors[$current]['PLAN'] = array();
@@ -264,13 +253,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     echo $output;//prior visit selector - already sanitized
                     ?>
             </div>
-                <p class="font-weight-bold">
+                <span style="font-weight:bold;">
                     <?php
                     if ($report == '0') {
                         echo xlt('Prior Exam');
                     } else {
                         echo xlt($zone);
-                    } ?>: </p>
+                    } ?>: </span>
                 <br />
                 <div id="PRIORS_EXT_left_1">
                     <table>
@@ -373,7 +362,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             </div>
             <br />
             <div class="QP_lengthen">
-                <p class="font-weight-bold"><?php echo xlt('Comments'); ?>:</p>
+                <span style="font-weight:bold;"><?php echo xlt('Comments'); ?>:</span>
                 <br />
                 <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>
@@ -392,7 +381,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 ?>
         </div>
 
-        <p class="font-weight-bold"> <?php echo xlt('Prior Exam'); ?>:</p>
+        <span style="font-weight:bold;"> <?php echo xlt('Prior Exam'); ?>:</span>
         <br />
         <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
             <table>
@@ -535,7 +524,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         </div>
         <br />
         <div class="QP_lengthen">
-            <p class="font-weight-bold"><?php echo xlt('Comments'); ?>:</p>
+            <span style="font-weight:bold;"><?php echo xlt('Comments'); ?>:</span>
             <br />
             <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>
@@ -553,7 +542,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 echo $output;
                 ?>
         </div>
-        <p class="font-weight-bold"><?php echo xlt('Prior Exam'); ?>:</p>
+        <span style="font-weight:bold;"><?php echo xlt('Prior Exam'); ?>:</span>
         <br />
         <div id="PRIORS_RETINA_left_1" class="text_clinical">
             <table>
@@ -638,7 +627,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <br />
         <br />
         <div class="QP_lengthen">
-            <p class="font-weight-bold"><?php echo xlt('Comments'); ?>:</p>
+            <SPAN style="font-weight:bold;"><?php echo xlt('Comments'); ?>:</SPAN>
             <br />
             <textarea disabled id="PRIOR_RETINA_COMMENTS" name="PRIOR_RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
         </div>
@@ -655,7 +644,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 echo $output;
                 ?>
         </div>
-        <p class="font-weight-bold"><?php echo xlt('Prior Exam'); ?>:</p>
+        <span style="font-weight:bold;"><?php echo xlt('Prior Exam'); ?>:</span>
         <br />
         <div style="float:left;margin-top:0.8em;font-size:0.8em;">
             <div id="PRIOR_NEURO_text_list" class="borderShadow PRIORS" style="border:1pt solid black;float:left;width:195px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
@@ -1490,7 +1479,7 @@ margin: 2px 0 2px 2px;">
         </div>
         <br />
         <div class="QP_lengthen">
-            <p class="font-weight-bold"><?php echo xlt('Comments'); ?>:</p>
+            <span style="font-weight:bold;"><?php echo xlt('Comments'); ?>:</span>
             <br />
             <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS"><?php echo text($NEURO_COMMENTS); ?></textarea>
         </div>
@@ -1549,7 +1538,7 @@ margin: 2px 0 2px 2px;">
                 echo $output;
                 ?>
         </div>
-        <p class="font-weight-bold"> <?php echo xlt('Prior IMP/PLAN'); ?>:</p>
+        <span style="font-weight:bold;"> <?php echo xlt('Prior IMP/PLAN'); ?>:</span>
         <br />
         <?php
         $PRIOR_IMPPLAN_items = build_IMPPLAN_items($pid, $id_to_show);
@@ -2151,13 +2140,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                                     <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt(ucwords($item['row_subtype'])) . ' Meds</span>
                                 </td>
                                 <td>
-                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',' . attr_js($key) . ',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\'Eye Meds\',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
                                 </td>
                             </tr>
                         </table>
                         ';
-                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
-                            onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . $reaction) . "</span><br />";
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",\"Eye Meds\"," . attr_js($index) . ");\">" . text($item['title']) . "</span><br />";
                     $index++;
                     continue;
                 }
@@ -2387,8 +2376,6 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     global $pcp_data;
     global $ref_data;
     ob_start();
-    echo '<div>
-    <div>';
 
     //<!-- POH -->
     echo "<br /><span class='panel_title' title='" . xla('Past Ocular History') . "'>" . xlt("POH{{Past Ocular History}}") . ":</span>";
@@ -2435,7 +2422,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 //<!-- Eye Meds -->
     echo "<br /><span class='panel_title' title='" . xla("Eye Meds") . "'>" . xlt("Eye Meds") . ":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
-            onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
+            onclick="alter_issue2('0','Eye Meds','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
     if ($PMSFH[0]['Eye Meds']) {
@@ -2446,7 +2433,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
-            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Medication','" . $i . "');\" > " . text($item['title']) . "</span><br />";
+            onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Eye Meds','" . $i . "');\" > " . text($item['title']) . "</span><br />";
             $i++;
         }
     } else { ?>
@@ -2668,7 +2655,14 @@ function show_PMSFH_report($PMSFH)
     //<!-- POH -->
     $counter++;
     $counter++;
-    echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><p class='font-weight-bold'>" . xlt("POH{{Past Ocular History}}") . ":</p>";
+    echo "<table style='width:700px;'>
+                <tr>
+                    <td style='vertical-align:top;
+                               width:150px;
+                               padding-left: 14px;
+                               padding-right: 4px;
+                               text-align: left;'>
+                               <br /><span style='font-weight:bold;'>" . xlt("POH{{Past Ocular History}}") . ":</span>";
     //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
     ?>
     <br />
@@ -2683,14 +2677,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if (($counter + $count['POS']) > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                              padding-right: 4px;
+                              text-align: left;
+                              vertical-align:top;
+                              width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- PMH -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("Eye Surgery") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("Eye Surgery") . ":</span>";
     ?>
     <br />
     <?php
@@ -2704,14 +2702,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if (($counter + $count['PMH']) > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                                padding-right: 4px;
+                                text-align: left;
+                                vertical-align:top;
+                                width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- PMH -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("PMH") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("PMH") . ":</span>";
     ?>
     <br />
     <?php
@@ -2726,14 +2728,18 @@ function show_PMSFH_report($PMSFH)
 
 
     if ($counter + $count['Medication'] > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                              padding-right: 4px;
+                              text-align: left;
+                              vertical-align:top;
+                              width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- Meds -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("Medication") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("Medication") . ":</span>";
     ?>
     <br />
     <?php
@@ -2747,14 +2753,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if ($counter + $count['Surgery'] > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                              padding-right: 4px;
+                              text-align: left;
+                              vertical-align:top;
+                              width:150px;'>";
         $counter = "0";
     }
 
     //<!-- Surgeries -->
     $counter++;
     $counter++;
-    echo "<br /><b>" . xlt("Surgery") . ":</b>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("Surgery") . ":</span>";
     ?><br />
     <?php
     if ($PMSFH[0]['Surgery'] > "") {
@@ -2767,14 +2777,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if ($counter + $count['Allergy'] > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                                padding-right: 4px;
+                                text-align: left;
+                                vertical-align:top;
+                                width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- Allergies -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("Allergy") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("Allergy") . ":</span>";
     ?>
     <br />
     <?php
@@ -2788,14 +2802,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if ($counter + $count['SOCH'] > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                              padding-right: 4px;
+                              text-align: left;
+                              vertical-align:top;
+                              width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- SocHx -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("Soc Hx{{Social History}}") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("Soc Hx{{Social History}}") . ":</span>";
     ?>
     <br />
     <?php
@@ -2812,14 +2830,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if (($counter + $count['FH']) > $panel_size) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                              padding-right: 4px;
+                              text-align: left;
+                              vertical-align:top;
+                              width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- FH -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("FH{{Family History}}") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("FH{{Family History}}") . ":</span>";
     ?>
     <br />
     <?php
@@ -2836,14 +2858,18 @@ function show_PMSFH_report($PMSFH)
     }
 
     if (($counter !== "0") && (($counter + $count['ROS']) > $panel_size)) {
-        echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
+        echo "</td><td style='padding-left: 14px;
+                                padding-right: 4px;
+                                text-align: left
+                                vertical-align:top;
+                                width:150px;'>";
         $counter = "0";
     }
 
     $counter++;
     $counter++;
     //<!-- ROS -->
-    echo "<br /><p class='font-weight-bold'>" . xlt("ROS{{Review of Systems}}") . ":</p>";
+    echo "<br /><span style='font-weight:bold;'>" . xlt("ROS{{Review of Systems}}") . ":</span>";
     ?><br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
@@ -2968,9 +2994,11 @@ function display_QP($zone, $provider_id)
         }
     } //end QP section items
     ?>
-      <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
-      title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
-      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
+      <a href="JavaScript:void(0);"
+         onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
+         title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
+         name="provider_todo"
+         class="bold black"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();
@@ -2993,7 +3021,7 @@ function canvas_select($zone, $encounter, $pid)
      * At first glance, using the text PRIORS selection method should work...  Not yet.
      *
      *
-     *   $documents['categories']=$categories;
+     *  $documents['categories']=$categories;
      *  $documents['my_name']=$my_name;
      *  $documents['children_names']=$children_names;
      *  $documents['parent_name'] = $parent_name;
@@ -3015,7 +3043,7 @@ function canvas_select($zone, $encounter, $pid)
     $canvi = [];
     if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
+            if (!preg_match("/" . $zone . "_VIEW/", $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3106,9 +3134,9 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     $file_store = $file_history . ".jpg";
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
-        <span class="fa fa-file-text-o closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
-        <i class="closeButton_2 fa fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
-        <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
+        <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
+        <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
+        <i class="closeButton_3 fas fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
         <?php
             $output = canvas_select($zone, $encounter, $pid);
@@ -3117,31 +3145,24 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         <div id="<?php echo attr($zone); ?>_canvas">
             <div class="tools">
                 <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
-                    <input class="jscolor {mode:'HVS',
-                                    position:'right',
-                                    borderColor:'#FFF #666 #666 #FFF',
-                                    insetColor:'#666 #FFF #FFF #666',
-                                    backgroundColor:'#CCC',
-                                    hash:'true',
-                                    styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
-                                    valueElement:'selColor_<?php echo attr($zone); ?>',
-                                    refine:true
-                                }"
-                    id="sketch_tool_<?php echo attr($zone); ?>_color"
-                    type="text" style="width: 38px;
-    height: 20px;
-    padding: 11px 0px;
-    background-color: blue;
-    margin-top: 26px;
-    color: white;
-    background-image: none;" />
+                    <span id="sketch_tool_<?php echo attr($zone);?>_color"
+                          class="color_indicator jscolor"
+                          data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
+                                     previewSize:75,
+                                     valueElement:'#selColor_<?php echo attr($zone); ?>',
+                                     position:'right',
+                                     value:'#000',
+                                     hash:'true'
+                                    }"
+                          data-target="selColor_<?php echo attr($zone); ?>"
+                    ></span>
                 </div>
                 <?php
 
-                    $sql = "SELECT * from documents where url like ?";
-                    $doc = sqlQuery($sql, array("%" . $base_name . "%"));
-                    $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                if (file_exists($file_store) && ($doc['id'] > '0')) {
+                $sql = "SELECT * from documents where name like ? ORDER by id DESC";
+                $doc = sqlQuery($sql, array("%" . $base_name . "%"));
+                $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+                if (($doc['id'] > '0')) {
                     $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
                 } else {
                     //base image.
@@ -3173,19 +3194,19 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
 
-                <div align="center" class="borderShadow">
-                    <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
-                </div>
-                <div style="margin-top: 7px;">
-                    <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
-                    <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
-                    <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
-                    <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
-                    <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
-                </div>
+            <div align="center" class="borderShadow">
+                <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
             </div>
-            <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+            <div style="margin-top: 7px;">
+                <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
+                <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
+                <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
+                <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+                <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
+            </div>
         </div>
+        <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+    </div>
 
     <?php
 }
@@ -3690,6 +3711,8 @@ function document_engine($pid)
     $sql1 =  sqlStatement("Select * from categories");
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
+        $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
+
         $my_name[$row1['id']] = $row1['name'];
         $children_names[$row1['parent']][] = $row1['name'];
         $parent_name[$row1['name']] = $my_name[$row1['parent']];
@@ -3703,7 +3726,7 @@ function document_engine($pid)
         }
     }
 
-    $query = "Select *
+    $query = "Select *, categories.name as cat_name
                 from
                 categories, documents,categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
@@ -3712,6 +3735,8 @@ function document_engine($pid)
     while ($row2 = sqlFetchArray($sql2)) {
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
+        $row2['cat_name'] = preg_replace('/ - Eye/', '', $row2['cat_name']);
+        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot'] . "/sites/", $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
             $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
@@ -3727,19 +3752,20 @@ function document_engine($pid)
             $docs_in_zone['OTHER'][] = $row2;
         }
 
-        $docs_in_name[$row2['name']][] = $row2;
+        $docs_in_name[$row2['cat_name']][] = $row2;
         $docs_by_date[$row2['encounter_date']][] = $row2;
     }
 
-    $documents['categories'] = $categories;
-    $documents['my_name'] = $my_name;
-    $documents['children_names'] = $children_names;
-    $documents['parent_name'] = $parent_name;
-    $documents['zones'] = $zones;
-    $documents['docs_in_zone'] = $docs_in_zone;
-    $documents['docs_in_cat_id'] = $docs_in_cat_id;
-    $documents['docs_in_name'] = $docs_in_name;
-    $documents['docs_by_date'] = $docs_by_date;
+    $documents['categories']        = $categories;
+    $documents['my_name']           = $my_name;
+    $documents['children_names']    = $children_names;
+    $documents['parent_name']       = $parent_name;
+    $documents['zones']             = $zones;
+    $documents['docs_in_zone']      = $docs_in_zone;
+    $documents['docs_in_cat_id']    = $docs_in_cat_id;
+    $documents['docs_in_name']      = $docs_in_name;
+    $documents['docs_by_date']      = $docs_by_date;
+
     return array($documents);
 }
 
@@ -3758,6 +3784,7 @@ function display($pid, $encounter, $category_value)
     global $form_folder;
     global $id;
     global $documents;
+    $episode = '';
        /**
         *   Each document is stored in a specific category.  Think of a category as a Folder.
         *   Practices can add/alter/delete category names as they wish.
@@ -3787,9 +3814,9 @@ function display($pid, $encounter, $category_value)
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'];
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
-        <td class='right'><p class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</p>:&nbsp;</td>
+        <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
-            <a href='../../../controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&'>
+            <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
@@ -3801,7 +3828,7 @@ function display($pid, $encounter, $category_value)
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(\'' . $GLOBALS['webroot'] . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') . ': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -3834,7 +3861,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
         $providerNAME .= ", " . $prov_data['suffix'];
     }
 
-    if ($_REQUEST['display'] == "fullscreen") {
+    if (!empty($_REQUEST['display']) && ($_REQUEST['display'] == "fullscreen")) {
         $fullscreen_disable = 'disabled';
     } else {
         $frame_disabled = 'disabled';
@@ -3842,79 +3869,78 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar navbar-fixed-top navbar-custom navbar-bright navbar-inner navbar-expand" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
+    <nav class="navbar fixed-top navbar-custom navbar-bright navbar-inner navbar-expand-lg" data-role="page banner navigation"
+         style="margin-bottom: 0;z-index: 9999999;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
-            <div class="navbar-header brand" style="color:black;">
+            <div class="navbar-brand" style="color:black;">
                 &nbsp;
                 <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
-            <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
-                <ul class="navbar-nav">
+            <div class="navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
+                <ul class="navbar-nav mr-auto">
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="tabHide <?php echo $fullscreen_disabled; ?>"><a id="BUTTON_PREFERENCES_menu" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_globals.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("Preferences"); ?></a></li>
-                            <li id="menu_PRINT_narrative" name="menu_PRINT_report"><a id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
-                            <li id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a id="BUTTON_PRINT_report_2" target="_new" href="#"
+                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
+                            <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?></a></li>
-                            <li class="divider tabHide"></li>
-                            <li id="menu_QUIT" name="menu_QUIT" class="tabHide <?php echo $frame_disable; ?>"><a href="#" onclick='window.close();'><?php echo xlt("Quit"); ?></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_edit" role="button" aria-expanded="true"><?php echo xlt("Edit"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_Undo" name="menu_Undo"> <a id="BUTTON_Undo_menu" href="#"> <?php echo xlt("Undo"); ?> <span class="menu_icon">Ctl-Z</span></a></li>
-                            <li id="menu_Redo" name="menu_Redo"> <a id="BUTTON_Redo_menu" href="#"> <?php echo xlt("Redo"); ?> <span class="menu_icon">Ctl-Shift-Z</span></a></li>
-                            <li class="divider tabHide"></li>
-                            <li id="menu_Defaults" name="menu_Defaults" class="tabHide"> <a  id="BUTTON_Defaults_menu"
-                                href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_defaults_<?php echo attr($provider_id); ?>"
-                                target="RTop"
-                                title="<?php echo xla('Click here to Edit this Provider\'s Exam Default values'); ?>"
-                                name="provider_todo">
-                                <i class="fa fa-angle-double-up tabHide" title="<?php echo xla('Opens in Top frame'); ?>"></i> &nbsp;
-                                <?php echo xlt("My Default Values"); ?> &nbsp;
+                            <li id="menu_Defaults" name="menu_Defaults" class="">
+                                <a class="nav-link black"
+                                   id="BUTTON_Defaults_menu"
+                                   onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_defaults_<?php echo attr($provider_id); ?>', '<?php echo xla('Default Exam Values'); ?>');"
+                                   name="provider_todo"
+                                   href="JavaScript:void(0);">
+                                <?php echo xlt("Default Values"); ?> &nbsp;
                                 <span class="menu_icon"><i class="fa fa-pencil-alt fa-fw"></i> </span></a></li>
+                            <li id="menu_TEXT" name="menu_TEXT" class="active">
+                                <a class="nav-link black" href="#"><?php echo xlt("Text"); ?><span class="menu_icon">Ctl-T</span></a></li>
+                            <li id="menu_DRAW" name="menu_DRAW">
+                                <a class="nav-link black" href="#" id="BUTTON_DRAW_menu" name="BUTTON_DRAW_menu"><?php echo xlt("Draw"); ?><span class="menu_icon">Ctl-D</span></a></li>
+                            <li id="menu_QP" name="menu_QP">
+                                <a class="nav-link black" href="#" id="BUTTON_QP_menu" name="BUTTON_QP_menu"><?php echo xlt("Quick Picks"); ?><span class="menu_icon">Ctl-B</span></a></li>
+                            <li id="menu_PRIORS" name="menu_PRIORS">
+                                <a class="nav-link black" href="#"><?php echo xlt("Prior Visits"); ?><span class="menu_icon">Ctl-P</span></a></li>
+                            <li id="menu_KB" name="menu_KB">
+                                <a class="nav-link black" href="#"><?php echo xlt("Shorthand"); ?><span class="menu_icon">Ctl-K</span></a></li>
+                            <?php
+                                /*
+                                // This only shows up in fullscreen currently so hide it.
+                                // If the decision is made to show this is framed openEMR, then display it
+                                */
+                            if ($display !== "fullscreen") { ?>
+                                    <li class="divider"></li>
+                                    <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                        <a class="nav-link black"
+                                           onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI'] . '&display=fullscreen&encounter=' . $encounter; ?>');"
+                                           href="JavaScript:void(0);"
+                                           ><?php echo xlt('Fullscreen'); ?></a>
+                                    </li>
+                                    <?php
+                            } ?>
                         </ul>
                     </li>
-
+               
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt("View"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_TEXT" name="menu_TEXT" class="active"><a><?php echo xlt("Text"); ?><span class="menu_icon">Ctl-T</span></a></li>
-                            <li id="menu_DRAW" name="menu_DRAW"><a id="BUTTON_DRAW_menu" name="BUTTON_DRAW_menu"><?php echo xlt("Draw"); ?><span class="menu_icon">Ctl-D</span></a></li>
-                            <li id="menu_QP" name="menu_QP"><a id="BUTTON_QP_menu" name="BUTTON_QP_menu"><?php echo xlt("Quick Picks"); ?><span class="menu_icon">Ctl-B</span></a></li>
-                            <li id="menu_PRIORS" name="menu_PRIORS"><a><?php echo xlt("Prior Visits"); ?><span class="menu_icon">Ctl-P</span></a></li>
-                            <li id="menu_KB" name="menu_KB"><a><?php echo xlt("Shorthand"); ?><span class="menu_icon">Ctl-K</span></a></li>
+                            <li id="menu_HPI" name="menu_HPI"><a class="nav-link black" href="#"><?php echo xlt("HPI"); ?></a></li>
+                            <li id="menu_PMH" name="menu_PMH"><a class="nav-link black" href="#"><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
+                            <li id="menu_EXT" name="menu_EXT" ><a class="nav-link black" href="#"><?php echo xlt("External"); ?></a></li>
+                            <li id="menu_ANTSEG" name="menu_ANTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Anterior Segment"); ?></a></li>
+                            <li id="menu_POSTSEG" name="menu_POSTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
+                            <li id="menu_NEURO" name="menu_NEURO" ><a class="nav-link black" href="#"><?php echo xlt("Neuro"); ?></a></li>
+                            <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a class="nav-link black" href="#"><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
-                            <li id="menu_HPI" name="menu_HPI"><a><?php echo xlt("HPI"); ?></a></li>
-                            <li id="menu_PMH" name="menu_PMH"><a><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
-                            <li id="menu_EXT" name="menu_EXT" ><a><?php echo xlt("External"); ?></a></li>
-                            <li id="menu_ANTSEG" name="menu_ANTSEG" ><a><?php echo xlt("Anterior Segment"); ?></a></li>
-                            <li id="menu_POSTSEG" name="menu_POSTSEG" ><a><?php echo xlt("Posterior Segment"); ?></a></li>
-                            <li id="menu_NEURO" name="menu_NEURO" ><a><?php echo xlt("Neuro"); ?></a></li>
-                            <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a><?php echo xlt("Imp Plan"); ?></a></li>
-                            <li class="divider"></li>
-                            <li id="menu_Right_Panel" name="menu_Right_Panel"><a><?php echo xlt("PMSFH Panel"); ?><span class="menu_icon"><i class="fa fa-list" ></i></span></a></li>
-                            <li id="menu_left_tabs" name="menu_left_tabs"><a><?php echo xlt("Chart View"); ?><span class="menu_icon"><i class="fa fa-user-md" ></i></span></a></li>
-
-                            <?php
-                            /*
-                            // This only shows up in fullscreen currently so hide it.
-                            // If the decision is made to show this is framed openEMR, then display it
-                            */
-                            if ($display !== "fullscreen") { ?>
-                                <li class="divider"></li>
-                                <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
-                                    <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI'] . '&display=fullscreen&encounter=' . $encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
-                                </li>
-                                <?php
-                            } ?>
+                            <li id="menu_Right_Panel" name="menu_Right_Panel"><a class="nav-link black" href="#"><?php echo xlt("PMSFH Panel"); ?><span class="menu_icon"><i class="fa fa-list" ></i></span></a></li>
+                            <li id="menu_left_tabs" name="menu_left_tabs"><a class="nav-link black" href="#"><?php echo xlt("Chart View"); ?><span class="menu_icon"><i class="fa fa-user-md" ></i></span></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3922,7 +3948,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                            id="menu_dropdown_library" role="button"
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_IOP_graph" name="menu_IOP_graph" ><a><?php echo xlt("IOP Graph"); ?></a></li>
+                            <li id="menu_IOP_graph" name="menu_IOP_graph" ><a class="nav-link black" href="#"><?php echo xlt("IOP Graph"); ?></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -3930,20 +3956,23 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                            id="menu_dropdown_help" role="button"
                            aria-expanded="true"><?php echo xlt("Help"); ?> </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                            <li role="presentation">
-                                <a role="menuitem" tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
+                            <li>
+                                <a class="nav-link black" href="#"  tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
                                 <i class="fa fa-help"></i>  <?php echo xlt("Tooltips"); ?>
                                 <span id="tooltips_status" name="tooltips_status"></span>
                                 <span class="menu_icon"><i title="<?php echo xla('Turn the Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-check fa-1"></i></span></a>
                             </li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
-                                <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?><span class="menu_icon"><i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
+                            <li>
+                                <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
+                                    <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?>
+                                    <span class="menu_icon">
+                                        <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                         </ul>
                     </li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
+                <ul class="nav navbar-nav navbar-right my-2 my-lg-0">
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('<?php echo $GLOBALS['web_root']; ?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
                         </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
@@ -3985,37 +4014,36 @@ function menu_overhaul_left($pid, $encounter)
         list($documents) = document_engine($pid);
     }
     ?>
-    <div class="borderShadow" id="title_bar">
-        <div id="left_menu" name="left_menu" class="col-md-4">
-            <div style="padding-left: 18px;">
+    <div class="borderShadow row" id="title_bar">
+        <div id="left_menu" name="left_menu" class="col-sm-4" style="padding-left: 18px;">
                 <table style="text-align:left;">
                     <tr><td class="right" >
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], $encounter_date);
                             $DOB = oeFormatShortDate($pat_data['DOB']);
-                            echo "<p class='font-weight-bold'>" . xlt('Name') . ":</p> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
-                                    <tr><td class='right'><p class='font-weight-bold'>" . xlt('DOB') . ":</p></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
+                            echo "<span class='font-weight-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
+                                    <tr><td class='right'><span class='font-weight-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
                             ?>
                             <?php
                             ?>
                         </td>
                     </tr>
                     <?php
-                        echo "<tr><td class='right' nowrap><p class='font-weight-bold'>" . xlt('Visit Date') . ":</p></td><td>&nbsp;" . $visit_date . "</td></tr>";
+                        echo "<tr><td class='right' nowrap><span class='font-weight-bold'>" . xlt('Visit Date') . ":</span></td><td>&nbsp;" . $visit_date . "</td></tr>";
                     ?>
-                    <tr><td class="right" style="vertical-align:top;" nowrap><p class="font-weight-bold"><?php echo xlt("Provider"); ?>:</p>&nbsp;</td>
+                    <tr><td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Provider"); ?>:</span>&nbsp;</td>
                         <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>
                     </tr>
 
                     <tr>
-                        <td class="right" style="vertical-align:top;" nowrap><p class="font-weight-bold"><?php echo xlt("Reason"); ?>:</p>&nbsp;</td>
+                        <td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Reason"); ?>:</span>&nbsp;</td>
                         <td><?php echo text($reason); ?></td>
                     </tr>
                     <?php
                     if ($priors[0]['TODO']) {
                         ?>
                     <tr>
-                        <td class="right" style="vertical-align:top;" nowrap><p class="font-weight-bold"><?php echo xlt("Plan"); ?>:</p>&nbsp;</td>
+                        <td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Plan"); ?>:</span>&nbsp;</td>
                         <td style="vertical-align:top;">
                             <?php
                             $j = 1;
@@ -4027,14 +4055,17 @@ function menu_overhaul_left($pid, $encounter)
                     </tr>
                     <?php } ?>
                 </table>
-            </div>
         </div>
-        <div id="left_menu3" name="left_menu3" class="col-md-3" style="font-size:1.0em;">
+        <div id="left_menu3" name="left_menu3" class="col-sm-3" style="font-size:1.0em;">
             <?php             //if the patient has a photograph, use it else use generic avitar thing.
-            if ($documents['docs_in_name']['Patient Photograph'][0]['id']) {
+
+            if (!empty($documents['docs_in_name']['Patient Photograph'][0])) {
                 ?>
-                <object><embed src="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
-                     type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="50"></embed></object>
+                <object><embed
+                            src="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
+                            
+                            Xsrc="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
+                     type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="100"></embed></object>
                 <?php
             } else {
                 ?>
@@ -4045,26 +4076,24 @@ function menu_overhaul_left($pid, $encounter)
             ?>
         </div>
 
-        <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
+        <div id="left_menu2" name="left_menu2" class="col-sm-4" style="font-size:1.0em;">
 
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
                 <table style="border:1pt;font-size:1.0em;">
                     <tr>
-                        <td class="right"><p class="font-weight-bold"><?php echo xlt("PCP"); ?>:</p>&nbsp;</td>
-                        <td class="left"><span id="pcp_name"><?php echo text($pcp_data['fname']) . " " . text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                        <td class="right"><span style="font-weight:bold;"><?php echo xlt("PCP"); ?>:</span>&nbsp;</td>
+                        <td class="left"> <span id="pcp_name"><?php echo text($pcp_data['fname']) . " " . text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
                                     echo ", " . text($pcp_data['suffix']);} ?></span></td>
                         </td>
                     </tr>
 
-                    <tr><td class="right" nowrap><p class="font-weight-bold"><?php echo xlt("Referred By"); ?>:</p>&nbsp;</td>
-                        <td class="left">&nbsp;
-
-                        <span id="ref_name"><?php echo text($ref_data['fname']) . " " . text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                    <tr><td class="right" nowrap><span style="font-weight:bold;"><?php echo xlt("Referred By"); ?>:</span>&nbsp;</td>
+                        <td class="left"> <span id="ref_name"><?php echo text($ref_data['fname']) . " " . text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
                                     echo ", " . text($ref_data['suffix']);} ?></span></td>
                         </tr>
-                    <tr><td class="right"><p class="font-weight-bold"><?php echo xlt("Insurance"); ?>:</p>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
-                    <tr><td class="right"><p class="font-weight-bold"><?php echo xlt("Secondary"); ?>:</p>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coB); ?></td></tr>
-                    <tr><td class="right"><p class="font-weight-bold"><?php echo xlt("Pharmacy"); ?>:</p>&nbsp;</td>
+                    <tr><td class="right"><span style="font-weight:bold;"><?php echo xlt("Insurance"); ?>:</span>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
+                    <tr><td class="right"><span style="font-weight:bold;"><?php echo xlt("Secondary"); ?>:</span>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coB); ?></td></tr>
+                    <tr><td class="right"><span style="font-weight:bold;"><?php echo xlt("Pharmacy"); ?>:</span>&nbsp;</td>
                         <td class="left">&nbsp;
                             <?php
                             if (!empty($pat_data['pharmacy_id'])) {
@@ -4176,6 +4205,11 @@ function report_header($pid, $direction = 'shell')
                     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
                     if (file_exists($practice_logo)) {
                         echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
+                    } else {
+                        $practice_logo = "$OE_SITE_DIR/images/login_logo.gif";
+                        if (file_exists($practice_logo)) {
+                            echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
+                        }
                     }
                 }
                 ?>
@@ -4193,11 +4227,11 @@ function report_header($pid, $direction = 'shell')
                 ?>
             </td>
                 <td>
-                <em class="font-weight-bold" style="font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
-                <p class="font-weight-bold"><?php echo xlt('DOB'); ?>:</p> <?php echo text($DOB); ?><br />
-                <p class="font-weight-bold"><?php echo xlt('Generated on'); ?>:</p> <?php echo text(oeFormatShortDate()); ?><br />
-                <p class="font-weight-bold"><?php echo xlt('Visit Date'); ?>:</p> <?php echo oeFormatSDFT(strtotime($visit_date)); ?><br />
-                <p class="font-weight-bold"><?php echo xlt('Provider') . ':</b> ' . text(getProviderName(getProviderIdOfEncounter($encounter))) . '<br />'; ?>
+                <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
+                <span style="font-weight:bold;"><?php echo xlt('DOB'); ?>:</span> <?php echo text($DOB); ?><br />
+                <span style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</span> <?php echo text(oeFormatShortDate()); ?><br />
+                <span style="font-weight:bold;"><?php echo xlt('Visit Date'); ?>:</span> <?php echo oeFormatSDFT(strtotime($visit_date)); ?><br />
+                <span style="font-weight:bold;"><?php echo xlt('Provider') . ':</span> ' . text(getProviderName(getProviderIdOfEncounter($encounter))) . '<br />'; ?>
 
           </td>
         </tr>
@@ -4325,7 +4359,7 @@ function start_your_engines($FIELDS)
                 $code_found['code_type'] = $code_type;
                 list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
-                $positives[$location][] = $term;
+                $positives[$amihere['location']][] = $term;
             } else { //no code was defined, further processing needed.
                 if ($option_values) {
                     // This clinical finding (term) can be found in more than one disease process ('option_values')
@@ -4574,7 +4608,7 @@ function start_your_engines($FIELDS)
                             //should we have another big Dx often altering what a finding means to a coder; this is a placeholder.
                             //include $option in our code search for this term
                             $term_now = $term . " " . $option;
-                            $code_found = coding_carburetor($term_now, $fields[$amihere['location']]);
+                            $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
                                     list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
@@ -4587,7 +4621,7 @@ function start_your_engines($FIELDS)
                 } else {
                     //there are no options and no code identified,
                     //search via carburetor for possible matches to term and description of the form field
-                    $code_found = coding_carburetor($term, $fields[$amihere['location']]);
+                    $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
                             list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);
@@ -4993,7 +5027,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
     $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
 
-    ?> <p class="font-weight-bold"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
+    ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
         <br />
         <br />
        <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
@@ -5727,7 +5761,7 @@ function generate_specRx($W)
     <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W); ?> <?php echo $display_W_width; ?>">
                       <i class="closeButton fas fa-times" id="Close_W_<?php echo attr($W); ?>" name="Close_W_<?php echo attr($W); ?>"
                         title="<?php echo xla('Close this panel and delete this Rx'); ?>"></i>
-                      <i class="closeButton_2 fas fa-arrows-alt" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
+                      <i class="closeButton_2 fas fa-arrows-alt-h" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
                       <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','<?php echo attr($W); ?>'); return false;"
                        title="<?php echo xla("Dispense Rx"); ?>" class="closeButton_3 fa fa-print"></i>
@@ -5781,7 +5815,7 @@ function generate_specRx($W)
                         </tr>
                         <tr>
                           <td rowspan="2"><?php echo xlt('Dist{{distance}}'); ?></td>
-                          <td class="font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
+                          <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
                           <td><?php echo ${"ODSPH_$W"}; ?><input type="text" class="sphere" id="ODSPH_<?php echo attr($W); ?>" name="ODSPH_<?php echo attr($W); ?>"  value="<?php echo attr($ODSPH); ?>" tabindex="<?php echo attr($W); ?>0100"></td>
                           <td><input type="text" class="cylinder" id="ODCYL_<?php echo attr($W); ?>" name="ODCYL_<?php echo attr($W); ?>"  value="<?php echo attr($ODCYL); ?>" tabindex="<?php echo attr($W); ?>0101"></td>
                           <td><input type="text" class="axis" id="ODAXIS_<?php echo attr($W); ?>" name="ODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($ODAXIS); ?>" tabindex="<?php echo attr($W); ?>0102"></td>
@@ -5798,7 +5832,7 @@ function generate_specRx($W)
                           <td name="W_wide"><input type="text" class="prism" id="ODMPDN_<?php echo attr($W); ?>" name="ODMPDN_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDN); ?>" tabindex="<?php echo attr($W); ?>0126"></td>
                         </tr>
                         <tr>
-                          <td class="font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
+                          <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
                           <td><input type="text" class="sphere" id="OSSPH_<?php echo attr($W); ?>" name="OSSPH_<?php echo attr($W); ?>" value="<?php echo attr($OSSPH); ?>" tabindex="<?php echo attr($W); ?>0103"></td>
                           <td><input type="text" class="cylinder" id="OSCYL_<?php echo attr($W); ?>" name="OSCYL_<?php echo attr($W); ?>" value="<?php echo attr($OSCYL); ?>" tabindex="<?php echo attr($W); ?>0104"></td>
                           <td><input type="text" class="axis" id="OSAXIS_<?php echo attr($W); ?>" name="OSAXIS_<?php echo attr($W); ?>" value="<?php echo attr($OSAXIS); ?>" tabindex="<?php echo attr($W); ?>0105"></td>
@@ -5816,7 +5850,7 @@ function generate_specRx($W)
                         </tr>
                         <tr class="WNEAR">
                           <td rowspan=2><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></td>
-                          <td class="font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
+                          <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
                             <?php echo '<input type="hidden" name="RXStart_' . $W . ' id="RXStart_' . $W . '" value="' . attr($RX_TYPE) . '">'; ?>
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
@@ -5830,18 +5864,18 @@ function generate_specRx($W)
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
-                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
+                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
-                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
+                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
                             <br />
                             <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                           </td>
                         </tr>
                         <tr class="WNEAR">
-                          <td class="font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
+                          <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
                           <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
                           <td></td>
@@ -5856,7 +5890,7 @@ function generate_specRx($W)
                           </td>
                         </tr>
                         <tr>
-                          <td class="font-weight-bold" colspan="2"><?php echo xlt('Comments'); ?>:
+                          <td style="font-weight:bold;" colspan="2"><?php echo xlt('Comments'); ?>:
                           </td>
                           <td colspan="4" class="up"></td>
                         </tr>

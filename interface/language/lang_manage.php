@@ -27,14 +27,14 @@ if (!$thisauth) {
     exit();
 }
 
-if ($_POST['check'] || $_POST['synchronize']) {
+if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
   // set up flag if only checking for changes (ie not performing synchronization)
     $checkOnly = 0;
-    if ($_POST['check']) {
+    if (!empty($_POST['check'])) {
         $checkOnly = 1;
     }
 
@@ -216,9 +216,4 @@ if ($_POST['check'] || $_POST['synchronize']) {
     </div>
 </form>
 
-<script>
-    $("#manage-link").addClass("active");
-    $("#definition-link").removeClass("active");
-    $("#language-link").removeClass("active");
-    $("#constant-link").removeClass("active");
-</script>
+<?php echo activate_lang_tab('manage-link'); ?>

@@ -42,12 +42,26 @@ class CareTeamService extends BaseService
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValidPatient = BaseValidator::validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
 
+        $sqlBindArray = array();
         $sql = "SELECT patient.uuid as puuid,
                 patient.care_team_provider as providers,
                 patient.care_team_facility as facilities,
@@ -55,7 +69,13 @@ class CareTeamService extends BaseService
                 FROM patient_data as patient
                 LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=patient.uuid AND uuid_mapping.resource='CareTeam'";
 
-        $statementResults = sqlStatement($sql);
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " WHERE `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        }
+
+        $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
@@ -72,10 +92,11 @@ class CareTeamService extends BaseService
     /**
      * Returns a single careTeam record by id.
      * @param $uuid - The careTeam uuid identifier in string format.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
 
@@ -85,6 +106,30 @@ class CareTeamService extends BaseService
             $uuid,
             true
         );
+        if ($isValid !== true) {
+            $validationMessages = [
+                'uuid' => ["invalid or nonexisting value" => " value " . $uuid]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValid = BaseValidator::validateId(
+                "uuid",
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValid !== true) {
+                $validationMessages = [
+                    'puuid' => ["invalid or nonexisting value" => " value " . $puuidBind,]
+                ];
+                $processingResult->setValidationMessages($validationMessages);
+                return $processingResult;
+            }
+        }
 
         $sql = "SELECT patient.uuid as puuid,
                 patient.care_team_provider as providers,
@@ -95,12 +140,23 @@ class CareTeamService extends BaseService
                 WHERE uuid_mapping.uuid = ?";
 
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $sqlResult = sqlQuery($sql, [$uuidBinary]);
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-        $sqlResult['providers'] = $this->splitAndProcessMultipleFields($sqlResult['providers'], "users");
-        $sqlResult['facilities'] = $this->splitAndProcessMultipleFields($sqlResult['facilities'], "facility");
-        $processingResult->addData($sqlResult);
+        $sqlBindArray = [$uuidBinary];
+
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " AND `patient`.`uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        }
+
+        $sqlResult = sqlQuery($sql, $sqlBindArray);
+
+        if (!empty($sqlResult)) {
+            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
+            $sqlResult['providers'] = $this->splitAndProcessMultipleFields($sqlResult['providers'], "users");
+            $sqlResult['facilities'] = $this->splitAndProcessMultipleFields($sqlResult['facilities'], "facility");
+            $processingResult->addData($sqlResult);
+        }
         return $processingResult;
     }
 }

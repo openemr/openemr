@@ -24,6 +24,7 @@ require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\MedicalDevice\MedicalDevice;
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
@@ -239,6 +240,8 @@ if (!empty($_POST['form_save'])) {
         $query = "UPDATE lists SET " .
             "type = '"        . add_escape_custom($text_type)                  . "', " .
             "title = '"       . add_escape_custom($_POST['form_title'])        . "', " .
+            "udi = '"         . add_escape_custom($_POST['form_udi'])               . "', " .
+            "udi_data = '"    . add_escape_custom($_POST['udi_data'])          . "', " .
             "comments = '"    . add_escape_custom($_POST['form_comments'])     . "', " .
             "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
             "enddate = "      . QuotedOrNull($form_end)     . ", "  .
@@ -273,7 +276,7 @@ if (!empty($_POST['form_save'])) {
     } else {
         $issue = sqlInsert(
             "INSERT INTO lists ( " .
-            "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
+            "date, pid, type, title, udi, udi_data, activity, comments, begdate, enddate, returndate, " .
             "diagnosis, occurrence, classification, referredby, user, groupname, " .
             "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
             "reaction, verification, severity_al, list_option_id " .
@@ -282,6 +285,8 @@ if (!empty($_POST['form_save'])) {
             "'" . add_escape_custom($thispid) . "', " .
             "'" . add_escape_custom($text_type)                 . "', " .
             "'" . add_escape_custom($_POST['form_title'])       . "', " .
+            "'" . add_escape_custom($_POST['form_udi'])              . "', " .
+            "'" . add_escape_custom($_POST['udi_data'])         . "', " .
             "1, "                            .
             "'" . add_escape_custom($_POST['form_comments'])    . "', " .
             QuotedOrNull($form_begin)        . ", "  .
@@ -647,6 +652,51 @@ function getCodeText($code)
             document.forms[0].rem_selected_code.disabled = document.forms[0].form_selected_codes.selectedIndex == -1
         }
 
+        function processUdi(param) {
+            let udi = document.getElementById("form_udi").value;
+            if (!udi) {
+                alert(<?php echo xlj('UDI field is missing'); ?>);
+                document.getElementById('udi_display').innerHTML = <?php echo xlj('A valid UDI has not been processed yet.'); ?>;
+                document.getElementById('udi_data').value = '';
+                return false;
+            }
+
+            originalLabel = param.innerHTML;
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Processing'); ?>);
+
+            top.restoreSession();
+            let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi')); ?>;
+            fetch(url, {
+                credentials: 'same-origin',
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.raw_search == null || data.raw_search.udi == null || data.raw_search.udi.udi == null) {
+                    errorMessage = <?php echo xlj('UDI search failed'); ?>;
+                    if (data.raw_search != null && data.raw_search.error != null) {
+                        errorMessage += ': ' + data.raw_search.error;
+                    }
+                    document.getElementById('udi_display').innerHTML = jsText(errorMessage);
+                    document.getElementById('udi_data').value = '';
+                } else {
+                    let dataJSON = JSON.stringify(data);
+                    document.getElementById('udi_data').value = dataJSON;
+                    displayUdi(data);
+                }
+            })
+            .catch(error => console.error(error))
+
+            param.innerHTML = jsText(originalLabel);
+        }
+
+        function displayUdi(data) {
+            let display = '';
+            <?php echo MedicalDevice::fullOutputJavascript('display', 'data', false); ?>
+            document.getElementById('udi_display').innerHTML = display;
+            document.getElementById('form_title').value = data.standard_elements.deviceName;
+        }
+
         // Check for errors when the form is submitted.
         function validate() {
             var f = document.forms[0];
@@ -772,6 +822,21 @@ function getCodeText($code)
                             <select name='form_titles' id='form_titles' class="form-control" multiple size='4' onchange='set_text()'></select>
                             <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
                         </div>
+                        <?php if ($thistype == 'medical_device' || (!empty($irow['type']) && $irow['type'] == 'medical_device')) { ?>
+                            <div class="form-group col-12">
+                                <label class="col-form-label" for="form_udi"><?php echo xlt('UDI{{Unique Device Identifier}}'); ?>:</label>
+                                <input type='text' class="form-control" name='form_udi' id='form_udi' value='<?php echo attr($irow['udi'] ?? '') ?>' />
+                                <button type="button" class="btn btn-primary btn-sm" style="margin-right:5px;" onclick='processUdi(this)'><?php echo (!empty($irow['udi_data'])) ? xlt('Re-Process UDI') : xlt('Process UDI'); ?></button>
+                                <div id="udi_display" class="shadow p-3 mb-5 rounded">
+                                    <?php if (!empty($irow['udi_data'])) { ?>
+                                        <?php echo (new MedicalDevice($irow['udi_data']))->fullOutputHtml(false); ?>
+                                    <?php } else { ?>
+                                        <?php echo xlt('A valid UDI has not been processed yet.'); ?>
+                                    <?php } ?>
+                                </div>
+                                <input type='hidden' name='udi_data' id='udi_data' value='<?php echo attr($irow['udi_data'] ?? '') ?>' />
+                            </div>
+                        <?php } ?>
                         <div class="form-group col-12">
                             <label class="col-form-label" for="title_diagnosis"><?php echo xlt('Title'); ?>:</label>
                             <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title'] ?? '') ?>' />

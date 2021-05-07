@@ -27,12 +27,12 @@ if (!empty($_POST)) {
 }
 
 $info_msg = "";
-$codetype = $_REQUEST['codetype'];
+$codetype = $_REQUEST['codetype'] ?? '';
 if (!empty($codetype)) {
     $allowed_codes = split_csv_line($codetype);
 }
 
-$form_code_type = $_POST['form_code_type'];
+$form_code_type = $_POST['form_code_type'] ?? '';
 
 // Determine which code type will be selected by default.
 $default = '';
@@ -47,7 +47,7 @@ if (!empty($form_code_type)) {
 // This variable is used to store the html element
 // of the target script where the selected code
 // will be stored in.
-$target_element = $_GET['target_element'];
+$target_element = $_GET['target_element'] ?? null;
 ?>
 <!DOCTYPE html>
 <html>
@@ -74,10 +74,13 @@ $target_element = $_GET['target_element'];
         // Standard function with additional parameter to select which
         // element on the target page to place the selected code into.
         function selcode_target(codetype, code, selector, codedesc, target_element) {
-            if (opener.closed || !opener.set_related_target)
+            if (opener.closed || !opener.set_related_target) {
                 alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
-            else
-                opener.set_related_target(codetype, code, selector, codedesc, target_element);
+            } else {
+                // opener.set_related_target(codetype, code, selector, codedesc, target_element);
+               var msg = opener.set_related(codetype, code, selector, codedesc);
+               if (msg) alert(msg);
+            }
             dlgclose();
             return false;
         }
@@ -145,7 +148,7 @@ $focus = "document.theform.search_term.select();";
                 ?>
                 <div class="input-group mt-1">
                     <input type='text' class='form-control' name='search_term' id="searchTerm"
-                        value='<?php echo attr($_REQUEST['search_term']); ?>'
+                        value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
                     <div class="input-group-append">
@@ -160,7 +163,7 @@ $focus = "document.theform.search_term.select();";
                 </div>
             </div>
             <?php
-            if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
+            if (!empty($_REQUEST['bn_search']) || !empty($_REQUEST['search_term'])) {
                 if (!$form_code_type) {
                     $form_code_type = $codetype;
                 }
@@ -191,7 +194,7 @@ $focus = "document.theform.search_term.select();";
                     } else {
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
-                            $itertext = trim($row['code_text']);
+                            $itertext = ucfirst(strtolower(trim($row['code_text'])));
                             if (!empty($target_element)) {
                                 // add a 5th parameter to function to select the target element on the form for placing the code.
                                 $anchor = "<a href='' " .

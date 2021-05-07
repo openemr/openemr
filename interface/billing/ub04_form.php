@@ -12,9 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once("./ub04_dispose.php");
+
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
+global $isAuthorized;
 if ($isAuthorized !== true) {
-    require_once("./ub04_dispose.php");
+    ub04_dispose();
     $isAuthorized = 0;
     $pid = $_REQUEST['pid'] ? $_REQUEST['pid'] : '0';
     $encounter = $_REQUEST['enc'] ? $_REQUEST['enc'] : '0';
@@ -29,7 +32,7 @@ if ($isAuthorized !== true) {
         exit(xlt("Sorry! Not Authorized."));
     }
 } else {
-    $imgurl = "../../../../public/images";
+    $imgurl = $GLOBALS['webroot'] . "/public/images";
 }
 
 use OpenEMR\Core\Header;
@@ -359,7 +362,7 @@ function disposeSave(action)
     });
     ub04idSave = JSON.stringify(ub04id);
     var qstr = param({ handler: 'edit_save',pid:pid,encounter:encounter,action:action,ub04id:ub04idSave });
-    location.href='ub04_dispose.php?'+qstr;
+    location.href='ub04_submit.php?'+qstr;
 }
 
 function postClaim(action)
@@ -385,7 +388,7 @@ function postClaim(action)
     var cj = JSON.stringify(c);
     ub04idSave = JSON.stringify(ub04id);
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'ub04_dispose.php');
+    xhr.open('POST', 'ub04_submit.php');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onload = function() {
         if (xhr.status === 200) {
@@ -434,7 +437,7 @@ function resetClaim(){
     }
     $.ajax({
         type: 'GET',
-        url: 'ub04_dispose.php',
+        url: 'ub04_submit.php',
         data: {handler:'reset_claim',pid:pid,encounter:encounter},
         dataType: 'json',
         success: function( rtn ) {

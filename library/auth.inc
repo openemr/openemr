@@ -9,20 +9,29 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    ViCarePlus <visolve_emr@visolve.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @author    cfapress
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Services\UserService;
 
 $incoming_site_id = '';
-
+// This is the conditional that ensures that the submission has the required parameters to attempt a login
 if (
-    isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])
+    isset($_GET['auth'])
+    && ($_GET['auth'] == "login")
+    && isset($_POST['new_login_session_management'])
+    && (
+        // Either normal login or google sign-in
+        (isset($_POST['authUser']) && isset($_POST['clearPass']))
+        || (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id']) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+    )
 ) {
     // Attempt login
 
@@ -39,7 +48,22 @@ if (
     // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
     //  unsuccessful or successful login
     $passTemp = $_POST['clearPass'];
-    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp)) {
+
+    $login_success = false;
+    if (
+        !empty($GLOBALS['google_signin_enabled']) &&
+        !empty($GLOBALS['google_signin_client_id']) &&
+        !empty($_POST['used_google_signin']) &&
+        !empty($_POST['google_signin_token'])
+    ) {
+        // google sign-in
+        $login_success = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
+    } else {
+        // normal login
+        $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
+    }
+
+    if ($login_success !== true) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
         if (function_exists('sodium_memzero')) {

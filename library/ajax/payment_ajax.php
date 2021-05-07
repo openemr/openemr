@@ -31,8 +31,8 @@ function AjaxDropDownCode()
 {
     if ($_POST["ajax_mode"] == "set") {//insurance
         $CountIndex = 1;
-        $StringForAjax = "<div id='AjaxContainerInsurance'><table width='552' border='1' cellspacing='0' cellpadding='0'>
-	  <tr class='text' bgcolor='#dddddd'>
+        $StringForAjax = "<div id='AjaxContainerInsurance'><table class='table table-sm table-striped w-100 bg-light text-dark'>
+	  <tr class='text bg-dark text-light'>
 		<td width='50'>" . xlt('Code') . "</td>
 		<td width='300'>" . xlt('Name') . "</td>
 	    <td width='200'>" . xlt('Address') . "</td>
@@ -40,7 +40,7 @@ function AjaxDropDownCode()
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
         //PlaceValues(event,'&nbsp;','')==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClick('&nbsp;','')==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
-        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
+        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor ?? '') . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
 	  onkeydown=\"ProcessKeyForColoring(event," . attr_js($CountIndex) . ");PlaceValues(event,'&nbsp;','')\"   onclick=\"PutTheValuesClick('&nbsp;','')\">
 			<td colspan='3' align='center'><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'></a></td>
 	  </tr>";
@@ -61,7 +61,7 @@ function AjaxDropDownCode()
                 $State = $row['state'];
                 $Country = $row['country'];
                 $Address = $City . ', ' . $State . ', ' . $Country;
-                $StringForAjax .= "<tr class='text'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
+                $StringForAjax .= "<tr class='text' id=\"tr_insurance_" . attr($CountIndex) . "\"
 		onkeydown='ProcessKeyForColoring(event,$CountIndex);PlaceValues(event," . attr_js($Id) . "," . attr_js($Name) . ")'
 			   onclick='PutTheValuesClick(" . attr_js($Id) . "," . attr_js($Name) . ")'>
 			<td><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'>" . text($Id) . "</a></td>
@@ -101,8 +101,8 @@ function AjaxDropDownCode()
         }
 
         $CountIndex = 1;
-        $StringForAjax = "<div id='AjaxContainerPatient'><table width='452' border='1' cellspacing='0' cellpadding='0'>
-	  <tr class='text' bgcolor='#dddddd'>
+        $StringForAjax = "<div id='AjaxContainerPatient'><table class='table table-sm table-striped w-50 bg-light text-dark'>
+	  <tr class='text bg-dark text-light'>
 		<td width='50'>" . xlt('Code') . "</td>
 		<td width='100'>" . xlt('Last Name') . "</td>
 	    <td width='100'>" . xlt('First Name') . "</td>
@@ -110,7 +110,7 @@ function AjaxDropDownCode()
 	    <td width='100'>" . xlt('Date of Birth') . "</td>
 	  </tr>" .
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
-        "<tr class='text' height='20'  bgcolor='" . attr($bgcolor) . "' id=\"tr_insurance_" . attr($CountIndex) . "\"
+        "<tr class='text' id=\"tr_insurance_" . attr($CountIndex) . "\"
 	  onkeydown=\"ProcessKeyForColoring(event," . attr_js($CountIndex) . ");$StringToAppend2(event,'&nbsp;','')\"   onclick=\"$StringToAppend('&nbsp;','')\">
 			<td colspan='5' align='center'><a id='anchor_insurance_code_" . attr($CountIndex) . "' href='#'></a></td>
 	  </tr>
@@ -142,7 +142,7 @@ function AjaxDropDownCode()
                 $mname = $row['mname'];
                 $Name = $lname . ' ' . $fname . ' ' . $mname;
                 $DOB = oeFormatShortDate($row['DOB']);
-                $StringForAjax .= "<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_" . attr($CountIndex) . "\"
+                $StringForAjax .= "<tr class='text' id=\"tr_insurance_" . attr($CountIndex) . "\"
 		 onkeydown='ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event," . attr_js($Id) . "," . attr_js($Name) . ")' onclick=\"$StringToAppend(" . attr_js($Id) . ", " . attr_js($Name) . ")\">
 			<td><a id='anchor_insurance_code_$CountIndex' href='#' >" . text($Id) . "</a></td>
 			<td><a href='#'>" . text($lname) . "</a></td>

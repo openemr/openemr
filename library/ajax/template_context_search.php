@@ -19,19 +19,34 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 $cq = <<< createQuery
-SELECT cl2.cl_list_slno id, cl2.cl_list_item_long `text`, cl3.cl_list_slno cat_id, cl3.cl_list_item_long cat_text, cl3.cl_creator cat_ownerid,
-IFNULL(cl4.cl_list_slno,'') tmpl_id, IFNULL(cl4.cl_list_item_long,'') tmpl_text, IFNULL(cl4.cl_creator,'') tmpl_ownerid
-FROM customlists cl2
-INNER JOIN customlists cl3 on cl2.cl_list_slno=cl3.cl_list_id
-LEFT OUTER JOIN customlists cl4 on cl3.cl_list_slno=cl4.cl_list_id and cl4.cl_list_type=4 and cl4.cl_deleted=0
-WHERE cl2.cl_list_type=2 and cl2.cl_deleted=0 and cl3.cl_list_type=3 and cl3.cl_deleted=0 and cl2.cl_list_item_long Like ? and cl4.cl_creator=? 
-GROUP BY `text`;
+Select
+    cl2.cl_list_slno id,
+    cl2.cl_list_item_long text,
+    cl3.cl_list_slno cat_id,
+    cl3.cl_list_item_long cat_text,
+    cl3.cl_creator cat_ownerid,
+    IfNull(cl4.cl_list_slno, '') tmpl_id,
+    IfNull(cl4.cl_list_item_long, '') tmpl_text,
+    IfNull(cl4.cl_creator, '') tmpl_ownerid
+From
+    customlists cl2 Inner Join
+    customlists cl3 On cl2.cl_list_slno = cl3.cl_list_id Left Outer Join
+    customlists cl4 On cl3.cl_list_slno = cl4.cl_list_id And cl4.cl_list_type = 4 And cl4.cl_deleted = 0
+Where
+    cl2.cl_list_type = 2 And
+    cl2.cl_deleted = 0 And
+    cl3.cl_list_type = 3 And
+    cl3.cl_deleted = 0 And
+    cl2.cl_list_item_long Like ? And
+    cl3.cl_creator = ?
+Group By
+    cl2.cl_list_item_long
 createQuery;
 
 $search = $_GET['search'];
 $eSearch = "%" . $search . "%";
 $results = [];
-$r = sqlStatementNoLog($cq, array($eSearch, $_SESSION['authUserID']));
+$r = sqlStatementNoLog($cq, array($eSearch, (int)$_SESSION['authUserID']));
 
 while ($result = sqlFetchArray($r)) {
     $results[] = array_map('text', $result);

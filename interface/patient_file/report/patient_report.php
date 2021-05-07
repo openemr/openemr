@@ -329,7 +329,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo attr($ierow['encounter']) . "/";
                                             }
 
-                                            echo "' />$disptitle</td>\n";
+                                            echo "' />" . text($disptitle) . "</td>\n";
                                             echo "     <td>" . text($prow['begdate']);
 
                                             if ($prow['enddate']) {
@@ -432,7 +432,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         }
                                                     }
                                                 }
-                                                if (!is_array($html_strings[$form_name])) {
+                                                if (empty($html_strings[$form_name]) || !is_array($html_strings[$form_name])) {
                                                     $html_strings[$form_name] = array();
                                                 }
                                                 array_push($html_strings[$form_name], "<input type='checkbox' " .
@@ -743,17 +743,17 @@ $(function () {
 // select/deselect the Forms related to the selected Encounter
 // (it ain't pretty code folks)
 var SelectForms = function (selectedEncounter) {
-    if ($(selectedEncounter).attr("checked")) {
+    if ($(selectedEncounter).prop("checked")) {
         $(selectedEncounter).parent().children().each(function(i, obj) {
             $(this).children().each(function(i, obj) {
-                $(this).attr("checked", "checked");
+                $(this).prop("checked", true);
             });
         });
     }
     else {
         $(selectedEncounter).parent().children().each(function(i, obj) {
             $(this).children().each(function(i, obj) {
-                $(this).removeAttr("checked");
+                $(this).prop("checked", false);
             });
         });
     }

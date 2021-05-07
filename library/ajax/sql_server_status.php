@@ -16,6 +16,8 @@
  */
 
 $ignoreAuth = true;
+// to prevent config.php call keys table oops
+$GLOBALS['ongoing_sql_upgrade'] = true;
 $GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 require_once(__DIR__ . '/../../interface/globals.php');
 

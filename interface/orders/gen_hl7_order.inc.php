@@ -18,6 +18,7 @@
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
 /*
@@ -234,7 +235,7 @@ function gen_hl7_order($orderid, &$out)
     $d1 . date('YmdHis', $today) .  // Date and time of this message
     $d1 .
     $d1 . 'ORM' . $d2 . 'O01' .     // Message Type
-    $d1 . $orderid .                // Unique Message Number
+    $d1 . str_pad((string)$orderid, 4, "0", STR_PAD_LEFT) .  // Unique Message Number
     $d1 . $porow['DorP'] .          // D=Debugging, P=Production
     $d1 . '2.3' .                   // HL7 Version ID
     $d0;
@@ -270,7 +271,20 @@ function gen_hl7_order($orderid, &$out)
     $d1 . $d1 . $d1 .
     $d0;
 
-  // NTE segment(s) omitted.
+    // NTE segment(s).
+    //$msql = sqlStatement("SELECT title FROM lists WHERE type='medication' AND pid='".$porow['pid']."'");
+    $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id=?", [$porow['pid']]);
+    $drugs = array();
+    while ($mres = sqlFetchArray($msql)) {
+        $drugs[] = trim($mres['drug']);
+    }
+    $med_list = count($drugs) > 0 ? implode(",", $drugs) : 'NONE';
+
+    $out .= "NTE" .
+        $d1 . "1" .
+        $d1 . "L" .
+        $d1 . "Medications:" . $med_list .
+        $d0;
 
   // Patient Visit.
     $out .= "PV1" .
@@ -332,7 +346,7 @@ function gen_hl7_order($orderid, &$out)
     $d1 . "1" .                      // Set ID (always just 1 of these)
     $d1 .
     $d1 . hl7Text($porow['lname']) .
-      $d2 . hl7Text($porow['fname']);
+    $d2 . hl7Text($porow['fname']);
     if ($porow['mname']) {
         $out .= $d2 . hl7Text($porow['mname']);
     }
@@ -340,10 +354,10 @@ function gen_hl7_order($orderid, &$out)
     $out .=
     $d1 .
     $d1 . hl7Text($porow['street']) .
-      $d2 .
-      $d2 . hl7Text($porow['city']) .
-      $d2 . hl7Text($porow['state']) .
-      $d2 . hl7Zip($porow['postal_code']) .
+    $d2 .
+    $d2 . hl7Text($porow['city']) .
+    $d2 . hl7Text($porow['state']) .
+    $d2 . hl7Zip($porow['postal_code']) .
     $d1 . hl7Phone($porow['phone_home']) .
     $d1 . hl7Phone($porow['phone_biz']) .
     $d1 . hl7Date($porow['DOB']) .   // DOB
@@ -356,7 +370,7 @@ function gen_hl7_order($orderid, &$out)
   // Common Order.
     $out .= "ORC" .
     $d1 . "NW" .                     // New Order
-    $d1 . $orderid .                 // Placer Order Number
+    $d1 . str_pad((string)$orderid, 4, "0", STR_PAD_LEFT) . // Placer Order Number
     str_repeat($d1, 6) .             // ORC 3-8 not used
     $d1 . date('YmdHis') .           // Transaction date/time
     $d1 . $d1 .
@@ -372,7 +386,7 @@ function gen_hl7_order($orderid, &$out)
         // Observation Request.
         $out .= "OBR" .
         $d1 . ++$setid .                              // Set ID
-        $d1 . $orderid .                              // Placer Order Number
+        $d1 . str_pad((string)$orderid, 4, "0", STR_PAD_LEFT) . // Placer Order Number
         $d1 .
         $d1 . hl7Text($pcrow['procedure_code']) .
         $d2 . hl7Text($pcrow['procedure_name']) .
@@ -401,7 +415,7 @@ function gen_hl7_order($orderid, &$out)
                 }
 
                 list($codetype, $code) = explode(':', $codestring);
-                if ($codetype !== 'ICD9') {
+                if ($codetype !== 'ICD10') {
                     continue;
                 }
 
@@ -410,8 +424,9 @@ function gen_hl7_order($orderid, &$out)
                 $d1 . ++$setid2 .                         // Set ID
                 $d1 .                                     // Diagnosis Coding Method
                 $d1 . $code .                             // Diagnosis Code
-                $d1 . hl7Text($desc) .                    // Diagnosis Description
-                $d0;
+                    $d2 . hl7Text($desc) .                    // Diagnosis Description
+                    $d2 . "I10" .                             // Diagnosis Type
+                    $d1 . $d0;
             }
         }
 

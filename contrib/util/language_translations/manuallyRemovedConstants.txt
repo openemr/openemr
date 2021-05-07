@@ -13,5 +13,7 @@ rim($i
 rim($row['
 xiale lengte)																	
 xiale lengte)'); INSERT INTO `lang_definitions` V
+cwords($item['row_s
+tring) {     if (typeof top.i18next.t == 'function') {         return top.i18next.t(
 ...
 

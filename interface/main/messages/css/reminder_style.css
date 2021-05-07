@@ -28,11 +28,13 @@ h1 {
 
 .nav-tabs > li {
   border: 0.5px solid var(--gray400);
+  display: block;
+  float: left;
+  height: 40px;
   margin-bottom: 0;
-}
-
-.nav-tabs > li .active {
-  border-bottom: 0;
+  margin-bottom: -1px;
+  min-width: 80px;
+  position: relative;
 }
 
 .nav-tabs > li > a {
@@ -193,7 +195,7 @@ h1 {
   border: 0.5px solid var(--gray);
   border-radius: 3px;
   display: table-cell;
-  min-height: 29px;
+  min-height: 37px;
   padding: 5px 10px;
   vertical-align: middle;
 }
@@ -311,6 +313,12 @@ input[type="radio"] {
 
 .indent20 {
   padding-left: 20px;
+}
+
+.btn {
+  border: 1px solid var(--black) !important;
+  border-radius: 4px;
+  padding: 5px;
 }
 
 .btn1 {
@@ -536,4 +544,26 @@ td.right {
 
 .ui-autocomplete {
   position: relative;
+}
+
+#medex-recall-nav {
+  position: relative;
+  top: 7px;
+}
+
+.tab-content {
+  position: relative;
+  z-index: 2;
+}
+
+#patient_caret {
+  left: 5px;
+  position: fixed;
+  top: 10px;
+  z-index: 1200;
+}
+
+#hide_nav {
+  position: absolute;
+  top: 0;
 }

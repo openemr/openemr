@@ -11,7 +11,7 @@
  */
 
 /** import supporting libraries */
-require_once("AppBaseController.php");
+require_once("AppBasePortalController.php");
 
 /**
  * DefaultController is the entry point to the application
@@ -20,7 +20,7 @@ require_once("AppBaseController.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class ProviderController extends AppBaseController
+class ProviderController extends AppBasePortalController
 {
     /**
      * Override here for any controller-specific functionality
@@ -43,6 +43,7 @@ class ProviderController extends AppBaseController
         } else {
             header("refresh:5;url= ./provider");
             echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Waiting until Onsite Portal is logged out........';
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
             exit;
         }
 

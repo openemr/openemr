@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 
 class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\Extension\GlobalsInterface
 {
-    public function getGlobals()
+    public function getGlobals(): array
     {
         return [
             'assets_dir' => $GLOBALS['assets_static_relative'],

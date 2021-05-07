@@ -26,30 +26,33 @@ function xl(string) {
 // html escaping functions - special case when sending js string to html (see codebase for examples)
 //   jsText (equivalent to text() )
 //   jsAttr (equivalent to attr() )
-var htmlEscapesText = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;'
-};
-var htmlEscapesAttr = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;'
-};
-var htmlEscaperText = /[&<>]/g;
-var htmlEscaperAttr = /[&<>"']/g;
-jsText = function(string) {
-    return ('' + string).replace(htmlEscaperText, function(match) {
-        return htmlEscapesText[match];
-    });
-};
-jsAttr = function(string) {
-    return ('' + string).replace(htmlEscaperAttr, function(match) {
-        return htmlEscapesAttr[match];
-    });
-};
+// must be careful assigning const in this script. can't reinit a constant
+if (typeof htmlEscapesText === 'undefined') {
+    const htmlEscapesText = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;'
+    };
+    const htmlEscapesAttr = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;'
+    };
+    const htmlEscaperText = /[&<>]/g;
+    const htmlEscaperAttr = /[&<>"']/g;
+    jsText = function (string) {
+        return ('' + string).replace(htmlEscaperText, function (match) {
+            return htmlEscapesText[match];
+        });
+    };
+    jsAttr = function (string) {
+        return ('' + string).replace(htmlEscaperAttr, function (match) {
+            return htmlEscapesAttr[match];
+        });
+    };
+}
 
 // another useful function
 async function syncFetchFile(fileUrl, type = 'text') {
@@ -344,7 +347,7 @@ function oeSortable(callBackFn) {
         })
     }
 
-};
+}
 
 
 /*
@@ -449,22 +452,26 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
 
             return false;
         };
+        try {
+            let string = msg.toLowerCase();
+            let substring = xl("script error"); // translate to catch for language of browser.
+            if (string.indexOf(substring) > -1) {
+                let xlated = xl('Script Error: See Browser Console for Detail');
+                showDebugAlert(xlated);
+            } else {
+                let message = {
+                    Message: msg,
+                    URL: url,
+                    Line: lineNo,
+                    Column: columnNo,
+                    Error: JSON.stringify(error)
+                };
 
-        let string = msg.toLowerCase();
-        let substring = xl("script error"); // translate to catch for language of browser.
-        if (string.indexOf(substring) > -1) {
-            let xlated = xl('Script Error: See Browser Console for Detail');
+                showDebugAlert(message);
+            }
+        } catch (e) {
+            let xlated = xl('Unknown Script Error: See Browser Console for Detail');
             showDebugAlert(xlated);
-        } else {
-            let message = {
-                Message: msg,
-                URL: url,
-                Line: lineNo,
-                Column: columnNo,
-                Error: JSON.stringify(error)
-            };
-
-            showDebugAlert(message);
         }
 
         return false;

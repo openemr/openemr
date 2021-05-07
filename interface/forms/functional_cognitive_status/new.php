@@ -29,6 +29,7 @@ if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
 
+    $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -176,13 +177,13 @@ $check_res = $formid ? $check_res : array();
                                     <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
-                                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
+                                                <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"] ?? ''); ?>">
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                                <input type='text' id="code_date_1"  name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
@@ -192,7 +193,7 @@ $check_res = $formid ? $check_res : array();
                                             </div>
                                             <div class="forms col-md-4">
                                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_1" class="form-control description"  rows="3" ><?php echo text($obj["description"]); ?></textarea>
+                                                <textarea name="description[]"  id="description_1" class="form-control description"  rows="3" ><?php echo text($obj["description"] ?? ''); ?></textarea>
                                             </div>
                                             <div class="forms col-md-2">
                                                 <button type="button" class="btn btn-primary btn-sm btn-add" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>

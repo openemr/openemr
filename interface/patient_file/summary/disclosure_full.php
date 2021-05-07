@@ -32,7 +32,7 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $event = trim($_POST['form_disclosure_type']);
     $recipient_name = trim($_POST['recipient_name']);
     $disclosure_desc = trim($_POST['desc_disc']);
-    $disclosure_id = trim($_POST['disclosure_id']);
+    $disclosure_id = trim($_POST['disclosure_id'] ?? '');
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
         EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);

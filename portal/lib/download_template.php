@@ -4,7 +4,7 @@
  * Document Template Download Module.
  *
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Ruth Moulton
  * @link    http://www.open-emr.org
  */
 
@@ -37,7 +38,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 $form_filename = $_POST['docid'];
 $pid = $_POST['pid'];
-$user = $_SESSION['authUserID'];
+$user = $_SESSION['authUserID'] ?? $_SESSION['sessionUser'];
 
 $nextLocation = 0; // offset to resume scanning
 $keyLocation = false; // offset of a potential {string} to replace
@@ -136,12 +137,12 @@ function doSubs($s)
 
         if (keySearch($s, '{PatientSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
@@ -378,6 +379,42 @@ function doSubs($s)
                 }
             }
             $s = keyReplace($s, dataFixup($data, $title));
+        } elseif (preg_match('/^{CurrentDate:?.*}/', substr($s, $keyLocation), $matches)) {
+            /* defaults to ISO standard date format yyyy-mm-dd
+             * modified by string following ':' as follows
+             * 'global' will use the global date format setting
+             * 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY' override the global setting
+             * anything else is ignored
+             *
+             * oeFormatShortDate($date = 'today', $showYear = true) - OpenEMR function to format
+             * date using global setting, defaults to ISO standard yyyy-mm-dd
+            */
+            $keyLength = strlen($matches[0]);
+            $matched = $matches[0];
+            $format = 'Y-m-d'; /* default yyyy-mm-dd */
+            $currentdate = '';
+            if (preg_match('/GLOBAL/i', $matched, $matches)) {
+                /* use global setting */
+                $currentdate = oeFormatShortDate(date('Y-m-d'), true);
+            } elseif (
+                /* there's an overiding format */
+                preg_match('/YYYY-MM-DD/i', $matched, $matches)
+            ) {
+                /* nothing to do here as this is the default format */
+            } elseif (preg_match('[MM/DD/YYYY]i', $matched, $matches)) {
+                $format = 'm/d/Y';
+            } elseif (preg_match('[DD/MM/YYYY]i', $matched, $matches)) {
+                $format = 'd/m/Y';
+            }
+
+            if (!$currentdate) {
+                $currentdate = date($format);  /* get the current date in specified format */
+            }
+            $s = keyReplace($s, dataFixup($currentdate, xl('Date')));
+        } elseif (keySearch($s, '{CurrentTime}')) {
+            $format = 'H:i';  /* 24 hour clock with leading zeros */
+            $currenttime = date($format); /* format to hh:mm for local time zone */
+            $s = keyReplace($s, dataFixup($currenttime, xl('Time')));
         }
     } // End if { character found.
 
@@ -403,13 +440,36 @@ if ($encounter) {
 
 $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
 
-check_file_dir_name($form_filename);
-$templatepath = "$templatedir/$form_filename";
-// test if this is folder with template, if not, must be for a specific patient
-if (!file_exists($templatepath)) {
-    check_file_dir_name($pid);
-    $templatepath = "$templatedir/" . $pid . "/$form_filename";
+// whitelist against template categories
+// correct form path is category/templateName
+// or just templateName
+$wl = explode('/', $form_filename);
+if (count($wl) === 2) {
+    $okay = false;
+    // test if this is folder for a specific patient
+    if (check_file_dir_name($pid . "_tpls") == $wl[0]) {
+        $okay = true;
+    } else {
+        // get cats
+        $rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
+        while ($row = sqlFetchArray($rtn)) {
+            if ($row['option_id'] == $wl[0]) {
+                // okay, a good path
+                $okay = true;
+            }
+        }
+    }
+    if ($okay === true) {
+        $form_filename = $wl[0] . "/" . $wl[1];
+    } else {
+        die(xlt("Invalid Path"));
+    }
+} else {
+    check_file_dir_name($form_filename);
 }
+
+$templatepath = "$templatedir/$form_filename";
+
 
 $edata = file_get_contents($templatepath);
 $edata = doSubs($edata);

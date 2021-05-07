@@ -207,10 +207,11 @@ class FhirImmunizationService extends FhirServiceBase
     /**
      * Performs a FHIR Immunization Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR Immunization Resource ID.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
-        $processingResult = $this->immunizationService->getOne($fhirResourceId);
+        $processingResult = $this->immunizationService->getOne($fhirResourceId, $puuidBind);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
@@ -226,11 +227,12 @@ class FhirImmunizationService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->immunizationService->getAll($openEMRSearchParameters, false);
+        return $this->immunizationService->getAll($openEMRSearchParameters, false, $puuidBind);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {

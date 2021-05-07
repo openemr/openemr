@@ -230,7 +230,7 @@ var array1 = new Array();
 var array2 = new Array();
 var array3 = new Array();
 var buffer = new Array();
-var icd9_list = '';
+var icd10_list = '';
 var preselect_off = false;
 var content_change_flag = false;
 var lock_override_flag = false;
@@ -400,22 +400,21 @@ function content_blur() {
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  //ICD9
-    $icd9_flag = false;
-    $query = "SELECT code_text, code FROM billing WHERE encounter=? AND pid=? AND code_type like 'ICD9' AND activity=1";
+  //ICD10
+    $code_list = '';
+    $query = "SELECT code_text, code FROM billing WHERE encounter=? AND pid=? AND code_type like 'ICD10' AND activity=1";
     $statement = sqlStatement($query, array($_SESSION['encounter'], $_SESSION['pid']));
     if ($result = sqlFetchArray($statement)) {
-        $icd9_flag = true;
-        echo "icd9_list = \"\\n\\n\\\n";
-        echo attr(addslashes($result['code'])) . " " . attr(addslashes($result['code_text'])) . "\\n\\\n";
+        $code_list = "\n\n" . trim(preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
     }
 
     while ($result = sqlFetchArray($statement)) {
-        echo attr(addslashes($result['code'])) . " " . attr(addslashes($result['code_text'])) . "\\n\\\n";
+        $code_list .= "\n\n" . trim(preg_replace('/\r\n|\r|\n/', '', text($result['code'] . " " . $result['code_text'])));
     }
 
-    if ($icd9_flag) {
-        echo "\";\n";
+    $code_list = "icd10_list=" . js_escape($code_list . "\n") . ";\n";
+    if (!empty($code_list)) {
+        echo $code_list;
     }
 }
 
@@ -445,9 +444,9 @@ while ($result = sqlFetchArray($statement)) {
 }
 ?>
 
-function append_icd9() {
+function append_icd10() {
   var f2 = document.CAMOS;
-  f2.textarea_content.value = f2.textarea_content.value + icd9_list;
+  f2.textarea_content.value = f2.textarea_content.value + icd10_list;
 }
 
 function select_word(mode, mystring, myselect) { //take a string and select it in a select box if present
@@ -574,7 +573,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                     }
 
                     if ($code_type == 2) {
-                        $code_type = 'ICD9';
+                        $code_type = 'ICD10';
                     }
 
                     if ($code_type == 3) {
@@ -1096,10 +1095,12 @@ function processEnter(e,message) {
     }
   }
 }
-
+$(function (body) {
+    init();
+});
 </script>
 </head>
-<body class="body_top" onload="init()">
+<body class="body_top">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method='post' action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -1230,7 +1231,7 @@ if (myAuth() == 1) {//root user only can see administration option
 
     if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
         ?>
-    <input type='button' name='icd9' value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
+    <input type='button' name='icd10' value='<?php echo xla('ICD10'); ?>' onClick="append_icd10()">
 </div> <!-- end of id_main_content_buttons-->
         <?php
     }

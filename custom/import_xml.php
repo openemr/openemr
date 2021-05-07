@@ -119,7 +119,7 @@ if (!empty($_POST['form_import'])) {
             }
         }
     } else {
-        $alertmsg = "Invalid import data!";
+        die("Invalid import data!");
     }
 
     xml_parser_free($parser);

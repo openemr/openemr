@@ -1,0 +1,16 @@
+{
+    "name": "mi-squared/oe-custom-patient-menu",
+    "description": "Module that can modify the patient menu on dashboard.",
+    "type": "openemr-module",
+    "authors": [
+        {
+            "name": "Ken Chapple",
+            "email": "ken@mi-squared.com"
+        }
+    ],
+    "require": {
+        "openemr/oe-module-installer-plugin": "^0.1.0"
+    },
+    "autoload": {},
+    "minimum-stability": "dev"
+}

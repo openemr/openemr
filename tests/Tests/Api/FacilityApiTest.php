@@ -18,15 +18,15 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  */
 class FacilityApiTest extends TestCase
 {
-    const FACILITY_API_ENDPOINT = "/apis/api/facility";
+    const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
     private $testClient;
     private $fixtureManager;
 
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_API_AUTH_ENDPOINT);
+        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FacilityFixtureManager();
         $this->facilityRecord = (array) $this->fixtureManager->getSingleFacilityFixture();
@@ -35,6 +35,8 @@ class FacilityApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFacilityFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     /**
@@ -73,15 +75,15 @@ class FacilityApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with an invalid uuid
+     * @covers ::put with an invalid uuid
      */
-    public function testInvalidPatch()
+    public function testInvalidPut()
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(
+        $actualResponse = $this->testClient->put(
             self::FACILITY_API_ENDPOINT,
             "not-a-uuid",
             $this->facilityRecord
@@ -95,9 +97,9 @@ class FacilityApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with a valid resource uuid and payload
+     * @covers ::put with a valid resource uuid and payload
      */
-    public function testPatch()
+    public function testPut()
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -106,7 +108,7 @@ class FacilityApiTest extends TestCase
         $facilityUuid = $responseBody["data"]["uuid"];
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
+        $actualResponse = $this->testClient->put(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);

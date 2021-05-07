@@ -205,28 +205,6 @@ function capitalizeMe(elem) {
  elem.value = s;
 }
 
-// Onkeyup handler for policy number.  Allows only A-Z and 0-9.
-function policykeyup(e) {
- var v = e.value.toUpperCase();
- var filteredString="";
- for (var i = 0; i < v.length; ++i) {
-  var c = v.charAt(i);
-  if ((c >= '0' && c <= '9') ||
-     (c >= 'A' && c <= 'Z') ||
-     (c == '*') ||
-     (c == '-') ||
-     (c == '_') ||
-     (c == '(') ||
-     (c == ')') ||
-     (c == '#'))
-     {
-         filteredString+=c;
-     }
- }
- e.value = filteredString;
- return;
-}
-
 function divclick(cb, divid) {
  var divstyle = document.getElementById(divid).style;
  if (cb.checked) {
@@ -472,7 +450,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $currvalue  = '';
 
                         // Accumulate action conditions into a JSON expression for the browser side.
-                        accumActionConditions($field_id, $condition_str, $frow['conditions']);
+                        accumActionConditions($frow, $condition_str);
 
                         if (strpos($field_id, 'em_') === 0) {
                             $tmp = substr($field_id, 3);

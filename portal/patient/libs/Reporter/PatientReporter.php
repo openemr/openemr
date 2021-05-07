@@ -166,62 +166,24 @@ class PatientReporter extends Reporter
 			,`patient_data`.`race` as Race
 			,`patient_data`.`ethnicity` as Ethnicity
 			,`patient_data`.`religion` as Religion
-			,`patient_data`.`interpretter` as Interpretter
-			,`patient_data`.`migrantseasonal` as Migrantseasonal
 			,`patient_data`.`family_size` as FamilySize
-			,`patient_data`.`monthly_income` as MonthlyIncome
-			,`patient_data`.`billing_note` as BillingNote
-			,`patient_data`.`homeless` as Homeless
-			,`patient_data`.`financial_review` as FinancialReview
 			,`patient_data`.`pubpid` as Pubpid
 			,`patient_data`.`pid` as Pid
-			,`patient_data`.`genericname1` as Genericname1
-			,`patient_data`.`genericval1` as Genericval1
-			,`patient_data`.`genericname2` as Genericname2
-			,`patient_data`.`genericval2` as Genericval2
 			,`patient_data`.`hipaa_mail` as HipaaMail
 			,`patient_data`.`hipaa_voice` as HipaaVoice
 			,`patient_data`.`hipaa_notice` as HipaaNotice
 			,`patient_data`.`hipaa_message` as HipaaMessage
 			,`patient_data`.`hipaa_allowsms` as HipaaAllowsms
 			,`patient_data`.`hipaa_allowemail` as HipaaAllowemail
-			,`patient_data`.`squad` as Squad
-			,`patient_data`.`fitness` as Fitness
-			,`patient_data`.`referral_source` as ReferralSource
-			,`patient_data`.`usertext1` as Usertext1
-			,`patient_data`.`usertext2` as Usertext2
-			,`patient_data`.`usertext3` as Usertext3
-			,`patient_data`.`usertext4` as Usertext4
-			,`patient_data`.`usertext5` as Usertext5
-			,`patient_data`.`usertext6` as Usertext6
-			,`patient_data`.`usertext7` as Usertext7
-			,`patient_data`.`usertext8` as Usertext8
-			,`patient_data`.`userlist1` as Userlist1
-			,`patient_data`.`userlist2` as Userlist2
-			,`patient_data`.`userlist3` as Userlist3
-			,`patient_data`.`userlist4` as Userlist4
-			,`patient_data`.`userlist5` as Userlist5
-			,`patient_data`.`userlist6` as Userlist6
-			,`patient_data`.`userlist7` as Userlist7
-			,`patient_data`.`pricelevel` as Pricelevel
 			,`patient_data`.`regdate` as Regdate
-			,`patient_data`.`contrastart` as Contrastart
-			,`patient_data`.`completed_ad` as CompletedAd
-			,`patient_data`.`ad_reviewed` as AdReviewed
-			,`patient_data`.`vfc` as Vfc
 			,`patient_data`.`mothersname` as Mothersname
 			,`patient_data`.`guardiansname` as Guardiansname
 			,`patient_data`.`allow_imm_reg_use` as AllowImmRegUse
 			,`patient_data`.`allow_imm_info_share` as AllowImmInfoShare
 			,`patient_data`.`allow_health_info_ex` as AllowHealthInfoEx
 			,`patient_data`.`allow_patient_portal` as AllowPatientPortal
-			,`patient_data`.`deceased_date` as DeceasedDate
-			,`patient_data`.`deceased_reason` as DeceasedReason
-			,`patient_data`.`soap_import_status` as SoapImportStatus
-			,`patient_data`.`cmsportal_login` as CmsportalLogin
 			,`patient_data`.`care_team_provider` as CareTeam
 			,`patient_data`.`county` as County
-			,`patient_data`.`industry` as Industry
 		from `patient_data`";
 
         // the criteria can be used or you can write your own custom logic.

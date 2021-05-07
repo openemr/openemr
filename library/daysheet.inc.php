@@ -87,67 +87,77 @@ function GenerateTheQueryPart()
 
     if (isset($_REQUEST['final_this_page_criteria'])) {
         foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-            $criteria_value = BillingReport::prepareSearchItem($criteria_value); // this escapes for sql
-            $SplitArray = array();
-          //---------------------------------------------------------
-            if (strpos($criteria_value, "billing.billed = '1'") !== false) {
-                $billstring .= ' AND ' . $criteria_value;
-            } elseif (strpos($criteria_value, "billing.billed = '0'") !== false) {
+            //---------------------------------------------------------
+            if (strpos($criteria_value, "billing.billed|=|1") !== false) {
+                $billstring .= ' AND ' . "billing.billed = '1'";
+            } elseif (strpos($criteria_value, "billing.billed|=|0") !== false) {
                 //3 is an error condition
                 $billstring .= ' AND ' . "(billing.billed is null or billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
-            } elseif (strpos($criteria_value, "billing.billed = '7'") !== false) {
+            } elseif (strpos($criteria_value, "billing.billed|=|7") !== false) {
                 $billstring .= ' AND ' . "billing.bill_process = '7'";
-            } elseif (strpos($criteria_value, "billing.id = 'null'") !== false) {
+            } elseif (strpos($criteria_value, "billing.id|=|null") !== false) {
                 $billstring .= ' AND ' . "billing.id is null";
-            } elseif (strpos($criteria_value, "billing.id = 'not null'") !== false) {
+            } elseif (strpos($criteria_value, "billing.id|=|not null") !== false) {
                 $billstring .= ' AND ' . "billing.id is not null";
-            } elseif (strpos($criteria_value, "patient_data.fname") !== false) {
-                $SplitArray = explode(' like ', $criteria_value);
-                $query_part .= " AND ($criteria_value or patient_data.lname like " . $SplitArray[1] . ")";
-            } elseif (strpos($criteria_value, "billing.authorized") !== false) {
-                $auth = ' AND ' . $criteria_value;
-            } elseif (strpos($criteria_value, "form_encounter.pid") !== false) {//comes like '781,780'
-                $SplitArray = explode(" = '", $criteria_value);//comes like 781,780'
-                $SplitArray[1] = substr($SplitArray[1], 0, -1);//comes like 781,780
-                $query_part .= ' AND form_encounter.pid in (' . $SplitArray[1] . ')';
-                $query_part2 .= ' AND pid in (' . $SplitArray[1] . ')';
-            } elseif (strpos($criteria_value, "form_encounter.encounter") !== false) {//comes like '781,780'
-                $SplitArray = explode(" = '", $criteria_value);//comes like 781,780'
-                $SplitArray[1] = substr($SplitArray[1], 0, -1);//comes like 781,780
-                $query_part .= ' AND form_encounter.encounter in (' . $SplitArray[1] . ')';
-            } elseif (strpos($criteria_value, "insurance_data.provider = '1'") !== false) {
+            } elseif (strpos($criteria_value, "patient_data.fname|like|") !== false) {
+                $elements = explode('|', $criteria_value);
+                $query_part .= " AND (patient_data.fname like '" . add_escape_custom($elements[2]) . "' or patient_data.lname like '" . add_escape_custom($elements[2]) . "')";
+            } elseif (strpos($criteria_value, "form_encounter.pid|=|") !== false) {//comes like '781,780'
+                $elements = explode('|', $criteria_value);
+                $patients = explode(',', $elements[2]);
+                $sanitizedPatients = '';
+                foreach ($patients as $patient) {
+                    $sanitizedPatients .= "'" . add_escape_custom($patient) . "',";
+                }
+                $sanitizedPatients = substr($sanitizedPatients, 0, -1);
+                $query_part .= ' AND form_encounter.pid in (' . $sanitizedPatients . ')';
+                $query_part2 .= ' AND pid in (' . $sanitizedPatients . ')';
+            } elseif (strpos($criteria_value, "form_encounter.encounter|=|") !== false) {//comes like '781,780'
+                $elements = explode('|', $criteria_value);
+                $encounters = explode(',', $elements[2]);
+                $sanitizedEncounters = '';
+                foreach ($encounters as $encounter) {
+                    $sanitizedEncounters .= "'" . add_escape_custom($encounter) . "',";
+                }
+                $sanitizedEncounters = substr($sanitizedEncounters, 0, -1);
+                $query_part .= ' AND form_encounter.encounter in (' . $sanitizedEncounters . ')';
+            } elseif (strpos($criteria_value, "insurance_data.provider|=|1") !== false) {
                 $query_part .= ' AND ' . "insurance_data.provider > '0' and (insurance_data.date <= form_encounter.date OR insurance_data.date IS NULL)";
-            } elseif (strpos($criteria_value, "insurance_data.provider = '0'") !== false) {
+            } elseif (strpos($criteria_value, "insurance_data.provider|=|0") !== false) {
                 $query_part .= ' AND ' . "(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
+            } elseif (strpos($criteria_value, "form_encounter.date|between|") !== false) {
+                $elements = explode('|', $criteria_value);
+                $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+            } elseif (strpos($criteria_value, "billing.date|between|") !== false) {
+                $elements = explode('|', $criteria_value);
+                $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+            } elseif (strpos($criteria_value, "claims.process_time|between|") !== false) {
+                $elements = explode('|', $criteria_value);
+                $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
             } else {
-                $query_part .= ' AND ' . $criteria_value;
-
-                if (substr($criteria_value, 1, 8) === 'form_enc') {
-                    $query_part_day .=  ' AND ' . '(ar_activity.post_time' . substr($criteria_value, 20) ;
-                }
-
-                if (substr($criteria_value, 1, 12) === 'billing.date') {
-                    $query_part_day .=  ' AND ' . '(ar_activity.post_time' . substr($criteria_value, 13) ;
-                }
-
-                if (substr($criteria_value, 1, 14) === 'claims.process') {
-                    $query_part_day .=  ' AND ' . '(ar_activity.post_time' . substr($criteria_value, 20) ;
-                }
+                $elements = explode('|', $criteria_value);
+                $criteriaItemsWhitelist = [
+                    'claims.target',
+                    'claims.payer_id',
+                    'billing.authorized',
+                    'form_encounter.last_level_billed',
+                    'billing.x12_partner_id',
+                    'billing.user'
+                ];
+                $criteriaComparisonWhitelist = [
+                    '=',
+                    'like'
+                ];
+                $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
 
                 if (substr($criteria_value, 0, 12) === 'billing.user') {
-                    $query_part_day .=  ' AND ' . 'ar_activity.post_user' . substr($criteria_value, 12) ;
-                }
-
-                if (substr($criteria_value, 1, 8) === 'form_enc') {
-                    $query_part_day1 .=  ' AND ' . '(dtime' . substr($query_part, 25, 58) ;
-                }
-
-                if (substr($criteria_value, 1, 12) === 'billing.date') {
-                    $query_part_day1 .=  ' AND ' . '(dtime' . substr($query_part, 18, 58) ;
-                }
-
-                if (substr($criteria_value, 1, 14) === 'claims.process') {
-                    $query_part_day1 .=  ' AND ' . '(dtime' . substr($query_part, 25, 58) ;
+                    $query_part_day .=  ' AND ' . 'ar_activity.post_user' . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
                 }
             }
         }

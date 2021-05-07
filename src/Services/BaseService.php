@@ -50,6 +50,26 @@ class BaseService
     }
 
     /**
+     * Get the name of our base database table
+     *
+     * @return mixed
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    /**
+     * Get the fields/column-names on the database table
+     *
+     * @return array
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    /**
      * queryFields
      * Build SQL Query for Selecting Fields
      *
@@ -283,6 +303,7 @@ class BaseService
      */
     public static function getUuidById($id, $table, $field)
     {
+        $table = escape_table_name($table);
         $sql = "SELECT uuid from $table WHERE $field = ?";
         $result = sqlQuery($sql, array($id));
         return $result['uuid'] ?? false;

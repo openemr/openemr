@@ -56,7 +56,7 @@ function era_callback(&$out)
 }
 //===============================================================================
   // Handle X12 835 file upload.
-if ($_FILES['form_erafile']['size']) {
+if (!empty($_FILES['form_erafile']['size'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -121,10 +121,10 @@ if ($_FILES['form_erafile']['size']) {
        alert(after_value);
       }
         <?php
-        if ($_FILES['form_erafile']['size']) {
+        if (!empty($_FILES['form_erafile']['size'])) {
             ?>
             var f = document.forms[0];
-            var debug = <?php echo js_escape($_REQUEST['form_without'] * 1); ?> ;
+            var debug = <?php echo js_escape(($_REQUEST['form_without'] ?? null) * 1); ?> ;
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;

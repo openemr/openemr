@@ -3,7 +3,7 @@
 <head>
     <title>{xlt t='Practice Settings'}</title>
 
-    {headerTemplate assets='common'}
+    {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
 
     <script>
         {literal}
@@ -54,4 +54,13 @@
       </main>
   </div>
 </body>
+<script>
+    {literal}
+    $(document).ready(function(){
+        $('#pharmacies').dataTable({
+
+        });
+    });
+    {/literal}
+</script>
 </html>

@@ -46,7 +46,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 //
 
-$ignoreAuth = 1;
+$ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");

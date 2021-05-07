@@ -228,7 +228,8 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
         $first_flag = true;
         foreach ($patientData as $patient) {
             // collect reminders
-            $tempCollectReminders[] = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient['pid']);
+            $tempCollectReminders = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient['pid']);
+
             // build the $patient_id_complete variable
             if ($first_flag) {
                 $patient_id_complete .= $patient['pid'];
@@ -237,7 +238,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
                 $patient_id_complete .= "," . $patient['pid'];
             }
         }
-        $collectedReminders = array_merge([], $collectedReminders, $tempCollectReminders);
+        $collectedReminders = array_merge($collectedReminders, $tempCollectReminders);
     }
 
     $logging['total_active_actions'] = count($collectedReminders);
@@ -251,6 +252,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
     $logging['number_new_reminders'] = 0;
     $logging['number_updated_reminders'] = 0;
     $logging['number_unchanged_reminders'] = 0;
+
     foreach ($collectedReminders as $reminder) {
         // See if a reminder already exist
         $sql = "SELECT `id`, `pid`, `due_status`, `category`, `item` FROM `patient_reminders` WHERE " .

@@ -73,7 +73,7 @@ class FhirOrganizationRestController
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirOrganizationService->getOne($fhirId, true);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
@@ -89,7 +89,7 @@ class FhirOrganizationRestController
         }
 
         $processingResult = $this->fhirOrganizationService->insert($fhirJson);
-        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
     /**
@@ -106,6 +106,6 @@ class FhirOrganizationRestController
         }
 
         $processingResult = $this->fhirOrganizationService->update($fhirId, $fhirJson);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 }

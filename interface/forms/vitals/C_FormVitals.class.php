@@ -106,7 +106,7 @@ class C_FormVitals extends Controller
         }
 
         $this->assign("vitals", $vitals);
-        $this->assign("results", $results);
+        $this->assign("results", ($results ?? null));
 
         $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");

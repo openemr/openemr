@@ -30,9 +30,9 @@
     <div>
         <div data-bind="text:title" class = "feesheet-title"></div>
         <div data-bind="foreach:codes">
-            <div class='code-choice'>
-                <input type="checkbox" data-bind="checked: selected"/>
-                <span data-bind="text:description,click: toggle_code"></span>
+            <div class='code-choice' data-bind="event: {mouseup: toggle_code}">
+                <input type="checkbox" data-bind="checked: selected, click: toggle_code"/>
+                <span data-bind="text:description"></span>
             </div>
         </div>
         <div style="clear: both; padding: 15px 0 0 10px;">

@@ -74,7 +74,7 @@ class C_Document extends Controller
         if (file_exists($templatedir)) {
               $dh = opendir($templatedir);
         }
-        if ($dh) {
+        if (!empty($dh)) {
               $templateslist = array();
             while (false !== ($sfname = readdir($dh))) {
                 if (substr($sfname, 0, 1) == '.') {
@@ -866,6 +866,8 @@ class C_Document extends Controller
             return;
         }
 
+        $messages = '';
+
         $new_category_id = $_POST['new_category_id'];
         $new_patient_id = $_POST['new_patient_id'];
 
@@ -975,7 +977,7 @@ class C_Document extends Controller
         } elseif ($current_hash != $d->get_hash()) {
             $messages .= xl('Hash does not match. Data integrity has been compromised.');
         } else {
-            $messages = xl('Document passed integrity check. | ') . $messages;
+            $messages = xl('Document passed integrity check.') . ' | ' . $messages;
         }
         $this->_state = false;
         $this->assign("messages", $messages);
@@ -1012,7 +1014,7 @@ class C_Document extends Controller
             }
 
             if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
-                $docdate = "'$docdate'";
+                $docdate = "$docdate";
             } else {
                 $docdate = "NULL";
             }
@@ -1061,7 +1063,7 @@ class C_Document extends Controller
         $this->assign('place_hld', $place_hld);
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
-        $this->assign('demo_pid', $_SESSION['pid']);
+        $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
 
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
@@ -1108,7 +1110,7 @@ class C_Document extends Controller
             // If there are documents in this document category, then add their
             // attributes to the current node.
             $icon = "file3.png";
-            if (is_array($categories[$id])) {
+            if (!empty($categories[$id]) && is_array($categories[$id])) {
                 foreach ($categories[$id] as $doc) {
                     $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
           // If user has no access then there will be no link.

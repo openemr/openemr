@@ -1568,7 +1568,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
                     // get the numeric ID of the first provider in the array
                     $pc_username = $_SESSION['pc_username'];
                     $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
-                    $defaultProvider = $firstProvider['id'];
+                    $defaultProvider = $firstProvider['id'] ?? '';
                 }
             }
           // if we clicked on a provider's schedule to add the event, use THAT.

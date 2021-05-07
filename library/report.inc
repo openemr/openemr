@@ -277,7 +277,7 @@ function printPatientBilling($pid)
     while ($result = sqlFetchArray($res)) {
         echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";
-        echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : text($result['code']);
+        echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : (text($result['code']) . ":" . text($result['modifier']));
         echo " - " . wordwrap(text($result['code_text']), 70, "\n", true) . "</span>";
         echo "<br />\n";
     }
@@ -401,13 +401,16 @@ function getRecEmployerData($pid)
     //$return["lname"][0..n]["value"]
     $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid));
 
+    $retar = [];
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
             if ($key == "pid" || $key == "date" || $key == "id") {
                 continue;
             } else {
                 $curdate = $result["date"];
-                if (($retar[$key][$arcount[$key]]["value"] != $val)) {
+
+                $arcount[$key] = $arcount[$key] ?? null;
+                if (empty($retar[$key][$arcount[$key]]["value"]) || ($retar[$key][$arcount[$key]]["value"] != $val)) {
                     $arcount[$key]++;
                     $retar[$key][$arcount[$key]]["value"] = $val;
                     $retar[$key][$arcount[$key]]["date"] = $curdate;

@@ -75,21 +75,6 @@ $from_date = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_fr
 $to_date = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
 
 //
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
-//
-if (empty($form_code)) {
-    $query_codes = '';
-} else {
-    $query_codes = 'c.id in (';
-    foreach ($form_code as $code) {
-        $query_codes .= add_escape_custom($code) . ",";
-    }
-
-      $query_codes = substr($query_codes, 0, -1);
-      $query_codes .= ') and ';
-}
-
-//
 function tr($a)
 {
     return (str_replace(' ', '^', $a));
@@ -143,6 +128,19 @@ if (!empty($to_date)) {
 
 if (!empty($from_date) || !empty($to_date)) {
     $query .= " and " ;
+}
+
+$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
+if (empty($form_code)) {
+    $query_codes = '';
+} else {
+    $query_codes = 'c.id in (';
+    foreach ($form_code as $code) {
+        $query_codes .= '?,';
+        array_push($sqlBindArray, $code);
+    }
+    $query_codes = substr($query_codes, 0, -1);
+    $query_codes .= ') and ';
 }
 
   $query .= "l.pid=p.pid and " .

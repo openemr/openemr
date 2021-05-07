@@ -225,14 +225,12 @@
     function OpenEOBEntry() {//Used before allocating the recieved amount.
         if (FormValidations())//FormValidations contains the form checks
         {
-            if (confirm("<?php echo htmlspecialchars(xl('Would you like to Allocate?'), ENT_QUOTES) ?>")) {
-                top.restoreSession();
-                document.getElementById('mode').value = 'distribute';
-                document.forms[0].submit();
-            } else
-                return false;
-        } else
+            top.restoreSession();
+            document.getElementById('mode').value = 'distribute';
+            document.forms[0].submit();
+        } else {
             return false;
+        }
     }
 
     function ScreenAdjustment(PassedObject, CountIndex) {

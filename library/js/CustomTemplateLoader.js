@@ -4,13 +4,13 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Target dom of active page
 window.onload = function (event) {
-    const isAny = document.querySelector("textarea");
+    const isAny = document.querySelectorAll("textarea, input[type='text']");
     if (isAny === null || isAny === 'undefined') {
         // no reason to load
         console.log("Templates Api Support not required for: ['" + location + "']");

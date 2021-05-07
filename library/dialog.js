@@ -105,7 +105,9 @@ function cascwin(url, winname, width, height, options) {
         newx = 0;
         newy = 0;
     }
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
 
     // MS IE version detection taken from
     // http://msdn2.microsoft.com/en-us/library/ms537509.aspx
@@ -290,7 +292,9 @@ if (typeof alertMsg !== "function") {
                 setting: value
             },
             beforeSend: function () {
-                top.restoreSession();
+                if (typeof top.restoreSession === 'function') {
+                    top.restoreSession();
+                }
             },
             error: function (jqxhr, status, errorThrown) {
                 console.log(errorThrown);
@@ -363,7 +367,10 @@ if (typeof dlgclose !== "function") {
 * */
 function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
-    top.restoreSession();
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
     // A matter of Legacy
     if (forceNewWindow) {
         return dlgOpenWindow(url, winname, width, height);
@@ -426,6 +433,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         sizeHeight: 'auto', // 'full' will use as much height as allowed
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
+        allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
         resolvePromiseOn: '' // this may be useful values are init, shown, show, confirm, alert and closed which coincide with dialog events.
     };
@@ -448,6 +456,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (url) {
         if (url[0] === "/") {
             fullURL = url
+        } else if (opts.allowExternal === true) {
+            var checkUrl = new URL(url);
+            // we only allow http & https protocols to be launched
+            if (checkUrl.protocol === "http:" || checkUrl.protocol == "https:") {
+                fullURL = url;
+            }
         } else {
             fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
         }
@@ -489,7 +503,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
-    var vpht = where.innerHeight;
+    let vpht = where.innerHeight;
+    if (height <= 300) {
+        height = 300;
+    }
     mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
@@ -497,7 +514,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     var waitHtml =
         '<div class="loadProgress text-center">' +
-        '<span class="fa fa-circle-o-notch fa-spin fa-3x text-primary"></span>' +
+        '<span class="fa fa-circle-notch fa-spin fa-3x text-primary"></span>' +
         '</div>';
 
     var headerhtml =
@@ -785,15 +802,20 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // sizing for modals with iframes
     function SizeModaliFrame(e, minSize) {
-        let viewPortHt;
-        let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
-        jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
-        viewPortHt = where.window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
-        frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
+        let viewPortHt = where.window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        let frameContentHt = 0;
+        let idoc = null;
+        try {
+            idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
+            jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
+            frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
+        } catch(err){
+            frameContentHt = minSize + 40;
+        }
+        frameContentHt = frameContentHt <= minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;
         size = (frameContentHt / viewPortHt * 100).toFixed(1);
-        size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
+        size = size + 'vh';
         jQuery(e.currentTarget).parents('div.modal-content').css({'height': size});
 
         return size;

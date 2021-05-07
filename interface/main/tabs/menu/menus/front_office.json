@@ -235,7 +235,7 @@
         "global_req": "!ippf_specific"
       },
       {
-        "label": "Appts",
+        "label": "Appointments",
         "menu_id": "Popup:Appts",
         "url": "/interface/reports/appointments_report.php?patient=",
         "target": "pop",

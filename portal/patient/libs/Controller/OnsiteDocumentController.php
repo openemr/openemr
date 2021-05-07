@@ -11,7 +11,7 @@
  */
 
 /** import supporting libraries */
-require_once("AppBaseController.php");
+require_once("AppBasePortalController.php");
 require_once("Model/OnsiteDocument.php");
 
 /**
@@ -23,7 +23,7 @@ require_once("Model/OnsiteDocument.php");
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteDocumentController extends AppBaseController
+class OnsiteDocumentController extends AppBasePortalController
 {
 
     /**

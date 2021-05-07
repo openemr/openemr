@@ -457,22 +457,24 @@ if ($_REQUEST["mode"] == "new") {
     }
 
     //change PCP/referring doc
-    if ($_REQUEST['action'] == 'docs') {
-        $query = "update patient_data set ref_providerID=?,referrerID=? where pid =?";
-        sqlQuery($query, array($_REQUEST['pcp'], $_REQUEST['rDOC'], $pid));
+    if ($_POST['action'] == 'docs') {
+        $query = "update patient_data set ref_providerID=?,providerID=? where pid =?";
+        sqlQuery($query, array($_POST['rDOC'], $_POST['pcp'], $pid));
 
-        if ($_REQUEST['pcp']) {
+        if ($_POST['pcp']) {
             //return PCP's data to end user to update their form
             $query = "SELECT * FROM users WHERE id =?";
-            $DOC1 = sqlQuery($query, array($_REQUEST['pcp']));
+            $DOC1 = sqlQuery($query, array($_POST['pcp']));
             $DOCS['pcp']['name'] = $DOC1['fname'] . " " . $DOC1['lname'];
             if ($DOC1['suffix']) {
                 $DOCS['pcp']['name'] .= ", " . $DOC1['suffix'];
             }
-            $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
-            $DOCS['pcp']['fax'] = $DOC1['fax'];
-            $DOCS['pcp']['phone'] = $DOC1['phonew1'];
-
+            $DOCS['pcp']['address'] =  $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
+            if (!empty($DOC1['organization'])) {
+                $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOCS['pcp']['address'];
+            }
+            $DOCS['pcp']['fax']     = $DOC1['fax'];
+            $DOCS['pcp']['phone']   = $DOC1['phonew1'];
             // does the fax already exist?
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_PCP = sqlQuery($query, array($_REQUEST['pcp'], $pid, $encounter));
@@ -481,16 +483,19 @@ if ($_REQUEST["mode"] == "new") {
                                             <span id='status_Fax_pcp'>
                                                 <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_PCP['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_PCP['COMPLETED_DATE'] . ".'>
-                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                    <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
-                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
+                                                <i class='fas fa-redo fa-fw'
+                                                   title='" . xla("Click to Re-Send this fax") . "'
+                                                   onclick=\"top.restoreSession(); create_task('" . attr($_REQUEST['pcp']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
-                $DOCS['pcp']['fax_info'] = '
-                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['pcp']) . '\',\'Fax\',\'pcp\'); return false;">
-                    ' . text($DOC1['fax']) . '&nbsp;&nbsp;
-                    <span id="status_Fax_pcp"><i class="fa fa-fax fa-fw"></i></span>
-                </a>';
+                $DOCS['pcp']['fax_info'] = ' &nbsp;&nbsp;
+                    <a href="JavaScript:void(0);"
+                       title="' . xla('Send a report to this provider') . '"
+                       onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['pcp']) . '\',\'Fax\',\'pcp\'); return false;">
+                       <i class="fa fa-fax fa-fw"></i>
+                    </a>';
             }
         }
 
@@ -513,20 +518,23 @@ if ($_REQUEST["mode"] == "new") {
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_REF = sqlQuery($query, array($_REQUEST['rDOC'], $pid, $encounter));
             if ($FAX_REF['ID'] > '') { //it is here already, make them print and manually fax it.  Show icon
-                $DOCS['ref']['fax_info'] = text($DOC2['fax']) . "&nbsp;&nbsp;
+                $DOCS['ref']['fax_info'] = "&nbsp;&nbsp;
                                             <span id='status_Fax_ref'>
                                                 <a href='" . $webroot . "/controller.php?document&view&patient_id=" . $pid . "&doc_id=" . $FAX_REF['DOC_ID'] . "'
                                                     target='_blank' title='" . xla('View the Summary Report sent via Fax Server on') . " " . $FAX_REF['COMPLETED_DATE'] . ".'>
-                                                    <i class='fa fa-file-pdf-o fa-fw'></i>
+                                                    <i class='far fa-file-pdf fa-fw'></i>
                                                 </a>
-                                                <i class='fa fa-repeat fa-fw' onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
+                                                <i class='fas fa-redo fa-fw'
+                                                    title='" . xla("Click to Re-Send this fax") . "'
+                                                   onclick=\"top . restoreSession(); create_task('" . attr($_REQUEST['rDOC']) . "','Fax-resend','ref'); return false;\"></i>
                                             </span>";
             } else {
-                $DOCS['ref']['fax_info'] = '
-                <a href="#" onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['rDOC']) . '\',\'Fax\',\'ref\'); return false;">
-                    ' . text($DOC2['fax']) . '&nbsp;&nbsp;
-                    <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
-                </a>';
+                $DOCS['ref']['fax_info'] = '&nbsp;&nbsp;
+                    <a href="JavaScript:void(0);"
+                       title="' . xla('Send a report to this provider') . '"
+                       onclick="top.restoreSession(); create_task(\'' . attr($_REQUEST['rDOC']) . '\',\'Fax\',\'ref\'); return false;">
+                        <span id="status_Fax_ref"><i class="fas fa-fax fa-fw"></i></span>
+                    </a>';
             }
         }
 
@@ -1191,35 +1199,43 @@ if ($_REQUEST['canvas']) {
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
     $filename = $base_name . ".jpg";
 
+    // we receive a canvas: adding or replacing this image
+    // Does it exist already? If so delete it. Yep.
+    //      We should not need to keep each progressive stroke on a canvas, just the last one...
+    //      We are attaching it ot this encounter so when the encounter is locked
+    //      this file should also be locked.  Right?
+    // Then add this.
+
+    $sql = "SELECT * from documents where documents.name like ?";
+    $ans1 = sqlQuery($sql, array('%' . $base_name . '%'));
+    if ($ans1['id']) {  //it is new, add it
+        $file = substr($ans1['url'], 7);
+        foreach (glob($file) as $file_to_delete) {
+            unlink($file_to_delete);
+        }
+        $query = "select id from categories where name like 'Drawings%'";
+        $result = sqlStatement($query);
+        $ID = sqlFetchArray($result);
+        $category_id = $ID['id'];//we need to know where to store this new one.
+
+        $sql = "DELETE from categories_to_documents where document_id = ?";
+        sqlQuery($sql, [$ans1['id']]);
+        $sql = "DELETE from documents where id = ?";
+        sqlQuery($sql, [$ans1['id']]);
+    }
+
     $type = "image/jpeg"; // all our canvases are this type
     $data = $_POST["imgBase64"];
     $data = substr($data, strpos($data, ",") + 1);
     $data = base64_decode($data);
     $size = strlen($data);
-    $query = "select id from categories where name = 'Drawings'";
-    $result = sqlStatement($query);
-    $ID = sqlFetchArray($result);
-    $category_id = $ID['id'];
 
-    // We want to overwrite so only one image is stored per zone per form/encounter
-    // I do not believe this function exists in the current library, ie "UpdateDocument" function, so...
-    //  we need to delete the previous file from the documents and categories to documents tables and the actual file
-    //  There must be a delete_file function in documents class?
-    // cannot find it.
-    // this will work for harddisk people, not sure about couchDB people:
-    $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid . "/";
-    foreach (glob($filepath . '/' . $filename) as $file) {
-        unlink($file);
-    }
-
-    $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-    sqlQuery($sql, ['%' . $filename]);
-    $sql = "DELETE from documents where documents.url like ?";
-    sqlQuery($sql, ['%' . $filename]);
     $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter, $doc_id));
+
+    echo "doc stored.";
     exit;
 }
 

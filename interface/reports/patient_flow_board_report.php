@@ -467,7 +467,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $j = $j + 1;
         ?>
 
-    <tr bgcolor='<?php echo attr($bgcolor); ?>'>
+    <tr bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
         <?php
         if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : $docname ?>

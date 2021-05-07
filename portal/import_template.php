@@ -44,47 +44,51 @@ if ($_POST['mode'] == 'get') {
 
 // so it is an import
 if (!isset($_POST['up_dir'])) {
-    define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/');
+    $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
 } else {
     if ($_POST['up_dir'] > 0) {
-        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . convert_safe_file_dir_name($_POST['up_dir']) . '/');
+        $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' .
+            convert_safe_file_dir_name($_POST['up_dir']) . "/";
     } else {
-        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/');
+        $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
     }
+}
+
+$UPLOAD_DIR .= !empty($_POST['doc_category']) ? (convert_safe_file_dir_name($_POST['doc_category']) . "/") : "";
+if (!is_dir($UPLOAD_DIR) && !mkdir($UPLOAD_DIR, 0755, true) && !is_dir($UPLOAD_DIR)) {
+    die("<p>" . xlt("Unable to import file: Use back button!") . "</p>");
 }
 
 if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];
-
     if ($tplFile["error"] !== UPLOAD_ERR_OK) {
         header("refresh:2;url= import_template_ui.php");
         echo "<p>" . xlt("An error occurred: Missing file to upload: Use back button!") . "</p>";
         exit;
     }
-
     // ensure a safe filename
     $name = preg_replace("/[^A-Z0-9._-]/i", "_", $tplFile["name"]);
-    if (preg_match("/(.*)\.(php|php3|php4|php5|php7)$/i", $name) !== 0) {
+    if (preg_match("/(.*)\.(php|php3|php4|php5|php7|php8)$/i", $name) !== 0) {
         die(xlt('Executables not allowed'));
     }
     $parts = pathinfo($name);
     $name = $parts["filename"] . '.tpl';
     // don't overwrite an existing file
-    while (file_exists(UPLOAD_DIR . $name)) {
+    while (file_exists($UPLOAD_DIR . $name)) {
         $i = rand(0, 128);
         $newname = $parts["filename"] . "-" . $i . "." . $parts["extension"] . ".replaced";
-        rename(UPLOAD_DIR . $name, UPLOAD_DIR . $newname);
+        rename($UPLOAD_DIR . $name, $UPLOAD_DIR . $newname);
     }
 
     // preserve file from temporary directory
-    $success = move_uploaded_file($tplFile["tmp_name"], UPLOAD_DIR . $name);
+    $success = move_uploaded_file($tplFile["tmp_name"], $UPLOAD_DIR . $name);
     if (!$success) {
         echo "<p>" . xlt("Unable to save file: Use back button!") . "</p>";
         exit;
     }
 
     // set proper permissions on the new file
-    chmod(UPLOAD_DIR . $name, 0644);
+    chmod($UPLOAD_DIR . $name, 0644);
     header("location: " . $_SERVER['HTTP_REFERER']);
     die();
 }

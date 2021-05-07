@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -23,6 +25,10 @@ class FhirPatientServiceMappingTest extends TestCase
     private $fixtureManager;
     private $patientFixture;
     private $fhirPatientFixture;
+
+    /**
+     * @var FhirPatientService
+     */
     private $fhirPatientService;
 
     protected function setUp(): void
@@ -38,7 +44,7 @@ class FhirPatientServiceMappingTest extends TestCase
      * @param $fhirPatientResource A FHIR Patient Resource
      * @param $sourcePatientRecord The OpenEMR Patient Record
      */
-    private function assertFhirPatientResource($fhirPatientResource, $sourcePatientRecord)
+    private function assertFhirPatientResource(FHIRPatient $fhirPatientResource, $sourcePatientRecord)
     {
         $this->assertEquals($sourcePatientRecord['uuid'], $fhirPatientResource->getId());
         $this->assertEquals(1, $fhirPatientResource->getMeta()['versionId']);
@@ -87,7 +93,7 @@ class FhirPatientServiceMappingTest extends TestCase
      * @param $expectedSystem The telecom/contact point system to match
      * @param $expectedUse The telecom/contact point use to match
      * @param $expectedValue The expected telecom/contact point value
-     * @param $actualTelecoms FHIR Patient Resource telecom entries
+     * @param $actualTelecoms FHIRContactPoint[] FHIR Patient Resource telecom entries
      */
     private function assertFhirPatientTelecom($expectedSystem, $expectedUse, $expectedValue, $actualTelecoms)
     {
@@ -95,9 +101,9 @@ class FhirPatientServiceMappingTest extends TestCase
 
         foreach ($actualTelecoms as $index => $actualTelecom) {
             if (
-                $expectedSystem == $actualTelecom['system'] &&
-                $expectedUse == $actualTelecom['use'] &&
-                $expectedValue == $actualTelecom['value']
+                $expectedSystem == $actualTelecom->getSystem()->getValue() &&
+                $expectedUse == $actualTelecom->getUse()->getValue() &&
+                $expectedValue == $actualTelecom->getValue()->getValue()
             ) {
                 $matchFound = true;
                 break;
@@ -112,17 +118,20 @@ class FhirPatientServiceMappingTest extends TestCase
      *
      * @param $expectedCode The identifier code type code
      * @param $expectedValue The expected identifer value (value set)
-     * @param $actualIdentifiers FHIR Patient identifier entries
+     * @param $actualIdentifiers FHIRIdentifier[] FHIR Patient identifier entries
      */
     private function assertFhirPatientIdentifier($expectedCode, $expectedValue, $actualIdentifiers)
     {
         $matchFound = false;
         foreach ($actualIdentifiers as $index => $actualIdentifier) {
-            if (!isset($actualIdentifier['type']['coding'][0])) {
+            $type = $actualIdentifier->getType();
+            if (isset($type) && empty($type->getCoding())) {
                 continue;
             }
-            $codeTypeCode = $actualIdentifier['type']['coding'][0]['code'];
-            $value = $actualIdentifier['value'];
+            $coding = $type->getCoding();
+
+            $codeTypeCode = $coding[0]->getCode();
+            $value = $actualIdentifier->getValue()->getValue();
 
             if (
                 $expectedCode == $codeTypeCode &&

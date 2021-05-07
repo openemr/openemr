@@ -58,7 +58,7 @@ if (!empty($_POST['languageChoice'])) {
 }
 
 // Settings that will override globals.php
-$ignoreAuth = 1;
+$ignoreAuth_onsite_portal = true;
 //
 
 // Authentication

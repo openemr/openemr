@@ -30,7 +30,7 @@ if ($isPortal) {
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
         $req_pid = $_SESSION['pid'];
-        $ignoreAuth = true;
+        $ignoreAuth_onsite_portal = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         echo js_escape("error");

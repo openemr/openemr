@@ -225,8 +225,7 @@ if (!$allow_multisite_setup && $site_id != 'default') {
     die("To turn on support for multisite setup, need to edit this script and change \$allow_multisite_setup to true. After you are done setting up the cloning, ensure you change \$allow_multisite_setup back to false or remove this script altogether");
 }
 
-//If having problems with file and directory permission
-// checking, then can be manually disabled here.
+// Disable file and directory permissions check by setting to false
 $checkPermissions = true;
 
 global $OE_SITE_DIR; // The Installer sets this
@@ -1210,16 +1209,6 @@ STP2TBLBOT;
                                 flush();
                             }
 
-                            echo "Adding Initial User...\n";
-                            flush();
-                            if (! $installer->add_initial_user()) {
-                                echo "$error.\n";
-                                echo $installer->error_message;
-                                break;
-                            }
-                            echo "$ok<br />\n";
-                            flush();
-
                             echo "Setting up Access Controls...\n";
                             require("$OE_SITE_DIR/sqlconf.php");
                             if (! $installer->install_gacl()) {
@@ -1230,6 +1219,27 @@ STP2TBLBOT;
                                 echo "$ok<br />\n";
                                 flush();
                             }
+
+
+                            echo "Adding Initial User...\n";
+                            flush();
+                            if (! $installer->add_initial_user()) {
+                                echo "$error.\n";
+                                echo $installer->error_message;
+                                break;
+                            }
+                            echo "$ok<br />\n";
+                            flush();
+
+                            echo "Adding Additional Users...\n";
+                            flush();
+                            if (! $installer->install_additional_users()) {
+                                echo "$error.\n";
+                                echo $installer->error_message;
+                                break;
+                            }
+                            echo "$ok<br />\n";
+                            flush();
                         }
 
                         // If user has selected to set MFA App Based 2FA, display QR code to scan
@@ -1271,7 +1281,7 @@ TOTP;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br />";
-                            echo "<p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>";
+                            echo "<p><b>Granted user <span class='text-primary'>$installer->iuser</span> administrator access control (password is <span class='text-primary'>$installer->iuserpass</span>).</b></p>";
                             echo "<p>The next step will configure php.</p>";
                             echo "<p class='mark'>Click <strong>$btn_text</strong> to continue.</p>";
                             $next_state = 4;
@@ -1629,8 +1639,19 @@ CHKDIR;
 FRM;
                             echo $form . "\r\n";
                         } else {
-                            echo "<br />Click to continue installation.<br />\n";
-                        }
+                            $form = <<<FRM
+                                        <br />
+                                        <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id .</p>
+                                        <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
+                                        <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
+                                        <br />
+                                        <form method='post'>
+                                            <input name='state' type='hidden' value='1'>
+                                            <input name='site' type='hidden' value='$site_id'>
+                                            <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
+                                        </form>
+FRM;
+                            echo $form . "\r\n";                        }
                 }
             }
                         $bot = <<<BOT

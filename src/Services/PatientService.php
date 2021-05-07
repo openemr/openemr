@@ -17,11 +17,17 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
+use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
+use OpenEMR\Events\Patient\PatientCreatedEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
+    const TABLE_NAME = 'patient_data';
+
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -36,7 +42,7 @@ class PatientService extends BaseService
      */
     public function __construct()
     {
-        parent::__construct('patient_data');
+        parent::__construct(self::TABLE_NAME);
         $this->patientValidator = new PatientValidator();
     }
 
@@ -94,6 +100,56 @@ class PatientService extends BaseService
     }
 
     /**
+     * Insert a patient record into the database
+     *
+     * returns the newly-created patient data array, or false in the case of
+     * an error with the sql insert
+     *
+     * @param $data
+     * @return false|int
+     */
+    public function databaseInsert($data)
+    {
+        $freshPid = $this->getFreshPid();
+        $data['pid'] = $freshPid;
+        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
+
+        // The 'date' is the updated-date, and 'regdate' is the created-date
+        // so set both to the current datetime.
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
+        if (empty($data['pubpid'])) {
+            $data['pubpid'] = $freshPid;
+        }
+
+        // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
+        $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientCreatedEvent::EVENT_HANDLE, $beforePatientCreatedEvent, 10);
+        $data = $beforePatientCreatedEvent->getPatientData();
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
+
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        // Tell subscribers that a new patient has been created
+        $patientCreatedEvent = new PatientCreatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientCreatedEvent::EVENT_HANDLE, $patientCreatedEvent, 10);
+
+        // If we have a result-set from our insert, return the PID,
+        // otherwise return false
+        if ($results) {
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Inserts a new patient record.
      *
      * @param $data The patient fields (array) to insert.
@@ -108,24 +164,11 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $freshPid = $this->getFreshPid();
-        $data['pid'] = $freshPid;
-        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
-        $data['date'] = date("Y-m-d H:i:s");
-        $data['regdate'] = date("Y-m-d H:i:s");
+        $data = $this->databaseInsert($data);
 
-        $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO patient_data SET ";
-        $sql .= $query['set'];
-
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
-
-        if ($results) {
+        if (false !== $data['pid']) {
             $processingResult->addData(array(
-                'pid' => $freshPid,
+                'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
         } else {
@@ -133,6 +176,49 @@ class PatientService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Do a database update using the pid from the input
+     * array
+     *
+     * Return the data that was updated into the database,
+     * or false if there was an error with the update
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function databaseUpdate($data)
+    {
+        // Get the data before update to send to the event listener
+        $dataBeforeUpdate = $this->findByPid($data['pid']);
+
+        // The `date` column is treated as an updated_date
+        $data['date'] = date("Y-m-d H:i:s");
+        $table = PatientService::TABLE_NAME;
+
+        // Fire the "before patient updated" event so listeners can do extra processing before data is updated
+        $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $data = $beforePatientUpdatedEvent->getPatientData();
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE $table SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `pid` = ?";
+
+        array_push($query['bind'], $data['pid']);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if ($sqlResult) {
+            // Tell subscribers that a new patient has been updated
+            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
+
+            return $data;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -150,7 +236,17 @@ class PatientService extends BaseService
         if (!$processingResult->isValid()) {
             return $processingResult;
         }
+
+        // Get the data before update to send to the event listener
+        $dataBeforeUpdate = $this->getOne($puuidString);
+
+        // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
+
+        // Fire the "before patient updated" event so listeners can do extra processing before data is updated
+        $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE patient_data SET ";
@@ -165,6 +261,11 @@ class PatientService extends BaseService
             $processingResult->addErrorMessage("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($puuidString);
+            // Tell subscribers that a new patient has been updated
+            // We have to do this here and in the databaseUpdate() because this lookup is
+            // by uuid where the databseUpdate updates by pid.
+            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
         }
         return $processingResult;
     }
@@ -176,10 +277,11 @@ class PatientService extends BaseService
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
         $sqlBindArray = array();
 
@@ -219,6 +321,10 @@ class PatientService extends BaseService
 
         if (!empty($search)) {
             $sql .= ' WHERE ';
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= '(';
+            }
             $whereClauses = array();
             $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
             foreach ($search as $fieldName => $fieldValue) {
@@ -234,7 +340,17 @@ class PatientService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
+            if (!empty($puuidBind)) {
+                // code to support patient binding
+                $sql .= ") AND `uuid` = ?";
+                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+            }
+        } elseif (!empty($puuidBind)) {
+            // code to support patient binding
+            $sql .= " WHERE `uuid` = ?";
+            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
+
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -305,6 +421,23 @@ class PatientService extends BaseService
     }
 
     /**
+     * Given a pid, find the patient record
+     *
+     * @param $pid
+     */
+    public function findByPid($pid)
+    {
+        $table = PatientService::TABLE_NAME;
+        $patientRow = self::selectHelper("SELECT * FROM `$table`", [
+            'where' => 'WHERE pid = ?',
+            'limit' => 1,
+            'data' => [$pid]
+        ]);
+
+        return $patientRow;
+    }
+
+    /**
      * @return number
      */
     public function getPatientPictureDocumentId($pid)
@@ -324,5 +457,16 @@ class PatientService extends BaseService
         }
 
         return $result['id'];
+    }
+
+    /**
+     * Fetch UUID for the patient id
+     *
+     * @param string $id                - ID of Patient
+     * @return false if nothing found otherwise return UUID
+     */
+    public function getUuid($pid)
+    {
+        return self::getUuidById($pid, self::TABLE_NAME, 'pid');
     }
 }

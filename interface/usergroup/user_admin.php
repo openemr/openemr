@@ -7,7 +7,11 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -425,6 +429,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
+<td><span class="text"><?php echo xlt('Google Email for Login'); ?>: </span></td><td><input type="text" name="google_signin_email" style="width:150px;" class="form-control" value="<?php echo attr($iter["google_signin_email"]); ?>"></td>
 </tr>
 
 <tr>
@@ -451,9 +456,8 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     ?>
   </td>
 
-
 </tr>
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<?php if (!empty($GLOBALS['inhouse_pharmacy'])) { ?>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
@@ -466,20 +470,75 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     );
     ?>
  </td>
+
+    <?php if (!empty($GLOBALS['inhouse_pharmacy'])) { ?>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
-    <?php
-    echo generate_select_list(
-        'irnpool',
-        'irnpool',
-        $iter['irnpool'],
-        xl('Invoice reference number pool, if used')
-    );
-    ?>
+        <?php
+        echo generate_select_list(
+            'irnpool',
+            'irnpool',
+            $iter['irnpool'],
+            xl('Invoice reference number pool, if used')
+        );
+        ?>
  </td>
+    <?php } else { ?>
+  <td class="text" colspan="2">&nbsp;</td>
+    <?php } ?>
+
 </tr>
 <?php } ?>
 
+<!-- facility and warehouse restrictions, optional -->
+<?php if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) { ?>
+ <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
+  <td class="text"><?php echo !empty($GLOBALS['gbl_fac_warehouse_restrictions']) ?
+    xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
+  <td colspan="3">
+   <select name="schedule_facility[]" multiple style="width:490px;">
+    <?php
+    $userFacilities = getUserFacilities($_GET['id'], 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
+    $ufid = array();
+    foreach ($userFacilities as $uf) {
+        $ufid[] = $uf['id'];
+    }
+    $fres = sqlStatement("select * from facility order by name");
+    if ($fres) {
+        while ($frow = sqlFetchArray($fres)) {
+            // Get the warehouses that are linked to this user and facility.
+            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc
+            // Generate an option for just the facility with no warehouse restriction.
+            echo "    <option";
+            if (empty($whids) && in_array($frow['id'], $ufid)) {
+                echo ' selected';
+            }
+            echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
+            // Then generate an option for each of the facility's warehouses.
+            // Does not apply if the site does not use warehouse restrictions.
+            if (!empty($GLOBALS['gbl_fac_warehouse_restrictions'])) {
+                $lres = sqlStatement(
+                    "SELECT option_id, title FROM list_options WHERE " .
+                    "list_id = ? AND option_value = ? ORDER BY seq, title",
+                    array('warehouse', $frow['id'])
+                );
+                while ($lrow = sqlFetchArray($lres)) {
+                    echo "    <option";
+                    if (in_array($lrow['option_id'], $whids)) {
+                        echo ' selected';
+                    }
+                    echo " value='" . attr($frow['id']) . "/" . attr($lrow['option_id']) . "'>&nbsp;&nbsp;&nbsp;" .
+                        text(xl_list_label($lrow['title'])) . "</option>\n";
+                }
+            }
+        }
+    }
+    ?>
+   </select>
+  </td>
+ </tr>
+<?php } ?>
+ 
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">

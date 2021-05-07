@@ -17,11 +17,30 @@ require_once("language.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
+// Generates a Javascript section to activate the specified tab.
+function activate_lang_tab($linkid)
+{
+    $s = "<script>\n";
+    foreach (
+        array(
+        'language-link',
+        'definition-link',
+        'constant-link',
+        'manage-link',
+        'csv-link',
+        ) as $id
+    ) {
+        $s .= "\$('#$id')." . ($id == $linkid ? 'addClass' : 'removeClass') . "('active');\n";
+    }
+    $s .= "</script>\n";
+    return $s;
+}
+
 //START OUT OUR PAGE....
 ?>
 <html>
 <head>
-<?php Header::setupHeader(); ?>
+<?php Header::setupHeader(['knockout']); ?>
 </head>
 
 <body class="body_top">
@@ -36,8 +55,8 @@ use OpenEMR\Core\Header;
         <div class="container-fluid mb-3">
             <form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <input type='hidden' name='m' value='<?php echo attr($_GET['m']); ?>' />
-                <input type='hidden' name='edit' value='<?php echo attr($_GET['edit']); ?>' />
+                <input type='hidden' name='m' value='<?php echo attr($_GET['m'] ?? ''); ?>' />
+                <input type='hidden' name='edit' value='<?php echo attr($_GET['edit'] ?? ''); ?>' />
                 <!-- <span class="title"><?php echo xlt('Multi Language Tool'); ?></span> -->
                 <ui class="nav nav-pills">
                     <li class="nav-item" id="li-definition">
@@ -51,6 +70,9 @@ use OpenEMR\Core\Header;
                     </li>
                     <li class="nav-item" id="li-manage">
                         <a href="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="manage-link"><?php echo xlt('Manage Translations'); ?></a>
+                    </li>
+                    <li class="nav-item" id="li-csv">
+                        <a href="?m=csv&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="csv-link"><?php echo xlt('Load from CSV'); ?></a>
                     </li>
                 </ui>
             </form>
@@ -81,6 +103,12 @@ use OpenEMR\Core\Header;
                                     break;
                                 case 'manage':
                                     require_once('lang_manage.php');
+                                    break;
+                                case 'csv':
+                                    require_once('csv/load_csv_file.php');
+                                    break;
+                                case 'csvval':
+                                    require_once('csv/validate_csv.php');
                                     break;
                             endswitch;
                         } else {

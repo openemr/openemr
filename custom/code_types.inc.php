@@ -218,7 +218,7 @@ function fees_are_used()
 }
 
 /**
- * Checks is modifiers are applicable to any of the code types.
+ * Checks if modifiers are applicable to any of the code types.
  * (If a code type is not set to show in the fee sheet, then is ignored)
  *
  * @param  boolean $fee_sheet Will ignore code types that are not shown in the fee sheet
@@ -476,7 +476,7 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  */
 function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = array(), $limit = null, $mode = 'default', $return_query = false)
 {
-    global $code_types,$code_external_tables;
+    global $code_types, $code_external_tables;
 
   // Figure out the appropriate limit clause
     $limit_query = limit_query_string($limit, $start, $number, $return_only_one);
@@ -697,7 +697,8 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            // added $modifier for HCPCS and other internal codesets so can grab exact entry in codes table
+            list($codetype, $code, $modifier) = explode(':', $codestring);
             $table_id = $code_types[$codetype]['external'] ?? '';
             if (isset($code_external_tables[$table_id])) {
                 $table_info = $code_external_tables[$table_id];
@@ -742,6 +743,12 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 // Specify the code in the query.
                 $sql .= $table_name . "." . $code_col . "=? ";
                 array_push($sqlArray, $code);
+
+                // Add the modifier if necessary for CPT and HCPCS which differentiates code
+                if ($modifier) {
+                    $sql .= " AND modifier = ? ";
+                    array_push($sqlArray, $modifier);
+                }
 
                 // We need to include the filter clauses
                 // For SNOMED and SNOMED-CT this ensures that we get the Preferred Term or the Fully Specified Term as appropriate
@@ -934,4 +941,38 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
     }
 
     return $limit_query;
+}
+
+// Recursive function to look up the IPPF2 (or other type) code, if any,
+// for a given related code field.
+//
+function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0)
+{
+    global $code_types;
+    // echo "<!-- related_code = '$related_code' depth = '$depth' -->\n"; // debugging
+    if (++$depth > 4 || empty($related_code)) {
+        return false; // protects against relation loops
+    }
+    $relcodes = explode(';', $related_code);
+    foreach ($relcodes as $codestring) {
+        if ($codestring === '') {
+            continue;
+        }
+        list($codetype, $code) = explode(':', $codestring);
+        if ($codetype === $typewanted) {
+            // echo "<!-- returning '$code' -->\n"; // debugging
+            return $code;
+        }
+        $row = sqlQuery(
+            "SELECT related_code FROM codes WHERE " .
+            "code_type = ? AND code = ? AND active = 1 " .
+            "ORDER BY id LIMIT 1",
+            array($code_types[$codetype]['id'], $code)
+        );
+        $tmp = recursive_related_code($row['related_code'], $typewanted, $depth);
+        if ($tmp !== false) {
+            return $tmp;
+        }
+    }
+    return false;
 }

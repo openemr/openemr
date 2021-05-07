@@ -26,7 +26,7 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
         $data[$iter] = $row;
     }
 
-    if ($data) {
+    if (!empty($data)) {
         ?>
         <table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
             <tr>

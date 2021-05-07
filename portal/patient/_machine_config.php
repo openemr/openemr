@@ -24,7 +24,7 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
     $pid = $_SESSION['pid'];
-    $ignoreAuth = true;
+    $ignoreAuth_onsite_portal = true;
     GlobalConfig::$PORTAL = 1;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {

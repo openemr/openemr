@@ -31,40 +31,68 @@ class BillingReport
         $query_part2 = '';
         if (isset($_REQUEST['final_this_page_criteria'])) {
             foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-                $criteria_value = self::prepareSearchItem($criteria_value); // this escapes for sql
-                $SplitArray = array();
                 //---------------------------------------------------------
-                if (strpos($criteria_value, "billing.billed = '1'") !== false) {
-                    $billstring .= ' AND ' . $criteria_value;
-                } elseif (strpos($criteria_value, "billing.billed = '0'") !== false) {
+                if (strpos($criteria_value, "billing.billed|=|1") !== false) {
+                    $billstring .= ' AND ' . "billing.billed = '1'";
+                } elseif (strpos($criteria_value, "billing.billed|=|0") !== false) {
                     //3 is an error condition
-                    $billstring .= ' AND ' . "(billing.billed is null or billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
-                } elseif (strpos($criteria_value, "billing.billed = '7'") !== false) {
+                    $billstring .= ' AND ' . "(billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
+                } elseif (strpos($criteria_value, "billing.billed|=|7") !== false) {
                     $billstring .= ' AND ' . "billing.bill_process = '7'";
-                } elseif (strpos($criteria_value, "billing.id = 'null'") !== false) {
+                } elseif (strpos($criteria_value, "billing.id|=|null") !== false) {
                     $billstring .= ' AND ' . "billing.id is null";
-                } elseif (strpos($criteria_value, "billing.id = 'not null'") !== false) {
+                } elseif (strpos($criteria_value, "billing.id|=|not null") !== false) {
                     $billstring .= ' AND ' . "billing.id is not null";
-                } elseif (strpos($criteria_value, "patient_data.fname") !== false) {
-                    $SplitArray = explode(' like ', $criteria_value);
-                    $query_part .= " AND ($criteria_value or patient_data.lname like " . $SplitArray[1] . ")";
-                } elseif (strpos($criteria_value, "billing.authorized") !== false) {
-                    $auth = ' AND ' . $criteria_value;
-                } elseif (strpos($criteria_value, "form_encounter.pid") !== false) {//comes like '781,780'
-                    $SplitArray = explode(" = '", $criteria_value);//comes like 781,780'
-                    $SplitArray[1] = substr($SplitArray[1], 0, -1);//comes like 781,780
-                    $query_part .= ' AND form_encounter.pid in (' . $SplitArray[1] . ')';
-                    $query_part2 .= ' AND pid in (' . $SplitArray[1] . ')';
-                } elseif (strpos($criteria_value, "form_encounter.encounter") !== false) {//comes like '781,780'
-                    $SplitArray = explode(" = '", $criteria_value);//comes like 781,780'
-                    $SplitArray[1] = substr($SplitArray[1], 0, -1);//comes like 781,780
-                    $query_part .= ' AND form_encounter.encounter in (' . $SplitArray[1] . ')';
-                } elseif (strpos($criteria_value, "insurance_data.provider = '1'") !== false) {
+                } elseif (strpos($criteria_value, "patient_data.fname|like|") !== false) {
+                    $elements = explode('|', $criteria_value);
+                    $query_part .= " AND (patient_data.fname like '" . add_escape_custom($elements[2]) . "' or patient_data.lname like '" . add_escape_custom($elements[2]) . "')";
+                } elseif (strpos($criteria_value, "form_encounter.pid|=|") !== false) {//comes like '781,780'
+                    $elements = explode('|', $criteria_value);
+                    $patients = explode(',', $elements[2]);
+                    $sanitizedPatients = '';
+                    foreach ($patients as $patient) {
+                        $sanitizedPatients .= "'" . add_escape_custom($patient) . "',";
+                    }
+                    $sanitizedPatients = substr($sanitizedPatients, 0, -1);
+                    $query_part .= ' AND form_encounter.pid in (' . $sanitizedPatients . ')';
+                    $query_part2 .= ' AND pid in (' . $sanitizedPatients . ')';
+                } elseif (strpos($criteria_value, "form_encounter.encounter|=|") !== false) {//comes like '781,780'
+                    $elements = explode('|', $criteria_value);
+                    $encounters = explode(',', $elements[2]);
+                    $sanitizedEncounters = '';
+                    foreach ($encounters as $encounter) {
+                        $sanitizedEncounters .= "'" . add_escape_custom($encounter) . "',";
+                    }
+                    $sanitizedEncounters = substr($sanitizedEncounters, 0, -1);
+                    $query_part .= ' AND form_encounter.encounter in (' . $sanitizedEncounters . ')';
+                } elseif (strpos($criteria_value, "insurance_data.provider|=|1") !== false) {
                     $query_part .= ' AND ' . "insurance_data.provider > '0' and (insurance_data.date <= form_encounter.date OR insurance_data.date IS NULL)";
-                } elseif (strpos($criteria_value, "insurance_data.provider = '0'") !== false) {
+                } elseif (strpos($criteria_value, "insurance_data.provider|=|0") !== false) {
                     $query_part .= ' AND ' . "(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
+                } elseif (strpos($criteria_value, "form_encounter.date|between|") !== false) {
+                    $elements = explode('|', $criteria_value);
+                    $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
+                } elseif (strpos($criteria_value, "billing.date|between|") !== false) {
+                    $elements = explode('|', $criteria_value);
+                    $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
+                } elseif (strpos($criteria_value, "claims.process_time|between|") !== false) {
+                    $elements = explode('|', $criteria_value);
+                    $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                 } else {
-                    $query_part .= ' AND ' . $criteria_value;
+                    $elements = explode('|', $criteria_value);
+                    $criteriaItemsWhitelist = [
+                        'claims.target',
+                        'claims.payer_id',
+                        'billing.authorized',
+                        'form_encounter.last_level_billed',
+                        'billing.x12_partner_id',
+                        'billing.user'
+                    ];
+                    $criteriaComparisonWhitelist = [
+                        '=',
+                        'like'
+                    ];
+                    $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
                 }
             }
         }
@@ -211,25 +239,6 @@ class BillingReport
         return $sql;
     }
 
-    public static function prepareSearchItem($SearchItem)
-    {
-        $SplitArray = explode(' like ', $SearchItem);
-        if (isset($SplitArray[1])) {
-            $SplitArray[1] = substr($SplitArray[1], 0, -1);
-            $SplitArray[1] = substr($SplitArray[1], 1);
-            $SearchItem = $SplitArray[0] . ' like ' . "'" . add_escape_custom($SplitArray[1]) . "'";
-        } else {
-            $SplitArray = explode(' = ', $SearchItem);
-            if (isset($SplitArray[1])) {
-                $SplitArray[1] = substr($SplitArray[1], 0, -1);
-                $SplitArray[1] = substr($SplitArray[1], 1);
-                $SearchItem = $SplitArray[0] . ' = ' . "'" . add_escape_custom($SplitArray[1]) . "'";
-            }
-        }
-
-        return($SearchItem);
-    }
-
     //Parses the database value and prepares for display.
     public static function buildArrayForReport($Query)
     {
@@ -253,14 +262,14 @@ class BillingReport
             '<tr>' .
             '<td colspan="2">' .
             '<iframe id="frame_to_hide" class="position-absolute" style="display:none; width:240px; height:100px" frameborder="0" scrolling="no" marginwidth="0" src="" marginheight="0">hello</iframe>' .
-            '<input type="hidden" id="hidden_ajax_close_value" value="' . attr($_POST['type_code']) . '" />' .
+            '<input type="hidden" id="hidden_ajax_close_value" value="' . attr($_POST['type_code'] ?? '') . '" />' .
             '<input name="type_code" id="type_code" class="form-control"' .
             'title="' . xla("Type Id or Name.3 characters minimum (including spaces).") . '"' .
             'onfocus="hide_frame_to_hide();appendOptionTextCriteria(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
             '' . attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',' .
             'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,' .
             '\' = \',' .
-            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="' . attr($_POST['type_code']) . '"  autocomplete="off" /><br />' .
+            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="' . attr($_POST['type_code'] ?? '') . '"  autocomplete="off" /><br />' .
             '<div id="ajax_div_insurance_section">' .
             '<div id="ajax_div_insurance_error"></div>' .
             '<div id="ajax_div_insurance" style="display:none;"></div>' .
@@ -269,11 +278,11 @@ class BillingReport
             '</tr>' .
             '<tr height="5"><td colspan="2"></td></tr>' .
             '<tr>' .
-            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text" style="border:1px solid black; padding-left:5px; width:50px; height:17px;">' . attr($_POST['hidden_type_code']) . '</div><input type="hidden" name="description"  id="description" /></td>' .
+            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text" style="border:1px solid black; padding-left:5px; width:50px; height:17px;">' . text($_POST['hidden_type_code'] ?? '') . '</div><input type="hidden" name="description"  id="description" /></td>' .
             '<td><a href="#" onClick="CleanUpAjax(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
             attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',\' = \')"><img src="' . $web_root . '/interface/pic/Clear.gif" border="0" /></a></td>' .
             '</tr>' .
             '</table>' .
-            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="' . attr($_POST['hidden_type_code']) . '"/>';
+            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="' . attr($_POST['hidden_type_code'] ?? '') . '"/>';
     }
 }

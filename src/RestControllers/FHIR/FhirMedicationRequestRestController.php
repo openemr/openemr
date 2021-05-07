@@ -12,42 +12,44 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirMedicationService;
+use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirMedicationRequestRestController
 {
-    private $fhirMedicationService;
     private $fhirService;
+    private $fhirMedicationRequestService;
 
     public function __construct()
     {
-        $this->fhirMedicationService = new FhirMedicationService();
         $this->fhirService = new FhirResourcesService();
+        $this->fhirMedicationRequestService = new FhirMedicationRequestService();
     }
 
     /**
      * Queries for a single FHIR medication resource by FHIR id
      * @param $fhirId The FHIR medication resource id (uuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirMedicationService->getOne($fhirId);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        $processingResult = $this->fhirMedicationRequestService->getOne($fhirId, $puuidBind);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
      * Queries for FHIR medication resources using various search parameters.
      * Search parameters include:
      * - patient (puuid)
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirMedicationService->getAll($searchParams);
+        $processingResult = $this->fhirMedicationRequestService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

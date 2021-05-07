@@ -18,15 +18,15 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  */
 class PractitionerApiTest extends TestCase
 {
-    const PRACTITIONER_API_ENDPOINT = "/apis/api/practitioner";
+    const PRACTITIONER_API_ENDPOINT = "/apis/default/api/practitioner";
     private $testClient;
     private $fixtureManager;
 
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_API_AUTH_ENDPOINT);
+        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerRecord = (array) $this->fixtureManager->getSinglePractitionerFixture();
@@ -35,6 +35,8 @@ class PractitionerApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removePractitionerFixtures();
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     /**
@@ -73,15 +75,15 @@ class PractitionerApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with an invalid pid and uuid
+     * @covers ::put with an invalid pid and uuid
      */
-    public function testInvalidPatch()
+    public function testInvalidPut()
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $this->practitionerRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(
+        $actualResponse = $this->testClient->put(
             self::PRACTITIONER_API_ENDPOINT,
             "not-a-uuid",
             $this->practitionerRecord
@@ -95,9 +97,9 @@ class PractitionerApiTest extends TestCase
     }
 
     /**
-     * @covers ::patch with a valid resource id and payload
+     * @covers ::put with a valid resource id and payload
      */
-    public function testPatch()
+    public function testPut()
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -106,7 +108,7 @@ class PractitionerApiTest extends TestCase
         $practitionerUuid = $responseBody["data"]["uuid"];
 
         $this->practitionerRecord["email"] = "help@pennfirm.com";
-        $actualResponse = $this->testClient->patch(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
+        $actualResponse = $this->testClient->put(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);

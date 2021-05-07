@@ -62,6 +62,32 @@ function updateAgeString(fieldid, asof, format, description) {
   document.getElementById('span_' + fieldid).innerHTML = age;
 }
 
+// Function to support datatype 46 - single-selection list with comment support
+function processCommentField(fieldId) {
+    if (document.getElementById("form_" + fieldId) != null) {
+        if (document.getElementById("form_" + fieldId).options[document.getElementById("form_" + fieldId).selectedIndex].value.match(/^comment_/)) {
+            if (document.getElementById("form_text_" + fieldId).style.display == "none") {
+                document.getElementById("form_text_" + fieldId).style.display = "inline-block";
+            }
+        } else {
+            document.getElementById("form_text_" + fieldId).value = "";
+            document.getElementById("form_text_" + fieldId).style.display = "none";
+        }
+    }
+}
+
+function myHideOrShow(elem, hide) {
+  // elem is a td element.
+  for (var inp = elem.firstChild; inp; inp = inp.nextSibling) {
+    if (inp.style) {
+      inp.style.display = hide ? 'none' : '';
+    } else {
+      // This must be a text node with no tag, so hide/show the parent TD instead.
+      elem.style.visibility = hide ? 'hidden' : 'visible';
+    }
+  }
+}
+
 // Function to show or hide form fields (and their labels) depending on "skip conditions"
 // defined in the layout.
 //
@@ -83,13 +109,6 @@ function checkSkipConditions() {
     if (itemid) tofind += '[' + itemid + ']';
     // Some different source IDs are possible depending on the data type.
     var srcelem = document.getElementById('check_' + tofind);
-    var radio_id='form_' + tofind + '[' + value + ']';
-    if(typeof document.getElementById(radio_id)!=="undefined"){
-        srcelem = document.getElementById(radio_id);
-        if(srcelem != null){
-            is_radio = true;
-        }
-    }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
@@ -101,6 +120,7 @@ function checkSkipConditions() {
         srcelem = tmp;
         if (operator == 'eq') operator = 'se';
         if (operator == 'ne') operator = 'ns';
+        is_radio = true;
       }
     }
 
@@ -176,7 +196,20 @@ function checkSkipConditions() {
 
     // At this point condition indicates the target should be hidden or have its value set.
 
-    if (action == 'skip') {
+    var skip = condition;
+
+    if (action.substring(0, 5) == 'value') {
+      skip = false;
+    }
+    else if (action.substring(0, 5) == 'hsval') {
+      // This action means hide if true, set value if false.
+      if (!condition) {
+        action = 'value=' + action.substring(6);
+        skip = false;
+      }
+    }
+
+    if (true) {
       var trgelem1 = document.getElementById('label_id_' + target);
       var trgelem2 = document.getElementById('value_id_text_' + target);
       if (trgelem2 == null) {
@@ -208,17 +241,18 @@ function checkSkipConditions() {
       if (trgelem1) colspan += trgelem1.colSpan;
       if (trgelem2) colspan += trgelem2.colSpan;
       if (colspan < rowcells) {
-        if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
-        if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
+        if (trgelem1) myHideOrShow(trgelem1, skip);
+        if (trgelem2) myHideOrShow(trgelem2, skip);
       }
       else {
-        trgrow.style.display = condition ? 'none' : '';
+        if (trgelem1) trgelem1.parentNode.style.display = skip ? 'none' : '';
+        else          trgelem2.parentNode.style.display = skip ? 'none' : '';
       }
     }
-    else if (condition) { // action starts with "value="
-      var trgelem = document.getElementById('form_' + target);
+    if (action.substring(0, 5) == 'value') {
+      var trgelem = document.forms[0]['form_' + target];
       if (trgelem == null) {
-        if (!cskerror) alert('Cannot find a value target field "' + trgelem + '"');
+        if (!cskerror) alert('Cannot find a value target field for "' + target + '"');
         myerror = true;
         continue;
       }
@@ -228,6 +262,12 @@ function checkSkipConditions() {
       }
       else {
         trgelem.value = action_value;
+        // Handle billing code descriptions.
+        var valelem = document.forms[0]['form_' + target + '__desc'];
+        if (skipArray[i].valdesc && valelem) {
+          // alert('Setting ' + valelem.name + ' value to: ' + skipArray[i].valdesc); // debugging
+          valelem.value = skipArray[i].valdesc;
+        }
       }
     }
   }
@@ -291,12 +331,14 @@ function lbfCanvasSetup(canid, canWidth, canHeight) {
 function lbfCanvasGetData(canid) {
   return lbfCanvases[canid].getImage().toDataURL();
 }
+
 // set signture to hidden element for this img
 function lbfSetSignature(el) {
     let imgel = el + "_img";
     let sign = $("#"+ imgel).attr('src');
     $("#"+ el).val(sign);
 }
+
 // This is invoked when a field with edit option M is changed.
 // Its purpose is to make the corresponding change to the member fields (edit option m).
 //
@@ -317,6 +359,23 @@ function checkGroupMembers(elem, groupnumber) {
       members[i].checked = true;
     }
   }
+}
+
+// Support for patient finder. References to the input elements.
+var elem_patient_name;
+var elem_patient_id;
+
+// This is for callback by the find-patient popup.
+function setpatient(pid, lname, fname, dob) {
+  elem_patient_name.value = lname + ', ' + fname + ' (' + pid + ')';
+  elem_patient_id.value = pid;
+}
+
+// This invokes the find-patient popup.
+function sel_patient(ename, epid) {
+  elem_patient_name = ename;
+  elem_patient_id = epid;
+  dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/find_patient_popup.php', '_blank', 500, 400);
 }
 
 </script>

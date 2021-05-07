@@ -32,7 +32,7 @@ class InsuranceRestController
 
     public function getOne($pid, $type)
     {
-        $serviceResult = $this->insuranceService->getOne($pid, $type);
+        $serviceResult = $this->insuranceService->getOneByPid($pid, $type);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

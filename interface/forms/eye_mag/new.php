@@ -24,7 +24,7 @@ include_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 formHeader("Form: " . $form_name);
 $returnurl = 'encounter_top.php';
 
-$pid = $_REQUEST['pid'];
+$pid = $_REQUEST['pid'] ?? null;
 
 if (!$pid) {
     $pid = $_SESSION['pid'];
@@ -32,11 +32,11 @@ if (!$pid) {
     SessionUtil::setSession('pid', $pid);
 }
 
-if (!$user) {
+if (empty($user)) {
     $user = $_SESSION['authUser'];
 }
 
-if (!$group) {
+if (empty($group)) {
     $group = $_SESSION['authProvider'];
 }
 
@@ -56,13 +56,13 @@ $query = "SELECT * " .
     "f.formdir = ? AND f.encounter = fe.encounter AND f.encounter=? AND f.deleted = 0";
 $erow = sqlQuery($query, array($pid, $encounter_date, $form_folder, $encounter));
 
-if ($erow['form_id'] > '0') {
+if (!empty($erow['form_id']) && ($erow['form_id'] > '0')) {
     formHeader("Redirecting....");
     formJump('./view_form.php?formname=' . $form_folder . '&id=' . attr($erow['form_id']) . '&pid=' . attr($pid));
     formFooter();
     exit;
 } else {
-    $id = $erow2['count']++; //erow2['count'] is not defined and formSubmit doesn't use it since we are inserting...
+    $id = (!empty($erow2['count'])) ? $erow2['count']++ : null; //erow2['count'] is not defined and formSubmit doesn't use it since we are inserting...
     $providerid = findProvider(attr($pid), $encounter);
     $newid = formSubmit($table_name, $_POST, $id, $providerid);
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',

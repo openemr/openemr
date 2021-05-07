@@ -32,16 +32,20 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
-
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Acl\AclMain;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+}
+
+if (!AclMain::aclCheckCore('patients', 'appt') || !AclMain::aclCheckCore('acct', 'rep_a')) {
+    die(xlt("Unauthorized access."));
 }
 
 $facilityService = new FacilityService();
@@ -490,7 +494,7 @@ if (!empty($_POST['form_refresh'])) {
                 ++$docrow['encounters'];
             }
 
-            if ($_POST['form_details']) {
+            if (!empty($_POST['form_details'])) {
                 ?>
          <tr>
           <td>

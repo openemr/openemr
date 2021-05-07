@@ -365,6 +365,7 @@ function unlock() {
  *  Function to fax this visit report to someone.
  */
 function create_task(to_id,task,to_type) {
+    $(this).addClass('fa-spin');
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
@@ -392,7 +393,7 @@ function create_task(to_id,task,to_type) {
                    }
                    if (obj.comments) alert(obj.comments);
                    //maybe change an icon to sent?  Think.
-                   });
+           });
 }
 
 
@@ -409,7 +410,7 @@ function alter_issue2(issue_number,issue_type,index) {
     } else {
         $('iframe').contents().find('#delete_button').addClass('nodisplay');
     }
-    $('iframe').contents().find('#issue'                ).val(issue_number);
+    $('iframe').contents().find('#issue').val(issue_number);
     if (typeof here !== "undefined") {
         $('iframe').contents().find('#form_title'           ).val(here.title);
         $('iframe').contents().find('#form_diagnosis'       ).val(here.diagnosis);
@@ -1004,6 +1005,7 @@ function hide_KB() {
 function show_KB() {
     $('.kb').toggleClass('nodisplay');
     $('.kb_off').toggleClass('nodisplay');
+    $('.copier').toggleClass('nodisplay');
     if ($('#PREFS_EXAM').val() == 'DRAW') {
         show_TEXT();
     }
@@ -1020,11 +1022,11 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
+            iam.location.href = base + "/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&list&id="+encodeURIComponent(pid)
+            iam.location.href = base + "/controller.php?prescription&list&id="+encodeURIComponent(pid)
         };
 
         let title = 'Prescriptions';
@@ -1253,7 +1255,7 @@ function build_DX_list(obj) {
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
                   })
             //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fa fa-arrows fa-1'></i></div>" );
+        .prepend( "<div class='handle '><i class='fas fa-arrows-alt fa-1'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1388,13 +1390,13 @@ function build_IMPPLAN(items,nodisplay) {
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
                value.title +"</span>"+
-               "<span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
-               value.code + "</span>&nbsp;"+
+               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
+               value.code + "</span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
-                                         '<i class="float-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
+                                         '<i class="float-right fa fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
                $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];
@@ -1463,8 +1465,8 @@ function build_IMPPLAN(items,nodisplay) {
                                 });
 
         $('#IMPPLAN_zone').on( 'keyup', 'textarea', function (e){
-                              $(this).css('height', 'auto' );
-                              $(this).height( this.scrollHeight );
+                              //$(this).css('height', 'auto' );
+                             // $(this).height( this.scrollHeight );
                               });
         $('#IMPPLAN_zone').find( 'textarea' ).keyup();
         obj.IMPPLAN_items = items;
@@ -1947,15 +1949,6 @@ $(function () {
                    });
   });
 
-/* Undo feature
- *  RIGHT NOW THIS WORKS PER FIELD ONLY in FF. In Chrome it works great.  Not sure about IE at all.
- *  In FF, you select a field and CTRL-Z reverses/Shift-Ctrl-Z forwards value
- *  To get true Undo Redo, we will need to create two arrays, one with the command/field, prior value, next value to undo
- *  and when undone, add this to the REDO array.  When an Undo command is followed by anything other than Redo, it erases REDO array.
- *  Ctrl-Z works without this extra code!  Fuzzy on the details for specific browsers so TODO.
- */
-
-
 /**
  *  Function to update the PCP and referring person
  *
@@ -1980,12 +1973,8 @@ function update_DOCS() {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
-                   //TODO:  We should also update the Communication Engine for sending note
-                   // to reflect these people...
-                   // Currently we have to reload the page to get the new names we selected
-                   // to show up in the Communications Engine
-                    obj = JSON.parse(result);
-                    build_DOCS(obj);
+                   obj = JSON.parse(result);
+                   build_DOCS(obj);
     });
 }
 
@@ -1999,14 +1988,30 @@ function build_DOCS(DOCS) {
         $("#pcp_address").html(DOCS['pcp']['address']);
         $("#pcp_phone").html(DOCS['pcp']['phone']);
         $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
-        $("#pcp_fax").html(DOCS['pcp']['fax_info']);
+        $("#pcp_fax").html(DOCS['pcp']['fax']);
+        $("#pcp_fax_info").html(DOCS['pcp']['fax_info']);
+    } else {
+        $("#pcp_name").html('');
+        $("#pcp_address").html('');
+        $("#pcp_phone").html('');
+        $("#pcp_phonew2").html('');
+        $("#pcp_fax").html('');
+        $("#pcp_fax_info").html('');
     }
     if (DOCS['ref']) {
         $("#ref_name").html(DOCS['ref']['name']);
         $("#ref_address").html(DOCS['ref']['address']);
         $("#ref_phone").html(DOCS['ref']['phone']);
         $("#ref_phonew2").html(DOCS['ref']['phonew2']);
-        $("#ref_fax").html(DOCS['ref']['fax_info']);
+        $("#ref_fax").html(DOCS['ref']['fax']);
+        $("#ref_fax_info").html(DOCS['ref']['fax_info']);
+    } else {
+        $("#ref_name").html('');
+        $("#ref_address").html('');
+        $("#ref_phone").html('');
+        $("#ref_phonew2").html('');
+        $("#ref_fax").html('');
+        $("#ref_fax_info").html('');
     }
 }
 
@@ -2243,6 +2248,10 @@ $(function () {
                                                    update_DOCS();
                                                    });
 
+                  $("#form_pharmacy_id").change(function() {
+                        update_Pharma();
+                  });
+
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
                     $('[title]').each(function() {
@@ -2317,8 +2326,9 @@ $(function () {
                   $("[name$='_kb']").on('click', function() {
                                            $('.kb').toggleClass('nodisplay');
                                            $('.kb_off').toggleClass('nodisplay');
+                                           $('.copier').toggleClass('nodisplay');
                                            if ($('#PREFS_EXAM').val() == 'DRAW') {
-                                           show_TEXT();
+                                                show_TEXT();
                                            }
 
                                            if ($("#PREFS_KB").val() > 0) {
@@ -2415,17 +2425,18 @@ $(function () {
 
                                                                    }
                                                                    });
-                  $("[id^='sketch_tools_']").on('click', function() {
-                                                   var zone = this.id.match(/sketch_tools_(.*)_/)[1];
-                                                   $("[id^='sketch_tools_"+zone+"']").css("height","30px");
-                                                   $(this).css("height","50px");
-                                                   $("#sketch_tool_"+zone+"_color").css("background-color",$("#selColor_"+zone).val());
-                                                   });
-                  $("[id^='sketch_sizes_']").on('click', function() {
-                                                   var zone = this.id.match(/sketch_sizes_(.*)_/)[1];
-                                                   $("[id^='sketch_sizes_"+zone+"']").css("background","").css("border-bottom","");
-                                                   $(this).css("border-bottom","2pt solid black");
-                                                   });
+                  $("[id^='sketch_tools_']").click(function() {
+                        var zone = this.id.match(/sketch_tools_(.*)_/)[1];
+                        $("[id^='sketch_tools_"+zone+"']").css("height","30px");
+                        $(this).css("height","50px");
+                        $("#sketch_tool_"+zone+"_color").css("background-image","").css("background-color",$("#selColor_"+zone).val());
+                  });
+                  $("[id^='sketch_sizes_']").click(function() {
+                        var zone = this.id.match(/sketch_sizes_(.*)_/)[1];
+                        $("[id^='sketch_sizes_"+zone+"']").css("background","").css("border-bottom","");
+                        $(this).css("border-bottom","2pt solid black");
+                  });
+
 
                   //  Here we get CC1 to show
                   $(".tab_content").addClass('nodisplay');
@@ -2447,7 +2458,6 @@ $(function () {
                                                           //  At the end, we add return false so that the click on the link is not executed
                                                           return false;
                                                           });
-                  $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                   $("input,textarea,text").css("background-color","#FFF8DC");
                   $("[id*=ODIOP],[id*=OSIOP]").each(function() { color_IOP(this); });
                   $("#IOPTIME").css("background-color","#FFFFFF");
@@ -2898,7 +2908,7 @@ $(function () {
                                      $('#EXAM_QP').trigger("click");
 
                                    } else {
-                                      $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                      $('#BUTTON_QP_'+new_section[1]).trigger("click").trigger("click");//double click intended RM
                                    }
                                  $("#LayerTechnical_sections_1").css("clear","both");
                                  return;
@@ -3386,6 +3396,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#Visions_B").toggleClass('nodisplay');
                                              });
                   $("#EXAM_defaults").on("click", function() {
+                                            if (!confirm('<?php echo xla("Replace all exam findings with Default values?  Are you sure?"); ?>')) {
+                                                return;
+                                            }
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
@@ -3435,39 +3448,177 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
                                             ';
                                             }
+                                            function startsWith($str, $needle)
+                                            {
+                                                return substr($str, 0, strlen($needle)) === $needle;
+                                            }
                                             ?>
                                             submit_form("eye_mag");
                                             });
-
+                  $("#EXT_defaults_R").on("click", function() {
+                        <?php
+                        foreach ($EXT as $item => $value) {
+                            if (startsWith($item, "R")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                ';
+                            }
+                        }
+                        ?>
+                        submit_form("eye_mag");
+                        
+                        });
+                  $("#EXT_defaults_L").on("click", function() {
+                        <?php
+                        foreach ($EXT as $item => $value) {
+                            if (startsWith($item, "L")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                ';
+                            }
+                        }
+                        ?>
+                        submit_form("eye_mag");
+                        });
                   $("#EXT_defaults").on("click", function() {
-                                            <?php
-                                            foreach ($EXT as $item => $value) {
-                                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                           ';
-                                            }
-                                            ?>
-                                           submit_form("eye_mag");
+                                            $("#EXT_defaults_L").trigger('click');
+                                            $("#EXT_defaults_R").trigger('click');
+                                            submit_form("eye_mag");
                                            });
 
-                  $("#ANTSEG_defaults").on("click", function() {
-                                                <?php
-                                                foreach ($ANTSEG as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                              ';
-                                                }
-                                                ?>
-                                              submit_form("eye_mag");
-                                              });
-                  $("#RETINA_defaults").on("click", function() {
-                                                <?php
-                                                foreach ($RETINA as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
-                                              ';
-                                                }
-                                                ?>
-                                              submit_form("eye_mag");
-                                              });
-                  $("#NEURO_defaults").on("click", function() {
+                    $("#EXT_R_L").on('click', function () {
+                        $("#LBROW").val($("#RBROW").val());
+                        $("#LUL").val($("#RUL").val());
+                        $("#LLL").val($("#RLL").val());
+                        $("#LMCT").val($("#RMCT").val());
+                        $("#LADNEXA").val($("#RADNEXA").val());
+                        submit_form("eye_mag");
+                    });
+
+                    $("#EXT_L_R").on('click', function () {
+                        $("#RBROW").val($("#LBROW").val());
+                        $("#RUL").val($("#LUL").val());
+                        $("#RLL").val($("#LLL").val());
+                        $("#RMCT").val($("#LMCT").val());
+                        $("#RADNEXA").val($("#LADNEXA").val());
+                        submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_defaults_OD").on("click", function() {
+                    <?php
+                    foreach ($ANTSEG as $item => $value) {
+                        if (startsWith($item, "OD")) {
+                            echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                    ';
+                        }
+                    }
+                    ?>
+                    submit_form("eye_mag");
+                    
+                    });
+                    $("#ANTSEG_defaults_OS").on("click", function() {
+                            <?php
+                            foreach ($ANTSEG as $item => $value) {
+                                if (startsWith($item, "OS")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                            ';
+                                }
+                            }
+                            ?>
+                            submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_defaults").on("click", function() {
+                            $("#ANTSEG_defaults_OD").trigger('click');
+                            $("#ANTSEG_defaults_OS").trigger('click');
+                            submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_OD_OS").on('click', function () {
+                        $("#OSCONJ").val($("#ODCONJ").val());
+                        $("#OSCORNEA").val($("#ODCORNEA").val());
+                        $("#OSAC").val($("#ODAC").val());
+                        $("#OSLENS").val($("#ODLENS").val());
+                        $("#OSIRIS").val($("#ODIRIS").val());
+                        submit_form("eye_mag");
+                    });
+                    $("#ANTSEG_OS_OD").on('click', function () {
+                        $("#ODCONJ").val($("#OSCONJ").val());
+                        $("#ODCORNEA").val($("#OSCORNEA").val());
+                        $("#ODAC").val($("#OSAC").val());
+                        $("#ODLENS").val($("#OSLENS").val());
+                        $("#ODIRIS").val($("#OSIRIS").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_OD_OS").on('click', function () {
+                        $("#OSDISC").val($("#ODDISC").val());
+                        $("#OSCUP").val($("#ODCUP").val());
+                        $("#OSMACULA").val($("#ODMACULA").val());
+                        $("#OSVESSELS").val($("#ODVESSELS").val());
+                        $("#OSVITREOUS").val($("#ODVITREOUS").val());
+                        $("#OSPERIPH").val($("#ODPERIPH").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_OS_OD").on('click', function () {
+                        $("#ODDISC").val($("#OSDISC").val());
+                        $("#ODCUP").val($("#OSCUP").val());
+                        $("#ODMACULA").val($("#OSMACULA").val());
+                        $("#ODVESSELS").val($("#OSVESSELS").val());
+                        $("#ODVITREOUS").val($("#OSVITREOUS").val());
+                        $("#ODPERIPH").val($("#OSPERIPH").val());
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#clear_EXT_L").on('click', function () {
+                        $("#LBROW").val('');
+                        $("#LUL").val('');
+                        $("#LLL").val('');
+                        $("#LMCT").val('');
+                        $("#LADNEXA").val('');
+                        $("#LLF").val('');
+                        $("#LMRD").val('');
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#clear_EXT_R").on('click', function () {
+                        $("#RBROW").val('');
+                        $("#RUL").val('');
+                        $("#RLL").val('');
+                        $("#RMCT").val('');
+                        $("#RADNEXA").val('');
+                        $("#RLF").val('');
+                        $("#RMRD").val('');
+                        submit_form("eye_mag");
+                    });
+                    
+                    $("#RETINA_defaults_OD").on("click", function() {
+                            <?php
+                            foreach ($RETINA as $item => $value) {
+                                if (startsWith($item, "OD")) {
+                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                            ';
+                                }
+                            }
+                            ?>
+                            submit_form("eye_mag");
+                            
+                            });
+                    $("#RETINA_defaults_OS").on("click", function() {
+                        <?php
+                        foreach ($RETINA as $item => $value) {
+                            if (startsWith($item, "OS")) {
+                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                                                                        ';
+                            }
+                        }
+                        ?>
+                        submit_form("eye_mag");
+                        });
+                    $("#RETINA_defaults").on("click", function() {
+                        $("#RETINA_defaults_OD").trigger('click');
+                        $("#RETINA_defaults_OS").trigger('click');
+                        submit_form("eye_mag");
+                    });
+
+
+                    $("#NEURO_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($NEURO as $item => $value) {
                                                     echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
@@ -3477,8 +3628,37 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              submit_form("eye_mag");
                                              });
 
+                    $("#clear_EXT_R").on('click', function() {
+                        $('.right.EXT').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_EXT_L").on('click', function() {
+                        $('.left.EXT').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_ANTSEG_OD").on('click', function() {
+                        $('.right.ANTSEG').val('');
+                        submit_form("eye_mag");});
+                    $("#clear_ANTSEG_OS").on('click', function() {
+                        $('.left.ANTSEG').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_RETINA_OD").on('click', function() {
+                        $('.right.RETINA').val('');
+                        submit_form("eye_mag");
+                    });
+                    $("#clear_RETINA_OS").on('click', function() {
+                        $('.left.RETINA').val('');
+                        submit_form("eye_mag");
+                    });
 
-                  $("#MOTILITYNORMAL").on("click", function() {
+                    $("[id^='cpf_']").on('click', function() {
+                        var to_field  = this.id.match(/cpf_(.*)_(.*)/)[1];
+                        var from_field    = this.id.match(/cpf_(.*)_(.*)/)[2];
+                        $("#"+to_field).val($("#"+from_field).val());
+                        submit_form("eye_mag");
+                    });
+                    $("#MOTILITYNORMAL").on("click", function() {
                                              $("#MOTILITY_RS").val('0');
                                              $("#MOTILITY_RI").val('0');
                                              $("#MOTILITY_RR").val('0');

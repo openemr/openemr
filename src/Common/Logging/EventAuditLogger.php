@@ -280,7 +280,10 @@ MSG;
         } else {
             // do the query
             $sqlBindArray = array();
-            $sql = "SELECT $cols FROM `log_comment_encrypt` as el LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` WHERE (l.`date` >= ? AND l.`date` <= ?) OR (l.`date` IS NULL OR l.`date` = '')";
+            $sql = "SELECT $cols FROM `log_comment_encrypt` as el " .
+                "LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` " .
+                "LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` " .
+                "WHERE (l.`date` IS NULL OR (l.`date` >= ? AND l.`date` <= ?))";
             array_push($sqlBindArray, $date1, $date2);
 
             if ($user != "") {
@@ -684,9 +687,6 @@ MSG;
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
         $adodb = $GLOBALS['adodb']['db'];
-        $crt_user = $_SERVER['SSL_CLIENT_S_DN_CN'];
-        $groupname = $_SESSION['authProvider'];
-        $success = 1;
         $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
             "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
             "," . $adodb->qstr($recipient) . "," .
