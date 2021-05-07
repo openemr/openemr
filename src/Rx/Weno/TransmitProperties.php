@@ -97,10 +97,7 @@ class TransmitProperties
             $wenObj['HeightWeightObservationDate'] = $heighDate[0],
             $wenObj["ResponsiblePartySameAsPatient"] = 'Y',
             $wenObj['PatientLocation'] = "Home",
-            //$wenObj['PrimaryPharmacyNCPCP'] = $this->ncpdp,
-            //$wenObj['AlternativePharmacyNCPCP'] = $this->ncpdp,
-
-    );
+        );
         return json_encode($wenObj);
     }
 
