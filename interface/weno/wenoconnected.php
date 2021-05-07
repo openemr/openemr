@@ -15,7 +15,7 @@ use OpenEMR\Rx\Weno\wenoPharmaciesImport;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patient', 'med')) {
-    echo xlt('ACL Administration Not Authorized');
+    echo xlt('Pharmacy Import not authorized');
     exit;
 }
 //Weno has decided to not force the import of pharmacies since they are using the iframe

@@ -17,7 +17,7 @@ use OpenEMR\Rx\Weno\Container;
  * access control is on Weno side based on the user login
  */
 if (!AclMain::aclCheckCore('patient', 'med')) {
-    echo xlt('ACL Administration Not Authorized');
+    echo xlt('Prescriptions Review Not Authorized');
     exit;
 }
 

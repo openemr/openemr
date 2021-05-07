@@ -56,11 +56,6 @@ class TransmitProperties
         }
         $gender = $this->patient['sex'];
         $heighDate = explode(" ", $this->vitals['date']);
-        if ($this->subscriber == 'self') {
-            $relationship = 'Y';
-        } else {
-            $relationship = 'Y';
-        }
         $phoneprimary = str_replace("-", "", $this->patient['phone_cell']);
         //create json array
         $wenObj = [];
@@ -100,7 +95,7 @@ class TransmitProperties
             $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3),
             $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3),
             $wenObj['HeightWeightObservationDate'] = $heighDate[0],
-            $wenObj["ResponsiblePartySameAsPatient"] = $relationship,
+            $wenObj["ResponsiblePartySameAsPatient"] = 'Y',
             $wenObj['PatientLocation'] = "Home",
             //$wenObj['PrimaryPharmacyNCPCP'] = $this->ncpdp,
             //$wenObj['AlternativePharmacyNCPCP'] = $this->ncpdp,
