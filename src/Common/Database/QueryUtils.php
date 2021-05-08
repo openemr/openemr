@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc file
  * could be migrated to this file or at least contained in this namespace.
@@ -34,8 +35,7 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = array())
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
-        if (!empty($records[0]))
-        {
+        if (!empty($records[0])) {
             return $records[0];
         }
         return null;
@@ -75,7 +75,8 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return recordset
      */
-    public static function sqlStatementThrowException($statement, $binds) {
+    public static function sqlStatementThrowException($statement, $binds)
+    {
         return sqlStatementThrowException($statement, $binds);
     }
 

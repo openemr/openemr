@@ -151,8 +151,7 @@ class FixtureManager
 
     public function getAllergyIntoleranceFixtures()
     {
-        if (empty($this->fhirAllergyIntoleranceFixtures))
-        {
+        if (empty($this->fhirAllergyIntoleranceFixtures)) {
             $this->fhirAllergyIntoleranceFixtures = $this->loadJsonFile("allergy-intolerance.json");
         }
         return $this->fhirAllergyIntoleranceFixtures;
@@ -212,15 +211,20 @@ class FixtureManager
         sqlStatement($delete, array($bindVariable));
     }
 
-    public function installAllergyIntoleranceFixtures() {
+    public function installAllergyIntoleranceFixtures()
+    {
         $this->installPatientFixtures();
         return $this->installFixtures("lists", $this->getAllergyIntoleranceFixtures());
     }
 
-    public function removeAllergyIntoleranceFixtures() {
+    public function removeAllergyIntoleranceFixtures()
+    {
         $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
-        $ids = QueryUtils::fetchTableColumn("SELECT `id` FROM `patient_data` WHERE `pubpid` LIKE ?"
-            , 'id', [$pubpid]);
+        $ids = QueryUtils::fetchTableColumn(
+            "SELECT `id` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'id',
+            [$pubpid]
+        );
 
         if (!empty($ids)) {
             $count = count($ids) - 1;

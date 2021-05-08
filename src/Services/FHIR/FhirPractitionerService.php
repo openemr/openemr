@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 
 /**
  * FHIR Practitioner Service
@@ -43,6 +44,7 @@ class FhirPractitionerService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ["phonew1", "phone", "phonecell"]),
@@ -287,24 +289,6 @@ class FhirPractitionerService extends FhirServiceBase
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
         $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
-        return $processingResult;
-    }
-
-    /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->practitionerService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
         return $processingResult;
     }
 

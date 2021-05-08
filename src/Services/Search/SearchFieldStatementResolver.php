@@ -5,6 +5,8 @@
  * with the corresponding SQL statement and bound values that represent that search field.  Nested Composite search
  * fields are traversed and converted into their corresponding values.
  *
+ * TODO: adunsulag maybe we can rename this to be SearchFieldQueryConverter  I wonder if that will make more sense to people
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -39,6 +41,8 @@ class SearchFieldStatementResolver
             return self::resolveDateField($field);
         } else if ($field instanceof TokenSearchField) {
             return self::resolveTokenField($field);
+        } else if ($field instanceof ReferenceSearchField) {
+            return self::resolveReferenceField($field);
         } else if ($field instanceof CompositeSearchField) {
             return self::resolveCompositeSearchField($field, $count);
         } else {
@@ -157,6 +161,39 @@ class SearchFieldStatementResolver
         $joinType = $field->isAnd() ? " AND " : " OR ";
         $combinedFragment->setFragment("(" . implode($joinType, $clauses) . ")");
         return $combinedFragment;
+    }
+
+    /**
+     * Converts a reference search field into the appropriate query statement to be executed in the database engine
+     *
+     * TODO: adunsulag this seems like a lot of duplicate code similar to the resolveTokenField... reference doesn't have
+     * the modifiers like the token does so I'm not sure if we keep this duplicative code here or not.
+     * @param ReferenceSearchField $searchField
+     * @return SearchQueryFragment
+     */
+    public static function resolveReferenceField(ReferenceSearchField $searchField)
+    {
+        if (empty($searchField->getValues())) {
+            throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
+        }
+
+        $searchFragment = new SearchQueryFragment();
+        $values = $searchField->getValues();
+        $clauses = [];
+
+        foreach ($values as $value) {
+            /** @var ReferenceSearchValue $value  */
+            $clauses[] = $searchField->getField() . ' = ?';
+            $searchFragment->addBoundValue($value->getId());
+        }
+
+        if (count($clauses) > 1) {
+            $multipleClause = $searchField->isAnd() ? " AND " : " OR ";
+            $searchFragment->setFragment("(" . implode($multipleClause, $clauses) . ")");
+        } else {
+            $searchFragment->setFragment($clauses[0]);
+        }
+        return $searchFragment;
     }
 
     /**

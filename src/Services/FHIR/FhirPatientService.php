@@ -35,6 +35,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -108,7 +109,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // @see https://www.hl7.org/fhir/patient.html#search
         return  [
             // core FHIR required fields for now
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['ss', 'pubpid']),
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname']),
             'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB']),
@@ -576,24 +577,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
         $processingResult = $this->patientService->update($fhirResourceId, $updatedOpenEMRRecord);
-        return $processingResult;
-    }
-
-    /**
-     * Performs a FHIR Patient Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Patient Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->patientService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
         return $processingResult;
     }
 

@@ -307,16 +307,6 @@ class FhirOrganizationService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Organization Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Organization Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        return $this->getAll(['_id' => $fhirResourceId]);
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields

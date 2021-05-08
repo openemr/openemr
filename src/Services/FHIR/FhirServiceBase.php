@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -32,9 +33,23 @@ abstract class FhirServiceBase
      */
     protected $resourceSearchParameters = array();
 
-    public function __construct()
+    /**
+     * @var FHIRSearchFieldFactory
+     */
+    private $searchFieldFactory;
+
+    public function __construct($fhirApiURL = null)
     {
         $this->resourceSearchParameters = $this->loadSearchParameters();
+        $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
+
+        // anything using a 'reference' search field MUST have a URL resolver to handle the reference translation
+        // so if we have the api url we are going to create our resolver.
+        if (!empty($fhirApiURL)) {
+            $urlResolver = new FhirUrlResolver($fhirApiURL);
+            $searchFieldFactory->setFhirUrlResolver($urlResolver);
+        }
+        $this->setSearchFieldFactory($searchFieldFactory);
     }
 
     /**
@@ -114,9 +129,13 @@ abstract class FhirServiceBase
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * TODO: adunsulag should this method be protected?  Sure looks like the subclasses let this be public...
      */
-    abstract protected function getOne($fhirResourceId);
+    public function getOne($fhirResourceId, $puuidBind = null)
+    {
+        // every FHIR resource must support the _id search parameter so we will just piggy bag on
+        $searchParam = ['_id' => $fhirResourceId];
+        return $this->getAll($searchParam, $puuidBind);
+    }
 
     /**
      * Executes a FHIR Resource search given a set of parameters.
@@ -164,11 +183,22 @@ abstract class FhirServiceBase
                 }
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(), 'field' => $exception->getField()]);
+            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
+    }
+
+    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory)
+    {
+        $this->searchFieldFactory = $factory;
+    }
+
+    public function getSearchFieldFactory(): FHIRSearchFieldFactory
+    {
+        return $this->searchFieldFactory;
     }
 
     /**
@@ -184,7 +214,7 @@ abstract class FhirServiceBase
     protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind)
     {
         $oeSearchParameters = array();
-        $searchFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
+        $searchFactory = $this->getSearchFieldFactory();
 
         foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
             try {

@@ -274,25 +274,7 @@ class PatientService extends BaseService
         }
         return $processingResult;
     }
-
-
-    public function search($search, $isAndCondition = true)
-    {
-        // when we deal with uuids we need to convert to bytes... the inverse happens
-        // in our createResultRecordFromDatabaseResult
-        // TODO: adunsulag do we want to create a UUID search field so we can handle this properly?
-        if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
-            $values = $search['uuid']->getValues();
-            $mappedValues = array_map(function (TokenSearchValue $v) {
-                return new TokenSearchValue(UuidRegistry::uuidToBytes($v->getCode()), $v->getSystem());
-            }, $values);
-            $search['uuid']->setValues($mappedValues);
-        }
-
-        // see the parent method for documentation on how search is executed.
-        return parent::search($search, $isAndCondition);
-    }
-
+    
     protected function createResultRecordFromDatabaseResult($record)
     {
         if (!empty($record['uuid'])) {
