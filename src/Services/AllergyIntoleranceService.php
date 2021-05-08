@@ -47,13 +47,20 @@ class AllergyIntoleranceService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        // we inner join on lists itself so we can grab our allergy_uuid, we do this so we can search on allergy_uuid
-        // in our where clause and allow our search to use that correctly
+        // we inner join on lists itself so we can grab our uuids, we do this so we can search on each of the uuids
+        // such as allergy_uuid, practitioner_uuid,organization_uuid, etc.  You can't use an 'AS' clause in a select
+        // so we have to have actual column names in our WHERE clause.  To make that work in a searchable way we extend
+        // out our queries into sub queries which through the power of index's & keys it is pretty highly optimized by the
+        // database query engine.
+
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
-        users.uuid as practitioner,
-        facility.uuid as organization,
-        patient.uuid as puuid,
+        practitioners.uuid as practitioner,
+        practitioners.practitioner_uuid,
+        organizations.uuid as organization,
+        organizations.organization_uuid,
+        patient.puuid,
+        patient.patient_uuid,
         allergy_ids.allergy_uuid,
         reaction.title as reaction_title,
         verification.title as verification_title
@@ -63,11 +70,28 @@ class AllergyIntoleranceService extends BaseService
         ) allergy_ids ON lists.uuid = allergy_ids.allergy_uuid
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
         LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
-        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-        LEFT JOIN users as users ON users.username = lists.user
-        LEFT JOIN facility as facility ON facility.name = users.facility";
-//    WHERE type = 'allergy'";
-
+        RIGHT JOIN (
+            SELECT 
+                patient_data.uuid AS puuid
+                ,patient_data.pid
+                ,patient_data.uuid AS patient_uuid
+            FROM patient_data
+        ) patient ON patient.pid = lists.pid
+        LEFT JOIN (
+            select 
+            users.uuid
+            ,users.uuid AS practitioner_uuid
+            ,users.username
+            ,users.facility AS organization
+            FROM users
+        ) practitioners ON practitioners.username = lists.user
+        LEFT JOIN (
+            select 
+            facility.uuid
+            ,facility.uuid AS organization_uuid
+            ,facility.name
+            FROM facility
+        ) organizations ON organizations.name = practitioners.organization";
 
         // make sure we only search for allergy fields
         $search['type'] = new StringSearchField('type', ['allergy'], SearchModifier::EXACT);
@@ -75,31 +99,6 @@ class AllergyIntoleranceService extends BaseService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-//
-//        if (!empty($search)) {
-//            $sql .= ' AND ';
-//            if (!empty($puuidBind)) {
-//                // code to support patient binding
-//                $sql .= '(';
-//            }
-//            $whereClauses = array();
-//            foreach ($search as $fieldName => $fieldValue) {
-//                array_push($whereClauses, $fieldName . ' = ?');
-//                array_push($sqlBindArray, $fieldValue);
-//            }
-//            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-//            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-//            if (!empty($puuidBind)) {
-//                // code to support patient binding
-//                $sql .= ") AND `patient`.`uuid` = ?";
-//                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-//            }
-//        } elseif (!empty($puuidBind)) {
-//            // code to support patient binding
-//            $sql .= " AND `patient`.`uuid` = ?";
-//            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-//        }
-
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
@@ -133,15 +132,17 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        // backwards compatible let's change these over
+        // backwards compatible we let sub tables be referenced before, we want those to go away as it's a leaky abstraction
         if (isset($search['lists.pid'])) {
             $search['puuid'] = $search['lists.pid'];
+            unset($search['lists.pid']);
         }
         if (isset($search['lists.id'])) {
             $search['allergy_uuid'] = $search['lists.id'];
+            unset($search['lists.id']);
         }
         // Validating and Converting Patient UUID to PID
-        if (isset($search['lists.pid'])) {
+        if (isset($search['puuid'])) {
             $isValidPatient = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::PATIENT_TABLE,
@@ -151,12 +152,12 @@ class AllergyIntoleranceService extends BaseService
             if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
-            $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
-            $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+//            $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
+//            $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         }
 
         // Validating and Converting UUID to ID
-        if (isset($search['lists.id'])) {
+        if (isset($search['allergy_uuid'])) {
             $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
@@ -166,8 +167,8 @@ class AllergyIntoleranceService extends BaseService
             if ($isValidAllergy !== true) {
                 return $isValidAllergy;
             }
-            $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
-            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
+//            $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
+//            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
         }
 
         if (!empty($puuidBind)) {
@@ -186,15 +187,13 @@ class AllergyIntoleranceService extends BaseService
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
                 $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
-            }
-            else {
+            } else {
                 $newSearch[$key] = $value;
             }
         }
 
         // override our type and our puuid
-        if (isset($puuidBind) && !isset($search['puuid']))
-        {
+        if (isset($puuidBind) && !isset($search['puuid'])) {
             $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
@@ -211,71 +210,10 @@ class AllergyIntoleranceService extends BaseService
     public function getOne($uuid, $puuidBind = null)
     {
         $search['allergy_uuid'] = new TokenSearchField('allergy_uuid', $uuid, true);
-        if (isset($puuidBind))
-        {
+        if (isset($puuidBind)) {
             $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
         return $this->search($search);
-//        $processingResult = new ProcessingResult();
-//
-//        $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "lists", $uuid, true);
-//        if ($isValid !== true) {
-//            $validationMessages = [
-//                'uuid' => ["invalid or nonexisting value" => " value " . $uuid]
-//            ];
-//            $processingResult->setValidationMessages($validationMessages);
-//            return $processingResult;
-//        }
-//
-//        if (!empty($puuidBind)) {
-//            $isValid = $this->allergyIntoleranceValidator->validateId("uuid", "patient_data", $puuidBind, true);
-//            if ($isValid !== true) {
-//                $validationMessages = [
-//                    'puuid' => ["invalid or nonexisting value" => " value " . $puuidBind]
-//                ];
-//                $processingResult->setValidationMessages($validationMessages);
-//                return $processingResult;
-//            }
-//        }
-//
-//        $sql = "SELECT lists.*,
-//        users.uuid as practitioner,
-//        facility.uuid as organization,
-//        patient.uuid as puuid,
-//        reaction.title as reaction_title,
-//        verification.title as verification_title
-//    FROM lists
-//        LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
-//        LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
-//        RIGHT JOIN patient_data as patient ON patient.pid = lists.pid
-//        LEFT JOIN users as users ON users.username = lists.user
-//        LEFT JOIN facility as facility ON facility.name = users.facility
-//    WHERE type = 'allergy' AND lists.uuid = ?";
-//
-//        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-//        $sqlBindArray = [$uuidBinary];
-//
-//        if (!empty($puuidBind)) {
-//            $sql .= " AND `patient`.`uuid` = ?";
-//            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-//        }
-//
-//        $sqlResult = sqlQuery($sql, $sqlBindArray);
-//        if (!empty($sqlResult)) {
-//            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-//            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-//            $sqlResult['practitioner'] = $sqlResult['practitioner'] ?
-//                UuidRegistry::uuidToString($sqlResult['practitioner']) :
-//                $sqlResult['practitioner'];
-//            $sqlResult['organization'] = $sqlResult['organization'] ?
-//                UuidRegistry::uuidToString($sqlResult['organization']) :
-//                $sqlResult['organization'];
-//            if ($sqlResult['diagnosis'] != "") {
-//                $row['diagnosis'] = $this->addCoding($sqlResult['diagnosis']);
-//            }
-//            $processingResult->addData($sqlResult);
-//        }
-//        return $processingResult;
     }
 
     /**

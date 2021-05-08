@@ -609,10 +609,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirAllergyIntoleranceRestController())->getAll($getParams, $request->getPatientUUIDString());
+            $return = (new FhirAllergyIntoleranceRestController($request))->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirAllergyIntoleranceRestController())->getAll($getParams);
+            $return = (new FhirAllergyIntoleranceRestController($request))->getAll($getParams);
         }
         RestConfig::apiLog($return);
         return $return;
@@ -620,10 +620,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/AllergyIntolerance/:id" => function ($id, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirAllergyIntoleranceRestController())->getOne($id, $request->getPatientUUIDString());
+            $return = (new FhirAllergyIntoleranceRestController($request))->getOne($id, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirAllergyIntoleranceRestController())->getOne($id);
+            $return = (new FhirAllergyIntoleranceRestController($request))->getOne($id);
         }
         RestConfig::apiLog($return);
         return $return;

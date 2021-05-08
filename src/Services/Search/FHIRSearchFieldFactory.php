@@ -16,6 +16,8 @@
 
 namespace OpenEMR\Services\Search;
 
+use Laminas\Mvc\Exception\BadMethodCallException;
+use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 
@@ -25,6 +27,11 @@ class FHIRSearchFieldFactory
      * @var FhirSearchParameterDefinition[];
      */
     private $resourceSearchParameters;
+
+    /**
+     * @var FhirUrlResolver
+     */
+    private $fhirUrlResolver;
 
     /**
      * FHIRSearchFieldFactory constructor.
@@ -39,6 +46,16 @@ class FHIRSearchFieldFactory
                 throw new \InvalidArgumentException("Search parameter contains invalid class definition " . $key);
             }
         }
+    }
+
+    public function setFhirUrlResolver(FhirUrlResolver $urlResolver)
+    {
+        $this->fhirUrlResolver = $urlResolver;
+    }
+
+    public function getFhirUrlResolver(): FhirUrlResolver
+    {
+        return $this->fhirUrlResolver;
     }
 
     /**
@@ -114,7 +131,7 @@ class FHIRSearchFieldFactory
 
         // need to handle the fact that we can have multiple OR values that are separated in CSV format.
         if (is_string($fhirSearchValues) && strpos($fhirSearchValues, ',') !== false) {
-            $fhirSearchValues = explode($fhirSearchValues);
+            $fhirSearchValues = explode(',', $fhirSearchValues);
         }
 
         $isUUID = false;
@@ -136,34 +153,49 @@ class FHIRSearchFieldFactory
         } else if ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
         } else if ($type == SearchFieldType::REFERENCE) {
-            return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers);
+            return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID);
         } else {
             // default is a string token
             return new StringSearchField($fieldName, $fhirSearchValues, $modifier);
         }
     }
 
-    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers)
+    private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID)
     {
         $referenceOptions = $this->resourceSearchParameters[$fieldName] ?? [];
 
-        // reference field needs the following
-        // resource name
-        // resource id
+        $values = $fhirSearchValues ?? [];
+        $values = is_array($values) ? $values : [$values];
+
         $normalizedValues = [];
-        foreach ($fhirSearchValues as $searchValue) {
-            $id = $searchValue;
+        foreach ($values as $searchValue) {
             if (strpos($searchValue, '://') !== false) {
-                // TODO: adunsulag need to support absolute URL reference for our own FHIR server, don't support searching
-                // on external FHIR URLs
-                throw new \InvalidArgumentException("Absolute URL references not supported at this point in time");
-            } else if (strpos($searchValue, '/') !== false) {
-                $parts = explode('/', $searchValue);
-                $type = $parts[0];
-                $id = $parts[1];
+                $url = $this->resolveReferenceRelativeUrl($searchValue);
+                $normalizedValues[] = $url;
+            } else {
+                $normalizedValues[] = $searchValue;
             }
         }
-        throw new \BadMethodCallException("Number search parameter not implemented yet");
+        return new ReferenceSearchField($fieldName, $normalizedValues, $isUUID);
+    }
+
+    /**
+     * Returns the relative url
+     * @param $urlToResolve
+     * @throws BadMethodCallException if the FhirUrlResolver is not setup for this class
+     * @throws \InvalidArgumentException if the URL does not match the server base URL
+     * @return string
+     */
+    private function resolveReferenceRelativeUrl($urlToResolve)
+    {
+        if (empty($this->getFhirUrlResolver())) {
+            throw new \BadMethodCallException("FHIR URL Resolver is not properly setup.  This is a developer error");
+        }
+        $url = $this->getFhirUrlResolver()->getRelativeUrl($urlToResolve);
+        if (empty($url)) {
+            throw new \InvalidArgumentException("URL does not match fhir server or relative url for reference could not be found");
+        }
+        return $url;
     }
 
     /**

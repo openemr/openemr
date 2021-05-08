@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FHIR Allergy Intolerance Service Query Tests
  * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
@@ -15,6 +16,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
+use OpenEMR\Services\FHIR\FhirUrlResolver;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
@@ -29,11 +31,25 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
      */
     private $fhirService;
 
+    const FHIR_BASE_URL = "/api/fhirs/default";
+
+    private $apiBaseURL;
+
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
+        $fhirUrl =  $baseUrl . "/apis/default/fhir/";
+        $this->apiBaseURL = $fhirUrl;
+    }
+
     protected function setUp(): void
     {
+
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installAllergyIntoleranceFixtures();
-        $this->fhirService = new FhirAllergyIntoleranceService();
+        $this->fhirService = new FhirAllergyIntoleranceService($this->apiBaseURL);
     }
 
     protected function tearDown(): void
@@ -57,38 +73,31 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         }
     }
 
-    private function getReferenceURL($reference) {
-        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
-        $fhirUrl =  $baseUrl . "/apis/default/fhir/";
-        return $fhirUrl . $reference;
+    private function getReferenceURL($reference)
+    {
+        $url = $this->apiBaseURL . $reference;
+        return $url;
     }
 
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
      */
-    public function searchParameterDataProvider()
+    public function searchParameterPatientReferenceDataProvider()
     {
-        $pubpid = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
-        $select = "SELECT `uuid` FROM `lists` WHERE `type`='allergy' AND pid IN (select id FROM patient_data WHERE pubpid LIKE ?) LIMIT 2";
-        $allergy_uuids = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
-        $uuids = array_map(function($v) { return UuidRegistry::uuidToString($v); }, $allergy_uuids);
-        list($uuidPatient1, $uuidPatient2) = $uuids;
-
-
         return [
-//            ['patient', "Patient/$uuidPatient1"],
-//            ['patient', "$uuidPatient1"],
-//            // make sure we can handle different ids
-//            ['patient', "Patient/$uuidPatient2"],
-//            ['patient', "$uuidPatient2"],
-//
-//            // full URL resolution
-//            ["patient", $this->getReferenceURL("Patient/$uuidPatient1")],
-//            ["patient", $this->getReferenceURL("Patient/$uuidPatient2")],
+            ['patient', "Patient/:uuid1"],
+            ['patient', ":uuid1"],
+            // make sure we can handle different ids
+            ['patient', "Patient/:uuid2"],
+            ['patient', ":uuid2"],
 
-            // multiple select
-//            ['patient', "Patient/$uidPatient1,Patient/$uuidPatient2"],
-//            ['patient', "$uidPatient1,$uuidPatient2"],
+            // full URL resolution
+            ["patient", $this->getReferenceURL("Patient/:uuid1")],
+            ["patient", $this->getReferenceURL("Patient/:uuid2")],
+
+            // select reference value on multiple voices
+            ['patient', "Patient/:uuid1,Patient/:uuid2"],
+            ['patient', ":uuid1,:uuid2"],
         ];
     }
 
@@ -96,14 +105,26 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
      * Tests getAll queries
      * @covers ::getAll
      * @covers ::searchForOpenEMRRecords
-     * @dataProvider searchParameterDataProvider
+     * @dataProvider searchParameterPatientReferenceDataProvider
      */
-//    public function testGetAll($parameterName, $parameterValue)
-//    {
-//        $fhirSearchParameters = [$parameterName => $parameterValue];
-//        $processingResult = $this->fhirService->getAll($fhirSearchParameters);
-//        $this->assertGetAllSearchResults($processingResult);
-//    }
+    public function testGetAllPatientReference($parameterName, $parameterValue)
+    {
+        $pubpid = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $select = "SELECT `uuid` FROM `lists` WHERE `type`='allergy' AND pid IN (select id FROM patient_data WHERE pubpid LIKE ?) LIMIT 2";
+        $allergy_uuids = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
+        $uuids = array_map(function ($v) {
+            return UuidRegistry::uuidToString($v);
+        }, $allergy_uuids);
+        list($uuidPatient1, $uuidPatient2) = $uuids;
+
+        // replace any values that we will use for searching
+        $parameterValue = str_replace(":uuid1", $uuidPatient1, $parameterValue);
+        $parameterValue = str_replace(":uuid2", $uuidPatient2, $parameterValue);
+
+        $fhirSearchParameters = [$parameterName => $parameterValue];
+        $processingResult = $this->fhirService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+    }
 
     /**
      * Tests getAll queries for the _id search parameter.  Since we can't combine a dataProvider with our test fixture
@@ -133,21 +154,20 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $expectedId = $actualResult->getData()[0]->getId()->getValue();
 
         $actualResult = $this->fhirService->getOne($expectedId);
-        $this->assertGreaterThan(0, $actualResult->getData());
+        $this->assertGreaterThan(0, count($actualResult->getData()), "Data array should have at least one record");
         $actualId = $actualResult->getData()[0]->getId()->getValue();
 
         $this->assertEquals($expectedId, $actualId);
     }
 
-//       /**
-//     * @covers ::getOne with an invalid uuid
-//     */
-//    public function testGetOneInvalidUuid()
-//    {
-//        $this->expectException(\InvalidArgumentException::class);
-//        $actualResult = $this->fhirService->getOne('not-a-uuid');
-//        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
-//        $this->assertEquals(0, count($actualResult->getInternalErrors()));
-//        $this->assertEquals(0, count($actualResult->getData()));
-//    }
+       /**
+     * @covers ::getOne with an invalid uuid
+     */
+    public function testGetOneInvalidUuid()
+    {
+        $actualResult = $this->fhirService->getOne('not-a-uuid');
+        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
+    }
 }

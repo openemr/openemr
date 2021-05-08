@@ -42,9 +42,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      */
     private $allergyIntoleranceService;
 
-    public function __construct()
+    public function __construct($fhirAPIURL = null)
     {
-        parent::__construct();
+        parent::__construct($fhirAPIURL);
         $this->allergyIntoleranceService = new AllergyIntoleranceService();
     }
 
@@ -213,26 +213,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         }
     }
 
-
-    /**
-     * Performs a FHIR AllergyIntolerance Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR recordTimestamp when the activity was recorded / updated's FHIR AllergyIntolerance Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->allergyIntoleranceService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
@@ -242,7 +222,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->allergyIntoleranceService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->allergyIntoleranceService->search($openEMRSearchParameters, false, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())
