@@ -136,14 +136,23 @@ function populateDemographic(pd, g) {
             "country": pd.country || "US",
             "use": "primary home"
         }],
-        "phone": [{
+        "phone": [
+            {
             "number": pd.phone_home,
             "type": "primary home"
-        }],
+        }, {
+                "number": pd.phone_mobile,
+                "type": "primary mobile"
+            }
+        ],
+        /*"phone_mobile": [{
+            "number": pd.phone_mobile,
+            "type": "primary mobile"
+        }],*/
         "ethnicity": pd.ethnicity || "",
         "race": pd.race || "",
         "languages": [{
-            "language": pd.language === 'English' ? "eng" : pd.language === 'Spanish' ? "spa" : 'eng',
+            "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
             "preferred": true,
             "mode": "Expressed spoken",
             "proficiency": "Good"
@@ -193,7 +202,7 @@ function populateProviders() {
         "providers": [
             {
                 "code": {
-                    "name": "NI",
+                    "name": "UNK",
                     "code": "UNK",
                     "code_system_name": "SNOMED CT"
                 },
@@ -215,15 +224,15 @@ function populateProviders() {
                 ],
                 "type": [
                     {
-                        "name": all.primary_care_provider.provider[0].physician_type || "NI",
-                        "code": cleanCode(all.primary_care_provider.provider[0].physician_type_code) || "NI",
+                        "name": all.primary_care_provider.provider[0].physician_type || "UNK",
+                        "code": cleanCode(all.primary_care_provider.provider[0].physician_type_code) || "UNK",
                         "code_system_name": "Provider Codes"
                     }
                 ],
                 "name": [
                     {
-                        "last": all.primary_care_provider.provider[0].lname || "NI",
-                        "first": all.primary_care_provider.provider[0].fname || "NI"
+                        "last": all.primary_care_provider.provider[0].lname || "UNK",
+                        "first": all.primary_care_provider.provider[0].fname || "UNK"
                     }
                 ],
                 "address": [
@@ -376,7 +385,7 @@ function populateMedication(pd) {
         "administration": {
             "route": {
                 "name": pd.route || "",
-                "code": cleanCode(pd.route_code) || "NI",
+                "code": cleanCode(pd.route_code) || "UNK",
                 "code_system_name": "Medication Route FDA"
             },
             "form": {
@@ -570,7 +579,7 @@ function populateEncounter(pd) {
             }],
             "value": {
                 "name": pd.encounter_reason,
-                "code": "NI",
+                "code": "UNK",
                 "code_system_name": "SNOMED CT"
             },
             "date_time": {
@@ -617,13 +626,13 @@ function populateAllergy(pd) {
             "severity": {
                 "code": {
                     "name": pd.outcome,
-                    "code": cleanCode(pd.outcome_code) || "NI",
+                    "code": cleanCode(pd.outcome_code) || "UNK",
                     "code_system_name": "SNOMED CT"
                 }
             },
             "status": {
                 "name": pd.status_table,
-                "code": cleanCode(pd.status_code) || "NI",
+                "code": cleanCode(pd.status_code) || "UNK",
                 "code_system_name": "SNOMED CT"
             },
             "reactions": [{
@@ -636,13 +645,13 @@ function populateAllergy(pd) {
                 },
                 "reaction": {
                     "name": pd.reaction_text,
-                    "code": cleanCode(pd.reaction_code) || "NI",
+                    "code": cleanCode(pd.reaction_code) || "UNK",
                     "code_system_name": "SNOMED CT"
                 },
                 "severity": {
                     "code": {
                         "name": pd.outcome,
-                        "code": cleanCode(pd.outcome_code) || "NI",
+                        "code": cleanCode(pd.outcome_code) || "UNK",
                         "code_system_name": "SNOMED CT"
                     }
                 }
@@ -803,6 +812,13 @@ function populateProcedure(pd) {
 
 function populateResult(pd) {
     let icode = pd.subtest.abnormal_flag;
+    let value = parseFloat(pd.subtest.result_value) || pd.subtest.result_value || "";
+    let type = isNaN(value) ? "ST" : "PQ";
+    type = !pd.subtest.unit ? "ST" : type;
+    value += "";
+    let range_type =  pd.subtest.range.toUpperCase() == "NEGATIVE" ? "CO" : type;
+    type =  value.toUpperCase() == "NEGATIVE" ? "CO" : type;
+
     switch (pd.subtest.abnormal_flag.toUpperCase()) {
         case "NO":
             icode = "Normal";
@@ -811,7 +827,7 @@ function populateResult(pd) {
             icode = "Abnormal";
             break;
         case "":
-            icode = "NI";
+            icode = "UNK";
             break;
     }
     return {
@@ -821,7 +837,7 @@ function populateResult(pd) {
         }],
         "result": {
             "name": pd.title,
-            "code": cleanCode(pd.subtest.result_code) || "NI",
+            "code": cleanCode(pd.subtest.result_code) || "UNK",
             "code_system_name": "LOINC"
         },
         "date_time": {
@@ -832,16 +848,18 @@ function populateResult(pd) {
         },
         "status": pd.order_status,
         "reference_range": {
-            "range": pd.subtest.range //OpenEMR doesn't have high/low so show range as text.
+            "low": pd.subtest.low,
+            "high": pd.subtest.high,
+            "unit": pd.subtest.unit,
+            "type": type,
+            "range_type": range_type
         },
-        /*"reference_range": {
-            "low": pd.subtest.range,
-            "high": pd.subtest.range,
-            "unit": pd.subtest.unit
-        },*/
         "interpretations": [icode],
-        "value": parseFloat(pd.subtest.result_value) || pd.subtest.result_value || "NI",
-        "unit": pd.subtest.unit
+        "value": value + "",
+        "unit": pd.subtest.unit,
+        "type": type,
+        "range": pd.subtest.range,
+        "range_type": range_type
     };
 }
 
@@ -909,16 +927,16 @@ function getResultSet(results) {
 function getPlanOfCare(pd) {
     return {
         "plan": {
-            "name": pd.code_text || "NI",
-            "code": cleanCode(pd.code) || "NI",
+            "name": pd.code_text || "UNK",
+            "code": cleanCode(pd.code) || "UNK",
             "code_system_name": pd.code_type || "SNOMED CT"
         },
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809b4a"
         }],
         "goal": {
-            "code": cleanCode(pd.code) || "NI",
-            "name": pd.description || "NI"
+            "code": cleanCode(pd.code) || "UNK",
+            "name": pd.description || "UNK"
         },
         "date_time": {
             "center": {
@@ -1047,7 +1065,7 @@ function populateVital(pd) {
                 },
                 "interpretations": ["Normal"],
                 "value": parseFloat(pd.temperature),
-                "unit": "degF"
+                "unit": pd.unit_temperature
             },
             {
                 "identifiers": [{
@@ -1076,7 +1094,7 @@ function populateVital(pd) {
                 }],
                 "vital": {
                     "name": "Weight Measured",
-                    "code": "3141-9",
+                    "code": "29463-7",
                     "code_system_name": "LOINC"
                 },
                 "status": "completed",
@@ -1109,6 +1127,26 @@ function populateVital(pd) {
                 "interpretations": ["Normal"],
                 "value": parseFloat(pd.BMI),
                 "unit": "kg/m2"
+            }, {
+                "identifiers": [{
+                    "identifier": pd.sha_extension,
+                    "extension": pd.extension_oxygen_saturation
+                }],
+                "vital": {
+                    "name": "O2 % BldC Oximetry",
+                    "code": "59408-5",
+                    "code_system_name": "LOINC"
+                },
+                "status": "completed",
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": getPrecision(fDate(pd.effectivetime))
+                    }
+                },
+                "interpretations": ["Normal"],
+                "value": parseFloat(pd.oxygen_saturation),
+                "unit": "%"
             }
         ]
     }
@@ -1155,13 +1193,13 @@ function populateImmunization(pd) {
                     "code_system_name": "CVX"
                 }]*/
             },
-            "lot_number": "NI",
+            "lot_number": "UNK",
             "manufacturer": "UNK"
         },
         "administration": {
             "route": {
                 "name": pd.route_of_administration,
-                "code": cleanCode(pd.route_code) || "NI",
+                "code": cleanCode(pd.route_code) || "UNK",
                 "code_system_name": "Medication Route FDA"
             }/*,
             "dose": {
@@ -1533,7 +1571,7 @@ function populateHeader(pd) {
         },*/
         /*"service_event": {
             "code": {
-                "name": "NI",
+                "name": "UNK",
                 "code": "UNK",
                 "code_system_name": "SNOMED CT"
             },

@@ -131,7 +131,7 @@ exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.1.1", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1.1"),
                 fieldLevel.templateCode("MedicationsSection"),
                 fieldLevel.templateTitle("MedicationsSection"), {
@@ -249,7 +249,7 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.3.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3.1"),
                 fieldLevel.templateCode("ResultsSection"),
                 fieldLevel.templateTitle("ResultsSection"), {
@@ -406,6 +406,7 @@ exports.socialHistorySection = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.17", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.17"),
                 fieldLevel.templateCode("SocialHistorySection"),
                 fieldLevel.templateTitle("SocialHistorySection"), {
@@ -440,7 +441,7 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.4.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4.1"),
                 fieldLevel.templateCode("VitalSignsSection"),
                 fieldLevel.templateTitle("VitalSignsSection"), {

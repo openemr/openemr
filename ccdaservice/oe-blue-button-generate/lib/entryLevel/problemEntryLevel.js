@@ -74,7 +74,7 @@ var problemObservation = {
         fieldLevel.id, {
             key: "code",
             attributes: {
-                code: "64572001", codeSystem: "2.16.840.1.113883.6.96", displayName: "Complaint"
+                code: "64572001", codeSystem: "2.16.840.1.113883.6.96", displayName: "Condition"
             },
             content: [{
                 key: "translation",

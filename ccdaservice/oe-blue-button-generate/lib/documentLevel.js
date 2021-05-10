@@ -108,7 +108,7 @@ exports.ccd2 = function (html_renderer) {
         attributes: {
             "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "xmlns": "urn:hl7-org:v3",
-            "xmlns:cda": "urn:hl7-org:v3",
+            "xmlns:voc": "urn:hl7-org:v3/voc",
             "xmlns:sdtc": "urn:hl7-org:sdtc"
         },
         content: [{
@@ -123,7 +123,9 @@ exports.ccd2 = function (html_renderer) {
                     extension: "POCD_HD000040"
                 }
             },
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.2", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.2"), [fieldLevel.id, dataKey("meta.identifiers")], {
                 key: "code",
                 attributes: {

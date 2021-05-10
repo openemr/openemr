@@ -13,7 +13,7 @@ var documentLevel = require('./lib/documentLevel');
 var bbuo = bbu.object;
 
 var html_renderer = require('./lib/htmlHeaders');
-
+global.doc_date = "index";
 var createContext = (function () {
     var base = {
         nextReference: function (referenceKey) {
@@ -44,6 +44,7 @@ var createContext = (function () {
             result.rootId = null;
         }
         result.preventNullFlavor = options.preventNullFlavor;
+        result.doc_date = options.meta.doc_date;
 
         return result;
     };

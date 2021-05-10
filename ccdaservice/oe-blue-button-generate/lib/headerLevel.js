@@ -53,6 +53,10 @@ var patient = exports.patient = {
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "race"
         }, {
+            key: "raceCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "race_additional"
+        }, {
             key: "ethnicGroupCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "ethnicity"
