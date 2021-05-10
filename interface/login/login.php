@@ -91,7 +91,7 @@ $loginrow = "row login-row align-items-center m-5";
 if ($GLOBALS['login_page_layout'] == 'left') {
     $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
     $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
-} else if ($GLOBALS['login_page_layout'] == 'right') {
+} elseif ($GLOBALS['login_page_layout'] == 'right') {
     $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
     $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
 } else {
@@ -168,6 +168,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 }
                 document.cookie = mycookie;
             <?php } ?>
+            document.forms[0].submit();
             return true;
         }
     </script>
