@@ -1377,7 +1377,7 @@
             ]
           },
           {
-            "label": "Message Report",
+            "label": "Message List",
             "menu_id": "rep0",
             "target": "rep",
             "url": "/interface/reports/message_list.php",
