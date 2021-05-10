@@ -184,7 +184,7 @@ if (!empty($_POST['form_refresh'])) { ?>
             $where .= " AND p.pubpid = ?";
             array_push($sqlBindArray, $form_patient_id);
         }
-      
+
         $query = "SELECT pn.id, pn.date, pn.body, pn.pid, pn.user, pn.groupname, " .
         "pn.activity, pn.authorized, pn.title, pn.assigned_to, pn.deleted, pn.message_status, " .
         "pn.portal_relation, pn.is_msg_encrypted, pn.update_by, pn.update_date, " .
@@ -198,7 +198,7 @@ if (!empty($_POST['form_refresh'])) { ?>
 
         $res = sqlStatement($query, $sqlBindArray);
 
-        while ($row = sqlFetchArray($res)) {           
+        while ($row = sqlFetchArray($res)) {
             $msg_date        = $row['date'];
             $user            = $row['user'];
             $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
@@ -236,9 +236,9 @@ if (!empty($_POST['form_refresh'])) { ?>
             <?php echo text($update_date); ?>
   </td>  
  </tr>     
- <?php
+            <?php
         } // end while
-} // end if post refresh ?>
+    } // end if post refresh ?>
        
 </tbody>
 </table>
