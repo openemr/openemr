@@ -179,7 +179,7 @@ if (!empty($_POST['form_refresh'])) { ?>
         $sqlBindArray = array();
 
         $where = "pn.date >= ? AND pn.date <= ?";
-        array_push($sqlBindArray, $form_from_date, $form_to_date);
+        array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");
 
         if ($form_patient_id) {
             $where .= " AND p.pubpid = ?";
