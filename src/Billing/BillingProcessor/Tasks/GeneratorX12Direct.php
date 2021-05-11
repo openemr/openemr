@@ -282,7 +282,6 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             // if validating (sending to screen for user)
             $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
-            exit();
         });
     }
 
