@@ -33,7 +33,17 @@ $userService = new UserService();
 
 $form_from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-?>
+
+// In the case of CSV export only, a download will be forced.
+if (!empty($_POST['form_csvexport'])) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=message_list.csv");
+    header("Content-Description: File Transfer");
+} else {
+    ?>
 <html>
 <head>
 
@@ -57,12 +67,6 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
         });
     });
 
-    // The OnClick handler for receipt display.
-    function show_receipt(payid) {
-        // dlgopen('../patient_file/front_payment.php?receipt=1&payid=' + payid, '_blank', 550, 400);
-        return false;
-    }
-
 </script>
 
 <style>
@@ -76,6 +80,7 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
     #report_parameters_daterange {
         visibility: visible;
         display: inline;
+        margin-bottom: 10px;
     }
     #report_results table {
        margin-top: 0px;
@@ -87,6 +92,9 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
     #report_parameters_daterange {
         visibility: hidden;
         display: none;
+    }
+    #report_results {
+        width: 100%;
     }
 }
 
@@ -110,6 +118,7 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
 <div id="report_parameters">
 
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 <table>
  <tr>
   <td width='640px'>
@@ -141,8 +150,11 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
             <td>
        <div class="text-center">
                 <div class="btn-group" role="group">
-                    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
+                    </a>
+                    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+                        <?php echo xlt('Export to CSV'); ?>
                     </a>
                     <?php if (!empty($_POST['form_refresh'])) { ?>
                     <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
@@ -158,98 +170,134 @@ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['for
  </tr>
 </table>
 </div> <!-- end of parameters -->
-
 <?php
-if (!empty($_POST['form_refresh'])) { ?>
+} // end not form_csvexport
+
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
+    if ($_POST['form_csvexport']) {
+        // CSV headers:
+        echo csvEscape(xl('Date')) . ',';
+        echo csvEscape(xl('User')) . ',';
+        echo csvEscape(xl('Patient')) . ',';
+        echo csvEscape(xl('DOB')) . ',';
+        echo csvEscape(xl('TYPE')) . ',';
+        echo csvEscape(xl('Status')) . ',';
+        echo csvEscape(xl('Updated By')) . ',';
+        echo csvEscape(xl('Last Update')) . '\n';
+    } else {
+        ?>
 <div id="report_results">
 <table class='table' id='mymaintable'>
-<thead class='thead-light'>
-<th> <?php echo xlt('Date'); ?> </th>
-<th> <?php echo xlt('User'); ?> </th>
-<th> <?php echo xlt('Patient'); ?> </th>
-<th> <?php echo xlt('DOB'); ?> </th>
-<th> <?php echo xlt('Type'); ?> </th>
-<th> <?php echo xlt('Status'); ?> </th>
-<th> <?php echo xlt('Updated By'); ?> </th>
-<th> <?php echo xlt('Last Update'); ?> </th>
-</thead>
-<tbody>
-    <?php
-    if ($_POST['form_refresh']) {
-        $sqlBindArray = array();
+ <thead class='thead-light'>
+  <th> <?php echo xlt('Date'); ?> </th>
+  <th> <?php echo xlt('User'); ?> </th>
+  <th> <?php echo xlt('Patient'); ?> </th>
+  <th> <?php echo xlt('DOB'); ?> </th>
+  <th> <?php echo xlt('Type'); ?> </th>
+  <th> <?php echo xlt('Status'); ?> </th>
+  <th> <?php echo xlt('Updated By'); ?> </th>
+  <th> <?php echo xlt('Last Update'); ?> </th>
+ </thead>
+ <tbody>
+        <?php
+    } // end not export
+    $sqlBindArray = array();
 
-        $where = "pn.date >= ? AND pn.date <= ?";
-        array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");
+    $where = "pn.date >= ? AND pn.date <= ?";
+    array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");
 
-        if ($form_patient_id) {
-            $where .= " AND p.pubpid = ?";
-            array_push($sqlBindArray, $form_patient_id);
-        }
+    if ($form_patient_id) {
+        $where .= " AND p.pubpid = ?";
+        array_push($sqlBindArray, $form_patient_id);
+    }
 
-        $query = "SELECT pn.id, pn.date, pn.body, pn.pid, pn.user, pn.groupname, " .
-        "pn.activity, pn.authorized, pn.title, pn.assigned_to, pn.deleted, pn.message_status, " .
-        "pn.portal_relation, pn.is_msg_encrypted, pn.update_by, pn.update_date, " .
-        "p.pubpid, p.fname, p.lname, p.mname, p.dob, " .
-        "u.username " .
-        "FROM pnotes AS pn " .
-        "LEFT OUTER JOIN patient_data AS p ON p.pid = pn.pid " .
-        "LEFT OUTER JOIN users AS u ON u.id = pn.user " .
-        "WHERE $where " .
-        "ORDER BY p.lname, p.fname, p.pubpid";
+    $query = "SELECT pn.id, pn.date, pn.body, pn.pid, pn.user, pn.groupname, " .
+    "pn.activity, pn.authorized, pn.title, pn.assigned_to, pn.deleted, pn.message_status, " .
+    "pn.portal_relation, pn.is_msg_encrypted, pn.update_by, pn.update_date, " .
+    "p.pubpid, p.fname, p.lname, p.mname, p.dob, " .
+    "u.username " .
+    "FROM pnotes AS pn " .
+    "LEFT OUTER JOIN patient_data AS p ON p.pid = pn.pid " .
+    "LEFT OUTER JOIN users AS u ON u.id = pn.user " .
+    "WHERE $where " .
+    "ORDER BY p.lname, p.fname, p.pubpid";
 
-        $res = sqlStatement($query, $sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
 
-        while ($row = sqlFetchArray($res)) {
-            $msg_date        = $row['date'];
-            $user            = $row['user'];
-            $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
-            $patient_id      = $row['pubpid'];
-            $patient_dob     = $row['dob'];
-            $msg_type        = $row['title'];
-            $msg_status      = $row['message_status'];
-            $username        = $userService->getUser($row['update_by']);
-            $update_by       = $username['username'];
-            $update_date     = $row['update_date'];
-            ?>
+    while ($row = sqlFetchArray($res)) {
+        $msg_date        = $row['date'];
+        $user            = $row['user'];
+        $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
+        $patient_id      = $row['pubpid'];
+        $patient_dob     = $row['dob'];
+        $msg_type        = $row['title'];
+        $msg_status      = $row['message_status'];
+        $username        = $userService->getUser($row['update_by']);
+        $update_by       = $username['username'];
+        $update_date     = $row['update_date'];
+        if ($_POST['form_csvexport']) {
+            echo csvEscape(oeFormatShortDate(substr($msg_date, 0, 10))) . ',';
+            echo csvEscape($user) . ',';
+            echo csvEscape($row['fname']) . ',';
+            echo csvEscape($row['mname']) . ',';
+            echo csvEscape($row['pubpid']) . ',';
+            echo csvEscape(xl($row['street'])) . ',';
+            echo csvEscape(xl($row['city'])) . ',';
+            echo csvEscape(xl($row['state'])) . ',';
+            echo csvEscape($row['postal_code']) . ',';
+            echo csvEscape($row['phone_home']) . ',';
+            echo csvEscape($row['phone_biz']) . "\n";
+        } else {
+        ?>
    <tr>
     <td>
             <?php echo text($msg_date); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($user); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($patient_name); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($patient_dob); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($msg_type); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($msg_status); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($update_by); ?>
-  </td>
-  <td>
+    </td>
+    <td>
             <?php echo text($update_date); ?>
-  </td>  
- </tr>     
-            <?php
-        } // end while
-    } // end if post refresh ?>
-       
+    </td>  
+   </tr>     
+        <?php
+        } // end not export
+    } // end while
+    ?>       
 </tbody>
 </table>
 </div> <!-- end of results -->
-<?php } else { ?>
+<?php 
+} // end if refresh or export
+if (empty($_POST['form_refresh']) && empty($_POST['form_csvexport'])) {
+?>
 <div class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-<?php } ?>
+    <?php 
+}
+if (empty($_POST['form_csvexport'])) {
+    ?>
 </form>
 </body>
 
 </html>
+    <?php
+} // end not export
+?>
+
