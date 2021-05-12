@@ -49,7 +49,7 @@ if (!empty($_POST['form_csvexport'])) {
 
 <title><?php echo xlt('Message List'); ?></title>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <script>
 
@@ -170,7 +170,7 @@ if (!empty($_POST['form_csvexport'])) {
  </tr>
 </table>
 </div> <!-- end of parameters -->
-<?php
+    <?php
 } // end not form_csvexport
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
@@ -178,12 +178,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         // CSV headers:
         echo csvEscape(xl('Date')) . ',';
         echo csvEscape(xl('User')) . ',';
-        echo csvEscape(xl('Patient')) . ',';
+        echo csvEscape(xl('Last Name')) . ',';
+        echo csvEscape(xl('First Name')) . ',';
+        echo csvEscape(xl('PID')) . ',';
         echo csvEscape(xl('DOB')) . ',';
         echo csvEscape(xl('TYPE')) . ',';
         echo csvEscape(xl('Status')) . ',';
         echo csvEscape(xl('Updated By')) . ',';
-        echo csvEscape(xl('Last Update')) . '\n';
+        echo csvEscape(xl('Last Update')) . "\n";
     } else {
         ?>
 <div id="report_results">
@@ -192,6 +194,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <th> <?php echo xlt('Date'); ?> </th>
   <th> <?php echo xlt('User'); ?> </th>
   <th> <?php echo xlt('Patient'); ?> </th>
+  <th> <?php echo xlt('PID'); ?> </th>
   <th> <?php echo xlt('DOB'); ?> </th>
   <th> <?php echo xlt('Type'); ?> </th>
   <th> <?php echo xlt('Status'); ?> </th>
@@ -238,17 +241,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr($msg_date, 0, 10))) . ',';
             echo csvEscape($user) . ',';
+            echo csvEscape($row['lname']) . ',';
             echo csvEscape($row['fname']) . ',';
-            echo csvEscape($row['mname']) . ',';
-            echo csvEscape($row['pubpid']) . ',';
-            echo csvEscape(xl($row['street'])) . ',';
-            echo csvEscape(xl($row['city'])) . ',';
-            echo csvEscape(xl($row['state'])) . ',';
-            echo csvEscape($row['postal_code']) . ',';
-            echo csvEscape($row['phone_home']) . ',';
-            echo csvEscape($row['phone_biz']) . "\n";
+            echo csvEscape($patient_id) . ',';
+            echo csvEscape($patient_dob) . ',';
+            echo csvEscape(xl($msg_type)) . ',';
+            echo csvEscape(xl($msg_status)) . ',';
+            echo csvEscape($update_by) . ',';
+            echo csvEscape(oeFormatShortDate(substr($update_date, 0, 10))) . "\n";
         } else {
-        ?>
+            ?>
    <tr>
     <td>
             <?php echo text($msg_date); ?>
@@ -258,6 +260,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     </td>
     <td>
             <?php echo text($patient_name); ?>
+    </td>
+    <td>
+            <?php echo text($patient_id); ?>
     </td>
     <td>
             <?php echo text($patient_dob); ?>
@@ -274,22 +279,24 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     <td>
             <?php echo text($update_date); ?>
     </td>  
-   </tr>     
-        <?php
+   </tr>              
+            <?php
         } // end not export
     } // end while
-    ?>       
-</tbody>
+    if (empty($_POST['form_csvexport'])) {
+        ?>
+ </tbody>
 </table>
 </div> <!-- end of results -->
-<?php 
+        <?php
+    } // end not export
 } // end if refresh or export
 if (empty($_POST['form_refresh']) && empty($_POST['form_csvexport'])) {
-?>
+    ?>
 <div class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-    <?php 
+    <?php
 }
 if (empty($_POST['form_csvexport'])) {
     ?>
