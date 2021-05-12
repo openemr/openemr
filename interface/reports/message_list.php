@@ -182,7 +182,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         echo csvEscape(xl('First Name')) . ',';
         echo csvEscape(xl('PID')) . ',';
         echo csvEscape(xl('DOB')) . ',';
-        echo csvEscape(xl('TYPE')) . ',';
+        echo csvEscape(xl('Type')) . ',';
         echo csvEscape(xl('Status')) . ',';
         echo csvEscape(xl('Updated By')) . ',';
         echo csvEscape(xl('Last Update')) . "\n";
