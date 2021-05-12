@@ -100,6 +100,15 @@ function tabRefresh(data,evt)
     }
 }
 
+function tabRefreshByName(name) {
+    for (var tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
+        var curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+        if (curTab.name() === name) {
+            tabRefresh(curTab);
+        }
+    }
+}
+
 function tabClose(data,evt)
 {
     //remove the tab
