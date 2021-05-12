@@ -153,10 +153,10 @@ if (!empty($_POST['form_csvexport'])) {
                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                     <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Export to CSV'); ?>
                     </a>
-                    <?php if (!empty($_POST['form_refresh'])) { ?>
                     <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                     </a>
