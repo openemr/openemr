@@ -10,13 +10,10 @@ var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
 var patientName = Object.create(fieldLevel.usRealmName);
-var patientBirthName = Object.create(fieldLevel.usBirthName);
 patientName.attributes = {
     use: "L"
 };
-/*patientBirthName.attributes = {
-    qualifier: "BR"
-};*/
+
 var patient = exports.patient = {
     key: "patient",
     content: [
@@ -304,7 +301,7 @@ var headerAuthor = exports.headerAuthor = {
     key: "author",
     content: [{
         key: "time"
-    },
+        },
         [fieldLevel.timeNow, required, key("time")],
         {
             key: "assignedAuthor",

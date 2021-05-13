@@ -104,6 +104,14 @@ exports.statusCodeNew = {
     }
 };
 
+var effectiveDocumentTime = exports.effectiveDocumentTime = {
+    key: "effectiveTime",
+    attributes: {
+        "value": leafLevel.inputProperty("date"),
+    },
+    dataKey: 'meta.ccda_header.date_time'
+};
+
 var effectiveTimeNow = exports.effectiveTimeNow = {
     key: "effectiveTime",
     attributes: {
@@ -114,7 +122,7 @@ var effectiveTimeNow = exports.effectiveTimeNow = {
 var timeNow = exports.timeNow = {
     key: "time",
     attributes: {
-        "value": moment().format("YYYYMMDDHHMMSS"),
+        "value": moment().format("YYYYMMDD"),
     }
 };
 
@@ -240,26 +248,6 @@ var usRealmName = exports.usRealmName = {
         text: leafLevel.inputProperty("suffix")
     }],
     dataKey: "name",
-    dataTransform: translate.name
-};
-
-var usBirthName = exports.usBirthName = {
-    key: "name",
-    content: [{
-        key: "family",
-        text: leafLevel.inputProperty("family")
-    }, {
-        key: "given",
-        text: leafLevel.input,
-        dataKey: "given"
-    }, {
-        key: "prefix",
-        text: leafLevel.inputProperty("prefix")
-    }, {
-        key: "suffix",
-        text: leafLevel.inputProperty("suffix")
-    }],
-    dataKey: "birth_name",
     dataTransform: translate.name
 };
 

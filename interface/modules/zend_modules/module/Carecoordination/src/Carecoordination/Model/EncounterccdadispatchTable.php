@@ -56,6 +56,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <fname>" . xmlEscape($result['fname']) . "</fname>
             <mname>" . xmlEscape($result['mname']) . "</mname>
             <lname>" . xmlEscape($result['lname']) . "</lname>
+            <birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
+            <birth_mname>" . xmlEscape($result['birth_mname']) . "</birth_mname>
+            <birth_lname>" . xmlEscape($result['birth_lname']) . "</birth_lname>
             <street>" . xmlEscape($result['street']) . "</street>
             <city>" . xmlEscape($result['city']) . "</city>
             <state>" . xmlEscape($result['state']) . "</state>

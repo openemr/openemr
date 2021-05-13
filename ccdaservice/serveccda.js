@@ -25,9 +25,12 @@ function trim(s) {
     return s;
 }
 
-function fDate(str) {
+function fDate(str, lim8=false) {
     str = String(str);
-
+    if (lim8) {
+        let rtn = str.substring(0, 8);
+        return rtn;
+    }
     if (Number(str) === 0) {
         return (new Date()).toISOString().slice(0, 10).replace(/-/g, "");
     }
@@ -117,9 +120,9 @@ function populateDemographic(pd, g) {
             "first": pd.fname
         },
         "birth_name": {
-            "middle": pd.bmname || pd.mname,
-            "last": pd.blname || pd.lname,
-            "first": pd.bfname || pd.fname
+            "middle": pd.birth_mname || pd.mname,
+            "last": pd.birth_lname || pd.lname,
+            "first": pd.birth_fname || pd.fname
         },
         "dob": {
             "point": {
@@ -1446,16 +1449,15 @@ function populateHeader(pd) {
             "2.16.840.1.113883.10.20.22.1.1",
             "2.16.840.1.113883.10.20.22.1.2"
         ],
-        "title": "Clinical Health Summary",
+        "title": "OpenEMR Transitions of Care : Consolidated CDA",
         "date_time": {
-            "point": {
-                "date": fDate(pd.created_time) || "",
-                "precision": getPrecision(fDate(pd.created_time))
-            }
+            "date": pd.created_time_timezone,
+            "precision": "none"
         },
         "author": {
             "author": [
                 {
+                    "time": pd.created_time_timezone,
                     "identifiers": [
                         {
                             "identifier": "2.16.840.1.113883.4.6",
@@ -1485,8 +1487,8 @@ function populateHeader(pd) {
                             "number": pd.author.telecom || "UNK",
                             "type": "WP"
                         }
-                    ]
-                    /*"organization": [
+                    ],
+                    "organization": [
                         {
                             "identity": [
                                 {
@@ -1516,7 +1518,7 @@ function populateHeader(pd) {
                                 }
                             ]
                         }
-                    ]*/
+                    ]
                 }
             ]
         },
