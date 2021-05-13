@@ -100,6 +100,21 @@ function tabRefresh(data,evt)
     }
 }
 
+/**
+ *  Given a name, refresh that tab. This code is used to support custom code where it is required
+ *  to programmatically refresh a tab via javascript. This func may not be used by core code, please do not remove.
+ *  
+ * @param name
+ */
+function tabRefreshByName(name) {
+    for (var tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
+        var curTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+        if (curTab.name() === name) {
+            tabRefresh(curTab);
+        }
+    }
+}
+
 function tabClose(data,evt)
 {
     //remove the tab

@@ -118,7 +118,7 @@ $version = $versionService->fetch();
                 <a href="../../acknowledge_license_cert.html" rel="noopener" target="_blank" class="btn btn-secondary btn-block"><i class="fa fa-fw fa-info-circle"></i><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                 <div class="donations-needed">
                     <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br />
-                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UA3UDABCAUZ2S" rel="noopener" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br /><?php echo xlt("DONATE NOW!"); ?></a>
+                    <a href="https://www.open-emr.org/donate/" rel="noopener" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br /><?php echo xlt("DONATE NOW!"); ?></a>
                 </div>
                 <div class="review mb-5">
                     <a href="https://www.softwareadvice.com/medical/openemr-review/?step=1" title="<?php echo xla("Voice your opinion"); ?>" rel="noopener" target="_blank"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/review-logo.svg"); ?></a>

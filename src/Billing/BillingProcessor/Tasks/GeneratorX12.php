@@ -175,7 +175,6 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $format_bat = str_replace('~', PHP_EOL, $this->batch->getBatContent());
         $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
         echo $wrap;
-        exit();
     }
 
     /**
