@@ -10,14 +10,38 @@ var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
 var patientName = Object.create(fieldLevel.usRealmName);
+var patientBirthName = Object.create(fieldLevel.usBirthName);
 patientName.attributes = {
     use: "L"
 };
-
+/*patientBirthName.attributes = {
+    qualifier: "BR"
+};*/
 var patient = exports.patient = {
     key: "patient",
     content: [
-        patientName, {
+        patientName,
+        {
+            key: "name",
+            content: [{
+                key: "given",
+                attributes: {
+                    qualifier: "BR"
+                },
+                text: leafLevel.inputProperty("first")
+            }, {
+                key: "given",
+                text: leafLevel.inputProperty("middle"),
+                existsWhen: condition.keyExists("middle")
+            }, {
+                key: "family",
+                attributes: {
+                    qualifier: "BR"
+                },
+                text: leafLevel.inputProperty("last")
+            }],
+            dataKey: "birth_name"
+        }, {
             key: "administrativeGenderCode",
             attributes: {
                 code: function (input) {
@@ -53,7 +77,7 @@ var patient = exports.patient = {
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "race"
         }, {
-            key: "raceCode",
+            key: "sdtc:raceCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
             dataKey: "race_additional"
         }, {
@@ -146,7 +170,7 @@ var provider = exports.provider = {
                 "codeSystem": "2.16.840.1.113883.12.443",
                 "codeSystemName": "Provider Role"
             },
-            content: [{ key: "originalText",text: "Primary Care Provider"}]
+            content: [{key: "originalText", text: "Primary Care Provider"}]
         },
         {
             key: "assignedEntity",
@@ -185,28 +209,28 @@ var provider = exports.provider = {
                 }],
                 dataKey: "address"
             }, {
-                    key: "telecom",
-                    attributes: [{
-                        use: "WP",
-                        value: function (input) {
-                            return input.value.number;
-                        }
-                    }],
-                    dataKey: "phone"
-                }, {
-                    key: "assignedPerson",
+                key: "telecom",
+                attributes: [{
+                    use: "WP",
+                    value: function (input) {
+                        return input.value.number;
+                    }
+                }],
+                dataKey: "phone"
+            }, {
+                key: "assignedPerson",
+                content: [{
+                    key: "name",
                     content: [{
-                        key: "name",
-                        content: [{
-                            key: "given",
-                            text: leafLevel.inputProperty("first")
-                        }, {
-                            key: "family",
-                            text: leafLevel.inputProperty("last")
-                        }],
-                        dataKey: "name"
-                    }]
-                }
+                        key: "given",
+                        text: leafLevel.inputProperty("first")
+                    }, {
+                        key: "family",
+                        text: leafLevel.inputProperty("last")
+                    }],
+                    dataKey: "name"
+                }]
+            }
             ]
         }
     ],
@@ -292,107 +316,107 @@ var headerAuthor = exports.headerAuthor = {
                 },
                 dataKey: 'author.identifiers',
             }, {
-                    key: "addr",
-                    attributes: {
-                        use: leafLevel.use("use")
-                    },
-                    content: [{
-                        key: "country",
-                        text: leafLevel.inputProperty("country")
-                    }, {
-                        key: "state",
-                        text: leafLevel.inputProperty("state")
-                    }, {
-                        key: "city",
-                        text: leafLevel.inputProperty("city")
-                    }, {
-                        key: "postalCode",
-                        text: leafLevel.inputProperty("zip")
-                    }, {
-                        key: "streetAddressLine",
-                        text: leafLevel.input,
-                        dataKey: "street_lines"
-                    }],
-                    dataKey: "author.address"
-                },{
-                    key: "telecom",
-                    attributes: {
-                        value: leafLevel.inputProperty("number"),
-                        use: leafLevel.inputProperty("type")
-                    },
-                    dataKey: "author.phone",
-                    //dataTransform: translate.telecom
+                key: "addr",
+                attributes: {
+                    use: leafLevel.use("use")
+                },
+                content: [{
+                    key: "country",
+                    text: leafLevel.inputProperty("country")
                 }, {
-                    key: "assignedPerson",
-                    content: {
-                        key: "name",
-                        content: [
-                            {
-                                key: "family",
-                                text: leafLevel.inputProperty("family")
-                            }, {
-                                key: "given",
-                                text: leafLevel.input,
-                                dataKey: "given"
-                            }, {
-                                key: "prefix",
-                                text: leafLevel.inputProperty("prefix")
-                            }, {
-                                key: "suffix",
-                                text: leafLevel.inputProperty("suffix")
-                            }],
-                        dataKey: "author.name",
-                        dataTransform: translate.name
-                    } // content
+                    key: "state",
+                    text: leafLevel.inputProperty("state")
                 }, {
-                    key: "representedOrganization",
+                    key: "city",
+                    text: leafLevel.inputProperty("city")
+                }, {
+                    key: "postalCode",
+                    text: leafLevel.inputProperty("zip")
+                }, {
+                    key: "streetAddressLine",
+                    text: leafLevel.input,
+                    dataKey: "street_lines"
+                }],
+                dataKey: "author.address"
+            }, {
+                key: "telecom",
+                attributes: {
+                    value: leafLevel.inputProperty("number"),
+                    use: leafLevel.inputProperty("type")
+                },
+                dataKey: "author.phone",
+                //dataTransform: translate.telecom
+            }, {
+                key: "assignedPerson",
+                content: {
+                    key: "name",
                     content: [
                         {
-                            key: "id",
-                            attributes: {
-                                root: leafLevel.inputProperty("root")
-                            },
-                            dataKey: "identity"
+                            key: "family",
+                            text: leafLevel.inputProperty("family")
                         }, {
-                            key: "name",
+                            key: "given",
                             text: leafLevel.input,
-                            dataKey: "name"
+                            dataKey: "given"
                         }, {
-                            key: "telecom",
-                            attributes: {
-                                value: leafLevel.inputProperty("value"),
-                                use: leafLevel.inputProperty("use")
-                            },
-                            dataTransform: translate.telecom,
-                            datakey: "phone"
+                            key: "prefix",
+                            text: leafLevel.inputProperty("prefix")
+                        }, {
+                            key: "suffix",
+                            text: leafLevel.inputProperty("suffix")
+                        }],
+                    dataKey: "author.name",
+                    dataTransform: translate.name
+                } // content
+            }, {
+                key: "representedOrganization",
+                content: [
+                    {
+                        key: "id",
+                        attributes: {
+                            root: leafLevel.inputProperty("root")
                         },
-                        {
-                            key: "addr",
-                            attributes: {
-                                use: leafLevel.use("use")
-                            },
-                            content: [{
-                                key: "country",
-                                text: leafLevel.inputProperty("country")
-                            }, {
-                                key: "state",
-                                text: leafLevel.inputProperty("state")
-                            }, {
-                                key: "city",
-                                text: leafLevel.inputProperty("city")
-                            }, {
-                                key: "postalCode",
-                                text: leafLevel.inputProperty("zip")
-                            }, {
-                                key: "streetAddressLine",
-                                text: leafLevel.input,
-                                dataKey: "street_lines"
-                            }],
-                            dataKey: "address"
-                        }
-                    ],
-                    dataKey: "author.organization"
-                }
+                        dataKey: "identity"
+                    }, {
+                        key: "name",
+                        text: leafLevel.input,
+                        dataKey: "name"
+                    }, {
+                        key: "telecom",
+                        attributes: {
+                            value: leafLevel.inputProperty("value"),
+                            use: leafLevel.inputProperty("use")
+                        },
+                        dataTransform: translate.telecom,
+                        datakey: "phone"
+                    },
+                    {
+                        key: "addr",
+                        attributes: {
+                            use: leafLevel.use("use")
+                        },
+                        content: [{
+                            key: "country",
+                            text: leafLevel.inputProperty("country")
+                        }, {
+                            key: "state",
+                            text: leafLevel.inputProperty("state")
+                        }, {
+                            key: "city",
+                            text: leafLevel.inputProperty("city")
+                        }, {
+                            key: "postalCode",
+                            text: leafLevel.inputProperty("zip")
+                        }, {
+                            key: "streetAddressLine",
+                            text: leafLevel.input,
+                            dataKey: "street_lines"
+                        }],
+                        dataKey: "address"
+                    }
+                ],
+                dataKey: "author.organization"
+            }
             ] // content
         }
     ],

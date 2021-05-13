@@ -132,8 +132,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
                 $content = $this->socket_get($this->data);
 
-                // TODO: Is this supposed to be mispelled by the mirth server like this??  Seems odd...
-                if ($content == 'Authetication Failure') {
+                if ($content == 'Authentication Failure') {
                     echo $this->listenerObject->z_xlt($content);
                     die();
                 }
@@ -153,7 +152,7 @@ class EncounterccdadispatchController extends AbstractActionController
             if ($view && !$downloadccda) {
                 $xml = simplexml_load_string($content);
                 $xsl = new \DOMDocument();
-                $xsl->load(dirname(__FILE__) . '/../../../../../public/xsl/ccda.xsl');
+                $xsl->load(__DIR__ . '/../../../../../public/xsl/ccda.xsl');
                 $proc = new \XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
                 $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
@@ -429,8 +428,13 @@ class EncounterccdadispatchController extends AbstractActionController
             $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid, $encounter);
         }
 
-//        if(in_array('referral',$components_list))
-//            $ccd .= $this->getEncounterccdadispatchTable()->getRefferals($pid,$encounter);
+        if (in_array('medical_devices', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getMedicalDeviceList($pid, $encounter);
+        }
+
+        if (in_array('referral', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getReferals($pid, $encounter);
+        }
         return $ccd;
     }
 

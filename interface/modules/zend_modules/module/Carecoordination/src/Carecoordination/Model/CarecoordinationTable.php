@@ -3846,14 +3846,14 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         $appTable = new ApplicationTable();
         if ($option_id) {
-            $query = "SELECT notes
+            $query = "SELECT codes
                   FROM list_options
                   WHERE list_id=? AND option_id=?";
             $result = $appTable->zQuery($query, array($list_id, $option_id));
             $res_cur = $result->current();
         }
 
-        return $res_cur['notes'];
+        return $res_cur['codes'];
     }
     /*
      * Fetch list details

@@ -243,6 +243,26 @@ var usRealmName = exports.usRealmName = {
     dataTransform: translate.name
 };
 
+var usBirthName = exports.usBirthName = {
+    key: "name",
+    content: [{
+        key: "family",
+        text: leafLevel.inputProperty("family")
+    }, {
+        key: "given",
+        text: leafLevel.input,
+        dataKey: "given"
+    }, {
+        key: "prefix",
+        text: leafLevel.inputProperty("prefix")
+    }, {
+        key: "suffix",
+        text: leafLevel.inputProperty("suffix")
+    }],
+    dataKey: "birth_name",
+    dataTransform: translate.name
+};
+
 var telecom = exports.telecom = {
     key: "telecom",
     attributes: {

@@ -68,6 +68,7 @@ var clinicalstatements = {
     "SeriesAct": "2.16.840.1.113883.10.20.22.4.63",
     "SeverityObservation": "2.16.840.1.113883.10.20.22.4.8",
     "SmokingStatusObservation": "2.16.840.1.113883.10.20.22.4.78",
+    "GenderStatusObservation": "2.16.840.1.113883.10.20.22.4.78",
     "SocialHistoryObservation": "2.16.840.1.113883.10.20.22.4.38",
     "SOPInstanceObservation": "2.16.840.1.113883.10.20.6.2.8",
     "StudyAct": "2.16.840.1.113883.10.20.6.2.6",

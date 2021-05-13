@@ -116,6 +116,11 @@ function populateDemographic(pd, g) {
             "last": pd.lname,
             "first": pd.fname
         },
+        "birth_name": {
+            "middle": pd.bmname || pd.mname,
+            "last": pd.blname || pd.lname,
+            "first": pd.bfname || pd.fname
+        },
         "dob": {
             "point": {
                 "date": fDate(pd.dob),
@@ -138,19 +143,16 @@ function populateDemographic(pd, g) {
         }],
         "phone": [
             {
-            "number": pd.phone_home,
-            "type": "primary home"
-        }, {
+                "number": pd.phone_home,
+                "type": "primary home"
+            }, {
                 "number": pd.phone_mobile,
                 "type": "primary mobile"
             }
         ],
-        /*"phone_mobile": [{
-            "number": pd.phone_mobile,
-            "type": "primary mobile"
-        }],*/
         "ethnicity": pd.ethnicity || "",
         "race": pd.race || "",
+        "race_additional": pd.race == "White" ? "European" : "African",
         "languages": [{
             "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
             "preferred": true,
@@ -578,16 +580,17 @@ function populateEncounter(pd) {
                 "extension": pd.extension
             }],
             "value": {
-                "name": pd.encounter_reason,
-                "code": "UNK",
-                "code_system_name": "SNOMED CT"
+                "name": pd.encounter_procedures.procedures.text || encounter_reason,
+                "code": cleanCode(pd.encounter_procedures.procedures.code),
+                "code_system_name": pd.encounter_procedures.procedures.code_type || "ICD10" || "CPT4"
             },
             "date_time": {
                 "low": {
                     "date": fDate(pd.date),
                     "precision": "day"
                 }
-            }
+            },
+            //"status": pd.encounter_procedures.procedures.status
         }]
     };
 }
@@ -646,7 +649,7 @@ function populateAllergy(pd) {
                 "reaction": {
                     "name": pd.reaction_text,
                     "code": cleanCode(pd.reaction_code) || "UNK",
-                    "code_system_name": "SNOMED CT"
+                    "code_system_name": pd.reaction_code_type || "SNOMED CT"
                 },
                 "severity": {
                     "code": {
@@ -810,14 +813,51 @@ function populateProcedure(pd) {
     };
 }
 
+function populateMedicalDevice(pd) {
+    return {
+        "identifiers": [{
+            "identifier": pd.sha_extension,
+            "extension": pd.extension
+        }],
+        "date_time": {
+            "low": {
+                "date": fDate(pd.start_date),
+                "precision": "day"
+            }/*,
+            "high": {
+                "date": fDate(pd.end_date),
+                "precision": "day"
+            }*/
+        },
+        "device_type": "UDI",
+        "device": {
+            "name": pd.code_text,
+            "code": cleanCode(pd.code),
+            "code_system_name": "SNOMED CT",
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.3.3719",
+                "extension": pd.udi
+            }],
+            "status": "completed",
+            "body_sites": [{
+                "name": "",
+                "code": "",
+                "code_system_name": ""
+            }],
+            "udi": pd.udi
+        }
+    }
+}
+
+
 function populateResult(pd) {
     let icode = pd.subtest.abnormal_flag;
     let value = parseFloat(pd.subtest.result_value) || pd.subtest.result_value || "";
     let type = isNaN(value) ? "ST" : "PQ";
     type = !pd.subtest.unit ? "ST" : type;
     value += "";
-    let range_type =  pd.subtest.range.toUpperCase() == "NEGATIVE" ? "CO" : type;
-    type =  value.toUpperCase() == "NEGATIVE" ? "CO" : type;
+    let range_type = pd.subtest.range.toUpperCase() == "NEGATIVE" ? "CO" : type;
+    type = value.toUpperCase() == "NEGATIVE" ? "CO" : type;
 
     switch (pd.subtest.abnormal_flag.toUpperCase()) {
         case "NO":
@@ -1007,66 +1047,66 @@ function populateVital(pd) {
             "value": parseFloat(pd.bpd),
             "unit": "mm[Hg]"
         }, {
-                "identifiers": [{
-                    "identifier": pd.sha_extension,
-                    "extension": pd.extension_pulse
-                }],
-                "vital": {
-                    "name": "Heart Rate",
-                    "code": "8867-4",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.pulse),
-                "unit": "/min"
-            }, {
-                "identifiers": [{
-                    "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.2",
-                    "extension": pd.extension_breath
-                }],
-                "vital": {
-                    "name": "Respiratory Rate",
-                    "code": "9279-1",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.breath),
-                "unit": "/min"
-            }, {
-                "identifiers": [{
-                    "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.3",
-                    "extension": pd.extension_temperature
-                }],
-                "vital": {
-                    "name": "Body Temperature",
-                    "code": "8310-5",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.temperature),
-                "unit": pd.unit_temperature
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_pulse
+            }],
+            "vital": {
+                "name": "Heart Rate",
+                "code": "8867-4",
+                "code_system_name": "LOINC"
             },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.pulse),
+            "unit": "/min"
+        }, {
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.2",
+                "extension": pd.extension_breath
+            }],
+            "vital": {
+                "name": "Respiratory Rate",
+                "code": "9279-1",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.breath),
+            "unit": "/min"
+        }, {
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.3",
+                "extension": pd.extension_temperature
+            }],
+            "vital": {
+                "name": "Body Temperature",
+                "code": "8310-5",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.temperature),
+            "unit": pd.unit_temperature
+        },
             {
                 "identifiers": [{
                     "identifier": pd.sha_extension,
@@ -1165,7 +1205,8 @@ function populateSocialHistory(pd) {
         "code": {
             "name": pd.element
         },
-        "value": pd.description
+        "value": pd.description,
+        "gender": all.patient.gender
     };
 }
 
@@ -1823,6 +1864,25 @@ function genCcda(pd) {
         many.procedures.push(theone);
     }
     data.procedures = Object.assign(many.procedures);
+// Medical Devices
+    many = [];
+    theone = {};
+    many.medical_devices = [];
+    try {
+        count = isOne(pd.medical_devices.device);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.medical_devices.device) {
+            theone[i] = populateMedicalDevice(pd.medical_devices.device[i]);
+            many.medical_devices.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = populateMedicalDevice(pd.medical_devices.device);
+        many.medical_devices.push(theone);
+    }
+    data.medical_devices = Object.assign(many.medical_devices);
 
 // Results
     if (pd.results) {

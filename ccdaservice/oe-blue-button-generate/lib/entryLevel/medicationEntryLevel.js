@@ -207,14 +207,14 @@ exports.medicationActivity = {
                 unit: leafLevel.inputProperty("unit")
             },
             dataKey: "administration.rate"
-        }, {
+        }, /*{
             key: "administrationUnitCode",
             attributes: leafLevel.code,
             existsWhen: function (input) {
                 return (input && input['code'] !== "");
             },
             dataKey: "administration.form"
-        }, {
+        },*/ {
             key: "consumable",
             content: medicationInformation,
             dataKey: "product"
