@@ -69,12 +69,18 @@ var problemObservation = {
         negationInd: leafLevel.boolInputProperty("negation_indicator")
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.4", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.4"),
         fieldLevel.id, {
             key: "code",
             attributes: {
-                code: "409586006", codeSystem: "2.16.840.1.113883.6.96", displayName: "Complaint"
-            }
+                code: "64572001", codeSystem: "2.16.840.1.113883.6.96", displayName: "Condition"
+            },
+            content: [{
+                key: "translation",
+                attributes: leafLevel.code,
+                dataKey: "translations"
+            }],
         },
         fieldLevel.text(leafLevel.nextReference("problem")),
         fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, dataKey("problem.date_time")], {
@@ -152,6 +158,7 @@ exports.problemConcernAct = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.3", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.3"),
         fieldLevel.uniqueId, {
             key: "id",

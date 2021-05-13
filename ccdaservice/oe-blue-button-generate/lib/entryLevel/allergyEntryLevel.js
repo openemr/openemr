@@ -41,6 +41,7 @@ var allergyIntoleranceObservation = exports.allergyIntoleranceObservation = {
         "negationInd": leafLevel.boolInputProperty("negation_indicator")
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.7", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.7"),
         fieldLevel.id,
         fieldLevel.templateCode("AllergyObservation"),
@@ -145,6 +146,7 @@ var allergyProblemAct = exports.allergyProblemAct = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.30", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.30"),
         fieldLevel.uniqueId,
         fieldLevel.id,
