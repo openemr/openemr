@@ -141,7 +141,7 @@ class FhirPractitionerRoleService extends FhirServiceBase
      * Performs a FHIR PractitionerRole Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR PractitionerRole Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = NULL)
     {
         $processingResult = $this->practitionerRoleService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {

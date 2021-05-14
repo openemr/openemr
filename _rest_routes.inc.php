@@ -1003,13 +1003,29 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+
+        // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
+        // that is referenced in connected patient resources -- such as AllergyIntollerance.
+        // I don't believe patients are assigned to a particular practitioner
+        // should we allow just open api access to admin information?  Should we restrict particular pieces
+        // of data in the practitioner side (phone number, address information) based on a permission set?
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+        }
         $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
+
     },
     "GET /fhir/Practitioner/:id" => function ($id, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
+        // that is referenced in connected patient resources -- such as AllergyIntollerance.
+        // I don't believe patients are assigned to a particular practitioner
+        // should we allow just open api access to admin information?  Should we restrict particular pieces
+        // of data in the practitioner side (phone number, address information) based on a permission set?
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+        }
         $return = (new FhirPractitionerRestController())->getOne($id);
         RestConfig::apiLog($return);
         return $return;
