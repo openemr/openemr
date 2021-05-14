@@ -623,7 +623,7 @@ INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `c
 (24, 'goals', 'Goals', 1);
 #EndIf
 
-#IfNotRow ccda_sections ccda_components_id medical_devices
+#IfNotRow ccda_sections ccda_sections_field medical_devices
 INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
 (46, 3, 'medical_devices', 'Medical Devices', 0),
 (47, 3, 'goals', 'Goals', 0);
