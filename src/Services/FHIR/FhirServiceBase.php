@@ -40,7 +40,8 @@ abstract class FhirServiceBase
 
     public function __construct($fhirApiURL = null)
     {
-        $this->resourceSearchParameters = $this->loadSearchParameters();
+        $params = $this->loadSearchParameters();
+        $this->resourceSearchParameters = is_array($params) ? $params : [];
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
 
         // anything using a 'reference' search field MUST have a URL resolver to handle the reference translation
@@ -241,7 +242,9 @@ abstract class FhirServiceBase
         // we restrict the data to JUST that patient.
         if ($this instanceof IPatientCompartmentResourceService) {
             $patientField = $this->getPatientContextSearchField();
-            $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField, [$puuidBind]);
+            // TODO: @adunsulag not sure if every service will already have a defined binding for the patient... I'm assuming for Patient compartments we would...
+            // yet we may need to extend the factory in the future to handle this.
+            $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField->getName(), [$puuidBind]);
         }
 
         return $oeSearchParameters;

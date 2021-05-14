@@ -42,10 +42,24 @@ class OrganizationService extends BaseService
 
     public function getOne($uuid)
     {
-
         $facilityResult = $this->facilityService->getOne($uuid);
         $insuranceResult = $this->insuranceService->getOne($uuid);
         return $this->processResults($facilityResult, $insuranceResult);
+    }
+
+    /**
+     * Retrieves an organization representing a facility given the facility id.  If the organization cannot be found
+     * it returns null.
+     * @param $facilityId  The id of the facility to search on.
+     * @return array|null
+     */
+    public function getFacilityOrganizationById($facilityId) {
+        $facilityResult = $this->facilityService->getById($facilityId);
+        if (!empty($facilityResult)) {
+            $facilityOrgs = $this->getFacilityOrg($facilityResult);
+            return array_pop($facilityOrgs); // return only one record
+        }
+        return null;
     }
 
     private function getFacilityOrg($facilityRecords)

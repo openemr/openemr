@@ -262,7 +262,7 @@ class FhirPersonService extends FhirServiceBase
      * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = NULL)
     {
         $user = $this->userService->getUserByUUID($fhirResourceId);
         $processingResult = new ProcessingResult();

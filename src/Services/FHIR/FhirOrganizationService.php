@@ -9,13 +9,16 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\OrganizationService;
+use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -31,7 +34,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirOrganizationService extends FhirServiceBase
 {
     /**
-     * @var FacilityService
+     * @var OrganizationService
      */
     private $organizationService;
 
@@ -327,11 +330,35 @@ class FhirOrganizationService extends FhirServiceBase
     {
         $organization = $this->organizationService->getPrimaryBusinessEntity();
         if (!empty($organization)) {
+            $fhirOrganization = new FHIROrganization();
             $ref = new FHIRReference();
-            $ref->setType("Organization");
+            $ref->setType($fhirOrganization->get_fhirElementName());
             $uuid = UuidRegistry::uuidToString($organization['uuid']);
             $ref->setReference("Organization/" . $uuid);
+            $ref->setId($uuid);
             return $ref;
+        }
+        return null;
+    }
+
+    /**
+     * Given the uuid of a user assigned to an organization, return a FHIR Reference to the organization record.
+     * @param $userUuid The unique user id of the user we are retrieving the reference for.
+     * @return FHIRReference|null The reference to the organization the user belongs to
+     */
+    public function getOrganizationReferenceForUser($userUuid) {
+        $userService = new UserService();
+        $user = $userService->getUserByUUID($userUuid);
+        if (!empty($user)) {
+            $organization = $this->organizationService->getFacilityOrganizationById($user['facility_id']);
+            if (!empty($organization)) {
+                $reference = new FHIRReference();
+                $fhirOrganization = new FHIROrganization();
+                $reference->setType($fhirOrganization->get_fhirElementName());
+                $reference->setReference(($fhirOrganization->get_fhirElementName() . $organization['uuid']));
+                $reference->setId($organization['id']);
+                return $reference;
+            }
         }
         return null;
     }

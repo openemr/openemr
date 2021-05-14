@@ -55,6 +55,7 @@ class AllergyIntoleranceService extends BaseService
 
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
+        lists.title,
         practitioners.uuid as practitioner,
         practitioners.practitioner_uuid,
         organizations.uuid as organization,
@@ -63,6 +64,7 @@ class AllergyIntoleranceService extends BaseService
         patient.patient_uuid,
         allergy_ids.allergy_uuid,
         reaction.title as reaction_title,
+        reaction.codes AS reaction_codes,
         verification.title as verification_title
     FROM lists
         INNER JOIN (
@@ -84,6 +86,9 @@ class AllergyIntoleranceService extends BaseService
             ,users.username
             ,users.facility AS organization
             FROM users
+            -- US CORE only allows physicians or patients to be our allergy recorder
+            -- so we will filter out anyone who is not actually a practitioner (May 14th 2021)
+            WHERE users.npi IS NOT NULL -- we only want actual physicians here rather than all users
         ) practitioners ON practitioners.username = lists.user
         LEFT JOIN (
             select 
@@ -113,6 +118,10 @@ class AllergyIntoleranceService extends BaseService
                 $row['organization'];
             if ($row['diagnosis'] != "") {
                 $row['diagnosis'] = $this->addCoding($row['diagnosis']);
+            }
+            if (!empty($row['reaction']) && !empty($row['reaction_codes']))
+            {
+                $row['reaction'] = $this->addCoding($row['reaction_codes']);
             }
             $processingResult->addData($row);
         }

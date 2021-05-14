@@ -108,7 +108,7 @@ class FhirCoverageService extends FhirServiceBase
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = NULL)
     {
         $processingResult = $this->coverageService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {

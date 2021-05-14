@@ -169,6 +169,7 @@ class RestControllerHelper
             $capResource->addSearchRevInclude(self::FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE);
         }
         $searchParams = $service->getSearchParams();
+        $searchParams = is_array($searchParams) ? $searchParams : [];
         foreach ($searchParams as $fhirSearchField => $searchDefinition) {
 
             /**
