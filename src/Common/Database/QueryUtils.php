@@ -41,6 +41,16 @@ class QueryUtils
         return null;
     }
 
+    public static function fetchRecords($sqlStatement, $binds = array())
+    {
+        $result = self::sqlStatementThrowException($sqlStatement, $binds);
+        $list = [];
+        while ($record = sqlFetchArray($result)) {
+            $list[] = $record;
+        }
+        return $list;
+    }
+
     /**
      * Executes the sql statement and returns an associative array for a single column of a table
      * @param $sqlStatement The statement to run

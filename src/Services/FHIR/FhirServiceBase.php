@@ -240,7 +240,7 @@ abstract class FhirServiceBase
 
         // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
         // we restrict the data to JUST that patient.
-        if ($this instanceof IPatientCompartmentResourceService) {
+        if (!empty($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
             $patientField = $this->getPatientContextSearchField();
             // TODO: @adunsulag not sure if every service will already have a defined binding for the patient... I'm assuming for Patient compartments we would...
             // yet we may need to extend the factory in the future to handle this.

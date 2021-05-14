@@ -95,7 +95,7 @@ class FixtureManager
             foreach ($fixture as $field => $fieldValue) {
                 // not sure I like table specific comparisons here...
                 if ($tableName == 'lists' && $field == 'pid') {
-                    $sqlColumnValues .= "pid = (SELECT id FROM patient_data WHERE pubpid=? LIMIT 1) ,";
+                    $sqlColumnValues .= "pid = (SELECT pid FROM patient_data WHERE pubpid=? LIMIT 1) ,";
                 } else {
                     $sqlColumnValues .= $field . " = ?, ";
                 }
@@ -214,7 +214,10 @@ class FixtureManager
     public function installAllergyIntoleranceFixtures()
     {
         $this->installPatientFixtures();
-        return $this->installFixtures("lists", $this->getAllergyIntoleranceFixtures());
+        $installed = $this->installFixtures("lists", $this->getAllergyIntoleranceFixtures());
+        if ($installed < 1) {
+            throw new \RuntimeException("Failed to install allergy intolerance fixtures");
+        }
     }
 
     public function removeAllergyIntoleranceFixtures()
