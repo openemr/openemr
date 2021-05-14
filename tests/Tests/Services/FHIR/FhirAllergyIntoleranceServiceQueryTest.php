@@ -86,7 +86,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     {
         return [
             ['patient', "Patient/:uuid1"],
-            ['patient', ":uuid1"],
+//            ['patient', ":uuid1"],
             // make sure we can handle different ids
             ['patient', "Patient/:uuid2"],
             ['patient', ":uuid2"],
@@ -110,11 +110,12 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     public function testGetAllPatientReference($parameterName, $parameterValue)
     {
         $pubpid = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
-        $select = "SELECT `uuid` FROM `lists` WHERE `type`='allergy' AND pid IN (select id FROM patient_data WHERE pubpid LIKE ?) LIMIT 2";
-        $allergy_uuids = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
+        $select = "SELECT `lists`.`pid`,`patient_data`.`uuid` FROM `lists` INNER JOIN `patient_data` ON `patient_data`.`pid` = "
+         . "`lists`.`pid` WHERE `type`='allergy' and `patient_data`.`pubpid` LIKE ? LIMIT 2";
+        $records = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
         $uuids = array_map(function ($v) {
             return UuidRegistry::uuidToString($v);
-        }, $allergy_uuids);
+        }, $records);
         list($uuidPatient1, $uuidPatient2) = $uuids;
 
         // replace any values that we will use for searching

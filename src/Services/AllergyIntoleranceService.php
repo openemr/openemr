@@ -161,8 +161,6 @@ class AllergyIntoleranceService extends BaseService
             if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
-//            $puuidBytes = UuidRegistry::uuidToBytes($search['lists.pid']);
-//            $search['lists.pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         }
 
         // Validating and Converting UUID to ID
@@ -176,8 +174,6 @@ class AllergyIntoleranceService extends BaseService
             if ($isValidAllergy !== true) {
                 return $isValidAllergy;
             }
-//            $uuidBytes = UuidRegistry::uuidToBytes($search['lists.id']);
-//            $search['lists.id'] = $this->getIdByUuid($uuidBytes, self::ALLERGY_TABLE, "id");
         }
 
         if (!empty($puuidBind)) {
