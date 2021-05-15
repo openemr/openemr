@@ -1377,6 +1377,18 @@
             ]
           },
           {
+            "label": "Message List",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/message_list.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "med"
+            ]
+          },
+          {
             "label": "Clinical",
             "menu_id": "rep0",
             "target": "rep",
