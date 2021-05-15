@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		{% block head %}
+			<meta charset="UTF-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>
+				{% block pagetitle %}{% endblock %}
+			</title>
+		{% endblock %}
+	</head>
+	<body>
+		{% block header %}{% endblock %}
+		{% block content %}{% endblock %}
+		{% block footer %}{% endblock %}
+		{% block scripts %}{% endblock %}
+	</body>
+</html>
