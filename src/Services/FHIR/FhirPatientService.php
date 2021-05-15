@@ -460,7 +460,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // TODO: ONC certification only deals with READ operations, the mapping of FHIR values such as language,ethnicity
         // etc are NOT being done here and so the creation/updating of resources is currently NOT correct, this will
         // need to be addressed by future development work.
-        // TODO: adunsulag open an issue on github so that we can track this TODO.
         $data = array();
 
         if (isset($fhirResource['id'])) {
