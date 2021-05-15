@@ -1,0 +1,53 @@
+{% extends "base.html.twig" %}
+
+{% block head %}
+	{{parent()}}
+	<script>
+		var tab_mode = true;
+		function restoreSession() { // dummy functions so the dlgopen function will work in the patient portal
+		return true;
+		}
+		var isPortal = 1;
+	</script>
+	
+	<script src="{{'../interface/main/tabs/js/dialog_utils.js?v=' ~ jsVersion}}"></script>
+	<link href="{{'/portal/sign/css/signer_modal.css?v=' ~ jsVersion}}" rel="stylesheet"/>
+
+	<script src="{{'/portal/sign/assets/signature_pad.umd.js?v=' ~ jsVersion}}"></script>
+	<script src="{{'/portal/sign/assets/signer_api.js?v=' ~ jsVersion}}"></script>
+{% endblock %}
+
+{% block pagetitle %}
+	{{pagetitle}}
+{% endblock %}
+
+{% block header %}
+	{% include "header.html.twig" %}
+{% endblock %}
+
+{% block content %}
+
+	<h1>Content Area</h1>
+
+	<ul>
+		<li>User =
+			{{user}}</li>
+		<li>Where to =
+			{{whereto}}</li>
+		<li>Result =
+			{{result}}</li>
+		<li>MSGS =
+			{{msgs}}</li>
+		<li>MSG Count ={{msgcnt}}</li>
+		<li>New Count =
+			{{newcnt}}</li>
+		<li>Globals =
+			{{globals}}</li>
+		<li>You Have =
+			{{youHave}}</li>
+		<li>JS Version =
+			{{jsVersion}}</li>
+	</ul>
+
+
+{% endblock %}
