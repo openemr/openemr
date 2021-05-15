@@ -472,6 +472,10 @@ class BaseService
      */
     protected function addCoding($diagnosis)
     {
+        if (empty($diagnosis))
+        {
+            return [];
+        }
         $diags = explode(";", $diagnosis);
         $diagnosis = array();
         foreach ($diags as $diag) {
