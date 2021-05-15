@@ -274,7 +274,7 @@ class PatientService extends BaseService
         }
         return $processingResult;
     }
-    
+
     protected function createResultRecordFromDatabaseResult($record)
     {
         if (!empty($record['uuid'])) {

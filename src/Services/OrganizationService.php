@@ -53,7 +53,8 @@ class OrganizationService extends BaseService
      * @param $facilityId  The id of the facility to search on.
      * @return array|null
      */
-    public function getFacilityOrganizationById($facilityId) {
+    public function getFacilityOrganizationById($facilityId)
+    {
         $facilityResult = $this->facilityService->getById($facilityId);
         if (!empty($facilityResult)) {
             $facilityOrgs = $this->getFacilityOrg($facilityResult);

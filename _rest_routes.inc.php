@@ -1015,7 +1015,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
-
     },
     "GET /fhir/Practitioner/:id" => function ($id, HttpRestRequest $request) {
         // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource

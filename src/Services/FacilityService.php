@@ -278,8 +278,7 @@ class FacilityService extends BaseService
             $sql .= " FROM facility FAC";
 
             return self::selectHelper($sql, $map);
-        }
-        catch (SqlQueryException $exception) {
+        } catch (SqlQueryException $exception) {
             (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }

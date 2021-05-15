@@ -119,8 +119,7 @@ class AllergyIntoleranceService extends BaseService
             if ($row['diagnosis'] != "") {
                 $row['diagnosis'] = $this->addCoding($row['diagnosis']);
             }
-            if (!empty($row['reaction']) && !empty($row['reaction_codes']))
-            {
+            if (!empty($row['reaction']) && !empty($row['reaction_codes'])) {
                 $row['reaction'] = $this->addCoding($row['reaction_codes']);
             }
             $processingResult->addData($row);
