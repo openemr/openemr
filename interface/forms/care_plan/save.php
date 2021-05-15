@@ -34,6 +34,7 @@ $code_date = $_POST["code_date"];
 $code_des = $_POST["description"];
 $count = $_POST["count"];
 $care_plan_type = $_POST['care_plan_type'];
+$care_plan_user = $_POST["user"];
 
 if ($id && $id != 0) {
     sqlStatement("DELETE FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
@@ -57,6 +58,7 @@ if (!empty($count)) {
         $codetext_val = $code_text[$key] ? $code_text[$key] : 'NULL';
         $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
         $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
+        $care_user_val = $care_plan_user[$key] ?: $_SESSION["authUser"];
         $sets = "id = ?,
             pid = ?,
             groupname = ?,
@@ -75,7 +77,7 @@ if (!empty($count)) {
                 $newid,
                 $_SESSION["pid"],
                 $_SESSION["authProvider"],
-                $_SESSION["authUser"],
+                $care_user_val,
                 $_SESSION["encounter"],
                 $userauthorized,
                 $code_val,
