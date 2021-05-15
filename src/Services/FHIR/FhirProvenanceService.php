@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirProvenanceService handles all data model operations against a FHIR provenance resource.
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -31,11 +31,12 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param FHIRReference|null $userWHO The user that will be the provenance agent
      * @return FHIRProvenance|null
      */
-    public function createProvenanceForDomainResource(FHIRDomainResource $resource, FHIRReference $userWHO = null) {
+    public function createProvenanceForDomainResource(FHIRDomainResource $resource, FHIRReference $userWHO = null)
+    {
 
         $targetReference = new FHIRReference();
         $targetReference->setType($resource->get_fhirElementName());
-        $targetReference->setReference($resource->get_fhirElementName() ."/" . $resource->getId());
+        $targetReference->setReference($resource->get_fhirElementName() . "/" . $resource->getId());
 
         $fhirProvenance = new FHIRProvenance();
         $fhirProvenance->addTarget($targetReference);
@@ -66,8 +67,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $orgReference = $fhirOrganizationService->getOrganizationReferenceForUser($searchValue->getId());
         }
 
-        if (empty($orgReference))
-        {
+        if (empty($orgReference)) {
             // easiest provenance is to make the primary business entity organization be the author of the provenance
             // resource.
             $fhirOrganizationService = new FhirOrganizationService();

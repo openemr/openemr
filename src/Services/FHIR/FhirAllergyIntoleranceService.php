@@ -160,15 +160,13 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
         // cardinality is 0..*
         // however in OpenEMR we currently only track a single reaction, we will populate it if we have it.
-        if (!empty($dataRecord['reaction']))
-        {
+        if (!empty($dataRecord['reaction'])) {
             $reaction = new FHIRAllergyIntoleranceReaction();
             $reactionConcept = new FHIRCodeableConcept();
             $conceptText = $dataRecord['reaction_title'] ?? "";
             $reactionConcept->setText($conceptText);
 
-            foreach ($dataRecord['reaction'] as $code => $display)
-            {
+            foreach ($dataRecord['reaction'] as $code => $display) {
                 $reactionCoding = new FHIRCoding();
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings

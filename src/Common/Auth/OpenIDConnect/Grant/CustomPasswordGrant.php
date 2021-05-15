@@ -74,14 +74,16 @@ class CustomPasswordGrant extends PasswordGrant
         if ($user instanceof UserEntityInterface === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
             $clientVars = "undefined";
-            if (empty($client))
-            {
+            if (empty($client)) {
                 $clientVars = ['id' => $client->getIdentifier(), 'name' => $client->getName(), 'redirectUri' => $client->getRedirectUri()];
             }
 
-            (new SystemLogger())->debug("CustomPasswordGrant->validateUser() Failed to find user for request"
-                , ['userrole' => $userrole,'username' => $username, 'email' => $email, 'identifier' => $identifier
-                    , 'client' => $clientVars]);
+            (new SystemLogger())->debug(
+                "CustomPasswordGrant->validateUser() Failed to find user for request",
+                ['userrole' => $userrole,'username' => $username, 'email' => $email, 'identifier' => $identifier
+                ,
+                'client' => $clientVars]
+            );
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
         $_SESSION['pass_user_id'] = $user->getIdentifier();

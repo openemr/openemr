@@ -346,7 +346,8 @@ class FhirOrganizationService extends FhirServiceBase
      * @param $userUuid The unique user id of the user we are retrieving the reference for.
      * @return FHIRReference|null The reference to the organization the user belongs to
      */
-    public function getOrganizationReferenceForUser($userUuid) {
+    public function getOrganizationReferenceForUser($userUuid)
+    {
         $userService = new UserService();
         $user = $userService->getUserByUUID($userUuid);
         if (!empty($user)) {
