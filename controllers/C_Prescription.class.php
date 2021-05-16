@@ -19,6 +19,7 @@ require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class C_Prescription extends Controller
@@ -922,7 +923,7 @@ class C_Prescription extends Controller
         $this->assign("drug", $_POST['drug']);
         $list = array();
         if (!empty($_POST['drug'])) {
-            $list = $this->RxList->get_list($_POST['drug']);
+            $list = $this->RxList->getList($_POST['drug']);
         }
 
         if (is_array($list)) {
