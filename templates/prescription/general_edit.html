@@ -16,9 +16,10 @@
 <script>
 
 {literal}
-    function my_process_lookup(drug) {
+    function my_process_lookup(drug, rxcode = '') {
       // Pass the variable
-      var newOption = new Option(drug, drug, true, true);
+      let newOption = new Option(drug, drug, true, true);
+      $("#rxnorm_drugcode").val(rxcode);
       $('#drug').append(newOption).trigger('change');
       $('#hiddendiv').hide();
       $("#hiddendiv").html( "&nbsp;" );
@@ -260,6 +261,7 @@
 
         <input type="hidden" name="id" value="{$prescription->id|attr}" />
         <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        <input type="hidden" id="rxnorm_drugcode" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}" />
 
         <script>
             {if !empty($ENDING_JAVASCRIPT)}{$ENDING_JAVASCRIPT}{/if}

@@ -67,7 +67,7 @@ class RxList
         $response = oeHttp::get($url, ['name' => $query]);
         $buffer = $response->body();
         return $buffer ? $buffer : false;
-    } // end function RxList::getPage
+    }
 
     function get_list($query)
     {
@@ -75,30 +75,29 @@ class RxList
         $tokens = RxList::parse2tokens($page);
         $hash = RxList::tokens2hash($tokens);
         if (!empty($hash)) {
-        foreach ($hash as $index => $data) {
-            unset($my_data);
-            foreach ($data as $k => $v) {
-                $my_data[$k] = $v;
+            foreach ($hash as $index => $data) {
+                unset($my_data);
+                foreach ($data as $k => $v) {
+                    $my_data[$k] = $v;
+                }
+
+                $rxcui = '';
+
+                if (trim($my_data['rxcui']) !== '') {
+                    $rxcui = " RXCUI:" . trim($my_data['rxcui']);
+                }
+
+                $synonym = '';
+                if (trim($my_data['synonym']) !== '') {
+                    $synonym = " | (" . trim($my_data['synonym']) . ")";
+                }
+
+                $list[trim($my_data['name'] . $rxcui) . $synonym] =
+                    trim($my_data['name']);
             }
-
-            $rxcui = '';
-
-            if (trim($my_data['rxcui']) !== '') {
-                $rxcui = " / " . trim($my_data['rxcui']);
-            }
-
-            $synonym = '';
-            if (trim($my_data['synonym']) !== '') {
-                $synonym = " == (" . trim($my_data['synonym']) . $rxcui . ")";
-            }
-
-            $list[trim($my_data['name']) . $synonym] =
-                trim($my_data['name']);
         }
-    }
-
         return $list;
-    } // end function RxList::get_list
+    }
 
     /* break the web page into a collection of TAGS
      * such as <input ..> or <img ... >
