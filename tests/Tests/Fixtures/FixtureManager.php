@@ -223,17 +223,17 @@ class FixtureManager
     public function removeAllergyIntoleranceFixtures()
     {
         $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
-        $ids = QueryUtils::fetchTableColumn(
-            "SELECT `id` FROM `patient_data` WHERE `pubpid` LIKE ?",
-            'id',
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
             [$pubpid]
         );
 
-        if (!empty($ids)) {
-            $count = count($ids) - 1;
+        if (!empty($pids)) {
+            $count = count($pids) - 1;
             $where = "WHERE pid = ? " . str_repeat("OR pid = ? ", $count);
             $sqlStatement = "DELETE FROM `lists` " . $where;
-            QueryUtils::sqlStatementThrowException($sqlStatement, $ids);
+            QueryUtils::sqlStatementThrowException($sqlStatement, $pids);
         }
         $this->removePatientFixtures();
     }
