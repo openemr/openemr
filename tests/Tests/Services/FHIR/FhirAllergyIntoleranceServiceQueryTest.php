@@ -123,7 +123,11 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $parameterValue = str_replace(":uuid2", $uuidPatient2, $parameterValue);
 
         $fhirSearchParameters = [$parameterName => $parameterValue];
+
+        echo print_r($fhirSearchParameters);
+
         $processingResult = $this->fhirService->getAll($fhirSearchParameters);
+
         $this->assertGetAllSearchResults($processingResult);
     }
 
