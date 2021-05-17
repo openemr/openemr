@@ -25,18 +25,28 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-
+// will never be both
 $is_rxnorm = $_GET['use_rxnorm'] == "true";
+$is_rxcui = $_GET['use_rxcui'] == "true";
 
 if (isset($_GET['term'])) {
     $return_arr = array();
     $term = filter_input(INPUT_GET, "term");
     if ($is_rxnorm) {
-        $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM `rxnconso` WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `name` LIMIT 100";
+        $sql = "SELECT `str` as name, `RXCUI` as `rxnorm` FROM `rxnconso` WHERE `SAB` = 'RXNORM' AND `str` LIKE ? GROUP BY `RXCUI` ORDER BY `str` LIMIT 100";
+    } elseif ($is_rxcui) {
+        $sql = "SELECT `code_text` as name, `code` as rxnorm FROM `codes` WHERE `code_text` LIKE ? AND `code_type` = ? GROUP BY `code` ORDER BY `code_text` LIMIT 100";
     } else {
-        $sql = "SELECT `name`, `drug_code` as rxnorm FROM `drugs` WHERE `name` LIKE ? GROUP BY `rxnorm` ORDER BY `name` LIMIT 100";
+        $sql = "SELECT `name`, `drug_code` as rxnorm FROM `drugs` WHERE `name` LIKE ? GROUP BY `drug_code` ORDER BY `name` LIMIT 100";
     }
     $val = array($term . '%');
+    if ($is_rxcui) {
+        $code_type = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
+        $val = array($term . '%', $code_type['ct_id']);
+        if (empty($code_type['ct_id'])) {
+            throw new \Exception(xlt('Install RxCUI monthly via Native Load or enable in Lists!'));
+        }
+    }
     $res = sqlStatement($sql, $val);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(

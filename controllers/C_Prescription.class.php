@@ -44,8 +44,9 @@ class C_Prescription extends Controller
         $this->RxList = new RxList();
         // test if rxnorm available for lookups.
         $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
+        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
-
+        $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 

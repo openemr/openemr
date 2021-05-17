@@ -158,18 +158,21 @@
         </div>
         <div class="form-group mt-3">
             <label class="mr-2">{xlt t='Drug'}</label>
-            {if !empty($RXNORMS_AVAILABLE)}
             <div class="form-check-inline">
                 <label class="form-check-label" title="{xlt t='Search from native inventory drugs table'}">
-                    <input type="radio" class="form-check-input" name="rxcui_select" />{xlt t='Use Native'}
+                    <input type="radio" class="form-check-input" name="rxcui_select" checked />{xlt t='Use Default'}
                 </label>
             </div>
             <div class="form-check-inline">
                 <label class="form-check-label" title="{xlt t='Search from external RxNorm table. Vocabulary RXNORM'}">
-                    <input type="radio" class="form-check-input" name="rxcui_select" checked />{xlt t='Use RxNorm'}
+                    <input type="radio" class="form-check-input" name="rxcui_select" {if empty($RXNORMS_AVAILABLE)} disabled{else} checked{/if} />{xlt t='Use RxNorm'}
                 </label>
             </div>
-            {/if}
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from native loaded RxCUI table.'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" {if empty($RXCUI_AVAILABLE)}disabled{else} checked{/if}  />{xlt t='Use RxCUI'}
+                </label>
+            </div>
             <select class="input-sm form-control" type="input" size="35" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({xlt t='Search Web API'})
@@ -358,7 +361,8 @@ $(function () {
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   {literal}
                   term: params.term,
-                  use_rxnorm: document.prescribe.rxcui_select[1].checked
+                  use_rxnorm: document.prescribe.rxcui_select[1].checked,
+                  use_rxcui: document.prescribe.rxcui_select[2].checked
                 }
             },
             processResults: function(data) {
