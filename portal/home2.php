@@ -65,28 +65,24 @@ $navItems = [
         'url' => '#profilecard',
         'label' => xlt('Profile'),
         'icon' => 'fa-user',
-        'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
         'url' => '#lists',
         'label' => xlt('Lists'),
         'icon' => 'fa-list',
-        'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
         'url' => '#documentscard',
         'label' => xlt('My Documents'),
         'icon' => 'fa-file-medical',
-        'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
         'url' => '#appointmentcard',
         'label' => xlt("Appointment"),
         'icon' => 'fa-calendar-check',
-        'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
@@ -147,9 +143,9 @@ $navItems = [
         'dataToggle' => 'modal',
         'dataType' => 'patient-signature'
     ]
-    ];
+];
 
-$messagesURL = $GLOBALS['web_root'] . ''. "/portal/messaging/messages.php";
+$messagesURL = $GLOBALS['web_root'] . '' . "/portal/messaging/messages.php";
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
 
@@ -157,48 +153,44 @@ $current_date2 = date('Y-m-d');
 $apptLimit = 30;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
 
+$appointments = array();
 
 if ($appts) {
-$stringCM = "(" . xl("Comments field entry present") . ")";
-$stringR = "(" . xl("Recurring appointment") . ")";
-$count = 0;
-foreach ($appts as $row) {
-    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
-    $count++;
-    $dayname = xl(date("l", strtotime($row['pc_eventDate'])));
-    $dispampm = "am";
-    $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-    $dispmin = substr($row['pc_startTime'], 3, 2);
-    if ($disphour >= 12) {
-    $dispampm = "pm";
-    if ($disphour > 12) {
-        $disphour -= 12;
-    }
-    }
+    $stringCM = "(" . xl("Comments field entry present") . ")";
+    $stringR = "(" . xl("Recurring appointment") . ")";
+    $count = 0;
+    foreach ($appts as $row) {
+        $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+        $count++;
+        $dayname = xl(date("l", strtotime($row['pc_eventDate'])));
+        $dispampm = "am";
+        $disphour = substr($row['pc_startTime'], 0, 2) + 0;
+        $dispmin = substr($row['pc_startTime'], 3, 2);
+        if ($disphour >= 12) {
+            $dispampm = "pm";
+            if ($disphour > 12) {
+                $disphour -= 12;
+            }
+        }
 
-    if ($row['pc_hometext'] != "") {
-    $etitle = xlt('Comments') . ": " . $row['pc_hometext'] . "\r\n";
-    } else {
-    $etitle = "";
-    }
+        if ($row['pc_hometext'] != "") {
+            $etitle = xlt('Comments') . ": " . $row['pc_hometext'] . "\r\n";
+        } else {
+            $etitle = "";
+        }
 
-    $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
-    $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row['pc_eid']) . ")'" . " title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
-    echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row['pc_eventDate']) . "&nbsp;";
-    echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
-    echo xlt("Type") . ": " . text($row['pc_catname']) . "<br />";
-    echo xlt("Provider") . ": " . text($row['ufname'] . " " . $row['ulname']) . "<br />";
-    echo xlt("Status") . ": " . text($status_title);
-    echo "</p></div></div>";
+        array_push($appointments, [
+            'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . text($disphour . ":" . $dispmin . " " . $dispampm),
+            'appointmentType' => xlt("Type") . ": " . text($row['pc_catname']),
+            'provider' => xlt("Provider") . ": " . text($row['ufname'] . " " . $row['ulname']),
+            'status' => xlt("Status") . ": " . text($status_title),
+            'mode'  => (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'],
+            'icon_type' => (int)$row['pc_recurrtype'] > 0,
+            'etitle' => $etitle,
+            'pc_eid' => $row['pc_eid'],
+        ]);
+    }
 }
-if ($count == $apptLimit) {
-    echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
-}
-} else { // if no appts
-// echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
-}
-echo '</div>';
 
 echo $twig->render('home.html.twig', [
     'user' => $user,
@@ -207,7 +199,15 @@ echo $twig->render('home.html.twig', [
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,
     'newcnt' => text($newcnt),
-    'globals' => $GLOBALS,
+    'allow_portal_appointments' => $GLOBALS['allow_portal_appointments'],
+    'web_root' => $GLOBALS['web_root'],
+    'payment_gateway' => $GLOBALS['payment_gateway'],
+    'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
+    'portal_two_payments' => $GLOBALS['portal_two_payments'],
+    'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
+    'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
+    'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
+    'images_static_relative' => $GLOBALS['images_static_relative'],
     'youHave' => xlt('You have'),
     'navItems' => $navItems,
     'pagetitle' => xlt('Home') . ' | ' . xlt('OpenEMR Portal'),
@@ -238,7 +238,7 @@ echo $twig->render('home.html.twig', [
     'labResultsLabel' => xlt('Lab Results'),
     'appointmentsLabel' => xlt('Appointments'),
     'noAppointmentsLabel' => xlt('No Appointments'),
-    'scheduleNewAppointmentLabel'=> xlt('Schedule A New Appointment'),
+    'scheduleNewAppointmentLabel' => xlt('Schedule A New Appointment'),
     'paymentsLabel' => xlt('Payments'),
     'secureChatLabel' => xlt('Secure Chat'),
     'reportsLabel' => xlt('Reports'),
@@ -248,5 +248,9 @@ echo $twig->render('home.html.twig', [
     'ledgerLabel' => xlt('Ledger'),
     'patientReportedOutcomeLabel' => xlt('Patient Reported Outcomes'),
     'isEasyPro' => $isEasyPro,
-    'patientAppointments' => $appts,
-    ]);
+    'appointments' => $appointments,
+    'appointmentLimit' => $apptLimit,
+    'appointmentCount' => $count,
+    'displayLimitLabel' => xlt("Display limit reached"),
+    'moreAppointsmentsLabel' => xlt("More appointments may exist"),
+]);
