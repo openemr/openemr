@@ -19,6 +19,7 @@ require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class C_Prescription extends Controller
@@ -33,7 +34,6 @@ class C_Prescription extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
@@ -713,10 +713,9 @@ class C_Prescription extends Controller
 
         $this->multiprint_footer($pdf);
 
-            $pFirstName = $p->patient->fname; //modified by epsdky for prescription title change to include patient name and ID
-            $pFName = convert_safe_file_dir_name($pFirstName);
-            $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
-
+        $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
+        $pFName = convert_safe_file_dir_name($pFirstName);
+        $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
         $pdf->ezStream(array('Content-Disposition' => $modedFileName));
         return;
     }
@@ -920,11 +919,11 @@ class C_Prescription extends Controller
                     return;
         }
 
-                // process the lookup
+        // process the lookup
         $this->assign("drug", $_POST['drug']);
         $list = array();
         if (!empty($_POST['drug'])) {
-            $list = $this->RxList->get_list($_POST['drug']);
+            $list = $this->RxList->getList($_POST['drug']);
         }
 
         if (is_array($list)) {

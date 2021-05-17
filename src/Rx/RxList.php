@@ -44,64 +44,69 @@
  * @author    avanss llc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @author    Copyright (c) 2002 rufustfirefly
- * @author    Copyright (c) 2005 wpennington
- * @author    Copyright (c) 2005 drbowen
- * @author    Copyright (c) 2005-2007 sunsetsystems
- * @author    Copyright (c) 2008 cfapress
- * @author    Copyright (c) 2016 sherwin gaddis
- * @author    Copyright (c) 2019 avanss llc
- * @author    Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @author    Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2002 rufustfirefly
+ * @copyright Copyright (c) 2005 wpennington
+ * @copyright Copyright (c) 2005 drbowen
+ * @copyright Copyright (c) 2005-2007 sunsetsystems
+ * @copyright Copyright (c) 2008 cfapress
+ * @copyright Copyright (c) 2016 sherwin gaddis
+ * @copyright Copyright (c) 2019 avanss llc
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\Rx;
 
 use OpenEMR\Common\Http\oeHttp;
 
 class RxList
 {
 
-    function getPage($query)
+    public function getPage($query)
     {
         $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
         $response = oeHttp::get($url, ['name' => $query]);
         $buffer = $response->body();
         return $buffer ? $buffer : false;
-    } // end function RxList::getPage
+    }
 
-    function get_list($query)
+    public function getList($query)
     {
-        $page = RxList::getPage($query);
-        $tokens = RxList::parse2tokens($page);
-        $hash = RxList::tokens2hash($tokens);
-        foreach ($hash as $index => $data) {
-            unset($my_data);
-            foreach ($data as $k => $v) {
-                $my_data[$k] = $v;
+        $page = $this->getPage($query);
+        $tokens = $this->parse2tokens($page);
+        $hash = $this->tokens2hash($tokens);
+        if (!empty($hash)) {
+            foreach ($hash as $index => $data) {
+                unset($my_data);
+                foreach ($data as $k => $v) {
+                    $my_data[$k] = $v;
+                }
+
+                $rxcui = '';
+
+                if (trim($my_data['rxcui']) !== '') {
+                    $rxcui = " RXCUI:" . trim($my_data['rxcui']);
+                }
+
+                $synonym = '';
+                if (trim($my_data['synonym']) !== '') {
+                    $synonym = " | (" . trim($my_data['synonym']) . ")";
+                }
+
+                $list[trim($my_data['name'] . $rxcui) . $synonym] =
+                    trim($my_data['name']);
             }
-
-            $rxcui = '';
-
-            if (trim($my_data['rxcui']) !== '') {
-                $rxcui = " / " . trim($my_data['rxcui']);
-            }
-
-            $synonym = '';
-            if (trim($my_data['synonym']) !== '') {
-                $synonym = " == (" . trim($my_data['synonym']) . $rxcui . ")";
-            }
-
-            $list[trim($my_data['name']) . $synonym] =
-                trim($my_data['name']);
         }
-
         return $list;
-    } // end function RxList::get_list
+    }
 
     /* break the web page into a collection of TAGS
      * such as <input ..> or <img ... >
      */
-    function parse2tokens($page)
+    public function parse2tokens($page)
     {
         $pos = 0;
         $token = 0;
@@ -129,13 +134,13 @@ class RxList
                     $tokens[$token] .= substr($page, $pos, 1);
                     $in_token = false;
                     break;
-            } // end decide what to do
+            }
             $pos++;
-        } // end looping through string
+        }
         return $tokens;
-    } // end function RxList::parse2tokens
+    }
 
-    function tokens2hash($tokens)
+    public function tokens2hash($tokens)
     {
         $record = false;
         $current = 0;
@@ -184,7 +189,7 @@ class RxList
                 $type = "";
                 $ending = "";
             }
-        } // end looping
+        }
         return $all;
-    } // end function RxList::tokens2hash
-} // end class RxList
+    }
+}

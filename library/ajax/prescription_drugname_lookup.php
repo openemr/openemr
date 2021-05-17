@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This file use is used specifically to look up drug names when
+ * This file is used specifically to look up drug names when
  * writing a prescription. See the file:
- *    templates/prescriptions/general_edit.html
+ * templates/prescription/general_edit.html
  * for additional information
  *
  * @package   OpenEMR
