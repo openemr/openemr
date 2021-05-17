@@ -196,8 +196,8 @@ class AllergyIntoleranceService extends BaseService
             }
         }
 
-        // override our type and our puuid
-        if (isset($puuidBind) && !isset($search['puuid'])) {
+        // override puuid, this replaces anything in search if it is already specified.
+        if (isset($puuidBind)) {
             $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
