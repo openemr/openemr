@@ -53,15 +53,14 @@ class DateSearchField extends BasicSearchField
      * that can be used by OpenEMR services to perform searches.
      * @param $field
      * @param $values
-     * @param string $dateType
      * @param bool $isAnd
      */
-    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME, $isAnd = true)
+    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME)
     {
         $this->setDateType($dateType);
 
         $modifier = null;
-        parent::__construct($field, SearchFieldType::DATE, $field, $values, $modifier, $isAnd);
+        parent::__construct($field, SearchFieldType::DATE, $field, $values, $modifier);
     }
 
     public function getDateType()

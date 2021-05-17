@@ -32,15 +32,16 @@ class BasicSearchField implements ISearchField
      * @param null $modifier
      * @param bool $isAnd
      */
-    public function __construct($name, $type, $field, $values, $modifier = null, $isAnd = true)
+    public function __construct($name, $type, $field, $values, $modifier = null)
     {
         $this->setName($name);
         $this->setType($type);
         $this->setField($field);
         $this->setModifier($modifier);
-        $this->setIsAnd($isAnd);
         $values = $values ?? [];
         $values = is_array($values) ? $values : [$values];
+        $isAnd = count($values) > 0 ? false : true;
+        $this->setIsAnd($isAnd);
         $this->setValues($values);
     }
 

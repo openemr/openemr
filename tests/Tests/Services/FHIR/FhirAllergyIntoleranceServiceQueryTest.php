@@ -22,6 +22,9 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 
 class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 {
+    /**
+     * @var FixtureManager
+     */
     private $fixtureManager;
     private $patientFixture;
     private $fhirPatientFixture;
@@ -86,8 +89,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     {
         return [
             ['patient', "Patient/:uuid1"],
-//            ['patient', ":uuid1"],
-            // make sure we can handle different ids
+            ['patient', ":uuid1"],
+//             make sure we can handle different ids
             ['patient', "Patient/:uuid2"],
             ['patient', ":uuid2"],
 
