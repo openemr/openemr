@@ -62,28 +62,28 @@ Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style'])
 
 $navItems = [
     [
-        'url' => '#',
+        'url' => '#profilecard',
         'label' => xlt('Profile'),
         'icon' => 'fa-user',
         'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
-        'url' => 'https://google.com',
+        'url' => '#lists',
         'label' => xlt('Lists'),
         'icon' => 'fa-list',
         'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
-        'url' => 'https://google.com',
+        'url' => '#documentscard',
         'label' => xlt('My Documents'),
         'icon' => 'fa-file-medical',
         'dropdownID' => 'test',
         'dataToggle' => 'collapse'
     ],
     [
-        'url' => 'https://google.com',
+        'url' => '#appointmentcard',
         'label' => xlt("Appointment"),
         'icon' => 'fa-calendar-check',
         'dropdownID' => 'test',
@@ -157,6 +157,49 @@ $current_date2 = date('Y-m-d');
 $apptLimit = 30;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
 
+
+if ($appts) {
+$stringCM = "(" . xl("Comments field entry present") . ")";
+$stringR = "(" . xl("Recurring appointment") . ")";
+$count = 0;
+foreach ($appts as $row) {
+    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+    $count++;
+    $dayname = xl(date("l", strtotime($row['pc_eventDate'])));
+    $dispampm = "am";
+    $disphour = substr($row['pc_startTime'], 0, 2) + 0;
+    $dispmin = substr($row['pc_startTime'], 3, 2);
+    if ($disphour >= 12) {
+    $dispampm = "pm";
+    if ($disphour > 12) {
+        $disphour -= 12;
+    }
+    }
+
+    if ($row['pc_hometext'] != "") {
+    $etitle = xlt('Comments') . ": " . $row['pc_hometext'] . "\r\n";
+    } else {
+    $etitle = "";
+    }
+
+    $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
+    $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
+    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row['pc_eid']) . ")'" . " title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
+    echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row['pc_eventDate']) . "&nbsp;";
+    echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
+    echo xlt("Type") . ": " . text($row['pc_catname']) . "<br />";
+    echo xlt("Provider") . ": " . text($row['ufname'] . " " . $row['ulname']) . "<br />";
+    echo xlt("Status") . ": " . text($status_title);
+    echo "</p></div></div>";
+}
+if ($count == $apptLimit) {
+    echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
+}
+} else { // if no appts
+// echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
+}
+echo '</div>';
+
 echo $twig->render('home.html.twig', [
     'user' => $user,
     'whereto' => $whereto,
@@ -195,9 +238,15 @@ echo $twig->render('home.html.twig', [
     'labResultsLabel' => xlt('Lab Results'),
     'appointmentsLabel' => xlt('Appointments'),
     'noAppointmentsLabel' => xlt('No Appointments'),
+    'scheduleNewAppointmentLabel'=> xlt('Schedule A New Appointment'),
+    'paymentsLabel' => xlt('Payments'),
+    'secureChatLabel' => xlt('Secure Chat'),
+    'reportsLabel' => xlt('Reports'),
+    'downloadDocumentsLabel' => xlt('Download Documents'),
+    'downloadAllPatientDocumentsLabel' => xlt('Download all patient documents'),
+    'downloadLabel' => xla('Download'),
+    'ledgerLabel' => xlt('Ledger'),
+    'patientReportedOutcomeLabel' => xlt('Patient Reported Outcomes'),
     'isEasyPro' => $isEasyPro,
     'patientAppointments' => $appts,
     ]);
-
-
-?>
