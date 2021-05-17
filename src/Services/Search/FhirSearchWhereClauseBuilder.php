@@ -36,7 +36,8 @@ class FhirSearchWhereClauseBuilder
                     // developer logic error
                     throw new \BadMethodCallException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
                 }
-                $whereType = $isAndCondition ? "and" : "or";
+                //$whereType = $isAndCondition ? "and" : "or";
+                $whereType = "or";
 
                 $whereClauses[$whereType][] = SearchFieldStatementResolver::getStatementForSearchField($field);
             }
