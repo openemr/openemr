@@ -346,144 +346,116 @@
       <header class="card-header bg-primary text-light">{{labResultsLabel}}</header>
       <div id="labresults" class="card-body bg-light"></div>
     </div>
-  </div><!-- /.lists -->
-  {% if globals.allow_portal_appointments %}
-    <div class="collapse mt-2" id="appointmentcard">
-      <div class="jumbotron jumbotron-fluid m-5 p-3">
-        <div class="container-fluid">
-          <h3 class="text-center">{{appointmentsLabel}}</h3>
-					
-					{% if patientAppointments|length > 0 %}
-
-					{% for appt in patientAppointments %}
+  </div>
+	<!-- /.lists -->
+  
+		{% if globals.allow_portal_appointments %}
+			<div class="collapse mt-2" id="appointmentcard">
+				<div class="jumbotron jumbotron-fluid m-5 p-3">
+					<div class="container-fluid">
+						<h3 class="text-center">{{appointmentsLabel}}</h3>
 						
-					{% endfor %}
+						{% if patientAppointments|length > 0 %}
 
-					<?php
+							{% for appt in patientAppointments %}
+								<div class="card p-2">
+									<div class="card-header">
+										<a href="#" onclick="editAppointment(&quot;0&quot;,&quot;7&quot;)" title="Comments: Appointment with Ben Marte">
+											<i class='float-right fa fa-edit text-danger bg-light'></i>
+										</a>
+									</div>
+									<div class="body font-weight-bold">
+										<p>Sunday, 2021-05-16&nbsp;4:00 pm<br>Type: Office Visit<br>Provider: Doctor One<br>Status: - None</p>
+									</div>
+								</div>
+							{% endfor %}
 
-          if ($appts) {
-            $stringCM = "(" . xl("Comments field entry present") . ")";
-            $stringR = "(" . xl("Recurring appointment") . ")";
-            $count = 0;
-            foreach ($appts as $row) {
-              $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
-              $count++;
-              $dayname = xl(date("l", strtotime($row['pc_eventDate'])));
-              $dispampm = "am";
-              $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-              $dispmin = substr($row['pc_startTime'], 3, 2);
-              if ($disphour >= 12) {
-                $dispampm = "pm";
-                if ($disphour > 12) {
-                  $disphour -= 12;
-                }
-              }
-
-              if ($row['pc_hometext'] != "") {
-                $etitle = xlt('Comments') . ": " . $row['pc_hometext'] . "\r\n";
-              } else {
-                $etitle = "";
-              }
-
-              echo '<div class="card p-2">';
-              $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
-              $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-              echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row['pc_eid']) . ")'" . " title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
-              echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row['pc_eventDate']) . "&nbsp;";
-              echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
-              echo xlt("Type") . ": " . text($row['pc_catname']) . "<br />";
-              echo xlt("Provider") . ": " . text($row['ufname'] . " " . $row['ulname']) . "<br />";
-              echo xlt("Status") . ": " . text($status_title);
-              echo "</p></div></div>";
-            }
-            if ($count == $apptLimit) {
-              echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
-            }
-          } else { // if no appts
-            echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
-          }
-          echo '</div>'; ?>
-
-					{% elseif %}
-						<h3 class='text-center'>{{noAppointmentsLabel}}</h3>
-					{% endif %}
-					
-          <span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{patientID}})"><?php echo xlt('Schedule A New Appointment'); ?></a>
-          </span>
-        </div>
-      </div><!-- /.row -->
-    {% endif %}
+						{% elseif %}
+							<h3 class='text-center'>{{noAppointmentsLabel}}</h3>
+						{% endif %}
+						
+					<span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{patientID}})">{{scheduleNewAppointmentLabel}}</a>
+					</span>
+				</div>
+			</div><!-- /.row -->
+		{% endif %}
 
 
-    <?php if ($GLOBALS['portal_two_payments']) {
-    ?>
-      <div class="collapse" id="paymentcard">
+		{% if globals.portal_two_payments %}
+			<div class="collapse" id="paymentcard">
         <div class="card">
-          <header class="card-header bg-primary text-light"> <?php echo xlt('Payments'); ?> </header>
+          <header class="card-header bg-primary text-light">{{paymentsLabel}}</header>
           <div id="payment" class="card-body bg-light"></div>
         </div>
       </div>
-    <?php } ?>
-    <?php if ($GLOBALS['allow_portal_chat']) { ?>
-      <div class="collapse" id="messagescard">
+		{% endif %}
+
+		{% if globals.allow_portal_chat %}
+			<div class="collapse" id="messagescard">
         <div class="card pt-0 pb-0">
-          <header class="card-header bg-primary text-light"><?php echo xlt('Secure Chat'); ?> </header>
+          <header class="card-header bg-primary text-light">{{secureChatlabel}}</header>
           <div id="messages" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
             <iframe src="./messaging/secure_chat.php" class="w-100 h-100"></iframe>
           </div>
         </div>
       </div>
-    <?php
-    } ?>
+		{% endif %}
+		
+
     <div class="card collapse" id="reportcard">
-      <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
+      <header class="card-header bg-primary text-light">{{reportsLabel}}</header>
       <div id="reports" class="card-body"></div>
     </div>
-    <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
-    ?>
-      <div class="card collapse" id="downloadcard">
-        <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
+
+
+		{% if globals.portal_onsite_document_download %}
+			<div class="card collapse" id="downloadcard">
+        <header class="card-header bg-primary text-light">{{downloadDocumentsLabel}}</header>
         <div id="docsdownload" class="card-body">
           <div>
-            <span class="text"><?php echo xlt('Download all patient documents'); ?></span>
+            <span class="text">{{downloadAllPatientDocumentsLabel}}</span>
             <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-              <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+              <input type="button" class="generateDoc_download" value="{{downloadLabel}}" />
             </form>
           </div>
         </div><!-- /.card-body -->
       </div>
-    <?php } ?>
-    <?php if ($GLOBALS['portal_two_ledger']) { ?>
-      <div class="collapse" id="ledgercard">
+		{% endif %}
+		
+		{% if globals.portal_two_ledger %}
+			<div class="collapse" id="ledgercard">
         <div class="card">
-          <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
+          <header class="card-header bg-primary text-light">{{ledgerLabel}}</header>
           <div id="patledger" class="card-body">
             <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
           </div>
         </div>
       </div>
-    <?php } ?>
-    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-    ?>
-      <div class="card collapse" id="procard">
-        <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
+		{% endif %}
+		
+		{% if isEasyPro %}
+			<div class="card collapse" id="procard">
+        <header class="card-header bg-primary text-light">{{patientReportedOutcomeLabel}}</header>
         <div id="pro" class="card-body bg-light"></div>
       </div>
-    <?php } ?>
+		{% endif %}
+		
+
+
     <div class="card collapse" id="profilecard">
       <div id="profilereport" class="card-body bg-light"></div>
     </div>
     <div class="collapse" id="documentscard">
       <div class="card">
         <div id="patdocuments" class="card-body">
-          <iframe src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+          <iframe src="{{globals.web_root}}/portal/patient/onsitedocuments?pid={{patientID}}" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
         </div>
       </div>
     </div>
     <div class="collapse" id="secure-msgs-card">
       <div class="card">
         <div id="secure-msgs" class="card-body">
-          <iframe src="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+          <iframe src="{{globals.web_root}}/portal/messaging/messages.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
         </div>
       </div>
     </div>
