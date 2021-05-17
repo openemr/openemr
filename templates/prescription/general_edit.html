@@ -157,10 +157,22 @@
             <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}" />
         </div>
         <div class="form-group mt-3">
-            <label>{xlt t='Drug'}</label>
+            <label class="mr-2">{xlt t='Drug'}</label>
+            {if !empty($RXNORMS_AVAILABLE)}
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from native inventory drugs table'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" />{xlt t='Use Native'}
+                </label>
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from external RxNorm table. Vocabulary RXNORM'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" checked />{xlt t='Use RxNorm'}
+                </label>
+            </div>
+            {/if}
             <select class="input-sm form-control" type="input" size="35" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
-                ({xlt t='click here to search'})
+                ({xlt t='Search Web API'})
             </a>
             <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
@@ -345,16 +357,17 @@ $(function () {
                   {/literal}
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   {literal}
-                  term: params.term
-                };
+                  term: params.term,
+                  use_rxnorm: document.prescribe.rxcui_select[1].checked
+                }
             },
             processResults: function(data) {
                 return  {
                     results: $.map(data, function(item, index) {
                         return {
-                            text: item,
-                            id: item,
-                            value: item
+                            text: item['display_name'],
+                            id: item['id_name'],
+                            value: item['display_name']
                         }
                     })
                 };
@@ -418,6 +431,12 @@ function CheckRequired(objID) {
     return true;
 }
 
+
+    $(document).on('select2:select', 'select#drug', function(e) {
+        let optionText = document.getElementById("drug").options[this.selectedIndex].text;
+        let rxcode = (optionText.split('(RxCUI:').pop().split(')')[0]).trim();
+        $("#rxnorm_drugcode").val(rxcode);
+    });
 
 $(function () {{/literal}
     {datetimepickerSupport input='format'}

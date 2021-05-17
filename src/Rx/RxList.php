@@ -70,14 +70,14 @@ class RxList
         $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
         $response = oeHttp::get($url, ['name' => $query]);
         $buffer = $response->body();
-        return $buffer ? $buffer : false;
+        return $buffer ?: false;
     }
 
     public function getList($query)
     {
         $page = $this->getPage($query);
-        $tokens = $this->parse2tokens($page);
-        $hash = $this->tokens2hash($tokens);
+        $tokens = $this->parseToTokens($page);
+        $hash = $this->tokensToHash($tokens);
         if (!empty($hash)) {
             foreach ($hash as $index => $data) {
                 unset($my_data);
@@ -88,7 +88,7 @@ class RxList
                 $rxcui = '';
 
                 if (trim($my_data['rxcui']) !== '') {
-                    $rxcui = " RXCUI:" . trim($my_data['rxcui']);
+                    $rxcui = " (RxCUI:" . trim($my_data['rxcui'] . ")");
                 }
 
                 $synonym = '';
@@ -97,7 +97,7 @@ class RxList
                 }
 
                 $list[trim($my_data['name'] . $rxcui) . $synonym] =
-                    trim($my_data['name']);
+                trim($my_data['name']);
             }
         }
         return $list;
@@ -106,7 +106,7 @@ class RxList
     /* break the web page into a collection of TAGS
      * such as <input ..> or <img ... >
      */
-    public function parse2tokens($page)
+    public function parseToTokens($page)
     {
         $pos = 0;
         $token = 0;
@@ -140,22 +140,22 @@ class RxList
         return $tokens;
     }
 
-    public function tokens2hash($tokens)
+    public function tokensToHash($tokens)
     {
         $record = false;
         $current = 0;
         unset($hash);
         $hash = [];
         unset($all);
-        for ($pos = 0; $pos < count($tokens); $pos++) {
-            if (!(strpos($tokens[$pos], "<name>") === false) && $pos !== 3) {
+        for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
+            if ((bool)str_contains($tokens[$pos], "<name>") && $pos !== 3) {
                 // found a brand line 'token'
                 $type = "name";
                 $record = $pos;
                 $ending = "</name>";
             }
 
-            if (!(strpos($tokens[$pos], "<synonym>") === false)) {
+            if ((bool)str_contains($tokens[$pos], "<synonym>")) {
                 // found a generic line 'token'
                 $type = "synonym";
                 //print "generic_name record start at $pos<BR>\n";
@@ -163,7 +163,7 @@ class RxList
                 $record = $pos;
             }
 
-            if (!(strpos($tokens[$pos], "<rxcui>") === false)) {
+            if ((bool)str_contains($tokens[$pos], "<rxcui>")) {
                 // found a drug-class 'token'
                 $type = "rxcui";
                 $ending = "</rxcui>";
@@ -182,7 +182,7 @@ class RxList
             }
 
             if ($pos === ($record + 1) and ($ending != "")) {
-                $my_pos = strpos(strtoupper($tokens[$pos]), "<");
+                $my_pos = stripos($tokens[$pos], "<");
                 $hash[$type] = substr($tokens[$pos], 0, $my_pos);
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
                 //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
