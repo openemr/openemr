@@ -173,7 +173,7 @@
                     <input type="radio" class="form-check-input" name="rxcui_select" {if empty($RXCUI_AVAILABLE)}disabled{else} checked{/if}  />{xlt t='Use RxCUI'}
                 </label>
             </div>
-            <select class="input-sm form-control" type="input" size="35" name="drug" id="drug"></select>
+            <select class="input-sm form-control" type="input" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({xlt t='Search Web API'})
             </a>
@@ -435,9 +435,13 @@ function CheckRequired(objID) {
     return true;
 }
 
-
     $(document).on('select2:select', 'select#drug', function(e) {
-        let optionText = document.getElementById("drug").options[this.selectedIndex].text;
+        let idx = this.selectedIndex;
+        if (idx === 0) {
+            // already selected.
+            return false;
+        }
+        let optionText = document.getElementById("drug").options[idx].text;
         let rxcode = (optionText.split('(RxCUI:').pop().split(')')[0]).trim();
         $("#rxnorm_drugcode").val(rxcode);
     });
