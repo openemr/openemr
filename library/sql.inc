@@ -161,8 +161,9 @@ function sqlStatementThrowException($statement, $binds = false)
     //   Execute function.
     $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
     if ($recordset === false) {
-        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError());
+        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
     }
+    return $recordset;
 }
 
 /**

@@ -8,6 +8,9 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 
 /**
  * FHIR Practitioner Service
@@ -41,17 +44,18 @@ class FhirPractitionerService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "active" => ["active"],
-            "email" => ["email"],
-            "phone" => ["phonew1", "phone", "phonecell"],
-            "telecom" => ["email", "phone", "phonew1", "phonecell"],
-            "address" => ["street", "streetb", "zip", "city", "state"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["zip"],
-            "address-state" => ["state"],
-            "family" => ["lname"],
-            "given" => ["fname", "mname"],
-            "name" => ["title", "fname", "mname", "lname"]
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ["phonew1", "phone", "phonecell"]),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ["email", "phone", "phonew1", "phonecell"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "streetb", "zip", "city", "state"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['zip']),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
+            'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
         ];
     }
 
@@ -285,24 +289,6 @@ class FhirPractitionerService extends FhirServiceBase
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
         $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
-        return $processingResult;
-    }
-
-    /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->practitionerService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
         return $processingResult;
     }
 

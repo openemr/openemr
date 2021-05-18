@@ -2,12 +2,23 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\OrganizationService;
+use OpenEMR\Services\PractitionerService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -23,7 +34,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirOrganizationService extends FhirServiceBase
 {
     /**
-     * @var FacilityService
+     * @var OrganizationService
      */
     private $organizationService;
 
@@ -41,14 +52,15 @@ class FhirOrganizationService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "email" => ["email"],
-            "phone" => ["phone"],
-            "telecom" => ["email", "phone",],
-            "address" => ["street", "postal_code", "city", "state", "country_code","line1"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["postal_code","zip"],
-            "address-state" => ["state"],
-            "name" => ["name"],
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
         ];
     }
 
@@ -298,25 +310,6 @@ class FhirOrganizationService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Organization Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Organization Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->organizationService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
@@ -325,11 +318,49 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
+        $processingResult = $this->organizationService->search($openEMRSearchParameters, false);
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    public function getPrimaryBusinessEntityReference()
+    {
+        $organization = $this->organizationService->getPrimaryBusinessEntity();
+        if (!empty($organization)) {
+            $fhirOrganization = new FHIROrganization();
+            $ref = new FHIRReference();
+            $ref->setType($fhirOrganization->get_fhirElementName());
+            $uuid = UuidRegistry::uuidToString($organization['uuid']);
+            $ref->setReference("Organization/" . $uuid);
+            $ref->setId($uuid);
+            return $ref;
+        }
+        return null;
+    }
+
+    /**
+     * Given the uuid of a user assigned to an organization, return a FHIR Reference to the organization record.
+     * @param $userUuid The unique user id of the user we are retrieving the reference for.
+     * @return FHIRReference|null The reference to the organization the user belongs to
+     */
+    public function getOrganizationReferenceForUser($userUuid)
+    {
+        $userService = new UserService();
+        $user = $userService->getUserByUUID($userUuid);
+        if (!empty($user)) {
+            $organization = $this->organizationService->getFacilityOrganizationById($user['facility_id']);
+            if (!empty($organization)) {
+                $reference = new FHIRReference();
+                $fhirOrganization = new FHIROrganization();
+                $reference->setType($fhirOrganization->get_fhirElementName());
+                $reference->setReference(($fhirOrganization->get_fhirElementName() . $organization['uuid']));
+                $reference->setId($organization['id']);
+                return $reference;
+            }
+        }
+        return null;
     }
 }
