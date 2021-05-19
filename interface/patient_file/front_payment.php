@@ -1255,10 +1255,10 @@ function make_insurance() {
                             <div class="form-group" role="group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
-                                echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                if (!empty($GLOBALS['cc_stripe_terminal'])) {
-                                    echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
-                                }
+                                    echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                    if (!empty($GLOBALS['cc_stripe_terminal'])) {
+                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
+                                    }
                                 }  ?>
                                 <button type='button' class="btn btn-secondary btn-cancel" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>

@@ -105,7 +105,6 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-
     $cryptoGen = new CryptoGen();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
@@ -115,14 +114,12 @@ if ($_GET['mode'] == 'terminal_token') {
     try {
         $connectionToken = ConnectionToken::create();
         echo json_encode(array('secret' => $connectionToken->secret), JSON_THROW_ON_ERROR);
-
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-
     $cryptoGen = new CryptoGen();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
@@ -141,11 +138,9 @@ if ($_GET['mode'] == 'cancel_intent') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
-
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-
     $cryptoGen = new CryptoGen();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
@@ -161,7 +156,6 @@ if ($_GET['mode'] == 'terminal_capture') {
         $intent = $intent->capture();
 
         echo json_encode($intent);
-
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
@@ -169,7 +163,6 @@ if ($_GET['mode'] == 'terminal_capture') {
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-
     $cryptoGen = new CryptoGen();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
@@ -196,11 +189,10 @@ if ($_GET['mode'] == 'terminal_create') {
                 'Patient' => $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'],
                 'MRN' => $pd['pubpid'],
                 'Invoice Items (date encounter)' => $json_obj->encs,
-                'Invoice Total' => number_format(($json_obj->amount/100), 2, '.', '')
+                'Invoice Total' => number_format(($json_obj->amount / 100), 2, '.', '')
                 ]
         ]);
         echo json_encode(array('client_secret' => $intent->client_secret), JSON_THROW_ON_ERROR);
-
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
