@@ -20,6 +20,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Events\Facility\FacilityCreatedEvent;
@@ -41,6 +42,11 @@ class FacilityService extends BaseService
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::FACILITY_TABLE]);
         $this->uuidRegistry->createMissingUuids();
         $this->facilityValidator = new FacilityValidator();
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
     }
 
     public function validate($facility)
@@ -290,6 +296,12 @@ class FacilityService extends BaseService
             "order" => "ORDER BY FAC.billing_location DESC, FAC.accepts_assignment DESC, FAC.id ASC",
             "limit" => 1
         ));
+    }
+
+    public function getAllWithIds(array $ids)
+    {
+        $idField = new TokenSearchField('id', $ids);
+        return $this->search(['id' => $idField]);
     }
 
     /**

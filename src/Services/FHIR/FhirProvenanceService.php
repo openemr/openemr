@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -80,6 +81,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $agent->setWho($whoReference);
             $agent->setOnBehalfOf($orgReference);
         } else {
+            (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
         $fhirProvenance->addAgent($agent);

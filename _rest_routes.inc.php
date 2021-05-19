@@ -886,14 +886,21 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+        }
         $return = (new FhirOrganizationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Organization/:id" => function ($id, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $return = (new FhirOrganizationRestController())->getOne($id);
+        $patientUUID = null;
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+            $patientUUID = $request->getPatientUUIDString();
+        }
+        $return = (new FhirOrganizationRestController())->getOne($id, $patientUUID);
+
         RestConfig::apiLog($return);
         return $return;
     },

@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -19,11 +20,17 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirCarePlanRestController
 {
+    /**
+     * @var FhirCarePlanService
+     */
+    private $fhirResourceService;
+
     private $fhirService;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
+        $this->fhirResourceService = new FhirCarePlanService();
     }
 
     /**
@@ -34,7 +41,7 @@ class FhirCarePlanRestController
      */
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->fhirResourceService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -45,7 +52,7 @@ class FhirCarePlanRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->fhirResourceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

@@ -214,10 +214,24 @@ class SearchFieldStatementResolver
 
         foreach ($values as $value) {
             /** @var TokenSearchValue $value  */
-            $clauses[] = $searchField->getField() . ' = ?';
-            // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
-            // field to its representative bound value
-            $searchFragment->addBoundValue($value->getCode());
+
+            if ($modifier === SearchModifier::MISSING) {
+                if ($value === false) {
+                    // often our tokens get treated as string values so we will do this here also
+                    $clauses[] = $searchField->getField() . " IS NOT NULL AND " . $searchField->getField() . " != '' ";
+                } else {
+                    // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
+                    // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
+                    // if the value is not a string?
+                    $clauses[] = "(" . $searchField->getField() . " IS NULL OR " . $searchField->getField() . " = '') ";
+                }
+            // if we have other modifiers we would handle them here
+            } else {
+                $clauses[] = $searchField->getField() . ' = ?';
+                // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
+                // field to its representative bound value
+                $searchFragment->addBoundValue($value->getCode());
+            }
         }
 
         if (count($clauses) > 1) {

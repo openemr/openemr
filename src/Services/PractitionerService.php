@@ -121,6 +121,12 @@ class PractitionerService extends BaseService
         return $this->search($search, $isAndCondition);
     }
 
+    public function getAllWithIds(array $ids)
+    {
+        $idField = new TokenSearchField('id', $ids);
+        return $this->search(['id' => $idField]);
+    }
+
     /**
      * Returns a single practitioner record by id.
      * @param $uuid - The practitioner uuid identifier in string format.

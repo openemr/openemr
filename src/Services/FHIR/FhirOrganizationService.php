@@ -318,7 +318,7 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $processingResult = $this->organizationService->search($openEMRSearchParameters, false);
+        $processingResult = $this->organizationService->search($openEMRSearchParameters);
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
