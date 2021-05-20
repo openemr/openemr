@@ -277,7 +277,6 @@ require_once("$srcdir/options.js.php");
     //
     function editScripts(url) {
         var AddScript = function () {
-
             var __this = $(this);
             __this.find("#clearButton").css("display", "");
             __this.find("#backButton").css("display", "");
@@ -287,7 +286,6 @@ require_once("$srcdir/options.js.php");
             iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=' + <?php echo js_url($pid); ?>;
         };
         var ListScripts = function () {
-
             var __this = $(this);
             __this.find("#clearButton").css("display", "none");
             __this.find("#backButton").css("display", "none");
@@ -297,14 +295,14 @@ require_once("$srcdir/options.js.php");
         };
 
         let title = <?php echo xlj('Prescriptions'); ?>;
-        let w = 910; // for weno width
+        let w = 960; // for weno width
 
-        dlgopen(url, 'editScripts', w, 300, '', '', {
+        dlgopen(url, 'editScripts', w, 400, '', '', {
             buttons: [
                 {text: <?php echo xlj('Add'); ?>, close: false, id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Clear'); ?>, close: false, id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
-                {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
+                {text: <?php echo xlj('Quit'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
             ],
             onClosed: 'refreshme',
             allowResize: true,

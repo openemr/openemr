@@ -24,6 +24,16 @@ exports.templateId = function (id) {
     };
 };
 
+exports.templateIdExt = function (id, ext) {
+    return {
+        key: "templateId",
+        attributes: {
+            "root": id,
+            "extension": ext
+        }
+    };
+};
+
 exports.templateCode = function (name) {
     var raw = templateCodes[name];
     var result = {
@@ -94,6 +104,14 @@ exports.statusCodeNew = {
     }
 };
 
+var effectiveDocumentTime = exports.effectiveDocumentTime = {
+    key: "effectiveTime",
+    attributes: {
+        "value": leafLevel.inputProperty("date"),
+    },
+    dataKey: 'meta.ccda_header.date_time'
+};
+
 var effectiveTimeNow = exports.effectiveTimeNow = {
     key: "effectiveTime",
     attributes: {
@@ -104,7 +122,7 @@ var effectiveTimeNow = exports.effectiveTimeNow = {
 var timeNow = exports.timeNow = {
     key: "time",
     attributes: {
-        "value": moment().format("YYYYMMDDHHMMSS"),
+        "value": moment().format("YYYYMMDD"),
     }
 };
 

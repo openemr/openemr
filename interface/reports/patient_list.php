@@ -26,15 +26,8 @@ if (!empty($_POST)) {
     }
 }
 
-$from_date = DateToYYYYMMDD($_POST['form_from_date'] ?? '');
-$to_date   = DateToYYYYMMDD($_POST['form_to_date'] ?? '');
-if (empty($to_date) && !empty($from_date)) {
-    $to_date = date('Y-12-31');
-}
-
-if (empty($from_date) && !empty($to_date)) {
-    $from_date = date('Y-01-01');
-}
+$from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+$to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
 $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 
@@ -168,10 +161,10 @@ $(function () {
                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
+                    <?php if (!empty($_POST['form_refresh'])) { ?>
                     <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Export to CSV'); ?>
                     </a>
-                    <?php if (!empty($_POST['form_refresh'])) { ?>
                       <a href='#' id='printbutton' class='btn btn-secondary btn-print'>
                             <?php echo xlt('Print'); ?>
                       </a>

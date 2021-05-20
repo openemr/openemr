@@ -9,6 +9,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\SurgeryService;
 
@@ -44,7 +46,7 @@ class FhirProcedureService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient.uuid']
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['patient.uuid']),
         ];
     }
 

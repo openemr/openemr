@@ -17,6 +17,7 @@ var immunizationMedicationInformation = {
         classCode: "MANU"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.54", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.54"),
         fieldLevel.id, {
             key: "manufacturedMaterial",
@@ -108,6 +109,7 @@ exports.immunizationActivity = {
         classCode: "SBADM"
     }, immunizationActivityAttributes],
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.52", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.52"),
         fieldLevel.uniqueId,
         fieldLevel.id,

@@ -17,6 +17,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
@@ -92,7 +94,7 @@ class FacilityService extends BaseService
 
         if (!empty($options) && !empty($options["excludedId"])) {
             $args["where"] .= " AND FAC.id != ?";
-            $args["data"] = $options["excludedId"];
+            $args["data"] = array($options["excludedId"]);
             return $this->get($args);
         }
 
@@ -133,6 +135,9 @@ class FacilityService extends BaseService
 
     public function getById($id)
     {
+        if (empty($id)) {
+            throw new \InvalidArgumentException("Cannot retrieve facility for empty id");
+        }
         return $this->get(array(
             "where" => "WHERE FAC.id = ?",
             "data" => array($id),
@@ -234,44 +239,49 @@ class FacilityService extends BaseService
      */
     private function get($map)
     {
-        $sql = " SELECT FAC.id,";
-        $sql .= "        FAC.uuid,";
-        $sql .= "        FAC.name,";
-        $sql .= "        FAC.phone,";
-        $sql .= "        FAC.fax,";
-        $sql .= "        FAC.street,";
-        $sql .= "        FAC.city,";
-        $sql .= "        FAC.state,";
-        $sql .= "        FAC.postal_code,";
-        $sql .= "        FAC.country_code,";
-        $sql .= "        FAC.federal_ein,";
-        $sql .= "        FAC.website,";
-        $sql .= "        FAC.email,";
-        $sql .= "        FAC.service_location,";
-        $sql .= "        FAC.billing_location,";
-        $sql .= "        FAC.accepts_assignment,";
-        $sql .= "        FAC.pos_code,";
-        $sql .= "        FAC.x12_sender_id,";
-        $sql .= "        FAC.attn,";
-        $sql .= "        FAC.domain_identifier,";
-        $sql .= "        FAC.facility_npi,";
-        $sql .= "        FAC.facility_taxonomy,";
-        $sql .= "        FAC.tax_id_type,";
-        $sql .= "        FAC.color,";
-        $sql .= "        FAC.primary_business_entity,";
-        $sql .= "        FAC.facility_code,";
-        $sql .= "        FAC.extra_validation,";
-        $sql .= "        FAC.mail_street,";
-        $sql .= "        FAC.mail_street2,";
-        $sql .= "        FAC.mail_city,";
-        $sql .= "        FAC.mail_state,";
-        $sql .= "        FAC.mail_zip,";
-        $sql .= "        FAC.oid,";
-        $sql .= "        FAC.iban,";
-        $sql .= "        FAC.info";
-        $sql .= " FROM facility FAC";
+        try {
+            $sql = " SELECT FAC.id,";
+            $sql .= "        FAC.uuid,";
+            $sql .= "        FAC.name,";
+            $sql .= "        FAC.phone,";
+            $sql .= "        FAC.fax,";
+            $sql .= "        FAC.street,";
+            $sql .= "        FAC.city,";
+            $sql .= "        FAC.state,";
+            $sql .= "        FAC.postal_code,";
+            $sql .= "        FAC.country_code,";
+            $sql .= "        FAC.federal_ein,";
+            $sql .= "        FAC.website,";
+            $sql .= "        FAC.email,";
+            $sql .= "        FAC.service_location,";
+            $sql .= "        FAC.billing_location,";
+            $sql .= "        FAC.accepts_assignment,";
+            $sql .= "        FAC.pos_code,";
+            $sql .= "        FAC.x12_sender_id,";
+            $sql .= "        FAC.attn,";
+            $sql .= "        FAC.domain_identifier,";
+            $sql .= "        FAC.facility_npi,";
+            $sql .= "        FAC.facility_taxonomy,";
+            $sql .= "        FAC.tax_id_type,";
+            $sql .= "        FAC.color,";
+            $sql .= "        FAC.primary_business_entity,";
+            $sql .= "        FAC.facility_code,";
+            $sql .= "        FAC.extra_validation,";
+            $sql .= "        FAC.mail_street,";
+            $sql .= "        FAC.mail_street2,";
+            $sql .= "        FAC.mail_city,";
+            $sql .= "        FAC.mail_state,";
+            $sql .= "        FAC.mail_zip,";
+            $sql .= "        FAC.oid,";
+            $sql .= "        FAC.iban,";
+            $sql .= "        FAC.info";
+            $sql .= " FROM facility FAC";
 
-        return self::selectHelper($sql, $map);
+            return self::selectHelper($sql, $map);
+        } catch (SqlQueryException $exception) {
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            throw $exception;
+        }
     }
 
     private function getPrimaryBusinessEntityLegacy()

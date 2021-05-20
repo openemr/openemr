@@ -15,6 +15,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\PrescriptionService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 
 class FhirMedicationRequestService extends FhirServiceBase
 {
@@ -36,7 +38,7 @@ class FhirMedicationRequestService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient.uuid'],
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['patient.uuid'])
         ];
     }
 

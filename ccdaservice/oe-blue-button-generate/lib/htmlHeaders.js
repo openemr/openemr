@@ -209,7 +209,7 @@ exports.medicationsSectionEntriesRequiredHtmlHeader = {
     }]
 }
 
-    exports.problemsSectionEntriesRequiredHtmlHeader = {
+exports.problemsSectionEntriesRequiredHtmlHeader = {
     key: "text",
     existsWhen: condition.keyExists("problems"),
 
@@ -722,6 +722,53 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
     }]
 };
 
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
+
+    key: "text",
+    existsWhen: condition.keyExists("medical_devices"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Implant", "UDI"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("device")
+                    },
+                    text: leafLevel.deepInputProperty("device.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("device.udi", "na"),
+                }/*, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("supply.date_time.low", nda)
+                }*/
+                ]
+            }],
+            dataKey: 'medical_devices'
+        }]
+    }]
+};
+
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.problemsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
@@ -733,3 +780,4 @@ exports.payersSectionHtmlHeaderNA = "Not Available";
 exports.planOfCareSectionHtmlHeaderNA = "Not Available";
 exports.socialHistorySectionHtmlHeaderNA = "Not Available";
 exports.vitalSignsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA = "Not Available";
