@@ -628,3 +628,51 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 (46, 3, 'medical_devices', 'Medical Devices', 0),
 (47, 3, 'goals', 'Goals', 0);
 #EndIf
+
+#IfMissingColumn lists drug_id
+ALTER TABLE `lists` ADD COLUMN `drug_id` int(11) NOT NULL default '0';
+#EndIf
+
+#IfMissingColumn lists rxnorm_drugcode
+ALTER TABLE `lists` ADD COLUMN `rxnorm_drugcode` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn lists form
+ALTER TABLE `lists` ADD COLUMN `form` int(3) default NULL;
+#EndIf
+
+#IfMissingColumn lists dosage
+ALTER TABLE `lists` ADD COLUMN `dosage` varchar(100) default NULL;
+#EndIf
+
+#IfMissingColumn lists quantity
+ALTER TABLE `lists` ADD COLUMN `quantity` varchar(31) default NULL;
+#EndIf
+
+#IfMissingColumn lists size
+ALTER TABLE `lists` ADD COLUMN `size` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn lists unit
+ALTER TABLE `lists` ADD COLUMN `unit` int(11) default NULL;
+#EndIf
+
+#IfMissingColumn lists route
+ALTER TABLE `lists` ADD COLUMN `route` int(11) default NULL;
+#EndIf
+
+#IfMissingColumn lists interval
+ALTER TABLE `lists` ADD COLUMN `interval` int(11) default NULL;
+#EndIf
+
+#IfMissingColumn lists substitute
+ALTER TABLE `lists` ADD COLUMN `substitute` int(11) default NULL;
+#EndIf
+
+#IfMissingColumn lists refills
+ALTER TABLE `lists` ADD COLUMN `refills` int(11) default NULL;
+#EndIf
+
+#IfMissingColumn lists per_refill
+ALTER TABLE `lists` ADD COLUMN `per_refill` int(11) default NULL;
+#EndIf
