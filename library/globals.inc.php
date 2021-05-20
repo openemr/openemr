@@ -3019,13 +3019,18 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
         ),
-
+        'cc_stripe_terminal' => array(
+            xl('In person payments with Stripe Verifone P400'),
+            'bool',
+            '0',
+            xl('Allow in person credit card payments using Stripe Verifone P400. Ensure Stripe gateway is enabled.')
+        ),
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
-                'InHouse' => xl('In House'),
-                'AuthorizeNet' => xl('Authorize.Net'),
-                'Stripe' => xl('Stripe')
+                'InHouse' => xl('In House Authorize Payments'),
+                'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
+                'Stripe' => xl('Gateway for Stripe Manual Payments')
             ),
             'InHouse',
             xl('Enable a Payment Gateway Service for processing credit card transactions')
