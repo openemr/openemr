@@ -249,6 +249,7 @@ echo $twig->render('home.html.twig', [
     'patientReportedOutcomeLabel' => xlt('Patient Reported Outcomes'),
     'isEasyPro' => $isEasyPro,
     'appointments' => $appointments,
+    'appts'=> $appts,
     'appointmentLimit' => $apptLimit,
     'appointmentCount' => $count,
     'displayLimitLabel' => xlt("Display limit reached"),
