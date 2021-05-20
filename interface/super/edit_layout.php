@@ -238,9 +238,67 @@ function tableNameFromLayout($layout_id)
     return $tablename;
 }
 
+// This tells you if a column name is required in code and therefore must not
+// be deleted or renamed.
+function isColumnReserved($tablename, $field_id)
+{
+    if ($tablename == 'patient_data') {
+        if (
+            in_array($field_id, array(
+            'id',
+            'DOB',
+            'title',
+            'language',
+            'fname',
+            'lname',
+            'mname',
+            'street',
+            'postal_code',
+            'city',
+            'state',
+            'ss',
+            'phone_home',
+            'phone_cell',
+            'date',
+            'sex',
+            'providerID',
+            'email',
+            'pubpid',
+            'pid',
+            'squad',
+            'home_facility',
+            'deceased_date',
+            'deceased_reason',
+            'allow_patient_portal',
+            'soap_import_status',
+            'email_direct',
+            'dupscore',
+            'cmsportal_login',
+            'care_team_provider',
+            'billing_note',
+            'uuid',
+            'care_team_facility',
+            ))
+        ) {
+            return true;
+        }
+    } elseif ($tablename == 'history_data') {
+        if (
+            in_array($field_id, array(
+            'id',
+            'date',
+            'pid',
+            ))
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
-// dropped if they contain any non-empty values.
+// dropped if they contain any non-empty values or are required internally.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
     $tablename = tableNameFromLayout($layout_id);
@@ -262,17 +320,36 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         );
     } elseif (!$add && $column_exists) {
         // Do not drop a column that has any data.
-        $tmp = sqlQuery("SELECT `" . escape_sql_column_name($field_id, [$tablename]) . "` FROM `" . escape_table_name($tablename) . "` WHERE " .
-        "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `" . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1");
-        if (!isset($tmp['field_id'])) {
-            sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`");
-            EventAuditLogger::instance()->newEvent(
-                "alter_table",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
-                1,
-                "$tablename DROP $field_id "
-            );
+        $tmp = sqlQuery(
+            "SELECT `" . escape_sql_column_name($field_id, [$tablename]) .
+            "` AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
+            "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `"
+            . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1"
+        );
+        if (!isset($tmp['field_id']) && !isColumnReserved($tablename, $field_id)) {
+            $lotmp = array();
+            // For History layouts do not delete a field name duplicated in another History layout
+            // (should not happen, but a bug allowed it).
+            if (substr($layout_id, 0, 3) == 'HIS') {
+                $lotmp = sqlQuery(
+                    "SELECT COUNT(*) AS count FROM layout_options WHERE " .
+                    "form_id LIKE 'HIS%' AND form_id != ? AND field_id = ?",
+                    array($layout_id, $field_id)
+                );
+            }
+            if (empty($lotmp['count'])) {
+                sqlStatement(
+                    "ALTER TABLE `" . escape_table_name($tablename) . "` " .
+                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
+                );
+                EventAuditLogger::instance()->newEvent(
+                    "alter_table",
+                    $_SESSION['authUser'],
+                    $_SESSION['authProvider'],
+                    1,
+                    "$tablename DROP $field_id "
+                );
+            }
         }
     }
 }
@@ -283,12 +360,16 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 //   0 = Rename successful.
 //   2 = There is no column having the old name.
 //   3 = There is already a column having the new name.
+//   4 = Old name is needed internally and cannot be changed.
 //
 function renameColumn($layout_id, $old_field_id, $new_field_id)
 {
     $tablename = tableNameFromLayout($layout_id);
     if (!$tablename) {
         return -1; // Indicate rename is not relevant.
+    }
+    if (isColumnReserved($tablename, $old_field_id)) {
+        return 4;
     }
     // Make sure old column exists.
     $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($old_field_id));
