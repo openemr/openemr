@@ -130,7 +130,7 @@ class FhirMedicationService extends FhirServiceBase
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
         $processingResult = $this->medicationService->getOne($fhirResourceId, true);
         if (!$processingResult->hasErrors()) {

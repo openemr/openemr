@@ -9,6 +9,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -42,8 +44,8 @@ class FhirConditionService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['lists.pid'],
-            '_id' => ['lists.id']
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['lists.pid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.id']),
         ];
     }
 

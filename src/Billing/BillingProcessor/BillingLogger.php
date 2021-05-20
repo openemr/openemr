@@ -89,14 +89,17 @@ class BillingLogger
      */
     public function onLogComplete()
     {
-        if (isset($this->onLogCompleteCallback)) {
-            call_user_func($this->onLogCompleteCallback);
-            if (!empty($this->hlog)) {
-                if ($GLOBALS['drive_encryption']) {
-                    $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, 'database');
-                }
-                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $this->hlog);
+        // If the hlog isn't empty, write the log to disk
+        if (!empty($this->hlog)) {
+            if ($GLOBALS['drive_encryption']) {
+                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, 'database');
             }
+            file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $this->hlog);
+        }
+
+        // If the generator set a callback function for when the log completes, call it here
+        if (isset($this->onLogCompleteCallback)) {
+            return call_user_func($this->onLogCompleteCallback);
         }
 
         return false;

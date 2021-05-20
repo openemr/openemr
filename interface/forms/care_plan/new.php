@@ -56,6 +56,7 @@ endforeach;
                 changeIds('code_date');
                 changeIds('displaytext');
                 changeIds('care_plan_type');
+                changeIds('user');
                 changeIds('count');
                 removeVal(newRow.id);
             }
@@ -68,6 +69,7 @@ endforeach;
                 document.getElementById("code_date_" + rowid1[1]).value = '';
                 document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
                 document.getElementById("care_plan_type_" + rowid1[1]).value = '';
+                document.getElementById("user_" + rowid1[1]).value = '';
             }
 
             function changeIds(class_val) {
@@ -99,7 +101,7 @@ endforeach;
 
             function set_related(codetype, code, selector, codedesc) {
                 var checkId = document.getElementById('clickId').value;
-                document.getElementById("code" + checkId).value = code;
+                document.getElementById("code" + checkId).value = (codetype + ":" + code);
                 document.getElementById("codetext" + checkId).value = codedesc;
                 document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
             }
@@ -139,6 +141,7 @@ endforeach;
                                                 <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
+                                                <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"]); ?>" />
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
@@ -177,6 +180,7 @@ endforeach;
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                                 <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                             </div>

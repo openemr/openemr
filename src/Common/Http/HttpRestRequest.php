@@ -107,6 +107,11 @@ class HttpRestRequest
      */
     private $headers;
 
+    /**
+     * @var mixed[]
+     */
+    private $queryParams;
+
     public function __construct($restConfig, $server)
     {
         $this->restConfig = $restConfig;
@@ -115,6 +120,21 @@ class HttpRestRequest
         $this->requestMethod = $server["REQUEST_METHOD"];
         $this->setRequestURI($server['REQUEST_URI'] ?? "");
         $this->headers = $this->parseHeadersFromServer($server);
+        $this->queryParams =  $_GET ?? [];
+        // remove the OpenEMR queryParams that our rewrite command injected so we don't mess stuff up.
+        if (isset($this->queryParams['_REWRITE_COMMAND'])) {
+            unset($this->queryParams['_REWRITE_COMMAND']);
+        }
+    }
+
+    public function getQueryParams()
+    {
+        return $this->queryParams;
+    }
+
+    public function getQueryParam($key)
+    {
+        return $this->queryParams[$key] ?? null;
     }
 
     /**

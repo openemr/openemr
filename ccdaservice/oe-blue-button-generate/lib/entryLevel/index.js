@@ -11,6 +11,7 @@ var problemEntryLevel = require("./problemEntryLevel");
 var encounterEntryLevel = require("./encounterEntryLevel");
 var immunizationEntryLevel = require("./immunizationEntryLevel");
 var medicationEntryLevel = require("./medicationEntryLevel");
+var medicalDeviceEntryLevel = require("./medicalDeviceEntryLevel");
 
 exports.allergyProblemAct = allergyEntryLevel.allergyProblemAct;
 
@@ -42,3 +43,6 @@ exports.resultOrganizer = resultEntryLevel.resultOrganizer;
 
 exports.socialHistoryObservation = socialHistoryEntryLevel.socialHistoryObservation;
 exports.smokingStatusObservation = socialHistoryEntryLevel.smokingStatusObservation;
+exports.genderStatusObservation = socialHistoryEntryLevel.genderStatusObservation;
+
+exports.medicalDeviceActivityProcedure = medicalDeviceEntryLevel.medicalDeviceActivityProcedure;

@@ -28,3 +28,15 @@ exports.propertyEquals = function (property, value) {
         return input && (input[property] === value);
     };
 };
+
+exports.propertyNotEmpty = function (property) {
+    return function (input) {
+        return input && (input[property] !== "");
+    };
+};
+
+exports.propertyEmpty = function (property) {
+    return function (input) {
+        return input && (input[property] === "");
+    };
+};

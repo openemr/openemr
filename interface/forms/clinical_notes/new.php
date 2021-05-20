@@ -184,7 +184,7 @@ foreach ($result as $value) {
                         <div class="tb_row" id="tb_row_1">
                             <fieldset>
                                 <div class="form-row">
-                                    <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["code"] ?? $_SESSION["authUser"]); ?>" />
+                                    <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                     <input type="hidden" id="code_1" name="code[]" class="code" value="<?php echo attr($obj["code"] ?? ''); ?>" />
                                     <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                                     <div class="forms col-lg-1">

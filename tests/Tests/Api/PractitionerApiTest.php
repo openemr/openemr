@@ -26,7 +26,7 @@ class PractitionerApiTest extends TestCase
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+            $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerRecord = (array) $this->fixtureManager->getSinglePractitionerFixture();

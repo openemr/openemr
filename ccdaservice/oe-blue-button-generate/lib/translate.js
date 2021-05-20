@@ -71,6 +71,9 @@ var acronymize = exports.acronymize = function (string) {
     if (ret === "PH") {
         ret = "HP";
     }
+    if (ret === "PM") {
+        ret = "MC";
+    }
     if (ret === "HA") {
         ret = "H";
     }

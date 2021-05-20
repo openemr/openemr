@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -22,9 +23,9 @@ class FhirAllergyIntoleranceRestController
     private $fhirAllergyIntoleranceService;
     private $fhirService;
 
-    public function __construct()
+    public function __construct(HttpRestRequest $request)
     {
-        $this->fhirAllergyIntoleranceService = new FhirAllergyIntoleranceService();
+        $this->fhirAllergyIntoleranceService = new FhirAllergyIntoleranceService($request->getApiBaseFullUrl());
         $this->fhirService = new FhirResourcesService();
     }
 

@@ -616,3 +616,15 @@ CREATE TABLE `form_clinical_notes` (
 ) ENGINE=InnoDB;
 INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`) VALUES ('Clinical Notes', 1, 'clinical_notes', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '', 1, 0, 'encounters|notes');
 #EndIf
+
+#IfNotRow ccda_components ccda_components_field medical_devices
+INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `ccda_components_name`, `ccda_type`) VALUES
+(23, 'medical_devices', 'Medical Devices', 1),
+(24, 'goals', 'Goals', 1);
+#EndIf
+
+#IfNotRow ccda_sections ccda_sections_field medical_devices
+INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
+(46, 3, 'medical_devices', 'Medical Devices', 0),
+(47, 3, 'goals', 'Goals', 0);
+#EndIf

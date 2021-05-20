@@ -880,7 +880,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <select name='form_lab_id' id='form_lab_id' onchange='lab_id_changed(this)' class='form-control'>
                                     <?php
-                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
+                                    $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
                                         if ($pprow['ppid'] == $row['lab_id']) {
@@ -1023,7 +1023,7 @@ $title = array(xl('Order for'), $name, $date);
                 <fieldset class="row">
                      <legend><?php $t = "<span>" .
                         ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
-                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . text($t); ?>
+                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
                     <?php if ($order_data) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">

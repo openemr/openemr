@@ -83,7 +83,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.6.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6.1"),
                 fieldLevel.templateCode("AllergiesSection"),
                 fieldLevel.templateTitle("AllergiesSection"), {
@@ -131,7 +131,7 @@ exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.1.1", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1.1"),
                 fieldLevel.templateCode("MedicationsSection"),
                 fieldLevel.templateTitle("MedicationsSection"), {
@@ -162,7 +162,7 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.5.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5.1"),
                 fieldLevel.templateCode("ProblemSection"),
                 fieldLevel.templateTitle("ProblemSection"), {
@@ -182,7 +182,6 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
                     dataKey: "problems",
                     required: true
                 }, {
-
                     key: "entry",
                     existsWhen: condition.keyExists("problems_comment"),
                     content: {
@@ -250,7 +249,7 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.3.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3.1"),
                 fieldLevel.templateCode("ResultsSection"),
                 fieldLevel.templateTitle("ResultsSection"), {
@@ -281,7 +280,7 @@ exports.encountersSectionEntriesOptional = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.22"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.22.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.22.1"),
                 fieldLevel.templateCode("EncountersSection"),
                 fieldLevel.templateTitle("EncountersSection"), {
@@ -407,6 +406,7 @@ exports.socialHistorySection = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.17", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.17"),
                 fieldLevel.templateCode("SocialHistorySection"),
                 fieldLevel.templateTitle("SocialHistorySection"), {
@@ -420,10 +420,24 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     attributes: {
                         typeCode: "DRIV"
                     },
-                    content: [
-                        entryLevel.smokingStatusObservation,
-                        entryLevel.socialHistoryObservation
-                    ],
+                    content: [entryLevel.smokingStatusObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.genderStatusObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.socialHistoryObservation],
+                    existsWhen: function (input) {
+                        return (!input.value) || input.value.indexOf("smoke") < 0;
+                    },
                     dataKey: "social_history"
                 }
             ]
@@ -441,7 +455,7 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.4.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4.1"),
                 fieldLevel.templateCode("VitalSignsSection"),
                 fieldLevel.templateTitle("VitalSignsSection"), {
@@ -462,5 +476,35 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
                 }
             ]
         }]
+    };
+};
+
+exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.23", "2014-06-09"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.23"),
+                fieldLevel.templateCode("MedicalEquipmentSection"),
+                fieldLevel.templateTitle("MedicalEquipmentSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("medical_devices")
+
+                },
+                htmlHeader, {
+                    key: "entry",
+                    content: [
+                        entryLevel.medicalDeviceActivityProcedure,
+                    ],
+                    dataKey: "medical_devices"
+                }
+            ]
+        }],
+        notImplemented: [
+            "entry required"
+        ]
     };
 };

@@ -1,6 +1,7 @@
 var codeSystems = {
     "LOINC": ["2.16.840.1.113883.6.1", "8716-3"],
     "SNOMED CT": ["2.16.840.1.113883.6.96", "46680005"],
+    "SNOMED-CT": ["2.16.840.1.113883.6.96", "46680005"],
     "RXNORM": ["2.16.840.1.113883.6.88"],
     "ActCode": ["2.16.840.1.113883.5.4"],
     "CPT-4": ["2.16.840.1.113883.6.12"],
@@ -741,6 +742,12 @@ var sections_entries_codes = {
             "code_system": "2.16.840.1.113883.5.4",
             "code_system_name": "ActCode",
             "name": "Assertion"
+        },
+        "GenderStatusObservation": {
+            "code": "76689-9",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Sex Assigned At Birth"
         },
         "SocialHistoryObservation": {
             "code": "completed",

@@ -30,6 +30,8 @@ function care_plan_report($pid, $encounter, $cols, $id)
         ?>
         <table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
             <tr>
+                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class='bold'><?php echo xlt('Author'); ?></span></td>
+                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class='bold'><?php echo xlt('Type'); ?></span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Code'); ?></span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Code Text'); ?></span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Description'); ?></span></td>
@@ -39,6 +41,8 @@ function care_plan_report($pid, $encounter, $cols, $id)
         foreach ($data as $key => $value) {
             ?>
             <tr>
+                <td style='border:1px solid #ccc;padding:4px;'><span class='text'><?php echo text($value['user']); ?></span></td>
+                <td style='border:1px solid #ccc;padding:4px;'><span class='text'><?php echo text($value['care_plan_type']); ?></span></td>
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['code']); ?></span></td>
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['codetext']); ?></span></td>
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['description']); ?></span></td>

@@ -110,7 +110,7 @@ class FhirLocationService extends FhirServiceBase
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Location Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
         $processingResult = $this->locationService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {
