@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c451c94db8f26a68f1f079d8bdc3fc4",
+    "content-hash": "d87d39285a51690ebb70961591c95085",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6948,32 +6948,34 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v2.6.31",
+            "version": "v3.1.39",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "4ab9757b492f08a38f68123a6e7c1df7110bbc49"
+                "reference": "e27da524f7bcd7361e3ea5cdfa99c4378a7b5419"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/4ab9757b492f08a38f68123a6e7c1df7110bbc49",
-                "reference": "4ab9757b492f08a38f68123a6e7c1df7110bbc49",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/e27da524f7bcd7361e3ea5cdfa99c4378a7b5419",
+                "reference": "e27da524f7bcd7361e3ea5cdfa99c4378a7b5419",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2"
             },
+            "require-dev": {
+                "phpunit/phpunit": "^7.5 || ^6.5 || ^5.7 || ^4.8",
+                "smarty/smarty-lexer": "^3.1"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6.x-dev"
+                    "dev-master": "3.1.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
-                    "libs/Smarty.class.php",
-                    "libs/Smarty_Compiler.class.php",
-                    "libs/Config_File.class.php"
+                    "libs/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -6988,6 +6990,10 @@
                 {
                     "name": "Uwe Tews",
                     "email": "uwe.tews@googlemail.com"
+                },
+                {
+                    "name": "Rodney Rehm",
+                    "email": "rodney.rehm@medialize.de"
                 }
             ],
             "description": "Smarty - the compiling PHP template engine",
@@ -6998,10 +7004,10 @@
             "support": {
                 "forum": "http://www.smarty.net/forums/",
                 "irc": "irc://irc.freenode.org/smarty",
-                "issues": "http://code.google.com/p/smarty-php/issues/list",
-                "source": "https://github.com/smarty-php/smarty/tree/Smarty2"
+                "issues": "https://github.com/smarty-php/smarty/issues",
+                "source": "https://github.com/smarty-php/smarty/tree/v3.1.39"
             },
-            "time": "2017-11-03T06:39:13+00:00"
+            "time": "2021-02-17T21:57:51+00:00"
         },
         {
             "name": "steverhoades/oauth2-openid-connect-server",
