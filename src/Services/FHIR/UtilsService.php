@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
@@ -21,5 +23,18 @@ class UtilsService
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
         return $reference;
+    }
+
+    public static function createDataMissingExtension()
+    {
+        // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+        // for some reason in order to get this to work we have to wrap our inner exception
+        // into an outer exception.  This might be just a PHPism with the way JSON encodes things
+        $extension = new FHIRExtension();
+        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON);
+        $extension->setValueCode(new FHIRCode("unknown"));
+        $outerExtension = new FHIRExtension();
+        $outerExtension->addExtension($extension);
+        return $outerExtension;
     }
 }

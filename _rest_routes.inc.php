@@ -223,7 +223,7 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
-        $return = (new ConditionRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $muuid]);
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid]);
         RestConfig::apiLog($return);
         return $return;
     },
