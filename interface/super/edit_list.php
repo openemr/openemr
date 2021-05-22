@@ -90,7 +90,7 @@ $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0)
 
 // If we are saving, then save.
 //
-if (($_POST['formaction'] ?? '' == 'save') && $list_id && $alertmsg == '') {
+if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
     $opt = $_POST['opt'];
     if ($list_id == 'feesheet') {
         // special case for the feesheet list
@@ -1607,7 +1607,7 @@ function writeITLine($it_array)
 if ($alertmsg) {
     echo "    alert(" . js_escape($alertmsg) . ");\n";
 }
-?>    
+?>
 
 </script>
 </body>
