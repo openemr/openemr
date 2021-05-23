@@ -1087,7 +1087,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 }
                                 $prior_auth = getPriorAuth($iter['enc_pid']);
                                 if ($prior_auth !== 'None') {
-                                    $lhtml .= "<span>&nbsp;&nbsp; " . xlt('Authorization') ."#: " . text($prior_auth) . "</span>";
+                                    $lhtml .= "<span>&nbsp;&nbsp; " . xlt('Authorization') . "#: " . text($prior_auth) . "</span>";
                                 }
                                 if ($iter['id']) {
                                     $lcount += 2;
