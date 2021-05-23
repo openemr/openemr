@@ -186,8 +186,20 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->ccda_data_array['type'] = '12';
 
         //Patient Details
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['fname'] = is_array($xml['recordTarget']['patientRole']['patient']['name']['given']) ? $xml['recordTarget']['patientRole']['patient']['name']['given'][0] : $xml['recordTarget']['patientRole']['patient']['name']['given'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['lname'] = $xml['recordTarget']['patientRole']['patient']['name']['family'];
+        // Collect patient name (if more than one, then get the legal one)
+        if (is_array($xml['recordTarget']['patientRole']['patient']['name'])) {
+            $index = 0;
+            for ($i = 0; $i < count($xml['recordTarget']['patientRole']['patient']['name']); $i++) {
+                if ($xml['recordTarget']['patientRole']['patient']['name'][$i]['use'] == 'L') {
+                    $index = $i;
+                }
+            }
+            $name = $xml['recordTarget']['patientRole']['patient']['name'][$index];
+        } else {
+            $name = $xml['recordTarget']['patientRole']['patient']['name'];
+        }
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : $name['given'];
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['lname'] = $name['family'];
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'];
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['sex'] = $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'];
         $this->ccda_data_array['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id'][0]['extension'];
@@ -814,7 +826,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_referral_value($referral_data)
     {
-        if (is_array($referral_data['text']['paragraph'])) {
+        if (!empty($referral_data['text']['paragraph']) && is_array($referral_data['text']['paragraph'])) {
               $i = 1;
             foreach ($referral_data['text']['paragraph'] as $key => $value) {
                 if ($value) {
@@ -829,7 +841,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $i += count($this->ccda_data_array['field_name_value_array']['referral']);
             }
             $this->ccda_data_array['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'];
-            $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ", $referral_data['text']['paragraph']);
+            $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = (!empty($referral_data['text']['paragraph'])) ? preg_replace("/\s+/", " ", $referral_data['text']['paragraph']) : '';
 
             $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
             unset($referral_data);
