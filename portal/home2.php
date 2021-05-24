@@ -60,91 +60,6 @@ $twig = new Environment($loader);
 
 Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']);
 
-$navItems = [
-    [
-        'url' => '#profilecard',
-        'label' => xlt('Profile'),
-        'icon' => 'fa-user',
-        'dataToggle' => 'collapse'
-    ],
-    [
-        'url' => '#lists',
-        'label' => xlt('Lists'),
-        'icon' => 'fa-list',
-        'dataToggle' => 'collapse'
-    ],
-    [
-        'url' => '#documentscard',
-        'label' => xlt('My Documents'),
-        'icon' => 'fa-file-medical',
-        'dataToggle' => 'collapse'
-    ],
-    [
-        'url' => '#appointmentcard',
-        'label' => xlt("Appointment"),
-        'icon' => 'fa-calendar-check',
-        'dataToggle' => 'collapse'
-    ],
-    [
-        'url' => '#',
-        'label' => xlt('Accountings'),
-        'icon' => 'fa-file-invoice-dollar',
-        'dropdownID' => 'accounting',
-        'children' => [
-            [
-                'url' => "#ledgercard",
-                'label' => xlt('Ledger'),
-                'icon' => 'fa-folder-open',
-            ]
-        ]
-    ],
-    [
-        'url' => '#',
-        'label' => xlt('Reports'),
-        'icon' => 'fa-book-medical',
-        'dropdownID' => 'reports',
-        'children' => [
-            [
-                'url' => $GLOBALS['web_root'] . '' . "/ccdaservice/ccda_gateway.php?action=startandrun",
-                'label' => xlt('View CCD'),
-                'icon' => 'fa-envelope',
-            ],
-            [
-                'url' => '#reportcard',
-                'label' => xlt('Report Content'),
-                'icon' => 'fa-folder-open',
-            ],
-            [
-                'url' => '#downloadcard',
-                'label' => xlt('Download Lab Documents'),
-                'icon' => 'fa-download',
-            ]
-        ]
-    ],
-    [
-        'url' => '#secure-msgs-card',
-        'label' => xlt('Messages'),
-        'icon' => 'fa-envelope',
-        'dropdownID' => '#cardgroup',
-        'dataToggle' => 'collapse',
-        'messageCount' => $newcnt,
-    ],
-    [
-        'url' => '#messagescard',
-        'label' => xlt('Chat'),
-        'icon' => 'fa-comment-medical',
-        'dataToggle' => 'collapse',
-        'dataType' => '#cardgroup'
-    ],
-    [
-        'url' => '#openSignModal',
-        'label' => xlt('Signature on File'),
-        'icon' => 'fa-file-signature',
-        'dataToggle' => 'modal',
-        'dataType' => 'patient-signature'
-    ]
-];
-
 $messagesURL = $GLOBALS['web_root'] . '' . "/portal/messaging/messages.php";
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
@@ -192,6 +107,158 @@ if ($appts) {
     }
 }
 
+function buildNav($newcnt, $pid, $result) {
+    $navItems = [
+        [
+            'url' => '#',
+            'label' => text($result['fname'] . " " . $result['lname']),
+            'icon' => 'fa-user',
+            'dropdownID' => 'account',
+            'children' => [
+                [
+                    'url' => '#profilecard',
+                    'label' => xlt(' My Profile'),
+                    'icon' => 'fa-user',
+                    'dataToggle' => 'collapse',
+                ],
+
+                [
+                    'url' => '#secure-msgs-card',
+                    'label' => xlt('My Messages'),
+                    'icon' => 'fa-envelope',
+                    'dataToggle' => 'collapse',
+                ],
+                [
+                    'url' => '#documentscard',
+                    'label' => xlt('My Documents'),
+                    'icon' => 'fa-file-medical',
+                    'dataToggle' => 'collapse'
+                ],
+                [
+                    'url' => '#lists',
+                    'label' => xlt('My Lists'),
+                    'icon' => 'fa-list',
+                    'dataToggle' => 'collapse'
+                ],
+                [
+                    'url' => '#openSignModal',
+                    'label' => xlt('My Signature'),
+                    'icon' => 'fa-file-signature',
+                    'dataToggle' => 'modal',
+                    'dataType' => 'patient-signature'
+                ]
+            ],
+        ],
+        [
+            'url' => '#',
+            'label' => xlt('Reports'),
+            'icon' => 'fa-book-medical',
+            'dropdownID' => 'reports',
+            'children' => [
+                [
+                    'url' => $GLOBALS['web_root'] . '' . "/ccdaservice/ccda_gateway.php?action=startandrun",
+                    'label' => xlt('View CCD'),
+                    'icon' => 'fa-envelope',
+                ]
+            ]
+        ]
+    ];
+
+    if (($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments'])) {
+
+        if ($GLOBALS['portal_two_ledger']) {
+            array_push($navItems, [
+                'url' => '#',
+                'label' => xlt('Accountings'),
+                'icon' => 'fa-file-invoice-dollar',
+                'dropdownID' => 'accounting',
+                'children' => [
+                    [
+                        'url' => "#ledgercard",
+                        'label' => xlt('Ledger'),
+                        'icon' => 'fa-folder-open',
+                        'dataToggle' => 'collapse'
+                    ]
+                ]
+            ]);
+        }
+    }
+
+    // Build sub nav items
+
+    if ($GLOBALS['allow_portal_chat']) {
+        array_push(
+            $navItems,
+            [
+                'url' => '#messagescard',
+                'label' => xlt('Chat'),
+                'icon' => 'fa-comment-medical',
+                'dataToggle' => 'collapse',
+                'dataType' => 'cardgroup'
+            ]
+        );
+    }
+
+    for ($i = 0; $i < count($navItems); $i++) {
+        if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === text($result['fname'] . " " . $result['lname'])) {
+            array_push($navItems[$i]['children'], [
+                'url' => '#appointmentcard',
+                'label' => xlt("My Appointments"),
+                'icon' => 'fa-calendar-check',
+                'dataToggle' => 'collapse'
+            ]);
+        }
+
+        if ($navItems[$i]['label'] === text($result['fname'] . " " . $result['lname'])) {
+            array_push(
+                $navItems[$i]['children'],
+                [
+                    'url' => 'javascript:changeCredentials(event)',
+                    'label' => xlt('Change Credentials'),
+                    'icon' => 'fa-cog fa-fw',
+                ],
+                [
+                    'url' => 'logout.php',
+                    'label' => xlt('Logout'),
+                    'icon' => 'fa-ban fa-fw',
+                ]
+            );
+        }
+
+        if (!empty($GLOBALS['portal_onsite_document_download']) && $navItems[$i]['label'] === xlt('Reports')) {
+            array_push(
+                $navItems[$i]['children'],
+                [
+                    'url' => '#reportcard',
+                    'label' => xlt('Report Content'),
+                    'icon' => 'fa-folder-open',
+                    'dataToggle' => 'collapse'
+                ],
+                [
+                    'url' => '#downloadcard',
+                    'label' => xlt('Download Lab Documents'),
+                    'icon' => 'fa-download',
+                    'dataToggle' => 'collapse'
+                ]
+            );
+        }
+
+        if ($GLOBALS['portal_two_payments'] && $navItems[$i]['label'] === xlt('Accountings')) {
+
+            array_push($navItems[$i]['children'], [
+                'url' => "#paymentcard",
+                'label' => xlt('Make Payment'),
+                'icon' => 'fa-credit-card',
+                'dataToggle' => 'collapse'
+            ]);
+        }
+    }
+
+    return $navItems;
+}
+
+$navMenu = buildNav($newcnt, $pid, $result);
+
 echo $twig->render('home.html.twig', [
     'user' => $user,
     'whereto' => $whereto,
@@ -209,7 +276,7 @@ echo $twig->render('home.html.twig', [
     'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
     'images_static_relative' => $GLOBALS['images_static_relative'],
     'youHave' => xlt('You have'),
-    'navItems' => $navItems,
+    'navMenu' => $navMenu,
     'pagetitle' => xlt('Home') . ' | ' . xlt('OpenEMR Portal'),
     'jsVersion' => $v_js_includes,
     'messagesURL' => $messagesURL,
@@ -249,7 +316,7 @@ echo $twig->render('home.html.twig', [
     'patientReportedOutcomeLabel' => xlt('Patient Reported Outcomes'),
     'isEasyPro' => $isEasyPro,
     'appointments' => $appointments,
-    'appts'=> $appts,
+    'appts' => $appts,
     'appointmentLimit' => $apptLimit,
     'appointmentCount' => $count,
     'displayLimitLabel' => xlt("Display limit reached"),

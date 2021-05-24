@@ -3,25 +3,8 @@
 {% block head %}
 	{{parent()}}
 
-	<script>
-		var cpid = "{{ patientID }}";
-var cuser = "{{ user }}";
-var webRoot = "{{ web_root }}";
-var ptName = "{{ patientName }}";
-var webroot_url = webRoot;
-	</script>
-
-	<script>
-		var tab_mode = true;
-var isPortal = 1;
-function restoreSession() { // dummy functions so the dlgopen function will work in the patient portal
-return true;
-}
-	</script>
-
-	<script src="{{'../interface/main/tabs/js/dialog_utils.js?v=' ~ jsVersion}}"></script>
 	<link href="{{'/portal/sign/css/signer_modal.css?v=' ~ jsVersion}}" rel="stylesheet"/>
-
+	<script src="{{'../interface/main/tabs/js/dialog_utils.js?v=' ~ jsVersion}}"></script>
 	<script src="{{'/portal/sign/assets/signature_pad.umd.js?v=' ~ jsVersion}}"></script>
 	<script src="{{'/portal/sign/assets/signer_api.js?v=' ~ jsVersion}}"></script>
 
@@ -38,277 +21,296 @@ return true;
 	{% endif %}
 
 	<script>
+		var cpid = "{{ patientID }}",
+		cuser = "{{ user }}",
+		webRoot = "{{ web_root }}",
+		ptName = "{{ patientName }}",
+		webroot_url = webRoot,
+		tab_mode = true,
+		isPortal = 1;
+
+		function restoreSession() { // dummy functions so the dlgopen function will work in the patient portal
+			return true;
+		}
+
 		$(function () {
-if ($('body').css('direction') == "rtl") {
-$('.float-left').each(function () {
-$(this).addClass('float-right').removeClass('float-left');
-});
-$('.dropdown-menu-right').each(function () {
-$(this).removeClass('dropdown-menu-right');
-});
-$('.dropdown-menu-md-right').each(function () {
-$(this).removeClass('dropdown-menu-md-right');
-});
-}
-$("#profilereport").load("get_profile.php", {}, function () {
-$("table").addClass("table table-sm");
-$(".demographics td").removeClass("label");
-$(".demographics td").addClass("bold");
-$(".insurance table").addClass("table-sm table-striped");
-$("#editDems").click(function () {
-showProfileModal()
-});
-});
 
-$("#medicationlist").load("./get_medications.php", {}, function () {});
-$("#labresults").load("./get_lab_results.php", {}, function () {});
-$("#amendmentslist").load("./get_amendments.php", {}, function () {});
-$("#problemslist").load("./get_problems.php", {}, function () {});
-$("#allergylist").load("./get_allergies.php", {}, function () {});
-$("#reports").load("./report/portal_patient_report.php?pid=     {{ patientID }}", {}, function () {});{% if portal_two_payments %}$("#payment").load("./portal_payment.php", {}, function () {});{% endif %}$(".generateDoc_download").click(function () {
-$("#doc_form").submit();
-});
+			if ($('body').css('direction') == "rtl") {
+				$('.float-left').each(function () {
+					$(this).addClass('float-right').removeClass('float-left');
+				});
+				$('.dropdown-menu-right').each(function () {
+					$(this).removeClass('dropdown-menu-right');
+				});
+				$('.dropdown-menu-md-right').each(function () {
+					$(this).removeClass('dropdown-menu-md-right');
+				});
+			}
 
-function showProfileModal() {
-var title = "{{ profileModalTitle }}";
+			$("#profilereport").load("get_profile.php", {}, function () {
+				$("table").addClass("table table-sm");
+				$(".demographics td").removeClass("label");
+				$(".demographics td").addClass("bold");
+				$(".insurance table").addClass("table-sm table-striped");
+				$("#editDems").click(function () {
+					showProfileModal()
+				});
+			});
 
-var params = {
-buttons: [
-{
-text: "{{ helpButtonLabel }}",
-close: false,
-style: 'info',
-id: 'formHelp'
-}, {
-text: "{{ cancelButtonLabel }}",
-close: true,
-style: 'default'
-}, {
-text: "{{ revertButtonLabel }}",
-close: false,
-style: 'danger',
-id: 'replaceAllButton'
-}, {
-text: "{{ reviewButtonLabel }}",
-close: false,
-style: 'success',
-id: 'donePatientButton'
-}
-],
-sizeHeight: 'full',
-allowDrag: false,
-onClosed: 'reload',
-resolvePromiseOn: 'init',
-type: 'GET',
-url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
-};
-dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
-$('div.modal-body', dialog).addClass('overflow-auto');
-});
-}
+			$("#medicationlist").load("./get_medications.php", {}, function () {});
 
-function saveProfile() {
-page.updateModel();
-}
+			$("#labresults").load("./get_lab_results.php", {}, function () {});
+			
+			$("#amendmentslist").load("./get_amendments.php", {}, function () {});
+			
+			$("#problemslist").load("./get_problems.php", {}, function () {});
+			
+			$("#allergylist").load("./get_allergies.php", {}, function () {});
+			
+			$("#reports").load("./report/portal_patient_report.php?pid={{ patientID }}", {}, function () {});
 
-var gowhere = '#{{ whereto }}';
+			{% if portal_two_payments %}
+				$("#payment").load("./portal_payment.php", {}, function () {});
+			{% endif %}
 
-$(gowhere).collapse('show');
+			$(".generateDoc_download").click(function () {
+				$("#doc_form").submit();
+			});
 
-$('#cardgroup').on('show.bs.collapse', '.collapse', function () {
-$('#cardgroup').find('.collapse.show').collapse('hide');
-});
+			function showProfileModal() {
+				var title = "{{ profileModalTitle }}";
 
-$("[data-toggle='pill']").on("click", function (e) {
-e.preventDefault();
-// don't toggle if already active.
-if ($(this).hasClass('active')) {
-return false;
-}
-$(".nav-item").removeClass("active");
-let canHide = $(".navbar-toggler-icon").is(":visible");
-if (canHide) {
-$("[data-toggle='sidebar-offcanvas']").click();
-}
-});
-$('#popwait').addClass('d-none');
-$('#callccda').click(function () {
-$('#popwait').removeClass('d-none');
-});
-});
-function editAppointment(mode, deid) {
-let mdata = {};
-let title = '';
-if (mode === 'add') {
-title = "{{ newAppointmentLabel }}";
-mdata = {
-pid: deid
-};
-} else if (mode === 'recurring') {
-let msg = "{{ recurringAppointmentLabel }}";
-signerAlertMsg(msg, 8000);
-return false;
-} else {
-title = "{{ editAppointmentLabel }}";
-mdata = {
-eid: deid
-};
-}
-var params = {
-dialogId: 'editpop',
-buttons: [
-{
-text: 'Cancel',
-close: true,
-style: 'btn-sm btn-secondary'
-},
-],
-allowDrag: false,
-sizeHeight: 'full',
-size: 750,
-title: title,
-type: "GET",
-url: './add_edit_event_user.php',
-data: mdata
-};
-/*
-									* A couple notes on dialog.ajax .alert etc.
-									* opener is not required. library will handle for you.
-									* these run in the same scope as calling script.
-									* so same styles, dependencies are in scope.
-									* a promise is returned for doing other neat stuff.
-									*
-									* */
-dialog.ajax(params);
-}
+				var params = {
+					buttons: [{
+					text: "{{ helpButtonLabel }}",
+					close: false,
+					style: 'info',
+					id: 'formHelp'
+					},
+					{
+					text: "{{ cancelButtonLabel }}",
+					close: true,
+					style: 'default'
+					},
+					{
+					text: "{{ revertButtonLabel }}",
+					close: false,
+					style: 'danger',
+					id: 'replaceAllButton'
+					},
+					{
+					text: "{{ reviewButtonLabel }}",
+					close: false,
+					style: 'success',
+					id: 'donePatientButton'
+					}],
+					sizeHeight: 'full',
+					allowDrag: false,
+					onClosed: 'reload',
+					resolvePromiseOn: 'init',
+					type: 'GET',
+					url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
+					};
 
-function changeCredentials(e) {
-title = "{{ newCredentialsLabel }}";
-dlgopen("./account/index_reset.php", '', 575, 500, null, title, {});
-}
+					dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
+						$('div.modal-body', dialog).addClass('overflow-auto');
+					});
+			}
 
-{% if isEasyPro %}
+			function saveProfile() {
+				page.updateModel();
+			}
 
-$("#pro").load("./get_pro.php", {}, function () {});
+			var gowhere = '#{{ whereto }}';
 
-function writeResult(score, stdErr, assessmentOID) {
-$.ajax({
-url: '../library/ajax/easipro_util.php',
-data: {
-'csrf_token_form': "{{ csrfUtils }}",
-'function': 'record_result',
-'score': score,
-'stdErr': stdErr,
-'assessmentOID': assessmentOID
-},
-type: 'POST',
-dataType: 'script'
-});
-}
+			$(gowhere).collapse('show');
 
-function selectResponse(obj, assessmentOID) {
-$.ajax({
-url: '../library/ajax/easipro_util.php',
-type: "POST",
-data: {
-'csrf_token_form': "{{ csrfUtils }}",
-'function': 'select_response',
-'assessmentOID': assessmentOID,
-'ItemResponseOID': obj.name,
-'Response': + obj.id
-},
-dataType: "json",
-success: function (data) {
-if (data.DateFinished != '') {
-document.getElementById("Content").innerHTML = jsText({{ finishedAssesmentLabel }}) + "<br /> " + jsText({{ thankYouLabel }});
-document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
-document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
-$.ajax({
-url: '../library/ajax/easipro_util.php',
-type: "POST",
-data: {
-'csrf_token_form': "{{ csrfUtils }}",
-'function': 'collect_results',
-'assessmentOID': assessmentOID
-},
-dataType: "json",
-success: function (data) {
-writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
-}
-});
-return
-}
-var screen = "";
-for (var j = 0; j < data.Items[0].Elements.length; j++) {
-if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-screen = `<div style="height: 30px>${
-data.Items[0].Elements[j].Description
-}</div>`
-} else {
-for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${
-data.Items[0].Elements[j].Map[k].Value
-}" name="${
-data.Items[0].Elements[j].Map[k].ItemResponseOID
-}" value="${
-data.Items[0].Elements[j].Map[k].Descriptio
-}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
-}
-}
-}
-document.getElementById("Content").innerHTML = screen;
-},
-error: function (jqXHR, textStatus, errorThrown) { // document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
-alert("An error occurred");
-}
-})
-}
+			$('#cardgroup').on('show.bs.collapse', '.collapse', function () {
+				$('#cardgroup').find('.collapse.show').collapse('hide');
+			});
 
-function startAssessment(param, assessmentOID) {
-param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ loadingTextLabel }});
+			// $("[data-toggle='pill']").on("click", function (e) {
+			// 	e.preventDefault();
+			// 	// don't toggle if already active.
+			// 	if ($(this).hasClass('active')) {
+			// 		return false;
+			// 	}
+			// 	$(".nav-item").removeClass("active");
+			// 	let canHide = $(".navbar-toggler-icon").is(":visible");
+			// 	if (canHide) {
+			// 		$("[data-toggle='sidebar-offcanvas']").click();
+			// 	}
+			// });
 
-$.ajax({
-url: '../library/ajax/easipro_util.php',
-type: "POST",
-data: {
-'csrf_token_form': "{{ csrfUtils }}",
-'function': 'start_assessment',
-'assessmentOID': assessmentOID
-},
-dataType: "json",
-success: function (data) {
-var screen = "";
-for (var j = 0; j < data.Items[0].Elements.length; j++) {
-if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-screen = `<div style="height: 30px">${
-data.Items[0].Elements[j].Description
-}</div>`;
-} else {
-for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-screen = `<div style="height: 50px"><input type="button" class='btn-submit' id="${
-data.Items[0].Elements[j].Map[k].Value
-}" name="${
-data.Items[0].Elements[j].Map[k].ItemResponseOID
-}" value="${
-data.Items[0].Elements[j].Map[k].Description
-}" onclick=selectResponse(this, ${assessmentOID})/></div>`;
-}
-}
-}
-document.getElementById("Content").innerHTML = screen;
+			$('#popwait').addClass('d-none');
 
-param.innerHTML = jsText({{ startAssesmentLabel }});
-},
-error: function (jqXHR, textStatus, errorThrown) {
-param.innerHTML = jsText({{ startAssesmentLabel }});
+			$('#callccda').click(function () {
+				$('#popwait').removeClass('d-none');
+			});
+		});
 
-// document.write(jqXHR.responseText);
-alert("An error occurred");
-}
-});
-}
+		function editAppointment(mode, deid) {
+			let mdata = {};
 
-{% endif %}
+			let title = '';
+
+			if (mode === 'add') {
+				title = "{{ newAppointmentLabel }}";
+				mdata = {
+					pid: deid
+				};
+			} else if (mode === 'recurring') {
+				let msg = "{{ recurringAppointmentLabel }}";
+				signerAlertMsg(msg, 8000);
+				return false;
+			} else {
+				title = "{{ editAppointmentLabel }}";
+				mdata = {
+					eid: deid
+				};
+			}
+
+			var params = {
+				dialogId: 'editpop',
+				buttons: [
+					{
+					text: 'Cancel',
+					close: true,
+					style: 'btn-sm btn-secondary',
+					}
+					],
+				allowDrag: false,
+				sizeHeight: 'full',
+				size: 750,
+				title: title,
+				type: "GET",
+				url: './add_edit_event_user.php',
+				data: mdata
+			};
+			/*		
+			* A couple notes on dialog.ajax .alert etc.
+			* opener is not required. library will handle for you.
+			* these run in the same scope as calling script.
+			* so same styles, dependencies are in scope.
+			* a promise is returned for doing other neat stuff.
+			*
+			* */
+			dialog.ajax(params);
+		}
+
+		function changeCredentials(e) {
+			title = "{{ newCredentialsLabel }}";
+			dlgopen("./account/index_reset.php", '', 575, 500, null, title, {});
+		}
+
+		{% if isEasyPro %}
+
+			$("#pro").load("./get_pro.php", {}, function () {});
+
+			function writeResult(score, stdErr, assessmentOID) {
+				$.ajax({
+				url: '../library/ajax/easipro_util.php',
+				data: {
+					'csrf_token_form': "{{ csrfUtils }}",
+					'function': 'record_result',
+					'score': score,
+					'stdErr': stdErr,
+					'assessmentOID': assessmentOID
+				},
+				type: 'POST',
+				dataType: 'script'
+				});
+			}
+
+			function selectResponse(obj, assessmentOID) {
+				$.ajax({
+					url: '../library/ajax/easipro_util.php',
+					type: "POST",
+					data: {
+						'csrf_token_form': "{{ csrfUtils }}",
+						'function': 'select_response',
+						'assessmentOID': assessmentOID,
+						'ItemResponseOID': obj.name,
+						'Response': + obj.id
+					},
+					dataType: "json",
+					success: function (data) {
+						if (data.DateFinished != '') {
+							document.getElementById("Content").innerHTML = jsText({{ finishedAssesmentLabel }}) + "<br /> " + jsText({{ thankYouLabel }});
+							document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+							document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+							$.ajax({
+								url: '../library/ajax/easipro_util.php',
+								type: "POST",
+								data: {
+									'csrf_token_form': "{{ csrfUtils }}",
+									'function': 'collect_results',
+									'assessmentOID': assessmentOID
+								},
+								dataType: "json",
+								success: function (data) {
+									writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+								}
+							});
+							return
+						}
+
+						var screen = "";
+						for (var j = 0; j < data.Items[0].Elements.length; j++) {
+							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+								screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
+							} else {
+									for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Descriptio}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
+									}
+								}
+						}
+						document.getElementById("Content").innerHTML = screen;
+					},
+					error: function (jqXHR, textStatus, errorThrown) { // document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+					alert("An error occurred");
+					}
+				});
+			}
+
+			function startAssessment(param, assessmentOID) {
+				param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ loadingTextLabel }});
+
+				$.ajax({
+					url: '../library/ajax/easipro_util.php',
+					type: "POST",
+					data: {
+						'csrf_token_form': "{{ csrfUtils }}",
+						'function': 'start_assessment',
+						'assessmentOID': assessmentOID
+					},
+					dataType: "json",
+					success: function (data) {
+						var screen = "";
+						for (var j = 0; j < data.Items[0].Elements.length; j++) {
+							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+								screen = `<div style="height: 30px">${data.Items[0].Elements[j].Description}</div>`;
+							} else {
+								for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+									screen = `<div style="height: 50px"><input type="button" class='btn-submit' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this, ${assessmentOID})/></div>`;
+								}
+							}
+						}
+						
+						document.getElementById("Content").innerHTML = screen;
+
+						param.innerHTML = jsText({{ startAssesmentLabel }});
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						param.innerHTML = jsText({{ startAssesmentLabel }});
+
+						// document.write(jqXHR.responseText);
+						alert("An error occurred");
+					}
+				});
+			}
+
+		{% endif %}
 	</script>
 
 {% endblock %}
@@ -419,6 +421,7 @@ alert("An error occurred");
 						</span>
 					</div>
 				</div>
+			</div>
 				<!-- /.row -->
 			{% endif %}
 
@@ -435,7 +438,7 @@ alert("An error occurred");
 				<div class="collapse" id="messagescard">
 					<div class="card pt-0 pb-0">
 						<header class="card-header bg-primary text-light">{{secureChatlabel}}</header>
-						<div id="messages" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
+						<div id="chat" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
 							<iframe src="./messaging/secure_chat.php" class="w-100 h-100"></iframe>
 						</div>
 					</div>

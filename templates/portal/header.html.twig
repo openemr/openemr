@@ -9,9 +9,9 @@
 
 	<div class="collapse navbar-collapse justify-content-end" id="nav">
 		<ul class="navbar-nav mt-2 mt-lg-0">
-			{% for item in navItems %}
+			{% for item in navMenu %}
 				<li class="nav-item {% if item.children %}dropdown{% endif %}">
-					<a class="nav-link {% if item.children %}dropdown-toggle{% endif %}" href="{{item.url}}" {% if item.dataToggle %} data-toggle="{{item.dataToggle}}" {% endif %} {% if item.children %} data-toggle="dropdown" role="button" id="{{item.dropdownID}}" aria-haspopup="true" aria-expanded="false" {% endif %}>
+					<a class="nav-link {% if item.children %}dropdown-toggle{% endif %}" href="{{item.url}}" {% if item.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% else %} data-toggle="{{item.dataToggle}}" data-parent="#cardgroup" {% endif %}>
 						{% if item.icon %}
 							<i class="fas {{item.icon}}"></i>
 						{% endif %}
@@ -26,10 +26,10 @@
 					</a>
 
 					{% if item.children | length > 0%}
-						<ul class="dropdown-menu" aria-labelledby="{{item.dropdownID}}">
+						<ul class="dropdown-menu" aria-labelledby="{{item.dropdownID}}-dropdown">
 							{% for child in item.children %}
 								<li>
-									<a class="dropdown-item" href="{{child.url}}">
+									<a class="dropdown-item" href="{{child.url}}" {% if child.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% endif %} {% if child.dataToggle %} data-toggle="{{child.dataToggle}}" data-parent="#cardgroup" {% endif %}>
 										{% if child.icon %}
 											<i class="fas {{child.icon}}"></i>
 										{% endif %}
