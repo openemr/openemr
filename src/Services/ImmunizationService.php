@@ -144,11 +144,6 @@ class ImmunizationService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        $sqlBindArray = array();
-
-        if (isset($search['patient.uuid'])) {
-        }
-
         if (isset($search['patient.uuid'])) {
             $isValidEncounter = $this->immunizationValidator->validateId(
                 'uuid',

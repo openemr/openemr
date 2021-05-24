@@ -897,6 +897,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $patientUUID = null;
         if (!$request->isPatientRequest()) {
             RestConfig::authorization_check("admin", "users");
+        } else {
             $patientUUID = $request->getPatientUUIDString();
         }
         $return = (new FhirOrganizationRestController())->getOne($id, $patientUUID);
