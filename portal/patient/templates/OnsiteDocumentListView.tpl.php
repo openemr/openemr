@@ -271,7 +271,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
         }
     </script>
     <div class="container-fluid">
-    <nav id="verytop" class="nav navbar-light bg-light navbar-expand p-1 m-1 sticky-top">
+    <nav id="verytop" class="nav navbar-light bg-light navbar-expand p-1 m-1">
         <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
         <div id="topmenu" class="mr-auto">
             <ul class="navbar-nav mr-auto">
