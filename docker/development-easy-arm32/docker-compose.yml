@@ -27,7 +27,7 @@ services:
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
-    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - logvolume:/var/log
     environment:
       DEBUG_COLORS: "true"
@@ -84,5 +84,5 @@ volumes:
   sitesvolume: {}
   nodemodules: {}
   vendordir: {}
-  ccdamodule: {}
+  ccdanodemodules: {}
   logvolume: {}
