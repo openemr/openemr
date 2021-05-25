@@ -296,7 +296,6 @@ exports.encDiagnosis = {
                     },
                 ],
             }
-
             ]
         },
     ]

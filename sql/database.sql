@@ -6427,7 +6427,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-erro','Entered In Error',50,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
 
 -- --------------------------------------------------------
 

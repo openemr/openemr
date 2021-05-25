@@ -153,7 +153,7 @@ var patient = exports.patient = {
     ]
 };
 
-var provider = exports.provider = {
+var provider = exports.provider = [{
     key: "performer",
     attributes: {
         typeCode: "PRF"
@@ -167,6 +167,7 @@ var provider = exports.provider = {
                 "codeSystem": "2.16.840.1.113883.12.443",
                 "codeSystemName": "Provider Role"
             },
+            existsWhen: condition.propertyNotEmpty('function_code'),
             content: [{key: "originalText", text: "Primary Care Provider"}]
         },
         {
@@ -181,6 +182,7 @@ var provider = exports.provider = {
             }, {
                 key: "code",
                 attributes: leafLevel.code,
+                content: [{key: "originalText", text: "Care Team Member"}],
                 dataKey: "type"
             }, {
                 key: "addr",
@@ -231,7 +233,31 @@ var provider = exports.provider = {
             ]
         }
     ],
-    dataKey: "providers"
+    dataKey: "providers.provider"
+}];
+
+var providers = exports.providers = {
+    key: "documentationOf",
+    attributes: {
+        typeCode: "DOC"
+    },
+    content: {
+        key: "serviceEvent",
+        attributes: {
+            classCode: "PCPR"
+        },
+        content: [
+            {
+                key: "code",
+                attributes: leafLevel.code,
+                existsWhen: condition.propertyNotEmpty('code'),
+                dataKey: "providers.code"
+            },
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("providers.date_time"), required],
+            provider
+        ]
+    },
+    dataKey: "data.demographics"
 };
 
 var attributed_provider = exports.attributed_provider = {
@@ -299,10 +325,8 @@ var recordTarget = exports.recordTarget = {
 
 var headerAuthor = exports.headerAuthor = {
     key: "author",
-    content: [{
-        key: "time"
-        },
-        [fieldLevel.timeNow, required, key("time")],
+    content: [
+        [fieldLevel.effectiveTime, required, key("time")],
         {
             key: "assignedAuthor",
             content: [{
@@ -311,7 +335,7 @@ var headerAuthor = exports.headerAuthor = {
                     root: leafLevel.inputProperty("identifier"),
                     extension: leafLevel.inputProperty("extension")
                 },
-                dataKey: 'author.identifiers',
+                dataKey: 'identifiers',
             }, {
                 key: "addr",
                 attributes: {
@@ -334,14 +358,14 @@ var headerAuthor = exports.headerAuthor = {
                     text: leafLevel.input,
                     dataKey: "street_lines"
                 }],
-                dataKey: "author.address"
+                dataKey: "address"
             }, {
                 key: "telecom",
                 attributes: {
                     value: leafLevel.inputProperty("number"),
                     use: leafLevel.inputProperty("type")
                 },
-                dataKey: "author.phone",
+                dataKey: "phone",
                 //dataTransform: translate.telecom
             }, {
                 key: "assignedPerson",
@@ -362,7 +386,7 @@ var headerAuthor = exports.headerAuthor = {
                             key: "suffix",
                             text: leafLevel.inputProperty("suffix")
                         }],
-                    dataKey: "author.name",
+                    dataKey: "name",
                     dataTransform: translate.name
                 } // content
             }, {
@@ -412,7 +436,7 @@ var headerAuthor = exports.headerAuthor = {
                         dataKey: "address"
                     }
                 ],
-                dataKey: "author.organization"
+                dataKey: "organization"
             }
             ] // content
         }
@@ -506,22 +530,4 @@ var headerCustodian = exports.headerCustodian = {
         }]
     },
     dataKey: "meta.ccda_header.custodian"
-};
-
-var providers = exports.providers = {
-    key: "documentationOf",
-    attributes: {
-        typeCode: "DOC"
-    },
-    content: {
-        key: "serviceEvent",
-        attributes: {
-            classCode: "PCPR"
-        },
-        content: [
-            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("providers.date_time"), required],
-            provider
-        ]
-    },
-    dataKey: "data.demographics"
 };

@@ -25,7 +25,7 @@ function trim(s) {
     return s;
 }
 
-function fDate(str, lim8=false) {
+function fDate(str, lim8 = false) {
     str = String(str);
     if (lim8) {
         let rtn = str.substring(0, 8);
@@ -162,7 +162,7 @@ function populateDemographic(pd, g) {
             "mode": "Expressed spoken",
             "proficiency": "Good"
         }],
-        //"religion": pd.religion.toUpperCase() || "UNK",
+        //"religion": pd.religion.toUpperCase() || "",
         /*"birthplace":'', {
             "city": "",
             "state": "",
@@ -173,15 +173,15 @@ function populateDemographic(pd, g) {
             "identity": [
                 {
                     "root": "2.16.840.1.113883.4.6",
-                    "extension": npiFacility || "UNK"
+                    "extension": npiFacility || ""
                 }
             ],
             "phone": [{
-                "number": all.encounter_provider.facility_phone || "UNK",
+                "number": all.encounter_provider.facility_phone || "",
             }],
             "name": [
                 {
-                    "full": all.encounter_provider.facility_name || "UNK"
+                    "full": all.encounter_provider.facility_name || ""
                 }
             ],
             "address": [
@@ -202,13 +202,67 @@ function populateDemographic(pd, g) {
 
 }
 
-function populateProviders() {
+function populateProvider(provider) {
+    // The provider role is a maybe and will only be provided for physicians as a
+    // primary care role. All other team members will id via taxonomy only and if not physicians.
     return {
-        "providers": [
+        "function_code": provider.physician_type ? "PP" : "",
+        "identity": [
+            {
+                "root": provider.npi ? "2.16.840.1.113883.4.6" : oidFacility,
+                "extension": provider.npi || provider.table_id || ""
+            }
+        ],
+        "type": [
+            {
+                "name": provider.taxonomy_description || "",
+                "code": cleanCode(provider.taxonomy) || "",
+                "code_system": "2.16.840.1.113883.6.101",
+                "code_system_name": "NUCC Health Care Provider Taxonomy"
+            }
+        ],
+        "name": [
+            {
+                "last": provider.lname || "",
+                "first": provider.fname || ""
+            }
+        ],
+        "address": [
+            {
+                "street_lines": [
+                    all.encounter_provider.facility_street
+                ],
+                "city": all.encounter_provider.facility_city,
+                "state": all.encounter_provider.facility_state,
+                "zip": all.encounter_provider.facility_postal_code,
+                "country": all.encounter_provider.facility_country_code || "US"
+            }
+        ],
+        "phone": [
+            {
+                "value": {
+                    "number": all.encounter_provider.facility_phone || "",
+
+                }
+            }]
+    }
+}
+
+function populateProviders() {
+    let providerArray = [];
+    let provider = populateProvider(all.primary_care_provider.provider);
+    providerArray.push(provider);
+
+    for (let i in all.care_team.provider) {
+        provider = populateProvider(all.care_team.provider[i]);
+        providerArray.push(provider);
+    }
+    return {
+        "providers":
             {
                 "code": {
-                    "name": "UNK",
-                    "code": "UNK",
+                    "name": "",
+                    "code": "",
                     "code_system_name": "SNOMED CT"
                 },
                 "date_time": {
@@ -221,75 +275,8 @@ function populateProviders() {
                         "precision": "day"
                     }
                 },
-                "identity": [
-                    {
-                        "root": "2.16.840.1.113883.4.6",
-                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
-                    }
-                ],
-                "type": [
-                    {
-                        "name": all.primary_care_provider.provider[0].physician_type || "UNK",
-                        "code": cleanCode(all.primary_care_provider.provider[0].physician_type_code) || "UNK",
-                        "code_system_name": "Provider Codes"
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.primary_care_provider.provider[0].lname || "UNK",
-                        "first": all.primary_care_provider.provider[0].fname || "UNK"
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.encounter_provider.facility_street
-                        ],
-                        "city": all.encounter_provider.facility_city,
-                        "state": all.encounter_provider.facility_state,
-                        "zip": all.encounter_provider.facility_postal_code,
-                        "country": all.encounter_provider.facility_country_code || "US"
-                    }
-                ],
-                "phone": [
-                    {
-                        "value": {
-                            "number": all.encounter_provider.facility_phone || "",
-
-                        }
-                    }],
-                "organization": [
-                    {
-                        "identifiers": [
-                            {
-                                "identifier": "2.16.840.1.113883.19.5.9999.1393" //@todo need facility oid
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "primary work"
-                            }
-                        ]
-                    }
-                ]
-
+                "provider": providerArray,
             }
-        ]
     }
 }
 
@@ -308,14 +295,14 @@ function populateMedication(pd) {
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension || "UNK"
+            "extension": pd.extension || ""
         }],
         "status": pd.status,
         "sig": pd.direction,
         "product": {
             "identifiers": [{
-                "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8",
-                "extension": "UNK"
+                "identifier": pd.sha_extension || "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                "extension": pd.extension + 1 || ""
             }],
             "unencoded_name": pd.drug,
             "product": {
@@ -345,8 +332,8 @@ function populateMedication(pd) {
             "quantity": "0",
             "product": {
                 "identifiers": [{
-                    "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8",
-                    "extension": "UNK"
+                    "identifier": pd.sha_extension || "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                    "extension": pd.extension + 1 || ""
                 }],
                 "unencoded_name": pd.drug,
                 "product": {
@@ -370,7 +357,7 @@ function populateMedication(pd) {
                 },
                 "identifiers": [{
                     "identifier": "2.16.840.1.113883.4.6",
-                    "extension": pd.npi || "UNK"
+                    "extension": pd.npi || ""
                 }],
                 "name": {
                     "prefix": pd.title,
@@ -390,7 +377,7 @@ function populateMedication(pd) {
         "administration": {
             "route": {
                 "name": pd.route || "",
-                "code": cleanCode(pd.route_code) || "UNK",
+                "code": cleanCode(pd.route_code) || "",
                 "code_system_name": "Medication Route FDA"
             },
             "form": {
@@ -417,12 +404,12 @@ function populateMedication(pd) {
         "performer": {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.4.6",
-                "extension": pd.npi || "UNK"
+                "extension": pd.npi || ""
             }],
             "organization": [{
                 "identifiers": [{
                     "identifier": pd.sha_extension,
-                    "extension": pd.extension || "UNK"
+                    "extension": pd.extension || ""
                 }],
                 "name": [pd.performer_name]
             }]
@@ -536,7 +523,7 @@ function populateEncounter(pd) {
         "performers": [{
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.4.6",
-                "extension": pd.npi || "UNK"
+                "extension": pd.npi || ""
             }],
             "code": [{
                 "name": pd.physician_type,
@@ -545,8 +532,8 @@ function populateEncounter(pd) {
             }],
             "name": [
                 {
-                    "last": pd.lname || "UNK",
-                    "first": pd.fname || "UNK"
+                    "last": pd.lname || "",
+                    "first": pd.fname || ""
                 }
             ],
             "phone": [
@@ -602,7 +589,7 @@ function populateAllergy(pd) {
     return {
         "identifiers": [{
             "identifier": pd.sha_id,
-            "extension": pd.id || "UNK"
+            "extension": pd.id || ""
         }],
         "date_time": {
             "low": templateDate(pd.startdate, "day"),
@@ -610,8 +597,8 @@ function populateAllergy(pd) {
         },
         "observation": {
             "identifiers": [{
-                "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a66",
-                "extension": pd.extension || "UNK"
+                "identifier": pd.sha_extension || "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                "extension": pd.id + 1 || ""
             }],
             "allergen": {
                 "name": pd.title,
@@ -632,13 +619,13 @@ function populateAllergy(pd) {
             "severity": {
                 "code": {
                     "name": pd.outcome,
-                    "code": cleanCode(pd.outcome_code) || "UNK",
+                    "code": cleanCode(pd.outcome_code) || "",
                     "code_system_name": "SNOMED CT"
                 }
             },
             "status": {
                 "name": pd.status_table,
-                "code": cleanCode(pd.status_code) || "UNK",
+                "code": cleanCode(pd.status_code) || "",
                 "code_system_name": "SNOMED CT"
             },
             "reactions": [{
@@ -651,13 +638,13 @@ function populateAllergy(pd) {
                 },
                 "reaction": {
                     "name": pd.reaction_text,
-                    "code": cleanCode(pd.reaction_code) || "UNK",
+                    "code": cleanCode(pd.reaction_code) || "",
                     "code_system_name": pd.reaction_code_type || "SNOMED CT"
                 },
                 "severity": {
                     "code": {
                         "name": pd.outcome,
-                        "code": cleanCode(pd.outcome_code) || "UNK",
+                        "code": cleanCode(pd.outcome_code) || "",
                         "code_system_name": "SNOMED CT"
                     }
                 }
@@ -680,7 +667,7 @@ function populateProblem(pd) {
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension || "UNK"
+            "extension": pd.extension || ""
         }],
         "translations": [{
             "name": "Condition",
@@ -709,13 +696,13 @@ function populateProblem(pd) {
                 "identifiers": [
                     {
                         "identifier": "2.16.840.1.113883.4.6",
-                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
+                        "extension": all.primary_care_provider.provider.npi || ""
                     }
                 ],
                 "name": [
                     {
-                        "last": all.primary_care_provider.provider[0].lname || "",
-                        "first": all.primary_care_provider.provider[0].fname || ""
+                        "last": all.primary_care_provider.provider.lname || "",
+                        "first": all.primary_care_provider.provider.fname || ""
                     }
                 ]
             }],
@@ -737,7 +724,7 @@ function populateProblem(pd) {
         "patient_status": pd.observation,
         "source_list_identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension || "UNK"
+            "extension": pd.extension || ""
         }]
     };
 
@@ -780,7 +767,7 @@ function populateProcedure(pd) {
         "performers": [{
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.4.6",
-                "extension": pd.npi || "UNK"
+                "extension": pd.npi || ""
             }],
             "address": [{
                 "street_lines": [pd.address],
@@ -827,10 +814,10 @@ function populateMedicalDevice(pd) {
                 "date": fDate(pd.start_date),
                 "precision": "day"
             }/*,
-            "high": {
-                "date": fDate(pd.end_date),
-                "precision": "day"
-            }*/
+        "high": {
+            "date": fDate(pd.end_date),
+            "precision": "day"
+        }*/
         },
         "device_type": "UDI",
         "device": {
@@ -852,7 +839,6 @@ function populateMedicalDevice(pd) {
     }
 }
 
-
 function populateResult(pd) {
     let icode = pd.subtest.abnormal_flag;
     let value = parseFloat(pd.subtest.result_value) || pd.subtest.result_value || "";
@@ -870,7 +856,7 @@ function populateResult(pd) {
             icode = "Abnormal";
             break;
         case "":
-            icode = "UNK";
+            icode = "";
             break;
     }
     return {
@@ -880,7 +866,7 @@ function populateResult(pd) {
         }],
         "result": {
             "name": pd.title,
-            "code": cleanCode(pd.subtest.result_code) || "UNK",
+            "code": cleanCode(pd.subtest.result_code) || "",
             "code_system_name": "LOINC"
         },
         "date_time": {
@@ -927,13 +913,13 @@ function getResultSet(results) {
                 "identifiers": [
                     {
                         "identifier": "2.16.840.1.113883.4.6",
-                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
+                        "extension": all.primary_care_provider.provider.npi || ""
                     }
                 ],
                 "name": [
                     {
-                        "last": all.primary_care_provider.provider[0].lname || "",
-                        "first": all.primary_care_provider.provider[0].fname || ""
+                        "last": all.primary_care_provider.provider.lname || "",
+                        "first": all.primary_care_provider.provider.fname || ""
                     }
                 ]
             }],
@@ -970,16 +956,16 @@ function getResultSet(results) {
 function getPlanOfCare(pd) {
     return {
         "plan": {
-            "name": pd.code_text || "UNK",
-            "code": cleanCode(pd.code) || "UNK",
+            "name": pd.code_text || "",
+            "code": cleanCode(pd.code) || "",
             "code_system_name": pd.code_type || "SNOMED CT"
         },
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809b4a"
         }],
         "goal": {
-            "code": cleanCode(pd.code) || "UNK",
-            "name": pd.description || "UNK"
+            "code": cleanCode(pd.code) || "",
+            "name": pd.description || ""
         },
         "date_time": {
             "center": {
@@ -1223,7 +1209,7 @@ function populateImmunization(pd) {
         },
         "identifiers": [{
             "identifier": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92",
-            "extension": pd.extension || "UNK"
+            "extension": pd.extension || ""
         }],
         "status": "complete",
         "product": {
@@ -1237,24 +1223,24 @@ function populateImmunization(pd) {
                     "code_system_name": "CVX"
                 }]*/
             },
-            "lot_number": "UNK",
-            "manufacturer": "UNK"
+            "lot_number": "",
+            "manufacturer": ""
         },
         "administration": {
             "route": {
                 "name": pd.route_of_administration,
-                "code": cleanCode(pd.route_code) || "UNK",
+                "code": cleanCode(pd.route_code) || "",
                 "code_system_name": "Medication Route FDA"
             }/*,
-            "dose": {
-                "value": 50,
-                "unit": "mcg"
-            }*/
+        "dose": {
+            "value": 50,
+            "unit": "mcg"
+        }*/
         },
         "performer": {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.4.6",
-                "extension": npiProvider || "UNK"
+                "extension": pd.npi || ""
             }],
             "name": [{
                 "last": pd.lname,
@@ -1270,7 +1256,7 @@ function populateImmunization(pd) {
             "organization": [{
                 "identifiers": [{
                     "identifier": "2.16.840.1.113883.4.6",
-                    "extension": npiFacility || "UNK"
+                    "extension": npiFacility || ""
                 }],
                 "name": [pd.facility_name]
             }]
@@ -1455,78 +1441,79 @@ function populateHeader(pd) {
             "precision": "none"
         },
         "author": {
-            "author": [
-                {
-                    "time": pd.created_time_timezone,
-                    "identifiers": [
-                        {
-                            "identifier": "2.16.840.1.113883.4.6",
-                            "extension": pd.author.npi || "UNK"
-                        }
-                    ],
-                    "name": [
-                        {
-                            "last": pd.author.lname,
-                            "first": pd.author.fname
-                        }
-                    ],
-                    "address": [
-                        {
-                            "street_lines": [
-                                pd.author.streetAddressLine
-                            ],
-                            "city": pd.author.city,
-                            "state": pd.author.state,
-                            "zip": pd.author.postalCode,
-                            "country": pd.author.country || "US",
-                            "use": "work place"
-                        }
-                    ],
-                    "phone": [
-                        {
-                            "number": pd.author.telecom || "UNK",
-                            "type": "WP"
-                        }
-                    ],
-                    "organization": [
-                        {
-                            "identity": [
-                                {
-                                    "root": "2.16.840.1.113883.4.6",
-                                    "extension": npiFacility || "UNK"
-                                }
-                            ],
-                            "name": [
-                                pd.encounter_provider.facility_name
-                            ],
-                            "address": [
-                                {
-                                    "street_lines": [
-                                        pd.encounter_provider.facility_street
-                                    ],
-                                    "city": pd.encounter_provider.facility_city,
-                                    "state": pd.encounter_provider.facility_state,
-                                    "zip": pd.encounter_provider.facility_postal_code,
-                                    "country": pd.encounter_provider.facility_country_code || "US",
-                                    "use": "work place"
-                                }
-                            ],
-                            "phone": [
-                                {
-                                    "number": pd.encounter_provider.facility_phone,
-                                    "type": "work primary"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
+                "date_time": {
+                    "point": {
+                        "date": (isOne(all.encounter_list.encounter) === 1 ? all.encounter_list.encounter.date_formatted : all.encounter_list.encounter[0].date_formatted) || pd.created_time_timezone,
+                        "precision": "day"
+                    }
+                },
+                "identifiers": [
+                    {
+                        "identifier": "2.16.840.1.113883.4.6",
+                        "extension": pd.author.npi || ""
+                    }
+                ],
+                "name": [
+                    {
+                        "last": pd.author.lname,
+                        "first": pd.author.fname
+                    }
+                ],
+                "address": [
+                    {
+                        "street_lines": [
+                            pd.author.streetAddressLine
+                        ],
+                        "city": pd.author.city,
+                        "state": pd.author.state,
+                        "zip": pd.author.postalCode,
+                        "country": pd.author.country || "US",
+                        "use": "work place"
+                    }
+                ],
+                "phone": [
+                    {
+                        "number": pd.author.telecom || "",
+                        "type": "WP"
+                    }
+                ],
+                "organization": [
+                    {
+                        "identity": [
+                            {
+                                "root": "2.16.840.1.113883.4.6",
+                                "extension": npiFacility || ""
+                            }
+                        ],
+                        "name": [
+                            pd.encounter_provider.facility_name
+                        ],
+                        "address": [
+                            {
+                                "street_lines": [
+                                    pd.encounter_provider.facility_street
+                                ],
+                                "city": pd.encounter_provider.facility_city,
+                                "state": pd.encounter_provider.facility_state,
+                                "zip": pd.encounter_provider.facility_postal_code,
+                                "country": pd.encounter_provider.facility_country_code || "US",
+                                "use": "work place"
+                            }
+                        ],
+                        "phone": [
+                            {
+                                "number": pd.encounter_provider.facility_phone,
+                                "type": "work primary"
+                            }
+                        ]
+                    }
+                ]
+            },
         "custodian": {
             "identity": [
                 {
                     "root": "2.16.840.1.113883.4.6",
-                    "extension": npiFacility || "UNK"
+                    "extension": npiFacility || ""
                 }
             ],
             "name": [
@@ -1614,8 +1601,8 @@ function populateHeader(pd) {
         },*/
         /*"service_event": {
             "code": {
-                "name": "UNK",
-                "code": "UNK",
+                "name": "",
+                "code": "",
                 "code_system_name": "SNOMED CT"
             },
             "date_time": {
@@ -1692,7 +1679,7 @@ function populateHeader(pd) {
                             ],
                             "code": [
                                 {
-                                    "name": "UNK",
+                                    "name": "",
                                     "code": "",
                                     "code_system_name": "Provider Codes"
                                 }
@@ -1717,13 +1704,13 @@ function getMeta(pd) {
         "type": "CCDA",
         "identifiers": [
             {
-                "identifier": oidFacility || "UNK",
+                "identifier": oidFacility || "",
                 "extension": "TT988"
             }
         ],
         "confidentiality": "Normal",
         "set_id": {
-            "identifier": oidFacility + ".1" || "UNK",
+            "identifier": oidFacility || "",
             "extension": "sTT988"
         }
     }
@@ -1738,13 +1725,13 @@ function genCcda(pd) {
     var theone = {};
 
     all = pd;
-    npiProvider = all.primary_care_provider.provider[0].npi;
+    npiProvider = all.primary_care_provider.provider.npi;
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.3.8888.999999";
     npiFacility = all.encounter_provider.facility_npi;
 
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
-    // This populates documentationOf. We are using providerOrganization also.
+// This populates documentationOf. We are using providerOrganization also.
     Object.assign(demographic, populateProviders());
 
     data.demographics = Object.assign(demographic);
@@ -1933,7 +1920,7 @@ function genCcda(pd) {
     }
 
     data.plan_of_care = Object.assign(many.plan_of_care);
-    // Social History
+// Social History
     many = [];
     theone = {};
     many.social_history = [];
@@ -1955,7 +1942,7 @@ function genCcda(pd) {
 
     data.social_history = Object.assign(many.social_history);
 
-    // ------------------------------------------ End Sections ----------------------------------------//
+// ------------------------------------------ End Sections ----------------------------------------//
 
     doc.data = Object.assign(data);
     let meta = getMeta(pd);
@@ -1965,7 +1952,7 @@ function genCcda(pd) {
     doc.meta = Object.assign(meta);
     let xml = bbg.generateCCD(doc);
 
-    // Debug
+// Debug
     fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
         if (err) {
             return console.log(err);
@@ -1985,7 +1972,7 @@ function genCcda(pd) {
 function processConnection(connection) {
     conn = connection; // make it global
     var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
-    //console.log(remoteAddress);
+//console.log(remoteAddress);
     conn.setEncoding('utf8');
 
     var xml_complete = "";
@@ -2035,7 +2022,7 @@ function processConnection(connection) {
         //console.log('Connection %s error: %s', remoteAddress, err.message);
     }
 
-    // Connection Events //
+// Connection Events //
     conn.on('data', eventData);
     conn.once('close', eventCloseConn);
     conn.on('error', eventErrorConn);

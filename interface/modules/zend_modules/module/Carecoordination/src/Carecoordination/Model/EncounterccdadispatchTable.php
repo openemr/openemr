@@ -313,22 +313,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getPrimaryCareProvider($pid, $encounter)
     {
-        $primary_care_provider = '';
-
+        // primary from demo
         $getprovider = $this->getProviderId($pid);
-        if ($getprovider != 0 && $getprovider != '') {
+        if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
-        }
-
-        $get_care_team_provider = $this->getCareTeamProviderId($pid);
-        if ($get_care_team_provider != 0 && $get_care_team_provider != '') {
-            $details2 = $this->getUserDetails($get_care_team_provider);
-        }
-
-        if (($getprovider == 0 || $getprovider == '') && ($get_care_team_provider == 0 || $get_care_team_provider == '')) {
+        } else { // get from CCM setup
             $details = $this->getDetails('hie_primary_care_provider_id');
         }
-
+        // Note for NPI: Many times a care team member may not have an NPI so instead of
+        // an NPI OID use facility/document unique OID with user table reference for extension.
+        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
         $primary_care_provider = "
         <primary_care_provider>
           <provider>
@@ -339,25 +333,46 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <organization>" . xmlEscape($details['organization']) . "</organization>
             <telecom>" . xmlEscape(($details['phonew1'] ? $details['phonew1'] : 0)) . "</telecom>
             <addr>" . xmlEscape($details['']) . "</addr>
-            <npi>" . xmlEscape($details['npi']) . "</npi>
+            <table_id>" . xmlEscape("provider-" . $getprovider) . "</table_id>
+            <npi>" . xmlEscape($details['npi'] ?: '') . "</npi>
             <physician_type>" . xmlEscape($details['physician_type']) . "</physician_type>
             <physician_type_code>" . xmlEscape($details['physician_type_code']) . "</physician_type_code>
+            <taxonomy>" . xmlEscape($details['taxonomy']) . "</taxonomy>
+            <taxonomy_description>" . xmlEscape($details['taxonomy_desc']) . "</taxonomy_description>
           </provider>
-          <provider>
+        </primary_care_provider>";
+        $care_team_provider = "<care_team>";
+        foreach ($get_care_team_provider as $team_member) {
+            if ((int)$getprovider === (int)$team_member) {
+                // primary should be a part of care team but just in case
+                // I've kept primary separate. So either way, primary gets included.
+                // in this case, we don't want to duplicate the provider.
+                continue;
+            }
+            $details2 = $this->getUserDetails($team_member);
+            if (empty($details2)) {
+                continue;
+            }
+            $care_team_provider .= "<provider>
             <prefix>" . xmlEscape($details2['title']) . "</prefix>
             <fname>" . xmlEscape($details2['fname']) . "</fname>
             <lname>" . xmlEscape($details2['lname']) . "</lname>
             <speciality>" . xmlEscape($details2['specialty']) . "</speciality>
             <organization>" . xmlEscape($details2['organization']) . "</organization>
-            <telecom>" . xmlEscape(($details2['phonew1'] ? $details['phonew1'] : 0)) . "</telecom>
+            <telecom>" . xmlEscape(($details2['phonew1'] ?: '')) . "</telecom>
             <addr>" . xmlEscape($details2['']) . "</addr>
-            <npi>" . xmlEscape($details['npi']) . "</npi>
+            <table_id>" . xmlEscape("provider-" . $team_member) . "</table_id>
+            <npi>" . xmlEscape($details2['npi']) . "</npi>
             <physician_type>" . xmlEscape($details2['physician_type']) . "</physician_type>
             <physician_type_code>" . xmlEscape($details2['physician_type_code']) . "</physician_type_code>
+            <taxonomy>" . xmlEscape($details2['taxonomy']) . "</taxonomy>
+            <taxonomy_description>" . xmlEscape($details2['taxonomy_desc']) . "</taxonomy_description>
           </provider>
-        </primary_care_provider>
+          ";
+        }
+        $care_team_provider .= "</care_team>
         ";
-        return $primary_care_provider;
+        return $primary_care_provider . $care_team_provider;
     }
 
     /*
@@ -2196,10 +2211,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getUserDetails($uid)
     {
-        $query = "SELECT u.title,npi,fname,mname,lname,street,city,state,zip,CONCAT_WS(' ','',phonew1) AS phonew1, lo.title as  physician_type,
-                       organization, specialty, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code FROM users as u
-		       LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
-		       WHERE `id` = ?";
+        $query = "SELECT u.title,npi,fname,mname,lname,street,city,state,zip,CONCAT_WS(' ','',phonew1) AS phonew1, lo.title as  physician_type, facility As organization, taxonomy, lous.title as taxonomy_desc, specialty, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as physician_type_code FROM users as u
+        LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
+        LEFT JOIN list_options AS lous ON lous.list_id = 'us-core-provider-specialty' AND lous.option_id = u.taxonomy
+        WHERE `id` = ?";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($uid));
         foreach ($res as $result) {
