@@ -82,6 +82,53 @@ if (isset($_GET['iSortCol_0'])) {
     }
 }
 
+// Helper function for filtering dates. Returns a string for use with MySQL LIKE.
+// Examples (assuming US date formats):
+//   12       => Any date with "12" in it
+//   1977     => Any date with "1977" in it (therefore year 1977)
+//   197/12/1 => Dec. 1 of any year in the 1970's
+//   12/1/197 => Same
+//   12/1     => Dec. 1 of any year
+//   /1       => The first day of any month of any year
+// Any non-digit character may be used instead of "/".
+//
+function dateSearch($sSearch)
+{
+    // Determine if MDY date format is used, preferring Date Display Format from
+    // global settings if it's not YMD, otherwise guessing from country code.
+    $mdy = empty($GLOBALS['date_display_format']) ?
+        ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+    // If no delimiters then just search the whole date.
+    $mystr = "%$sSearch%";
+    if (preg_match('/[^0-9]/', $sSearch)) {
+        // Delimiter found. Separate it all into year, month and day components.
+        $parts = preg_split('/[^0-9]/', $sSearch);
+        $parts[1] = $parts[1] ?? '';
+        $parts[2] = $parts[2] ?? '';
+        // If the first part is more than 2 digits then assume y/m/d format.
+        // Otherwise assume MDY or DMY format as appropriate.
+        if (strlen($parts[0]) <= 2) {
+            $parts = $mdy ? array($parts[2], $parts[0], $parts[1]) :
+                array($parts[2], $parts[1], $parts[0]);
+        }
+        // A single-digit day or month is zero-filled. Fill in other missing
+        // digits with wildcards. A 2-digit year like 19 becomes 19__, not __19.
+        $parts[0] = substr($parts[0] . '____', 0, 4);
+        if (strlen($parts[1]) == 0) {
+            $parts[1] = '__';
+        } elseif (strlen($parts[1]) == 1) {
+            $parts[1] = '0' . $parts[1];
+        }
+        if (strlen($parts[2]) == 0) {
+            $parts[2] = '__';
+        } elseif (strlen($parts[2]) == 1) {
+            $parts[2] = '0' . $parts[2];
+        }
+        $mystr = $parts[0] . '-' . $parts[1] . '-' . $parts[2];
+    }
+    return $mystr;
+}
+
 // Global filtering.
 //
 $where = "";
@@ -136,6 +183,9 @@ for ($i = 0; $i < count($aColumns); ++$i) {
             } else {// like search
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
+        } elseif ($colname == 'DOB') {
+            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
