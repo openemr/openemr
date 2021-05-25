@@ -74,9 +74,9 @@ class FhirOrganizationRestController
      * @param $fhirId The FHIR organization resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirOrganizationService->getOne($fhirId, true);
+        $processingResult = $this->fhirOrganizationService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 

@@ -44,6 +44,11 @@ class InsuranceCompanyService extends BaseService
         parent::__construct(self::INSURANCE_TABLE);
     }
 
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
+    }
+
     public function search($search, $isAndCondition = true)
     {
         $sqlBindArray = array();
@@ -140,7 +145,7 @@ class InsuranceCompanyService extends BaseService
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $row = $this->createResultRecordFromDatabaseResult($row);
             $processingResult->addData($row);
         }
         return $processingResult;

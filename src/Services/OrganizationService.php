@@ -67,9 +67,6 @@ class OrganizationService extends BaseService
     {
         $facilityOrgs = array();
         foreach ($facilityRecords as $index => $org) {
-            if (isset($org['uuid'])) {
-                $org['uuid'] = UuidRegistry::uuidToString($org['uuid']);
-            }
             $address = array();
             if (isset($org['street'])) {
                 $org['line1'] = $org['street'];
@@ -134,10 +131,7 @@ class OrganizationService extends BaseService
 
     public function getAll($search = array(), $isAndCondition = true)
     {
-
-        $facilityResult = $this->facilityService->getAll($search, $isAndCondition);
-        $insuranceResult = $this->insuranceService->getAll($search, $isAndCondition);
-        return $this->processResults($facilityResult, $insuranceResult);
+        return $this->search($search, $isAndCondition);
     }
 
     /**

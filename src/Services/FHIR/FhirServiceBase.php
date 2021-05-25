@@ -135,6 +135,10 @@ abstract class FhirServiceBase
     {
         // every FHIR resource must support the _id search parameter so we will just piggy bag on
         $searchParam = ['_id' => $fhirResourceId];
+        if (isset($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
+            $searchField = $this->getPatientContextSearchField();
+            $searchParam[$searchField->getName()] = $puuidBind;
+        }
         return $this->getAll($searchParam, $puuidBind);
     }
 
@@ -179,6 +183,8 @@ abstract class FhirServiceBase
                         $provenanceResource = $this->createProvenanceResource($fhirResource);
                         if ($provenanceResource) {
                             $fhirSearchResult->addData($provenanceResource);
+                        } else {
+                            (new SystemLogger())->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
                         }
                     }
                 }

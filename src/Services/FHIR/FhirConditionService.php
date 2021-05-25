@@ -5,12 +5,14 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -23,12 +25,15 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirConditionService extends FhirServiceBase
+class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     /**
      * @var ConditionService
      */
     private $conditionService;
+
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition';
 
     public function __construct()
     {
@@ -44,8 +49,8 @@ class FhirConditionService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['lists.pid']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['lists.id']),
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('condition_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -60,13 +65,103 @@ class FhirConditionService extends FhirServiceBase
     {
         $conditionResource = new FHIRCondition();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $conditionResource->setMeta($meta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $conditionResource->setId($id);
 
+        // ONC requirements
+        $this->populateClinicalStatus($dataRecord, $conditionResource);
+        $this->populateCategory($dataRecord, $conditionResource);
+        $this->populateVerificationStatus($dataRecord, $conditionResource);
+        $this->populateCode($dataRecord, $conditionResource);
+        $this->populateSubject($dataRecord, $conditionResource);
+
+        // non-ONC requirements
+        $this->populateEncounter($dataRecord, $conditionResource);
+
+
+        if ($encode) {
+            return json_encode($conditionResource);
+        } else {
+            return $conditionResource;
+        }
+    }
+
+    private function populateEncounter($dataRecord, FHIRCondition $conditionResource)
+    {
+        if (isset($dataRecord['encounter_uuid'])) {
+            $encounter = new FHIRReference();
+            $encounter->setReference('Encounter/' . $dataRecord['encounter_uuid']);
+            $conditionResource->setEncounter($encounter);
+        }
+    }
+
+    private function populateSubject($dataRecord, FHIRCondition $conditionResource)
+    {
+        if (isset($dataRecord['puuid'])) {
+            $patient = new FHIRReference();
+            $patient->setReference('Patient/' . $dataRecord['puuid']);
+            $conditionResource->setSubject($patient);
+        }
+    }
+
+    private function populateCode($dataRecord, FHIRCondition $conditionResource)
+    {
+        if (!empty($dataRecord['diagnosis'])) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCode = new FHIRCodeableConcept();
+            foreach ($dataRecord['diagnosis'] as $code => $display) {
+                if (!is_string($code)) {
+                    $code = "$code"; // FHIR expects a string
+                }
+                $diagnosisCoding->setCode($code);
+                $diagnosisCoding->setDisplay($display);
+                $diagnosisCode->addCoding($diagnosisCoding);
+            }
+            $conditionResource->setCode($diagnosisCode);
+        }
+    }
+
+    private function populateVerificationStatus($dataRecord, FHIRCondition $conditionResource)
+    {
+        $verificationStatus = new FHIRCodeableConcept();
+        $verificationCoding = array(
+            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            'code' => 'unconfirmed',
+            'display' => 'Unconfirmed',
+        );
+        if (!empty($dataRecord['verification'])) {
+            $verificationCoding = array(
+                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                'code' => $dataRecord['verification'],
+                'display' => $dataRecord['verification_title']
+            );
+        }
+        $verificationStatus->addCoding($verificationCoding);
+        $conditionResource->setVerificationStatus($verificationStatus);
+    }
+
+    private function populateCategory($dataRecord, $conditionResource)
+    {
+
+        $conditionCategory = new FHIRCodeableConcept();
+        $conditionCategory->addCoding(
+            array(
+                'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
+                'code' => 'problem-list-item',
+                'display' => 'Problem List Item'
+            )
+        );
+        $conditionResource->addCategory($conditionCategory);
+    }
+
+    private function populateClinicalStatus($dataRecord, FHIRCondition $conditionResource)
+    {
         $clinicalStatus = "inactive";
         $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
         if (
@@ -90,67 +185,12 @@ class FhirConditionService extends FhirServiceBase
         $clinical_Status = new FHIRCodeableConcept();
         $clinical_Status->addCoding(
             array(
-            'system' => $clinicalSysytem,
-            'code' => $clinicalStatus,
-            'display' => ucwords($clinicalStatus),
+                'system' => $clinicalSysytem,
+                'code' => $clinicalStatus,
+                'display' => ucwords($clinicalStatus),
             )
         );
         $conditionResource->setClinicalStatus($clinical_Status);
-
-        $conditionCategory = new FHIRCodeableConcept();
-        $conditionCategory->addCoding(
-            array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
-                'code' => 'problem-list-item',
-                'display' => 'Problem List Item'
-            )
-        );
-        $conditionResource->addCategory($conditionCategory);
-
-        if (isset($dataRecord['puuid'])) {
-            $patient = new FHIRReference();
-            $patient->setReference('Patient/' . $dataRecord['puuid']);
-            $conditionResource->setSubject($patient);
-        }
-
-        if (isset($dataRecord['encounter_uuid'])) {
-            $encounter = new FHIRReference();
-            $encounter->setReference('Encounter/' . $dataRecord['encounter_uuid']);
-            $conditionResource->setEncounter($encounter);
-        }
-
-        if (!empty($dataRecord['diagnosis'])) {
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $display) {
-                $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($display);
-                $diagnosisCode->addCoding($diagnosisCoding);
-            }
-            $conditionResource->setCode($diagnosisCode);
-        }
-
-        $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = array(
-            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-            'code' => 'unconfirmed',
-            'display' => 'Unconfirmed',
-        );
-        if (!empty($dataRecord['verification'])) {
-            $verificationCoding = array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-                'code' => $dataRecord['verification'],
-                'display' => $dataRecord['verification_title']
-            );
-        }
-        $verificationStatus->addCoding($verificationCoding);
-        $conditionResource->setVerificationStatus($verificationStatus);
-
-        if ($encode) {
-            return json_encode($conditionResource);
-        } else {
-            return $conditionResource;
-        }
     }
 
 
@@ -183,7 +223,7 @@ class FhirConditionService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->conditionService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())
@@ -203,6 +243,27 @@ class FhirConditionService extends FhirServiceBase
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        // TODO: If Required in Future
+        if (!($dataRecord instanceof FHIRCondition)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [self::USCGI_PROFILE_URI];
     }
 }

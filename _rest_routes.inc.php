@@ -223,7 +223,7 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
-        $return = (new ConditionRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $muuid]);
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid]);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -886,14 +886,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+        }
         $return = (new FhirOrganizationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Organization/:id" => function ($id, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $return = (new FhirOrganizationRestController())->getOne($id);
+        $patientUUID = null;
+        if (!$request->isPatientRequest()) {
+            RestConfig::authorization_check("admin", "users");
+        } else {
+            $patientUUID = $request->getPatientUUIDString();
+        }
+        $return = (new FhirOrganizationRestController())->getOne($id, $patientUUID);
+
         RestConfig::apiLog($return);
         return $return;
     },

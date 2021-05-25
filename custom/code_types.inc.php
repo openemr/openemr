@@ -777,13 +777,6 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 $sql .= " ORDER BY " . $table_info[EXT_VERSION_ORDER];
             }
 
-            // END building the WHERE CLAUSE
-
-
-            if ($table_info[EXT_VERSION_ORDER]) {
-                $sql .= " ORDER BY " . $table_info[EXT_VERSION_ORDER];
-            }
-
             $sql .= " LIMIT 1";
             $crow = sqlQuery($sql, $sqlArray);
             if (!empty($crow[$desc_detail])) {

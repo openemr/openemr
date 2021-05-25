@@ -7,6 +7,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FacilityService;
@@ -73,6 +74,14 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
+        if (
+            (empty($dataRecord['cms_id']) || empty($dataRecord['domain_identifier']))
+            && empty($dataRecord['name'])
+        ) {
+            // TODO: @adunsulag we need to architect what happens if we fail the organization constraint requirements
+            // ie there MUST be a name OR an identifier
+            // @see http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-organization.html#summary-of-constraints
+        }
         $organizationResource = new FHIROrganization();
 
         $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
@@ -96,6 +105,9 @@ class FhirOrganizationService extends FhirServiceBase
 
         if (isset($dataRecord['name'])) {
             $organizationResource->setName($dataRecord['name']);
+        } else {
+//             if the name is missing we HAVE to have this
+            $organizationResource->setName(UtilsService::createDataMissingExtension());
         }
 
         $address = new FHIRAddress();
@@ -114,7 +126,7 @@ class FhirOrganizationService extends FhirServiceBase
         if (!empty($dataRecord['postal_code'])) {
             $address->setPostalCode($dataRecord['postal_code']);
         }
-        if (isset($dataRecord['country_code'])) {
+        if (!empty($dataRecord['country_code'])) {
             $address->setCountry($dataRecord['country_code']);
         }
 
@@ -130,7 +142,7 @@ class FhirOrganizationService extends FhirServiceBase
             );
         }
 
-        if (isset($dataRecord['email'])) {
+        if (!empty($dataRecord['email'])) {
             $organizationResource->addTelecom(
                 array(
                 'system' => 'email',
@@ -140,7 +152,7 @@ class FhirOrganizationService extends FhirServiceBase
             );
         }
 
-        if (isset($dataRecord['orgType'])) {
+        if (!empty($dataRecord['orgType'])) {
             $orgType = new FHIRCodeableConcept();
             $type = new FHIRCoding();
             $type->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
@@ -154,7 +166,7 @@ class FhirOrganizationService extends FhirServiceBase
             $organizationResource->addType($orgType);
         }
 
-        if (isset($dataRecord['fax'])) {
+        if (!empty($dataRecord['fax'])) {
             $organizationResource->addTelecom(
                 array(
                 'system' => 'fax',
@@ -164,7 +176,7 @@ class FhirOrganizationService extends FhirServiceBase
             );
         }
 
-        if (isset($dataRecord['facility_npi'])) {
+        if (!empty($dataRecord['facility_npi'])) {
             $fhirIdentifier = [
                 'system' => "http://hl7.org/fhir/sid/us-npi",
                 'value' => $dataRecord['facility_npi']
@@ -172,7 +184,7 @@ class FhirOrganizationService extends FhirServiceBase
             $organizationResource->addIdentifier($fhirIdentifier);
         }
 
-        if (isset($dataRecord['cms_id'])) {
+        if (!empty($dataRecord['cms_id'])) {
             $fhirIdentifier = [
                 'system' => "http://hl7.org/fhir/v2/0203",
                 'value' => $dataRecord['cms_id']
@@ -180,7 +192,7 @@ class FhirOrganizationService extends FhirServiceBase
             $organizationResource->addIdentifier($fhirIdentifier);
         }
 
-        if (isset($dataRecord['domain_identifier'])) {
+        if (!empty($dataRecord['domain_identifier'])) {
             $fhirIdentifier = [
                 'system' => "urn:oid:2.16.840.1.113883.4.7",
                 'value' => $dataRecord['domain_identifier']
@@ -318,7 +330,7 @@ class FhirOrganizationService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        $processingResult = $this->organizationService->search($openEMRSearchParameters, false);
+        $processingResult = $this->organizationService->search($openEMRSearchParameters);
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)

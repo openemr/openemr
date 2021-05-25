@@ -12,8 +12,14 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Uuid\UuidMapping;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -33,6 +39,48 @@ class CareTeamService extends BaseService
         (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
         (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
         UuidMapping::createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
+        // on the property without changing code).
+        $sql = "SELECT 
+                    careteam_mapping.puuid,
+                    careteam_mapping.uuid,
+                    careteam_mapping.care_team_provider as providers,
+                    careteam_mapping.care_team_facility as facilities,
+                    careteamStatus.careteam_status
+                FROM (
+                    SELECT 
+                        uuid_mapping.target_uuid AS puuid
+                        ,uuid_mapping.uuid
+                        ,patient_data.care_team_provider
+                        ,patient_data.care_team_facility
+                    FROM 
+                        uuid_mapping
+                    -- we join on this to make sure we've got data integrity since we don't actually use foreign keys right now
+                    JOIN 
+                        patient_data ON uuid_mapping.target_uuid = patient_data.uuid
+                    WHERE 
+                        uuid_mapping.resource='CareTeam'
+                ) careteam_mapping
+                CROSS JOIN (
+                    select 'active' AS careteam_status
+                ) careteamStatus";
+
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+        return $processingResult;
     }
 
     /**
@@ -61,32 +109,50 @@ class CareTeamService extends BaseService
             }
         }
 
-        $sqlBindArray = array();
-        $sql = "SELECT patient.uuid as puuid,
-                patient.care_team_provider as providers,
-                patient.care_team_facility as facilities,
-                uuid_mapping.uuid as uuid
-                FROM patient_data as patient
-                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=patient.uuid AND uuid_mapping.resource='CareTeam'";
-
-        if (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `patient`.`uuid` = ?";
-            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        $newSearch = [];
+        foreach ($search as $key => $value) {
+            if (!$value instanceof ISearchField) {
+                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+            } else {
+                $newSearch[$key] = $value;
+            }
         }
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $row['providers'] = $this->splitAndProcessMultipleFields($row['providers'], "users");
-            $row['facilities'] = $this->splitAndProcessMultipleFields($row['facilities'], "facility");
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $processingResult->addData($row);
+        // override puuid, this replaces anything in search if it is already specified.
+        if (isset($puuidBind)) {
+            $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
-        return $processingResult;
+        return $this->search($search, $isAndCondition);
+    }
+
+    public function createResultRecordFromDatabaseResult($row)
+    {
+        $row['providers'] = $this->getProvidersWithType($row['providers']);
+        $row['facilities'] = $this->getFacilities($row['facilities']);
+        $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+        $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
+        return $row;
+    }
+
+    private function getFacilities($facilities)
+    {
+        $facilityIds = explode(",", $facilities);
+        $service = new FacilityService();
+        $result = $service->getAllWithIds($facilityIds);
+        $providers = $result->getData() ?? [];
+        return $providers;
+    }
+
+    private function getProvidersWithType($providers)
+    {
+        $providers = explode("|", $providers);
+
+        $practitionerRoleService = new PractitionerRoleService();
+        $result = $practitionerRoleService->getAllByPractitioners($providers);
+
+        $providers = $result->getData() ?? [];
+        return $providers;
     }
 
     /**
@@ -131,32 +197,13 @@ class CareTeamService extends BaseService
             }
         }
 
-        $sql = "SELECT patient.uuid as puuid,
-                patient.care_team_provider as providers,
-                patient.care_team_facility as facilities,
-                uuid_mapping.uuid as uuid
-                FROM patient_data as patient
-                LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=patient.uuid AND uuid_mapping.resource='CareTeam'
-                WHERE uuid_mapping.uuid = ?";
 
-        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $sqlBindArray = [$uuidBinary];
-
-        if (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " AND `patient`.`uuid` = ?";
-            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
+        if (isset($puuidBind)) {
+            $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
-        $sqlResult = sqlQuery($sql, $sqlBindArray);
+        $search['uuid'] = new TokenSearchField('uuid', $uuid, true);
 
-        if (!empty($sqlResult)) {
-            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $sqlResult['puuid'] = UuidRegistry::uuidToString($sqlResult['puuid']);
-            $sqlResult['providers'] = $this->splitAndProcessMultipleFields($sqlResult['providers'], "users");
-            $sqlResult['facilities'] = $this->splitAndProcessMultipleFields($sqlResult['facilities'], "facility");
-            $processingResult->addData($sqlResult);
-        }
-        return $processingResult;
+        return $this->search($search);
     }
 }
