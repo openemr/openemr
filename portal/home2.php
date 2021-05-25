@@ -107,7 +107,8 @@ if ($appts) {
     }
 }
 
-function buildNav($newcnt, $pid, $result) {
+function buildNav($newcnt, $pid, $result)
+{
     $navItems = [
         [
             'url' => '#',
@@ -163,7 +164,6 @@ function buildNav($newcnt, $pid, $result) {
             ]
         ]
     ];
-
     if (($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments'])) {
 
         if ($GLOBALS['portal_two_ledger']) {
@@ -242,7 +242,6 @@ function buildNav($newcnt, $pid, $result) {
                 ]
             );
         }
-
         if ($GLOBALS['portal_two_payments'] && $navItems[$i]['label'] === xlt('Accountings')) {
 
             array_push($navItems[$i]['children'], [
