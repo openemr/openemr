@@ -1,0 +1,141 @@
+<?php 
+	include_once(dirname(__FILE__).'/../../globals.php');
+	include_once($GLOBALS["srcdir"]."/api.inc");
+	$form_id = 0;
+	if(isset($_GET['form_id']) && $_GET['form_id'] > 0){
+		$form_id = $_GET['form_id'];
+	}
+	if($form_id == 0){
+		$form_id_que = sqlFetchArray(sqlStatement("SELECT form_id FROM forms WHERE encounter = ? AND form_name = ?", array( $_SESSION['encounter'], 'Assessment Form' )));
+		if(isset($form_id_que) && isset($form_id_que['form_id']) && $form_id_que['form_id'] > 0) $form_id = $form_id_que['form_id'];
+	}
+?>
+
+<html>
+<head>
+	<link rel="stylesheet" href="{php} echo $css_header;{/php}" type="text/css">
+	<link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="{php} echo $GLOBALS['webroot'] {/php}/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
+	<link rel="stylesheet" href="../../../library/css/templates.css" type="text/css">
+	<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-3-2/index.js"></script>
+	<script type="text/javascript" src="../../../library/js/common.js"></script>	
+	<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+	<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
+</head>
+<body bgcolor="#FFF">
+<?php
+assessment_form_report($_SESSION['pid'], $_SESSION['encounter'], 2, $form_id);
+function assessment_form_report($pid, $encounter, $cols, $id) {
+ $cols = 2; // force always 1 column
+ $count = 0;
+ $data = formFetch("form_assessment_form", $id);
+ 
+ 
+  $glucose = Array("", "<=130 mg/d", ">=130 mg/d");
+  $bilirubin = Array("", "NEGATIVE", "POSITIVE");
+  $ketones = Array("", "None", "Present");
+  $specific_gravity = Array("", "1.005", "1.010", "1.015", "1.020", "1.025");
+  $blood = Array("", "<=1 RBCs", "<=2 RBCs", "<=3 RBCs");
+  $protein = Array("", "<=50 mg/d", "<=100 mg/d", "<=150 mg/d");
+  
+ $finalOutPut = '';
+ $in_clinic_test_value = [];
+ if ($data) {
+  $finalOutPut .= "<table class='show_print' style='word-wrap: break-word;border-spacing: 0px;border-top:1px solid #303030; border-left:1px solid #303030;border-right:1px solid #303030;width:750px;'><tr>";
+  $vitalTable = '<table style="word-wrap: break-word;border-spacing: 0px;border-top:1px solid #303030; border-left:1px solid #303030; border-right:1px solid #303030;width:700px;font-size:12px;"><tr><th>Weight(lb)</th><th>Height(In)</th><th>Temp(*F)</th><th>BP</th><th>Pulse</th><th>RR</th><th>BMI</th><th>Sat(%)</th><th>On02</th></tr>';
+  $in_clinic_test_head = Array( "Flu test", "Strep Test", "Pregnancy Test", "Urinalysis Test", "Color", "Appearance", "Leukocyte", "Nitrites", "Urobilirubin", "Protein", "pH", "Blood", "Specific gravity", "Ketones", "Bilirubin", "Glucose", "Comments" );
+  foreach($data as $key => $value) {
+	  $oldKey = $key;
+	$vitals = ['vital_weight', 'vital_height', 'vital_temp', 'vital_bp1', 'vital_bp2', 'vital_pulse', 'vital_rr', 'vital_bmi', 'vital_sat', 'vital_on02'];
+   if (($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || empty($value) || $value == "" || $value == "0000-00-00 00:00:00" || $key == "family_history" || $key == "social_history" || $key == "social_history_pks_day" || $key == "social_history_yrs_smkd") && !in_array($key, $vitals)) {
+    continue;
+   }
+   if ($value == "on") {
+    $value = "yes";
+   }
+   $key=ucwords(str_replace("_"," ",$key));
+    
+	if($oldKey == 'in_clinic_tests'){
+		$in_clinic_test_value = json_decode(urldecode($value));
+		continue;
+	}
+	
+	if($oldKey == "social_history"){
+		$Social_History_sql = sqlFetchArray(sqlStatement("select * from list_options WHERE list_id='Social_History' AND option_id='".$value."'"));
+		if(isset($Social_History_sql) && isset($Social_History_sql['title'])) $value = $Social_History_sql['title'];		
+		$finalOutPut .= "<td style='width:17%;text-align:right;vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=bold>" . xlt($key) . ": </span></td>";
+		$finalOutPut .= "<td style='vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=text>" . nl2br(text($value)) . "</span></td>";
+	}elseif($oldKey == "social_history_pks_day" || $oldKey == "social_history_yrs_smkd"){
+		$finalOutPut .= "<td style='vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=text><span class=bold>" . xlt($key) . ": </span>" . nl2br(text($value)) . "</span></td>";
+		if($oldKey == "social_history_yrs_smkd"){
+			$count = 0;
+			$finalOutPut .= "</tr><tr>\n";
+		}
+		continue;
+	}elseif(in_array($oldKey, $vitals)){
+		if($oldKey == 'vital_weight'){
+			$finalOutPut .= "<td colspan='4' style='vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:0px;'>";
+			$finalOutPut .= $vitalTable."<tr>";
+		}
+		if($oldKey == 'vital_bp1'){
+			$finalOutPut .= "<td style='vertical-align:top;border-bottom:1px solid #303030;border-top:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=text>" . nl2br(text($value)) . " / ";
+		}elseif($oldKey == 'vital_bp2'){
+			$finalOutPut .= nl2br(text($value)) . "</span></td>";
+		}else{			
+			$finalOutPut .= "<td style='vertical-align:top;border-bottom:1px solid #303030;border-top:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=text>" . nl2br(text($value)) . "</span></td>";
+		}
+		if($oldKey == 'vital_on02'){
+			
+			$finalOutPut .= '</tr></table></td>';			
+			$count = 0;
+			$finalOutPut .= "</tr><tr>\n";
+		}
+		continue;
+	}else{
+		$finalOutPut .= "<td style='width:17%;text-align:right;vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=bold>" . xlt($key) . ": </span></td>";
+		$finalOutPut .= "<td style='width:33%;vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class=text>" . nl2br(text($value)) . "</span></td>";
+	}
+   
+   $count++;
+   if ($count == $cols) {
+    $count = 0;
+    $finalOutPut .= "</tr><tr>\n";
+   }
+  }
+ }
+ 
+ if($count == 1) $finalOutPut .= "<td style='width:17%;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'></td><td style='width:17%;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:6px;'></td>";
+ $finalOutPut .= "</tr>";
+ 
+	$ictCcount = 0; $ictCols = 4;
+	$finalOutPut .= "<tr><td colspan='4' style='vertical-align:top;border-bottom:1px solid #303030; border-right:1px solid #DDD;padding:0px;'>";
+	$finalOutPut .= '<table style="word-wrap: break-word;border-spacing: 0px;border-top:1px solid #303030; border-left:1px solid #303030; border-right:1px solid #303030;width:700px;font-size:12px;"><tr>';	
+	$clinic_testdecode = json_decode($value);
+	foreach($in_clinic_test_value as $ictKey => $ictValue) {
+		if($ictKey == 9) $ictValue = $protein[$ictValue] ?  $protein[$ictValue] : '';
+		if($ictKey == 11) $ictValue = $blood[$ictValue] ?  $blood[$ictValue] : '';
+		if($ictKey == 12) $ictValue = $specific_gravity[$ictValue] ?  $specific_gravity[$ictValue] : '';
+		if($ictKey == 13) $ictValue = $ketones[$ictValue] ?  $ketones[$ictValue] : '';
+		if($ictKey == 14) $ictValue = $bilirubin[$ictValue] ?  $bilirubin[$ictValue] : '';
+		if($ictKey == 15) $ictValue = $glucose[$ictValue] ?  $glucose[$ictValue] : '';
+
+		$finalOutPut .= "<td style='vertical-align:top;border-bottom:1px solid #303030;border-top:1px solid #303030; border-right:1px solid #DDD;padding:6px;'><span class='bold'>$in_clinic_test_head[$ictKey]: </span><span class='text'>$ictValue</span></td>";
+		$ictCcount++;
+		if ($ictCcount == $ictCols) {
+			$ictCcount = 0;
+			$finalOutPut .= "</tr><tr>";
+		}
+	}
+	$finalOutPut .= "</tr></table>";
+	$finalOutPut .= "</td></tr>";
+ 
+ $finalOutPut .= "</table>";
+ print $finalOutPut;
+}
+?>
+<script>
+	window.print();
+</script>
+</body>
+</html>
