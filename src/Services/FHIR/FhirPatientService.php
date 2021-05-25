@@ -221,38 +221,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord)
     {
-        $address = new FHIRAddress();
-        // TODO: we don't track start and end periods for dates so what value should go here...?
-        $addressPeriod = new FHIRPeriod();
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P1Y')); // subtract one year
-        $end = new \DateTime();
-        $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
-        // if there's an end date we provide one here, but for now we just go back one year
-//        $addressPeriod->setEnd(new FHIRDateTime($end->format(\DateTime::RFC3339_EXTENDED)));
-        $address->setPeriod($addressPeriod);
-        $hasAddress = false;
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
-            $hasAddress = true;
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-            $hasAddress = true;
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-            $hasAddress = true;
-        }
-        if (!empty($dataRecord['postal_code'])) {
-            $address->setPostalCode($dataRecord['postal_code']);
-            $hasAddress = true;
-        }
-        if (!empty($dataRecord['country_code'])) {
-            $address->setCountry($dataRecord['country_code']);
-            $hasAddress = true;
-        }
-        if ($hasAddress) {
+        $address = UtilsService::createAddressFromRecord($dataRecord);
+        if ($address !== null)
+        {
             $patientResource->addAddress($address);
         }
     }

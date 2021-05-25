@@ -216,7 +216,7 @@ class SearchFieldStatementResolver
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
-                if ($value === false) {
+                if ($value->getCode() === false) {
                     // often our tokens get treated as string values so we will do this here also
                     $clauses[] = $searchField->getField() . " IS NOT NULL AND " . $searchField->getField() . " != '' ";
                 } else {

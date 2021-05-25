@@ -22,4 +22,6 @@ class FhirCodeSystemUris
 
     const IMMUNIZATION_OBJECTION_REASON = "http://terminology.hl7.org/CodeSystem/v3-ActReason";
     const IMMUNIZATION_UNIT_AMOUNT = "http://unitsofmeasure.org";
+
+    const PROVIDER_NPI = "http://hl7.org/fhir/sid/us-npi";
 }

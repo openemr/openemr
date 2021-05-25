@@ -143,7 +143,7 @@ class FHIRSearchFieldFactory
         }
 
         if ($type == SearchFieldType::TOKEN) {
-            return new TokenSearchField($fieldName, $fhirSearchValues, $isUUID);
+            return $this->createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID);
         } else if ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
         } else if ($type == SearchFieldType::DATE) {
@@ -153,11 +153,19 @@ class FHIRSearchFieldFactory
         } else if ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
         } else if ($type == SearchFieldType::REFERENCE) {
-            return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID);
+            return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifier, $isUUID);
         } else {
             // default is a string token
             return new StringSearchField($fieldName, $fhirSearchValues, $modifier);
         }
+    }
+    private function createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID)
+    {
+        $token = new TokenSearchField($fieldName, $fhirSearchValues, $isUUID);
+        if (!empty($modifier)) {
+            $token->setModifier($modifier);
+        }
+        return $token;
     }
 
     private function createReferenceFieldType($fieldName, $fhirSearchValues, $modifiers, $isUUID)

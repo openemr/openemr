@@ -70,6 +70,22 @@ class QueryUtils
     }
 
     /**
+     * Returns a row (as an array) from a sql recordset.
+     *
+     * Function that will allow use of the adodb binding
+     * feature to prevent sql-injection.
+     * It will act upon the object returned from the
+     * sqlStatement() function (and sqlQ() function).
+     *
+     * @param recordset $resultSet
+     * @return array
+     */
+    public static function fetchArrayFromResultSet($resultSet)
+    {
+        return sqlFetchArray($resultSet);
+    }
+
+    /**
      * Standard sql query in OpenEMR.
      *
      * Function that will allow use of the adodb binding
