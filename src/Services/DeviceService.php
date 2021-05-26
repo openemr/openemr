@@ -77,7 +77,7 @@ class DeviceService extends BaseService
             $record['code'] = $this->addCoding($record['diagnosis']);
             $record['code_full'] = $record['diagnosis'];
         }
-       
+
         try {
             $dataSet = json_decode($json, JSON_THROW_ON_ERROR);
             $standardElements = $dataSet['standard_elements'] ?? [];
