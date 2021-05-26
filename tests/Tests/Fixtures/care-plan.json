@@ -18,6 +18,7 @@
 			"columnSearchValue": "1",
 			"columnReference": "username"
 		},
+		"id": "generateId()",
 		"groupname": "Default",
 		"authorized": 1,
 		"activity": 1,

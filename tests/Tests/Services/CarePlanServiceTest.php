@@ -35,6 +35,9 @@ class CarePlanServiceTest extends TestCase
      */
     private $service;
 
+    /**
+     * @var CarePlanFixtureManager
+     */
     private $fixtureManager;
 
     protected function setUp(): void
