@@ -68,12 +68,22 @@ class PractitionerService extends BaseService
     {
         return ['uuid'];
     }
-    
+
     public function search($search, $isAndCondition = true)
     {
         // we only retrieve from our database when our practitioners are not null
-        $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
-        $search['npi']->setModifier(SearchModifier::MISSING);
+        if (!empty($search['npi'])) {
+            if (!$search['npi'] instanceof ISearchField) {
+                throw new \BadMethodCallException("npi search must be instance of " . ISearchField::class);
+            }
+            if ($search['npi']->getModifier() === SearchModifier::MISSING) {
+                // force our value to be false as the only thing that differentiates users as practitioners is our npi number
+                $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
+            }
+        } else {
+            $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
+            $search['npi']->setModifier(SearchModifier::MISSING);
+        }
         return parent::search($search, $isAndCondition);
     }
 

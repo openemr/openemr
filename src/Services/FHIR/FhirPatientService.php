@@ -222,8 +222,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord)
     {
         $address = UtilsService::createAddressFromRecord($dataRecord);
-        if ($address !== null)
-        {
+        if ($address !== null) {
             $patientResource->addAddress($address);
         }
     }

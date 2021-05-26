@@ -26,7 +26,6 @@ class FhirDeviceRestController
     {
         $this->fhirResourceService = new FhirDeviceService();
         $this->fhirService = new FhirResourcesService();
-
     }
 
     /**

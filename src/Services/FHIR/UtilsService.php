@@ -32,7 +32,7 @@ class UtilsService
         return $reference;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem) : FHIRCodeableConcept
+    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem): FHIRCodeableConcept
     {
         $diagnosisCoding = new FHIRCoding();
         $diagnosisCode = new FHIRCodeableConcept();
@@ -61,7 +61,7 @@ class UtilsService
         return $outerExtension;
     }
 
-    public static function createAddressFromRecord($dataRecord) : ?FHIRAddress
+    public static function createAddressFromRecord($dataRecord): ?FHIRAddress
     {
         $address = new FHIRAddress();
         // TODO: we don't track start and end periods for dates so what value should go here...?
@@ -77,8 +77,7 @@ class UtilsService
         if (!empty($dataRecord['line1'])) {
             $address->addLine($dataRecord['line1']);
             $hasAddress = true;
-        } else if (!empty($dataRecord['street']))
-        {
+        } else if (!empty($dataRecord['street'])) {
             $address->addLine($dataRecord['street']);
             $hasAddress = true;
         }
@@ -99,14 +98,13 @@ class UtilsService
             $hasAddress = true;
         }
 
-        if ($hasAddress)
-        {
+        if ($hasAddress) {
             return $address;
         }
         return null;
     }
 
-    public static function createFhirMeta($version, $date) :FHIRMeta
+    public static function createFhirMeta($version, $date): FHIRMeta
     {
         $meta = new FHIRMeta();
         $meta->setVersionId($version);
@@ -114,7 +112,7 @@ class UtilsService
         return $meta;
     }
 
-    public static function createHumanNameFromRecord($dataRecord) : FHIRHumanName
+    public static function createHumanNameFromRecord($dataRecord): FHIRHumanName
     {
         $name = new FHIRHumanName();
         $name->setUse('official');

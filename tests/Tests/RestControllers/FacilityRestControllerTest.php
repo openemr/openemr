@@ -21,6 +21,10 @@ class FacilityRestControllerTest extends TestCase
 
     private $facilityData;
     private $facilityController;
+
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
 
     protected function setUp(): void
@@ -67,7 +71,7 @@ class FacilityRestControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**

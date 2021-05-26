@@ -180,4 +180,9 @@ class QueryUtils
 
         return $results;
     }
+
+    public static function generateId()
+    {
+        return \generate_id();
+    }
 }

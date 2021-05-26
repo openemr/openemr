@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirDeviceService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDevice;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -45,7 +45,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         return [
         'patient' => $this->getPatientContextSearchField(),
         '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
-    ];
+        ];
     }
 
     /**
@@ -66,15 +66,13 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         $device->setId($id);
 
         // only required field is the type and patient
-        if (!empty($dataRecord['puuid']))
-        {
+        if (!empty($dataRecord['puuid'])) {
             $device->setPatient(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         } else {
             $device->setPatient(UtilsService::createDataMissingExtension());
         }
 
-        if (!empty($dataRecord['code']))
-        {
+        if (!empty($dataRecord['code'])) {
             $codeableConcept = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::SNOMED_CT);
             $device->setType($codeableConcept);
         } else {
@@ -85,38 +83,32 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
             $udiCarrier = new FHIRDeviceUdiCarrier();
             $udiCarrier->setDeviceIdentifier($dataRecord['udi_di']);
 
-            if (!empty($dataRecord['udi']))
-            {
+            if (!empty($dataRecord['udi'])) {
                 $udiCarrier->setCarrierHRF($dataRecord['udi']);
             }
             $device->addUdiCarrier($udiCarrier);
         }
 
-        if (!empty($dataRecord['manufactureDate']))
-        {
+        if (!empty($dataRecord['manufactureDate'])) {
             $manufactureDate = new FHIRDateTime();
             $manufactureDate->setValue($dataRecord['manufactureDate']);
             $device->setManufactureDate($manufactureDate);
         }
-        if (!empty($dataRecord['expirationDate']))
-        {
+        if (!empty($dataRecord['expirationDate'])) {
             $expirationDate = new FHIRDateTime();
             $expirationDate->setValue($dataRecord['expirationDate']);
             $device->setExpirationDate($expirationDate);
         }
 
-        if (!empty($dataRecord['lotNumber']))
-        {
+        if (!empty($dataRecord['lotNumber'])) {
             $device->setLotNumber($dataRecord['lotNumber']);
         }
 
-        if (!empty($dataRecord['serialNumber']))
-        {
+        if (!empty($dataRecord['serialNumber'])) {
             $device->setSerialNumber($dataRecord['serialNumber']);
         }
 
-        if (!empty($dataRecord['distinctIdentifier']))
-        {
+        if (!empty($dataRecord['distinctIdentifier'])) {
             $device->setDistinctIdentifier($dataRecord['distinctIdentifier']);
         }
         return $device;
