@@ -37,7 +37,7 @@ class RuleAction
 
     function getCategoryLabel()
     {
-        if (!$this->categoryLbl) {
+        if (!$this->categoryLbl && !empty($this->category)) {
             $this->categoryLbl = getLabel($this->category, 'rule_action_category');
         }
 
@@ -46,7 +46,7 @@ class RuleAction
 
     function getItemLabel()
     {
-        if (!$this->itemLbl) {
+        if (!$this->itemLbl && !empty($this->item)) {
             $this->itemLbl = getLabel($this->item, 'rule_action');
         }
 
