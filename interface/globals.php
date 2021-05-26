@@ -277,12 +277,6 @@ require_once(__DIR__ . "/../version.php");
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
 
-// Load twig support
-$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
-$twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
-$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
-$GLOBALS['twig'] = $twigEnv;
-
 try {
     /** @var Kernel */
     $GLOBALS["kernel"] = new Kernel();
