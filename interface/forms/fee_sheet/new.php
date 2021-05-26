@@ -1059,7 +1059,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $default_search_type ?? null;
+                            $search_type = $_SESSION['default_search_type'] ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
