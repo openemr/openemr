@@ -20,12 +20,14 @@ use OpenEMR\Validators\ProcessingResult;
 class DeviceService extends BaseService
 {
     private const DEVICE_TABLE = "lists";
+    private const PATIENT_TABLE = "patient_data";
     private $uuidRegistry;
 
     public function __construct()
     {
         parent::__construct('lists');
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::DEVICE_TABLE]);
+        $this->uuidRegistry = new UuidRegistry(['table_name' => self::PATIENT_TABLE]);
         $this->uuidRegistry->createMissingUuids();
     }
 
@@ -83,8 +85,7 @@ class DeviceService extends BaseService
             $standardElements = $dataSet['standard_elements'] ?? [];
             unset($record['udi_data']); // don't send back the JSON array
             $record['udi_di'] = $standardElements['di'] ?? null;
-            // TODO: @adunsulag check with @brady.miller should this be companyName, or issuingAgency?
-            $record['manufacturer'] = $standardElements['issuingAgency'] ?? null;
+            $record['manufacturer'] = $standardElements['companyName'] ?? null;
             $record['manufactureDate'] = $standardElements['manufacturingDate'] ?? null;
             $record['expirationDate'] = $standardElements['expirationDate'] ?? null;
             $record['lotNumber'] = $standardElements['lotNumber'] ?? null;

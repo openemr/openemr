@@ -24,6 +24,7 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Twig\Token;
 
@@ -85,10 +86,23 @@ class CarePlanService extends BaseService
      * match on passed in value.  For more complicated searching @see CarePlanService::search().
      * @param $search a key => value array
      * @param bool $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
+     * @param string $puuidBind- Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function getAll($search, $isAndCondition = true)
+    public function getAll($search, $isAndCondition = true, $puuidBind = null)
     {
+        if (!empty($puuidBind)) {
+            // code to support patient binding
+            $isValidPatient = BaseValidator::validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $puuidBind,
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
@@ -97,6 +111,11 @@ class CarePlanService extends BaseService
                 $newSearch[$key] = $value;
             }
         }
+        // override puuid, this replaces anything in search if it is already specified.
+        if (isset($puuidBind)) {
+            $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
+        }
+
         return $this->search($search, $isAndCondition);
     }
 
