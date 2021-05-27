@@ -3,6 +3,8 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchQueryFragment;
 use Ramsey\Uuid\Uuid;
@@ -192,13 +194,18 @@ abstract class BaseFixtureManager
 
     private function getQueryForForeignReference(array $reference): SearchQueryFragment
     {
-        // these values come from flat files in the unit tests, I'm torn on whether we should escape these or not
-        // TODO: @adunsulag check with @brady.miller on whether we should escape these or not
-        $table_name = escape_table_name($reference['table']);
-        $column = escape_sql_column_name($reference['columnSearch'], [$reference['table_name']]);
-        $referenceColumn = escape_sql_column_name($reference['columnReference'], [$reference['table_name']]);
-        $searchValue = $reference['columnSearchValue'];
-        $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
+        try {
+            $table_name = escape_table_name($reference['table']);
+            $column = escape_sql_column_name($reference['columnSearch'], [$reference['table']], false, true);
+            $referenceColumn = escape_sql_column_name($reference['columnReference'], [$reference['table']], false, true);
+            $searchValue = $reference['columnSearchValue'];
+            $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
+        }
+        catch (SqlQueryException $exception)
+        {
+            (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
+            throw $exception;
+        }
         return new SearchQueryFragment($sql, [$reference['columnSearchValue']]);
     }
 

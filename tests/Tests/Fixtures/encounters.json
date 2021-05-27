@@ -23,7 +23,7 @@
 			"table": "openemr_postcalendar_categories",
 			"columnSearch": "pc_constant_id",
 			"columnSearchValue": "office_visit",
-			"columnReference": "id"
+			"columnReference": "pc_catid"
 		},
 		"uuid": "uuid('form_encounter')",
 		"encounter": "generateId()",
