@@ -2269,60 +2269,63 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $fcp_code_type = 'ct.`ct_key` AS fcp_code_type';
         $sct_descriptions_join = '';
         $care_plan_query_data = ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid];
-        if ($this->is_snomed_codes_installed($appTable)) {
-            $fcp_code_type = "IF(sct_descriptions.ConceptId,'SNOMED-CT',ct.`ct_key`) AS fcp_code_type";
-            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code`
-            AND sct_descriptions.DescriptionStatus = ? AND sct_descriptions.DescriptionType = ?
-            LEFT JOIN sct_concepts ON sct_descriptions.ConceptId = sct_concepts.ConceptId ';
-            $care_plan_query_data = array_merge([0, 1], $care_plan_query_data);
-        }
 
-        $query = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date," . $fcp_code_type . " , l.`notes` AS moodCode
-                 FROM forms AS f
-                LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
-                 LEFT JOIN codes AS c ON c.code = fcp.code
-                 LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
-                " . $sct_descriptions_join . "
-                 LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
-                 WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
-                 UNION
-                 SELECT 'referal' AS source,0 AS CODE,'NULL' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' AS fcp_code_type,'' moodCode
-                 FROM transactions AS t
-                 LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
-                 LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
-                 LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
-                 LEFT JOIN users AS u ON u.id = l3.field_value
-                 WHERE t.pid = ?";
+        $query = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type
+            FROM forms AS f
+            LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
+            LEFT JOIN codes AS c ON c.code = fcp.code
+            LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
+            LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
+            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
+            UNION
+            SELECT 'referal' AS source,'' AS CODE,'' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' moodCode,'' care_plan_type
+            FROM transactions AS t
+            LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
+            LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
+            LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
+            LEFT JOIN users AS u ON u.id = l3.field_value
+            WHERE t.pid = ?";
         $res = $appTable->zQuery($query, $care_plan_query_data);
         $status = 'Pending';
         $status_entry = 'active';
         $planofcare = '<planofcare>';
+        $goals = '<goals>';
         foreach ($res as $row) {
-            //$date_formatted = \Application\Model\ApplicationTable::fixDate($row['date'],$GLOBALS['date_display_format'],'yyyy-mm-dd');
-            $code_type = '';
-            if ($row['fcp_code_type'] == 'SNOMED-CT') {
-                $code_type = '2.16.840.1.113883.6.96';
-            } elseif ($row['fcp_code_type'] == 'CPT4') {
-                $code_type = '2.16.840.1.113883.6.12';
-            } elseif ($row['fcp_code_type'] == 'LOINC') {
-                $code_type = '2.16.840.1.113883.6.1';
+            $tmp = explode(":", $row['code']);
+            $code_type = $tmp[0];
+            $code = $tmp[1];
+            if ($row['care_plan_type'] == 'goal') {
+                $goals .= '<item>
+                <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
+                <code>' . xmlEscape($code) . '</code>
+                <code_text>' . xmlEscape($row['codetext']) . '</code_text>
+                <description>' . xmlEscape($row['description']) . '</description>
+                <date>' . xmlEscape($row['date']) . '</date>
+                <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+                <status>' . xmlEscape($status) . '</status>
+                <status_entry>' . xmlEscape($status_entry) . '</status_entry>
+                <code_type>' . xmlEscape($code_type) . '</code_type>
+                <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
+                </item>';
+            } else {
+                $planofcare .= '<item>
+                <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
+                <code>' . xmlEscape($code) . '</code>
+                <code_text>' . xmlEscape($row['codetext']) . '</code_text>
+                <description>' . xmlEscape($row['description']) . '</description>
+                <date>' . xmlEscape($row['date']) . '</date>
+                <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+                <status>' . xmlEscape($status) . '</status>
+                <status_entry>' . xmlEscape($status_entry) . '</status_entry>
+                <code_type>' . xmlEscape($code_type) . '</code_type>
+                <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
+                </item>';
             }
-
-            $planofcare .= '<item>
-        <code>' . xmlEscape($row['code']) . '</code>
-        <code_text>' . xmlEscape($row['codetext']) . '</code_text>
-        <description>' . xmlEscape($row['description']) . '</description>
-        <date>' . xmlEscape($row['date']) . '</date>
-        <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
-        <status>' . xmlEscape($status) . '</status>
-        <status_entry>' . xmlEscape($status_entry) . '</status_entry>
-        <code_type>' . xmlEscape($code_type) . '</code_type>
-        <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
-        </item>';
         }
 
         $planofcare .= '</planofcare>';
-        return $planofcare;
+        $goals .= '</goals>';
+        return $planofcare . $goals;
     }
 
     /*
@@ -2364,7 +2367,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $functional_cognitive .= '<item>
         <code>' . xmlEscape(($row['code'] ? $row['code'] : 0)) . '</code>
-        <code_text>' . xmlEscape(($row['codetext'] ? $row['codetext'] : 'NULL')) . '</code_text>
+        <code_text>' . xmlEscape(($row['codetext'] ? $row['codetext'] : '')) . '</code_text>
         <description>' . xmlEscape($row['description']) . '</description>
         <date>' . xmlEscape($row['date']) . '</date>
         <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>

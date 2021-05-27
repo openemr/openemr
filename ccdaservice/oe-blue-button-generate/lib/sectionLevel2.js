@@ -68,15 +68,6 @@ var getText = function (topArrayKey, headers, values) {
     return result;
 };
 
-/*var alllergiesTextHeaders = ["Substance", "Overall Severity", "Reaction", "Reaction Severity", "Status"];
-var allergiesTextRow = [
-    leafLevel.deepInputProperty("observation.allergen.name", ""),
-    leafLevel.deepInputProperty("observation.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.reaction.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.status.name", "")
-];*/
-
 exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     return {
         key: "component",
@@ -375,7 +366,6 @@ exports.planOfCareSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("plan_of_care")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -394,6 +384,36 @@ exports.planOfCareSection = function (htmlHeader, na) {
                         entryLevel.planOfCareActivityInstructions
                     ],
                     dataKey: "plan_of_care"
+                }
+            ]
+        }]
+    };
+};
+
+exports.goalSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.60"),
+                fieldLevel.templateCode("GoalSection"),
+                fieldLevel.templateTitle("GoalSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("goals")
+                },
+                htmlHeader, {
+                    key: "entry",
+                    attributes: {
+                        "typeCode": function (input) {
+                            return input.type === "observation" ? "DRIV" : null;
+                        }
+                    },
+                    content: [
+                        entryLevel.goalActivityObservation
+                    ],
+                    dataKey: "goals"
                 }
             ]
         }]

@@ -23,7 +23,7 @@ exports.planOfCareActivityAct = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -45,7 +45,7 @@ exports.planOfCareActivityObservation = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -67,7 +67,7 @@ exports.planOfCareActivityProcedure = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -89,7 +89,7 @@ exports.planOfCareActivityEncounter = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -111,7 +111,7 @@ exports.planOfCareActivitySubstanceAdministration = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -133,7 +133,7 @@ exports.planOfCareActivitySupply = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -182,7 +182,7 @@ exports.planOfCareActivityInstructions = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew, {
+        fieldLevel.statusCodeActive, {
             key: "priorityCode",
             attributes: {
                 "code": leafLevel.deepInputProperty("code"),

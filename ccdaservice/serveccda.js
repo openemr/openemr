@@ -981,6 +981,30 @@ function getPlanOfCare(pd) {
     };
 }
 
+function getGoals(pd) {
+    return {
+        "goal_code": { // this is weird as spec say's yes but in practice is a no.
+            "name": pd.code_text !== "NULL" ? pd.code_text : "",
+            "code": cleanCode(pd.code) || "",
+            "code_system_name": pd.code_type || ""
+        },
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809b4a"
+        }],
+        "date_time": {
+            "point": {
+                "date": fDate(pd.date_formatted),
+                "precision": "day"
+            }
+        },
+        "type": "observation",
+        "status": {
+            "code": "active", //cleanCode(pd.status)
+        },
+        "name": pd.description
+    };
+}
+
 function populateVital(pd) {
     return {
         "identifiers": [{
@@ -1035,6 +1059,66 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bpd),
             "unit": "mm[Hg]"
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_height
+            }],
+            "vital": {
+                "name": "Height",
+                "code": "8302-2",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.height),
+            "unit": pd.unit_height
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_weight
+            }],
+            "vital": {
+                "name": "Weight Measured",
+                "code": "29463-7",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.weight),
+            "unit": pd.unit_weight
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_BMI
+            }],
+            "vital": {
+                "name": "BMI (Body Mass Index)",
+                "code": "39156-5",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": [pd.BMI_status],
+            "value": parseFloat(pd.BMI),
+            "unit": "kg/m2"
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1095,88 +1179,27 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.temperature),
             "unit": pd.unit_temperature
-        },
-            {
-                "identifiers": [{
-                    "identifier": pd.sha_extension,
-                    "extension": pd.extension_height
-                }],
-                "vital": {
-                    "name": "Height",
-                    "code": "8302-2",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.height),
-                "unit": pd.unit_height
-            }, {
-                "identifiers": [{
-                    "identifier": pd.sha_extension,
-                    "extension": pd.extension_weight
-                }],
-                "vital": {
-                    "name": "Weight Measured",
-                    "code": "29463-7",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.weight),
-                "unit": pd.unit_weight
-            }, {
-                "identifiers": [{
-                    "identifier": pd.sha_extension,
-                    "extension": pd.extension_BMI
-                }],
-                "vital": {
-                    "name": "BMI (Body Mass Index)",
-                    "code": "39156-5",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.BMI),
-                "unit": "kg/m2"
-            }, {
-                "identifiers": [{
-                    "identifier": pd.sha_extension,
-                    "extension": pd.extension_oxygen_saturation
-                }],
-                "vital": {
-                    "name": "O2 % BldC Oximetry",
-                    "code": "59408-5",
-                    "code_system_name": "LOINC"
-                },
-                "status": "completed",
-                "date_time": {
-                    "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": getPrecision(fDate(pd.effectivetime))
-                    }
-                },
-                "interpretations": ["Normal"],
-                "value": parseFloat(pd.oxygen_saturation),
-                "unit": "%"
-            }
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_oxygen_saturation
+            }],
+            "vital": {
+                "name": "O2 % BldC Oximetry",
+                "code": "59408-5",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": getPrecision(fDate(pd.effectivetime))
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.oxygen_saturation),
+            "unit": "%"
+        }
         ]
     }
 }
@@ -1441,74 +1464,74 @@ function populateHeader(pd) {
             "precision": "none"
         },
         "author": {
-                "date_time": {
-                    "point": {
-                        "date": (isOne(all.encounter_list.encounter) === 1 ? all.encounter_list.encounter.date_formatted : all.encounter_list.encounter[0].date_formatted) || pd.created_time_timezone,
-                        "precision": "day"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": "2.16.840.1.113883.4.6",
-                        "extension": pd.author.npi || ""
-                    }
-                ],
-                "name": [
-                    {
-                        "last": pd.author.lname,
-                        "first": pd.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            pd.author.streetAddressLine
-                        ],
-                        "city": pd.author.city,
-                        "state": pd.author.state,
-                        "zip": pd.author.postalCode,
-                        "country": pd.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": pd.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            pd.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    pd.encounter_provider.facility_street
-                                ],
-                                "city": pd.encounter_provider.facility_city,
-                                "state": pd.encounter_provider.facility_state,
-                                "zip": pd.encounter_provider.facility_postal_code,
-                                "country": pd.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": pd.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "date_time": {
+                "point": {
+                    "date": (isOne(all.encounter_list.encounter) === 1 ? all.encounter_list.encounter.date_formatted : all.encounter_list.encounter[0].date_formatted) || pd.created_time_timezone,
+                    "precision": "day"
+                }
             },
+            "identifiers": [
+                {
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": pd.author.npi || ""
+                }
+            ],
+            "name": [
+                {
+                    "last": pd.author.lname,
+                    "first": pd.author.fname
+                }
+            ],
+            "address": [
+                {
+                    "street_lines": [
+                        pd.author.streetAddressLine
+                    ],
+                    "city": pd.author.city,
+                    "state": pd.author.state,
+                    "zip": pd.author.postalCode,
+                    "country": pd.author.country || "US",
+                    "use": "work place"
+                }
+            ],
+            "phone": [
+                {
+                    "number": pd.author.telecom || "",
+                    "type": "WP"
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        pd.encounter_provider.facility_name
+                    ],
+                    "address": [
+                        {
+                            "street_lines": [
+                                pd.encounter_provider.facility_street
+                            ],
+                            "city": pd.encounter_provider.facility_city,
+                            "state": pd.encounter_provider.facility_state,
+                            "zip": pd.encounter_provider.facility_postal_code,
+                            "country": pd.encounter_provider.facility_country_code || "US",
+                            "use": "work place"
+                        }
+                    ],
+                    "phone": [
+                        {
+                            "number": pd.encounter_provider.facility_phone,
+                            "type": "work primary"
+                        }
+                    ]
+                }
+            ]
+        },
         "custodian": {
             "identity": [
                 {
@@ -1896,6 +1919,7 @@ function genCcda(pd) {
         many.immunizations.push(theone);
     }
     data.immunizations = Object.assign(many.immunizations);
+
 // Plan of Care
     many = [];
     theone = {};
@@ -1918,8 +1942,28 @@ function genCcda(pd) {
         theone = getPlanOfCare(pd.planofcare.item);
         many.plan_of_care.push(theone);
     }
-
     data.plan_of_care = Object.assign(many.plan_of_care);
+
+// Goals
+    many = [];
+    theone = {};
+    many.goals = [];
+    try {
+        count = isOne(pd.goals.item);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.goals.item) {
+            theone[i] = getGoals(pd.goals.item[i]);
+            many.goals.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getGoals(pd.goals.item);
+        many.goals.push(theone);
+    }
+    data.goals = Object.assign(many.goals);
+
 // Social History
     many = [];
     theone = {};
