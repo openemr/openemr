@@ -195,10 +195,10 @@ abstract class BaseFixtureManager
         // these values come from flat files in the unit tests, I'm torn on whether we should escape these or not
         // TODO: @adunsulag check with @brady.miller on whether we should escape these or not
         $table_name = escape_table_name($reference['table']);
-        $column = $reference['columnSearch'];
-        $referenceColumn = $reference['columnReference'];
+        $column = escape_sql_column_name($reference['columnSearch'], [$reference['table_name']]);
+        $referenceColumn = escape_sql_column_name($reference['columnReference'], [$reference['table_name']]);
         $searchValue = $reference['columnSearchValue'];
-        $sql = "( SELECT `$referenceColumn` FROM $table_name WHERE `$column` = ? )";
+        $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
         return new SearchQueryFragment($sql, [$reference['columnSearchValue']]);
     }
 
