@@ -49,8 +49,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
-
 require_once(dirname(__FILE__) . "/../library/csv_like_join.php");
 
 $code_types = array();
@@ -81,7 +79,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
         reset($code_types);
         $default_search_type = key($code_types);
     }
-    SessionUtil::setSession('default_search_type', $default_search_type);
+    $_SESSION['default_search_type'] = $default_search_type;
 }
 
 /** This array contains metadata describing the arrangement of the external data
