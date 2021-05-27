@@ -130,8 +130,12 @@ class EncounterService extends BaseService
             $facilityuuidBytes = $this->getUuidById($sqlResult['facility_id'], self::FACILITY_TABLE, "id");
             $sqlResult['puuid'] = UuidRegistry::uuidToString($puuidBytes);
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $sqlResult['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
-            $sqlResult['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
+            if (!empty($provideruuidBytes)) {
+                $sqlResult['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
+            }
+            if (!empty($facilityuuidBytes)) {
+                $sqlResult['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
+            }
             $processingResult->addData($sqlResult);
         }
 
