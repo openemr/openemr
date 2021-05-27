@@ -73,13 +73,10 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'problem' => $ctrow['ct_problem'],
     'drug' => $ctrow['ct_drug']
     );
-    if (array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
-        $default_search_type = $GLOBALS['default_search_code_type'];
-    } else {
+    if (!array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
         reset($code_types);
-        $default_search_type = key($code_types);
+        $$GLOBALS['default_search_code_type'] = key($code_types);
     }
-    $_SESSION['default_search_type'] = $default_search_type;
 }
 
 /** This array contains metadata describing the arrangement of the external data
