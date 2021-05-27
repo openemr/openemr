@@ -200,9 +200,7 @@ abstract class BaseFixtureManager
             $referenceColumn = escape_sql_column_name($reference['columnReference'], [$reference['table']], false, true);
             $searchValue = $reference['columnSearchValue'];
             $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
-        }
-        catch (SqlQueryException $exception)
-        {
+        } catch (SqlQueryException $exception) {
             (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
