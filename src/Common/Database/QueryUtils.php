@@ -135,7 +135,7 @@ class QueryUtils
         //   Execute function.
         $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
         if ($recordset === false) {
-            throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError());
+            throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
         }
 
         // Return the correct last id generated using function
