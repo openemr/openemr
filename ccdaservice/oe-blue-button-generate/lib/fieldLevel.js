@@ -104,6 +104,13 @@ exports.statusCodeNew = {
     }
 };
 
+exports.statusCodeActive = {
+    key: "statusCode",
+    attributes: {
+        code: 'active'
+    }
+};
+
 var effectiveDocumentTime = exports.effectiveDocumentTime = {
     key: "effectiveTime",
     attributes: {

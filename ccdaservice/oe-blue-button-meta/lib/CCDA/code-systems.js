@@ -284,6 +284,12 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "Plan of Care"
         },
+        "GoalSection": {
+            "code": "61146-7",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Goals"
+        },
         "PlannedProcedureSection": {
             "code": "59772-4",
             "code_system": "2.16.840.1.113883.6.1",
