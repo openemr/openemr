@@ -354,6 +354,29 @@ exports.payersSection = function (htmlHeader, na) {
     };
 };
 
+exports.assessmentSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
+                fieldLevel.templateCode("AssessmentSection"),
+                fieldLevel.templateTitle("AssessmentSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("assessments")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "description"
+                }
+            ],
+            dataKey: "assessments"
+        }]
+    }
+};
+
 exports.planOfCareSection = function (htmlHeader, na) {
     return {
         key: "component",

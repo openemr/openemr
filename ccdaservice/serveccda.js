@@ -1005,6 +1005,12 @@ function getGoals(pd) {
     };
 }
 
+function getAssessments(pd) {
+    return {
+        "description": pd.description
+    };
+}
+
 function populateVital(pd) {
     return {
         "identifiers": [{
@@ -1963,6 +1969,29 @@ function genCcda(pd) {
         many.goals.push(theone);
     }
     data.goals = Object.assign(many.goals);
+
+// Assessments. Not part of a CCD I think.
+    many = [];
+    theone = {};
+    many.assessments = [];
+    try {
+        count = isOne(pd.clinical_notes.evaluation_note);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.clinical_notes.evaluation_note) {
+            theone[i] = getAssessments(pd.clinical_notes.evaluation_note[i]);
+            many.assessments.push(theone[i]);
+            break; // for now only one assessment. @todo concat notes to one.
+        }
+    } else if (count !== 0) {
+        theone = getAssessments(pd.clinical_notes.evaluation_note);
+        many.assessments.push(theone);
+    }
+    if (count !== 0) {
+        data.assessments = Object.assign(many.assessments);
+    }
 
 // Social History
     many = [];

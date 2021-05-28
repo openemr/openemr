@@ -2263,11 +2263,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         }
 
-        // some installations of OpenEMR do not have the SNOMED codes installed.  Rather than failing on a left join because
-        // the table does not exist we will include the SNOMED code pieces only if we have the sct_descriptions table installed.
-        // TODO: is there a better way to find out if the SNOMED tables have been installed through a global setting instead of describing the tables?
-        $fcp_code_type = 'ct.`ct_key` AS fcp_code_type';
-        $sct_descriptions_join = '';
         $care_plan_query_data = ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid];
 
         $query = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type
@@ -2285,7 +2280,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
             LEFT JOIN users AS u ON u.id = l3.field_value
             WHERE t.pid = ?";
-        $res = $appTable->zQuery($query, $care_plan_query_data);
+        $res = $appTable->zQuery($query, ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid]);
         $status = 'Pending';
         $status_entry = 'active';
         $planofcare = '<planofcare>';
@@ -2380,6 +2375,45 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $functional_cognitive .= '</functional_cognitive_status>';
         return $functional_cognitive;
+    }
+
+    public function getClinicalNotes($pid, $encounter)
+    {
+        $wherCon = '';
+        $sqlBindArray = [];
+        if ($encounter) {
+            $wherCon = " f.encounter = ? AND ";
+            $sqlBindArray[] = $encounter;
+        }
+
+        $clinical_notes = '';
+        $query = "SELECT fnote.* FROM forms AS f
+                LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`id` = f.`form_id`
+                WHERE $wherCon f.`pid` = ? AND f.`formdir` = ? AND f.`deleted` = ? Order By fnote.`encounter`, fnote.`date`, fnote.`clinical_notes_type`";
+        array_push($sqlBindArray, $pid, 'clinical_notes', 0);
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery($query, $sqlBindArray);
+
+        $clinical_notes .= '<clinical_notes>';
+        foreach ($res as $row) {
+            $tmp = explode(":", $row['code']);
+            $code_type = $tmp[0];
+            $code = $tmp[1];
+            $clt = xmlEscape($row['clinical_notes_type']);
+            $clinical_notes .= "<$clt>" .
+            '<clinical_notes_type>' . $clt . '</clinical_notes_type>
+            <encounter>' . xmlEscape($row['encounter']) . '</encounter>
+            <code>' . xmlEscape($code) . '</code>
+            <code_text>' . xmlEscape($row['codetext']) . '</code_text>
+            <description>' . xmlEscape($row['description']) . '</description>
+            <date>' . xmlEscape($row['date']) . '</date>
+            <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+            <code_type>' . xmlEscape($code_type) . "</code_type>
+            </$clt>";
+        }
+
+        $clinical_notes .= '</clinical_notes>';
+        return $clinical_notes;
     }
 
     public function getCareTeamProviderId($pid)
