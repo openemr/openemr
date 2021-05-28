@@ -69,24 +69,21 @@ class PractitionerService extends BaseService
         return ['uuid'];
     }
 
-    public function selectHelper($sqlUpToFromStatement, $map)
-    {
-        // TODO: adunsulag we only are putting this in here until we can get the npi:missing modifier to work properly
-        // and then we will remove this stuff.
-        if (!empty($map['where'])) {
-            $map['where'] .= " AND NPI IS NOT null";
-        } else {
-            $map['where'] = "WHERE npi IS NOT null";
-        }
-        return parent::selectHelper($sqlUpToFromStatement, $map);
-    }
-
     public function search($search, $isAndCondition = true)
     {
-        // we make sure we only get NPI values
-        // TODO: adunsulag when we can get the Missing modifier working we can do that here...
-//        $search['npi'] = new TokenSearchField('npi');
-//        $search['npi']->setModifier(SearchModifier::MISSING);
+        // we only retrieve from our database when our practitioners are not null
+        if (!empty($search['npi'])) {
+            if (!$search['npi'] instanceof ISearchField) {
+                throw new \BadMethodCallException("npi search must be instance of " . ISearchField::class);
+            }
+            if ($search['npi']->getModifier() === SearchModifier::MISSING) {
+                // force our value to be false as the only thing that differentiates users as practitioners is our npi number
+                $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
+            }
+        } else {
+            $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
+            $search['npi']->setModifier(SearchModifier::MISSING);
+        }
         return parent::search($search, $isAndCondition);
     }
 

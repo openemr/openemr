@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirCareTeamService;
+use OpenEMR\Services\FHIR\FhirDeviceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -23,6 +24,7 @@ class FhirDeviceRestController
 
     public function __construct()
     {
+        $this->fhirResourceService = new FhirDeviceService();
         $this->fhirService = new FhirResourcesService();
     }
 
@@ -34,7 +36,7 @@ class FhirDeviceRestController
      */
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->fhirResourceService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -45,7 +47,7 @@ class FhirDeviceRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->fhirResourceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
@@ -55,7 +57,7 @@ class FhirDeviceRestController
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             array_push($bundleEntries, $fhirBundleEntry);
         }
-        $bundleSearchResult = $this->fhirService->createBundle('CarePlan', $bundleEntries, false);
+        $bundleSearchResult = $this->fhirService->createBundle('Device', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }

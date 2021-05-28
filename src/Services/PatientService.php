@@ -335,43 +335,7 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $sql = "SELECT  id,
-                        pid,
-                        uuid,
-                        pubpid,
-                        title,
-                        fname,
-                        mname,
-                        lname,
-                        ss,
-                        street,
-                        postal_code,
-                        city,
-                        state,
-                        county,
-                        country_code,
-                        drivers_license,
-                        contact_relationship,
-                        phone_contact,
-                        phone_home,
-                        phone_biz,
-                        phone_cell,
-                        email,
-                        DOB,
-                        sex,
-                        race,
-                        ethnicity,
-                        status,
-                        `language`
-                FROM patient_data
-                WHERE uuid = ?";
-
-        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
-        $sqlResult = sqlQuery($sql, [$puuidBinary]);
-
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $processingResult->addData($sqlResult);
-        return $processingResult;
+        return $this->search(['uuid' => new TokenSearchField('uuid', [$puuidString], true)]);
     }
 
     /**

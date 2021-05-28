@@ -23,7 +23,11 @@ class FhirOrganizationRestControllerTest extends TestCase
      */
     private $fhirOrganizationController;
 
+    /*
+     * FacilityFixtureManager
+     */
     private $fixtureManager;
+
     private $fhirFixture;
 
     protected function setUp(): void
@@ -38,7 +42,7 @@ class FhirOrganizationRestControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**

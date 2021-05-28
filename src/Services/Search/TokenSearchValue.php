@@ -16,7 +16,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 class TokenSearchValue
 {
     /**
-     * @var string|int|float
+     * @var string|int|float|boolean
      */
     private $code;
 

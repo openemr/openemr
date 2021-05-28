@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
@@ -71,7 +73,9 @@ class FhirPractitionerService extends FhirServiceBase
     {
         $practitionerResource = new FHIRPractitioner();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $practitionerResource->setMeta($meta);
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
@@ -93,46 +97,11 @@ class FhirPractitionerService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $practitionerResource->setId($id);
 
-        $name = new FHIRHumanName();
-        $name->setUse('official');
-
-        if (isset($dataRecord['title'])) {
-            $name->addPrefix($dataRecord['title']);
+        $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        $address = UtilsService::createAddressFromRecord($dataRecord);
+        if (isset($address)) {
+            $practitionerResource->addAddress($address);
         }
-        if (isset($dataRecord['lname'])) {
-            $name->setFamily($dataRecord['lname']);
-        }
-
-        $givenName = array();
-        if (isset($dataRecord['fname'])) {
-            array_push($givenName, $dataRecord['fname']);
-        }
-
-        if (isset($dataRecord['mname'])) {
-            array_push($givenName, $dataRecord['mname']);
-        }
-
-        if (count($givenName) > 0) {
-            $name->given = $givenName;
-        }
-
-        $practitionerResource->addName($name);
-
-        $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-        }
-        if (!empty($dataRecord['zip'])) {
-            $address->setPostalCode($dataRecord['zip']);
-        }
-
-        $practitionerResource->addAddress($address);
 
         if (!empty($dataRecord['phone'])) {
             $practitionerResource->addTelecom(array(
@@ -158,7 +127,7 @@ class FhirPractitionerService extends FhirServiceBase
             ));
         }
 
-        if (isset($dataRecord['email'])) {
+        if (!empty($dataRecord['email'])) {
             $practitionerResource->addTelecom(array(
                 'system' => 'email',
                 'value' => $dataRecord['email'],
@@ -166,12 +135,13 @@ class FhirPractitionerService extends FhirServiceBase
             ));
         }
 
-        if (isset($dataRecord['npi'])) {
-            $fhirIdentifier = [
-                'system' => "http://hl7.org/fhir/sid/us-npi",
-                'value' => $dataRecord['npi']
-            ];
-            $practitionerResource->addIdentifier($fhirIdentifier);
+        if (!empty($dataRecord['npi'])) {
+            $identifier = new FHIRIdentifier();
+            $identifier->setSystem(FhirCodeSystemUris::PROVIDER_NPI);
+            $identifier->setValue($dataRecord['npi']);
+            $practitionerResource->addIdentifier($identifier);
+        } else {
+            $practitionerResource->addIdentifier(UtilsService::createDataMissingExtension());
         }
 
         if ($encode) {
@@ -301,7 +271,7 @@ class FhirPractitionerService extends FhirServiceBase
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
     {
-        return $this->practitionerService->getAll($openEMRSearchParameters, false);
+        return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {

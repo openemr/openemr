@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirCarePlanService.php
+ * FhirGoalService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -11,103 +11,131 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGoal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRGoalLifecycleStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 
-class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     /**
      * @var CarePlanService
      */
     private $service;
 
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan';
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-goal';
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new CarePlanService();
+        // goals are stored inside the care plan forms
+        $this->service = new CarePlanService(CarePlanService::TYPE_GOAL);
     }
 
     /**
-     * Returns an array mapping FHIR CarePlan Resource search parameters to OpenEMR CarePlan search parameters
+     * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      * @return array The search parameters
      */
     protected function loadSearchParameters()
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'category' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['careplan_category']),
-            // note even though we label this as a uuid, it is a SURROGATE UID because of the nature of CarePlan
+            // note even though we label this as a uuid, it is a SURROGATE UID because of the nature of how goals are stored
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
         ];
     }
 
     /**
-     * Parses an OpenEMR record, returning the equivalent FHIR Resource
+     * Parses an OpenEMR careTeam record, returning the equivalent FHIR CareTeam Resource
      *
      * @param array $dataRecord The source OpenEMR data record
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRCarePlan
+     * @return FHIRCareTeam
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        $carePlanResource = new FHIRCarePlan();
+        $goal = new FHIRGoal();
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         $fhirMeta->setLastUpdated(gmdate('c'));
-        $carePlanResource->setMeta($fhirMeta);
+        $goal->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();
         $fhirId->setValue($dataRecord['uuid']);
-        $carePlanResource->setId($fhirId);
+        $goal->setId($fhirId);
 
         if (isset($dataRecord['puuid'])) {
-            $carePlanResource->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
+            $goal->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
         } else {
-            $carePlanResource->setSubject(UtilsService::createDataMissingExtension());
+            $goal->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $codeableConcept = new FHIRCodeableConcept();
-        $coding = new FHIRCoding();
-        $coding->setCode("assess-plan");
-        $coding->setSystem(FhirCodeSystemUris::HL7_SYSTEM_CAREPLAN_CATEGORY);
-        $codeableConcept->addCoding($coding);
-        $carePlanResource->addCategory($codeableConcept);
+        $lifecycleStatus = new FHIRGoalLifecycleStatus();
+        $lifecycleStatus->setValue("active");
+        $goal->setLifecycleStatus($lifecycleStatus);
 
-        $carePlanResource->setIntent("plan");
-        $carePlanResource->setStatus("active");
 
         // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
         // activity element if they so choose, for now we just return the combined description of the care plan.
         if (!empty($dataRecord['details'])) {
-            $carePlanText = $this->getCarePlanTextFromDetails($dataRecord['details']);
-            $carePlanResource->setDescription($carePlanText['text']);
+            $text = $this->getCarePlanTextFromDetails($dataRecord['details']);
+            $codeableConcept = new FHIRCodeableConcept();
+            $codeableConcept->setText($text['text']);
+            $goal->setDescription($codeableConcept);
 
-            // since we pull the text from the description status is generated, if we had additional info we would
-            // set status to 'additional'
-            $narrative = new FHIRNarrative();
-            $narrative->setStatus("generated");
-            $narrative->setDiv('<div xmlns="http://www.w3.org/1999/xhtml">' . $carePlanText['xhtml'] . '</div>');
-            $carePlanResource->setText($narrative);
-        } else {
-            $carePlanResource->setText(UtilsService::createDataMissingExtension());
+            $codeTypeService = new CodeTypesService();
+            foreach ($dataRecord['details'] as $detail) {
+                $fhirGoalTarget = new FHIRGoalTarget();
+                if (!empty($detail['date'])) {
+                    $fhirDate = new FHIRDate();
+                    $fhirDate->setValue($detail['date']);
+                    $fhirGoalTarget->setDueDate($fhirDate);
+                } else {
+                    $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());
+                }
+
+                if (!empty($detail['description'])) {
+                    // if description is populated we also have to populate the measure with the correct code
+                    $fhirGoalTarget->setDetailString($detail['description']);
+
+                    if (!empty($detail['code'])) {
+                        $codeText = $codeTypeService->lookup_code_description($detail['code']);
+                        $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
+
+                        $targetCodeableConcept = new FHIRCodeableConcept();
+                        $coding = new FhirCoding();
+                        $coding->setCode($detail['code']);
+                        if (empty($codeText)) {
+                            $coding->setDisplay(UtilsService::createDataMissingExtension());
+                        } else {
+                            $coding->setDisplay(xlt($codeText));
+                        }
+
+                        $coding->setSystem($codeSystem); // these should always be LOINC but we want this generic
+                        $targetCodeableConcept->addCoding($coding);
+                        $fhirGoalTarget->setMeasure($targetCodeableConcept);
+                    } else {
+                        $fhirGoalTarget->setMeasure(UtilsService::createDataMissingExtension());
+                    }
+                }
+                $goal->addTarget($fhirGoalTarget);
+            }
         }
 
         if ($encode) {
-            return json_encode($carePlanResource);
+            return json_encode($goal);
         } else {
-            return $carePlanResource;
+            return $goal;
         }
     }
 

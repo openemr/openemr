@@ -709,14 +709,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Device" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDeviceRestController())->getAll($request->getQueryParams());
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDeviceRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirEncounterRestController())->getAll($request->getQueryParams());
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Device/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDeviceRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDeviceRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirEncounterRestController())->getOne($request->getQueryParams());
+        }
         RestConfig::apiLog($return);
         return $return;
     },

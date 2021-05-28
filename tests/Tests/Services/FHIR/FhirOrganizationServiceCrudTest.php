@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
@@ -18,6 +19,9 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
  */
 class FhirOrganizationServiceCrudTest extends TestCase
 {
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
     private $fhirOrganizationFixture;
     private $fhirOrganizationService;
@@ -31,7 +35,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**

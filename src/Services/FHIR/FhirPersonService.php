@@ -97,46 +97,8 @@ class FhirPersonService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $person->setId($id);
 
-        $name = new FHIRHumanName();
-        $name->setUse('official');
-
-        if (isset($dataRecord['title'])) {
-            $name->addPrefix($dataRecord['title']);
-        }
-        if (isset($dataRecord['lname'])) {
-            $name->setFamily($dataRecord['lname']);
-        }
-
-        $givenName = array();
-        if (isset($dataRecord['fname'])) {
-            array_push($givenName, $dataRecord['fname']);
-        }
-
-        if (isset($dataRecord['mname'])) {
-            array_push($givenName, $dataRecord['mname']);
-        }
-
-        if (count($givenName) > 0) {
-            $name->given = $givenName;
-        }
-
-        $person->addName($name);
-
-        $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-        }
-        if (!empty($dataRecord['zip'])) {
-            $address->setPostalCode($dataRecord['zip']);
-        }
-
-        $person->addAddress($address);
+        $person->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        $person->addAddress(UtilsService::createAddressFromRecord($dataRecord));
 
         if (!empty($dataRecord['phone'])) {
             $person->addTelecom(array(
