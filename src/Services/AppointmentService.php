@@ -103,6 +103,12 @@ class AppointmentService
         return sqlQuery($sql, array($eid));
     }
 
+    public function getAppointmentTitle($pid, $date)
+    {
+        $sql = "SELECT pc_title FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_eventDate = ?";
+        return sqlQuery($sql, array($pid, $date));
+    }
+
     public function insert($pid, $data)
     {
         $startTime = date("H:i:s", strtotime($data['pc_startTime']));
