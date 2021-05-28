@@ -27,8 +27,8 @@ class DeviceService extends BaseService
     {
         parent::__construct('lists');
         $this->uuidRegistry = new UuidRegistry(['table_name' => self::DEVICE_TABLE]);
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::PATIENT_TABLE]);
         $this->uuidRegistry->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
     }
 
     public function search($search, $isAndCondition = true)
@@ -38,7 +38,7 @@ class DeviceService extends BaseService
             , patients.*
             from
             (
-                SELECT 
+                SELECT
                     `udi`,
                     `uuid`, `date`, `title`,`udi_data`, `begdate`, `diagnosis`, `user`, `pid`
                 FROM lists WHERE `type` = 'medical_device'
