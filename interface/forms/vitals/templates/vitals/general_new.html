@@ -160,7 +160,7 @@ function vitalsFormSubmitted() {
                                         <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
                                     </th>
                                     {foreach item=result from=$results}
-                                        <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"|text}</th>
+                                        <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d"|text}</th>
                                     {/foreach}
                                 </tr>
                             </thead>
@@ -344,7 +344,7 @@ function vitalsFormSubmitted() {
                                             {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                             <!-- only show growth-chart button for patients < 20 years old -->
                                             <input type="button" class="btn btn-primary" id="pdfchart" value='{xla t="Growth-Chart"} ({xla t="PDF"})'>
-                                            <input type="button" class="btn btn-primary" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})'>
+                                            <input type="button" class="btn btn-primary" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})' hidden>
                                             {/if}
                                         </td>
                                     </tr>

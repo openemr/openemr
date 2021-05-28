@@ -113,7 +113,7 @@ function show_graph(table_graph, name_graph, title_graph)
             // hide the chart div
           $('#chart').hide();
           if(!title_graph){
-              alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
+              alert(<?php echo xlj('There is not enough data for the age range specified.');?> + ".\n" + <?php echo xlj('Please select a range that has more data');?> + ".");
           }
           else {
               alert(title_graph + " " + <?php echo xlj('does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");

@@ -1,9 +1,9 @@
 <?php
 
-define("EVENT_VEHICLE", 1);
-define("EVENT_WORK_RELATED", 2);
-define("EVENT_SLIP_FALL", 3);
-define("EVENT_OTHER", 4);
+const EVENT_VEHICLE = 1;
+const EVENT_WORK_RELATED = 2;
+const EVENT_SLIP_FALL = 3;
+const EVENT_OTHER = 4;
 
 
 /**

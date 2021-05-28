@@ -108,7 +108,7 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id,
             addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
@@ -1040,8 +1040,13 @@ function fixDate($date, $default = "0000-00-00")
 function pdValueOrNull($key, $value)
 {
     if (
-        ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-        substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') &&
+        (
+            $key == 'DOB' ||
+            $key == 'regdate' ||
+            $key == 'contrastart' ||
+        substr($key, 0, 8) == 'userdate' ||
+            $key == 'deceased_date'
+        ) &&
         (empty($value) || $value == '0000-00-00')
     ) {
         return "NULL";
@@ -1585,6 +1590,7 @@ function getPatientAgeYMD($dob, $date = null)
 
     // round the years to 2 floating points
     $ageinYMD = $age_year . "y " . $months_since_birthday . "m " . $days_since_dobday . "d";
+
     return compact('age', 'age_in_months', 'ageinYMD');
 }
 
@@ -1599,6 +1605,7 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
+    $nowYMD = preg_replace("/-/", "", $nowYMD);
     $dobDay = substr($dobYMD, 6, 2);
     $dobMonth = substr($dobYMD, 4, 2);
     $dobYear = substr($dobYMD, 0, 4);
@@ -1803,5 +1810,18 @@ function is_patient_deceased($pid, $date = '')
         }
 
         return $results;
+    }
+}
+
+function hasDownSyndrome($pid): bool
+{
+
+    $sql = "Select * from lists where pid = ? and type = 'medical_problem' and diagnosis like '%Q90.9%'";
+    $res = sqlStatement($sql, array($pid));
+
+    if (sqlNumRows($res) > 0) {
+        return true;
+    } else {
+        return false;
     }
 }

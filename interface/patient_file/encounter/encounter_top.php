@@ -69,7 +69,7 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $(function () {
   // Initialize support for the tab set.
   twSetup('enctabs');
-});
+});t
 
 // This is called to refresh encounter display data after something has changed it.
 // Currently only the encounter summary tab will be refreshed.
