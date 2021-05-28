@@ -972,7 +972,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $default_search_type ?? null;
+                            $search_type = $GLOBALS['default_search_code_type'] ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
