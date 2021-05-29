@@ -2339,7 +2339,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $sqlBindArray[] = $encounter;
         }
 
-        $functional_cognitive = '';
+        $functional_status = '<functional_status>';
+        $cognitive_status = '<mental_status>';
         $query = "SELECT ffcs.* FROM forms AS f
                 LEFT JOIN form_functional_cognitive_status AS ffcs ON ffcs.id = f.form_id
                 WHERE $wherCon f.pid = ? AND f.formdir = ? AND f.deleted = ?";
@@ -2347,34 +2348,32 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
-        $functional_cognitive .= '<functional_cognitive_status>';
         foreach ($res as $row) {
-            $status = $status_entry = '';
             if ($row['activity'] == 1) {
-                $status = 'Active';
-                $status_code = '55561003';
-                $status_entry = 'completed';
-            } else {
-                $status = 'Inactive';
-                $status_code = '73425007';
-                $status_entry = 'completed';
-            }
-
-            $functional_cognitive .= '<item>
-        <code>' . xmlEscape(($row['code'] ? $row['code'] : 0)) . '</code>
-        <code_text>' . xmlEscape(($row['codetext'] ? $row['codetext'] : '')) . '</code_text>
+                $cognitive_status .= '<item>
+        <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
+        <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
         <description>' . xmlEscape($row['description']) . '</description>
         <date>' . xmlEscape($row['date']) . '</date>
-        <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
-        <status>' . xmlEscape($status) . '</status>
-        <status_code>' . xmlEscape($status_code) . '</status_code>
-        <status_entry>' . xmlEscape($status_entry) . '</status_entry>
+        <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+        <status>' . xmlEscape('completed') . '</status>
         <age>' . xmlEscape($this->getAge($pid)) . '</age>
         </item>';
+            } else {
+                $functional_status .= '<item>
+        <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
+        <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
+        <description>' . xmlEscape($row['description']) . '</description>
+        <date>' . xmlEscape($row['date']) . '</date>
+        <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+        <status>' . xmlEscape('completed') . '</status>
+        <age>' . xmlEscape($this->getAge($pid)) . '</age>
+        </item>';
+            }
         }
-
-        $functional_cognitive .= '</functional_cognitive_status>';
-        return $functional_cognitive;
+        $functional_status .= '</functional_status>';
+        $cognitive_status .= '</mental_status>';
+        return $functional_status . $cognitive_status;
     }
 
     public function getClinicalNotes($pid, $encounter)
@@ -2449,15 +2448,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $clinical_instructions;
     }
 
-    public function getReferals($pid, $encounter)
+    public function getReferrals($pid, $encounter)
     {
-        $wherCon = '';
+        // patched out because I can't think of a reason to send a list of referrals
+        /*$wherCon = '';
         if ($encounter) {
             $wherCon = "ORDER BY date DESC LIMIT 1";
-        }
+        }*/
+        $wherCon = "ORDER BY date DESC LIMIT 1";
 
         $appTable = new ApplicationTable();
-        $referrals = '';
         $query = "SELECT field_value FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ? $wherCon";
         $result = $appTable->zQuery($query, array($pid));
         $referrals = '<referral_reason>';

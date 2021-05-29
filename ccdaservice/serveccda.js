@@ -983,7 +983,7 @@ function getPlanOfCare(pd) {
 
 function getGoals(pd) {
     return {
-        "goal_code": { // this is weird as spec say's yes but in practice is a no.
+        "goal_code": {
             "name": pd.code_text !== "NULL" ? pd.code_text : "",
             "code": cleanCode(pd.code) || "",
             "code_system_name": pd.code_type || ""
@@ -1005,9 +1005,59 @@ function getGoals(pd) {
     };
 }
 
+function getFunctionalStatus(pd) {
+    return {
+        "status": "completed",
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
+        }],
+        "observation": {
+            "value": {
+                "name": pd.code_text !== "NULL" ? pd.code_text : "",
+                "code": cleanCode(pd.code) || "",
+                "code_system_name": pd.code_type || ""
+            },
+            "identifiers": [{
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab"
+            }],
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.date_formatted),
+                    "precision": "day"
+                }
+            },
+            "status": "completed"
+        }
+    };
+}
+
+function getMentalStatus(pd) {
+    return {
+            "value": {
+                "name": pd.code_text !== "NULL" ? pd.code_text : "",
+                "code": cleanCode(pd.code) || "",
+                "code_system_name": pd.code_type || ""
+            },
+            "identifiers": [{
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
+            }],
+
+        "date_time": {
+            "low": templateDate(pd.date_formatted, "day")
+            //"high": templateDate(pd.date, "day")
+        },
+    };
+}
+
 function getAssessments(pd) {
     return {
         "description": pd.description
+    };
+}
+
+function getReferralReason(pd) {
+    return {
+        "reason": pd.text
     };
 }
 
@@ -1882,6 +1932,7 @@ function genCcda(pd) {
         many.procedures.push(theone);
     }
     data.procedures = Object.assign(many.procedures);
+
 // Medical Devices
     many = [];
     theone = {};
@@ -1906,6 +1957,16 @@ function genCcda(pd) {
     if (pd.results) {
         data.results = Object.assign(getResultSet(pd.results, pd)['results']);
     }
+
+// Referral
+    // different referral sources. 1st is dynamic with doc gen from CCM.
+    // 2nd is latest referral from transactions.
+    if (pd.referral_reason[0].text !== "") {
+        data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
+    } else if (pd.referral_reason[1].text !== "") {
+        data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
+    }
+
 // Immunizations
     many = [];
     theone = {};
@@ -1970,7 +2031,7 @@ function genCcda(pd) {
     }
     data.goals = Object.assign(many.goals);
 
-// Assessments. Not part of a CCD I think.
+// Assessments.
     many = [];
     theone = {};
     many.assessments = [];
@@ -1993,6 +2054,50 @@ function genCcda(pd) {
         data.assessments = Object.assign(many.assessments);
     }
 
+// Functional Status.
+    many = [];
+    theone = {};
+    many.functional_status = [];
+    try {
+        count = isOne(pd.functional_status.item);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.functional_status.item) {
+            theone[i] = getFunctionalStatus(pd.functional_status.item[i]);
+            many.functional_status.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getFunctionalStatus(pd.functional_status.item);
+        many.functional_status.push(theone);
+    }
+    if (count !== 0) {
+        data.functional_status = Object.assign(many.functional_status);
+    }
+
+// Mental Status.
+    many = [];
+    theone = {};
+    many.mental_status = [];
+    try {
+        count = isOne(pd.mental_status.item);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.mental_status.item) {
+            theone[i] = getMentalStatus(pd.mental_status.item[i]);
+            many.mental_status.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getMentalStatus(pd.mental_status.item);
+        many.mental_status.push(theone);
+    }
+    if (count !== 0) {
+        data.mental_status = Object.assign(many.mental_status);
+    }
+
 // Social History
     many = [];
     theone = {};
@@ -2012,7 +2117,6 @@ function genCcda(pd) {
         theone = populateSocialHistory(pd.history_physical.social_history.history_element);
         many.social_history.push(theone);
     }
-
     data.social_history = Object.assign(many.social_history);
 
 // ------------------------------------------ End Sections ----------------------------------------//

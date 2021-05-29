@@ -85,12 +85,15 @@ exports.ccd2 = function (html_renderer) {
                         [sectionLevel2.problemsSectionEntriesRequired(html_renderer.problemsSectionEntriesRequiredHtmlHeader, html_renderer.problemsSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.proceduresSectionEntriesRequired(html_renderer.proceduresSectionEntriesRequiredHtmlHeader, html_renderer.proceduresSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.resultsSectionEntriesRequired(html_renderer.resultsSectionEntriesRequiredHtmlHeader, html_renderer.resultsSectionEntriesRequiredHtmlHeaderNA), required],
+                        sectionLevel2.functionalStatusSection(html_renderer.functionalStatusSectionHtmlHeader, html_renderer.functionalStatusSectionHtmlHeaderNA),
                         sectionLevel2.encountersSectionEntriesOptional(html_renderer.encountersSectionEntriesOptionalHtmlHeader, html_renderer.encountersSectionEntriesOptionalHtmlHeaderNA),
                         sectionLevel2.immunizationsSectionEntriesOptional(html_renderer.immunizationsSectionEntriesOptionalHtmlHeader, html_renderer.immunizationsSectionEntriesOptionalHtmlHeaderNA),
                         //sectionLevel2.payersSection(html_renderer.payersSectionHtmlHeader, html_renderer.payersSectionHtmlHeaderNA),
                         sectionLevel2.assessmentSection('', ''),
                         sectionLevel2.planOfCareSection(html_renderer.planOfCareSectionHtmlHeader, html_renderer.planOfCareSectionHtmlHeaderNA),
                         sectionLevel2.goalSection(html_renderer.goalSectionHtmlHeader, html_renderer.goalSectionHtmlHeaderNA),
+                        sectionLevel2.reasonForReferralSection('', ''),
+                        sectionLevel2.mentalStatusSection('', ''),
                         sectionLevel2.socialHistorySection(html_renderer.socialHistorySectionHtmlHeader, html_renderer.socialHistorySectionHtmlHeaderNA),
                         sectionLevel2.vitalSignsSectionEntriesOptional(html_renderer.vitalSignsSectionEntriesOptionalHtmlHeader, html_renderer.vitalSignsSectionEntriesOptionalHtmlHeaderNA),
                         sectionLevel2.medicalEquipmentSectionEntriesOptional(html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeader, html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA)
@@ -98,7 +101,6 @@ exports.ccd2 = function (html_renderer) {
                     notImplemented: [
                         "advanceDirectivesSectionEntriesOptional",
                         "familyHistorySection",
-                        "functionalStatusSection",
                     ]
                 },
                 dataKey: 'data'

@@ -99,23 +99,6 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     };
 };
 
-/*var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
-var medicationsTextRow = [ // Name, did not find class in the medication blue-button-data
-    function (input) {
-        var value = bbuo.deepValue(input, 'product.product.name');
-        if (!bbuo.exists(value)) {
-            value = bbuo.deepValue(input, 'product.unencoded_name');
-        }
-        if (!bbuo.exists(value)) {
-            return "";
-        } else {
-            return value;
-        }
-    },
-    leafLevel.deepInputProperty("supply.repeatNumber", ""),
-    leafLevel.deepInputDate("supply.date_time.point", "")
-];*/
-
 exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
     return {
         key: "component",
@@ -550,4 +533,83 @@ exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
             "entry required"
         ]
     };
+};
+
+exports.functionalStatusSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.14", "2014-06-09"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.14"),
+                fieldLevel.templateCode("FunctionalStatusSection"),
+                fieldLevel.templateTitle("FunctionalStatusSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("functional_status")
+
+                },
+                htmlHeader, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [
+                        entryLevel.functionalStatusOrganizer
+                    ],
+                    dataKey: "functional_status",
+                    required: true
+                }
+            ]
+        }]
+    };
+};
+
+exports.mentalStatusSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.56", "2015-08-01"),
+                fieldLevel.templateCode("MentalStatusSection"),
+                fieldLevel.templateTitle("MentalStatusSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("mental_status")
+                }, { // mental status does not use a header table.
+                    key: "entry",
+                    content: [
+                        entryLevel.mentalStatusObservation
+                    ],
+                    dataKey: "mental_status"
+                }
+            ]
+        }]
+    };
+};
+
+exports.reasonForReferralSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("1.3.6.1.4.1.19376.1.5.3.1.3.1", "2014-06-09"),
+                fieldLevel.templateId("1.3.6.1.4.1.19376.1.5.3.1.3.1"),
+                fieldLevel.templateCode("ReasonForReferralSection"),
+                fieldLevel.templateTitle("ReasonForReferralSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("referral_reason")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "reason"
+                }
+            ],
+            dataKey: "referral_reason"
+        }]
+    }
 };
