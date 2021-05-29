@@ -58,15 +58,4 @@ class Container
         }
         return $this->facilityproperties;
     }
-
-    /**
-     * @return Wenopharmacyimport
-     */
-    public function getWenopharmacyimport()
-    {
-        if ($this->wenopharmacyimport === null) {
-            $this->wenopharmacyimport = new wenoPharmaciesImport();
-        }
-        return $this->wenopharmacyimport;
-    }
 }
