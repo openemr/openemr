@@ -199,4 +199,14 @@ class UserService
     {
         return sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", [$username]);
     }
+
+    /**
+     * retrieve the name based on the username
+     */
+    public function getNameFromUsername($username)
+{
+    $query = "select * from users where username like ? and username != ''";
+    $res = sqlQuery($query, [$username]);
+    return $res;
+}
 }
