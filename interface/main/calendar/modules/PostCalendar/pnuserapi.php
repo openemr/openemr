@@ -2,7 +2,7 @@
 
 /**
  * API for the calendar
- * 
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @copyright Copyright (c) 2002 The PostCalendar Team
@@ -854,14 +854,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
         if ($pc_username == '__PC_ALL__' || $pc_username == -1) {
             $ruserid = -1;
         } else {
-            $userService = new UserService;
-            $user = $userService->getIdByUsername($pc_username); 
+            $userService = new UserService();
+            $user = $userService->getIdByUsername($pc_username);
             if ($user['id']) {
                 $ruserid = $user['id'];
             } else {
                 $ruserid = -1;
             }
-
         }
     }
 

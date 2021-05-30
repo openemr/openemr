@@ -238,8 +238,8 @@ class AclExtended
         //removal from the Administrators group)
         require_once(dirname(__FILE__) . '/../../../library/user.inc');
 
-        $userService = new UserService;
-        $user = $userService->getIdByUsername($pc_username);             
+        $userService = new UserService();
+        $user = $userService->getIdByUsername($pc_username);
         $userNametoID = $user['id'];
 
         if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
