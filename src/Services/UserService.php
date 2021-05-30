@@ -191,4 +191,12 @@ class UserService
 
         return $results;
     }
+
+    /**
+     * @return array id of User
+     */
+    public function getIdByUsername($username)
+    {
+        return sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", [$username]);
+    }
 }
