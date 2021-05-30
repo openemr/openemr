@@ -16,7 +16,6 @@
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/user.inc");
-require_once("$srcdir/calendar.inc");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;

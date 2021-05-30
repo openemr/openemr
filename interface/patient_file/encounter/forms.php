@@ -13,7 +13,6 @@
 require_once("../../globals.php");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/group.inc");
-require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
