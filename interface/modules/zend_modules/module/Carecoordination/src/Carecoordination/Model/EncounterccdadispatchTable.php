@@ -931,11 +931,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $res_procedures = $appTable_procedures->zQuery($query_procedures, array('CPT4', $pid, 'CPT4', $row['encounter']));
             foreach ($res_procedures as $row_procedures) {
                 $codes .= "
-		<procedures>
-		    <code>" . xmlEscape($row_procedures['code']) . "</code>
-		    <text>" . xmlEscape($row_procedures['code_text']) . "</text>
-		</procedures>
-		";
+                <procedures>
+                <code>" . xmlEscape($row_procedures['code']) . "</code>
+                <code_type>" . xmlEscape("CPT4") . "</code_type>
+                <text>" . xmlEscape($row_procedures['code_text']) . "</text>
+                </procedures>";
             }
 
             if ($row['encounter_diagnosis']) {
@@ -949,13 +949,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 $codes .= "
-		<procedures>
-		    <code>" . xmlEscape($row['encounter_diagnosis']) . "</code>
-		    <code_type>" . xmlEscape($code_type) . "</code_type>
-		    <text>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['title'])) . "</text>
-		    <status>" . xmlEscape($encounter_activity) . "</status>
-		</procedures>
-		";
+                <encounter_diagnosis>
+                <code>" . xmlEscape($row['encounter_diagnosis']) . "</code>
+                <code_type>" . xmlEscape($code_type) . "</code_type>
+                <text>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['title'])) . "</text>
+                <status>" . xmlEscape($encounter_activity) . "</status>
+                </encounter_diagnosis>";
             }
 
             $location_details = ($row['name'] != '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
