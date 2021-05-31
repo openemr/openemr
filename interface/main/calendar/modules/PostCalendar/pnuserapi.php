@@ -854,10 +854,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         if ($pc_username == '__PC_ALL__' || $pc_username == -1) {
             $ruserid = -1;
         } else {
-            $userService = new UserService();
-            $user = $userService->getIdByUsername($pc_username);
-            if ($user['id']) {
-                $ruserid = $user['id'];
+            $user = (new $userService())->getIdByUsername($pc_username);
+            if ($user) {
+                $ruserid = $user;
             } else {
                 $ruserid = -1;
             }
