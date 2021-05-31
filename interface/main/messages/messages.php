@@ -394,26 +394,26 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </div>
                                                 <div class="col-6 col-md-4">
                                                     <?php
-                                                        if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                            <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
-                                                            <?php
-                                                        } else { ?>
-                                                            <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
-                                                            <?php
-                                                        }
-                                                    
-                                                        if ($reply_to) {
-                                                            $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-                                                                "FROM patient_data WHERE pid = ?", array($reply_to));
-                                                            $patientname = $prow['lname'] . ", " . $prow['fname'];
-                                                        }
-                                                        if ($task == "addnew" || $result['pid'] == 0) {
-                                                            $cursor = "oe-cursor-add";
-                                                            $background = "oe-patient-background";
-                                                        } elseif ($task == "edit") {
-                                                            $cursor = "oe-cursor-stop";
-                                                            $background = '';
-                                                        }
+                                                    if ($task != "addnew" && $result['pid'] != 0) { ?>
+                                                        <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                        <?php
+                                                    } else { ?>
+                                                        <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
+                                                        <?php
+                                                    }
+
+                                                    if ($reply_to) {
+                                                        $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
+                                                            "FROM patient_data WHERE pid = ?", array($reply_to));
+                                                        $patientname = $prow['lname'] . ", " . $prow['fname'];
+                                                    }
+                                                    if ($task == "addnew" || $result['pid'] == 0) {
+                                                        $cursor = "oe-cursor-add";
+                                                        $background = "oe-patient-background";
+                                                    } elseif ($task == "edit") {
+                                                        $cursor = "oe-cursor-stop";
+                                                        $background = '';
+                                                    }
                                                     ?>
                                                     <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " . $background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
