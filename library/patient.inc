@@ -1206,6 +1206,16 @@ function newInsuranceData(
         return false;
     }
 
+    // for simplified demographics and v6.0.0.3
+
+    if (is_null($accept_assignment)) {
+        $accept_assignment = "TRUE";
+    }
+
+    if (is_null($policy_type)) {
+        $policy_type = "";
+    }
+
     // If empty dates were passed, then null.
     if (empty($effective_date)) {
         $effective_date = null;
