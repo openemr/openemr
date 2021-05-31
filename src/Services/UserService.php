@@ -62,7 +62,7 @@ class UserService
      */
     public function getUserByUsername($username)
     {
-        return sqlQuery("SELECT * FROM `users` WHERE `username` = ?", [$username]);
+        return sqlQuery("SELECT * FROM `users` WHERE BINARY `username` = ?", [$username]);
     }
 
     /**
@@ -197,6 +197,11 @@ class UserService
      */
     public function getIdByUsername($username)
     {
-        return sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", [$username]);
+        $id = sqlQuery("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$username]);
+        if (!empty($id)) {
+            return $id;
+        } else {
+            return false;
+        }
     }
 }

@@ -239,10 +239,10 @@ class AclExtended
         require_once(dirname(__FILE__) . '/../../../library/user.inc');
 
         $userService = new UserService();
-        $user = $userService->getIdByUsername($pc_username);
-        $userNametoID = $user['id'];
+        $user = $userService->getIdByUsername($user_name);
+        $userNameToID = $user['id'];
 
-        if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
+        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
             $gacl_protect = true;
         } else {
             $gacl_protect = false;
