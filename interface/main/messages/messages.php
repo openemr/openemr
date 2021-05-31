@@ -395,7 +395,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <div class="col-6 col-md-4">
                                                     <?php
                                                         if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                            <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo attr(xlt('Click me to Open Patient Dashboard')) ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                            <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                             <?php
                                                         } else { ?>
                                                             <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
