@@ -92,6 +92,7 @@ exports.ccd2 = function (html_renderer) {
                         sectionLevel2.assessmentSection('', ''),
                         sectionLevel2.planOfCareSection(html_renderer.planOfCareSectionHtmlHeader, html_renderer.planOfCareSectionHtmlHeaderNA),
                         sectionLevel2.goalSection(html_renderer.goalSectionHtmlHeader, html_renderer.goalSectionHtmlHeaderNA),
+                        sectionLevel2.healthConcernSection('', ''),
                         sectionLevel2.reasonForReferralSection('', ''),
                         sectionLevel2.mentalStatusSection('', ''),
                         sectionLevel2.socialHistorySection(html_renderer.socialHistorySectionHtmlHeader, html_renderer.socialHistorySectionHtmlHeaderNA),

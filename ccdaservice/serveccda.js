@@ -1084,6 +1084,13 @@ function getAssessments(pd) {
     };
 }
 
+function getHealthConcerns(pd) {
+    return {
+        "type": "act",
+        "text": pd.text
+    };
+}
+
 function getReferralReason(pd) {
     return {
         "reason": pd.text
@@ -2003,7 +2010,10 @@ function genCcda(pd) {
     } else if (pd.referral_reason[1].text !== "") {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
     }
-
+// Health Concerns
+    if (pd.health_concerns.text !== "") {
+        data.health_concern = Object.assign(getHealthConcerns(pd.health_concerns, pd));
+    }
 // Immunizations
     many = [];
     theone = {};

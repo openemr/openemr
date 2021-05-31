@@ -2284,10 +2284,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $status_entry = 'active';
         $planofcare = '<planofcare>';
         $goals = '<goals>';
+        $concern = '';
         foreach ($res as $row) {
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
+            if ($row['care_plan_type'] == 'health_concern') {
+                $concern .= $row['date'] . " " . $row['description'] . "\r\n";
+                continue;
+            }
             if ($row['care_plan_type'] == 'goal') {
                 $goals .= '<item>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
@@ -2319,7 +2324,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $planofcare .= '</planofcare>';
         $goals .= '</goals>';
-        return $planofcare . $goals;
+        $concerns = "<health_concerns><text>" . xmlEscape($concern) . "</text></health_concerns>";
+        return $planofcare . $goals . $concerns;
     }
 
     /*

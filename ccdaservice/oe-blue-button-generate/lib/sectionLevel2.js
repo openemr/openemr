@@ -613,3 +613,31 @@ exports.reasonForReferralSection = function (htmlHeader, na) {
         }]
     }
 };
+
+exports.healthConcernSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
+                fieldLevel.templateCode("HealthConcernSection"),
+                fieldLevel.templateTitle("HealthConcernSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("health_concern")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "health_concern.text"
+                }, {
+                    key: "entry",
+                    content: [
+                        entryLevel.healthConcernActivityAct // located in planofcare entry.
+                    ],
+                    dataKey: "health_concern"
+                }
+            ]
+        }]
+    }
+};
