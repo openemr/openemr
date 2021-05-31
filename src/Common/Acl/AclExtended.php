@@ -19,6 +19,7 @@
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Gacl\GaclApi;
+use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
 
 class AclExtended
@@ -236,9 +237,10 @@ class AclExtended
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
         require_once(dirname(__FILE__) . '/../../../library/user.inc');
-        require_once(dirname(__FILE__) . '/../../../library/calendar.inc');
-        $userNametoID = getIDfromUser($user_name);
-        if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
+
+        $userNameToID = (new UserService())->getIdByUsername($user_name);
+
+        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
             $gacl_protect = true;
         } else {
             $gacl_protect = false;
