@@ -198,8 +198,8 @@ class UserService
     public function getIdByUsername($username)
     {
         $id = sqlQuery("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$username]);
-        if (!empty($id)) {
-            return $id;
+        if (!empty($id['id'])) {
+            return $id['id'];
         } else {
             return false;
         }
