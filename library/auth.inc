@@ -66,12 +66,7 @@ if (
     authLoginScreen(true);
 } else {
     // Check if session is valid (already logged in user)
-    if (AuthUtils::authCheckSession()) {
-        // Session is valid
-        if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG'])) {
-            require_once("{$GLOBALS['srcdir']}/patient.inc");
-        }
-    } else {
+    if (!AuthUtils::authCheckSession()) {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
         EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "authCheckSession() check failed, so force logout");
         authCloseSession();
@@ -84,11 +79,9 @@ if (
 //  can be used by scripts that continually request information from the server; for example the Messages
 //  and Reminders automated intermittent requests.
 // Also skipping this all on login since entry in session_tracker is not ready yet
-if (empty($skipSessionExpirationCheck)) {
+if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])) {
     if (!SessionTracker::isSessionExpired()) {
-        if (empty($_REQUEST['skip_timeout_reset']) && empty($GLOBALS['DAEMON_FLAG'])) {
-            SessionTracker::updateSessionExpiration();
-        }
+        SessionTracker::updateSessionExpiration();
     } else {
         // User has timed out.
         EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
