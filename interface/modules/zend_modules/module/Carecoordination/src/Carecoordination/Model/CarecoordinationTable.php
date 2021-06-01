@@ -1061,7 +1061,7 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param   $document_id        Integer     Document ID
      * @return  $content        String      File content
      */
-    public function getDocument($document_id)
+    public static function getDocument($document_id)
     {
         $content = \Documents\Plugin\Documents::getDocument($document_id);
         return $content;
@@ -2089,17 +2089,19 @@ class CarecoordinationTable extends AbstractTableGateway
         $lab_results = array();
         $j = 0;
         foreach ($lab_array as $key => $value) {
-            $j = count($lab_results[$value['extension']]['result']) + 1;
-            $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
-            $lab_results[$value['extension']]['date'] = $value['date'];
-            $lab_results[$value['extension']]['proc_code'] = $value['proc_code'];
-            $lab_results[$value['extension']]['extension'] = $value['extension'];
-            $lab_results[$value['extension']]['status'] = $value['status'];
-            $lab_results[$value['extension']]['result'][$j]['result_date'] = $value['results_date'];
-            $lab_results[$value['extension']]['result'][$j]['result_text'] = $value['results_text'];
-            $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
-            $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
-            $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
+            if (is_countable($lab_results[$value['extension']]['result'])) {
+                $j = count($lab_results[$value['extension']]['result']) + 1;
+                $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
+                $lab_results[$value['extension']]['date'] = $value['date'];
+                $lab_results[$value['extension']]['proc_code'] = $value['proc_code'];
+                $lab_results[$value['extension']]['extension'] = $value['extension'];
+                $lab_results[$value['extension']]['status'] = $value['status'];
+                $lab_results[$value['extension']]['result'][$j]['result_date'] = $value['results_date'];
+                $lab_results[$value['extension']]['result'][$j]['result_text'] = $value['results_text'];
+                $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
+                $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
+                $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
+            }
         }
 
         return $lab_results;
@@ -2923,7 +2925,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $encounter_for_forms,
                 $vitals_id,
                 $pid,
-                $_SESSION[authUser]));
+                $_SESSION['authUser']));
         }
     }
 
