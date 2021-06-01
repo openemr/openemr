@@ -38,7 +38,7 @@ exit;
 if (php_sapi_name() !== 'cli' || count($argv) != 5) {
     echo "Only php cli can execute a command\n";
     echo "use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>\n";
-    echo "example use: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr falsse\n";
+    echo "example use: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr false\n";
     echo "example use: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr true\n";
     die;
 }
@@ -49,31 +49,35 @@ function outputMessage($message)
     file_put_contents("log.txt", $message, FILE_APPEND);
 }
 
+// collect parameters (need to do before globals)
 $dir = $argv[1] . '/*';
-outputMessage("ccda directory: " . $dir . "\n");
 $_GET['site'] = $argv[2];
-outputMessage("site: " . $_GET['site'] . "\n");
 $openemrPath = $argv[3];
-outputMessage("openemr path: " . $openemrPath . "\n");
 $seriousOptimizeFlag = $argv[4];
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;
-    outputMessage("development mode is on\n");
 } else {
     $seriousOptimize = false;
-    outputMessage("development mode is off\n");
 }
 
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
 require_once($openemrPath . "/library/uuid.php");
 
+// show parameters (need to do after globals)
+outputMessage("ccda directory: " . $argv[1] . "\n");
+outputMessage("site: " . $_SESSION['site'] . "\n");
+outputMessage("openemr path: " . $openemrPath . "\n");
+
 if ($seriousOptimize) {
+    outputMessage("development mode is on\n");
     // temporarily remove audit_master_id index from audit_details
     sqlStatementNoLog("DROP INDEX `audit_master_id` ON `audit_details`");
     // temporarily disable the audit log
     $auditLogSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'enable_auditlog'");
+} else {
+    outputMessage("development mode is off\n");
 }
 
 outputMessage("Starting patients import\n");
