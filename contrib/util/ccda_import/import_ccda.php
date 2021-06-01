@@ -35,7 +35,7 @@
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-//exit;
+exit;
 
 if (php_sapi_name() !== 'cli' || count($argv) != 5) {
     echo "Only php cli can execute a command\n";
