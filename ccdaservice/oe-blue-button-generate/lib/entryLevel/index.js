@@ -6,6 +6,7 @@ var socialHistoryEntryLevel = require('./socialHistoryEntryLevel');
 var payerEntryLevel = require('./payerEntryLevel');
 var vitalSignEntryLevel = require('./vitalSignEntryLevel');
 var planOfCareEntryLevel = require('./planOfCareEntryLevel');
+var goalEntryLevel = require('./goalEntryLevel');
 var procedureEntryLevel = require("./procedureEntryLevel");
 var problemEntryLevel = require("./problemEntryLevel");
 var encounterEntryLevel = require("./encounterEntryLevel");
@@ -34,6 +35,8 @@ exports.planOfCareActivityEncounter = planOfCareEntryLevel.planOfCareActivityEnc
 exports.planOfCareActivitySubstanceAdministration = planOfCareEntryLevel.planOfCareActivitySubstanceAdministration;
 exports.planOfCareActivitySupply = planOfCareEntryLevel.planOfCareActivitySupply;
 exports.planOfCareActivityInstructions = planOfCareEntryLevel.planOfCareActivityInstructions;
+
+exports.goalActivityObservation = goalEntryLevel.goalActivityObservation;
 
 exports.coverageActivity = payerEntryLevel.coverageActivity;
 

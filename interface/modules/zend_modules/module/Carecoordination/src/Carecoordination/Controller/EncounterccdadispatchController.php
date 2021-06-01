@@ -326,6 +326,9 @@ class EncounterccdadispatchController extends AbstractActionController
             $this->data .= $this->getContinuityCareDocument($pid, $encounter, $components_list);
         }
 
+        // we're sending everything anyway. document type will tell engine what to include in cda.
+        $this->data .= $this->getEncounterccdadispatchTable()->getClinicalNotes($pid, $encounter);
+
         if (in_array('progress_note', $sections_list)) {
             $this->data .= $this->getEncounterccdadispatchTable()->getProgressNotes($pid, $encounter);
         }

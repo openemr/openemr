@@ -77,6 +77,25 @@ return array(
                     ),
                 ),
 
+                'ccda-import' => array(
+                    'options' => array(
+                        'route'    => 'ccda-import --site= --document_id=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'import-command',
+                        ),
+                    ),
+                ),
+
+                'ccda-newpatient' => array(
+                    'options' => array(
+                        'route'    => 'ccda-newpatient --site= --am_id= --document_id=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'newpatient-command',
+                        ),
+                    ),
+                ),
             )
         )
     ),
