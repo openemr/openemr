@@ -938,7 +938,7 @@ if (
         }
 
         $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
-        $user = (new UserService()->getUserByUsername($iter['user']));
+        $user = (new UserService())->getUserByUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
 
