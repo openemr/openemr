@@ -666,3 +666,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id Plan_of_Care_Type option_id goal
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
 #EndIf
+
+#IfNotIndex audit_details audit_master_id
+CREATE INDEX `audit_master_id` ON `audit_details` (`audit_master_id`);
+#EndIf
