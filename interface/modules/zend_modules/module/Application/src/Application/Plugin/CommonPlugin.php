@@ -95,7 +95,7 @@ class CommonPlugin extends AbstractPlugin
   * @param    var   Array   Details parsed from the CCR xml file
   * @return   audit_master_id   Integer   ID from audit_master table
   */
-    public function insert_ccr_into_audit_data($var)
+    public static function insert_ccr_into_audit_data($var)
     {
         $appTable = new ApplicationTable();
         $audit_master_id_to_delete = $var['audit_master_id_to_delete'];
