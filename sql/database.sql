@@ -151,7 +151,8 @@ CREATE TABLE `audit_details` (
   `field_value` TEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `audit_master_id` (`audit_master_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
