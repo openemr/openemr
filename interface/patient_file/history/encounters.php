@@ -770,24 +770,24 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                         }
                         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
                         if ($subresult5 && $subresult5["provider_name"]) {
-                            $style = $responsible == 1 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 1 ? " style='color: var(--bs-danger)'" : "";
                             $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
                             text($subresult5["provider_name"]) . "</span><br />\n";
                         }
                         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
                         if ($subresult6 && $subresult6["provider_name"]) {
-                            $style = $responsible == 2 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 2 ? " style='color: var(--bs-danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
                             text($subresult6["provider_name"]) . "</span><br />\n";
                         }
                         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
                         if ($subresult6 && $subresult7["provider_name"]) {
-                            $style = $responsible == 3 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 3 ? " style='color: var(--bs-danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
                             text($subresult7["provider_name"]) . "</span><br />\n";
                         }
                         if ($responsible == 0) {
-                            $insured .= "<span class='text' style='color: var(--danger)'>&nbsp;" . xlt('Patient') .
+                            $insured .= "<span class='text' style='color: var(--bs-danger)'>&nbsp;" . xlt('Patient') .
                                         "</span><br />\n";
                         }
                     } else {

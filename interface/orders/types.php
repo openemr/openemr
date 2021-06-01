@@ -88,14 +88,14 @@ if ($popup && $_POST['form_save']) {
         }
         tr.head {
             font-size: 14px;
-            background-color: var(--light);
+            background-color: var(--bs-light);
             font-weight: bold;
         }
         tr.evenrow {
-            background-color: var(--light);
+            background-color: var(--bs-light);
         }
         tr.oddrow {
-            background-color: var(--white);
+            background-color: var(--bs-white);
         }
         tr.outertr {
             padding: 0px 0px 0px 10px;

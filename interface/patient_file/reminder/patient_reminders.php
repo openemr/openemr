@@ -32,7 +32,7 @@ use OpenEMR\OeUI\OemrUI;
 
     <style>
         a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
 

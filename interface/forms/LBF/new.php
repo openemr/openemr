@@ -369,7 +369,7 @@ if (
     <style>
 
         div.section {
-            border: 1px solid var(--primary);
+            border: 1px solid var(--bs-primary);
             margin: 0 0 0 0.8125rem;
             padding: 0.4375rem;
         }
@@ -377,11 +377,11 @@ if (
         .RS {
             border-style: solid;
             border-width: 0 0 1px 0;
-            border-color: var(--gray600);
+            border-color: var(--bs-gray600);
         }
 
         .RO {
-            border-width: 1px solid var(--gray600) !important;
+            border-width: 1px solid var(--bs-gray600) !important;
         }
 
         .linkcolor {
@@ -856,7 +856,7 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
+    echo " style='background-color:var(--bs-white)'";
                       } ?>>
     <div class="container-fluid">
         <?php

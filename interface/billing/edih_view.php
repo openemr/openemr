@@ -75,7 +75,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 </li>
             </ul>
 
-            <div class="tab-content jumbotron py-4" id="nav-tabContent">
+            <div class="tab-content mb-4 bg-light rounded-3 px-5 py-4" id="nav-tabContent">
                 <!-- New Files Section -->
                 <div class="tab-pane fade show active" id="nav-newfiles" role="tabpanel" aria-labelledby="nav-newfiles-tab">
                     <div class="container">

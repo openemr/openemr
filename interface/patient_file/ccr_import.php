@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 <body>
     <div class="container mt-3">
         <h2><?php echo xlt("Steps for uploading CCR XML");?></h2>
-        <div class="jumbotron py-4">
+        <div class="mb-4 bg-light rounded-3 px-5 py-4">
             <ol class="list-group">
                 <li class="list-group-item">1. <?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents') . '.'; ?></li>
                 <li class="list-group-item">2. <?php echo xlt('Upload the xml file under the category CCR') . '.'; ?></li>

@@ -632,7 +632,7 @@ function getAuthPortalUsers()
                                                     <button ng-show="selected.id == item.id && selected.sender_id != cUserId" class="btn btn-primary btn-sm" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i>
                                                     </button>
                                                 </span>
-                                                <div class='col jumbotron jumbotron-fluid my-2 p-1 bg-secondary rounded border border-info' ng-show="selected.id == item.id">
+                                                <div class='col bg-light my-2 p-1 bg-secondary rounded border border-info' ng-show="selected.id == item.id">
                                                     <span ng-bind-html=renderMessageBody(selected.body)></span>
                                                 </div>
                                             </td>
@@ -667,7 +667,7 @@ function getAuthPortalUsers()
                             <div class="modal-body ">
                                 <div class="col-12">
                                     <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # '; ?>{{selected.id}}</label>
-                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-secondary" id="referMsg" ng-show='selected.mail_chain'  ng-bind-html='renderMessageBody(selected.body)'></div>
+                                    <div class="col-lg-12 m-1 p-1 bg-secondary rounded-3" id="referMsg" ng-show='selected.mail_chain'  ng-bind-html='renderMessageBody(selected.body)'></div>
 
                                     <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                         <fieldset class="row">

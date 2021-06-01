@@ -1130,8 +1130,8 @@ function set_category() {
 // radio buttons are clicked.
 function set_allday() {
     var f = document.forms[0];
-    var color1 = 'var(--gray)';
-    var color2 = 'var(--gray)';
+    var color1 = 'var(--bs-gray)';
+    var color2 = 'var(--bs-gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
         color1 = '';
@@ -1157,7 +1157,7 @@ function set_allday() {
 function set_repeat() {
     var f = document.forms[0];
     var isdisabled = true;
-    var mycolor = 'var(--gray)';
+    var mycolor = 'var(--bs-gray)';
     var myvisibility = 'hidden';
     if (f.form_repeat.checked) {
         f.days_every_week.checked = false;
@@ -1169,7 +1169,7 @@ function set_repeat() {
             labels[i].style.color = mycolor;
         }
         isdisabled = false;
-        mycolor = 'var(--black)';
+        mycolor = 'var(--bs-black)';
         myvisibility = 'visible';
     }
     f.form_repeat_type.disabled = isdisabled;
@@ -1187,18 +1187,18 @@ function set_days_every_week() {
         f.form_repeat.checked = false;
         f.form_repeat_type.disabled = true;
         f.form_repeat_freq.disabled = true;
-        document.getElementById('tdrepeat1').style.color = 'var(--gray)';
+        document.getElementById('tdrepeat1').style.color = 'var(--bs-gray)';
 
         //enable end_date setting
-        document.getElementById('tdrepeat2').style.color = 'var(--black)';
+        document.getElementById('tdrepeat2').style.color = 'var(--bs-black)';
         f.form_enddate.disabled = false;
 
         var isdisabled = false;
-        var mycolor = 'var(--black)';
+        var mycolor = 'var(--bs-black)';
         var myvisibility = 'visible';
     } else {
         var isdisabled = true;
-        var mycolor = 'var(--gray)';
+        var mycolor = 'var(--bs-gray)';
         var myvisibility = 'hidden';
     }
     document.getElementById("days_label").style.color = mycolor;
@@ -1439,7 +1439,7 @@ $classpati = '';
 </div>
 <?php
 if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
-    <div class="jumbotron jumbotron-fluid px-2 py-2 my-2" id="patient_details">
+    <div class="mb-4 bg-light px-2 py-2 my-2" id="patient_details">
         <div class="form-group">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
             <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
@@ -1619,7 +1619,7 @@ function isRegularRepeat($repeat)
     repeating mechanism is being used, and load settings accordingly.
     */
 ?>
-<div class="jumbotron jumbotron-fluid px-3 py-4 my-2">
+<div class="mb-4 bg-light px-3 py-4 my-2">
     <div class="form-row mb-sm-2">
         <div class='col-sm-2 form-check form-check-inline'>
             <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />

@@ -69,13 +69,13 @@ $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1
 if (!empty($_REQUEST['s']) && ($_REQUEST['s'] == '1')) {
     $inbox = "";
     $outbox = "current";
-    $inbox_style = "style='display:none;border:5px solid var(--white);'";
-    $outbox_style = "style='border:5px solid var(--white);'";
+    $inbox_style = "style='display:none;border:5px solid var(--bs-white);'";
+    $outbox_style = "style='border:5px solid var(--bs-white);'";
 } else {
     $inbox = "current";
     $outbox = "";
-    $inbox_style = "style='border:5px solid var(--white);'";
-    $outbox_style = "style='display:none;border:5px solid var(--white);'";
+    $inbox_style = "style='border:5px solid var(--bs-white);'";
+    $outbox_style = "style='display:none;border:5px solid var(--bs-white);'";
 }
 
 if (!isset($offset)) {

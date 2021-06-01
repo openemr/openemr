@@ -392,9 +392,9 @@ $msgApp = new ChatController();
         position: relative;
         padding: 5px 10px;
         background: #FBFBFB;
-        border: 1px solid var(--gray);
+        border: 1px solid var(--bs-gray);
         margin: 5px 0 0 50px;
-        color: var(--dark);
+        color: var(--bs-dark);
     }
 
     .direct-chat-msg,
@@ -464,8 +464,8 @@ $msgApp = new ChatController();
 
     .direct-chat-warning .right > .direct-chat-text {
         background: rgba(251, 255, 178, 0.34);
-        border-color: var(--danger);
-        color: var(--black);
+        border-color: var(--bs-danger);
+        color: var(--bs-black);
     }
 
     .right .direct-chat-text {
@@ -495,9 +495,9 @@ $msgApp = new ChatController();
         border-top-right-radius: 0;
         border-bottom-right-radius: 3px;
         border-bottom-left-radius: 3px;
-        border-top: 1px solid var(--light);
+        border-top: 1px solid var(--bs-light);
         padding: 10px 0;
-        background-color: var(--white);
+        background-color: var(--bs-white);
     }
 
     .direct-chat-name {
@@ -558,7 +558,7 @@ $msgApp = new ChatController();
     legend {
         font-size: 14px;
         margin-bottom: 2px;
-        background: var(--white);
+        background: var(--bs-white);
     }
 
     .modal.modal-wide .modal-dialog {

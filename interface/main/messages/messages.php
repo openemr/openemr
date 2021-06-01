@@ -96,7 +96,7 @@ if (
             }
 
             .icon-bar {
-                background-color: var(--danger);
+                background-color: var(--bs-danger);
             }
         }
     </style>
@@ -141,9 +141,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
 
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -199,7 +199,7 @@ if (!empty($_REQUEST['go'])) { ?>
         </div>
         <div class="row" id="messages-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="mb-4 bg-light py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <?php
                         // Check to see if the user has Admin rights, and if so, allow access to See All.
@@ -369,7 +369,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             ?>
                             <div class='col-md-12'>
-                                <div class="jumbotron jumbotron-fluid py-3">
+                                <div class="mb-4 bg-light py-3">
                                     <h4><?php echo text($message_legend); ?></h4>
                                     <div class="row">
                                         <div class="col-12 oe-custom-line">
@@ -709,23 +709,23 @@ if (!empty($_REQUEST['go'])) { ?>
                                     if (document.getElementById("checkAll").checked === true) {
                                         document.getElementById("checkAll").checked = true;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--gray200)';  ";
+                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--bs-gray200)';  ";
                                         } ?>
                                     } else {
                                         document.getElementById("checkAll").checked = false;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--light)';  ";
+                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--bs-light)';  ";
                                         } ?>
                                     }
                                 }
 
                                 // The two functions below are for managing row styles in Messages table.
                                 function selectRow(row) {
-                                    document.getElementById(row).style.background = "var(--gray200)";
+                                    document.getElementById(row).style.background = "var(--bs-gray200)";
                                 }
 
                                 function deselectRow(row) {
-                                    document.getElementById(row).style.background = "var(--light)";
+                                    document.getElementById(row).style.background = "var(--bs-light)";
                                 }
                             </script>
                             <?php
@@ -737,7 +737,7 @@ if (!empty($_REQUEST['go'])) { ?>
         </div><!--end of messages div-->
         <div class="row oe-display" id="reminders-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="mb-4 bg-light py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <div class="oe-margin-b-10">
                             <span class="title"><?php echo xlt('Reminders'); ?></span>
@@ -754,7 +754,7 @@ if (!empty($_REQUEST['go'])) { ?>
         </div><!--end of reminders div-->
         <div class="row oe-display" id="recalls-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="mb-4 bg-light py-3">
                     <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
                     <div class="col-sm-6 col-md-6 col-lg-6">
                         <div class="dr_container">
@@ -771,7 +771,7 @@ if (!empty($_REQUEST['go'])) { ?>
         </div><!--end of recalls div-->
         <div class="row oe-display" id="sms-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="mb-4 bg-light py-3">
                     <?php if ($logged_in) { ?>
                     <div class="col-sm-4 col-md-4 col-lg-4">
                         <span class="title"><?php echo xlt('SMS Zone'); ?></span>

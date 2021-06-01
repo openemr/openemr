@@ -83,7 +83,7 @@ $fres = getLayoutRes();
   div.section {
    border: solid;
    border-width: 1px;
-   border-color: var(--primary);
+   border-color: var(--bs-primary);
    margin: 0 0 0 13px;
    padding: 7px;
   }

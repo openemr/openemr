@@ -426,7 +426,7 @@ if ($GLOBALS['language_menu_login']) {
         <form id="startForm" role="form" action="" method="post" onsubmit="">
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
-                <div class="jumbotron">
+                <div class="mb-4 bg-light rounded-3 p-5">
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
                             <div class="form-group">
@@ -488,7 +488,7 @@ if ($GLOBALS['language_menu_login']) {
         <form id="profileForm" role="form" action="account.php" method="post">
             <div class="text-center setup-content" id="step-2" style="display: none">
                 <legend class="bg-primary text-white"><?php echo xlt('Profile') ?></legend>
-                <div class="jumbotron">
+                <div class="mb-4 bg-light rounded-3 p-5">
                     <iframe class="embedded-content" src="../patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
                 </div>
                 <button class="btn btn-primary prevBtn pull-left" type="button"><?php echo xlt('Previous') ?></button>
@@ -499,7 +499,7 @@ if ($GLOBALS['language_menu_login']) {
         <form id="insuranceForm" role="form" action="" method="post">
             <div class="text-center setup-content" id="step-3" style="display: none">
                 <legend class='bg-primary text-white'><?php echo xlt('Insurance') ?></legend>
-                <div class="jumbotron">
+                <div class="mb-4 bg-light rounded-3 p-5">
                     <div class="form-row">
                         <div class="col form-group">
                             <label for="provider"><?php echo xlt('Insurance Company') ?></label>
@@ -548,7 +548,7 @@ if ($GLOBALS['language_menu_login']) {
         <!-- End Insurance. Next what we've been striving towards..the end-->
         <div class="text-center setup-content" id="step-4" style="display: none">
             <legend class='bg-success text-white'><?php echo xlt('Register') ?></legend>
-            <div class="jumbotron">
+            <div class="mb-4 bg-light rounded-3 p-5">
                 <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration.") ?></h4>
                 <hr />
                 <p>

@@ -79,7 +79,7 @@ function activate_lang_tab($linkid)
         </div><!--end of nav-pills div-->
         <div class="row">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="mb-4 bg-light py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <?php
                         if (!empty($_GET['m'])) {

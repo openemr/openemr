@@ -2,9 +2,10 @@
  * the style sheet for the ajax_template calendar
  * ====================================*/
 
-
+// Default variables for this file
 $side-calendar-date-padding: 0.3rem !default;
 
+// If compact theme is turned off, do not compile the below code
 @if $compact-theme == false {
   div.tiny {
     @include font-size("0.0625rem");
@@ -299,17 +300,15 @@ $side-calendar-date-padding: 0.3rem !default;
     margin-right: 0.25rem;
     opacity: 0.5;
     padding: 0;
-    text-shadow: $close-text-shadow;
+    text-shadow: 0 1px 0 $white;
 
-    @include hover() {
+    &:hover {
       color: $white;
       text-decoration: none;
     }
 
-    &:not(:disabled):not(.disabled) {
-      @include hover-focus() {
-        opacity: 0.75;
-      }
+    &:focus {
+      opacity: 0.75;
     }
   }
 
@@ -562,7 +561,7 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     #bottomLeft {
-      background-color: var(--white);
+      background-color: var(--bs-white);
       height: 100%;
       top: 4.78rem;
       width: 100%;

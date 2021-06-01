@@ -320,7 +320,7 @@ if (!empty($_POST['form_submit'])) {
 <p><input type='submit' class="btn btn-primary" name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
 </div>
 </form>
-<div class="jumbotron">
+<div class="mb-4 bg-light rounded-3 p-5">
     <p class="font-weight-bold"><?php echo xlt('This utility is experimental. Back up your database and documents before using it!'); ?></p>
 
 <?php if (!$PRODUCTION) { ?>

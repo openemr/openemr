@@ -818,7 +818,7 @@ function doWait(e){
 
     .proc-table .itemDelete {
         width: 25px;
-        color: var(--danger);
+        color: var(--bs-danger);
         cursor: pointer;
     }
 
@@ -1246,7 +1246,7 @@ $title = array(xl('Order for'), $name, $date);
                         </div>
                         <div class="col-md-12">
                             <legend class="bg-dark text-light"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height:500px;">
+                            <div class="mb-4 bg-light rounded-3 m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height:500px;">
                                 <?php
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;

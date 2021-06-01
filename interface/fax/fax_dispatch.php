@@ -606,7 +606,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <span class="font-weight-bold"><?php echo xlt('Copy Pages to Patient Chart'); ?></span></p>
 
 <!-- Copy Pages to Patient Chart Section -->
-<div id='div_copy' class='jumbotron' style='display:none;'>
+<div id='div_copy' class='mb-4 bg-light rounded-3 p-5' style='display:none;'>
     <!-- Patient Section -->
     <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Patient'); ?></label>
@@ -747,7 +747,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <span class="font-weight-bold"><?php echo xlt('Forward Pages via Fax'); ?></span></p>
 
 <!-- Forward Pages via Fax Section -->
-<div id='div_forward' class='jumbotron' style='display:none;'>
+<div id='div_forward' class='mb-4 bg-light rounded-3 p-5' style='display:none;'>
     <!-- From Section -->
     <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('From'); ?></label>

@@ -64,7 +64,7 @@
 }
 
 fieldset {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 legend {
@@ -74,7 +74,7 @@ legend {
 
 fieldset.forms-border {
   border: 2px groove #9bcdff !important;
-  box-shadow: 0 0 0 0 var(--black);
+  box-shadow: 0 0 0 0 var(--bs-black);
   margin: 0 0 1.5em !important;
   padding: 0 1.4em 1.4em !important;
 }
@@ -90,19 +90,19 @@ legend.forms-border {
 input[type=checkbox]:checked + label {
   background-color: #fdfdfd;
   border-color: #ff0080;
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 .btn-secondary.active {
   background-color: #fdfdfd;
   border-color: #ff0080;
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 .btn-secondary.checked {
   background-color: #fdfdfd;
   border-color: #ff0080;
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 .form-inline .form-groups {
@@ -147,7 +147,7 @@ body {
 }
 
 img {
-  color: var(--danger) !important;
+  color: var(--bs-danger) !important;
   -webkit-user-drag: none;
   user-select: none;
 }
@@ -165,7 +165,7 @@ table.collection thead {
 }
 
 table.collection tbody {
-  background: var(--white);
+  background: var(--bs-white);
 }
 
 table.collection tr:hover {
@@ -218,9 +218,9 @@ table.collection th:hover {
 #loader {
   animation: spin 2s linear infinite;
   border: 16px solid #f3f3f3;
-  border-bottom: 16px solid var(--primary);
+  border-bottom: 16px solid var(--bs-primary);
   border-radius: 50%;
-  border-top: 16px solid var(--primary);
+  border-top: 16px solid var(--bs-primary);
   height: 150px;
   height: 120px;
   left: 50%;
@@ -244,7 +244,7 @@ table.collection th:hover {
 
 /* form controls */
 span.help-inline {
-  color: var(--danger);
+  color: var(--bs-danger);
   cursor: pointer;
   font-size: 1.1em;
   font-style: italic;

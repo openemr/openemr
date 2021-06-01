@@ -333,7 +333,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 }?>" style="display:inline">
 
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="mb-4 bg-light rounded-3 px-5 py-4">
                         <?php
                             require_once("payment_master.inc.php"); //Check/cash details are entered here.
                         ?>

@@ -342,7 +342,7 @@ input[type="text"].refraction {
 /*Drop downs stuff */
 
 .dropdowns {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
   position: relative;
 }
 
@@ -485,7 +485,7 @@ body {
 }
 
 #form_container {
-  border: 0 solid var(--danger);
+  border: 0 solid var(--bs-danger);
   margin: 20px auto 0;
   padding: 0;
   position: relative;
@@ -493,7 +493,7 @@ body {
 
 /* Refraction Panel Defaults */
 #Layer1 {
-  border: 0 solid var(--danger);
+  border: 0 solid var(--bs-danger);
   margin: 20px auto 0;
   padding: 0;
   position: relative;
@@ -651,11 +651,11 @@ textarea.ANTSEGTEXT {
 }
 
 .button_over {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
 }
 
 .buttonRefraction_selected {
-  background-color: var(--warning) !important;
+  background-color: var(--bs-warning) !important;
   border: #000;
 }
 
@@ -804,7 +804,7 @@ textarea.ANTSEGTEXT {
 }
 
 .divTable {
-  border: 0 solid var(--danger);
+  border: 0 solid var(--bs-danger);
   border-spacing: 0;
   cursor: pointer;
   float: left;
@@ -873,7 +873,7 @@ textarea.ANTSEGTEXT {
 
 .kb_left {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: left;
   font-size: 0.7em;
   left: 0;
@@ -885,7 +885,7 @@ textarea.ANTSEGTEXT {
 
 .kb_right {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: right;
   font-size: 0.7em;
   position: relative;
@@ -895,14 +895,14 @@ textarea.ANTSEGTEXT {
 }
 
 .kb_center {
-  color: var(--danger);
+  color: var(--bs-danger);
   font-size: 0.7em;
   position: relative;
   vertical-align: top;
 }
 
 .yellow {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
 }
 
 textarea.EXTTEXT {
@@ -1316,7 +1316,7 @@ input {
 }
 
 .navbar-brand {
-  color: var(--danger);
+  color: var(--bs-danger);
   height: 24px;
   margin: 10px 0 2px;
   padding: 10px 5px 0 10px;
@@ -1358,7 +1358,7 @@ a:focus {
 }
 
 .sketch_tools:active {
-  color: var(--danger);
+  color: var(--bs-danger);
   height: 100px;
 }
 
@@ -1494,11 +1494,11 @@ a:focus {
 }
 
 .ui-draggable-dragging {
-  box-shadow: 5px 5px 9px var(--danger);
+  box-shadow: 5px 5px 9px var(--bs-danger);
 }
 
 .build_PLAN li:hover {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .building_blocks {
@@ -1564,11 +1564,11 @@ li .handle {
 }
 
 .ui-selecting {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .build_PLAN .ui-selecting .handle {
-  background: var(--danger);
+  background: var(--bs-danger);
 }
 
 .ui-selected {

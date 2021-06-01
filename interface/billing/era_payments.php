@@ -153,20 +153,20 @@ if (!empty($_FILES['form_erafile']['size'])) {
         position: absolute;
         z-index: 10;
         background-color: #FBFDD0;
-        border: 1px solid var(--gray);
+        border: 1px solid var(--bs-gray);
         padding: 10px;
     }
     .bottom {
-        border-bottom:1px solid var(--black);
+        border-bottom:1px solid var(--bs-black);
     }
     .top {
-        border-top:1px solid var(--black);
+        border-top:1px solid var(--bs-black);
     }
     .left {
-        border-left:1px solid var(--black);
+        border-left:1px solid var(--bs-black);
     }
     .right {
-        border-right:1px solid var(--black);
+        border-right:1px solid var(--bs-black);
     }
     @media only screen and (max-width: 768px) {
         [class*="col-"] {
@@ -247,7 +247,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="mb-4 bg-light rounded-3 px-5 py-4">
                             <div class="row h3">
                                 <?php echo xlt('ERA Posting'); ?>
                             </div>

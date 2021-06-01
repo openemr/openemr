@@ -65,7 +65,7 @@ form {
 #searchResults {
     width: 100%;
     border-collapse: collapse;
-    background-color: var(--white);
+    background-color: var(--bs-white);
     overflow: auto;
 }
 
@@ -75,10 +75,10 @@ form {
 }
 #searchResults td {
     /*font-size: 0.7em;*/
-    border-bottom: 1px solid var(--light);
+    border-bottom: 1px solid var(--bs-light);
 }
 .billing {
-    color: var(--danger);
+    color: var(--bs-danger);
     font-weight: bold;
 }
 
@@ -86,7 +86,7 @@ form {
 #searchstatus {
     font-weight: bold;
     font-style: italic;
-    color: var(--black);
+    color: var(--bs-black);
     text-align: center;
 }
 #searchspinner {
@@ -97,7 +97,7 @@ form {
 /* highlight for the mouse-over */
 .highlight {
     background-color: #336699;
-    color: var(--white);
+    color: var(--bs-white);
 }
 </style>
 

@@ -221,7 +221,7 @@ function mapToTable($row)
 
 <style>
 a, a:visited, a:hover {
-  color: var(--primary);
+  color: var(--bs-primary);
 }
 #mymaintable thead .sorting::before,
 #mymaintable thead .sorting_asc::before,

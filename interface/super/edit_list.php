@@ -863,11 +863,11 @@ function writeITLine($it_array)
         }
 
         .translation {
-            color: var(--success);
+            color: var(--bs-success);
         }
         #theform input[type=text],
         .optin {
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
     <script>

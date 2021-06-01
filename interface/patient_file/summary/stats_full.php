@@ -318,7 +318,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 ++$encount;
                                 $bgclass = (($encount & 1) ? "bg1" : "bg2");
 
-                                $colorstyle = empty($row['enddate']) ? "style='color: var(--danger)'" : "";
+                                $colorstyle = empty($row['enddate']) ? "style='color: var(--bs-danger)'" : "";
 
                                 // look up the diag codes
                                 $codetext = "";
