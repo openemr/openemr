@@ -7,7 +7,9 @@
  *   1. Turn on Carecoordination modules in OpenEMR.
  *   2. Place ccdas in a directory.
  *   3. Uncomment exit at top of this script.
- *   4. Consider turning off the audit log in OpenEMR to improve performance (if audit log not needed).
+ *   4. Consider turning off the audit log (turn off both the 'Enable Audit Logging' and
+ *      'Audit all Emergency User Queries' settings) in OpenEMR to improve performance (if audit log
+ *      not needed).
  *
  * Use:
  *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>
@@ -32,7 +34,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment this out when using this script (and then comment it again when done using script)
+// comment this out when using this script (and then uncomment it again when done using script)
 exit;
 
 if (php_sapi_name() !== 'cli' || count($argv) != 5) {
@@ -66,7 +68,7 @@ require_once($openemrPath . "/library/uuid.php");
 
 // show parameters (need to do after globals)
 outputMessage("ccda directory: " . $argv[1] . "\n");
-outputMessage("site: " . $_SESSION['site'] . "\n");
+outputMessage("site: " . $_SESSION['site_id'] . "\n");
 outputMessage("openemr path: " . $openemrPath . "\n");
 
 if ($seriousOptimize) {
@@ -76,6 +78,8 @@ if ($seriousOptimize) {
     // temporarily disable the audit log
     $auditLogSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'enable_auditlog'");
+    $auditLogBreakglassSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'")['gl_value'] ?? 0;
+    sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'gbl_force_log_breakglass'");
 } else {
     outputMessage("development mode is off\n");
 }
@@ -101,17 +105,17 @@ foreach (glob($dir) as $file) {
     //  3. import as new patient
     exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
     $counter++;
-    if (($counter % 50) == 0) {
-        // echo every 50 records imported
+    $incrementCounter = 50; // echo every 50 records imported
+    if (($counter % $incrementCounter) == 0) {
         if (isset($timeSec)) {
             $lasttimeSec = $timeSec;
         }
         $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-        outputMessage($counter . " patients imported (" . $timeSec . " total seconds)(" . round(($lasttimeSec ?? $timeSec) / $counter) . " average seconds per patient for last " . $counter . " patients)\n");
+        outputMessage($counter . " patients imported (" . $timeSec . " total seconds) (" . round(($lasttimeSec ?? $timeSec) / $counter) . " average seconds per patient for last " . $incrementCounter . " patients)\n");
     }
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-echo outputMessage("Completed patients import (" . $counter . ") (" . $timeSec . " seconds)(" . round(($timeSec) / $counter) . " average seconds per patient)\n");
+echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . round(($timeSec) / $counter) . " average seconds per patient)\n");
 //  4. run function to populate all the uuids via the universal service function that already exists
 echo outputMessage("Started uuid creation\n");
 autoPopulateAllMissingUuids();
@@ -123,4 +127,5 @@ if ($seriousOptimize) {
     sqlStatementNoLog("CREATE INDEX `audit_master_id` ON `audit_details` (`audit_master_id`)");
     // reset the audit log to the original value
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'enable_auditlog'", [$auditLogSetting]);
+    sqlStatementNoLog("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'gbl_force_log_breakglass'", [$auditLogBreakglassSetting]);
 }
