@@ -317,7 +317,7 @@ if (isset($_POST["mode"])) {
     position: absolute;
     z-index: 10;
     background-color: #FBFDD0;
-    border: 1px solid var(--gray);
+    border: 1px solid var(--bs-gray);
     padding: 10px;
 }
 
@@ -369,7 +369,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="col-sm-12">
                 <form id="new_payment" method='post' name='new_payment'>
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="mb-4 bg-light rounded-3 px-5 py-4">
                             <div class="row h3">
                                 <?php echo xlt('Payment List'); ?>
                             </div>

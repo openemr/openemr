@@ -87,7 +87,7 @@ if (!empty($_GET)) {
     </div><!--end of nav-pills div-->
     <div class="row" id="main-log-div">
         <div class="col-sm-12">
-            <div class="jumbotron jumbotron-fluid py-3">
+            <div class="mb-4 bg-light py-3">
                 <div class="col-sm-12 col-md-12 col-lg-12">
                     <?php
                     $err_message = 0;
@@ -132,7 +132,7 @@ if (!empty($_GET)) {
                     $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                     ?>
 
-                    <div class="jumbotron jumbotron-fluid px-3 py-3">
+                    <div class="mb-4 bg-light px-3 py-3">
                         <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
                         <form method="get" name="theform" id="theform">
                             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -453,7 +453,7 @@ if (!empty($_GET)) {
     </div>
     <div class="row oe-display" id="other-logs-div">
         <div class="col-sm-12">
-            <div class="jumbotron jumbotron-fluid py-3">
+            <div class="mb-4 bg-light py-3">
                 <div class="col-sm-12 col-md-12 col-lg-12">
                     <div class="col-lg">
                         <h3 class="text-center"><?php echo xlt('Other Logs'); ?></h3>

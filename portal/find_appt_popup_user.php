@@ -248,17 +248,17 @@ function setappt(year,mon,mday,hours,minutes) {
      #searchResults table {
          width: 100%;
          border-collapse: collapse;
-         background-color: var(--white);
+         background-color: var(--bs-white);
      }
 
      #searchResults td {
-         border-bottom: 1px solid var(--gray600);
+         border-bottom: 1px solid var(--bs-gray600);
          padding: 1px 5px;
      }
 
      .blue_highlight {
          background-color: #BBCCDD;
-         color: var(--white);
+         color: var(--bs-white);
      }
 
      #am a, #am a:hover {
@@ -267,7 +267,7 @@ function setappt(year,mon,mday,hours,minutes) {
      }
 
      #pm a, #pm a:hover {
-       color: var(--danger);
+       color: var(--bs-danger);
        padding: 4px;
        text-decoration: none;
      }

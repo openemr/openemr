@@ -150,7 +150,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
             <div class="row">
                 <div class="col-12">
                     <h3 class="mb-3 border-bottom">Optional Site ID Selection</h3>
-                    <div class="jumbotron p-5">
+                    <div class="mb-4 bg-light rounded-3 p-5">
                         <p>
                             Most OpenEMR installations support only one site.  If that is
                             true for you then ignore the rest of this text and just click Continue.
@@ -400,7 +400,7 @@ function cloneClicked() {
             if ($state == 7) {
                 ?>
             <h3 class="mb-3 border-bottom">Final step - Success</h3>
-            <div class="jumbotron p-5">
+            <div class="mb-4 bg-light rounded-3 p-5">
             <p>Congratulations! OpenEMR is now installed.</p>
             <ul>
                 <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
@@ -466,7 +466,7 @@ ENDDIV;
                     case 1:
                         $step1 = <<<STP1
                         <h3 class="mb-3 border-bottom">Step $state - Select Database Setup</h3>
-                        <div class="jumbotron p-5">
+                        <div class="mb-4 bg-light rounded-3 p-5">
                             <p>Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use. For me to create the database, you will need to supply the MySQL root password.</p>
                             <br />
                             <p class='p-1 bg-warning'>$caution: clicking on <span class="font-weight-bold">Proceed to Step 2</span> may delete or cause damage to existing data on your system. Before you continue <span class="font-weight-bold">please backup your data</span>.</p>
@@ -504,7 +504,7 @@ STP1;
                     case 2:
                         $step2top = <<<STP2TOP
                         <h3 class="mb-3 border-bottom">Step $state - Database and OpenEMR Initial User Setup Details</h3>
-                        <div class="jumbotron p-5">
+                        <div class="mb-4 bg-light rounded-3 p-5">
                             <p>Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the
                                 <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u>
                                 </a> manual file.
@@ -1069,7 +1069,7 @@ STP2TBLBOT;
                         }
 
                                     echo "<h3 class='mb-3 border-bottom'>Step $state - Creating Database and First User</h3>";
-                                    echo "<div class='jumbotron p-5'>";
+                                    echo "<div class='mb-4 bg-light rounded-3 p-5'>";
 
                                     // Skip below if database shell has already been created.
                         if ($inst != 2) {
@@ -1324,7 +1324,7 @@ FRMBOT;
                     case 4:
                         $step4_top = <<<STP4TOP
                         <h3 class="mb-3 border-bottom">Step $state - Configure PHP</h3>
-                        <div class="jumbotron p-5">
+                        <div class="mb-4 bg-light rounded-3 p-5">
                         <p>Configuration of PHP...</p>
                         <p>We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:</p>
                         <ul>
@@ -1455,7 +1455,7 @@ STP4BOT;
 
                     case 5:
                         echo "<h3 class='mb-3 border-bottom'>Step $state - Configure Apache Web Server</h3>";
-                        echo "<div class='jumbotron p-5'>";
+                        echo "<div class='mb-4 bg-light rounded-3 p-5'>";
                         echo "<p>Configuration of Apache web server...</p><br />\n";
                         echo "The <code>\"" . preg_replace("/${site_id}/", "*", realpath($docsDirectory)) . "\"</code> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
@@ -1502,7 +1502,7 @@ STP5BOT;
 
                     case 6:
                         echo "<h3 class='mb-3 border-bottom'>Step $state - Select a Theme</h3>";
-                        echo "<div class='jumbotron p-5'>";
+                        echo "<div class='mb-4 bg-light rounded-3 p-5'>";
                         echo "<p>Select a theme for OpenEMR...</p>\n";
                         $btn_text = "Proceed to Final Step";
                         $installer->displaySelectedThemeDiv();
@@ -1552,7 +1552,7 @@ TMF;
                     default:
                         $top = <<<TOP
                             <h3 class="mb-3 border-bottom">Pre Install - Checking File and Directory Permissions</h3>
-                                <div class="jumbotron p-5">
+                                <div class="mb-4 bg-light rounded-3 p-5">
                                     <p>
                                         Welcome to OpenEMR. This utility will step you through the installation and configuration of OpenEMR for your practice.
                                     </p>

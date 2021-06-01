@@ -5535,7 +5535,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $VF_values; ?>],
                                fill: false,
                                backgroundColor: '#5CABFA',
-                               borderColor: 'var(--black)',
+                               borderColor: 'var(--bs-black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5543,7 +5543,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
                                fill: true,
                                backgroundColor: '#71B37C',
-                               borderColor: 'var(--black)',
+                               borderColor: 'var(--bs-black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5553,7 +5553,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                strokeColor: 'rgba(209, 30, 93, 0.3)',
                                fillColor:'rgba(209, 30, 93, 0.3)',
                                backgroundColor: 'red',
-                               borderColor: 'var(--black)',
+                               borderColor: 'var(--bs-black)',
                                yAxisID: 'y-axis-2'
                                }]
                         },

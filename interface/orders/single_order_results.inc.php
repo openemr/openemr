@@ -372,7 +372,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
     .labres tr.head {
         font-size: 0.8125rem;
-        background-color: var(--gray200);
+        background-color: var(--bs-gray200);
         text-align: center;
     }
 
@@ -387,13 +387,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     .labres table {
         border-style: solid;
         border-width: 1px 0px 0px 1px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     .labres td, .labres th {
         border-style: solid;
         border-width: 0px 1px 1px 0px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     <?php } else { ?>
@@ -409,13 +409,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     .labres table {
         border-style: none;
         border-width: 1px 0px 0px 1px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     .labres td, .labres th {
         border-style: none;
         border-width: 0px 1px 1px 0px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
         padding: 4px;
     }
 
@@ -667,7 +667,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                     if (!empty($aNotes)) {
                         echo "<div class='table-responsive'>";
                         echo "<table class='table'>\n";
-                        echo " <tr style='background-color: var(--gray200);'>\n";
+                        echo " <tr style='background-color: var(--bs-gray200);'>\n";
                         echo "  <th class='text-center' colspan='2'>" . xlt('Notes') . "</th>\n";
                         echo " </tr>\n";
                         foreach ($aNotes as $key => $value) {

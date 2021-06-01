@@ -92,7 +92,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                 <h2><?php echo xlt('Load Lab Compendium'); ?></h2>
             </div>
         </div>
-        <form class="jumbotron py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
+        <form class="mb-4 bg-light rounded-3 px-5 py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
             <table class="table table-borderless">
                 <?php if ($form_step == 0) { ?>
                     <tr>

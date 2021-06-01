@@ -198,7 +198,7 @@ function zip_content($source, $destination, $content = '', $create = true)
         background-color: transparent;
     }
     .hilite, mark, .next {
-        background-color: var(--yellow);
+        background-color: var(--bs-yellow);
     }
     img {
         max-width:700px;

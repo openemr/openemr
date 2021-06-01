@@ -3706,7 +3706,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color: var(--gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='background-color: var(--bs-gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
@@ -3756,7 +3756,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
                     if (!$skip_this_field && $data_type == 3) {
                         // Textarea gets a light grey border.
-                        echo " style='border: 1px solid var(--gray400)'";
+                        echo " style='border: 1px solid var(--bs-gray400)'";
                     }
                     echo ">";
                     $cell_count += $datacols;
@@ -3981,7 +3981,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color: var(--gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='background-color: var(--bs-gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
@@ -4284,8 +4284,8 @@ function generate_layout_validation($form_id)
                     echo
                     " if (trimlen(f.$fldname.value) == 0) {\n" .
                     "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
-                    "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','var(--danger)'); } ); " .
-                    "  		$('#" . $fldname . "').attr('style','background: var(--danger)'); \n" .
+                    "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','var(--bs-danger)'); } ); " .
+                    "  		$('#" . $fldname . "').attr('style','background: var(--bs-danger)'); \n" .
                     "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                     " } else { " .
                     " 		$('#" . $fldname . "').attr('style',''); " .

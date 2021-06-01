@@ -22,7 +22,7 @@
 @import "directional";
 
 .login {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 .login-image {
@@ -50,7 +50,7 @@ ul {
 }
 
 span.expand_section {
-  color: var(--white);
+  color: var(--bs-white);
   cursor: pointer;
 }
 
@@ -60,14 +60,14 @@ td.menuheadtoolbar {
 
 .copyright {
   bottom: -24px;
-  color: var(--black);
+  color: var(--bs-black);
   font-size: small;
   position: absolute;
   #{$left}: 139px;
 }
 
 .shadow {
-  box-shadow: 0 0 57px 0.8px var(--white);
+  box-shadow: 0 0 57px 0.8px var(--bs-white);
 }
 
 .algnRight {
@@ -75,7 +75,7 @@ td.menuheadtoolbar {
 }
 
 .heading {
-  color: var(--gray);
+  color: var(--bs-gray);
   font-style: italic;
   position: absolute;
   top: -60px;
@@ -95,7 +95,7 @@ td.menuheadtoolbar {
 }
 
 #wrapper {
-  background-color: var(--gray100);
+  background-color: var(--bs-gray100);
   margin: 0 2px 10px;
   padding: 25px;
   position: relative;

@@ -75,7 +75,7 @@ if ($_POST) {
 
 // --- initialize $output as blank
     $output = '';
-    $output = '<div><fieldset id="error_info" class="bg-danger text-white font-weight-bod" style="border: 1px solid var(--danger) !important; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;">';// needs in-line styling because stylesheets not yet initialized
+    $output = '<div><fieldset id="error_info" class="bg-danger text-white font-weight-bod" style="border: 1px solid var(--bs-danger) !important; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;">';// needs in-line styling because stylesheets not yet initialized
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
@@ -290,9 +290,9 @@ if (isset($this_message['pid'])) {
             }
         }
         .oe-error-modal {
-            border: 1px solid var(--danger) !important;
-            background-color: var(--danger) !important;
-            color: var(--white) !important;
+            border: 1px solid var(--bs-danger) !important;
+            background-color: var(--bs-danger) !important;
+            color: var(--bs-white) !important;
             font-weight: bold;
             font-family: sans-serif;
             border-radius: 5px;

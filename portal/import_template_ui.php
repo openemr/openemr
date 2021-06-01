@@ -182,7 +182,7 @@ function getTemplateList($dir, $location = "")
     <div class='container'>
         <h3><?php echo xlt('Patient Document Template Maintenance'); ?></h3>
         <hr />
-        <div class="jumbotron jumbotron-fluid p-1 text-center">
+        <div class="mb-4 bg-light p-1 text-center">
             <p>
                 <?php echo xlt('Select a text or html template and upload for selected patient or all portal patients.'); ?><br /><?php echo xlt('Files base name becomes a pending document selection in Portal Documents.'); ?><br />
                 <em><?php echo xlt('For example: Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents.'); ?></em>

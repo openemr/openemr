@@ -484,7 +484,7 @@ foreach ($msgs as $i) {
                 </div><!-- /.lists -->
                 <?php if ($GLOBALS['allow_portal_appointments']) { ?>
                 <div class="collapse mt-2" id="appointmentcard">
-                    <div class="jumbotron jumbotron-fluid m-5 p-3">
+                    <div class="bg-light m-5 p-3">
                         <div class="container-fluid">
                             <h3 class="text-center"><?php echo xlt('Appointments'); ?></h3>
                             <?php

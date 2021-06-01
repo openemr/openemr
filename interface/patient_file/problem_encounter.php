@@ -111,9 +111,9 @@ tr.detail { font-size:10pt; background-color:#eeeeee; }
 // These are the possible colors for table rows.
 var trcolors = new Object();
 // Colors for:            Foreground Background
-trcolors['U'] = new Array('var(--black)', 'var(--gray200)'); // unselected
-trcolors['K'] = new Array('var(--black)', 'var(--yellow)'); // selected key
-trcolors['V'] = new Array('var(--black)', 'var(--indigo)'); // selected value
+trcolors['U'] = new Array('var(--bs-black)', 'var(--bs-gray200)'); // unselected
+trcolors['K'] = new Array('var(--bs-black)', 'var(--bs-yellow)'); // selected key
+trcolors['V'] = new Array('var(--bs-black)', 'var(--bs-indigo)'); // selected value
 
 var pselected = new Object();
 var eselected = new Object();

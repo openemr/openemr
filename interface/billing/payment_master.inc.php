@@ -36,10 +36,10 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
             $got_selected = true;
         }
         if (($PaymentType == 'insurance' || $screen == 'new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment')) {
-            $s .= " style='background-color: var(--light)' ";
+            $s .= " style='background-color: var(--bs-light)' ";
         }
         if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
-            $s .= " style='background-color: var(--light)' ";
+            $s .= " style='background-color: var(--bs-light)' ";
         }
         $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
     }
