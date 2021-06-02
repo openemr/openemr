@@ -212,18 +212,16 @@ function doSubs($s)
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{ynRadioGroup}')) {
             $grcnt++;
-            $sigfld = '<span class="ynuGroup" data-value="N/A" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
+            $sigfld = '<span class="ynuGroup" data-value="false" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
+            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
+            $sigfld .= '<label><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{TrueFalseRadioGroup}')) {
             $grcnt++;
-            $sigfld = '<span class="tfuGroup" data-value="N/A" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
+            $sigfld = '<span class="tfuGroup" data-value="False" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
+            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
+            $sigfld .= '<label><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{PatientName}')) {
