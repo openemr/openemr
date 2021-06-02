@@ -85,7 +85,7 @@ if (
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
         if ((isset($_GET['timeout'])) && ($_GET['timeout'] == "1")) {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success (timeout)");
+            EventAuditLogger::instance()->newEvent("timeout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
         } else {
             EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
         }
