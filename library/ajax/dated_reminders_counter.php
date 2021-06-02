@@ -2,6 +2,7 @@
 
 /**
  * Returns a count of due messages for current user.
+ *  In 2021, added the timeout mechanism to this script.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -9,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <https://www.tajemo.co.za/>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

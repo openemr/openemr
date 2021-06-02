@@ -106,7 +106,7 @@ $esignApi = new Api();
                 }
                 return response.json();
             }).then((data) => {
-                if (data.timeoutMessage && data.timeoutMessage == 'timeout') {
+                if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
                     // timeout has happened, so logout
                     timeoutLogout();
                 }
