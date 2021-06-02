@@ -26,7 +26,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 // ensure timeout has not happened
 if (SessionTracker::isSessionExpired()) {
-    echo json_encode(['timeoutMessage'=>'timeout']);
+    echo json_encode(['timeoutMessage' => 'timeout']);
     exit;
 }
 
