@@ -18,9 +18,16 @@ require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionTracker;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
+}
+
+// ensure timeout has not happened
+if (SessionTracker::isSessionExpired()) {
+    echo json_encode(['timeoutMessage'=>'timeout']);
+    exit;
 }
 
 $portal_count = array();
