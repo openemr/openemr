@@ -6,6 +6,8 @@
  *   every script and avoiding use of functions in SessionUtil that prevent session locking since may
  *   cause session concurrency issues.
  *  Note these are maintained automatically and cleared out after 7 days of inactivity.
+ *  Note that all time collection/derivation is from the mysql/mariadb server (in order to ensure things do not
+ *   break in case the time set on the php server and mysql/mariadb server are different).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -39,12 +41,18 @@ class SessionTracker
             error_log("OpenEMR Error: session_database_uuid session variable is missing");
             return true;
         }
-        $last_updated = sqlQueryNoLog("SELECT `last_updated` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid'])['last_updated'];
-        if (empty($last_updated)) {
-            error_log("OpenEMR Error: session entry in session_tracker table is missing");
+        $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid']);
+        if (empty($sessionTracker) || empty($sessionTracker['last_updated']) || empty($sessionTracker['current_time'])) {
+            error_log("OpenEMR Error: session entry in session_tracker table is missing or invalid");
             return true;
         }
-        if ((time() - strtotime($last_updated)) > $GLOBALS['timeout']) {
+        $last_updated = strtotime($sessionTracker['last_updated']);
+        $current_time = strtotime($sessionTracker['current_time']);
+        if ($last_updated > $current_time) {
+            error_log("OpenEMR Error: isSessionExpired error (last_updated time is ahead of current time which should be impossible)");
+            return true;
+        }
+        if (($current_time - $last_updated) > $GLOBALS['timeout']) {
             return true;
         }
 
