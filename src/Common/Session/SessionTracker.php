@@ -43,14 +43,16 @@ class SessionTracker
         }
         $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid']);
         if (empty($sessionTracker) || empty($sessionTracker['last_updated']) || empty($sessionTracker['current_time'])) {
-            error_log("OpenEMR Error: session entry in session_tracker table is missing");
+            error_log("OpenEMR Error: session entry in session_tracker table is missing or invalid");
             return true;
         }
-        if (strtotime($sessionTracker['last_updated']) > strtotime($sessionTracker['current_time'])) {
+        $last_updated = strtotime($sessionTracker['last_updated']);
+        $current_time = strtotime($sessionTracker['current_time']);
+        if ($last_updated > $current_time) {
             error_log("OpenEMR Error: isSessionExpired error (last_updated time is ahead of current time which should be impossible)");
             return true;
         }
-        if ((strtotime($sessionTracker['current_time']) - strtotime($sessionTracker['last_updated'])) > $GLOBALS['timeout']) {
+        if (($current_time - $last_updated) > $GLOBALS['timeout']) {
             return true;
         }
 
