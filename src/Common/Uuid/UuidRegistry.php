@@ -25,6 +25,7 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
 use Ramsey\Uuid\Generator\CombGenerator;
@@ -36,6 +37,7 @@ class UuidRegistry
 
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
+    const UUID_MAX_BATCH_COUNT = 1000;
 
     private $table_name;      // table to check if uuid has already been used in
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
@@ -199,6 +201,36 @@ class UuidRegistry
         }
     }
 
+    public function createMissingUuidsImproved()
+    {
+        try {
+            sqlBeginTrans();
+            $counter = 0;
+
+            // we split the loop so we aren't doing a condition inside each one.
+            if ($this->table_vertical)
+            {
+                do {
+                    $count = $this->createMissingUuidsForVerticalTable();
+                    $counter += $count;
+                } while ($count > 0);
+            }
+            else
+            {
+                do {
+                    $count = $this->createMissingUuidsForTableWithId();
+                    $counter += $count;
+                } while ($count > 0);
+            }
+            sqlCommitTrans();
+        }
+        catch (Exception $exception)
+        {
+            sqlRollbackTrans();
+            throw $exception;
+        }
+    }
+
     // Generic function to create missing uuids in a sql table
     //  This function works in "blocks" of 1000 to avoid mysql/mariadb death when updating a super large (>500K) amount of uuids in one table
     //  This function returns the number of missing uuids that were populated
@@ -213,12 +245,12 @@ class UuidRegistry
             // just maximum of 1000 at a time to attempt to speed things up and not break when inserting a large number of uuids
             if (!$this->table_vertical) {
                 // in this standard case, can decrease memory use by just collecting the id
-                $resultSet = sqlStatementNoLog("SELECT `" . $this->table_id . "` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+                $resultSet = sqlStatementNoLog("SELECT `" . $this->table_id . "` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT " . self::UUID_MAX_BATCH_COUNT);
             } else {
                 // in this more complicated case (ie. vertical table), need to collect all columns
-                $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT 1000");
+                $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT " . self::UUID_MAX_BATCH_COUNT);
             }
-            if (sqlNumRows($resultSet) < 1000) {
+            if (sqlNumRows($resultSet) < self::UUID_MAX_BATCH_COUNT) {
                 $done = true;
             }
             while ($row = sqlFetchArray($resultSet)) {
@@ -241,7 +273,11 @@ class UuidRegistry
                         $prependAnd = true;
                     }
                     // First, see if it has already been set
-                    $setUuid = sqlQueryNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery, $arrayQuery)['uuid'];
+                    $sqlStatement = "SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery;
+                    $setUuid = sqlQueryNoLog($sqlStatement, $arrayQuery);
+                    // original code here was not checking for whether a result was returned, not sure how it ever worked
+                    // as it should have thrown errors all over the place.
+                    $setUuid = $setUuid === false ? false : $setUuid['uuid'];
                     if (!empty($setUuid)) {
                         // Already set
                         array_unshift($arrayQuery, $setUuid);
@@ -304,5 +340,178 @@ class UuidRegistry
     public static function isEmptyBinaryUUID($uuidString)
     {
         return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
+    }
+
+    /**
+     * Returns a batch of generated uuids that do NOT exist in the system.  The number of records generated is determined
+     * by the limit.
+     * @param int $limit
+     * @return array
+     */
+    public function getUnusedUuidBatch($limit = 10)
+    {
+        if ($limit <= 0)
+        {
+            return [];
+        }
+        $uuids = $this->getUUIDBatch($limit);
+        $dbUUIDs = [];
+
+        if (!$this->disable_tracker) {
+            $sqlColumns = array_map(function($u) { return '`uuid` = ?';}, $uuids);
+            $sqlWhere = implode(" OR ", $sqlColumns);
+            $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `uuid_registry` WHERE " . $sqlWhere, $uuids);
+        }
+        if (empty($dbUUIDs)) {
+            if (!empty($this->table_name)) {
+                $sqlColumns = array_map(function($u) { return '`uuid` = ?';}, $uuids);
+                $sqlWhere = implode(" OR ", $sqlColumns);
+                // If using $this->table_name, then ensure uuid is unique in that table
+                $dbUUIDs =  QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE " . $sqlWhere, $uuids);
+            } elseif ($this->document_drive === 1) {
+                $sqlColumns = array_map(function($u) { return '`uuid` = ?';}, $uuids);
+                $sqlWhere = implode(" OR ", $sqlColumns);
+                // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
+                $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `drive_uuid` FROM `documents` WHERE " . $sqlWhere, $uuids);
+            }
+        }
+
+        $count = count($dbUUIDs);
+
+        if ($count <= 0) {
+            return $uuids;
+        }
+        $newGenLimit = $limit;
+        if ($count < $limit) {
+            $newGenLimit = $limit - $count;
+        }
+        // generate some new uuids since we had duplicates... which should never happen... but we have this here in
+        // case we do
+        $outstanding = $this->getUnusedUuidBatch($newGenLimit);
+        return array_merge($dbUUIDs, $outstanding);
+    }
+
+    private function createMissingUuidsForTableWithId()
+    {
+        $counter = 0;
+        $count = $this->getTableCountWithMissingUuids();
+        if ($count > 0) {
+            // loop through in batches of 1000
+            // generate min(1000, $count)
+            // generate bulk insert statement
+            $gen_count = min($count, self::UUID_MAX_BATCH_COUNT);
+            $batchUUids = $this->getUnusedUuidBatch($gen_count);
+            $ids = QueryUtils::fetchRecords("SELECT " . $this->table_id . " FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT " . $gen_count);
+            $this->insertUuidsIntoRegistry($batchUUids);
+            for ($i = 0; $i < $gen_count; $i++) {
+                // do single updates
+                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$batchUUids[$i], $ids[$i][$this->table_id]]);
+                $counter++;
+            }
+        }
+        return $counter;
+    }
+
+    private function getTableCountWithMissingUuids()
+    {
+        $result = QueryUtils::fetchRecordsNoLog("SELECT count(*) AS cnt FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'", []);
+        // loop through batches of 1000
+        $count = $result[0]['cnt'];
+        return $count;
+    }
+
+    /**
+     * Populates any missing uuids for a table that has no single unique column and instead uses a composite key to
+     * represent the table uniqueness.
+     * @return int
+     */
+    private function createMissingUuidsForVerticalTable()
+    {
+        $counter = 0;
+        $count = $this->getTableCountWithMissingUuids();
+        if ($count > 0) {
+            // grab the records
+            $escapedColumns = array_map(function($col) { return "`$col`"; }, array_merge(['uuid'], $this->table_vertical));
+            $gen_count = min($count, self::UUID_MAX_BATCH_COUNT);
+            $sqlFetch = "SELECT " . implode(",", $escapedColumns) . " FROM `" . $this->table_name
+                . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT "
+                . $gen_count;
+            $batchUUids = $this->getUnusedUuidBatch($gen_count);
+            $results = QueryUtils::fetchRecordsNoLog($sqlFetch, []);
+            // these absolutely should match but we will use the minimum of the results just to be safe and not exceed
+            // our array bounds
+            $resultCount = count($results);
+            $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
+                implode(" AND ", array_map(function($col) { return "`$col` = ? ";}, $this->table_vertical));
+
+            // simpler to go functional then a bunch of nested loops, drops down to c also which will be more performant
+            // would like to drop the anonymous function, but we'll have to benchmark it to see the diff.
+            $mapper = function($i, &$results, &$columns) {
+                return array_map(function($col) use ($i, &$results) { return $results[$i][$col];}, $columns);
+            };
+            for ($i = 0; $i < $resultCount; $i++)
+            {
+                $mappedValues = $mapper($i, $results, $this->table_vertical);
+                $bindValues = array_merge([$batchUUids[$i]], $mappedValues);
+                sqlQueryNoLog($sqlUpdate, $bindValues, true);
+                $counter++;
+            }
+        }
+        return $counter;
+    }
+
+    /**
+     * Given a batch of UUIDs it inserts them into the uuid registry.
+     * @param $batchUuids
+     */
+    private function insertUuidsIntoRegistry(&$batchUuids)
+    {
+        $count = count($batchUuids);
+        $sql = "INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES ";
+        $columns = [];
+        $bind = [];
+        $json_vertical = !empty($this->table_vertical) ? json_encode($this->table_vertical) : "";
+        for ($i = 0; $i < $count; $i++)
+        {
+            $columns[] = "(?, ?, ?, ?, ?, ?, ?, NOW())";
+            $bind[] = $batchUuids[$i];
+            $bind[] = $this->table_name;
+            $bind[] = $this->table_id;
+            $bind[] = $json_vertical;
+            $bind[] = $this->couchdb;
+            $bind[] = $this->document_drive;
+            $bind[] =$this->mapped;
+        }
+        $sql .= implode(",", $columns);
+        QueryUtils::sqlStatementThrowException($sql, $bind);
+    }
+
+
+    /**
+     * Returns an array of generated unique universal identifiers up to the passed in limit.
+     * @param int $limit
+     * @return array
+     */
+    private function getUUIDBatch($limit = 10)
+    {
+        $uuids = [];
+        // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
+        //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
+        //  reference:
+        //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
+        $factory = new UuidFactory();
+        $codec = new TimestampFirstCombCodec($factory->getUuidBuilder());
+        $factory->setCodec($codec);
+        $factory->setRandomGenerator(new CombGenerator(
+            $factory->getRandomGenerator(),
+            $factory->getNumberConverter()
+        ));
+        for ($i = 0; $i < $limit; $i++)
+        {
+
+            $timestampFirstComb = $factory->uuid4();
+            $uuids[] = $timestampFirstComb->getBytes();
+        }
+        return $uuids;
     }
 }

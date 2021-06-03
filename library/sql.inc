@@ -370,7 +370,7 @@ function sqlQuery($statement, $binds = false)
 * @param  array   $binds      binded variables array (optional)
 * @return array|false|""
 */
-function sqlQueryNoLog($statement, $binds = false)
+function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -380,7 +380,13 @@ function sqlQueryNoLog($statement, $binds = false)
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        if ($throw_exception_on_error)
+        {
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+        }
+        else {
+            HelpfulDie("query failed: $statement", getSqlLastError());
+        }
     }
 
     if ($recordset->EOF) {
