@@ -13,16 +13,17 @@
 require_once("../../globals.php");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/group.inc");
-require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
-require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
+require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\UserService;
+
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -937,7 +938,7 @@ if (
         }
 
         $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
-        $user = getNameFromUsername($iter['user']);
+        $user = (new UserService())->getUserByUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
 
