@@ -69,16 +69,17 @@ function templateDate(date, precision) {
 }
 
 function cleanCode(code) {
-    if (code.length < 2) {
+    return code;
+    /*if (code.length < 2) {
         code = "";
     }
-    return code.replace(/[.#]/, "");
+    return code.replace(/[.#]/, "");*/
 }
 
 function isOne(who) {
     try {
         if (who !== null && typeof who === 'object') {
-            return (who.hasOwnProperty('extension') || who.hasOwnProperty('id') || who.hasOwnProperty('date')) ? 1 : Object.keys(who).length;
+            return (who.hasOwnProperty('npi') || who.hasOwnProperty('code') || who.hasOwnProperty('extension') || who.hasOwnProperty('id') || who.hasOwnProperty('date')) ? 1 : Object.keys(who).length;
         }
     } catch (e) {
         return false;
@@ -252,10 +253,15 @@ function populateProviders() {
     let providerArray = [];
     let provider = populateProvider(all.primary_care_provider.provider);
     providerArray.push(provider);
-
-    for (let i in all.care_team.provider) {
-        provider = populateProvider(all.care_team.provider[i]);
+    let count = isOne(all.care_team.provider);
+    if (count === 1) {
+        provider = populateProvider(all.care_team.provider);
         providerArray.push(provider);
+    } else if (count > 1) {
+        for (let i in all.care_team.provider) {
+            provider = populateProvider(all.care_team.provider[i]);
+            providerArray.push(provider);
+        }
     }
     return {
         "providers":
@@ -498,6 +504,27 @@ function populateMedication(pd) {
 }
 
 function populateEncounter(pd) {
+    let name = '';
+    let code = '';
+    let code_system_name = "";
+    let status = "Active";
+    // just to get diagnosis. for findings..
+    if (typeof pd.encounter_procedures.encounter_diagnosis !== 'undefined') {
+        name = pd.encounter_procedures.encounter_diagnosis.text;
+        code = cleanCode(pd.encounter_procedures.encounter_diagnosis.code);
+        code_system_name = pd.encounter_procedures.encounter_diagnosis.code_type;
+        status = pd.encounter_procedures.encounter_diagnosis.status;
+    } else if (typeof pd.encounter_procedures.procedures !== 'undefined') {
+        if (isOne(pd.encounter_procedures.procedures) === 1) {
+            name = pd.encounter_procedures.procedures.text;
+            code = cleanCode(pd.encounter_procedures.procedures.code);
+            code_system_name = pd.encounter_procedures.procedures.code_type;
+        } else {
+            name = pd.encounter_procedures.procedures[0].text;
+            code = cleanCode(pd.encounter_procedures.procedures[0].code);
+            code_system_name = pd.encounter_procedures.procedures[0].code_type;
+        }
+    }
     return {
         "encounter": {
             "name": pd.visit_category ? pd.visit_category : 'UNK',
@@ -564,15 +591,16 @@ function populateEncounter(pd) {
                 }
             ]
         }],
+        // @todo this should be array of all procedures/DX. see about in spec!
         "findings": [{
             "identifiers": [{
                 "identifier": pd.sha_extension,
                 "extension": pd.extension
             }],
             "value": {
-                "name": pd.encounter_procedures.procedures.text || encounter_reason,
-                "code": cleanCode(pd.encounter_procedures.procedures.code),
-                "code_system_name": pd.encounter_procedures.procedures.code_type || "ICD10" || "CPT4"
+                "name": name,
+                "code": code,
+                "code_system_name": code_system_name
             },
             "date_time": {
                 "low": {
@@ -580,7 +608,8 @@ function populateEncounter(pd) {
                     "precision": "day"
                 }
             },
-            //"status": pd.encounter_procedures.procedures.status
+            "status": status,
+            "reason": pd.encounter_reason
         }]
     };
 }
@@ -983,7 +1012,7 @@ function getPlanOfCare(pd) {
 
 function getGoals(pd) {
     return {
-        "goal_code": { // this is weird as spec say's yes but in practice is a no.
+        "goal_code": {
             "name": pd.code_text !== "NULL" ? pd.code_text : "",
             "code": cleanCode(pd.code) || "",
             "code_system_name": pd.code_type || ""
@@ -1005,9 +1034,66 @@ function getGoals(pd) {
     };
 }
 
+function getFunctionalStatus(pd) {
+    return {
+        "status": "completed",
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
+        }],
+        "observation": {
+            "value": {
+                "name": pd.code_text !== "NULL" ? pd.code_text : "",
+                "code": cleanCode(pd.code) || "",
+                "code_system_name": pd.code_type || ""
+            },
+            "identifiers": [{
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab"
+            }],
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.date_formatted),
+                    "precision": "day"
+                }
+            },
+            "status": "completed"
+        }
+    };
+}
+
+function getMentalStatus(pd) {
+    return {
+            "value": {
+                "name": pd.code_text !== "NULL" ? pd.code_text : "",
+                "code": cleanCode(pd.code) || "",
+                "code_system_name": pd.code_type || ""
+            },
+            "identifiers": [{
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
+            }],
+
+        "date_time": {
+            "low": templateDate(pd.date_formatted, "day")
+            //"high": templateDate(pd.date, "day")
+        },
+    };
+}
+
 function getAssessments(pd) {
     return {
         "description": pd.description
+    };
+}
+
+function getHealthConcerns(pd) {
+    return {
+        "type": "act",
+        "text": pd.text
+    };
+}
+
+function getReferralReason(pd) {
+    return {
+        "reason": pd.text
     };
 }
 
@@ -1448,7 +1534,7 @@ function populatePayer(pd) {
 }
 
 function populateHeader(pd) {
-    var head = {
+    const head = {
         "identifiers": [
             {
                 "identifier": oidFacility,
@@ -1803,7 +1889,9 @@ function genCcda(pd) {
         m = populateMedication(pd.medications.medication);
         meds.medications.push(m);
     }
-    data.medications = Object.assign(meds.medications);
+    if (count !== 0) {
+        data.medications = Object.assign(meds.medications);
+    }
 // Encounters
     let encs = [];
     let enc = {};
@@ -1822,8 +1910,9 @@ function genCcda(pd) {
         enc = populateEncounter(pd.encounter_list.encounter);
         encs.encounters.push(enc);
     }
-    data.encounters = Object.assign(encs.encounters);
-
+    if (count !== 0) {
+        data.encounters = Object.assign(encs.encounters);
+    }
 // Allergies
     let allergies = [];
     let allergy = {};
@@ -1842,8 +1931,9 @@ function genCcda(pd) {
         allergy = populateAllergy(pd.allergies.allergy);
         allergies.allergies.push(allergy);
     }
-    data.allergies = Object.assign(allergies.allergies);
-
+    if (count !== 0) {
+        data.allergies = Object.assign(allergies.allergies);
+    }
 // Problems
     let problems = [];
     let problem = {};
@@ -1862,7 +1952,9 @@ function genCcda(pd) {
         problem = populateProblem(pd.problem_lists.problem);
         problems.problems.push(problem);
     }
-    data.problems = Object.assign(problems.problems);
+    if (count !== 0) {
+        data.problems = Object.assign(problems.problems);
+    }
 // Procedures
     many = [];
     theone = {};
@@ -1881,7 +1973,9 @@ function genCcda(pd) {
         theone = populateProcedure(pd.procedures.procedure);
         many.procedures.push(theone);
     }
-    data.procedures = Object.assign(many.procedures);
+    if (count !== 0) {
+        data.procedures = Object.assign(many.procedures);
+    }
 // Medical Devices
     many = [];
     theone = {};
@@ -1900,11 +1994,25 @@ function genCcda(pd) {
         theone = populateMedicalDevice(pd.medical_devices.device);
         many.medical_devices.push(theone);
     }
-    data.medical_devices = Object.assign(many.medical_devices);
-
+    if (count !== 0) {
+        data.medical_devices = Object.assign(many.medical_devices);
+    }
 // Results
     if (pd.results) {
         data.results = Object.assign(getResultSet(pd.results, pd)['results']);
+    }
+
+// Referral
+    // different referral sources. 1st is dynamic with doc gen from CCM.
+    // 2nd is latest referral from transactions.
+    if (pd.referral_reason[0].text !== "") {
+        data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
+    } else if (pd.referral_reason[1].text !== "") {
+        data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
+    }
+// Health Concerns
+    if (pd.health_concerns.text !== "") {
+        data.health_concern = Object.assign(getHealthConcerns(pd.health_concerns, pd));
     }
 // Immunizations
     many = [];
@@ -1924,8 +2032,9 @@ function genCcda(pd) {
         theone = populateImmunization(pd.immunizations.immunization);
         many.immunizations.push(theone);
     }
-    data.immunizations = Object.assign(many.immunizations);
-
+    if (count !== 0) {
+        data.immunizations = Object.assign(many.immunizations);
+    }
 // Plan of Care
     many = [];
     theone = {};
@@ -1948,8 +2057,9 @@ function genCcda(pd) {
         theone = getPlanOfCare(pd.planofcare.item);
         many.plan_of_care.push(theone);
     }
-    data.plan_of_care = Object.assign(many.plan_of_care);
-
+    if (count !== 0) {
+        data.plan_of_care = Object.assign(many.plan_of_care);
+    }
 // Goals
     many = [];
     theone = {};
@@ -1968,9 +2078,10 @@ function genCcda(pd) {
         theone = getGoals(pd.goals.item);
         many.goals.push(theone);
     }
-    data.goals = Object.assign(many.goals);
-
-// Assessments. Not part of a CCD I think.
+    if (count !== 0) {
+        data.goals = Object.assign(many.goals);
+    }
+// Assessments.
     many = [];
     theone = {};
     many.assessments = [];
@@ -1993,6 +2104,50 @@ function genCcda(pd) {
         data.assessments = Object.assign(many.assessments);
     }
 
+// Functional Status.
+    many = [];
+    theone = {};
+    many.functional_status = [];
+    try {
+        count = isOne(pd.functional_status.item);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.functional_status.item) {
+            theone[i] = getFunctionalStatus(pd.functional_status.item[i]);
+            many.functional_status.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getFunctionalStatus(pd.functional_status.item);
+        many.functional_status.push(theone);
+    }
+    if (count !== 0) {
+        data.functional_status = Object.assign(many.functional_status);
+    }
+
+// Mental Status.
+    many = [];
+    theone = {};
+    many.mental_status = [];
+    try {
+        count = isOne(pd.mental_status.item);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.mental_status.item) {
+            theone[i] = getMentalStatus(pd.mental_status.item[i]);
+            many.mental_status.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getMentalStatus(pd.mental_status.item);
+        many.mental_status.push(theone);
+    }
+    if (count !== 0) {
+        data.mental_status = Object.assign(many.mental_status);
+    }
+
 // Social History
     many = [];
     theone = {};
@@ -2012,9 +2167,9 @@ function genCcda(pd) {
         theone = populateSocialHistory(pd.history_physical.social_history.history_element);
         many.social_history.push(theone);
     }
-
-    data.social_history = Object.assign(many.social_history);
-
+    if (count !== 0) {
+        data.social_history = Object.assign(many.social_history);
+    }
 // ------------------------------------------ End Sections ----------------------------------------//
 
     doc.data = Object.assign(data);

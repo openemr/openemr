@@ -76,10 +76,10 @@ class EncounterccdadispatchController extends AbstractActionController
         $sent_by            = $this->getRequest()->getQuery('sent_by');
         $send               = $this->getRequest()->getQuery('send') ? $this->getRequest()->getQuery('send') : 0;
         $view               = $this->getRequest()->getQuery('view') ? $this->getRequest()->getQuery('view') : 0;
-        $emr_transfer     = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
+        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
         $this->recipients   = $this->getRequest()->getQuery('recipient');
         $this->params       = $this->getRequest()->getQuery('param');
-                $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
+        $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
         $this->components       = $this->getRequest()->getQuery('components') ? $this->getRequest()->getQuery('components') : $this->params('components');
         $downloadccda           = $this->params('downloadccda');
         $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ? $this->getRequest()->getQuery('latest_ccda') : $this->params('latest_ccda');
@@ -436,7 +436,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         if (in_array('referral', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getReferals($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid, $encounter);
         }
         return $ccd;
     }

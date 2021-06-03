@@ -290,6 +290,12 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "Goals"
         },
+        "MentalStatusSection": {
+            "code": "10190-7",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Mental Status"
+        },
         "PlannedProcedureSection": {
             "code": "59772-4",
             "code_system": "2.16.840.1.113883.6.1",

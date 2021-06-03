@@ -766,7 +766,6 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
 };
 
 exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
-
     key: "text",
     existsWhen: condition.keyExists("medical_devices"),
 
@@ -801,10 +800,7 @@ exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("device.udi", "na"),
-                }/*, {
-                    key: "td",
-                    text: leafLevel.deepInputDate("supply.date_time.low", nda)
-                }*/
+                }
                 ]
             }],
             dataKey: 'medical_devices'
@@ -812,6 +808,50 @@ exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
     }]
 };
 
+exports.functionalStatusSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("functional_status"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Functional Category", "Effective Date"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("functional_status")
+                    },
+                    text: leafLevel.deepInputProperty("observation.value.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("observation.date_time.point", nda),
+                }
+                ]
+            }],
+            dataKey: 'functional_status'
+        }]
+    }]
+};
+
+exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.problemsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
