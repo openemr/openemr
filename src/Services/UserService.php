@@ -33,7 +33,7 @@ class UserService
     }
 
     /**
-     * Given a username, heck to ensure user is in a group (and collect the group name)
+     * Given a username, check to ensure user is in a group (and collect the group name)
      * Returns the group name if successful, or false if failure
      *
      * @param $username
