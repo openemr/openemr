@@ -63,7 +63,7 @@ class Module
             ['--document_id=<document_id>', 'The ccda document id that was previously imported into the audit table'],
             ['ccda-newpatient-import', 'Part of route for console call'],
             ['--site=<site_name>', 'Name of site, by default: "default" '],
-            ['--document_id=<document_id>', 'The ccda document id that will be imported to create the new patient'],
+            ['--document=<document>', 'File (path) that will be imported to create the new patient'],
         ];
     }
 }

@@ -131,22 +131,28 @@ class CarecoordinationTable extends AbstractTableGateway
      * Fetch the component values from the CCDA XML
      *  and directly import them into a new patient.
      *
-     * @param   $components     Array of components
+     * @param   $document     Path to xml document
      */
-    public function importNewpatient($document_id)
+    public function importNewpatient($document)
     {
-        $this->importCore($document_id);
-        $this->insert_patient(null, $document_id);
+        if (!file_exists($document)) {
+            error_log("OpenEMR CCDA import error: following file does not exist: " . $document);
+            exit;
+        }
+        $xml_content = file_get_contents($document);
+        $this->importCore($xml_content);
+        $this->insert_patient(null, null);
     }
 
     /*
      * Fetch the component values from the CCDA XML
      *
-     * @param   $components     Array of components
+     * @param   $document_id    Document id
      */
     public function import($document_id)
     {
-        $this->importCore($document_id);
+        $xml_content = $this->getDocument($document_id);
+        $this->importCore($xml_content);
         $audit_master_approval_status =  1;
         $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccda_data_array);
@@ -156,11 +162,10 @@ class CarecoordinationTable extends AbstractTableGateway
     /*
      * Fetch the component values from the CCDA XML
      *
-     * @param   $components     Array of components
+     * @param   $xml_content     The xml document
      */
-    public function importCore($document_id)
+    public function importCore($xml_content)
     {
-        $xml_content = $this->getDocument($document_id);
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
 
@@ -2598,12 +2603,11 @@ class CarecoordinationTable extends AbstractTableGateway
             $appTable->zQuery("UPDATE documents
                        SET audit_master_approval_status=2
                        WHERE audit_master_id=?", array($audit_master_id));
-        }
-
-        $appTable->zQuery("UPDATE documents
+            $appTable->zQuery("UPDATE documents
                        SET foreign_id = ?
                        WHERE id =? ", array($pid,
-            $document_id));
+                $document_id));
+        }
     }
 
     public function formatDate($unformatted_date, $ymd = 1)

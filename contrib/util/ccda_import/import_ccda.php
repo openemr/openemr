@@ -13,16 +13,17 @@
  *
  * Use:
  *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>
- *   2. use example: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr true
- *   3. use example: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr false
- *   4. Note that development-mode will markedly improve performance by bypassing the use of
- *      the audit_master and audit_details tables and will directly import the new patient data
- *      from the ccda. Note this should never be done on sites that already contain real data/use.
- *      This will also turn off the audit log during the import.
+ *   2. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true
+ *   3. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false
+ *   4. Note that development-mode will markedly improve performance by bypassing the import of
+ *      the ccda document and bypassing the use of the audit_master and audit_details tables and
+ *      will directly import the new patient data from the ccda. Note this should never be done
+ *      on sites that already contain real data/use. This will also turn off the audit log during
+ *      the import.
  *   5. Note that a log.txt file is created with log/stats of the run.
  *
  * Description of what this script automates (for unlimited number of ccda documents):
- *  1. import ccda document
+ *  1. import ccda document (bypassed in development-mode)
  *  2. import to ccda table (bypassed in development-mode)
  *  3. import as new patient
  *  4. run function to populate all the uuids via the universal service function that already exists
@@ -41,8 +42,8 @@ exit;
 if (php_sapi_name() !== 'cli' || count($argv) != 5) {
     echo "Only php cli can execute a command\n";
     echo "use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>\n";
-    echo "example use: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr false\n";
-    echo "example use: php import_ccda.php synthea default /var/www/localhost/htdocs/openemr true\n";
+    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true\n";
+    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false\n";
     die;
 }
 
@@ -65,7 +66,8 @@ if ($seriousOptimizeFlag == "true") {
 
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
-require_once($openemrPath . "/library/uuid.php");
+
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 // show parameters (need to do after globals)
 outputMessage("ccda directory: " . $argv[1] . "\n");
@@ -87,18 +89,18 @@ outputMessage("Starting patients import\n");
 $counter = 0;
 $millisecondsStart = round(microtime(true) * 1000);
 foreach (glob($dir) as $file) {
-    //  1. import ccda document
-    $fileContents = file_get_contents($file);
-    $document = new Document();
-    // TODO: collect CCDA category id instead of hardcoding 13
-    $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
-    $documentId = $document->get_id();
     if ($seriousOptimize) {
-        // development-mode is on (note step 2 is bypassed)
+        // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient
-        exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId);
+        exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
     } else {
         // development mode is off
+        //  1. import ccda document
+        $fileContents = file_get_contents($file);
+        $document = new Document();
+        // TODO: collect CCDA category id instead of hardcoding 13
+        $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
+        $documentId = $document->get_id();
         //  2. import to ccda table
         exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId);
         $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
@@ -117,7 +119,7 @@ $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
 echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
 //  4. run function to populate all the uuids via the universal service function that already exists
 echo outputMessage("Started uuid creation\n");
-autoPopulateAllMissingUuids();
+UuidRegistry::populateAllMissingUuids(false);
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
 echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
 
