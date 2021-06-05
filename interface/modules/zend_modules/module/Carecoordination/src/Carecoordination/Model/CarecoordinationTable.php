@@ -184,6 +184,15 @@ class CarecoordinationTable extends AbstractTableGateway
         $patient_lname = $patient_role['patient']['name']['given'][1];
         $patient_family_name = $patient_role['patient']['name']['family'];
         $patient_gender_code = $patient_role['patient']['administrativeGenderCode']['code'];
+        if (empty($patient_role['patient']['administrativeGenderCode']['displayName'])) {
+            if ($patient_role['patient']['administrativeGenderCode']['code'] == 'F') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Female';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Female';
+            } elseif ($patient_role['patient']['administrativeGenderCode']['code'] == 'M') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Male';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Male';
+            }
+        }
         $patient_gender_name = $patient_role['patient']['administrativeGenderCode']['displayName'];
         $patient_dob = $patient_role['patient']['birthTime']['value'];
         $patient_marital_status = $patient_role['patient']['religiousAffiliationCode']['code'];
