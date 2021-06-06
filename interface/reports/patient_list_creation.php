@@ -1,13 +1,15 @@
 <?php
 
 /**
- * This report lists all the demographics allergies,problems,drugs and lab results
- *
+ * This report lists all the demographics, allergies, problems, medications and
+ * lab results along with race, ethnicity, insurance company and provider for those items
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2014 Ensoftek, Inc
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -65,7 +67,7 @@ $form_lab_results = trim($_POST["form_lab_results"] ?? '');
 $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
-$insurance_company = trim($_POST["insurance_company"] ?? '');
+$insurance_company = trim($_POST["insurance_companies"] ?? '');
 ?>
 <html>
     <head>
@@ -81,8 +83,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 var d = document.forms[0];
                 FromDate = d.date_from.value;
                 ToDate = d.date_to.value;
-                if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
-                    if ( FromDate > ToDate ){
+                if ((FromDate.length > 0) && (ToDate.length > 0)) {
+                    if (Date.parse(FromDate) > Date.parse(ToDate)) {
                         alert(<?php echo xlj('To date must be later than From date!'); ?>);
                         return false;
                     }
@@ -194,7 +196,7 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
 
             function srch_option_change(elem) {
                 $('#sortby').val('');
-                $#sortorder').val('');
+                $('#sortorder').val('');
 
                 if(elem.value == 'Communication') { 
                     $('#communication').val('');
@@ -239,9 +241,9 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 }
             }  ?></span>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
-            if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies") && ($_POST['insurance_company'] != "")) {
-                if (isset($insarr[$_POST['insurance_company']])) {
-                    echo "(" . text($insarr[$_POST['insurance_company']]) . ")";
+            if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies") && ($_POST['insurance_companies'] != "")) {
+                if (isset($insarr[$_POST['insurance_companies']])) {
+                    echo "(" . text($insarr[$_POST['insurance_companies']]) . ")";
                 } else {
                     echo "(" . xlt('All') . ")";
                 }
@@ -491,8 +493,8 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                 }
             }
 
-            if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0) {
-                $whr_stmt = $whr_stmt . " AND id.provider = ?";
+            if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0 && $insurance_company != "All") {
+                $whr_stmt = $whr_stmt . " AND ic.name = ?";
                 array_push($sqlBindArray, $insurance_company);
             }
 
@@ -587,7 +589,6 @@ $insurance_company = trim($_POST["insurance_company"] ?? '');
                     $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
                 } elseif ($_POST['sortby'] == "insurance_companies") {
                     $odrstmt = "ORDER BY ins_provider " . escape_sort_order($_POST['sortorder']);
-
                 } else {
                     $odrstmt = "ORDER BY " . escape_identifier($_POST['sortby'], $sort, true) . " " . escape_sort_order($_POST['sortorder']);
                 }
