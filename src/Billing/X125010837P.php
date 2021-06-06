@@ -9,7 +9,7 @@
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -577,6 +577,7 @@ class X125010837P
         for ($prockey = 0; $prockey < $proccount; ++$prockey) {
             $clm_total_charges += $claim->cptCharges($prockey);
         }
+
         if (!$clm_total_charges) {
             $log .= "*** This claim has no charges!\n";
         }
@@ -699,7 +700,7 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (trim($claim->billing_options['icn_resubmission_number'] ?? null) > 3) {
+        if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
             ++$edicount;
             error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
@@ -1199,13 +1200,20 @@ class X125010837P
 
             ++$edicount;
             $out .= "SV1" .     // Segment SV1, Professional Service. Page 400.
-            "*" . "HC:" . $claim->cptKey($prockey) .
-            "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
+            "*" . "HC:" . $claim->cptKey($prockey);
+
+            // need description of service for NOC items
+            if ($claim->cptNOC($prockey)) {
+                $out .= ":::::" . $claim->cptDescription($prockey);
+            }
+
+            $out .= "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
             "*" . "UN" .
             "*" . $claim->cptUnits($prockey) .
             "*" .
             "*" .
             "*";
+
             $dia = $claim->diagIndexArray($prockey);
             $i = 0;
             foreach ($dia as $dindex) {
@@ -1726,7 +1734,7 @@ class X125010837P
                 "*" . $claim->providerNumberType() .
                 "*" . $claim->providerNumber() .
                 "~\n";
-            } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
+            } elseif ($claim->providerNumber() && !$claim->providerNumberType()) {
                 $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
             }
 
@@ -2093,7 +2101,7 @@ class X125010837P
                 "*" . "D8" .
                 "*" . $claim->onsetDate() .
                 "~\n";
-        } else if (
+        } elseif (
             $claim->miscOnsetDate()
             && $claim->miscOnsetDate() !== $claim->serviceDate()
             && $claim->box14Qualifier()
@@ -2187,7 +2195,7 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (trim($claim->billing_options['icn_resubmission_number']) > 3) {
+        if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
             ++$edicount;
             error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
@@ -2687,13 +2695,20 @@ class X125010837P
 
             ++$edicount;
             $out .= "SV1" .     // Segment SV1, Professional Service. Page 400.
-                "*" . "HC:" . $claim->cptKey($prockey) .
-                "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
-                "*" . "UN" .
-                "*" . $claim->cptUnits($prockey) .
-                "*" .
-                "*" .
-                "*";
+                "*" . "HC:" . $claim->cptKey($prockey);
+
+                // need description of service for NOC items
+            if ($claim->cptNOC($prockey)) {
+                $out .= ":::::" . $claim->cptDescription($prockey);
+            }
+
+            $out .= "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
+            "*" . "UN" .
+            "*" . $claim->cptUnits($prockey) .
+            "*" .
+            "*" .
+            "*";
+
             $dia = $claim->diagIndexArray($prockey);
             $i = 0;
             foreach ($dia as $dindex) {

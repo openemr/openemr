@@ -103,8 +103,19 @@ class SLEOB
 
     // Post a payment, new style.
     //
-    public static function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time = '', $codetype = '')
-    {
+    public static function arPostPayment(
+        $patient_id,
+        $encounter_id,
+        $session_id,
+        $amount,
+        $code,
+        $payer_type,
+        $memo,
+        $debug,
+        $time = '',
+        $codetype = '',
+        $date = ''
+    ) {
         $codeonly = $code;
         $modifier = '';
         $tmp = strpos($code, ':');
@@ -118,12 +129,32 @@ class SLEOB
         }
 
         sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+        $sequence_no = sqlQuery(
+            "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?",
+            array($patient_id, $encounter_id)
+        );
         $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user, " .
+            "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_date, post_user, " .
             "session_id, memo, pay_amount " .
-            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        sqlStatement($query, array($patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $time, $_SESSION['authUserID'], $session_id, $memo, $amount));
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        sqlStatement(
+            $query,
+            array(
+                $patient_id,
+                $encounter_id,
+                $sequence_no['increment'],
+                $codetype,
+                $codeonly,
+                $modifier,
+                $payer_type,
+                $time,
+                $date,
+                $_SESSION['authUserID'],
+                $session_id,
+                $memo,
+                $amount
+            )
+        );
         sqlCommitTrans();
         return;
     }

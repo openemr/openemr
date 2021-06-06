@@ -133,3 +133,9 @@ function logout()
     top.restoreSession();
     document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php";
 }
+
+function timeoutLogout()
+{
+    top.restoreSession();
+    document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php?timeout=1";
+}

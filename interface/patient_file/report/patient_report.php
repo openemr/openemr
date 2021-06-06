@@ -329,7 +329,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo attr($ierow['encounter']) . "/";
                                             }
 
-                                            echo "' />$disptitle</td>\n";
+                                            echo "' />" . text($disptitle) . "</td>\n";
                                             echo "     <td>" . text($prow['begdate']);
 
                                             if ($prow['enddate']) {

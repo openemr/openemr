@@ -728,23 +728,35 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 10
 $upgrade_acl = 10;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $admin_write = AclExtended::getAclIdNumber('Administrators', 'write');
+    $emergency_write = AclExtended::getAclIdNumber('Emergency Login', 'write');
 
     //Add new object Sections
     echo "<BR/><B>Adding new object sections</B><BR/>";
+    AclExtended::addObjectSectionAcl('inventory', 'Inventory');
 
     //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'lots', 'Lots');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'sales', 'Sales');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'purchases', 'Purchases');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'transfers', 'Transfers');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'adjustments', 'Adjustments');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'consumption', 'Consumption');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'destruction', 'Destruction');
+    AclExtended::addObjectAcl('inventory', 'Inventory', 'reporting', 'Reporting');
 
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
+    //Rename "Pharmacy Dispensary" to "Inventory Administration".
+    AclExtended::editObjectAcl('admin', 'Administration', 'drugs', 'Inventory Administration', 10);
 
     //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
@@ -752,11 +764,26 @@ if ($acl_version < $upgrade_acl) {
 
     //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'lots', 'Lots', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'sales', 'Sales', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'purchases', 'Purchases', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'transfers', 'Transfers', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'adjustments', 'Adjustments', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'consumption', 'Consumption', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'destruction', 'Destruction', 'write');
+    AclExtended::updateAcl($admin_write, 'Administrators', 'inventory', 'Inventory', 'reporting', 'Reporting', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'lots', 'Lots', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'sales', 'Sales', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'purchases', 'Purchases', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'transfers', 'Transfers', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'adjustments', 'Adjustments', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'consumption', 'Consumption', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'destruction', 'Destruction', 'write');
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'inventory', 'Inventory', 'reporting', 'Reporting', 'write');
 
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
-*/
 
 /* This is a template for a new revision, when needed
 // Upgrade for acl_version 11

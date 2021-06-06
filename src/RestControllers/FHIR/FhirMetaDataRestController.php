@@ -70,8 +70,11 @@ class FhirMetaDataRestController
         $dateTime = new FHIRDateTime();
         $dateTime->setValue(date("Y-m-d", time()));
         $capabilityStatement->setDate($dateTime);
+
+        // we build our rest object with our helpers here
         $restObj = $this->restHelper->getCapabilityRESTObject($routes);
         $restObj->setSecurity($this->getRestSecurity());
+
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($serverRoot . "/composer.json");
         $composerObj = json_decode($composerStr, true);

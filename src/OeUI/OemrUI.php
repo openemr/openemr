@@ -4,8 +4,8 @@
  * OemrUI class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @link      https://www.open-emr.org
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -393,7 +393,7 @@ EXP;
     private function headerActionJs($arrAction = array())
     {
         $arrAction = $this->arrAction;
-        $page = str_replace(" ", "", $this->heading);
+        $page = attr(str_replace(" ", "", $this->heading));
 
         // Build the labels for when the icon is moused-over
         $labels = "";

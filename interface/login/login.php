@@ -14,8 +14,12 @@
  * @author  cfapress
  * @author  markleeds
  * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author  Ken Chapple <ken@mi-squared.com>
+ * @author  Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -91,7 +95,7 @@ $loginrow = "row login-row align-items-center m-5";
 if ($GLOBALS['login_page_layout'] == 'left') {
     $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
     $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
-} else if ($GLOBALS['login_page_layout'] == 'right') {
+} elseif ($GLOBALS['login_page_layout'] == 'right') {
     $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
     $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
 } else {
@@ -107,6 +111,10 @@ if ($GLOBALS['login_page_layout'] == 'left') {
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
+    <?php
+    if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
+        <meta name="google-signin-client_id" content="<?php echo $GLOBALS['google_signin_client_id']; ?>">
+    <?php } ?>
     <script>
         var registrationTranslations = <?php echo json_encode(array(
             'title' => xla('OpenEMR Product Registration'),
@@ -152,19 +160,24 @@ if ($GLOBALS['login_page_layout'] == 'left') {
             element.disabled = true;
             // nothing fancy. mainly for mobile.
             element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText(<?php echo xlj("Authenticating"); ?>);
-            <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+            <?php if (session_name()) { ?>
+                <?php $scparams = session_get_cookie_params(); ?>
                 // Delete the session cookie by setting its expiration date in the past.
                 // This forces the server to create a new session ID.
                 var olddate = new Date();
                 olddate.setFullYear(olddate.getFullYear() - 1);
-                <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
-                    // Using the SameSite setting when using php version 7.3.0 or above, which avoids browser warnings when cookie is not 'secure' and SameSite is not set to anything
-                    document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString() + '; SameSite=Strict';
-                <?php } else { ?>
-                    document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
-                <?php } ?>
+                var mycookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> +
+                    '; path=' + <?php echo json_encode($scparams['path']); ?> +
+                    '; domain=' + <?php echo json_encode($scparams['domain']); ?> +
+                    '; expires=' + olddate.toGMTString();
+                var samesite = <?php echo json_encode(empty($scparams['samesite']) ? '' : $scparams['samesite']); ?>;
+                if (samesite) {
+                    mycookie += '; SameSite=' + samesite;
+                }
+                document.cookie = mycookie;
             <?php } ?>
             document.forms[0].submit();
+            return true;
         }
     </script>
 </head>
@@ -236,11 +249,11 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                   <?php echo xlt('Invalid username or password'); ?>
               </div>
             <?php } // End login failure block ?>
-            <div class="form-group">
+            <div id="standard-auth-username" class="form-group">
                 <label for="authUser" class="text-right"><?php echo xlt('Username:'); ?></label>
                 <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>" />
             </div>
-            <div class="form-group">
+            <div id="standard-auth-password" class="form-group">
                 <label for="clearPass" class="text-right"><?php echo xlt('Password:'); ?></label>
                 <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>" />
             </div>
@@ -291,7 +304,20 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 </div>
             <?php } // End facilities menu block ?>
             <div class="form-group oe-pull-away">
-                <button type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                <button id="login-button" type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+            </div>
+            <div class="form-group">
+                  <?php if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
+                <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+                <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+                <div id="google-signin" onclick="return do_google_signin();">
+                    <!-- This message is displayed if the google platform API cannot render the button -->
+                    <span id="google-signin-service-unreachable-alert" style="display:none;"><?php echo xlt('Google Sign-In is enabled but the service is unreachable.'); ?></span>
+                </div>
+                <div id="google-signout">
+                    <a href="#" onclick="signOut();"><?php echo xlt('Sign out'); ?></a>
+                </div>
+                  <?php } ?>
             </div>
           </div>
           <div class="<?php echo $logoarea; ?>">
@@ -349,3 +375,79 @@ if ($GLOBALS['login_page_layout'] == 'left') {
   </form>
 </body>
 </html>
+<?php if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
+<script type="text/javascript">
+
+    // This variable controls whether we should login to OpenEMR
+    // so we only login if "Sign in with Google button" was clicked
+    let google_signin = false;
+
+    // Hide the google signout link unless we are signed-in
+    // This isn't really ever displayed, because once we sign-in with google,
+    // we automatically log into the app
+    $('#google-signout').hide();
+
+    // Click-handler for signin button
+    function do_google_signin() {
+        google_signin = true;
+    }
+
+    // When Google sign-in successful, sign in to the app, but only
+    // if the button was clicked (otherwise we would automatically login)
+    function onSignInSuccess(googleUser) {
+        if (google_signin === true) {
+            const auth_response = googleUser.getAuthResponse();
+            const id_token = auth_response.id_token;
+            $('.login-failure').hide();
+            $('#used-google-signin').val(true);
+            $('#google-signin-token').val(id_token);
+            $('#google-signout').show();
+            $('#standard-auth-username, #standard-auth-password').hide();
+            var element = document.getElementById('login-button');
+            transmit_form(element);
+        }
+    }
+
+    function onSignInFailure(error) {
+        $('.login-failure').show();
+    }
+
+    function renderButton() {
+        gapi.signin2.render('google-signin', {
+            'prompt': 'select_account',
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSignInSuccess,
+            'onfailure': onSignInFailure
+        });
+    }
+
+    function signOut() {
+        google_signin = false;
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            $('#used-google-signin').val('');
+            $('#google-signin-token').val('');
+            $('#google-signout').hide();
+            $('#standard-auth-username, #standard-auth-password').show();
+        });
+    }
+
+    $.getScript('https://apis.google.com/js/platform.js', function(data, textStatus, jqxh ) {
+        // When the auth2 library is loaded, log out so the user has to sign into google
+        gapi.load('auth2', function() {
+            gapi.auth2.init().then(function () {
+                signOut();
+            });
+        });
+
+        // Render the "Sign in with Google" button
+        renderButton();
+    }).fail(function (jqxhr, settings, exception) {
+        $('#google-signin-service-unreachable-alert').show();
+    });
+</script>
+<?php } ?>

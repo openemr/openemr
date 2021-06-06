@@ -677,7 +677,7 @@ foreach (explode(',', $given) as $item) {
                 <table class='border-0 w-100 small'>
                     <tr id='row_quick_picks'>
                         <td class="text-nowrap">&nbsp;</td>
-                        <td class="align-top" colspan="1">
+                        <td class="align-top" colspan="3">
                             <select size="7" name='form_titles' onchange='top.restoreSession();set_text();'>
                             </select>
                         </td>

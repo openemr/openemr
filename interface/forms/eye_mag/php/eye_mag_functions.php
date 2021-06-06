@@ -4359,7 +4359,7 @@ function start_your_engines($FIELDS)
                 $code_found['code_type'] = $code_type;
                 list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
-                $positives[$location][] = $term;
+                $positives[$amihere['location']][] = $term;
             } else { //no code was defined, further processing needed.
                 if ($option_values) {
                     // This clinical finding (term) can be found in more than one disease process ('option_values')
@@ -4608,7 +4608,7 @@ function start_your_engines($FIELDS)
                             //should we have another big Dx often altering what a finding means to a coder; this is a placeholder.
                             //include $option in our code search for this term
                             $term_now = $term . " " . $option;
-                            $code_found = coding_carburetor($term_now, $fields[$amihere['location']]);
+                            $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
                                     list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
@@ -4621,7 +4621,7 @@ function start_your_engines($FIELDS)
                 } else {
                     //there are no options and no code identified,
                     //search via carburetor for possible matches to term and description of the form field
-                    $code_found = coding_carburetor($term, $fields[$amihere['location']]);
+                    $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
                             list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);

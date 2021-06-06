@@ -54,6 +54,8 @@ $grparr = array();
 getLayoutProperties($formname, $grparr, '*');
 $lobj = $grparr[''];
 $formtitle = $lobj['grp_title'];
+$grp_last_update = $lobj['grp_last_update'];
+
 if (!empty($lobj['grp_columns'])) {
     $CPR = intval($lobj['grp_columns']);
 }
@@ -194,7 +196,7 @@ div.section table {
  width: 100%;
 }
 div.section td.stuff {
- vertical-align: bottom;
+ vertical-align: top;
 <?php if ($isblankform) { ?>
  height: 16pt;
 <?php } ?>
@@ -445,7 +447,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
         end_row();
         if ($prepend_blank_row) {
-            echo "  <tr><td class='text' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
+            echo "  <tr><td class='text' style='font-size:25%' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
         }
         if (isOption($edit_options, 'RS')) {
             echo " <tr class='RS'>";
@@ -615,6 +617,10 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 } // End Services Section
 
 ?>
+
+<p style='text-align:center' class='small'>
+  <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+</p>
 
 </form>
 <?php

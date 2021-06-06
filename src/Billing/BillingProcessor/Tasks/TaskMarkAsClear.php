@@ -28,7 +28,7 @@ class TaskMarkAsClear extends AbstractProcessingTask implements ProcessingTaskIn
 
     public function execute(BillingClaim $claim)
     {
-        $this->appendToScreen(xl("Claim ") . $claim->getId() . xl(" was marked as billed only.") . "\n");
+        $this->printToScreen(xl("Claim ") . $claim->getId() . xl(" was marked as billed only.") . "\n");
         return $this->clearClaim($claim);
     }
 

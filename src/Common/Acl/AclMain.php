@@ -94,6 +94,17 @@
  *   gdlog      Group detailed log of appointment in patient record
  *   gm         Send message from the permanent group therapist to the personal therapist
  *
+ * Section "inventory" (Inventory):
+ *   lots         Lots
+ *   sales        Sales
+ *   purchases    Purchases
+ *   transfers    Transfers
+ *   adjustments  Adjustments
+ *   consumption  Consumption
+ *   destruction  Destruction
+ *   reporting    Reporting
+ * Note admin/drugs permission is required to create products;
+ * we also allow that to substitute for all inventory permissions.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

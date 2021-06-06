@@ -1,17 +1,15 @@
 <?php
 
-/************************************************************************
-            address.php - Copyright duhlman
-
-/usr/share/apps/umbrello/headings/heading.php
-
-This file was generated on %date% at %time%
-The original location of this file is /home/duhlman/uml-generated-code/prescription.php
-**************************************************************************/
-
 /**
- * class Address
+ * address class for smarty templates
  *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    duhlman
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) duhlman
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;

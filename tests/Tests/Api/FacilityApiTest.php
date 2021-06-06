@@ -20,6 +20,10 @@ class FacilityApiTest extends TestCase
 {
     const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
     private $testClient;
+
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
 
     protected function setUp(): void
@@ -34,7 +38,7 @@ class FacilityApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }

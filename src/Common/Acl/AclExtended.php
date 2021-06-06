@@ -19,6 +19,7 @@
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Gacl\GaclApi;
+use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
 
 class AclExtended
@@ -236,9 +237,10 @@ class AclExtended
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
         require_once(dirname(__FILE__) . '/../../../library/user.inc');
-        require_once(dirname(__FILE__) . '/../../../library/calendar.inc');
-        $userNametoID = getIDfromUser($user_name);
-        if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
+
+        $userNameToID = (new UserService())->getIdByUsername($user_name);
+
+        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
             $gacl_protect = true;
         } else {
             $gacl_protect = false;
@@ -306,17 +308,19 @@ class AclExtended
                     $boolean_admin = 0;
                     $admin_id = $gacl->get_object_id('users', $user_name, 'ARO');
                     $arr_admin = $gacl->get_object_groups($admin_id, 'ARO', 'NO_RECURSE');
-                    foreach ($arr_admin as $value3) {
-                        $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
-                        if (strcmp($arr_admin_data[2], 'admin') == 0) {
-                            $boolean_admin = 1;
+                    if (!empty($arr_admin)) {
+                        foreach ($arr_admin as $value3) {
+                            $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
+                            if (strcmp($arr_admin_data[2], 'admin') == 0) {
+                                $boolean_admin = 1;
+                            }
                         }
-                    }
-                    if (!$boolean_admin) {
-                        foreach ($arr_all_group_ids as $value4) {
-                            $arr_temp = $gacl->get_group_data($value4, 'ARO');
-                            if ($arr_temp[2] == 'admin') {
-                                $gacl->add_group_object($value4, 'users', $user_name, 'ARO');
+                        if (!$boolean_admin) {
+                            foreach ($arr_all_group_ids as $value4) {
+                                $arr_temp = $gacl->get_group_data($value4, 'ARO');
+                                if ($arr_temp[2] == 'admin') {
+                                    $gacl->add_group_object($value4, 'users', $user_name, 'ARO');
+                                }
                             }
                         }
                     }
