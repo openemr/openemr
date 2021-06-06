@@ -111,6 +111,17 @@ class CarecoordinationController extends AbstractActionController
         return $view;
     }
 
+    public function newpatientImportCommandAction()
+    {
+        $request = $this->getRequest();
+        if (!$request instanceof ConsoleRequest) {
+            throw new RuntimeException('You can only use this action from a console!');
+        }
+        $document = $request->getParam('document');
+        $this->getCarecoordinationTable()->importNewpatient($document);
+        exit;
+    }
+
     public function newpatientCommandAction()
     {
         $request = $this->getRequest();

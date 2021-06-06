@@ -96,6 +96,16 @@ return array(
                         ),
                     ),
                 ),
+
+                'ccda-newpatient-import' => array(
+                    'options' => array(
+                        'route'    => 'ccda-newpatient-import --site= --document=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'newpatient-import-command',
+                        ),
+                    ),
+                ),
             )
         )
     ),

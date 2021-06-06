@@ -129,12 +129,43 @@ class CarecoordinationTable extends AbstractTableGateway
 
     /*
      * Fetch the component values from the CCDA XML
+     *  and directly import them into a new patient.
      *
-     * @param   $components     Array of components
+     * @param   $document     Path to xml document
+     */
+    public function importNewpatient($document)
+    {
+        if (!file_exists($document)) {
+            error_log("OpenEMR CCDA import error: following file does not exist: " . $document);
+            exit;
+        }
+        $xml_content = file_get_contents($document);
+        $this->importCore($xml_content);
+        $this->insert_patient(null, null);
+    }
+
+    /*
+     * Fetch the component values from the CCDA XML
+     *
+     * @param   $document_id    Document id
      */
     public function import($document_id)
     {
         $xml_content = $this->getDocument($document_id);
+        $this->importCore($xml_content);
+        $audit_master_approval_status =  1;
+        $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
+        $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccda_data_array);
+        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
+    }
+
+    /*
+     * Fetch the component values from the CCDA XML
+     *
+     * @param   $xml_content     The xml document
+     */
+    public function importCore($xml_content)
+    {
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
 
@@ -158,6 +189,15 @@ class CarecoordinationTable extends AbstractTableGateway
         $patient_lname = $patient_role['patient']['name']['given'][1];
         $patient_family_name = $patient_role['patient']['name']['family'];
         $patient_gender_code = $patient_role['patient']['administrativeGenderCode']['code'];
+        if (empty($patient_role['patient']['administrativeGenderCode']['displayName'])) {
+            if ($patient_role['patient']['administrativeGenderCode']['code'] == 'F') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Female';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Female';
+            } elseif ($patient_role['patient']['administrativeGenderCode']['code'] == 'M') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Male';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Male';
+            }
+        }
         $patient_gender_name = $patient_role['patient']['administrativeGenderCode']['displayName'];
         $patient_dob = $patient_role['patient']['birthTime']['value'];
         $patient_marital_status = $patient_role['patient']['religiousAffiliationCode']['code'];
@@ -296,7 +336,7 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
 
-        $audit_master_approval_status = $this->ccda_data_array['approval_status'] = 1;
+        $this->ccda_data_array['approval_status'] = 1;
         $this->ccda_data_array['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? '';
         $this->ccda_data_array['type'] = '12';
 
@@ -383,12 +423,6 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
-
-        $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
-
-        $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccda_data_array);
-
-        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
 
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf)
@@ -2208,28 +2242,54 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_referral = array();
         $appTable = new ApplicationTable();
 
-        $pres = $appTable->zQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid
-                                     FROM patient_data");
+        $pres = $appTable->zQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
         foreach ($pres as $prow) {
             $pid = $prow['pid'];
         }
-
-        $res = $appTable->zQuery("SELECT DISTINCT ad.table_name,
+        if (!empty($audit_master_id)) {
+            $res = $appTable->zQuery("SELECT DISTINCT ad.table_name,
                                             entry_identification
                                      FROM audit_master as am,audit_details as ad
                                      WHERE am.id=ad.audit_master_id AND
                                      am.approval_status = '1' AND
                                      am.id=? AND am.type=12
                                      ORDER BY ad.id", array($audit_master_id));
-        $tablecnt = $res->count();
+        } else {
+            // collect directly from $this->ccda_data_array (ie. no audit table middleman)
+            $res = [];
+            foreach ($this->ccda_data_array['field_name_value_array'] as $subKey => $subArray) {
+                $tableName = $subKey;
+                foreach ($subArray as $subsubKey => $subsubArray) {
+                    $entryIdentification = $subsubKey;
+                    $res[] = ['table_name' => trim($tableName), 'entry_identification' => trim($entryIdentification)];
+                }
+            }
+        }
         foreach ($res as $row) {
-            $resfield = $appTable->zQuery("SELECT *
+            if (!empty($audit_master_id)) {
+                $resfield = $appTable->zQuery("SELECT *
                                      FROM audit_details
                                      WHERE audit_master_id=? AND
                                      table_name=? AND
                                      entry_identification=?", array($audit_master_id,
-                $row['table_name'],
-                $row['entry_identification']));
+                    $row['table_name'],
+                    $row['entry_identification']));
+            } else {
+                // collect directly from $this->ccda_data_array (ie. no audit table middleman)
+                $resfield = [];
+                foreach ($this->ccda_data_array['field_name_value_array'][$row['table_name']][$row['entry_identification']] as $itemKey => $item) {
+                    if (is_array($item)) {
+                        if ($item['status'] || $item['enddate']) {
+                            $item = trim($item['value']) . "|" . trim($item['status']) . "|" . trim($item['begdate']);
+                        } else {
+                            $item = trim($item['value']);
+                        }
+                    } else {
+                        $item = trim($item);
+                    }
+                    $resfield[] = ['table_name' => trim($row['table_name']), 'field_name' => trim($itemKey), 'field_value' => $item, 'entry_identification' => trim($row['entry_identification'])];
+                }
+            }
             $table = $row['table_name'];
             $newdata = array();
             foreach ($resfield as $rowfield) {
@@ -2536,16 +2596,18 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->InsertFunctionalCognitiveStatus($arr_functional_cognitive_status['functional_cognitive_status'], $pid, 0);
         $this->InsertReferrals($arr_referral['referral'], $pid, 0);
 
-        $appTable->zQuery("UPDATE audit_master
+        if (!empty($audit_master_id)) {
+            $appTable->zQuery("UPDATE audit_master
                        SET approval_status=2
                        WHERE id=?", array($audit_master_id));
-        $appTable->zQuery("UPDATE documents
+            $appTable->zQuery("UPDATE documents
                        SET audit_master_approval_status=2
                        WHERE audit_master_id=?", array($audit_master_id));
-        $appTable->zQuery("UPDATE documents
+            $appTable->zQuery("UPDATE documents
                        SET foreign_id = ?
                        WHERE id =? ", array($pid,
-            $document_id));
+                $document_id));
+        }
     }
 
     public function formatDate($unformatted_date, $ymd = 1)
