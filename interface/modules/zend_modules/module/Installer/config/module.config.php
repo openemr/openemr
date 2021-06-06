@@ -67,6 +67,16 @@ return array(
                     )
                 ),
 
+                'acl-modify' => array(
+                    'options' => array(
+                        'route' => 'acl-modify --site= --modname= --aclgroup= --aclaction= ',
+                        'defaults' => array(
+                            'controller' => Acl\Controller\AclController::class,
+                            'action' => 'acl-modify-command',
+                        ),
+                    )
+                ),
+
                 'register' => array(
                     'options' => array(
                         'route'    => 'register --mtype= --modname=',
