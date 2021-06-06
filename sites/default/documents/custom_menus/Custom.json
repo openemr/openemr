@@ -2054,6 +2054,32 @@
         "global_req": "ippf_specific"
       },
       {
+        "label": "Blank Forms",
+        "icon": "fa-caret-right",
+        "children": [
+          {
+            "label": "Core",
+            "icon": "fa-caret-right",
+            "children": [
+              {
+                "label": "Demographics",
+                "url": "/interface/patient_file/summary/demographics_print.php",
+                "target": "pop",
+                "requirement": 0
+              },
+              {
+                "label": "Superbill/Fee Sheet",
+                "url": "/interface/patient_file/printed_fee_sheet.php",
+                "target": "pop",
+                "requirement": 0
+              }
+            ],
+            "requirement": 0
+          }
+        ],
+        "requirement": 0
+      },
+      {
         "label": "Services",
         "icon": "fa-caret-right",
         "children": [
