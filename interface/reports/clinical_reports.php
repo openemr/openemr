@@ -910,8 +910,7 @@ if (!empty($_POST['form_refresh'])) {
                 if ($type == 'Medical History') {
                     ?>
                             <tr bgcolor="#C3FDB8" align= "left">
-                <td colspan=12><strong><?php echo "#";
-                echo xlt('Medical History');?><strong></td></tr>
+                <td colspan=12><strong><?php echo "#" . xlt('Medical History');?></strong></td></tr>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td><strong><?php echo xlt('History Date'); ?></strong></td>
                 <td><strong><?php echo xlt('Tobacco');?></strong></td>
@@ -934,6 +933,7 @@ if (!empty($_POST['form_refresh'])) {
 
                                 echo $his_tobac; ?>&nbsp;</td>
                     <?php
+                    $res = xl('No history recorded');
                     if ($tmp_a[1] == "currentalcohol") {
                         $res = xl('Current Alcohol');
                     }
@@ -952,6 +952,8 @@ if (!empty($_POST['form_refresh'])) {
                     ?>
                                  <td> <?php echo text($res); ?>&nbsp;</td>
                     <?php
+
+                    $resd = xl('No history recorded');
                     if ($tmp_d[1] == "currentrecreational_drugs") {
                         $resd = xl('Current Recreational Drugs');
                     }
