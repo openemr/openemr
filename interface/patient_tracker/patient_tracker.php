@@ -553,7 +553,7 @@ if (!$_REQUEST['flb_table']) {
                                     <span class='hidden' name='progCALLback_" . attr($appointment['eid']) . "' id='progCALLback_" . attr($appointment['eid']) . "'>
                                       <form id='notation_" . attr($appointment['eid']) . "' method='post'
                                       action='#'>
-                                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken()); ?>' />
+                                        <input type='hidden' name='csrf_token_form' value='" . attr(CsrfUtils::collectCsrfToken()) ."' />
                                         <h4>" . xlt('Call Back Notes') . ":</h4>
                                         <input type='hidden' name='pc_eid' id='pc_eid' value='" . attr($appointment['eid']) . "'>
                                         <input type='hidden' name='pc_pid' id='pc_pid' value='" . attr($appointment['pc_pid']) . "'>
