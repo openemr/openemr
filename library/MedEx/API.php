@@ -2333,45 +2333,47 @@ class Display extends base
         $show['progression'] .= $show['EMAIL']['text'] . $show['SMS']['text'] . $show['AVM']['text'];
 
         $camps = '0';
-        foreach ($events as $event) {
-            if ($event['M_group'] != "RECALL") {
-                continue;
-            }
-               $pat = $this->possibleModalities($recall);
-            if ($pat['ALLOWED'][$event['M_type']] == 'NO') {
-                continue;    //it can't happen
-            }
-            if ($pat['facility']['status'] != 'ok') {
-                continue;    //it can't happen
-            }
-            if ($pat['provider']['status'] != 'ok') {
-                continue;    //it can't happen
-            }
+        if (is_countable($events)) {
+            foreach ($events as $event) {
+                if ($event['M_group'] != "RECALL") {
+                    continue;
+                }
+                $pat = $this->possibleModalities($recall);
+                if ($pat['ALLOWED'][$event['M_type']] == 'NO') {
+                    continue;    //it can't happen
+                }
+                if ($pat['facility']['status'] != 'ok') {
+                    continue;    //it can't happen
+                }
+                if ($pat['provider']['status'] != 'ok') {
+                    continue;    //it can't happen
+                }
 
-            if ($show['campaign'][$event['C_UID']]['status']) {
-                continue; //it is done
-            }
-               $camps++;                                                   //there is still work to be done
-            if ($show['campaign'][$event['C_UID']]['icon']) {
-                continue;   //but something has happened since it was scheduled.
-            }
+                if ($show['campaign'][$event['C_UID']]['status']) {
+                    continue; //it is done
+                }
+                $camps++;                                                   //there is still work to be done
+                if ($show['campaign'][$event['C_UID']]['icon']) {
+                    continue;   //but something has happened since it was scheduled.
+                }
 
-               ($event['E_timing'] < '3') ? ($interval = '-') : ($interval = '+');//this is only scheduled, 3 and 4 are for past appointments...
-               $show['campaign'][$event['C_UID']] = $event;
-               $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
+                ($event['E_timing'] < '3') ? ($interval = '-') : ($interval = '+');//this is only scheduled, 3 and 4 are for past appointments...
+                $show['campaign'][$event['C_UID']] = $event;
+                $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-               $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
-               $date1 = date('Y-m-d');
-               $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
-            if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
-                $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
-                $show['status'] = "whitish";
-            } else {
-                $execute = oeFormatShortDate($recall_date);
-                $show['campaign'][$event['C_UID']]['executed'] = $execute;
+                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
+                $date1 = date('Y-m-d');
+                $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
+                if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
+                    $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
+                    $show['status'] = "whitish";
+                } else {
+                    $execute = oeFormatShortDate($recall_date);
+                    $show['campaign'][$event['C_UID']]['executed'] = $execute;
+                }
+                $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>" .
+                                    $show['campaign'][$event['C_UID']]['icon'] . " " . text($show['campaign'][$event['C_UID']]['executed']) . "</a><br />";
             }
-               $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>" .
-                                   $show['campaign'][$event['C_UID']]['icon'] . " " . text($show['campaign'][$event['C_UID']]['executed']) . "</a><br />";
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
@@ -2601,11 +2603,13 @@ class Display extends base
                                     $defaultProvider = $_SESSION['authUserID'];
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (count($_SESSION['pc_username']) >= 1) {
-                                        // get the numeric ID of the first provider in the array
-                                        $pc_username = $_SESSION['pc_username'];
-                                        $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
-                                        $defaultProvider = $firstProvider['id'];
+                                    if (is_countable($_SESSION['pc_username'])) {
+                                        if (count($_SESSION['pc_username']) >= 1) {
+                                            // get the numeric ID of the first provider in the array
+                                            $pc_username = $_SESSION['pc_username'];
+                                            $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
+                                            $defaultProvider = $firstProvider['id'];
+                                        }
                                     }
                                 // if we clicked on a provider's schedule to add the event, use THAT.
                                     if ($userid) {
