@@ -369,14 +369,14 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
         $sqlBindArray = array();
         if (!empty($_POST['form_refresh'])) {
             $sqlstmt = "select
-						pd.date as patient_date,
-						concat(pd.lname, ', ', pd.fname) AS patient_name,
-						pd.pid AS patient_id,
-						DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
-						pd.sex AS patient_sex,
-						pd.race AS patient_race,
+                        pd.date as patient_date,
+                        concat(pd.lname, ', ', pd.fname) AS patient_name,
+                        pd.pid AS patient_id,
+                        DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
+                        pd.sex AS patient_sex,
+                        pd.race AS patient_race,
                         pd.ethnicity AS patient_ethnic,
-						concat(u.lname, ', ', u.fname)  AS users_provider";
+                        concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
             switch ($srch_option) {
