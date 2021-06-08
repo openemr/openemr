@@ -41,29 +41,29 @@ function GeneratePDF($pid, $id)
                 continue;
             }
             if ($key !== "difficulty") {
-               if (is_numeric($value)) {
+                if (is_numeric($value)) {
                     $gad7_total += $value;
-               }
+                }
             }
         // find score description from the total
             switch (intdiv($gad7_total, 5)) {
-            case 0:
-                $exp = $str_score_analysis[0];
-                break;
-            case 1:
-            case 2:
-                $exp = $str_score_analysis[5];
-                break;
-            default:
-                $exp = $str_score_analysis[15];
+                case 0:
+                    $exp = $str_score_analysis[0];
+                    break;
+                case 1:
+                case 2:
+                    $exp = $str_score_analysis[5];
+                    break;
+                default:
+                    $exp = $str_score_analysis[15];
             }
-      }
+        }
     } else {
         echo "<br>No form data</br>";
     }
  /* generate a pdf version of the form,   int pid - patient id , int id - gad7 form number
  */
- $config_mpdf = array(
+    $config_mpdf = array(
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
         'format' => $GLOBALS['pdf_size'],
@@ -89,22 +89,22 @@ function GeneratePDF($pid, $id)
     $date_time = explode(" ", $data['date'], 2); /* split into date and time */
     $date_elements = explode('-', $date_time[0], 3); /*split date into y, m, d */
     switch ($GLOBALS['date_display_format']) {
-       case 1: /*mm-dd-yyy*/
-            $formated_date = $date_elements[1] . '-'. $date_elements[2] . '-' . $date_elements[0];
+        case 1: /*mm-dd-yyy*/
+            $formated_date = $date_elements[1] . '-' . $date_elements[2] . '-' . $date_elements[0];
             break;
-       case 2:  /*dd-mm-yyy */
+        case 2:  /*dd-mm-yyy */
             $formated_date = $date_elements[2] . '-' . $date_elements[1] . '-' . $date_elements[0];
             break;
      /* if 0 - YYYYMMDD nothing to do */
-      default:
-        $formated_date = $date_time[0];
-     }
+        default:
+            $formated_date = $date_time[0];
+    }
     $client_name = getPatientNameFirstLast($pid);
   /* strip out white space - replace with underscore  - for use in file name*/
     $client_name_fn = str_replace(" ", "_", $client_name);
-    $client_file_name = $client_name_fn . '_gad7_' . $id. '.pdf' ; /* downloaded file name */
+    $client_file_name = $client_name_fn . '_gad7_' . $id . '.pdf' ; /* downloaded file name */
 
-    if ($_SESSION['language_direction']== 'rtl'){
+    if ($_SESSION['language_direction'] == 'rtl') {
         $mpdf->SetDirectionality('rtl');
     }
     $mpdf->WriteHTML('<p><h2>Generalised Anxiety Disorder 7 (GAD-7) </h2></p>');
@@ -124,11 +124,11 @@ function GeneratePDF($pid, $id)
 
   /* D or I set in administration:global settings:PDF:output type */
     try {
-       $mpdf->Output($client_file_name, $GLOBALS['pdf_output']);
-     } catch (\MpdfException $exception) {
-       echo "Mpdf exception: " . text($exception);
+        $mpdf->Output($client_file_name, $GLOBALS['pdf_output']);
+    } catch (\MpdfException $exception) {
+        echo "Mpdf exception: " . text($exception);
         $pdf_ret = false;
-     }
+    }
  return $pdf_ret;
 }
 
@@ -140,6 +140,6 @@ $form_id = $_GET['form_id'];
 /* the following line makes no difference to the crash */
 $foo = 'some string or another';
 
-if (!GeneratePDF($pid, $form_id)){
+if (!GeneratePDF($pid, $form_id)) {
     echo "error generating pdf file";
 }
