@@ -1,13 +1,16 @@
 <?php
 
-/************************************************************************
-            phone_number.php - Copyright duhlman
-
-/usr/share/apps/umbrello/headings/heading.php
-
-This file was generated on %date% at %time%
-The original location of this file is /home/duhlman/uml-generated-code/prescription.php
-**************************************************************************/
+/**
+ * phone number class for smarty templates
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    duhlman
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) duhlman
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 define("TYPE_HOME", 1);
 define("TYPE_WORK", 2);
@@ -34,7 +37,7 @@ class PhoneNumber extends ORDataObject
     var $type_array = array("","Home", "Work", "Cell" , "Emergency" , "Fax");
 
     /**
-     * Constructor sets all Prescription attributes to their default value
+     * Constructor sets all attributes to their default value
      */
     function __construct($id = "", $foreign_id = "")
     {
@@ -183,6 +186,10 @@ class PhoneNumber extends ORDataObject
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
+        } else {
+            $this->area_code = '';
+            $this->prefix = '';
+            $this->number = '';
         }
     }
 
@@ -207,12 +214,4 @@ class PhoneNumber extends ORDataObject
 
         parent::persist();
     }
-} // end of PhoneNumber
-/*$p = new PhoneNumber(1);
-echo $p->toString();
-$p = new PhoneNumber(true);
-
-$ps = PhoneNumber::factory_phone_numbers(55);
-foreach($ps as $p) {
-    echo $p->toString(true);
-}*/
+}

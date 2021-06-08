@@ -1,14 +1,20 @@
 <?php
 
 /**
- * This script Assign acl 'Emergency login'.
+ * This script assigns ACL 'Emergency login'.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -143,27 +149,63 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             //END (CHEMED)
         }
 
-        if ($GLOBALS['restrict_user_facility'] && $_POST["schedule_facility"]) {
-            $sqlBindArray = [];
-            $scheduledFacilityString = "";
-            foreach ($_POST["schedule_facility"] as $scheduledFacility) {
-                $scheduledFacilityString .= "?,";
-                array_push($sqlBindArray, $scheduledFacility);
+        if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) {
+            if (empty($_POST["schedule_facility"])) {
+                $_POST["schedule_facility"] = array();
             }
-            if (!empty($scheduledFacilityString)) {
-                $scheduledFacilityString = substr($scheduledFacilityString, 0, -1);
+            $tmpres = sqlStatement(
+                "SELECT * FROM users_facility WHERE " .
+                "tablename = ? AND table_id = ?",
+                array('users', $_POST["id"])
+            );
+            // $olduf will become an array of entries to delete.
+            $olduf = array();
+            while ($tmprow = sqlFetchArray($tmpres)) {
+                $olduf[$tmprow['facility_id'] . '/' . $tmprow['warehouse_id']] = true;
             }
-            array_unshift($sqlBindArray, $_POST["id"]);
-            sqlStatement("delete from users_facility
-            where tablename='users'
-            and table_id= ?
-            and facility_id not in (" . $scheduledFacilityString . ")", $sqlBindArray);
-
+            // Now process the selection of facilities and warehouses.
             foreach ($_POST["schedule_facility"] as $tqvar) {
-                sqlStatement("replace into users_facility set
-                facility_id = ?,
-                tablename='users',
-                table_id = ?", array($tqvar, $_POST["id"]));
+                if (($i = strpos($tqvar, '/')) !== false) {
+                    $facid = substr($tqvar, 0, $i);
+                    $whid = substr($tqvar, $i + 1);
+                    // If there was also a facility-only selection for this warehouse then remove it.
+                    if (isset($olduf["$facid/"])) {
+                        $olduf["$facid/"] = true;
+                    }
+                } else {
+                    $facid = $tqvar;
+                    $whid = '';
+                }
+                if (!isset($olduf["$facid/$whid"])) {
+                    sqlStatement(
+                        "INSERT INTO users_facility SET tablename = ?, table_id = ?, " .
+                        "facility_id = ?, warehouse_id = ?",
+                        array('users', $_POST["id"], $facid, $whid)
+                    );
+                }
+                $olduf["$facid/$whid"] = false;
+                if ($facid == $deffacid) {
+                    $deffacid = 0;
+                }
+            }
+            // Now delete whatever is left over for this user.
+            foreach ($olduf as $key => $value) {
+                if ($value && ($i = strpos($key, '/')) !== false) {
+                    $facid = substr($key, 0, $i);
+                    $whid = substr($key, $i + 1);
+                    sqlStatement(
+                        "DELETE FROM users_facility WHERE " .
+                        "tablename = ? AND table_id = ? AND facility_id = ? AND warehouse_id = ?",
+                        array('users', $_POST["id"], $facid, $whid)
+                        // At one time binding here screwed up by matching all warehouse_id values
+                        // when it's an empty string, and so the code below was used.
+                        /**********************************************
+                        "tablename = 'users' AND table_id = '" . add_escape_custom($_POST["id"]) . "'" .
+                        " AND facility_id = '" . add_escape_custom($facid) . "'" .
+                        " AND warehouse_id = '" . add_escape_custom($whid) . "'"
+                        **********************************************/
+                    );
+                }
             }
         }
 
@@ -201,17 +243,19 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
-        $bg_count = count($_POST['access_group']);
-        for ($i = 0; $i < $bg_count; $i++) {
-            if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)) {
-                $show_message = 1;
-            }
-        }
-
-        if (($_POST['access_group'])) {
+        if (is_countable($_POST['access_group'])) {
+            $bg_count = count($_POST['access_group']);
             for ($i = 0; $i < $bg_count; $i++) {
-                if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['user_type']) == "" && ($_POST['check_acl'] == 1) && ($_POST['active']) != "") {
-                    $set_active_msg = 1;
+                if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)) {
+                    $show_message = 1;
+                }
+            }
+
+            if (($_POST['access_group'])) {
+                for ($i = 0; $i < $bg_count; $i++) {
+                    if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['user_type']) == "" && ($_POST['check_acl'] == 1) && ($_POST['active']) != "") {
+                        $set_active_msg = 1;
+                    }
                 }
             }
         }
@@ -244,6 +288,14 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         if (isset($_POST["supervisor_id"])) {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
+        if (isset($_POST["google_signin_email"])) {
+            if (empty($_POST["google_signin_email"])) {
+                $googleSigninEmail = null;
+            } else {
+                $googleSigninEmail = $_POST["google_signin_email"];
+            }
+            sqlStatement("update users set google_signin_email = ? where id = ? ", array($googleSigninEmail, $_POST["id"]));
+        }
 
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
@@ -270,12 +322,10 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlStatement("select distinct username from users where username != ''");
+        $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
         $doit = true;
-        while ($row = sqlFetchArray($res)) {
-            if ($doit == true && $row['username'] == trim($_POST['rumple'])) {
-                $doit = false;
-            }
+        if (!empty($res['username'])) {
+            $doit = false;
         }
 
         if ($doit == true) {

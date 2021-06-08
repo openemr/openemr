@@ -473,11 +473,19 @@ function imdeleted() {
 // Called to switch to the specified encounter having the specified DOS.
 // This also closes the popup window.
 function toencounter(enc, datestr, topframe) {
-    topframe.restoreSession();
+    top.restoreSession();
     top.goToEncounter(enc);
     if (opener) dlgclose();
 }
+
 </script>
+<style>
+    @media print {
+        #donebutton {
+            display: none;
+        }
+    }
+</style>
 </head>
 <body>
     <div class="container mt-3">
@@ -506,11 +514,11 @@ function toencounter(enc, datestr, topframe) {
                             text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
                         </tr>
                         <tr>
-                            <td><?php echo xlt('Paid Via'); ?>:</td>
+                            <td><?php echo xlt('How Paid'); ?>:</td>
                             <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
                         </tr>
                         <tr>
-                            <td><?php echo xlt('Check/Ref Number'); ?>:</td>
+                            <td><?php echo xlt('Check or Reference Number'); ?>:</td>
                             <td><?php echo text($payrow['source']) ?></td>
                         </tr>
                         <tr>
@@ -683,9 +691,9 @@ function CheckVisible(MakeBlank) { //Displays and hides the check number text bo
     }
 }
 
-function validate() {
+function validate(notSubmit = false) {
     var f = document.forms[0];
-    ok = -1;
+    let ok = -1;
     top.restoreSession();
     issue = 'no';
     // prevent an empty form submission
@@ -710,7 +718,7 @@ function validate() {
     if (((document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'check_payment' ||
             document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'bank_draft') &&
             document.getElementById('check_number').value == '')) {
-        alert(<?php echo xlj('Please Fill the Check/Ref Number'); ?>);
+        alert(<?php echo xlj('Please Fill the Check or Reference Number'); ?>);
         document.getElementById('check_number').focus();
         return false;
     }
@@ -730,7 +738,7 @@ function validate() {
             {
                 if (elem.value * 1 > 0) {//A warning message, if the amount is posted with out encounter.
                     if (confirm(<?php echo xlj('If patient has appointment click OK to create encounter otherwise, cancel this and then create an encounter for today visit.'); ?>)) {
-                        ok = 1;
+                        ok = 2;
                     } else {
                         elem.focus();
                         return false;
@@ -773,7 +781,10 @@ function validate() {
             }
         }
     }
-    if (ok == -1) {
+    if (notSubmit) {
+        return true;
+    }
+    if (ok === -1) {
         if (confirm(<?php echo xlj('Would you like to save?'); ?>)) {
             return true;
         }
@@ -781,6 +792,7 @@ function validate() {
             return false;
         }
     }
+    return ok;
 }
 
 function cursor_pointer() { //Point the cursor to the latest encounter(Today)
@@ -975,7 +987,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
@@ -996,7 +1008,7 @@ function make_insurance() {
                             </select>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
+                            <label class="control-label" for="check_number"><?php echo xlt('Check or Reference Number'); ?>:</label>
                             <div id="ajax_div_patient" style="display:none;"></div>
                             <input type='text' id="check_number" name='form_source' class='form-control' value='<?php echo attr($payrow['source'] ?? ''); ?>' />
                         </div>
@@ -1043,18 +1055,18 @@ function make_insurance() {
                             <table class="table" id="table_display">
                                 <thead>
                                     <tr class="table-active" id="tr_head">
-                                        <td class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></td>
-                                        <td class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
-                                        <td class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
-                                        <td class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></td>
+                                        <th class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></td>
+                                        <th class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
+                                        <th class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
                                     </tr>
                                 </thead>
                                 <?php
@@ -1218,8 +1230,6 @@ function make_insurance() {
                                         $patcopay
                                     );
                                 }
-
-
                                 // Continue with display of the data entry form.
                                 ?>
 
@@ -1242,10 +1252,13 @@ function make_insurance() {
                     </fieldset>
                     <div class="form-group">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group" role="group">
+                            <div class="form-group" role="group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if ($GLOBALS['cc_front_payments'] && $GLOBALS['payment_gateway'] != 'InHouse') {
-                                    echo '<button type="button" class="btn btn-success btn-transmit" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
+                                    echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                    if (!empty($GLOBALS['cc_stripe_terminal'])) {
+                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
+                                    }
                                 }  ?>
                                 <button type='button' class="btn btn-secondary btn-cancel" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
@@ -1321,8 +1334,6 @@ function make_insurance() {
                                             <div class="col-md-4">
                                                 <select name="year" id="expYear" class="form-control">
                                                     <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                    <option value="2019">2019</option>
-                                                    <option value="2020">2020</option>
                                                     <option value="2021">2021</option>
                                                     <option value="2022">2022</option>
                                                     <option value="2023">2023</option>
@@ -1331,6 +1342,8 @@ function make_insurance() {
                                                     <option value="2026">2026</option>
                                                     <option value="2027">2027</option>
                                                     <option value="2028">2028</option>
+                                                    <option value="2028">2029</option>
+                                                    <option value="2028">2030</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
@@ -1393,6 +1406,7 @@ function make_insurance() {
                                     <input type='hidden' name='cc_type' id='cc_type' value='' />
                                     <input type='hidden' name='payment' id='paymentAmount' value='' />
                                     <input type='hidden' name='invValues' id='invValues' value='' />
+                                    <input type='hidden' name='encs' id='encs' value='' />
                                 </fieldset>
                             </form>
                         <?php } ?>
@@ -1530,85 +1544,155 @@ function make_insurance() {
 
         <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { // Begin Include Stripe ?>
             <script>
-                    const stripe = Stripe(publicKey);
-                    const elements = stripe.elements();
-                    const style = {
-                        base: {
-                            color: '#32325d',
-                            lineHeight: '1.2rem',
-                            fontSmoothing: 'antialiased',
-                            '::placeholder': {
-                                color: '#ccc'
-                            }
-                        },
-                        invalid: {
-                            color: '#f42c03',
-                            iconColor: '#ff0000'
+                // await validation function.
+                const waitValidate = async (state = false) => {
+                    return await validate(state);
+                }
+                const stripe = Stripe(publicKey);
+                const elements = stripe.elements();
+                const style = {
+                    base: {
+                        color: '#32325d',
+                        lineHeight: '1.2rem',
+                        fontSmoothing: 'antialiased',
+                        '::placeholder': {
+                            color: '#ccc'
                         }
-
-                    };
-                    // Create an instance of the card Element.
-                const card = elements.create('card', {style: style});
-                    // Add an instance of the card Element into the `card-element` <div>.
-                    card.mount('#card-element');
-                    // Handle real-time validation errors from the card Element.
-                    card.addEventListener('change', function (event) {
-                        let displayError = document.getElementById('card-errors');
-                        if (event.error) {
-                            displayError.textContent = event.error.message;
-                        } else {
-                            displayError.textContent = '';
-                        }
-                    });
-                    // Handle form submission.
-                    let form = document.getElementById('stripeSubmit');
-                    form.addEventListener('click', function (event) {
-                        event.preventDefault();
-                        stripe.createToken(card).then(function (result) {
-                            if (result.error) {
-                                // Inform the user if there was an error.
-                                let errorElement = document.getElementById('card-errors');
-                                errorElement.textContent = result.error.message;
-                            } else {
-                                // Send the token to server.
-                                stripeTokenHandler(result.token);
-                            }
-                        });
-                    });
-
-                    // Submit the form with the token ID.
-                    function stripeTokenHandler(token) {
-                        // Insert the token ID into the form so it gets submitted to the server
-                        let oForm = document.forms['payment-form'];
-                        oForm.elements['mode'].value = "Stripe";
-
-                        let hiddenInput = document.createElement('input');
-                        hiddenInput.setAttribute('type', 'hidden');
-                        hiddenInput.setAttribute('name', 'stripeToken');
-                        hiddenInput.setAttribute('value', token.id);
-                        oForm.appendChild(hiddenInput);
-
-                        // Submit payment to server
-                        fetch('./front_payment_cc.php', {
-                            method: 'POST',
-                            body: new FormData(oForm)
-                        }).then((response) => {
-                            if (!response.ok) {
-                                throw Error(response.statusText);
-                            }
-                            return response.json();
-                        }).then(function (data) {
-                            if (data.status !== 'ok') {
-                                alert(data);
-                                return;
-                            }
-                            document.getElementById("check_number").value = data.authCode;
-                            alert(chargeMsg + "\n" + 'Auth: ' + data.authCode + ' TransId: ' + data.transId);
-                            $("[name='form_save']").click();
-                        }).catch(function (error) {
-                            alert(error)
-                        });
+                    },
+                    invalid: {
+                        color: '#f42c03',
+                        iconColor: '#ff0000'
                     }
+
+                };
+                // Create an instance of the card Element.
+                const card = elements.create('card', {style: style});
+                // Add an instance of the card Element into the `card-element` <div>.
+                card.mount('#card-element');
+                // Handle real-time validation errors from the card Element.
+                card.addEventListener('change', function (event) {
+                    let displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+                // Handle form submission.
+                let form = document.getElementById('stripeSubmit');
+                form.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    stripe.createToken(card).then(function (result) {
+                        if (result.error) {
+                            // Inform the user if there was an error.
+                            let errorElement = document.getElementById('card-errors');
+                            errorElement.textContent = result.error.message;
+                        } else {
+                            // Send the token to server.
+                            stripeTokenHandler(result.token);
+                        }
+                    });
+                });
+
+                // Submit the form with the token ID.
+                function stripeTokenHandler(token) {
+                    // below for manual cc audit
+                    const encDates = (() => {
+                        let i = 0, c;
+                        let invDates = '';
+                        $('#table_display tbody tr').each(function () {
+                            if (this.className == 'table-active') {
+                                return false;
+                            }
+                            if(i > 4) {
+                                return false; // breaks on max 5 encounters
+                            }
+                            invDates += 'item' + ++i + ': ';
+                            c = 0;
+                            $(this).find('td').each(function() {
+                                if (++c < 3) {
+                                    invDates += this.innerText + ' ';
+                                }
+                            })
+                        });
+                        return invDates;
+                    })();
+                    // Insert the token ID into the form so it gets submitted to the server
+                    let oForm = document.forms['payment-form'];
+                    oForm.elements['mode'].value = "Stripe";
+                    oForm.elements['encs'].value = encDates;
+
+                    let hiddenInput = document.createElement('input');
+                    hiddenInput.setAttribute('type', 'hidden');
+                    hiddenInput.setAttribute('name', 'stripeToken');
+                    hiddenInput.setAttribute('value', token.id);
+                    oForm.appendChild(hiddenInput);
+
+                    // Submit payment to server
+                    fetch('./front_payment_cc.php', {
+                        method: 'POST',
+                        body: new FormData(oForm)
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw Error(response.statusText);
+                        }
+                        return response.json();
+                    }).then(function (data) {
+                        if (data.status !== 'ok') {
+                            alert(data);
+                            return;
+                        }
+                        document.getElementById("check_number").value = data.transId;
+                        alert(chargeMsg + "\n" + 'Auth: ' + data.authCode + ' TransId: ' + data.transId);
+                        $("[name='form_save']").click();
+                    }).catch(function (error) {
+                        alert(error.message);
+                    });
+                }
+                // terminal
+                <?php if (!empty($GLOBALS['cc_stripe_terminal'])) { ?>
+                // Dialog function for Stripe terminal payment.
+                // Will post on successful credit payment.
+                function posDialog() {
+                    // to pass validation check and saving a user having to click.
+                    $("#form_method").val('credit_card');
+                    // let's validate prior to collect payment from terminal
+                    // we'll use an await and validate promise to proceed.
+                    waitValidate(true).then((validateOk) => {
+                        // validation failed for some reason that user is aware
+                        // by alerts or a quite fail we'll handle.
+                        if (validateOk === false || typeof validateOk === 'undefined') {
+                            return false;
+                        }
+                        // if 2 then need an encounter so credit is no no!
+                        // 1 would be posting against old encounter. will allow.
+                        if (validateOk === 2) {
+                            alert(xl("Must have an encounter to take credit card payment."));
+                            return true;
+                        }
+                        let total = $("[name='form_paytotal']").val();
+                        let prepay = $("#form_prepayment").val();
+                        // just to be sure. validate() should catch...
+                        if (Number(total) < 1) {
+                            if (Number(prepay) < 1) {
+                                let error = xl("Please enter a payment amount");
+                                alert(error);
+                                return false;
+                            }
+                            total = prepay;
+                        }
+                        $("#payTotal").text(total);
+                        $("#paymentAmount").val(total);
+                        let title = xl("POS Payment");
+                        let url = "./front_payment_terminal.php?total=" + encodeURIComponent(total);
+                        dlgopen(url, 'terminal', 'modal-md', '550', '', title, {
+                            buttons: [
+                                {text: xl('Cancel'), close: false, id: "closeBtn", style: 'secondary btn-cancel'}
+                            ]
+                        });
+                    });
+                }
+                <?php } ?>
             </script>
         <?php } ?>
 

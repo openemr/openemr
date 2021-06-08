@@ -43,7 +43,7 @@ class Documents extends AbstractPlugin
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */
-    public function getDocument($documentId, $doEncryption = false, $encryption_key = '')
+    public static function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
                 $obj = new \C_Document();
                 $document = $obj->retrieve_action("", $documentId, true, true, true);

@@ -151,7 +151,8 @@ CREATE TABLE `audit_details` (
   `field_value` TEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `audit_master_id` (`audit_master_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -188,6 +189,8 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('X12_SFTP', 'SFTP Claims to X12 Partner Service', 0, 0, '2021-01-18 11:25:10', 1, 'start_X12_SFTP', '/library/billing_sftp_service.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
 -- --------------------------------------------------------
 
 --
@@ -243,6 +246,7 @@ CREATE TABLE `billing` (
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pricelevel` varchar(31) default '',
   `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
+  `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -1359,6 +1363,8 @@ CREATE TABLE `drug_sales` (
   `bill_date` datetime default NULL,
   `pricelevel` varchar(31) default '',
   `selector` varchar(255) default '' comment 'references drug_templates.selector',
+  `trans_type` tinyint NOT NULL DEFAULT 1 COMMENT '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment',
+  `chargecat` varchar(31) default '',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -1377,6 +1383,7 @@ CREATE TABLE `drug_templates` (
   `quantity` int(11) NOT NULL default '0',
   `refills` int(11) NOT NULL default '0',
   `taxrates` varchar(255) default NULL,
+  `pkgqty` float NOT NULL DEFAULT 1.0 COMMENT 'Number of product items per template item',
   PRIMARY KEY  (`drug_id`,`selector`)
 ) ENGINE=InnoDB;
 
@@ -1397,10 +1404,10 @@ CREATE TABLE `drugs` (
   `max_level` float NOT NULL DEFAULT 0.0,
   `last_notify` date NULL,
   `reactions` text,
-  `form` int(3) NOT NULL default '0',
+  `form` varchar(31) NOT NULL default '0',
   `size` varchar(25) NOT NULL default '',
-  `unit` int(11) NOT NULL default '0',
-  `route` int(11) NOT NULL default '0',
+  `unit` varchar(31) NOT NULL default '0',
+  `route` varchar(31) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
   `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
@@ -1723,6 +1730,29 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive'
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `form_clinical_notes`
+--
+
+DROP TABLE IF EXISTS `form_clinical_notes`;
+CREATE TABLE `form_clinical_notes` (
+    `id` bigint(20) NOT NULL,
+    `date` DATE DEFAULT NULL,
+    `pid` bigint(20) DEFAULT NULL,
+    `encounter` varchar(255) DEFAULT NULL,
+    `user` varchar(255) DEFAULT NULL,
+    `groupname` varchar(255) DEFAULT NULL,
+    `authorized` tinyint(4) DEFAULT NULL,
+    `activity` tinyint(4) DEFAULT NULL,
+    `code` varchar(255) DEFAULT NULL,
+    `codetext` text,
+    `description` text,
+    `external_id` VARCHAR(30) DEFAULT NULL,
+    `clinical_notes_type` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `form_dictation`
 --
 
@@ -1773,6 +1803,8 @@ CREATE TABLE `form_encounter` (
   `pos_code` tinyint(4) default NULL,
   `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
+  `shift` varchar(31) NOT NULL DEFAULT '',
+  `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -2153,6 +2185,7 @@ CREATE TABLE `form_vitals` (
   `waist_circ` float(5,2) default '0.00',
   `head_circ` float(4,2) default '0.00',
   `oxygen_saturation` float(5,2) default '0.00',
+  `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
@@ -3101,6 +3134,7 @@ CREATE TABLE `issue_types` (
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','default','medical_problem','Medical Problems','Problem','P','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','default','medication','Medications','Medication','M','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','default','allergy','Allergies','Allergy','A','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('35','default','medical_device','Medical Devices','Device','I','0','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','default','surgery','Surgeries','Surgery','S','0','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','default','dental','Dental Issues','Dental','D','0','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','ippf_specific','medical_problem','Medical Problems','Problem','P','0','1');
@@ -3210,9 +3244,13 @@ CREATE TABLE `layout_group_properties` (
   grp_size        int(11)        not null default 0,
   grp_issue_type  varchar(75)    not null default '',
   grp_aco_spec    varchar(63)    not null default '',
+  grp_save_close  tinyint(1)     not null default 0,
+  grp_init_open   tinyint(1)     not null default 0,
+  grp_referrals   tinyint(1)     not null default 0,
   grp_services    varchar(4095)  not null default '',
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
+  grp_last_update timestamp      NULL,
   PRIMARY KEY (grp_form_id, grp_group_id)
 ) ENGINE=InnoDB;
 
@@ -3287,20 +3325,24 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 5, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 6, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
-
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 7, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 8, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 9, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 10, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 11, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 12, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 13, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 14, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 15, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 16, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 17, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 5, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', '1', 'Birth Name', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', '1', '', 7, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', '1', '', 8, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 9, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 10, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 11, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 12, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 13, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 14, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 15, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 16, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 17, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 18, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 19, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 20, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 21, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 22, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
@@ -3486,8 +3528,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Mrs.', 'Mrs.', 2, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Ms.', 'Ms.', 3, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('titles', 'Dr.', 'Dr.', 4, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('sex', 'Female', 'Female', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('sex', 'Male', 'Male', 2, 0);
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'Female', 'Female', 1, 0, 'HL7:F');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'Male', 'Male', 2, 0, 'HL7:M');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('sex', 'UNK', 'Unknown', 10, 0, 'HL7:UNK');
+
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'married', 'Married', 1, 0, 'M');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'single', 'Single', 2, 0, 'S');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'divorced', 'Divorced', 3, 0, 'D');
@@ -6362,6 +6407,30 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verific
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'refuted', 'Refuted', 30);
 INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('condition-verification', 'entered-in-error', 'Entered in Error', 40);
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'sexual_orientation', 'Sexual Orientation', '1');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','20430005','Straight or heterosexual',10,0,0,'SNOMED:20430005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','38628009','Lesbian, gay or homosexual',20,0,0,'SNOMED:38628009');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','42035005','Bisexual',30,0,0,'SNOMED:42035005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','comment_OTH','Something else, please describe',40,0,0,'HL7:OTH');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','UNK','Don\'t know',50,0,0,'HL7:UNK');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('sexual_orientation','ASKU','Choose not to disclose',60,0,0,'HL7:ASKU');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'gender_identity', 'Gender Identity', '1');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446151000124109','Identifies as Male',10,0,0,'SNOMED:446151000124109');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446141000124107','Identifies as Female',20,0,0,'SNOMED:446141000124107');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','407377005','Female-to-Male (FTM)/Transgender Male/Trans Man',30,0,0,'SNOMED:407377005');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','407376001','Male-to-Female (MTF)/Transgender Female/Trans Woman',40,0,0,'SNOMED:407376001');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','446131000124102','Genderqueer, neither exclusively male nor female',50,0,0,'SNOMED:446131000124102');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','comment_OTH','Additional gender category or other, please specify',60,0,0,'HL7:OTH');
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','ASKU','Choose not to disclose',70,0,0,'HL7:ASKU');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','active','Active',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
+
 -- --------------------------------------------------------
 
 --
@@ -6376,6 +6445,8 @@ CREATE TABLE `lists` (
   `type` varchar(255) default NULL,
   `subtype` varchar(31) NOT NULL DEFAULT '',
   `title` varchar(255) default NULL,
+  `udi` varchar(255) default NULL,
+  `udi_data` text,
   `begdate` date default NULL,
   `enddate` date default NULL,
   `returndate` date default NULL,
@@ -6447,7 +6518,8 @@ CREATE TABLE `log` (
   `log_from` VARCHAR(20) DEFAULT 'open-emr',
   `menu_item_id` INT(11) DEFAULT NULL,
   `ccda_doc_id` INT(11) DEFAULT NULL COMMENT 'CCDA document id from ccda',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 
@@ -7070,6 +7142,11 @@ CREATE TABLE `patient_data` (
   `guardianphone` TEXT,
   `guardianworkphone` TEXT,
   `guardianemail` TEXT,
+  `sexual_orientation` TEXT,
+  `gender_identity` TEXT,
+  `birth_fname` TEXT,
+  `birth_lname` TEXT,
+  `birth_mname` TEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -7384,7 +7461,7 @@ CREATE TABLE `registry` (
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22;
+) ENGINE=InnoDB AUTO_INCREMENT=25;
 
 --
 -- Inserting data for table `registry`
@@ -7406,6 +7483,7 @@ INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instruction
 INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
 INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
 INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
+INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
 
 -- --------------------------------------------------------
 
@@ -8320,6 +8398,7 @@ CREATE TABLE `users` (
   `billname` varchar(255) default NULL,
   `email` varchar(255) default NULL,
   `email_direct` varchar(255) NOT NULL default '',
+  `google_signin_email` VARCHAR(255) UNIQUE DEFAULT NULL,
   `url` varchar(255) default NULL,
   `assistant` varchar(255) default NULL,
   `organization` varchar(255) default NULL,
@@ -8486,6 +8565,8 @@ CREATE TABLE `voids` (
   `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
   `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
   `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  `reason`                 VARCHAR(31)   default '',
+  `notes`                  VARCHAR(255)  default '',
   PRIMARY KEY (`void_id`),
   KEY datevoided (date_voided),
   KEY pidenc (patient_id, encounter_id)
@@ -8674,6 +8755,7 @@ CREATE TABLE ar_activity (
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
+  post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -8689,7 +8771,8 @@ CREATE TABLE `users_facility` (
   `tablename` varchar(64) NOT NULL,
   `table_id` int(11) NOT NULL,
   `facility_id` int(11) NOT NULL,
-  PRIMARY KEY (`tablename`,`table_id`,`facility_id`)
+  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
+  PRIMARY KEY (`tablename`,`table_id`,`facility_id`,`warehouse_id`)
 ) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
 
 -- -----------------------------------------------------------------------------------
@@ -9981,6 +10064,31 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
 
+-- void reasons list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','void_reasons','Void Reasons',1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','one'  ,'Reason 1',10,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('void_reasons','two'  ,'Reason 2',20,0);
+
+-- payment methods list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','paymethod','Payment Methods', 1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Cash' ,'Cash' ,10,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Check','Check',20,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','MC'   ,'MC'   ,30,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','VISA' ,'VISA' ,40,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','AMEX' ,'AMEX' ,50,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','DISC' ,'DISC' ,60,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('paymethod','Other','Other',70,0);
+
+-- shift list
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','shift','Shifts', 1, 0);
+
+-- Charge categories list (Customers), used by IPPF checkout
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists','chargecats','Customers', 1, 0);
+
 -- list_options for `form_eye`
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLManufacturer', 'Eye Contact Lens Manufacturer list', 1, 0);
@@ -10533,6 +10641,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'ODVITREOUS', 'clear', 504, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'clear', 505, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -10553,6 +10662,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'OSVITREOUS', 'clear', 506, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'clear', 515, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -10596,6 +10706,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','plan_of_care','Plan of Care','1','0','0','','INT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','procedure','Procedure','3','0','0','','RQO','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','test_or_order','Test/Order','2','0','0','','RQO','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
@@ -10611,6 +10724,22 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 ('attendstat', '?', '? Did Not Attend', '30', '0', '0', 'BFBFBF|0', '1'),
 ('attendstat', '~', '~ Late Arrival', '40', '0', '0', 'BFBFBF|0', '1'),
 ('attendstat', 'x', 'x Cancelled', '50', '0', '0', 'FEFDCF|0', '0');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','Clinical_Note_Type','Clinical Note Type',0,1,0,'',NULL,'',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','progress_note','Progress Note',10,0,0,'','LOINC:11506-3','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','nurse_note','Nurse Note',20,0,0,'','LOINC:34746-8','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','history_physical','History & Physical',30,0,0,'','LOINC:34117-2','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','general_note','General Note',40,0,0,'','LOINC:34109-9','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','discharge_summary','Discharge Summary Note',50,0,0,'','LOINC:18842-5','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','procedure_note','Procedure Note',60,0,0,'','LOINC:28570-0','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:81222-2','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 
 -- --------------------------------------------------------
 
@@ -10833,7 +10962,9 @@ INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_com
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
-
+INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `ccda_components_name`, `ccda_type`) VALUES
+('23', 'medical_devices', 'Medical Devices', 1),
+('24', 'goals', 'Goals', 1);
 -- --------------------------------------------------------
 
 --
@@ -10896,8 +11027,9 @@ INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('43','8','procedure_description','Procedure Description','0');
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('44','8','procedure_indications','Procedure Indications','0');
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
-
--- --------------------------------------------------------
+INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
+('46', '3', 'medical_devices', 'Medical Devices', '0'),
+('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
 
 --
 -- Table structure for table `ccda_field_mapping`
@@ -11605,44 +11737,46 @@ CREATE TABLE `medex_icons` (
 -- Dumping data for table `medex_icons`
 --
 
+
 INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `i_html`, `i_blob`) VALUES
-(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="fa fa-commenting-o fa-fw"></i>', ''),
-(2, 'SMS', 'NotAllowed', '', '<span class="fa-stack" title="SMS not possible"><i class="fa fa-commenting-o fa-stack-1x fa-fw"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-commenting-o fa-inverse fa-flip-horizontal fa-fw" aria-hidden="true"></i></span>', ''),
-(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
-(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="padding:5px;background-color:green;"><i class="fa fa-commenting-o fa-inverse fa-fw"></i></span>', ''),
-(8, 'SMS', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="padding:5px;background-color:#000;color:#fff;"><i class="fa fa-terminal fa-fw"></i></span>', ''),
-(10, 'SMS', 'STOP', '', '<span class="btn btn-danger" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'><i class="fa fa-commenting" aria-hidden="true"> STOP</i></span>', ''),
-(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fa fa-phone fa-fw"></span>', ''),
-(12, 'AVM', 'NotAllowed', '', '<span class="fa-stack" title="Automated Voice Messages are not allowed"><i class="fa fa-phone fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fa fa-phone fa-fw"></i></span>', ''),
-(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-volume-control-phone fa-fw"></i></span>', ''),
-(15, 'AVM', 'FAILED', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-phone fa-fw"></i></span>', ''),
-(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fa fa-phone fa-inverse fa-fw"></i></span>', ''),
-(17, 'AVM', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(18, 'AVM', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
-(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fa fa-phone" aria-hidden="true"> STOP</i></span>', ''),
-(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fa fa-envelope-o fa-fw"></span>', ''),
-(21, 'EMAIL', 'NotAllowed', '', '<span class="fa-stack" title="EMAIL is not possible"><i class="fa fa-envelope-o fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(23, 'EMAIL', 'SENT', '', '<span class="btn" style="padding:5px;background-color:yellow;color:black;" title="EMAIL Message sent, not opened"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(24, 'EMAIL', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-inverse fa-fw" aria-hidden="true"></i></a>', ''),
-(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient\'s email address." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
-(26, 'EMAIL', 'CONFIRMED', '', '<a class="btn btn-success" style="padding:5px;background-color: green;" title="Confirmed by E-Mail" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i></a>', ''),
-(27, 'EMAIL', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(28, 'EMAIL', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
-(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fa fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
-(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fa fa-image fa-fw"></i></span>', ''),
-(31, 'POSTCARD', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fa fa-image fa-fw" aria-hidden="true"></i></a>', ''),
-(32, 'POSTCARD', 'FAILED', '', '<span class="fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fa fa-image fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
-(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fa fa-image fa-fw"></i></span>', ''),
-(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
-(37, 'SMS', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(38, 'AVM', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
-(39, 'EMAIL', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', '');
+(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="far fa-comment-dots fa-fw"></i>', ''),
+(2, 'SMS', 'NotAllowed', '', '<span class="fas fa-stack" title="SMS not possible"><i title="SMS is not possible." class="fas fa-comment-dots fa-fw"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="background-color:yellow;"><i aria-hidden="true" class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="background-color:#146abd;"><i aria-hidden="true" class="fas fa-comment-dots fa-inverse fa-flip-horizontal fa-fw"></i></span>', ''),
+(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="background-color:#ffc4c4;"><i aria-hidden="true" class="fas fa-comment-dots fa-fw"></i></span>', ''),
+(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="background-color:green;"><i aria-hidden="true" class="fas fa-comment-dots fa-inverse fa-flip-horizontal fa-fw"></i></span>', ''),
+(8, 'SMS', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call"><i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="background-color:#000;color:#fff;"><i class="fas fa-terminal fa-fw"></i></span>', ''),
+(10, 'SMS', 'STOP', '', '<span class="btn btn-danger fas fa-comment-dots" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'> STOP</span>', ''),
+(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fas fa-phone fa-fw"></span>', ''),
+(12, 'AVM', 'NotAllowed', '', '<span class="fas fa-stack" title="Automated Voice Messages are not allowed"><i class="fas fa-phone fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fas fa-phone fa-fw"></i></span>', ''),
+(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="background-color:yellow;"><i class="fas fa-phone-volume fa-reverse fa-fw"></i></span>', ''),
+(15, 'AVM', 'FAILED', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="background-color:#ffc4c4;"><i class="fas fa-phone fa-fw"></i></span>', ''),
+(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fas fa-phone fa-inverse fa-fw"></i></span>', ''),
+(17, 'AVM', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call">\r\n<i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(18, 'AVM', 'Other', '', '<span class="fas fa-stack fa-lg"><i class="fas fa-square fa-stack-2x"></i><i class="fas fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
+(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fas fa-phone" aria-hidden="true"> STOP</i></span>', ''),
+(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fas fa-envelope fa-fw"></span>', ''),
+(21, 'EMAIL', 'NotAllowed', '', '<span class="fas fa-stack" title="EMAIL is not possible"><i class="fas fa-envelope fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(23, 'EMAIL', 'SENT', '', '<span class="btn" style="background-color:yellow;" title="EMAIL Message sent, not opened"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(24, 'EMAIL', 'READ', '', '<span class="btn" style="background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Read via email"><i aria-hidden="true" class="fas fa-envelope fa-inverse fa-fw"></i></span>', ''),
+(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient\'s email address." style="background-color:#ffc4c4;"><i class="fas fa-envelope fa-fw"></i></span>', ''),
+(26, 'EMAIL', 'CONFIRMED', '', '<span class="btn" title="Confirmed by E-Mail" aria-label="Confirmed via email" style="background-color: green;"><i aria-hidden="true" class="fas fa-envelope fa-inverse fa-fw"></i></span>', ''),
+(27, 'EMAIL', 'CALL', '', '<span class="btn" style="background-color: red;" title="Patient requests Office Call"><i class="fas fa-flag fa-inverse fa-fw"></i></span>', ''),
+(28, 'EMAIL', 'Other', '', '<span class="fas fa-stack fa-lg"><i class="fas fa-square fa-stack-2x"></i><i class="fas fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
+(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fas fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
+(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fas fa-image fa-fw"></i></span>', ''),
+(31, 'POSTCARD', 'READ', '', '<span class="btn" style="background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fas fa-image fa-fw" aria-hidden="true"></i></span>', ''),
+(32, 'POSTCARD', 'FAILED', '', '<span class="fas fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fas fa-image fa-fw fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fas fa-image fa-fw"></i></span>', ''),
+(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fas fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
+(37, 'SMS', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>', ''),
+(38, 'AVM', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>    ', ''),
+(39, 'EMAIL', 'CALLED', '', '<span class="btn" style="background-color:#146abd;" title="Patient requests Office Call: COMPLETED"><i class="fas fa-flag fa-fw"></i></span>', '');
+
 
 -- --------------------------------------------------------
 

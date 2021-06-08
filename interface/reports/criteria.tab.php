@@ -254,9 +254,11 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     <li class="list-group-item bg-light d-flex justify-content-between align-items-center">
                         <a class="link_submit" href="#" onclick="javascript:return SubmitTheScreen();"><strong><?php echo xlt('Update List') ?></strong></a><i id='update-tooltip' class="fa fa-info-circle fa-lg text-primary" aria-hidden="true"></i>
                     </li>
-                    <li class="list-group-item bg-light">
-                        <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenExportOFX();"><strong><?php echo xlt('Export OFX'); ?></strong></a>
-                    </li>
+                    <?php if (file_exists("$webserver_root/custom/BillingExport.php")) { ?>
+                        <li class="list-group-item bg-light">
+                            <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenExportOFX();"><strong><?php echo xlt('Export OFX'); ?></strong></a>
+                        </li>
+                    <?php } ?>
                     <li class="list-group-item bg-light">
                         <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenPrint();"><strong><?php echo xlt('View Printable Report'); ?></strong></a>
                     </li>

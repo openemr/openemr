@@ -1,15 +1,13 @@
 <?php
 
- // Copyright (C) 2011 Ken Chapple
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
- // Holds library functions (and hashes) used by the appointment reporting module
-
-
+/**
+ * Holds library functions (and hashes) used by the appointment reporting module
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2011 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
 
 require_once(dirname(__FILE__) . "/encounter_events.inc.php");
 require_once(dirname(__FILE__) . "/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");

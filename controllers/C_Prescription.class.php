@@ -19,6 +19,7 @@ require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class C_Prescription extends Controller
@@ -33,7 +34,6 @@ class C_Prescription extends Controller
     function __construct($template_mod = "general")
     {
         parent::__construct();
-
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
@@ -42,7 +42,11 @@ class C_Prescription extends Controller
         $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
         $this->RxList = new RxList();
-
+        // test if rxnorm available for lookups.
+        $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
+        $rxcui = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
+        $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
+        $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
@@ -713,10 +717,9 @@ class C_Prescription extends Controller
 
         $this->multiprint_footer($pdf);
 
-            $pFirstName = $p->patient->fname; //modified by epsdky for prescription title change to include patient name and ID
-            $pFName = convert_safe_file_dir_name($pFirstName);
-            $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
-
+        $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
+        $pFName = convert_safe_file_dir_name($pFirstName);
+        $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
         $pdf->ezStream(array('Content-Disposition' => $modedFileName));
         return;
     }
@@ -920,11 +923,11 @@ class C_Prescription extends Controller
                     return;
         }
 
-                // process the lookup
+        // process the lookup
         $this->assign("drug", $_POST['drug']);
         $list = array();
         if (!empty($_POST['drug'])) {
-            $list = $this->RxList->get_list($_POST['drug']);
+            $list = $this->RxList->getList($_POST['drug']);
         }
 
         if (is_array($list)) {

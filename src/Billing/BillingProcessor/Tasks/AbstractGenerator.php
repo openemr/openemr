@@ -66,7 +66,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask
         if ($this instanceof GeneratorCanValidateInterface) {
             if ($this->getAction() === BillingProcessor::VALIDATE_ONLY) {
                 $this->validateOnly($claim);
-            } else if ($this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR) {
+            } elseif ($this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR) {
                 $this->validateAndClear($claim);
             }
         }

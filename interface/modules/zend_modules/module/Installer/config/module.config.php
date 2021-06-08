@@ -67,6 +67,16 @@ return array(
                     )
                 ),
 
+                'acl-modify' => array(
+                    'options' => array(
+                        'route' => 'acl-modify --site= --modname= --aclgroup= --aclaction= ',
+                        'defaults' => array(
+                            'controller' => Acl\Controller\AclController::class,
+                            'action' => 'acl-modify-command',
+                        ),
+                    )
+                ),
+
                 'register' => array(
                     'options' => array(
                         'route'    => 'register --mtype= --modname=',
@@ -77,6 +87,35 @@ return array(
                     ),
                 ),
 
+                'ccda-import' => array(
+                    'options' => array(
+                        'route'    => 'ccda-import --site= --document_id=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'import-command',
+                        ),
+                    ),
+                ),
+
+                'ccda-newpatient' => array(
+                    'options' => array(
+                        'route'    => 'ccda-newpatient --site= --am_id= --document_id=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'newpatient-command',
+                        ),
+                    ),
+                ),
+
+                'ccda-newpatient-import' => array(
+                    'options' => array(
+                        'route'    => 'ccda-newpatient-import --site= --document=',
+                        'defaults' => array(
+                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
+                            'action'     => 'newpatient-import-command',
+                        ),
+                    ),
+                ),
             )
         )
     ),

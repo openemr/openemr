@@ -89,6 +89,7 @@ $esignApi = new Api();
             // Send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR. Notify App for various portal and reminder alerts.
             // Combined portal and reminders ajax to fetch sjp 06-07-2020.
+            // Incorporated timeout mechanism in 2021
             restoreSession();
             let request = new FormData;
             request.append("skip_timeout_reset", "1");
@@ -105,6 +106,10 @@ $esignApi = new Api();
                 }
                 return response.json();
             }).then((data) => {
+                if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
+                    // timeout has happened, so logout
+                    timeoutLogout();
+                }
                 if (isPortalEnabled) {
                     let mail = data.mailCnt;
                     let chats = data.chatCnt;
@@ -267,8 +272,6 @@ $esignApi = new Api();
 </style>
 </head>
 <body class="min-vw-100">
-    <!-- Below iframe is to support auto logout when timeout is reached -->
-    <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings

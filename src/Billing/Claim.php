@@ -19,7 +19,8 @@ use OpenEMR\Services\FacilityService;
 
 class Claim
 {
-    const X12_VERSION = '005010X222A1';
+    public const X12_VERSION = '005010X222A1';
+    public const NOC_CODES = array('J3301'); // special handling for not otherwise classified HCPCS/CPT, not many so can add more here
 
     public $pid;               // patient id
     public $encounter_id;      // encounter id
@@ -171,8 +172,8 @@ class Claim
         "b.activity, b.payer_id, b.bill_process, b.bill_date, b.process_date, " .
         "b.process_file, b.modifier, b.units, b.fee, b.justify, b.target, b.x12_partner_id, " .
         "b.ndc_info, b.notecodes, b.revenue_code, ct.ct_diag " .
-        "FROM billing as b INNER JOIN code_types as ct " .
-        "ON b.code_type = ct.ct_key " .
+        "FROM billing as b " .
+        "INNER JOIN code_types as ct ON b.code_type = ct.ct_key " .
         "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND b.encounter = ? AND b.pid = ? AND " .
         "b.activity = '1' ORDER BY b.date, b.id";
         $res = sqlStatement($sql, array($this->encounter_id, $this->pid));
@@ -1242,6 +1243,17 @@ class Claim
         return '';
     }
 
+    // Not Otherwise Classified codes require a description on the SV1 line after the modifiers
+    public function cptNOC($prockey)
+    {
+        return in_array($this->cptCode($prockey), Claim::NOC_CODES);
+    }
+
+    public function cptDescription($prockey)
+    {
+        return $this->x12Clean($this->procs[$prockey]['code_text']);
+    }
+
     public function onsetDate()
     {
         return $this->cleanDate($this->encounter['onset_date']);
@@ -1444,18 +1456,6 @@ class Claim
                     $da[$diag] = $diag;
                 }
             }
-        }
-
-        // The above got all the diagnoses used for justification, in the order
-        // used for justification.  Next we go through all diagnoses, justified
-        // or not, to make sure they all get into the claim.  We do it this way
-        // so that the more important diagnoses appear first.
-        foreach ($this->diags as $diag) {
-            if ($strip_periods) {
-                $diag = str_replace('.', '', $diag);
-            }
-
-            $da[$diag] = $diag;
         }
 
         return $da;

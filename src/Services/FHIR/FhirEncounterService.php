@@ -17,6 +17,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService
@@ -39,9 +41,9 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function loadSearchParameters()
     {
         return  [
-            '_id' => ['uuid'],
-            'patient' => ['pid'],
-            'date' => ['date']
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['pid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
         ];
     }
 

@@ -19,6 +19,7 @@ var show_just;
  * which then populates the form with the select patient data
  */
 function recall_name_click(field) {
+    top.restoreSession();
     dlgopen('../../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
 }
 
@@ -258,14 +259,15 @@ $(function () {
 function newEvt(pid, pc_eid) {
     var f = document.forms[0];
     var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
+    top.restoreSession();
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
 
 function delete_Recall(pid, r_ID) {
     if (confirm('Are you sure you want to delete this Recall?')) {
-        //top.restoreSession();
         var url = 'save.php';
+        top.restoreSession();
         $.ajax({
             type: 'POST',
             url: url,
@@ -283,6 +285,7 @@ function delete_Recall(pid, r_ID) {
 }
 
 function refresh_me() {
+    top.restoreSession();
     location.reload();
 }
 
@@ -309,6 +312,7 @@ function goMessages() {
 }
 
 function goMedEx() {
+    top.restoreSession();
     location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
 }
 
@@ -341,7 +345,10 @@ function show_this(colorish='') {
 
 //in bootstrap_menu.js
 function tabYourIt(tabNAME, url) {
-    tabNAME = window.name;
+    if (!top.tab_mode) {
+        tabNAME = window.name;
+    }
+    top.restoreSession();
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
@@ -361,6 +368,16 @@ $(function () {
         $(this).parent().addClass('open');
         $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
     });
+    $(".divTableRow").mouseover(function () {
+        if ((!$(this).hasClass('divTableHeading')) &&
+            (!$(this).hasClass('greenish')) &&
+            (!$(this).parents().hasClass('newRecall')) &&
+            (!$(this).parents().hasClass('prefs'))
+        ) $(this).addClass("yellow").css('cursor', 'pointer');
+    });
+    $(".divTableRow").mouseout(function () {
+        $(this).removeClass('yellow');
+    });
     $("[name='new_recall_when']").change(function () {
         var dolv = moment($("#DOLV").val());
         now = dolv.add($(this).val(), 'days').format(format_date_moment_js);
@@ -371,16 +388,36 @@ $(function () {
         var url = "save.php";
         top.restoreSession();
         $.ajax({
-            type: 'POST',
-            url: url,
-            data: formData,
-            action: 'save_prefs'
-        }).done(function (result) {
+                   type: 'POST',
+                   url: url,
+                   data: formData,
+                   action: 'save_prefs'
+               }).done(function (result) {
             $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
             setTimeout(function () {
                 $("#div_response").html('<br />');
             }, 2000);
         });
     });
+    var bs_interval = $("#execute_interval").val();
+    if (bs_interval < '1') {
+        $("#active_sync").hide();
+        $("#paused").show();
+    }  else {
+        $("#paused").hide();
+        $("#active_sync").show();
+    }
+    $("#execute_interval").change(function() {
+        var bs_interval = $("#execute_interval").val();
+        if (bs_interval <'1') {
+            $("#active_sync").hide();
+            $("#paused").show();
+        }  else {
+            $("#display_interval").text(bs_interval);
+            $("#paused").hide();
+            $("#active_sync").show();
+        }
+    });
+
 });
 

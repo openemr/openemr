@@ -7,6 +7,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\PractitionerRoleService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 
 /**
  * FHIR PractitionerRole Service
@@ -39,8 +41,8 @@ class FhirPractitionerRoleService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "specialty" => ["specialty_code"],
-            "practitioner" => ["user_name"],
+            'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
+            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name'])
         ];
     }
 
@@ -139,7 +141,7 @@ class FhirPractitionerRoleService extends FhirServiceBase
      * Performs a FHIR PractitionerRole Resource lookup by FHIR Resource ID
      * @param $fhirResourceId //The OpenEMR record's FHIR PractitionerRole Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
         $processingResult = $this->practitionerRoleService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {

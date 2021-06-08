@@ -22,48 +22,12 @@ use Ramsey\Uuid\Uuid;
  */
 class FacilityFixtureManager extends BaseFixtureManager
 {
-    private $facilityFixtures;
     private $fhirFacilityFixtures;
 
     public function __construct()
     {
-        $this->facilityFixtures = $this->loadJsonFile("facility.json");
+        parent::__construct("facility.json", "facility");
         $this->fhirFacilityFixtures = $this->loadJsonFile("FHIR/facility.json");
-    }
-
-    /**
-     * Installs fixtures into the OpenEMR DB.
-     *
-     * @param $tableName The target OpenEMR DB table name.
-     * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
-     */
-    private function installFixtures($tableName, $fixtures)
-    {
-        $insertCount = 0;
-        $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
-
-        foreach ($fixtures as $index => $fixture) {
-            $sqlColumnValues = "";
-            $sqlBinds = array();
-
-            foreach ($fixture as $field => $fieldValue) {
-                $sqlColumnValues .= $field . " = ?, ";
-                array_push($sqlBinds, $fieldValue);
-            }
-
-            // add uuid
-            $sqlColumnValues .= '`uuid` = ?';
-            $uuidFacility = $this->getUuid("facility");
-            array_push($sqlBinds, $uuidFacility);
-
-            $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            $isInserted = sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) {
-                $insertCount += 1;
-            }
-        }
-        return $insertCount;
     }
 
     /**
@@ -87,24 +51,16 @@ class FacilityFixtureManager extends BaseFixtureManager
      */
     public function getFacilityFixtures()
     {
-        return $this->facilityFixtures;
+        return $this->getFixturesFromFile();
     }
 
-    /**
-     * @return random single entry from an array.
-     */
-    private function getSingleEntry($array)
-    {
-        $randomIndex = array_rand($array, 1);
-        return $array[$randomIndex];
-    }
 
     /**
      * @return a random facility fixture.
      */
     public function getSingleFacilityFixture()
     {
-        return $this->getSingleEntry($this->facilityFixtures);
+        return $this->getSingleEntry($this->getFixturesFromFile());
     }
 
     /**
@@ -128,7 +84,7 @@ class FacilityFixtureManager extends BaseFixtureManager
     /**
      * Removes Facility Fixtures from the OpenEMR DB.
      */
-    public function removeFacilityFixtures()
+    public function removeInstalledFixtures()
     {
         $bindVariable = self::FIXTURE_PREFIX . "%";
 

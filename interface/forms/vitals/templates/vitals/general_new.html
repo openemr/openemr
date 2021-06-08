@@ -74,6 +74,7 @@ function vitalsFormSubmitted() {
     .currentvalues {
         padding-right: 5px;
         text-align: left;
+        min-width: 6rem;
     }
 
     th.currentvalues,
@@ -269,6 +270,13 @@ function vitalsFormSubmitted() {
                                 {foreach item=result from=$results}
                                     <td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"|text}{/if}</td>
                                 {/foreach}</tr>
+
+                                <tr><td class="graph" id="oxygen_flow_rate">{xlt t="Oxygen Flow Rate"}</td><td>{xlt t="l/min"}</td>
+                                    <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
+                                        name='oxygen_flow_rate' id='oxygen_flow_rate_input' value="{if $vitals->get_oxygen_flow_rate() != 0}{$vitals->get_oxygen_flow_rate()|attr}{/if}"/></td>
+                                    {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.oxygen_flow_rate != 0}{$result.oxygen_flow_rate|text}{/if}</td>
+                                    {/foreach}</tr>
 
                                 {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
                                         {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xlt t="Head Circumference"}</td>

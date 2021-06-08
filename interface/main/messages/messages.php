@@ -104,7 +104,7 @@ if (
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
-    echo "<br />";
+    echo "<br /><br /><br />";
 }
 
 if (!empty($_REQUEST['go'])) { ?>
@@ -393,18 +393,15 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
                                                 </div>
                                                 <div class="col-6 col-md-4">
-                                                    <label for="form_patient">
-                                                        <?php
-                                                        if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                            <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')"><?php echo xlt('Patient'); ?>:</a>
-                                                            <?php
-                                                        } else { ?>
-                                                            <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span>
-                                                            <?php
-                                                        }
-                                                        ?>
-                                                    </label>
                                                     <?php
+                                                    if ($task != "addnew" && $result['pid'] != 0) { ?>
+                                                        <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                        <?php
+                                                    } else { ?>
+                                                        <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
+                                                        <?php
+                                                    }
+
                                                     if ($reply_to) {
                                                         $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
                                                             "FROM patient_data WHERE pid = ?", array($reply_to));
@@ -529,9 +526,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                                $body = nl2br(text(oeFormatPatientNote($body)));
-                                                // echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
-                                                echo "<input type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' value='$body'>";
+                                                $body = text(oeFormatPatientNote($body));
+                                                echo "<textarea type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' rows='3' readonly>" . $body . "</textarea>";
                                             }
 
                                             ?>
@@ -896,7 +892,6 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                             })
                         };
-                        return x;
                     },
                     cache: true
                 }

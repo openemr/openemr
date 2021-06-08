@@ -52,7 +52,7 @@ $form_DOB = $args['DOB'];
 
     function openPatient(ptid) {
         var f = opener.document.forms[0];
-        var ename = '<?php echo addslashes("select[$form_key]"); ?>';
+        var ename = <?php echo js_escape("select[$form_key]"); ?>;
         if (f[ename]) {
             f[ename].value = ptid;
             window.close();

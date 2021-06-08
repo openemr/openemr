@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -107,8 +109,8 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, addresses.line1, addresses.line2, addresses.city,
-            addresses.state, addresses.zip
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+            addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
             AND insurance_companies.inactive != 1
@@ -139,6 +141,10 @@ function getInsuranceProvidersExtra()
                     ", " . $row['state'] . ", " . $row['zip'] . ")";
                 break;
             case $GLOBALS['insurance_information'] = '6':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
+                    ", " . $row['state'] . ", " . $row['zip'] . ", " . $row['cms_id'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '7':
                 preg_match("/\d+/", $row['line1'], $matches);
                 $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
                     "," . $matches[0] . ")";
@@ -1178,6 +1184,13 @@ function newInsuranceData(
         return false;
     }
 
+    if (is_null($accept_assignment)) {
+        $accept_assignment = "TRUE";
+    }
+    if (is_null($policy_type)) {
+        $policy_type = "";
+    }
+
     // If empty dates were passed, then null.
     if (empty($effective_date)) {
         $effective_date = null;
@@ -1705,7 +1718,10 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0",
                 array($pid, $encounter)
             );
-            $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            // going to comment this out for now since computing future copays doesn't
+            // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
+            // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
             $ptbal = $copay + $amt - $pay;
@@ -1728,6 +1744,39 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
     }
 
     return sprintf('%01.2f', $balance);
+}
+
+function get_patient_balance_excluding($pid, $excluded = -1)
+{
+    // We join form_encounter here to make sure we only count amounts for
+    // encounters that exist.  We've had some trouble before with encounters
+    // that were deleted but leaving line items in the database.
+    $brow = sqlQuery(
+        "SELECT SUM(b.fee) AS amount " .
+        "FROM billing AS b, form_encounter AS fe WHERE " .
+        "b.pid = ? AND b.encounter != 0 AND b.encounter != ? AND b.activity = 1 AND " .
+        "fe.pid = b.pid AND fe.encounter = b.encounter",
+        array($pid, $excluded)
+    );
+    $srow = sqlQuery(
+        "SELECT SUM(s.fee) AS amount " .
+        "FROM drug_sales AS s, form_encounter AS fe WHERE " .
+        "s.pid = ? AND s.encounter != 0 AND s.encounter != ? AND " .
+        "fe.pid = s.pid AND fe.encounter = s.encounter",
+        array($pid, $excluded)
+    );
+    $drow = sqlQuery(
+        "SELECT SUM(a.pay_amount) AS payments, " .
+        "SUM(a.adj_amount) AS adjustments " .
+        "FROM ar_activity AS a, form_encounter AS fe WHERE " .
+        "a.deleted IS NULL AND a.pid = ? AND a.encounter != 0 AND a.encounter != ? AND " .
+        "fe.pid = a.pid AND fe.encounter = a.encounter",
+        array($pid, $excluded)
+    );
+    return sprintf(
+        '%01.2f',
+        $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments']
+    );
 }
 
 // Function to check if patient is deceased.

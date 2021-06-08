@@ -120,14 +120,16 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 } else { // = 1 or not set
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('F') . " (" . text($convValue) . " " . xlt('C')  . ")</div></td>";
                 }
-            } elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI") {
-                $value = number_format($value, 0);
+            } elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI" || $key == "Oxygen Flow Rate") {
+                $c_value = number_format($value, 0);
                 if ($key == "Oxygen Saturation") {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('%') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
+                } elseif ($key == "Oxygen Flow Rate") {
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('l/min') . "</div></td>";
                 } elseif ($key == "BMI") {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('kg/m^2') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('kg/m^2') . "</div></td>";
                 } else { //pulse and respirations
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('per min') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('per min') . "</div></td>";
                 }
             } else {
                 $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . "</div></td>";

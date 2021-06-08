@@ -631,7 +631,7 @@ $to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $rows = array();
     $sqlBindArray = array();
-    $query = "select b.code_type, b.code, b.code_text, b.pid, b.provider_id, " .
+    $query = "select b.code_type, b.code, b.code_text, b.modifier, b.pid, b.provider_id, " .
     "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, " .
     "ins.name, " .
     "fe.encounter, fe.date, fe.reason, fe.provider_id " .
@@ -820,7 +820,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
             $print = "<tr style='background-color:" . attr($bgcolor) . ";'>";
-            $print .= "<td class='detail'>" . text($erow['code']) . "</td>";
+            $print .= "<td class='detail'>" . text($erow['code']);
+            if ($erow['modifier']) {
+                $print .= ":" . text($erow['modifier']);
+            }
+            $print .= "</td>";
             $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
             $bill = substr($erow['bill_date'], 0, 10);

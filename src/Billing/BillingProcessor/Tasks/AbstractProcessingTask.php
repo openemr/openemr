@@ -13,6 +13,7 @@
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingUtilities;
 
 abstract class AbstractProcessingTask
 {

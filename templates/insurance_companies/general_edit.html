@@ -2,11 +2,12 @@
  * Insurance company edit
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
+
 <form name="insurancecompany" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
     <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
     if it were called last, the settings from the form would be overwritten with the old information-->
@@ -74,6 +75,12 @@
         <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
         <div class="col-sm-8">
             <input type="text" id="phone" name="phone" class="form-control" value="{$insurancecompany->get_phone()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="fax" name="fax" class="form-control" value="{$insurancecompany->get_fax()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     <div class="form-row my-sm-2">
