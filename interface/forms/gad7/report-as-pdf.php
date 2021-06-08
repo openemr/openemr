@@ -129,7 +129,7 @@ function GeneratePDF($pid, $id)
         echo "Mpdf exception: " . text($exception);
         $pdf_ret = false;
     }
- return $pdf_ret;
+    return $pdf_ret;
 }
 
 /* start executing here when called from client */
