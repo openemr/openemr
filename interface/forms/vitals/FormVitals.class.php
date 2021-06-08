@@ -347,8 +347,7 @@ class FormVitals extends ORDataObject
      */
     public function set_uuid($uuid)
     {
-        if (!empty($uuid))
-        {
+        if (!empty($uuid)) {
             $this->uuid = $uuid;
         }
     }
@@ -363,8 +362,7 @@ class FormVitals extends ORDataObject
     }
     public function persist()
     {
-        if (empty($uuid))
-        {
+        if (empty($uuid)) {
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
         parent::persist();

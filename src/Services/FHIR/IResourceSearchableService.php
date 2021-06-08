@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IResourceSearchableService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 interface IResourceSearchableService
 {

@@ -34,23 +34,21 @@ class UuidMapping
         $sql = "select * from `uuid_mapping` WHERE uuid = ?";
         $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
         $result = QueryUtils::fetchRecords($sql, [$uuid_as_binary]);
-        if (!empty($result))
-        {
+        if (!empty($result)) {
             return $result[0];
         }
         return $result;
     }
     // For now, support one to one uuid to target table, but will plan to add one uuid to many targets tables in future
     //   when presented with that use case (this is why the uuid column in uuid_mapping is not unique btw).
-    public static function createMissingResourceUuids($resource, $table, $resourcePath=null)
+    public static function createMissingResourceUuids($resource, $table, $resourcePath = null)
     {
         $include_resource_path = !empty($resourcePath);
         $sqlStatement = "SELECT `" . $table . "`.`uuid`
                        FROM `" . $table . "`
                        LEFT OUTER JOIN `uuid_mapping` ON `" . $table . "`.`uuid` = `uuid_mapping`.`target_uuid` AND `uuid_mapping`.`resource` = ? ";
         $bindValues = [$resource];
-        if ($include_resource_path)
-        {
+        if ($include_resource_path) {
             $sqlStatement .= " AND `resource_path` = ? ";
             $bindValues[] = $resourcePath;
         }
@@ -69,8 +67,7 @@ class UuidMapping
         while ($row = sqlFetchArray($resultSet)) {
             // populate the missing mapped uuids
             $bindValues = [(new UuidRegistry(['table_name' => 'uuid_mapping', 'mapped' => true]))->createUuid(), $resource, $table, $row['uuid']];
-            if ($include_resource_path)
-            {
+            if ($include_resource_path) {
                 $bindValues[] = $resourcePath;
             }
             sqlQueryNoLog($insertStatement, $bindValues);

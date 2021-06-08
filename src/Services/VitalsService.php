@@ -115,12 +115,20 @@ class VitalsService extends BaseService
 
         // add in all the measurement fields
 
-        $kgToLb = function($val) { return number_format($val *  0.45359237, 2); };
-        $cmToInches = function($val) { return round(number_format($val * 2.54, 2), 1); };
-        $fhToCelsius = function($val) { return round(number_format(($val - 32) * (5/9), 1)); };
-        $identity = function($val) { return $val; };
+        $kgToLb = function ($val) {
+            return number_format($val *  0.45359237, 2);
+        };
+        $cmToInches = function ($val) {
+            return round(number_format($val * 2.54, 2), 1);
+        };
+        $fhToCelsius = function ($val) {
+            return round(number_format(($val - 32) * (5 / 9), 1));
+        };
+        $identity = function ($val) {
+            return $val;
+        };
 
-        $convertArrayValue = function($index, $converter, $unit, &$array) {
+        $convertArrayValue = function ($index, $converter, $unit, &$array) {
             $array[$index] = $converter($array[$index]);
             $array[$index . "_unit"] = $unit;
         };
@@ -157,12 +165,10 @@ class VitalsService extends BaseService
 
     public function create($record)
     {
-
     }
 
     public function save()
     {
-
     }
 
     function getUuidFields(): array

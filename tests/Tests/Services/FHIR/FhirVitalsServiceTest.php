@@ -1,5 +1,14 @@
 <?php
 /**
+ * FhirVitalsServiceTest.php
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/**
  * VitalsServiceTest.php
  * @package openemr
  * @link      http://www.open-emr.org
@@ -10,13 +19,12 @@
 
 namespace OpenEMR\Tests\Services;
 
-
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Services\VitalsService;
+use OpenEMR\Services\FHIR\FhirVitalsService;
 use PHPUnit\Framework\TestCase;
 
-class VitalsServiceTest extends TestCase
+class FhirVitalsServiceTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -41,7 +49,7 @@ class VitalsServiceTest extends TestCase
         $values = [$id, 'test-vital-signs'];
         QueryUtils::sqlStatementThrowException($sql, $values);
 
-        $service = new VitalsService();
+        $service = new FhirVitalsService();
 
         // now let's make sure we have a bunch of uuid's generated
         $uuid = QueryUtils::fetchSingleValue("select `uuid` FROM form_vitals WHERE id=?", 'uuid', [$id]);
@@ -50,15 +58,15 @@ class VitalsServiceTest extends TestCase
         $uuidMapping = new UuidMapping();
         $mappedRecords = $uuidMapping->getMappedRecordsForTableUUID($uuid);
         $resourcePath = [];
-        foreach ($mappedRecords as $record)
-        {
+        foreach ($mappedRecords as $record) {
             $this->assertEquals("Observation", $record['resource'], "Resource was not populated for mapped uuids");
             $resourcePath[] = $record['resource_path'];
         }
         $expectedCodes = ['59408-5', '77606-2', '59576-9', '8289-1'];
-        $expectedPaths = array_map(function($code) { return "category=vital-signs&code=$code"; }, $expectedCodes);
-        foreach ($expectedPaths as $path)
-        {
+        $expectedPaths = array_map(function ($code) {
+            return "category=vital-signs&code=$code";
+        }, $expectedCodes);
+        foreach ($expectedPaths as $path) {
             $this->assertContains($path, $resourcePath, "Mapped UUIDs did not contain $path");
         }
     }

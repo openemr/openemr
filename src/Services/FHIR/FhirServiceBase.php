@@ -234,7 +234,6 @@ abstract class FhirServiceBase implements IResourceSearchableService
                 // precedence and ALL values will be UNIONED (AND clause).
                 $searchField = $this->createSearchParameterForField($fhirSearchField, $searchValue);
                 $oeSearchParameters[$searchField->getName()] = $searchField;
-
             } catch (\InvalidArgumentException $exception) {
                 throw new SearchFieldException($fhirSearchField, "The search field argument was invalid, improperly formatted, or could not be parsed", $exception->getCode(), $exception);
             }

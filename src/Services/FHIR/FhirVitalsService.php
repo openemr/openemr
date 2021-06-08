@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirVitalsService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
@@ -239,14 +239,12 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     public function populateResourceMappingUuidsForAllVitals()
     {
         $resourcePathList = [];
-        foreach (self::COLUMN_MAPPINGS as $column => $mapping)
-        {
+        foreach (self::COLUMN_MAPPINGS as $column => $mapping) {
             // TODO: @adunsulag make this a single function call so we can be more effecient
 //            $resourcePathList[] = "category=vital-signs&code=" . $mapping['code'];
             $resourcePath = $this->getResourcePathForCode($mapping['code']);
             UuidMapping::createMissingResourceUuids('Observation', 'form_vitals', $resourcePath);
         }
-
     }
 
     public function supportsCode($code)
@@ -308,8 +306,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 $newSearchParams['date'] = $openEMRSearchParameters['date'];
             }
 
-            if (isset($openEMRSearchParameters['uuid']))
-            {
+            if (isset($openEMRSearchParameters['uuid'])) {
                 $newSearchParams['uuid'] = $openEMRSearchParameters['uuid'];
             }
 
@@ -327,8 +324,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 }
             }
 
-            if (empty($observationCodesToReturn))
-            {
+            if (empty($observationCodesToReturn)) {
                 // grab everything
                 $observationCodesToReturn = array_keys(self::COLUMN_MAPPINGS);
                 $observationCodesToReturn = array_combine($observationCodesToReturn, $observationCodesToReturn);
@@ -340,16 +336,12 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record)
-            {
+            foreach ($result->getData() as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseVitalsIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
             }
-        }
-        catch (SearchFieldException $exception)
-        {
+        } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
-
         }
 
         return $processingResult;
@@ -360,10 +352,8 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         $uuidMappings = $this->getVitalSignsUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
 
-        if (!empty($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]))
-        {
+        if (!empty($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE])) {
             if (!empty($uuidMappings[self::VITALS_PANEL_LOINC_CODE])) {
-
                 $vitalsRecord = [
                     "code" => self::VITALS_PANEL_LOINC_CODE
                     , "description" => $this->getDescriptionForCode(self::VITALS_PANEL_LOINC_CODE)
@@ -376,22 +366,18 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                     , "date" => $record['date']
                 ];
                 foreach ($uuidMappings as $code => $uuid) {
-                    if (!$this->isVitalSignPanelCodes($code))  // we will skip over our vital signs code, and any pediatric stuff
-                    {
+                    if (!$this->isVitalSignPanelCodes($code)) {  // we will skip over our vital signs code, and any pediatric stuff
                         continue;
                     }
                     $vitalsRecord["members"][$code] = UuidRegistry::uuidToString($uuid);
                 }
                 $processingResult->addData($vitalsRecord);
                 unset($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]);
-            }
-            else
-            {
+            } else {
                 (new SystemLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
             }
         }
-        foreach ($observationCodesToReturn as $code)
-        {
+        foreach ($observationCodesToReturn as $code) {
             $vitalsRecord = [
                 "code" => $code
                 ,"description" => $this->getDescriptionForCode($code)
@@ -405,30 +391,24 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
             $columns = $this->getColumnsForCode($code);
             // if any value of the column is populated we will return that the record has a value.
-            foreach ($columns as $column)
-            {
-                if (isset($record[$column]) && $record[$column] != "")
-                {
+            foreach ($columns as $column) {
+                if (isset($record[$column]) && $record[$column] != "") {
                     $vitalsRecord[$column] = $record[$column];
                 }
             }
             $processingResult->addData($vitalsRecord);
         }
-
     }
 
     private function getVitalSignsUuidMappings($uuid)
     {
         $mappedRecords = UuidMapping::getMappedRecordsForTableUUID($uuid);
         $codeMappings = [];
-        if (!empty($mappedRecords))
-        {
-            foreach ($mappedRecords as $record)
-            {
+        if (!empty($mappedRecords)) {
+            foreach ($mappedRecords as $record) {
                 $resourcePath = $record['resource_path'] ?? '';
                 $code = $this->getCodeFromResourcePath($resourcePath);
-                if (empty($code))
-                {
+                if (empty($code)) {
                     // TODO: @adunsulag handle this exception
                     continue;
                 }
@@ -447,8 +427,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
      */
     public function parseFhirResource($fhirResource = array())
     {
-
-
     }
 
 
@@ -514,13 +492,11 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'59576-9' => 'ped_bmi', '8289-1' => 'ped_head_circ', '77606-2' => 'ped_weight_height'
         ];
 
-        if (isset($basic_codes[$code]))
-        {
+        if (isset($basic_codes[$code])) {
             $this->populateBasicQuantityObservation($basic_codes[$code], $observation, $dataRecord);
         }
         // more complicated codes
-        switch ($code)
-        {
+        switch ($code) {
             case self::VITALS_PANEL_LOINC_CODE: // vital-signs panel
                 $this->populateVitalSignsPanelObservation($observation, $dataRecord);
                 break;
@@ -531,12 +507,22 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 $this->populateBloodPressurePanel($observation, $dataRecord);
                 break;
             case '8480-6':
-                $this->populateComponentColumn($observation, $dataRecord, 'bps', '8480-6'
-                    , 'Systolic blood pressure');
+                $this->populateComponentColumn(
+                    $observation,
+                    $dataRecord,
+                    'bps',
+                    '8480-6',
+                    'Systolic blood pressure'
+                );
                 break;
             case '8462-4':
-                $this->populateComponentColumn($observation, $dataRecord, 'bpd', '8462-4'
-                    , 'Diastolic blood pressure');
+                $this->populateComponentColumn(
+                    $observation,
+                    $dataRecord,
+                    'bpd',
+                    '8462-4',
+                    'Diastolic blood pressure'
+                );
                 break;
             case '59408-5':
                 $this->populatePulseOximetryObservation($observation, $dataRecord);
@@ -548,8 +534,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     private function getColumnsForCode($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
-        if (isset($codeMapping))
-        {
+        if (isset($codeMapping)) {
             return is_array($codeMapping['column']) ? $codeMapping['column'] : [$codeMapping['column']];
         }
         return [];
@@ -558,8 +543,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     private function getDescriptionForCode($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
-        if (isset($codeMapping))
-        {
+        if (isset($codeMapping)) {
             return $codeMapping['description'];
         }
         return "";
@@ -567,18 +551,26 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
     private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord)
     {
-        $this->populateComponentColumn($observation, $dataRecord, 'oxygen_flow_rate', '3151-8'
-            , 'Inhaled oxygen flow rate');
-        $this->populateComponentColumn($observation, $dataRecord, 'oxygen_saturation', '3150-0'
-            , 'Inhaled oxygen concentration');
+        $this->populateComponentColumn(
+            $observation,
+            $dataRecord,
+            'oxygen_flow_rate',
+            '3151-8',
+            'Inhaled oxygen flow rate'
+        );
+        $this->populateComponentColumn(
+            $observation,
+            $dataRecord,
+            'oxygen_saturation',
+            '3150-0',
+            'Inhaled oxygen concentration'
+        );
     }
 
     private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record)
     {
-        if (!empty($record['members']))
-        {
-            foreach ($record['members'] as $code => $uuid)
-            {
+        if (!empty($record['members'])) {
+            foreach ($record['members'] as $code => $uuid) {
                 $reference = UtilsService::createRelativeReference("Observation", $uuid);
                 $reference->setDisplay($this->getDescriptionForCode($code));
                 $observation->addHasMember($reference);
@@ -589,8 +581,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     private function isVitalSignPanelCodes($code)
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
-        if (isset($codeMapping))
-        {
+        if (isset($codeMapping)) {
             return $codeMapping['in_vitals_panel'];
         }
         return false;
@@ -601,9 +592,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         $quantity = $this->getFHIRQuantityForColumn($column, $record);
         if ($quantity != null) {
             $observation->setValueQuantity($quantity);
-        }
-        else
-        {
+        } else {
             $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
             $observation->setDataAbsentReason($concept);
         }
@@ -611,18 +600,15 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
     private function getFHIRQuantityForColumn($column, $record)
     {
-        if (isset($record[$column]) && floatval($record[$column]) > 0.00)
-        {
+        if (isset($record[$column]) && floatval($record[$column]) > 0.00) {
             $quantity = new FHIRQuantity();
             $quantity->setValue(floatval($record[$column]));
             $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
             $unit = $record[$column . '_unit'] ?? null;
             // @see http://hl7.org/fhir/R4/observation-vitalsigns.html for the codes on this
-            if ($unit === 'in')
-            {
+            if ($unit === 'in') {
                 $unit = 'in_i';
-            } else if ($unit === 'lb')
-            {
+            } else if ($unit === 'lb') {
                 $unit = 'lb_av';
             }
             $quantity->setCode($unit);
@@ -630,15 +616,24 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             return $quantity;
         }
         return null;
-
     }
 
     private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord)
     {
-        $this->populateComponentColumn($observation, $dataRecord, 'bps', '8480-6'
-            , 'Systolic blood pressure');
-        $this->populateComponentColumn($observation, $dataRecord, 'bpd', '8462-4'
-            , 'Diastolic blood pressure');
+        $this->populateComponentColumn(
+            $observation,
+            $dataRecord,
+            'bps',
+            '8480-6',
+            'Systolic blood pressure'
+        );
+        $this->populateComponentColumn(
+            $observation,
+            $dataRecord,
+            'bpd',
+            '8462-4',
+            'Diastolic blood pressure'
+        );
     }
 
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
@@ -649,13 +644,10 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         $quantity = $this->getFHIRQuantityForColumn($column, $dataRecord);
         if ($quantity != null) {
             $component->setValueQuantity($quantity);
-        }
-        else
-        {
+        } else {
             $component->setDataAbsentReason(UtilsService::createDataMissingExtension());
         }
         $observation->addComponent($component);
-
     }
 
     private function populateBodyTemperatureLocation(FHIRObservation $observation, $record)

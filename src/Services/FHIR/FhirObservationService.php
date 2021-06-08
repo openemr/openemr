@@ -109,15 +109,13 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['code']))
-        {
+        if (!empty($dataRecord['code'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($dataRecord['codetext']);
             $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observationResource->setCode($categoryCode);
-        }
-        else if (!empty($dataRecord['procedure_code'])) {
+        } else if (!empty($dataRecord['procedure_code'])) {
             $categoryCoding->setCode($dataRecord['procedure_code']);
             $categoryCoding->setSystem('http://loinc.org');
             $categoryCoding->setDisplay($dataRecord['procedure_name']);
@@ -179,9 +177,9 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $fhirSearchResult = new ProcessingResult();
         try {
             if (isset($fhirSearchParameters['_id'])) {
-                $result = $this->populateSurrogateSearchFieldsForUUID($fhirSearchParameters['_id'], $fhirSearchParameters);;
-                if ($result instanceof ProcessingResult) // failed to populate so return the results
-                {
+                $result = $this->populateSurrogateSearchFieldsForUUID($fhirSearchParameters['_id'], $fhirSearchParameters);
+                ;
+                if ($result instanceof ProcessingResult) { // failed to populate so return the results
                     return $result;
                 }
             }
@@ -202,15 +200,12 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             } else if (isset($fhirSearchParameters['code'])) {
                 $service = $this->getObservationServiceForCode($fhirSearchParameters['code']);
                 // if we have a service let's search on that
-                if (isset($service))
-                {
+                if (isset($service)) {
                     $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-                }
-                else {
+                } else {
                     $fhirSearchResult = $this->searchAllObservationServices($fhirSearchParameters, $puuidBind);
                 }
-            }
-            else {
+            } else {
                 $fhirSearchResult = $this->searchAllObservationServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
@@ -250,8 +245,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // need to grab the code system for each one
         if (isset($openEMRSearchParameters['uuid'])) {
             $result = $this->populateSurrogateSearchFieldsForUUID($openEMRSearchParameters['uuid'], $openEMRSearchParameters);
-            if ($result instanceof ProcessingResult) // failed to populate so return the results
-            {
+            if ($result instanceof ProcessingResult) { // failed to populate so return the results
                 return $result;
             }
         }
@@ -284,15 +278,13 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // we are going to get our
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
 
-        if (empty($mapping))
-        {
+        if (empty($mapping)) {
             $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
             return $processingResult;
         }
 
         // grab our category
-        if ($mapping['resource'] !== 'Observation')
-        {
+        if ($mapping['resource'] !== 'Observation') {
             // we have a problem here
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
             $this->logger->error("Requested observation resource for uuid that exists for a different resource", ['_id' => $fhirResourceId, 'mappingResource' => $mapping['resource']]);
@@ -302,8 +294,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // grab category and code
         $query_vars = [];
         parse_str($mapping['resource_path'], $query_vars);
-        if (empty($query_vars['category']))
-        {
+        if (empty($query_vars['category'])) {
             $processingResult->setValidationMessages(["_id" => "Resource not found for that id"]);
             $this->logger->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
             return $processingResult;
@@ -325,10 +316,8 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $searchCode = $values[0]->getCode();
 
         // we only grab the first one as we assume each service only supports a single LOINC observation code
-        foreach ($this->innerServices as $service)
-        {
-            if ($service->supportsCode($searchCode))
-            {
+        foreach ($this->innerServices as $service) {
+            if ($service->supportsCode($searchCode)) {
                 return $service;
             }
         }
@@ -395,5 +384,4 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
-
 }

@@ -164,8 +164,7 @@ class RestControllerHelper
             return; // nothing to do here as the service isn't defined.
         }
 
-        if (!$service instanceof IResourceSearchableService)
-        {
+        if (!$service instanceof IResourceSearchableService) {
             return; // nothing to do here as the source is not searchable.
         }
 
