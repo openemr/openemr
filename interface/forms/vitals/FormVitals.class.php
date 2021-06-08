@@ -12,6 +12,8 @@ define("EVENT_OTHER", 4);
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Services\VitalsService;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 class FormVitals extends ORDataObject
 {
@@ -20,6 +22,7 @@ class FormVitals extends ORDataObject
      *
      * @access public
      */
+    const TABLE_NAME = "form_vitals";
 
 
     /**
@@ -48,6 +51,7 @@ class FormVitals extends ORDataObject
     public $head_circ;
     public $oxygen_saturation;
     public $oxygen_flow_rate;
+    public $uuid;
 
     // public $temp_methods;
     /**
@@ -66,7 +70,7 @@ class FormVitals extends ORDataObject
             $this->groupname = $_SESSION['authProvider'];
         }
 
-        $this->_table = "form_vitals";
+        $this->_table = self::TABLE_NAME;
         $this->activity = 1;
         $this->pid = $GLOBALS['pid'];
         if (!empty($id)) {
@@ -314,6 +318,7 @@ class FormVitals extends ORDataObject
             $this->oxygen_saturation = $o;
         }
     }
+
     public function get_oxygen_flow_rate()
     {
         return $this->oxygen_flow_rate;
@@ -326,8 +331,47 @@ class FormVitals extends ORDataObject
             $this->oxygen_flow_rate = 0.00;
         }
     }
+
+    /**
+     * Returns the binary uuid string
+     * @return binary
+     */
+    public function get_uuid()
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * Set the binary uuid string.
+     * @param $uuid binary string
+     */
+    public function set_uuid($uuid)
+    {
+        if (!empty($uuid))
+        {
+            $this->uuid = $uuid;
+        }
+    }
+
+    public function get_uuid_string()
+    {
+        if (empty($this->uuid)) {
+            return "";
+        } else {
+            return UuidRegistry::uuidToString($this->uuid);
+        }
+    }
     public function persist()
     {
+        if (empty($uuid))
+        {
+            $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
+        }
         parent::persist();
+        $fhirVitalsService = new \OpenEMR\Services\FHIR\FhirVitalsService();
+        // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
+
+        // TODO: @adunsulag look at making this into an event and our FHIR module listens to vital saves and can respond
+        $fhirVitalsService->populateResourceMappingUuidsForAllVitals();
     }
 }   // end of Form

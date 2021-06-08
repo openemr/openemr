@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
@@ -30,6 +31,15 @@ class UtilsService
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
         return $reference;
+    }
+
+    public static function createQuantity($value, $unit, $code)
+    {
+        $quantity = new FHIRQuantity();
+        $quantity->setCode($code);
+        $quantity->setValue($value);
+        $quantity->setUnit($unit);
+        $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
     }
 
     public static function createCodeableConcept(array $diagnosisCodes, $codeSystem): FHIRCodeableConcept

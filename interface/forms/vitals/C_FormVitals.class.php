@@ -85,6 +85,7 @@ class C_FormVitals extends Controller
         $i = 1;
         while ($result = sqlFetchArray($res)) {
             $results[$i]['id'] = $result['id'];
+            $results[$i]['uuid'] = $result['uuid'];
             $results[$i]['encdate'] = substr($result['encdate'], 0, 10);
             $results[$i]['date'] = $result['date'];
             $results[$i]['activity'] = $result['activity'];

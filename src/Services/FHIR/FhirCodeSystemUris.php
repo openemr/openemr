@@ -15,16 +15,18 @@ class FhirCodeSystemUris
 {
     const SNOMED_CT = "http://snomed.info/sct";
     const NUCC_PROVIDER = "http://nucc.org/provider-taxonomy";
-    const DATA_ABSENT_REASON = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
+    const DATA_ABSENT_REASON = "http://hl7.org/fhir/StructureDefinition/data-absent-reason";
 
     // @see http://hl7.org/fhir/R4/valueset-immunization-status-reason.html
     const IMMUNIZATION_STATUS_REASON = "http://hl7.org/fhir/ValueSet/immunization-status-reason";
 
     const IMMUNIZATION_OBJECTION_REASON = "http://terminology.hl7.org/CodeSystem/v3-ActReason";
-    const IMMUNIZATION_UNIT_AMOUNT = "http://unitsofmeasure.org";
+    const UNITS_OF_MEASURE = "http://unitsofmeasure.org";
 
     const PROVIDER_NPI = "http://hl7.org/fhir/sid/us-npi";
 
     public const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
-    const LOINC = "http://loinc.org/";
+    const LOINC = "http://loinc.org";
+
+    const HL7_OBSERVATION_CATEGORY = "http://terminology.hl7.org/CodeSystem/observation-category";
 }

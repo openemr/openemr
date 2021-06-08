@@ -24,6 +24,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
@@ -163,7 +164,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->service->search($openEMRSearchParameters, true, $puuidBind);
     }

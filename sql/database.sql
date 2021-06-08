@@ -2188,6 +2188,7 @@ CREATE TABLE `form_vitals` (
   `oxygen_saturation` float(5,2) default '0.00',
   `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `uuid` BINARY(16) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -8564,6 +8565,7 @@ CREATE TABLE `uuid_mapping` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `resource` varchar(255) NOT NULL DEFAULT '',
+  `resource_path` VARCHAR(255) DEFAULT NULL,
   `table` varchar(255) NOT NULL DEFAULT '',
   `target_uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,

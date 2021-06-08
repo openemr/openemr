@@ -328,7 +328,7 @@ class FhirOrganizationService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $processingResult = $this->organizationService->search($openEMRSearchParameters);
         return $processingResult;

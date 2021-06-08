@@ -154,7 +154,7 @@ class FhirProcedureService extends FhirServiceBase
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind);
         $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind);

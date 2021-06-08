@@ -26,6 +26,13 @@ class TokenSearchField extends BasicSearchField
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
+    public function addValue(TokenSearchValue $value)
+    {
+        $values = $this->getValues();
+        $values[] = $value;
+        $this->setValues($values);
+    }
+
     public function setValues(array $values)
     {
         $convertedFields = [];

@@ -730,3 +730,10 @@ ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
 #EndIf
 
 
+#IfMissingColumn form_vitals uuid
+ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfMissingColumn uuid_mapping resource_path
+ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
+#EndIf
