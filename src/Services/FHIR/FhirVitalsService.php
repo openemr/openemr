@@ -22,12 +22,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -52,8 +50,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => self::VITALS_PANEL_LOINC_CODE
             ,'description' => 'Vital signs, weight, height, head circumference, oxygen saturation and BMI panel'
             ,'column' => ''
-            ,'column_details' => ''
-            ,'measurement_unit' => ''
             ,'in_vitals_panel' => false
         ],
         '9279-1' => [
@@ -61,8 +57,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '9279-1'
             ,'description' => 'Respiratory Rate'
             ,'column' => ['respiration', 'respiration_unit']
-            ,'column_details' => ''
-            ,'measurement_unit' => '/min'
             ,'in_vitals_panel' => true
         ]
         ,'8867-4' => [
@@ -70,60 +64,55 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '8867-4'
             ,'description' => 'Heart rate'
             ,'column' => ['pulse', 'pulse_unit']
-            ,'column_details' => ''
-            ,'measurement_unit' => '/min'
             ,'in_vitals_panel' => true
         ]
         ,'2708-6' => [
             'fullcode' => 'LOINC:2708-6'
             ,'code' => '2708-6'
             ,'description' => 'Oxygen saturation in Arterial blood'
-            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit'],
-            'column_details' => '',
-            'measurement_unit' => '%'
+            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit']
             ,'in_vitals_panel' => true
         ]
         ,'59408-5' => [
             'fullcode' => 'LOINC:59408-5',
             'code' => '59408-5',
             'description' => 'Oxygen saturation in Arterial blood by Pulse oximetry',
-            'column' => ['oxygen_saturation', 'oxygen_saturation_unit'],
-            'column_details' => '',
-            'measurement_unit' => '%'
-            ,'in_vitals_panel' => true
+            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit'],
+            'in_vitals_panel' => true
+        ]
+        ,'3151-8' => [
+            'fullcode' => 'LOINC:3151-8'
+            ,'code' => '3151-8',
+            'description' => 'Inhaled oxygen flow rate',
+            'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit'],
+            'in_vitals_panel' => true
         ]
         ,'8310-5' => [
             'fullcode' => 'LOINC:8310-5',
             'code' => '8310-5',
             'description' => 'Body Temperature',
-            'column' => ['temperature', 'temperature_unit']
-            ,'in_vitals_panel' => true
+            'column' => ['temperature', 'temperature_unit'],
+            'in_vitals_panel' => true
         ]
         ,'8327-9' => [
             'fullcode' => 'LOINC:8327-9',
             'code' => '8327-9',
             'description' => 'Temperature Location',
             'column' => 'temp_method',
-            'column_details' => '',
-            'measurement_unit' => ''
-            ,'in_vitals_panel' => true
+            'in_vitals_panel' => true
         ]
         ,'8302-2' => [
             'fullcode' => 'LOINC:8302-2',
             'code' => '8302-2',
             'description' => 'Body height',
             'column' => ['height', 'height_unit'],
-            'column_details' => '',
-            'measurement_unit' => 'cm'
-            ,'in_vitals_panel' => true
+            'in_vitals_panel' => true
         ]
         ,'9843-4' => [
             'fullcode' => 'LOINC:9843-4'
             ,'code' => '9843-4'
             ,'description' => 'Head Occipital-frontal circumference'
             ,'column' => ['head_circ', 'head_circ_unit']
-            ,'column_details' => '',
-            'measurement_unit' => 'cm'
             ,'in_vitals_panel' => true
         ]
         ,'29463-7' => [
@@ -131,16 +120,14 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '29463-7'
             ,'description' => 'Body weight'
             ,'column' => ['weight', 'weight_unit']
-            ,'column_details' => '',
-            'measurement_unit' => 'kg'
             ,'in_vitals_panel' => true
         ]
         ,'39156-5' => [
             'fullcode' => 'LOINC:39156-5'
             ,'code' => '39156-5'
             ,'description' => 'Body mass index (BMI) [Ratio]'
-            ,'column' =>  ['BMI', 'BMI_status', 'BMI_unit'],
-            'measurement_unit' => 'kg/m2'
+            ,'column' =>  ['BMI', 'BMI_status', 'BMI_unit']
+            ,'in_vitals_panel' => true
         ]
         ,'85354-9' => [
             'fullcode' => 'LOINC:85354-9'
@@ -148,8 +135,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'description' => 'Blood pressure systolic and diastolic'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit', 'bpd', 'bpd_unit']
-            ,'column_details' => 'bpd',
-            'measurement_unit' => 'mm[Hg]'
             ,'in_vitals_panel' => true
         ]
         ,'8480-6' => [
@@ -158,8 +143,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'description' => 'Systolic blood pressure'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit']
-            ,'column_details' => '',
-            'measurement_unit' => 'mm[Hg]'
             ,'in_vitals_panel' => true
         ]
         ,'8462-4' => [
@@ -168,8 +151,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'description' => 'Diastolic blood pressure'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bpd', 'bpd_unit']
-            ,'column_details' => '',
-            'measurement_unit' => 'mm[Hg]'
             ,'in_vitals_panel' => true
         ]
 
@@ -187,8 +168,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '8289-1'
             ,'description' => 'Head Occipital-frontal circumference Percentile'
             ,'column' => ['ped_head_circ', 'ped_head_circ_unit']
-            ,'column_details' => '',
-            'measurement_unit' => ''
             ,'in_vitals_panel' => false
         ]
         // 2-20yr @see https://www.cdc.gov/growthcharts/html_charts/bmiagerev.htm
@@ -197,8 +176,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '59576-9'
             ,'description' => 'Body mass index (BMI) [Percentile] Per age and sex'
             ,'column' => ['ped_bmi', 'ped_bmi_unit']
-            ,'column_details' => '',
-            'measurement_unit' => '%'
             ,'in_vitals_panel' => false
         ]
         // @see https://www.cdc.gov/growthcharts/html_charts/wtstat.htm
@@ -211,8 +188,6 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             ,'code' => '77606-2'
             ,'description' => 'Weight-for-length Per age and sex'
             ,'column' => ['ped_weight_height', 'ped_weight_height_unit']
-            ,'column_details' => '',
-            'measurement_unit' => '%'
             ,'in_vitals_panel' => false
         ]
         // need pediatric weight for height observations...
@@ -260,7 +235,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['code']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -324,6 +299,10 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 }
             }
 
+            if (isset($openEMRSearchParameters['patient'])) {
+                $newSearchParams['patient'] = $openEMRSearchParameters['patient'];
+            }
+
             if (empty($observationCodesToReturn)) {
                 // grab everything
                 $observationCodesToReturn = array_keys(self::COLUMN_MAPPINGS);
@@ -332,7 +311,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
             // convert vital sign records from 1:many
 
-            $result = $this->service->search2($newSearchParams, true);
+            $result = $this->service->search($newSearchParams, true);
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
@@ -512,7 +491,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                     $dataRecord,
                     'bps',
                     '8480-6',
-                    'Systolic blood pressure'
+                    $this->getDescriptionForCode('8480-6')
                 );
                 break;
             case '8462-4':
@@ -521,8 +500,11 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                     $dataRecord,
                     'bpd',
                     '8462-4',
-                    'Diastolic blood pressure'
+                    $this->getDescriptionForCode('8462-4')
                 );
+                break;
+            case '2708-6':
+                $this->populateCoding($observation, '59408-5');
                 break;
             case '59408-5':
                 $this->populatePulseOximetryObservation($observation, $dataRecord);
@@ -549,22 +531,43 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         return "";
     }
 
+    private function populateCoding(FHIRObservation $observation, $code)
+    {
+        // add additional oxygen-saturation coding
+        $oxSaturation = new FHIRCoding();
+        $oxSaturation->setCode($code);
+        $oxSaturation->setDisplay($this->getDescriptionForCode($code));
+        $oxSaturation->setSystem(FhirCodeSystemUris::LOINC);
+
+        $observation->getCode()->addCoding($oxSaturation);
+    }
+
     private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord)
     {
-        $this->populateComponentColumn(
-            $observation,
-            $dataRecord,
-            'oxygen_flow_rate',
-            '3151-8',
-            'Inhaled oxygen flow rate'
-        );
-        $this->populateComponentColumn(
-            $observation,
-            $dataRecord,
-            'oxygen_saturation',
-            '3150-0',
-            'Inhaled oxygen concentration'
-        );
+        $this->populateCoding($observation, '2708-6');
+        if (
+            $this->columnHasPositiveFloatValue('oxygen_flow_rate', $dataRecord)
+            || $this->columnHasPositiveFloatValue('oxygen_saturation', $dataRecord)
+        ) {
+            $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'oxygen_flow_rate',
+                '3151-8',
+                $this->getDescriptionForCode('3151-8')
+            );
+            $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'oxygen_saturation',
+                '3150-0',
+                // only place this is used.
+                'Oxygen saturation in Arterial blood'
+            );
+        } else {
+            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
+            $observation->setDataAbsentReason($concept);
+        }
     }
 
     private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record)
@@ -600,7 +603,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
     private function getFHIRQuantityForColumn($column, $record)
     {
-        if (isset($record[$column]) && floatval($record[$column]) > 0.00) {
+        if ($this->columnHasPositiveFloatValue($column, $record)) {
             $quantity = new FHIRQuantity();
             $quantity->setValue(floatval($record[$column]));
             $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
@@ -618,22 +621,27 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         return null;
     }
 
+    private function columnHasPositiveFloatValue($column, $record)
+    {
+        return (isset($record[$column]) && floatval($record[$column]) > 0.00);
+    }
+
     private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord)
     {
-        $this->populateComponentColumn(
-            $observation,
-            $dataRecord,
-            'bps',
-            '8480-6',
-            'Systolic blood pressure'
-        );
-        $this->populateComponentColumn(
-            $observation,
-            $dataRecord,
-            'bpd',
-            '8462-4',
-            'Diastolic blood pressure'
-        );
+            $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'bps',
+                '8480-6',
+                $this->getDescriptionForCode('8480-6')
+            );
+            $this->populateComponentColumn(
+                $observation,
+                $dataRecord,
+                'bpd',
+                '8462-4',
+                $this->getDescriptionForCode('8462-4')
+            );
     }
 
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
@@ -645,7 +653,8 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if ($quantity != null) {
             $component->setValueQuantity($quantity);
         } else {
-            $component->setDataAbsentReason(UtilsService::createDataMissingExtension());
+            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
+            $component->setDataAbsentReason($concept);
         }
         $observation->addComponent($component);
     }

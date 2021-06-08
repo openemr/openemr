@@ -2189,6 +2189,9 @@ CREATE TABLE `form_vitals` (
   `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
   `uuid` BINARY(16) DEFAULT NULL,
+  `ped_weight_height` float(4,1) default '0.0',
+  `ped_bmi` float(4,1) default '0.0',
+  `ped_head_circ` float(4,1) default '0.0',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;

@@ -51,6 +51,9 @@ class FormVitals extends ORDataObject
     public $head_circ;
     public $oxygen_saturation;
     public $oxygen_flow_rate;
+    public $ped_weight_height;
+    public $ped_bmi;
+    public $ped_head_circ;
     public $uuid;
 
     // public $temp_methods;
@@ -329,6 +332,45 @@ class FormVitals extends ORDataObject
             $this->oxygen_flow_rate = $o;
         } else {
             $this->oxygen_flow_rate = 0.00;
+        }
+    }
+
+    public function get_ped_weight_height()
+    {
+        return $this->ped_weight_height;
+    }
+    public function set_ped_weight_height($o)
+    {
+        if (!empty($o) && is_numeric($o)) {
+            $this->ped_weight_height = $o;
+        } else {
+            $this->ped_weight_height = 0.00;
+        }
+    }
+
+    public function get_ped_bmi()
+    {
+        return $this->ped_bmi;
+    }
+    public function set_ped_bmi($o)
+    {
+        if (!empty($o) && is_numeric($o)) {
+            $this->ped_bmi = $o;
+        } else {
+            $this->ped_bmi = 0.00;
+        }
+    }
+
+    public function get_ped_head_circ()
+    {
+        return $this->ped_head_circ;
+    }
+    public function set_ped_head_circ($o)
+    {
+        if (!empty($o) && is_numeric($o)) {
+            $this->ped_head_circ = $o;
+        } else {
+            $this->ped_head_circ = 0.00;
         }
     }
 

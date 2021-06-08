@@ -12,7 +12,6 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -47,14 +46,12 @@ class VitalsService extends BaseService
                 ,vitals.waist_circ
                 ,vitals.head_circ
                 ,vitals.oxygen_saturation
+                ,vitals.oxygen_flow_rate
                 ,vitals.external_id
                 ,vitals.note
-                -- until we get these implemented we leave them as 0 for now
-                -- TODO: @adunsulag populate these when we have @sjpadget's work
-                ,0 AS ped_weight_height
-                ,0 AS ped_bmi
-                ,0 AS oxygen_flow_rate
-                ,0 AS ped_head_circ
+                ,vitals.ped_weight_height
+                ,vitals.ped_bmi
+                ,vitals.ped_head_circ
                 ,patients.pid
                 ,patients.puuid
                 ,encounters.eid
@@ -82,7 +79,7 @@ class VitalsService extends BaseService
             (
                 SELECT 
                     uuid AS puuid
-                    ,id AS pid
+                    ,pid
                     FROM patient_data
             ) patients ON vitals.pid = patients.pid
             LEFT JOIN
@@ -98,7 +95,6 @@ class VitalsService extends BaseService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {

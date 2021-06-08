@@ -104,6 +104,9 @@ class C_FormVitals extends Controller
             $results[$i]['head_circ'] = $result['head_circ'];
             $results[$i]['oxygen_saturation'] = $result['oxygen_saturation'];
             $results[$i]['oxygen_flow_rate'] = $result['oxygen_flow_rate'];
+            $results[$i]['ped_weight_height'] = $result['ped_weight_height'];
+            $results[$i]['ped_bmi'] = $result['ped_bmi'];
+            $results[$i]['ped_head_circ'] = $result['ped_head_circ'];
             $i++;
         }
 

@@ -226,45 +226,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        // we need to differentiate between these different data types...
-
-        // Smoking Status -> History Data Service
-
-        // Pediatric Weight -> form_vitals
-
-        // Lab Results -> ObservationLabService
-
-        // Pulse Oximetry -> form_vitals
-
-        // Body Height -> form_vitals
-
-        // Body Temperature -> form_vitals
-
-        // weight -> form_vitals
-
-        // need to grab the code system for each one
-        if (isset($openEMRSearchParameters['uuid'])) {
-            $result = $this->populateSurrogateSearchFieldsForUUID($openEMRSearchParameters['uuid'], $openEMRSearchParameters);
-            if ($result instanceof ProcessingResult) { // failed to populate so return the results
-                return $result;
-            }
-        }
-
-        if (isset($puuidBind)) {
-            $openEMRSearchParameters['subject'] = new ReferenceSearchField('puuid', [new ReferenceSearchValue($puuidBind, 'Patient', true)]);
-        }
-
-        if (isset($openEMRSearchParameters['category']) && !empty($openEMRSearchParameters['category']->getValues())) {
-            /**
-             * @var TokenSearchField
-             */
-            $category = $openEMRSearchParameters['category'];
-
-            $service = $this->getObservationServiceForCategory($category);
-            return $service->search($openEMRSearchParameters);
-        } else {
-            return $this->searchAllObservationServices($openEMRSearchParameters, $puuidBind);
-        }
     }
 
     /**
