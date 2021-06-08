@@ -28,7 +28,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 380;
+$v_database = 396;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -36,7 +36,7 @@ $v_database = 380;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 9;
+$v_acl = 10;
 
 // Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
 // Also whenever you change a .js or .css file, make sure that all URLs referencing it
@@ -47,7 +47,7 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 61;
+    $v_js_includes = 65;
 }
 
 // Do not modify below

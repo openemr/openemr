@@ -742,9 +742,9 @@ class InstallerController extends AbstractActionController
             } elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
             } elseif ($moduleAction === "enable") {
-                $div = $this->EnableModule($moduleId);
-            } elseif ($moduleAction === "disable") {
                 $div = $this->DisableModule($moduleId);
+            } elseif ($moduleAction === "disable") {
+                $div = $this->EnableModule($moduleId);
             } elseif ($moduleAction === "install") {
                 $div = $this->InstallModule($moduleId);
             } elseif ($moduleAction === "unregister") {

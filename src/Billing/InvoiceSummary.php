@@ -5,7 +5,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -141,7 +141,11 @@ class InvoiceSummary
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
-                $code = "Unknown";
+                if ($row['account_code'] == "PCP") {
+                    $code = "Copay";
+                } else {
+                    $code = "Unknown";
+                }
             }
 
             if ($row['modifier']) {

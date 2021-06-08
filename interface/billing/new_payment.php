@@ -95,8 +95,8 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
     }
     if ($mode == "FinishPayments") {
         // @todo This is not useful. Gonna let fall through to form init.
-        //header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
-        //die();
+        header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
+        die();
     }
     $mode = "search";
     $_POST['mode'] = $mode;
@@ -268,6 +268,10 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
+
+            document.getElementById('payment_amount').addEventListener('focus', (event) => {
+                event.target.select();
+            });
         });
 
         document.onclick = HideTheAjaxDivs;
@@ -275,6 +279,9 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <style>
         .class1 {
             width: 125px;
+        }
+        .amt_input {
+            max-width: 75px;
         }
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
@@ -316,7 +323,6 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 </ul>
             </div>
         </nav>
-        <div class="row">
             <div class="col-sm-12">
                 <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
                 <?php
@@ -378,7 +384,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <input id='global_amount' name='global_amount' type='hidden' value='' />
                 </form>
             </div>
-        </div><!-- end of row div -->
+        <!-- end of row div -->
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>

@@ -136,7 +136,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div>
                         <fieldset>
-                            <legend><?php echo xlt('Current Authentication Method for') . " " . $user_full_name; ?></legend>
+                            <legend><?php echo xlt('Current Authentication Method for') . " " . text($user_full_name); ?></legend>
                             <table class='table'>
                                 <tr>
                                   <th align='left'>&nbsp;<?php echo xlt('Method'); ?>&nbsp;</th>
@@ -165,7 +165,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </div>
                     <div>
                         <fieldset>
-                            <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . $user_full_name; ?></legend>
+                            <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . text($user_full_name); ?></legend>
                             <div class='col-sm-4 offset-sm-4'>
                                 <select name='form_add' onchange='addclick(this)'class='col-sm-12'>
                                     <option value=''><?php echo xlt('Add New...'); ?></option>

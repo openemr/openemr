@@ -1,13 +1,16 @@
 <?php
 
-/************************************************************************
-            InsuranceCompany.php - Copyright duhlman
-
-
-
-This file was generated on %date% at %time%
-The original location of this file is /home/duhlman/uml-generated-code/prescription.php
-**************************************************************************/
+/**
+ * insurance company class for smarty templates
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    duhlman
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) duhlman
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 define("INS_TYPE_OTHER_HCFA", 1);
 define("INS_TYPE_MEDICARE", 2);
@@ -47,7 +50,7 @@ class InsuranceCompany extends ORDataObject
 {
     var $id;
     var $name;
-    var $phone;
+    var $phone_numbers;
     var $attn;
     var $cms_id;
     var $alt_cms_id;
@@ -138,11 +141,12 @@ class InsuranceCompany extends ORDataObject
         $this->id = $id;
         $this->name = "";
         $this->_table = "insurance_companies";
-        $phone  = new PhoneNumber();
+        $phone = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
-        $this->phone = $phone;
+        $fax = new PhoneNumber();
+        $fax->set_type(TYPE_FAX);
         $this->address = new Address();
-        $this->phone_numbers = array();
+        $this->phone_numbers = array($phone, $fax);
         if ($id != "") {
             $this->populate();
         }
@@ -159,7 +163,7 @@ class InsuranceCompany extends ORDataObject
         return $this->id;
     }
 
-    //special function the the html forms use to prepopulate which allows for partial edits and wizard functionality
+    // special function that the html forms use to prepopulate which allows for partial edits and wizard functionality
     function set_form_id($id = "")
     {
         if (!empty($id)) {
@@ -285,14 +289,28 @@ class InsuranceCompany extends ORDataObject
             $p->set_type($type);
             $p->set_phone($num);
             $this->phone_numbers[] = $p;
-            //print_r($this->phone_numbers);
-            //echo "num is now:" . $p->get_phone_display()  . "<br />";
         }
     }
 
     function set_phone($phone)
     {
         $this->_set_number($phone, TYPE_WORK);
+    }
+
+    function set_fax($fax)
+    {
+        $this->_set_number($fax, TYPE_FAX);
+    }
+
+    function get_fax()
+    {
+        foreach ($this->phone_numbers as $phone) {
+            if ($phone->type == TYPE_FAX) {
+                return $phone->get_phone_display();
+            }
+        }
+
+        return "";
     }
 
     function set_x12_receiver_id($id)
@@ -358,7 +376,7 @@ class InsuranceCompany extends ORDataObject
     function utility_insurance_companies_array()
     {
         $pharmacy_array = array();
-        $sql = "SELECT p.id, p.name, a.city, a.state FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
+        $sql = "SELECT p.id, p.name, a.line1, a.line2, a.city, a.state FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
         while ($row = sqlFetchArray($res)) {
                 $d_string = $row['city'];
@@ -415,4 +433,4 @@ class InsuranceCompany extends ORDataObject
             return $string;
         }
     }
-} //End Of InsuranceCompanies
+}

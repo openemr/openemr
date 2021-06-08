@@ -12,8 +12,16 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
+use Psr\Log\LoggerInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
@@ -26,6 +34,11 @@ class BaseService
     private $table;
     private $fields;
     private $autoIncrements;
+
+    /**
+     * @var SystemLogger
+     */
+    private $logger;
 
     private const PREFIXES = array(
         'eq' => "=",
@@ -47,6 +60,7 @@ class BaseService
         $this->table = $table;
         $this->fields = sqlListFields($table);
         $this->autoIncrements = self::getAutoIncrements($table);
+        $this->setLogger(new SystemLogger());
     }
 
     /**
@@ -70,6 +84,47 @@ class BaseService
     }
 
     /**
+     * Return the fields that should be used in a standard select clause.  Can be overwritten by inheriting classes
+     * @return array
+     */
+    public function getSelectFields(): array
+    {
+        // since we are often joining a bunch of fields we need to make sure we normalize our regular field array by adding
+        // the table name for our own table values.
+        $fields = $this->getFields();
+        $normalizedFields = [];
+        // processing is cheap
+        foreach ($fields as $field) {
+            $normalizedFields[] = '`' . $this->getTable() . '`.`' . $field . '`';
+        }
+
+        return $normalizedFields;
+    }
+
+    public function getUuidFields(): array
+    {
+        return [];
+    }
+
+    /**
+     * Allows sub classes to grab additional table joins to add to the select query.  Each join table definition needs
+     * to be in the following format:
+     * [
+     *  'table' => JOIN_TABLE_NAME, 'alias' => JOIN_TABLE_ALIAS, 'type' => JOIN_TYPE(left,right,outer,etc)
+     *  , 'column' => TABLE_COLUMN_NAME, 'join_column' => JOIN_TABLE_COLUMN_NAME]
+     * ]
+     *
+     * An example of a join on the users table joining against list_options like so:
+     * ['table' => 'list_options', 'alias' => 'abook', 'type' => 'LEFT JOIN', 'column' => 'abook_type', 'join_column' => 'option_id']
+     *
+     * @return array
+     */
+    public function getSelectJoinTables(): array
+    {
+        return [];
+    }
+
+    /**
      * queryFields
      * Build SQL Query for Selecting Fields
      *
@@ -85,6 +140,16 @@ class BaseService
         }
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
+    }
+
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     /**
@@ -192,54 +257,18 @@ class BaseService
 
     /**
      * Shared getter for SQL selects.
-     * Shared from original OpenEMR\Common\Utils\QueryUtils
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays | one associative array.
+     * @return array of associative arrays
      */
-    public static function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map)
     {
-        $where = isset($map["where"]) ? $map["where"] : null;
-        $data = isset($map["data"]) ? $map["data"] : null;
-        $join = isset($map["join"]) ? $map["join"] : null;
-        $order = isset($map["order"]) ? $map["order"] : null;
-        $limit = isset($map["limit"]) ? $map["limit"] : null;
-
-        $sql = $sqlUpToFromStatement;
-
-        $sql .= !empty($join) ? " " . $join : "";
-        $sql .= !empty($where) ? " " . $where : "";
-        $sql .= !empty($order) ? " " . $order : "";
-        $sql .= !empty($limit) ? " LIMIT " . $limit : "";
-
-        if (!empty($data)) {
-            if (empty($limit) || $limit > 1) {
-                $multipleResults = sqlStatement($sql, $data);
-                $results = array();
-
-                while ($row = sqlFetchArray($multipleResults)) {
-                    array_push($results, $row);
-                }
-
-                return $results;
-            }
-
-            return sqlQuery($sql, $data);
+        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
+        if ($records !== null) {
+            $records = is_array($records) ? $records : [$records];
         }
-
-        if (empty($limit) || $limit > 1) {
-            $multipleResults = sqlStatement($sql);
-            $results = array();
-
-            while ($row = sqlFetchArray($multipleResults)) {
-                array_push($results, $row);
-            }
-
-            return $results;
-        }
-
-        return sqlQuery($sql);
+        return $records;
     }
 
     /**
@@ -368,6 +397,74 @@ class BaseService
     }
 
     /**
+     * Returns a list of records matching the search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value is an ISearchField
+     * If an empty array of search criteria is provided, all records are returned.
+     *
+     * The search will grab the intersection of all possible values if $isAndCondition is true, otherwise it returns
+     * the union (logical OR) of the search.
+     *
+     * More complicated searches with various sub unions / intersections can be accomplished through a CompositeSearchField
+     * that allows you to combine multiple search clauses on a single search field.
+     *
+     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
+     * @return ProcessingResult The results of the search.
+     */
+    public function search($search, $isAndCondition = true)
+    {
+        $processingResult = new ProcessingResult();
+        try {
+            $selectFields = $this->getSelectFields();
+
+            $selectFields = array_combine($selectFields, $selectFields); // make it a dictionary so we can add/remove this.
+            $from = [$this->getTable()];
+            $sql = "SELECT " . implode(",", array_keys($selectFields)) . " FROM " . implode(",", $from);
+            $join = $this->getSelectJoinClauses();
+            $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+
+            $selectHelperMap = [
+                'join' => $join
+                , 'where' => $whereFragment->getFragment()
+                , 'data' => $whereFragment->getBoundValues()
+            ];
+            $records = $this->selectHelper($sql, $selectHelperMap);
+
+            if (!empty($records)) {
+                foreach ($records as $row) {
+                    $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                    $processingResult->addData($resultRecord);
+                }
+            }
+        } catch (SearchFieldException $exception) {
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Allows any mapping data conversion or other properties needed by a service to be returned.
+     * @param $row The record returned from the database
+     */
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $uuidFields = $this->getUuidFields();
+        if (empty($uuidFields)) {
+            return $row;
+        } else {
+            // convert all of our byte columns to strings
+            foreach ($uuidFields as $fieldName) {
+                if (isset($row[$fieldName])) {
+                    $row[$fieldName] = UuidRegistry::uuidToString($row[$fieldName]);
+                }
+            }
+        }
+        return $row;
+    }
+
+    /**
      * Convert Diagnosis Codes String to Code:Description Array
      *
      * @param string $diagnosis                 - All Diagnosis Codes
@@ -375,6 +472,9 @@ class BaseService
      */
     protected function addCoding($diagnosis)
     {
+        if (empty($diagnosis)) {
+            return [];
+        }
         $diags = explode(";", $diagnosis);
         $diagnosis = array();
         foreach ($diags as $diag) {
@@ -405,5 +505,26 @@ class BaseService
             }
         }
         return $result;
+    }
+
+    protected function getSelectJoinClauses()
+    {
+        $joins = $this->getSelectJoinTables();
+        $clause = '';
+        if (empty($joins)) {
+            return $clause;
+        }
+        foreach ($joins as $tableDefinition) {
+            $clause .= $tableDefinition['type'] . ' `' . $tableDefinition['table'] . "` `{$tableDefinition['alias']}` "
+                . ' ON `';
+            if (isset($tableDefinition['join_clause'])) {
+                $clause .= $tableDefinition['join_clause'];
+            } else {
+                $table = $tableDefinition['join_table'] ?? $this->getTable();
+                $clause .= $table . '`.`' . $tableDefinition['column']
+                . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
+            }
+        }
+        return $clause;
     }
 }

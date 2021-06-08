@@ -61,7 +61,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $Affected = 'no';
-    if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"] * 1 > 0) {
+    if (isset($_POST["Payment$CountRow"]) && (int)$_POST["Payment$CountRow"] > 0) {
         if (trim(formData('type_name')) == 'insurance') {
             if (trim(formData("HiddenIns$CountRow")) == 1) {
                 $AccountCode = "IPP";

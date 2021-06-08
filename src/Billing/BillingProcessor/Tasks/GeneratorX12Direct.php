@@ -89,7 +89,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 // Local Directory not set
                 $has_dir = false;
                 $this->printToScreen(xl("No directory for X12 partner " . $row['name']));
-            } else if (
+            } elseif (
                 isset($row['x12_sftp_local_dir']) &&
                 !is_dir($row['x12_sftp_local_dir'])
             ) {
@@ -282,7 +282,6 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             // if validating (sending to screen for user)
             $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
-            exit();
         });
     }
 

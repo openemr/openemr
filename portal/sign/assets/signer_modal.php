@@ -14,7 +14,7 @@ require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
-if (!$is_portal) {
+if (empty($is_portal)) {
     session_destroy();
     require_once(__DIR__ . '/../../../interface/globals.php');
 } else {

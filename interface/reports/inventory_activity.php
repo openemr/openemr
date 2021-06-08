@@ -624,7 +624,8 @@ if ($form_action) { // if submit or export
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
-    "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= ? )";
+    "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= ? ) AND " .
+    "( di.on_hand != 0 OR s.sale_id IS NOT NULL )";
 
     array_push($sqlBindArray, $from_date, $to_date, $form_from_date);
 

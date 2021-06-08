@@ -33,7 +33,6 @@ if ( !defined('ADODB_DIR') ) {
 require_once(dirname(__FILE__) . "/../../library/sqlconf.php");
 require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-require_once(dirname(__FILE__) . "/../../library/ADODB_mysqli_mod.php");
 
 class Gacl {
 	/*
@@ -54,7 +53,7 @@ class Gacl {
 	var $_db_table_prefix = 'gacl_';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-	var $_db_type = 'mysqli_mod';
+	var $_db_type = 'mysqli';
 
 	/** @var string The database server */
 	var $_db_host = '';
@@ -158,6 +157,18 @@ class Gacl {
             // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
                 if (defined('MYSQLI_CLIENT_SSL')) {
+                    if (
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+                    ) {
+                        // with client side certificate/key
+                        $this->db->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                        $this->db->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                        $this->db->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    } else {
+                        // without client side certificate/key
+                        $this->db->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    }
                     $this->db->clientFlags = MYSQLI_CLIENT_SSL;
             	}
             }

@@ -1062,8 +1062,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;
@@ -1084,8 +1084,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;
@@ -1100,8 +1100,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = false;
                 echo "<p>Going to add UUIDs to " . $matches[1] . " vertical table</p>\n";
                 flush_echo();
-                $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed adding UUIDs to " . $matches[1] . " vertical table</p>\n";
+                $number = $uuidRegistry->createMissingUuids();
+                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " vertical table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;

@@ -263,6 +263,18 @@ function pnDBInit()
     // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
     if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
         if (defined('MYSQLI_CLIENT_SSL')) {
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+            ) {
+                // with client side certificate/key
+                $dbconn->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                $dbconn->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                $dbconn->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+            } else {
+                // without client side certificate/key
+                $dbconn->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+            }
             $dbconn->clientFlags = MYSQLI_CLIENT_SSL;
         }
     }

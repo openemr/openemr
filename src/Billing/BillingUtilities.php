@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2011-2020 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2011-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,7 @@ namespace OpenEMR\Billing;
 
 class BillingUtilities
 {
-    const CLAIM_STATUS_CODES_CLP02 = array(
+    public const CLAIM_STATUS_CODES_CLP02 = array(
         '1'  => 'Processed as Primary',
         '2'  => 'Processed as Secondary',
         '3'  => 'Processed as Tertiary',
@@ -36,7 +36,7 @@ class BillingUtilities
         '27' => 'Reviewed',
     );
 
-    const CLAIM_ADJUSTMENT_REASON_CODES = array(
+    public const CLAIM_ADJUSTMENT_REASON_CODES = array(
         '1' => 'Deductible Amount',
         '2' => 'Coinsurance Amount',
         '3' => 'Co-payment Amount',
@@ -326,7 +326,7 @@ class BillingUtilities
         'P29' => 'Liability Benefits jurisdictional fee schedule adjustment. Usage: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Class of Contract Code Identification Segment (Loop 2100 Other Claim Related Information REF). If adjustment is at the Line Level, the payer must send and the provider should refer to the 835 Healthcare Policy Identification Segment (loop 2110 Service Payment information REF) if the regulations apply. To be used for Property and Casualty Auto only.'
     );
 
-    const REMITTANCE_ADVICE_REMARK_CODES = array(
+    public const REMITTANCE_ADVICE_REMARK_CODES = array(
         'M1' => 'X-ray not taken within the past 12 months or near enough to the start of treatment.',
         'M2' => 'Not paid separately when the patient is an inpatient.',
         'M3' => 'Equipment is the same or similar to equipment already being used.',
@@ -1399,6 +1399,15 @@ class BillingUtilities
             $authorized = "0";
         }
 
+        // Sanity check.
+        $tmp = sqlQuery(
+            "SELECT count(*) AS count from form_encounter WHERE pid = ? AND encounter = ?",
+            array($pid, $encounter_id)
+        );
+        if (empty($tmp['count'])) {
+            die(xlt('Internal error: the referenced encounter no longer exists.'));
+        }
+
         $sql = "INSERT INTO billing (date, encounter, code_type, code, code_text, " .
             "pid, authorized, user, groupname, activity, billed, provider_id, " .
             "modifier, units, fee, ndc_info, justify, notecodes, pricelevel, revenue_code) VALUES (" .
@@ -1758,7 +1767,7 @@ class BillingUtilities
     // Common function for voiding a receipt or checkout.  When voiding a checkout you can specify
     // $time as a timestamp (yyyy-mm-dd hh:mm:ss) or 'all'; default is the last checkout.
     //
-    public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
+    public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
     {
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
@@ -1823,9 +1832,20 @@ class BillingUtilities
                 "user_id = ?, " .
                 "amount1 = ?, " .
                 "amount2 = ?, " .
-                "other_info = ?";
-            $sqlarr = array($patient_id, $encounter_id, $what_voided, $_SESSION['authUserID'], $adjustments,
-                $payments, $old_invoice_refno);
+                "other_info = ?, " .
+                "reason = ?, " .
+                "notes = ?";
+            $sqlarr = array(
+                $patient_id,
+                $encounter_id,
+                $what_voided,
+                $_SESSION['authUserID'],
+                $adjustments,
+                $payments,
+                $old_invoice_refno,
+                $reason,
+                $notes
+            );
             if ($date_original) {
                 $query .= ", date_original = ?";
                 $sqlarr[] = $date_original;

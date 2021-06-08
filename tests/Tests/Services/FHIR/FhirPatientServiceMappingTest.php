@@ -47,8 +47,8 @@ class FhirPatientServiceMappingTest extends TestCase
     private function assertFhirPatientResource(FHIRPatient $fhirPatientResource, $sourcePatientRecord)
     {
         $this->assertEquals($sourcePatientRecord['uuid'], $fhirPatientResource->getId());
-        $this->assertEquals(1, $fhirPatientResource->getMeta()['versionId']);
-        $this->assertNotEmpty($fhirPatientResource->getMeta()['lastUpdated']);
+        $this->assertEquals(1, $fhirPatientResource->getMeta()->getVersionId());
+        $this->assertNotEmpty($fhirPatientResource->getMeta()->getLastUpdated());
 
         $this->assertEquals('generated', $fhirPatientResource->getText()['status']);
         $this->assertNotEmpty($fhirPatientResource->getText()['div']);

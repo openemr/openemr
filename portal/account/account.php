@@ -13,33 +13,35 @@
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (
-    $_SESSION['register'] === true && isset($_SESSION['pid']) ||
+    ($_SESSION['register'] === true && isset($_SESSION['pid'])) ||
     ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
     ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
 ) {
     $ignoreAuth_onsite_portal = true;
 }
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 require_once("$srcdir/patient.inc");
-require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
+require_once(__DIR__ . "/../lib/portal_mail.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("./account.lib.php");
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 if ($action == 'set_lang') {
-    $_SESSION['language_choice'] = (int) $_REQUEST['value'];
+    $_SESSION['language_choice'] = (int)$_REQUEST['value'];
     echo 'okay';
     exit();
-} elseif ($action == 'userIsUnique') {
+}
+
+if ($action == 'userIsUnique') {
     if (
         ((int)$_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
         ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
     ) {
-    // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
+        // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
         if (empty(trim($_REQUEST['account']))) {
             echo "0";
             exit;
@@ -53,17 +55,21 @@ if ($action == 'set_lang') {
         if ($auth === false) {
             echo "1";
             exit;
-        } elseif ($auth['portal_username'] === trim($_REQUEST['account'])) {
+        }
+
+        if ($auth['portal_username'] === trim($_REQUEST['account'])) {
             echo "1";
             exit;
         }
     }
     echo "0";
     exit;
-} elseif ($action == 'get_newpid') {
+}
+
+if ($action == 'get_newpid') {
     $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
     $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
-    if ((int) $rtn != 0) {
+    if ((int)$rtn != 0) {
         echo xlt("This account already exists.") . "\r\n\r\n" .
             xlt("We are sorry you are having troubles with your account.") . "\r\n" .
             xlt("Please contact your provider.") . "\r\n" .
@@ -73,26 +79,36 @@ if ($action == 'set_lang') {
     $rtn = getNewPid();
     echo "$rtn";
     exit();
-} elseif ($action == 'is_new') {
+}
+
+if ($action == 'is_new') {
     $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
     $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
     echo "$rtn";
     exit();
-} elseif ($action == 'do_signup') {
+}
+
+if ($action == 'do_signup') {
     $rtn = doCredentials($_REQUEST['pid']);
     echo "$rtn";
     exit();
-} elseif ($action == 'new_insurance') {
+}
+
+if ($action == 'new_insurance') {
     $pid = $_REQUEST['pid'];
     saveInsurance($pid);
     exit();
-} elseif ($action == 'notify_admin') {
+}
+
+if ($action == 'notify_admin') {
     $pid = $_REQUEST['pid'];
     $provider = $_REQUEST['provider'];
     $rtn = notifyAdmin($pid, $provider);
     echo "$rtn";
     exit();
-} elseif ($action == 'cleanup') {
+}
+
+if ($action == 'cleanup') {
     unset($_SESSION['patient_portal_onsite_two']);
     unset($_SESSION['authUser']);
     unset($_SESSION['pid']);

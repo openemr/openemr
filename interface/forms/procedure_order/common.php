@@ -26,23 +26,25 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if ($_POST['bn_save_ereq']) { //labcorp
-    $_POST['bn_xmit'] = "transmit";
+if (!$encounter) { // comes from globals.php
+    die("Internal error: we do not seem to be in an encounter!");
 }
+
 // Defaults for new orders.
+$provider_id = getProviderIdOfEncounter($encounter);
 $row = array(
-    'provider_id' => $_SESSION['authUserID'],
+    'provider_id' => $provider_id,
     'date_ordered' => date('Y-m-d'),
     //'date_collected' => date('Y-m-d H:i'),
 );
 
+if ($_POST['bn_save_ereq']) { //labcorp
+    $_POST['bn_xmit'] = "transmit";
+}
+
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid));
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
-
-if (!$encounter) { // comes from globals.php
-    die("Internal error: we do not seem to be in an encounter!");
-}
 
 function get_lab_name($id): string
 {
@@ -878,7 +880,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <select name='form_lab_id' id='form_lab_id' onchange='lab_id_changed(this)' class='form-control'>
                                     <?php
-                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
+                                    $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
                                         if ($pprow['ppid'] == $row['lab_id']) {
@@ -1021,7 +1023,7 @@ $title = array(xl('Order for'), $name, $date);
                 <fieldset class="row">
                      <legend><?php $t = "<span>" .
                         ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
-                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . text($t); ?>
+                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
                     <?php if ($order_data) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">

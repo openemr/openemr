@@ -24,7 +24,11 @@ use OpenEMR\Billing\SLEOB;
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.
 //===============================================================================
 if (isset($_POST["mode"])) {
-    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && (($_REQUEST['hidden_patient_code'] ?? null) * 1 > 0)) {
+    if (
+           ($_POST["mode"] == "search") || ($_POST["default_search_patient"] == "default_search_patient") &&
+           isset($_REQUEST['hidden_patient_code']) &&
+           (int)$_REQUEST['hidden_patient_code'] > 0
+    ) {
         $hidden_patient_code = $_REQUEST['hidden_patient_code'];
         $RadioPaid = $_REQUEST['RadioPaid'] ?? null;
         if ($RadioPaid == 'Show_Paid') {
@@ -93,7 +97,7 @@ if (isset($_POST["mode"])) {
                 $PreviousPID = 0;
                 if (!empty($ResultSearchNew)) {
                     if ($RowSearch = sqlFetchArray($ResultSearchNew)) { ?>
-                    <div class="row">
+                    <div class="overflow-auto">
                         <div class="table-responsive-lg">
                             <table class="table table-sm table-bordered table-light" id="TableDistributePortion">
                                 <thead class="bg-dark text-light">
@@ -245,19 +249,19 @@ if (isset($_POST["mode"])) {
                                 </td>
                                 <input name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden" />
                                 <td>
-                                    <input name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right" />
+                                    <input name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
                                 </td>
                                 <td>
-                                    <input type="text" name="Payment<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off"  id="Payment<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"  class="text-right" />
+                                    <input type="text" name="Payment<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off"  id="Payment<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"  class="text-right amt_input" />
                                 </td>
                                 <td>
-                                    <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right" />
+                                    <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
                                 </td>
                                 <td>
-                                    <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" class="text-right" />
+                                    <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" class="text-right amt_input" />
                                 </td>
                                 <td>
-                                    <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right" />
+                                    <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
                                 </td>
                                 <td class="text-left">
                                     <input name="HiddenReasonCode<?php echo attr($CountIndex); ?>" id="HiddenReasonCode<?php echo attr($CountIndex); ?>"  value="<?php echo attr($ReasonCodeDB ?? ''); ?>" type="hidden" />
@@ -283,7 +287,7 @@ if (isset($_POST["mode"])) {
                         <td class="text-center">&nbsp;</td>
                       </tr>
                     </table>
-                    </div>
+                        </div>
                     </div>
                     <?php } //if($RowSearch = sqlFetchArray($ResultSearchNew))
                 } //if(!empty($ResultSearchNew)) ?>

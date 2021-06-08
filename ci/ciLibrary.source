@@ -11,7 +11,8 @@
 #
 
 composer_github_auth() {
-    githubTokenRateLimitRequest=`curl -H "Authorization: token 310659f0a8658693af9ccb9da8969584b598910a" https://api.github.com/rate_limit`
+    githubToken=`echo MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo= | base64 --decode`
+    githubTokenRateLimitRequest=`curl -H "Authorization: token $githubToken" https://api.github.com/rate_limit`
     githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
     echo "Number of github api requests remaining is $githubTokenRateLimit"
     if [ "$githubTokenRateLimit" -gt 500 ]; then
@@ -72,6 +73,7 @@ install_configure() {
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
     if $failTest; then
       exit 1
     fi

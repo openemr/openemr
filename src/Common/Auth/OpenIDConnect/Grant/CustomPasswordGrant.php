@@ -21,6 +21,7 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Message\ServerRequestInterface;
 
 class CustomPasswordGrant extends PasswordGrant
@@ -60,18 +61,29 @@ class CustomPasswordGrant extends PasswordGrant
         }
 
 
+        $identifier = $this->getIdentifier();
         $user = $this->userRepository->getCustomUserEntityByUserCredentials(
             $userrole,
             $username,
             $password,
             $email,
-            $this->getIdentifier(),
+            $identifier,
             $client,
         );
 
         if ($user instanceof UserEntityInterface === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
+            $clientVars = "undefined";
+            if (empty($client)) {
+                $clientVars = ['id' => $client->getIdentifier(), 'name' => $client->getName(), 'redirectUri' => $client->getRedirectUri()];
+            }
 
+            (new SystemLogger())->debug(
+                "CustomPasswordGrant->validateUser() Failed to find user for request",
+                ['userrole' => $userrole,'username' => $username, 'email' => $email, 'identifier' => $identifier
+                ,
+                'client' => $clientVars]
+            );
             throw OAuthServerException::invalidGrant('Failed Authentication');
         }
         $_SESSION['pass_user_id'] = $user->getIdentifier();

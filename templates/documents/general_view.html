@@ -131,7 +131,7 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span class="float-right">
-            <script>var file = {$file->get_url()|js_escape};</script>
+            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};</script>
             {if !empty($GLOBALS.oefax_enable)}
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             {/if}

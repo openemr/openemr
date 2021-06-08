@@ -10,6 +10,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -44,9 +46,9 @@ class FhirCoverageService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['pid'],
-            '_id' => ['id'],
-            'payor' => ['provider']
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['pid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['id']),
+            'payor' => new FhirSearchParameterDefinition('payor', SearchFieldType::TOKEN, ['provider'])
         ];
     }
 
@@ -106,7 +108,7 @@ class FhirCoverageService extends FhirServiceBase
      *
      * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
      */
-    public function getOne($fhirResourceId)
+    public function getOne($fhirResourceId, $puuidBind = null)
     {
         $processingResult = $this->coverageService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {

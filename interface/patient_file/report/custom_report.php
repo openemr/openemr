@@ -31,6 +31,7 @@ use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -721,7 +722,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         preg_match('/^(.*)_(\d+)$/', $key, $res);
                         $rowid = $res[2];
-                        $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
+                        $irow = sqlQuery("SELECT type, title, comments, diagnosis, udi_data " .
                                         "FROM lists WHERE id = ?", array($rowid));
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
@@ -732,8 +733,15 @@ function zip_content($source, $destination, $content = '', $create = true)
                         }
 
                         echo "<div class='text issue'>";
-                        echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
-                        echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                        if ($prevIssueType == "medical_device") {
+                            echo "<span class='issue_title'><span class='font-weight-bold'>" . xlt('Title') . ": </span>" . text($irow['title']) . "</span><br>";
+                            echo "<span class='issue_title'>" . (new MedicalDevice($irow['udi_data']))->fullOutputHtml() . "</span>";
+                            echo "<span class='issue_comments'> " . text($irow['comments']) . "</span><br><br>\n";
+                        } else {
+                            echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
+                            echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                        }
+
                         // Show issue's chief diagnosis and its description:
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
@@ -814,7 +822,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             if ($res[1] == 'newpatient') {
                                 // display billing info
                                 $bres = sqlStatement(
-                                    "SELECT b.date, b.code, b.code_text " .
+                                    "SELECT b.date, b.code, b.code_text, b.modifier " .
                                     "FROM billing AS b, code_types AS ct WHERE " .
                                     "b.pid = ? AND " .
                                     "b.encounter = ? AND " .
@@ -826,7 +834,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
                                     echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
-                                        text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
+                                        text($brow['code']) . ":" . text($brow['modifier']) . " " . text($brow['code_text']) . "</div><br />\n";
                                 }
                             }
 
