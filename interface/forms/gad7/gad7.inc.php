@@ -16,7 +16,6 @@
  require_once("$srcdir/api.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/globals.inc.php");
-  
 
 // menu strings
 $str_default = xl('Please select an answer');
@@ -49,6 +48,3 @@ $str_total = xl('Total GAD-7 score');
 //
 // meaning of score values
 $str_values = [0 => xl('Not at all') . ' (0)',1 => xl('Several days') . ' (1)',2 => xl('More than half of days') . ' (2)',3 => xl('Nearly every day') . ' (3)'];
-
-
-
