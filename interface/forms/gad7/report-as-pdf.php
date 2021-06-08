@@ -133,9 +133,10 @@ function GeneratePDF($pid, $id) {
 
 /* start executing here when called from client */
 $form_id = $_GET['form_id'];
-/* the next line seems to prevent this code from crashing ??? */
-  $foo = $client_name_fn.'_gad7_'.$id.'.pdf' ; /* downloaded file name */
 
+/* the next line seems to prevent this code from crashing ??? */
+/*  $foo = $client_name_fn.'_gad7_'.$id.'.pdf' ; /* downloaded file name */
+/* the following line makes no difference to the crash */
 $foo = 'some string or another';
 
 if (!GeneratePDF($pid,$form_id)){
