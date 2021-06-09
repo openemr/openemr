@@ -749,3 +749,7 @@ ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) NULL DEFAULT '0.00'
 #IfMissingColumn form_vitals ped_head_circ
 ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) NULL DEFAULT '0.00'
 #EndIf
+
+#IfMissingColumn history_data uuid
+ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf

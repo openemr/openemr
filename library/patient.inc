@@ -1370,40 +1370,21 @@ function updateInsuranceData($id, $new)
 
 function newHistoryData($pid, $new = false)
 {
-    $arraySqlBind = array();
-    $sql = "insert into history_data set pid = ?, date = NOW()";
-    array_push($arraySqlBind, $pid);
-    if ($new) {
-        foreach ($new as $key => $value) {
-            array_push($arraySqlBind, $value);
-            $sql .= ", `$key` = ?";
-        }
-    }
+    $socialHistoryService = new \OpenEMR\Services\SocialHistoryService();
 
-    return sqlInsert($sql, $arraySqlBind);
+    $insertionRecord = $new;
+    if (!is_array(($insertionRecord))) {
+        $insertionRecord = [
+            'pid' => $pid
+        ];
+    }
+    $socialHistoryService->create($insertionRecord);
 }
 
 function updateHistoryData($pid, $new)
 {
-    $real = getHistoryData($pid);
-    foreach ($new as $key => $value) {
-        $real[$key] = $value;
-    }
-
-    $real['id'] = "";
-    // need to unset date, so can reset it below
-    unset($real['date']);
-
-    $arraySqlBind = array();
-    $sql = "insert into history_data set `date` = NOW(), ";
-    foreach ($real as $key => $value) {
-        array_push($arraySqlBind, $value);
-        $sql .= "`$key` = ?, ";
-    }
-
-    $sql = substr($sql, 0, -2);
-
-    return sqlInsert($sql, $arraySqlBind);
+    $socialHistoryService = new \OpenEMR\Services\SocialHistoryService();
+    return $socialHistoryService->updateHistoryDataForPatientPid($pid, $new);
 }
 
 // Returns Age

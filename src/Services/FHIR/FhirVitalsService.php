@@ -222,6 +222,11 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         }
     }
 
+    public function supportsCategory($category)
+    {
+        return ($category === "vital-signs");
+    }
+
     public function supportsCode($code)
     {
         return array_search($code, array_keys(self::COLUMN_MAPPINGS)) !== false;

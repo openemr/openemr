@@ -2166,6 +2166,7 @@ CREATE TABLE `form_soap` (
 DROP TABLE IF EXISTS `form_vitals`;
 CREATE TABLE `form_vitals` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` BINARY(16) DEFAULT NULL,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
   `user` varchar(255) default NULL,
@@ -2188,7 +2189,6 @@ CREATE TABLE `form_vitals` (
   `oxygen_saturation` float(5,2) default '0.00',
   `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
-  `uuid` BINARY(16) DEFAULT NULL,
   `ped_weight_height` float(4,1) default '0.0',
   `ped_bmi` float(4,1) default '0.0',
   `ped_head_circ` float(4,1) default '0.0',
@@ -2661,6 +2661,7 @@ CREATE TABLE `groups` (
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `coffee` longtext,
   `tobacco` longtext,
   `alcohol` longtext,

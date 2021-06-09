@@ -47,11 +47,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     private $observationService;
 
     /**
-     * @var VitalsService
-     */
-    private $vitalsService;
-
-    /**
      * @var BaseService[]
      */
     private $innerServices;
@@ -61,15 +56,14 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
      */
     private $logger;
 
-    const USCGI_PROFILE_BMI_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age';
-
     public function __construct()
     {
         parent::__construct();
         $this->innerServices = [];
         $this->observationService = new ObservationLabService();
-        $this->vitalsService = new FhirVitalsService();
-        $this->innerServices[] = $this->vitalsService;
+//        $this->vitalsService = new FhirVitalsService();
+        $this->innerServices[] = new FhirSocialHistoryService();
+        $this->innerServices[] = new FhirVitalsService();
         $this->logger = new SystemLogger();
     }
 
@@ -178,7 +172,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         try {
             if (isset($fhirSearchParameters['_id'])) {
                 $result = $this->populateSurrogateSearchFieldsForUUID($fhirSearchParameters['_id'], $fhirSearchParameters);
-                ;
                 if ($result instanceof ProcessingResult) { // failed to populate so return the results
                     return $result;
                 }
@@ -282,6 +275,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 return $service;
             }
         }
+        throw new SearchFieldException("code", "Invalid or unsupported code");
     }
 
     private function getObservationServiceForCategory($category): FhirServiceBase
@@ -289,14 +283,16 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // let the field parse our category
         $field = new TokenSearchField('category', $category);
         $values = $field->getValues() ?? [new TokenSearchValue('vital-signs')];
-        $categoryField = $values[0]->getCode();
-        if ($categoryField === "vital-signs") {
-            return $this->vitalsService;
-        } else if ($categoryField === 'social-history') {
-            throw new \BadMethodCallException("Category not implemented");
-        } else {
-            return $this->observationService;
+        foreach ($values as $value) {
+            // we only search the first one
+            $parsedCategory = $value->getCode();
+            foreach ($this->innerServices as $service) {
+                if ($service->supportsCategory($parsedCategory)) {
+                    return $service;
+                }
+            }
         }
+        throw new SearchFieldException("category", "Invalid or unsupported category");
     }
 
     private function searchAllObservationServices($fhirSearchParams, $puuidBind)
@@ -338,7 +334,13 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     }
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_BMI_URI];
+        return [
+            'http://hl7.org/fhir/R4/observation-vitalsigns'
+            ,'https://www.hl7.org/fhir/us/core/StructureDefinition-pediatric-bmi-for-age'
+            ,'https://www.hl7.org/fhir/us/core/StructureDefinition-head-occipital-frontal-circumference-percentile'
+            ,'https://www.hl7.org/fhir/us/core/StructureDefinition-pediatric-weight-for-height'
+            ,'https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-pulse-oximetry'
+        ];
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
