@@ -27,7 +27,7 @@ $logsync = $container->getLogproperties();
  * This should only execute once a day no matter how many times it is called.
  * The idea was to include in the index file to be executed when the prescription called.
  */
-$today = date ("F d Y");
+$today = date("F d Y");
 $filedate = $logsync->doesLogFileExist();
 //die if the dates match or the file does not exist
 if ($today !== $filedate) {
@@ -44,12 +44,12 @@ if ($today !== $filedate) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 200);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $rpt = curl_exec($ch);
-    if(curl_errno($ch)){
+    if (curl_errno($ch)) {
         throw new Exception(curl_error($ch));
     }
     $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    if($statusCode == 200){
+    if ($statusCode == 200) {
         file_put_contents($logsync->rxsynclog, $rpt);
         $logstring = "prescrition log import initiated successfully";
         EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
@@ -58,7 +58,7 @@ if ($today !== $filedate) {
     }
 
     $l = 0;
-    if(file_exists($logsync->rxsynclog)) {
+    if (file_exists($logsync->rxsynclog)) {
         $records = fopen($logsync->rxsynclog, "r");
 
         while (!feof($records)) {
