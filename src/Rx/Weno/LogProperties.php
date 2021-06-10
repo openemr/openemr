@@ -138,7 +138,7 @@ class LogProperties
         ];
 
         try {
-            sqlInsert($sql, $values);
+            sqlInsert($sql, [$values]);
         } catch (Exception $e) {
             return $e->getMessage();
         }
