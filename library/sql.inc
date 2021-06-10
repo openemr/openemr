@@ -380,11 +380,9 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
-        if ($throw_exception_on_error)
-        {
+        if ($throw_exception_on_error) {
             throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
-        }
-        else {
+        } else {
             HelpfulDie("query failed: $statement", getSqlLastError());
         }
     }

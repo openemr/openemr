@@ -251,7 +251,7 @@ class UuidRegistry
             while ($row = sqlFetchArray($resultSet)) {
                 if (!$this->table_vertical) {
                     // standard case, add missing uuid
-                    sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
+                    sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
                     $counter++;
                 } else {
                     // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
@@ -281,7 +281,7 @@ class UuidRegistry
                         array_unshift($arrayQuery, $this->createUuid());
                     }
                     // Now populate
-                    sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
+                    sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
                     $counter++;
                 }
             }
@@ -405,7 +405,7 @@ class UuidRegistry
             $this->insertUuidsIntoRegistry($batchUUids);
             for ($i = 0; $i < $gen_count; $i++) {
                 // do single updates
-                sqlQueryNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$batchUUids[$i], $ids[$i][$this->table_id]]);
+                sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$batchUUids[$i], $ids[$i][$this->table_id]]);
                 $counter++;
             }
         }
@@ -458,7 +458,7 @@ class UuidRegistry
             for ($i = 0; $i < $resultCount; $i++) {
                 $mappedValues = $mapper($i, $results, $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$i]], $mappedValues);
-                sqlQueryNoLog($sqlUpdate, $bindValues, true);
+                sqlStatementNoLog($sqlUpdate, $bindValues, true);
                 $counter++;
             }
         }
