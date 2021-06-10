@@ -17,6 +17,7 @@
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SocialHistoryService;
 
 $facilityService = new FacilityService();
 
@@ -1370,7 +1371,7 @@ function updateInsuranceData($id, $new)
 
 function newHistoryData($pid, $new = false)
 {
-    $socialHistoryService = new \OpenEMR\Services\SocialHistoryService();
+    $socialHistoryService = new SocialHistoryService();
 
     $insertionRecord = $new;
     if (!is_array(($insertionRecord))) {
@@ -1383,7 +1384,7 @@ function newHistoryData($pid, $new = false)
 
 function updateHistoryData($pid, $new)
 {
-    $socialHistoryService = new \OpenEMR\Services\SocialHistoryService();
+    $socialHistoryService = new SocialHistoryService();
     return $socialHistoryService->updateHistoryDataForPatientPid($pid, $new);
 }
 
