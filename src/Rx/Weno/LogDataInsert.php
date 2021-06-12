@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Rx\Weno;
 
-
 class LogDataInsert
 {
 
