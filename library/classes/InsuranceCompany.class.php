@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Services\InsuranceCompanyService;
 
 /**
  * class Insurance Company
@@ -40,63 +41,13 @@ class InsuranceCompany extends ORDataObject
     /*
     *   Array used to populate select dropdowns or other form elements
     */
-    var $ins_type_code_array = array('','Other HCFA'
-                                        ,'Medicare Part B'
-                                        ,'Medicaid'
-                                        ,'ChampUSVA'
-                                        ,'ChampUS'
-                                        ,'Blue Cross Blue Shield'
-                                        ,'FECA'
-                                        ,'Self Pay'
-                                        ,'Central Certification'
-                                        ,'Other Non-Federal Programs'
-                                        ,'Preferred Provider Organization (PPO)'
-                                        ,'Point of Service (POS)'
-                                        ,'Exclusive Provider Organization (EPO)'
-                                        ,'Indemnity Insurance'
-                                        ,'Health Maintenance Organization (HMO) Medicare Risk'
-                                        ,'Automobile Medical'
-                                        ,'Commercial Insurance Co.'
-                                        ,'Disability'
-                                        ,'Health Maintenance Organization'
-                                        ,'Liability'
-                                        ,'Liability Medical'
-                                        ,'Other Federal Program'
-                                        ,'Title V'
-                                        ,'Veterans Administration Plan'
-                                        ,'Workers Compensation Health Plan'
-                                        ,'Mutually Defined'
-                                        );
+    var $ins_type_code_array;
 
-    var $ins_claim_type_array = array(''
-                                       ,'16'
-                                       ,'MB'
-                                       ,'MC'
-                                       ,'CH'
-                                       ,'CH'
-                                       ,'BL'
-                                       ,'16'
-                                       ,'09'
-                                       ,'10'
-                                       ,'11'
-                                       ,'12'
-                                       ,'13'
-                                       ,'14'
-                                       ,'15'
-                                       ,'16'
-                                       ,'AM'
-                                       ,'CI'
-                                       ,'DS'
-                                       ,'HM'
-                                       ,'LI'
-                                       ,'LM'
-                                       ,'OF'
-                                       ,'TV'
-                                       ,'VA'
-                                       ,'WC'
-                                       ,'ZZ'
-                                       );
-
+    /*
+    *   Array used with electronic claim submissions and
+    *   corresponds with $ins_type_code_array
+    */
+    var $ins_claim_type_array;
 
     var $address;
 
@@ -326,25 +277,6 @@ class InsuranceCompany extends ORDataObject
         foreach ($this->phone_numbers as $phone) {
             $phone->persist($this->id);
         }
-    }
-
-    function utility_insurance_companies_array()
-    {
-        $pharmacy_array = array();
-        $sql = "SELECT p.id, p.name, a.line1, a.line2, a.city, a.state FROM " .
-                escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON p.id = a.foreign_id";
-        $res = sqlQ($sql);
-        while ($row = sqlFetchArray($res)) {
-                $d_string = $row['city'];
-            if (!empty($row['city']) && $row['state']) {
-                $d_string .= ", ";
-            }
-
-                $d_string .=  $row['state'];
-                $pharmacy_array[strval($row['id'])] = $row['name'] . " " . $d_string;
-        }
-
-        return ($pharmacy_array);
     }
 
     function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")

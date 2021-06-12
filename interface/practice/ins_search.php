@@ -27,40 +27,13 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\InsuranceCompanyService;
 
 // Putting a message here will cause a popup window to display it.
 $info_msg = "";
 
-// This is copied from InsuranceCompany.class.php.  It should
-// really be in a SQL table.
-$ins_type_code_array = array(''
-  , xl('Other HCFA')
-  , xl('Medicare Part B')
-  , xl('Medicaid')
-  , xl('ChampUSVA')
-  , xl('ChampUS')
-  , xl('Blue Cross Blue Shield')
-  , xl('FECA')
-  , xl('Self Pay')
-  , xl('Central Certification')
-  , xl('Other Non-Federal Programs')
-  , xl('Preferred Provider Organization (PPO)')
-  , xl('Point of Service (POS)')
-  , xl('Exclusive Provider Organization (EPO)')
-  , xl('Indemnity Insurance')
-  , xl('Health Maintenance Organization (HMO) Medicare Risk')
-  , xl('Automobile Medical')
-  , xl('Commercial Insurance Co.')
-  , xl('Disability')
-  , xl('Health Maintenance Organization')
-  , xl('Liability')
-  , xl('Liability Medical')
-  , xl('Other Federal Program')
-  , xl('Title V')
-  , xl('Veterans Administration Plan')
-  , xl('Workers Compensation Health Plan')
-  , xl('Mutually Defined')
-);
+// Grab insurance type codes from service
+$ins_type_code_array = (new InsuranceCompanyService())->getInsuranceTypes();
 
 ?>
 <html>
@@ -312,7 +285,7 @@ if ($_POST['form_save']) {
   <td>
    <select name='form_ins_type_code' class="form-control form-control-sm">
 <?php
-for ($i = 1; $i < count($ins_type_code_array); ++$i) {
+for ($i = 0; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
     echo ">" . text($ins_type_code_array[$i]) . "\n";
 }

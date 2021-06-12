@@ -166,36 +166,13 @@ class InsuranceCompanyService extends BaseService
 
     public function getInsuranceTypes()
     {
-        return array(
-            1 => xl('Other HCFA'),
-            2 => xl('Medicare Part B'),
-            3 => xl('Medicaid'),
-            4 => xl('ChampUSVA'),
-            5 => xl('ChampUS'),
-            6 => xl('Blue Cross Blue Shield'),
-            7 => xl('FECA'),
-            8 => xl('Self Pay'),
-            9 => xl('Central Certification'),
-            10 => xl('Other Non-Federal Programs'),
-            11 => xl('Preferred Provider Organization (PPO)'),
-            12 => xl('Point of Service (POS)'),
-            13 => xl('Exclusive Provider Organization (EPO)'),
-            14 => xl('Indemnity Insurance'),
-            15 => xl('Health Maintenance Organization (HMO) Medicare Risk'),
-            16 => xl('Automobile Medical'),
-            17 => xl('Commercial Insurance Co.'),
-            18 => xl('Disability'),
-            19 => xl('Health Maintenance Organization'),
-            20 => xl('Liability'),
-            21 => xl('Liability Medical'),
-            22 => xl('Other Federal Program'),
-            23 => xl('Title V'),
-            24 => xl('Veterans Administration Plan'),
-            25 => xl('Workers Compensation Health Plan'),
-            26 => xl('Mutually Defined')
-        );
+        $types = [];
+        $type = sqlStatement("SELECT * FROM `insurance_type_codes`");
+        while ($row = sqlFetchArray($type)) {
+            $types[] = $row['type'];
+        }
+        return $types;
     }
-
 
     public function insert($data)
     {
