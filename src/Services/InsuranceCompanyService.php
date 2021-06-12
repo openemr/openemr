@@ -168,8 +168,10 @@ class InsuranceCompanyService extends BaseService
     {
         $types = [];
         $type = sqlStatement("SELECT * FROM `insurance_type_codes`");
+        $i = 0;
         while ($row = sqlFetchArray($type)) {
-            $types[] = $row['type'];
+            $i++;
+            $types[$i] = $row['type'];
         }
         return $types;
     }

@@ -716,3 +716,9 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
 
 #EndIf
+
+#IfNotColumnTypeDefault insurance_companies alt_cms_id varchar NULL
+ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
+#EndIf
+
+

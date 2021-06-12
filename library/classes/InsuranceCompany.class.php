@@ -65,6 +65,7 @@ class InsuranceCompany extends ORDataObject
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
+        $this->ins_type_code_array = (new InsuranceCompanyService())->getInsuranceTypes();
         if ($id != "") {
             $this->populate();
         }

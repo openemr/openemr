@@ -33,7 +33,8 @@ use OpenEMR\Services\InsuranceCompanyService;
 $info_msg = "";
 
 // Grab insurance type codes from service
-$ins_type_code_array = (new InsuranceCompanyService())->getInsuranceTypes();
+$insuranceCompany = new InsuranceCompanyService();
+$ins_type_code_array = $insuranceCompany->getInsuranceTypes();
 
 ?>
 <html>
@@ -141,19 +142,15 @@ if ($_POST['form_save']) {
        // sql for updating could go here if this script is enhanced to support
        // editing of existing insurance companies.
     } else {
-        $ins_id = generate_id();
-
-        sqlStatement("INSERT INTO insurance_companies ( " .
-        "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
-        ") VALUES ( " .
-        "'" . add_escape_custom($ins_id)                   . "', " .
-        "'" . add_escape_custom($ins_name)                 . "', " .
-        "'" . add_escape_custom($_POST['form_attn'])       . "', " .
-        "'" . add_escape_custom($_POST['form_cms_id'])     . "', " .
-        "'" . add_escape_custom($_POST['form_ins_type_code']) . "', " .
-        "'" . add_escape_custom($_POST['form_partner'])    . "', " .
-        "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
-        ")");
+        $ins_id = $insuranceCompany->insert(array(
+            'name' => $ins_name,
+            'attn' => $_POST['form_attn'], 
+            'cms_id' => $_POST['form_cms_id'], 
+            'ins_type_code' => $_POST['form_ins_type_code'], 
+            'x12_receiver_id' => $_POST['form_partner'], 
+            'x12_default_parter_id' => $_POST['form_partner'], 
+            'alt_cms_id' => null)
+        );
 
         sqlStatement("INSERT INTO addresses ( " .
         "id, line1, line2, city, state, zip, country, foreign_id " .
@@ -285,7 +282,7 @@ if ($_POST['form_save']) {
   <td>
    <select name='form_ins_type_code' class="form-control form-control-sm">
 <?php
-for ($i = 0; $i < count($ins_type_code_array); ++$i) {
+for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
     echo ">" . text($ins_type_code_array[$i]) . "\n";
 }
