@@ -314,7 +314,6 @@ if ($_POST['form_save']) {
 <?php
 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
-  // if ($i == $row['ins_type_code']) echo " selected";
     echo ">" . text($ins_type_code_array[$i]) . "\n";
 }
 ?>
@@ -330,7 +329,6 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
 <?php
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . attr($xrow['id']) . "'";
-  // if ($xrow['id'] == $row['x12_default_partner_id']) echo " selected";
     echo ">" . text($xrow['name']) . "</option>\n";
 }
 ?>

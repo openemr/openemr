@@ -677,5 +677,14 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #EndIf
 
 #IfMissingColumn form_vitals oxygen_flow_rate
-ALTER TABLE `form_vitals` ADD `oxygen_flow_rate` FLOAT(5,2) NULL DEFAULT '0.00'
+ALTER TABLE `form_vitals` ADD `oxygen_flow_rate` FLOAT(5,2) NULL DEFAULT '0.00';
+#EndIf
+
+#IfNotTable insurance_type_codes
+CREATE TABLE `insurance_type_codes` (
+  `id` int(11) NOT NULL default '0',
+  `type` varchar(60) NOT NULL,
+  `claim_type` text(2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 #EndIf

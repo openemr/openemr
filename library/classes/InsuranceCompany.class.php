@@ -12,33 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-define("INS_TYPE_OTHER_HCFA", 1);
-define("INS_TYPE_MEDICARE", 2);
-define("INS_TYPE_MEDICAID", 3);
-define("INS_TYPE_CHAMPUSVA", 4);
-define("INS_TYPE_CHAMPUS", 5);
-define("INS_TYPE_BCBS", 6);
-define("INS_TYPE_FECA", 7);
-define("INS_TYPE_SELF_PAY", 8);
-define("INS_TYPE_CENTRAL_CERTIFICATION", 9);
-define("INS_TYPE_OTHER_NON-FEDERAL_PROGRAMS", 10);
-define("INS_TYPE_PREFERRED_PROVIDER_ORGANIZATION", 11);
-define("INS_TYPE_POINT_OF_SERVICE", 12);
-define("INS_TYPE_EXCLUSIVE_PROVIDER_ORGANIZATION", 13);
-define("INS_TYPE_INDEMNITY_INSURANCE", 14);
-define("INS_TYPE_HMO_MEDICARE_RISK", 15);
-define("INS_TYPE_AUTOMOBILE_MEDICAL", 16);
-define("INS_TYPE_COMMERCIAL_INSURANCE", 17);
-define("INS_TYPE_DISABILITY", 18);
-define("INS_TYPE_HEALTH_MAINTENANCE_ORGANIZATION", 19);
-define("INS_TYPE_LIABILITY", 20);
-define("INS_TYPE_LIABILITY_MEDICAL", 21);
-define("INS_TYPE_OTHER_FEDERAL_PROGRAM", 22);
-define("INS_TYPE_TITLE_V", 23);
-define("INS_TYPE_VETERANS_ADMINISTRATION_PLAN", 24);
-define("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN", 25);
-define("INS_TYPE_MUTUALLY_DEFINED", 26);
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
@@ -55,23 +28,17 @@ class InsuranceCompany extends ORDataObject
     var $cms_id;
     var $alt_cms_id;
     var $eligibility_id;
-    //this is now deprecated use new x12 partners instead
-    var $x12_receiver_id;
     var $x12_default_partner_id;
     var $x12_default_eligibility_id;
     var $inactive;
     /*
-    *   OpenEMR used this value to determine special formatting for the specified type of payer.
-    *   This value is a mutually exclusive choice answering the FB.Payer.isX API calls
-    *   It references a set of constant defined in this file INS_TYPE_XXX
-    *   Defaults to type INS_TYPE_OTHER_HCFA
-    *   @var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
+    *   OpenEMR can use this value to determine special formatting for the specified type of payer.
+    *   @var int Holds constant for type of payer
     */
     var $ins_type_code;
 
     /*
-    *   Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
-    *   @var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
+    *   Array used to populate select dropdowns or other form elements
     */
     var $ins_type_code_array = array('','Other HCFA'
                                         ,'Medicare Part B'
@@ -274,7 +241,7 @@ class InsuranceCompany extends ORDataObject
 
         return "";
     }
-    function _set_number($num, $type)
+    function set_number($num, $type)
     {
         $found = false;
         for ($i = 0; $i < count($this->phone_numbers); $i++) {
@@ -294,12 +261,12 @@ class InsuranceCompany extends ORDataObject
 
     function set_phone($phone)
     {
-        $this->_set_number($phone, TYPE_WORK);
+        $this->set_number($phone, TYPE_WORK);
     }
 
     function set_fax($fax)
     {
-        $this->_set_number($fax, TYPE_FAX);
+        $this->set_number($fax, TYPE_FAX);
     }
 
     function get_fax()
@@ -311,18 +278,6 @@ class InsuranceCompany extends ORDataObject
         }
 
         return "";
-    }
-
-    function set_x12_receiver_id($id)
-    {
-        //trigger_error("The set_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
-        $this->x12_receiver_id = $id;
-    }
-
-    function get_x12_receiver_id()
-    {
-        //trigger_error("The get_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
-        return $this->x12_receiver_id;
     }
 
     function set_x12_default_partner_id($id)
@@ -376,7 +331,8 @@ class InsuranceCompany extends ORDataObject
     function utility_insurance_companies_array()
     {
         $pharmacy_array = array();
-        $sql = "SELECT p.id, p.name, a.line1, a.line2, a.city, a.state FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
+        $sql = "SELECT p.id, p.name, a.line1, a.line2, a.city, a.state FROM " .
+                escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON p.id = a.foreign_id";
         $res = sqlQ($sql);
         while ($row = sqlFetchArray($res)) {
                 $d_string = $row['city'];
