@@ -36,18 +36,22 @@ class InsuranceCompany extends ORDataObject
     var $InsuranceCompany;
     /*
     *   OpenEMR can use this value to determine special formatting for the specified type of payer.
+    *   It is the key to the array returned by the InsuranceCompanyService
+    *   getInsuranceTypes and getInsuranceClaimTypes methods.
     *   @var int Holds constant for type of payer
     */
     var $ins_type_code;
 
     /*
     *   Array used to populate select dropdowns or other form elements
+    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
     */
     var $ins_type_code_array;
 
     /*
     *   Array used with electronic claim submissions and
     *   corresponds with $ins_type_code_array
+    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
     */
     var $ins_claim_type_array;
 
