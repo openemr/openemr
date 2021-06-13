@@ -299,7 +299,4 @@ class Pharmacy extends ORDataObject
     {
         return $this->pageno = 1;
     }
-} // end of Pharmacy
-/*$p = new Pharmacy("1");
-echo $p->toString(true);
-*/
+}

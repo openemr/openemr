@@ -142,14 +142,16 @@ if ($_POST['form_save']) {
        // sql for updating could go here if this script is enhanced to support
        // editing of existing insurance companies.
     } else {
-        $ins_id = $insuranceCompany->insert(array(
-            'name' => $ins_name,
-            'attn' => $_POST['form_attn'], 
-            'cms_id' => $_POST['form_cms_id'], 
-            'ins_type_code' => $_POST['form_ins_type_code'], 
-            'x12_receiver_id' => $_POST['form_partner'], 
-            'x12_default_parter_id' => $_POST['form_partner'], 
-            'alt_cms_id' => null)
+        $ins_id = $insuranceCompany->insert(
+            array(
+                'name' => $ins_name,
+                'attn' => $_POST['form_attn'],
+                'cms_id' => $_POST['form_cms_id'],
+                'ins_type_code' => $_POST['form_ins_type_code'],
+                'x12_receiver_id' => $_POST['form_partner'],
+                'x12_default_parter_id' => $_POST['form_partner'],
+                'alt_cms_id' => null
+            )
         );
 
         sqlStatement("INSERT INTO addresses ( " .

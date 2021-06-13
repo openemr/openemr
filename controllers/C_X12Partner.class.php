@@ -59,8 +59,7 @@ class C_X12Partner extends Controller
     function list_action()
     {
 
-        $x = new X12Partner();        
-
+        $x = new X12Partner();
         $this->assign("partners", $x->x12_partner_factory());
         return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_list.html");
     }
