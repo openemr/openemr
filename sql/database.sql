@@ -1747,7 +1747,8 @@ CREATE TABLE `form_clinical_notes` (
     `codetext` text,
     `description` text,
     `external_id` VARCHAR(30) DEFAULT NULL,
-    `clinical_notes_type` varchar(100) DEFAULT NULL
+    `clinical_notes_type` varchar(100) DEFAULT NULL,
+    `note_related_to` text
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -11150,7 +11151,8 @@ CREATE TABLE `form_care_plan` (
   `codetext` text,
   `description` text,
   `external_id` varchar(30) DEFAULT NULL,
-  `care_plan_type` varchar(30) DEFAULT NULL
+  `care_plan_type` varchar(30) DEFAULT NULL,
+  `note_related_to` text
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

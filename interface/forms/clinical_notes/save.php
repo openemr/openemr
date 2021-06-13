@@ -35,8 +35,9 @@ $code_des = $_POST["description"];
 $note_user = $_POST["user"];
 $count = $_POST["count"];
 $clinical_notes_type = $_POST['clinical_notes_type'];
+$note_relations = "";
 
-if ($id && $id != 0) {
+if (!empty($id)) {
     sqlStatement("DELETE FROM `form_clinical_notes` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
     $newid = $id;
 } else {
@@ -54,11 +55,12 @@ if ($id && $id != 0) {
 $count = array_filter($count);
 if (!empty($count)) {
     foreach ($count as $key => $codeval) :
-        $code_val = $code[$key] ?: 0;
+        $code_val = $code[$key] ?: '';
         $codetext_val = $code_text[$key] ?: null;
         $description_val = $code_des[$key] ?: null;
         $clinical_notes_type_val = $clinical_notes_type[$key] ?: null;
         $note_user_val = $note_user[$key] ?: $_SESSION["authUser"];
+        $note_relations = parse_note($description_val);
         $sets = "id = ?,
             pid = ?,
             groupname = ?,
@@ -70,7 +72,8 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date =  ?,
-            clinical_notes_type = ?";
+            clinical_notes_type = ?,
+            note_related_to = ?";
         sqlStatement(
             "INSERT INTO form_clinical_notes SET " . $sets,
             [
@@ -84,7 +87,8 @@ if (!empty($count)) {
                 $codetext_val,
                 $description_val,
                 $code_date[$key],
-                $clinical_notes_type_val
+                $clinical_notes_type_val,
+                $note_relations
             ]
         );
     endforeach;
@@ -93,3 +97,8 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
+function parse_note($note)
+{
+    $result = preg_match_all("/\{\|([^\]]*)\|}/", $note, $matches);
+    return json_encode($matches[1]);
+}
