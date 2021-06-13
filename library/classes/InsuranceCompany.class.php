@@ -29,9 +29,11 @@ class InsuranceCompany extends ORDataObject
     var $cms_id;
     var $alt_cms_id;
     var $eligibility_id;
+    var $x12_receiver_id;
     var $x12_default_partner_id;
     var $x12_default_eligibility_id;
     var $inactive;
+    var $InsuranceCompany;
     /*
     *   OpenEMR can use this value to determine special formatting for the specified type of payer.
     *   @var int Holds constant for type of payer
@@ -65,7 +67,9 @@ class InsuranceCompany extends ORDataObject
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
-        $this->ins_type_code_array = (new InsuranceCompanyService())->getInsuranceTypes();
+        $this->InsuranceCompany = new InsuranceCompanyService();
+        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypes();
+        $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
         if ($id != "") {
             $this->populate();
         }

@@ -167,13 +167,25 @@ class InsuranceCompanyService extends BaseService
     public function getInsuranceTypes()
     {
         $types = [];
-        $type = sqlStatement("SELECT * FROM `insurance_type_codes`");
+        $type = sqlStatement("SELECT `type` FROM `insurance_type_codes`");
         $i = 0;
         while ($row = sqlFetchArray($type)) {
             $i++;
             $types[$i] = $row['type'];
         }
         return $types;
+    }
+
+    public function getInsuranceClaimTypes()
+    {
+        $claim_types = [];
+        $claim_type = sqlStatement("SELECT `claim_type` FROM `insurance_type_codes`");
+        $i = 0;
+        while ($row = sqlFetchArray($claim_type)) {
+            $i++;
+            $claim_types[$i] = $row['claim_type'];
+        }
+        return $claim_types;
     }
 
     public function insert($data)
