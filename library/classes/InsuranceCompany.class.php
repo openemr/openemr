@@ -60,7 +60,7 @@ class InsuranceCompany extends ORDataObject
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    function __construct($id = "", $prefix = "")
+    public function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
         $this->name = "";
@@ -81,117 +81,117 @@ class InsuranceCompany extends ORDataObject
         $this->X12Partner = new X12Partner();
     }
 
-    function set_id($id = "")
+    public function set_id($id = "")
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
     // special function that the html forms use to prepopulate which allows for partial edits and wizard functionality
-    function set_form_id($id = "")
+    public function set_form_id($id = "")
     {
         if (!empty($id)) {
             $this->populate($id);
         }
     }
 
-    function set_address($aobj)
+    public function set_address($aobj)
     {
         $this->address = $aobj;
     }
-    function get_address()
+    public function get_address()
     {
         return $this->address;
     }
-    function set_address_line1($line)
+    public function set_address_line1($line)
     {
         $this->address->set_line1($line);
     }
-    function set_address_line2($line)
+    public function set_address_line2($line)
     {
         $this->address->set_line2($line);
     }
 
-    function set_city($city)
+    public function set_city($city)
     {
         $this->address->set_city($city);
     }
-    function set_state($state)
+    public function set_state($state)
     {
         $this->address->set_state($state);
     }
-    function set_zip($zip)
+    public function set_zip($zip)
     {
         $this->address->set_zip($zip);
     }
-    function set_inactive($inactive)
+    public function set_inactive($inactive)
     {
         $this->inactive = $inactive;
     }
-    function get_inactive()
+    public function get_inactive()
     {
         return $this->inactive;
     }
-    function set_name($name)
+    public function set_name($name)
     {
         $this->name = $name;
     }
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
-    function set_attn($attn)
+    public function set_attn($attn)
     {
         $this->attn = $attn;
     }
-    function get_attn()
+    public function get_attn()
     {
         return $this->attn;
     }
-    function set_cms_id($id)
+    public function set_cms_id($id)
     {
         $this->cms_id = $id;
     }
-    function get_cms_id()
+    public function get_cms_id()
     {
         return $this->cms_id;
     }
-    function set_alt_cms_id($id)
+    public function set_alt_cms_id($id)
     {
         $this->alt_cms_id = $id;
     }
-    function get_alt_cms_id()
+    public function get_alt_cms_id()
     {
         return $this->alt_cms_id;
     }
-    function set_eligibility_id($id)
+    public function set_eligibility_id($id)
     {
         $this->eligibility_id = $id;
     }
-    function get_eligibility_id()
+    public function get_eligibility_id()
     {
         return $this->eligibility_id;
     }
-    function set_ins_type_code($type)
+    public function set_ins_type_code($type)
     {
         $this->ins_type_code = $type;
     }
-    function get_ins_type_code()
+    public function get_ins_type_code()
     {
         return $this->ins_type_code;
     }
-    function get_ins_type_code_display()
+    public function get_ins_type_code_display()
     {
         return $this->ins_type_code_array[$this->ins_type_code];
     }
-    function get_ins_claim_type()
+    public function get_ins_claim_type()
     {
         return $this->ins_claim_type_array[$this->ins_type_code];
     }
-    function get_phone()
+    public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_WORK) {
@@ -201,7 +201,7 @@ class InsuranceCompany extends ORDataObject
 
         return "";
     }
-    function set_number($num, $type)
+    public function set_number($num, $type)
     {
         $found = false;
         for ($i = 0; $i < count($this->phone_numbers); $i++) {
@@ -219,17 +219,17 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    function set_phone($phone)
+    public function set_phone($phone)
     {
         $this->set_number($phone, TYPE_WORK);
     }
 
-    function set_fax($fax)
+    public function set_fax($fax)
     {
         $this->set_number($fax, TYPE_FAX);
     }
 
-    function get_fax()
+    public function get_fax()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_FAX) {
@@ -240,46 +240,46 @@ class InsuranceCompany extends ORDataObject
         return "";
     }
 
-    function set_x12_default_partner_id($id)
+    public function set_x12_default_partner_id($id)
     {
         $this->x12_receiver_id = $id;
     }
 
-    function get_x12_default_partner_id()
+    public function get_x12_default_partner_id()
     {
         return $this->x12_receiver_id;
     }
 
-    function get_x12_default_partner_name()
+    public function get_x12_default_partner_name()
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
         return ($xa[$this->get_x12_default_partner_id()] ?? null);
     }
 
-    function set_x12_default_eligibility_id($id)
+    public function set_x12_default_eligibility_id($id)
     {
         $this->x12_default_eligibility_id = $id;
     }
 
-    function get_x12_default_eligibility_id()
+    public function get_x12_default_eligibility_id()
     {
         return $this->x12_default_eligibility_id;
     }
 
-    function get_x12_default_eligibility_name()
+    public function get_x12_default_eligibility_name()
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
         return $xa[$this->get_x12_default_eligibility_id()];
     }
 
-    function populate()
+    public function populate()
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
         $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
     }
 
-    function persist()
+    public function persist()
     {
         parent::persist();
         $this->address->persist($this->id);
@@ -288,7 +288,7 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
+    public function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
     {
         if (empty($city)) {
              $city = "";
@@ -313,7 +313,7 @@ class InsuranceCompany extends ORDataObject
         return $icompanies;
     }
 
-    function toString($html = false)
+    public function toString($html = false)
     {
         $string .= "\n"
         . "ID: " . $this->id . "\n"
