@@ -1,7 +1,7 @@
 {ParseAsHTML}
 <meta name="knownAs" content="Help" />
 
-<div class="container p-2 m-1 bg-secondary">
+<div class="p-2 m-1 bg-secondary">
 <h3 class="text-center">Instructions for completing Required Forms</h3>
 <h5 class="text-center">Welcome {PatientName}</h5>
 <dl>
