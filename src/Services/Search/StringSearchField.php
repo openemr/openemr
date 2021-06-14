@@ -15,12 +15,13 @@ use OpenEMR\Services\Search\SearchFieldType;
 
 class StringSearchField extends BasicSearchField
 {
-    private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX, SearchModifier::MISSING];
+    private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX, SearchModifier::MISSING, SearchModifier::NOT_EQUALS_EXACT];
     public function __construct($field, $values, $modifier = null, $isAnd = true)
     {
         if (array_search($modifier, self::VALID_MODIFIERS) === false) {
             $modifier = SearchModifier::PREFIX;
         }
-        parent::__construct($field, SearchFieldType::STRING, $field, $values, $modifier, $isAnd);
+        parent::__construct($field, SearchFieldType::STRING, $field, $values, $modifier);
+        $this->setIsAnd($isAnd);
     }
 }

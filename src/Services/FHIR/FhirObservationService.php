@@ -64,6 +64,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 //        $this->vitalsService = new FhirVitalsService();
         $this->innerServices[] = new FhirSocialHistoryService();
         $this->innerServices[] = new FhirVitalsService();
+        $this->innerServices[] = new FhirLaboratoryObservation();
         $this->logger = new SystemLogger();
     }
 
