@@ -679,3 +679,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn form_vitals oxygen_flow_rate
 ALTER TABLE `form_vitals` ADD `oxygen_flow_rate` FLOAT(5,2) NULL DEFAULT '0.00';
 #EndIf
+
+#IfMissingColumn form_clinical_notes note_related_to
+ALTER TABLE `form_clinical_notes` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+ALTER TABLE `form_care_plan` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+#EndIf
