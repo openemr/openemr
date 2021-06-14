@@ -10,7 +10,7 @@
 
 ### Contributing
 
-OpenEMR is a leader in healthcare open source software and comprises a large and diverse community of software developers, medical providers and educators with a very healthy mix of both volunteers and professionals.  [Join us and learn how to start contributing today!](https://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
+OpenEMR is a leader in healthcare open source softwares and comprises of a large and diverse community of software developers, medical providers and educators with an effective blend of both our volunteers and professionals.  [Join us and learn how to start contributing today!](https://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
 
 > Already comfortable with git? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for quick setup instructions
 
@@ -22,7 +22,7 @@ Extensive documentation and forums can be found on the [OpenEMR website](https:/
 
 ### Reporting Issues and Bugs
 
-Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure if it is an issue/bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://www.open-emr.org/chat/).
+Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure whether it is an issue or a bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://www.open-emr.org/chat/).
 
 
 ### Reporting Security Vulnerabilities
