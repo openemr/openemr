@@ -761,7 +761,7 @@ $GLOBALS_METADATA = array(
         'text_templates_enabled' => array(
             xl('Enable Text Templates in Encounter Forms'),
             'bool',                           // data type
-            '0',                              // default = false
+            '1',                              // default = true
             xl('Allow Double Click to select Nation Note text template from any encounter form text area')
         ),
 
