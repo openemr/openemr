@@ -190,8 +190,9 @@ abstract class FhirServiceBase implements IResourceSearchableService
                 }
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
-                'field' => $exception->getField()]);
+            $systemLogger = new SystemLogger();
+            $systemLogger->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
