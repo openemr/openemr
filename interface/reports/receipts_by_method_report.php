@@ -478,46 +478,6 @@ if (!empty($_POST['form_refresh'])) {
         $methodadjtotal  = 0;
         $grandadjtotal  = 0;
 
-
-        // Get co-pays using the encounter date as the pay date.  These will
-        // always be considered patient payments.  Ignored if selecting by
-        // billing code.
-        //
-        if (!$form_proc_code || !$form_proc_codetype) {
-            $sqlBindArray = array();
-            $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
-            "fe.date, fe.facility_id, fe.invoice_refno " .
-            "FROM billing AS b " .
-            "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
-            "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
-            "fe.date >= ? AND fe.date <= ?";
-            array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
-            // If a facility was specified.
-            if ($form_facility) {
-                $query .= " AND fe.facility_id = ?";
-                array_push($sqlBindArray, $form_facility);
-            }
-
-            $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
-
-            $res = sqlStatement($query, $sqlBindArray);
-
-            while ($row = sqlFetchArray($res)) {
-                $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
-                thisLineItem(
-                    $row['pid'],
-                    $row['encounter'],
-                    $row['code_text'],
-                    substr($row['date'], 0, 10),
-                    $rowmethod,
-                    0 - $row['fee'],
-                    0,
-                    0,
-                    $row['invoice_refno']
-                );
-            }
-        } // end if not form_proc_code
-
         // Get all other payments and adjustments and their dates, corresponding
         // payers and check reference data, and the encounter dates separately.
         //
@@ -578,7 +538,9 @@ if (!empty($_POST['form_refresh'])) {
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
-                    if ($row['payer_type'] == '1') {
+                    if ($row['payer_type'] == '0') {
+                        $rowmethod = xl('Patient paid');
+                    } elseif ($row['payer_type'] == '1') {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "primary");
                     } elseif ($row['payer_type'] == '2') {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "secondary");

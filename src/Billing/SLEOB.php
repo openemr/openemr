@@ -114,7 +114,8 @@ class SLEOB
         $debug,
         $time = '',
         $codetype = '',
-        $date = ''
+        $date = '',
+        $reason = ''
     ) {
         $codeonly = $code;
         $modifier = '';
@@ -128,6 +129,10 @@ class SLEOB
             $time = date('Y-m-d H:i:s');
         }
 
+        if ($reason == "To copay") {
+            $account_code = "PCP";
+        }
+
         sqlBeginTrans();
         $sequence_no = sqlQuery(
             "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?",
@@ -135,8 +140,8 @@ class SLEOB
         );
         $query = "INSERT INTO ar_activity ( " .
             "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_date, post_user, " .
-            "session_id, memo, pay_amount " .
-            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "session_id, memo, pay_amount, account_code " .
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         sqlStatement(
             $query,
             array(
@@ -152,7 +157,8 @@ class SLEOB
                 $_SESSION['authUserID'],
                 $session_id,
                 $memo,
-                $amount
+                $amount,
+                $account_code
             )
         );
         sqlCommitTrans();
