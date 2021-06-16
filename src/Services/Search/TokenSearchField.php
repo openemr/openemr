@@ -33,6 +33,23 @@ class TokenSearchField extends BasicSearchField
         $this->setValues($values);
     }
 
+    public function hasCodeValue($code, $system = null)
+    {
+        $checkSystem = $system !== null;
+        foreach ($this->getValues() as $tokenValue)
+        {
+            if ($tokenValue instanceof TokenSearchValue && $code == $tokenValue->getCode())
+            {
+                if ($checkSystem)
+                {
+                    return $system == $tokenValue->getSystem();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function transformValues($transformer)
     {
         if (!is_callable($transformer))

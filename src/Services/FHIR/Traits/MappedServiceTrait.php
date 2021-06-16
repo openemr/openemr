@@ -64,7 +64,8 @@ trait MappedServiceTrait
         foreach ($values as $value) {
             // we only search the first one
             $parsedCategory = $value->getCode();
-            foreach ($this->innerServices as $service) {
+            foreach ($this->getMappedServices() as $service) {
+
                 if ($service->supportsCategory($parsedCategory)) {
                     return $service;
                 }

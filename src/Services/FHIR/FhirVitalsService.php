@@ -42,6 +42,8 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
      */
     private $service;
 
+    const CATEGORY = "vital-signs";
+
     private const COLUMN_MAPPINGS = [
         // @see http://hl7.org/fhir/R4/observation-vitalsigns.html
         self::VITALS_PANEL_LOINC_CODE => [
@@ -202,7 +204,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
     public function getResourcePathForCode($code)
     {
-        return "category=vital-signs&code=" . $code;
+        return "category=" . self::CATEGORY . "&code=" . $code;
     }
     public function getCodeFromResourcePath($resourcePath)
     {
@@ -224,7 +226,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
     public function supportsCategory($category)
     {
-        return ($category === "vital-signs");
+        return ($category === self::CATEGORY);
     }
 
     public function supportsCode($code)
@@ -279,15 +281,16 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         $processingResult = new ProcessingResult();
 
         try {
-            $newSearchParams = [];
             $observationCodesToReturn = [];
 
-            if (isset($openEMRSearchParameters['date'])) {
-                $newSearchParams['date'] = $openEMRSearchParameters['date'];
-            }
-
-            if (isset($openEMRSearchParameters['uuid'])) {
-                $newSearchParams['uuid'] = $openEMRSearchParameters['uuid'];
+            if (isset($openEMRSearchParameters['category']) && $openEMRSearchParameters['category'] instanceof TokenSearchField)
+            {
+                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY))
+                {
+                    throw new SearchFieldException("category", "invalid value");
+                }
+                // we only support one category and then we remove it.
+                unset($openEMRSearchParameters['category']);
             }
 
             if (isset($openEMRSearchParameters['code'])) {
@@ -302,11 +305,9 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                     $code = $value->getCode();
                     $observationCodesToReturn[$code] = $code;
                 }
+                unset($openEMRSearchParameters['code']);
             }
 
-            if (isset($openEMRSearchParameters['patient'])) {
-                $newSearchParams['patient'] = $openEMRSearchParameters['patient'];
-            }
 
             if (empty($observationCodesToReturn)) {
                 // grab everything
@@ -316,11 +317,11 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
             // convert vital sign records from 1:many
 
-            $result = $this->service->search($newSearchParams, true);
+            $result = $this->service->search($openEMRSearchParameters, true);
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record) {
+            foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseVitalsIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
             }
@@ -341,7 +342,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 $vitalsRecord = [
                     "code" => self::VITALS_PANEL_LOINC_CODE
                     , "description" => $this->getDescriptionForCode(self::VITALS_PANEL_LOINC_CODE)
-                    , "category" => "vital-signs"
+                    , "category" => self::CATEGORY
                     , "puuid" => $record['puuid']
                     , "euuid" => $record['euuid']
                     , "members" => []
@@ -365,7 +366,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
             $vitalsRecord = [
                 "code" => $code
                 ,"description" => $this->getDescriptionForCode($code)
-                ,"category" => "vital-signs"
+                ,"category" => self::CATEGORY
                 , "puuid" => $record['puuid']
                 , "euuid" => $record['euuid']
                 , "user_uuid" => $record['user_uuid']
