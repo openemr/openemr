@@ -4,6 +4,8 @@
 
 CREATE TABLE IF NOT EXISTS `form_clinical_notes` (
   `id` bigint(20) NOT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `form_id` bigint(20) NOT NULL,
   `date` DATE DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,

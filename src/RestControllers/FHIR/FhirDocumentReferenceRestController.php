@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirCareTeamService;
+use OpenEMR\Services\FHIR\FhirDocumentReferenceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -21,9 +22,15 @@ class FhirDocumentReferenceRestController
 {
     private $fhirService;
 
+    /**
+     * @var FhirDocumentReferenceService
+     */
+    private $service;
+
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
+        $this->service = new FhirDocumentReferenceService();
     }
 
     /**
@@ -34,7 +41,7 @@ class FhirDocumentReferenceRestController
      */
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->service->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -45,7 +52,7 @@ class FhirDocumentReferenceRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->service->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
@@ -55,7 +62,7 @@ class FhirDocumentReferenceRestController
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             array_push($bundleEntries, $fhirBundleEntry);
         }
-        $bundleSearchResult = $this->fhirService->createBundle('CarePlan', $bundleEntries, false);
+        $bundleSearchResult = $this->fhirService->createBundle('DocumentReference', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }

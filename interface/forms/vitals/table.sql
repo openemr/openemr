@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `form_vitals` (
 `id`                bigint(20)      NOT NULL auto_increment,
+`uuid`              binary(16)      DEFAULT NULL,
 `date`              datetime        default NULL,
 `pid`               bigint(20)      default 0,
 `user`              varchar(255)    default NULL,
@@ -20,5 +21,9 @@ CREATE TABLE IF NOT EXISTS `form_vitals` (
 `waist_circ`        FLOAT(5,2)      default 0,
 `head_circ`         FLOAT(4,2)      default 0,
 `oxygen_saturation` FLOAT(5,2)      default 0,
+`oxygen_flow_rate`  FLOAT(5,2)      DEFAULT '0.00' NULL,
+`ped_weight_height` FLOAT(4,1)      DEFAULT '0.00' NULL,
+`ped_bmi`           FLOAT(4,1)      DEFAULT '0.00' NULL,
+`ped_head_circ`     FLOAT(4,1)      DEFAULT '0.00' NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;

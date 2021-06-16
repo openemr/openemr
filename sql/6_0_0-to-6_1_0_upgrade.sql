@@ -753,3 +753,12 @@ ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) NULL DEFAULT '0.00'
 #IfMissingColumn history_data uuid
 ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 #EndIf
+
+#IfMissingColumn form_clinical_notes form_id
+ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
+ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_clinical_notes uuid
+ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf

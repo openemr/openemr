@@ -114,6 +114,7 @@ class UuidRegistry
         self::appendPopulateLog('drugs', (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('facility', (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('facility_user_ids', (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('form_clinical_notes', (new UuidRegistry(['table_name' => 'form_clinical_notes']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('form_encounter', (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('form_vitals', (new UuidRegistry(['table_name' => 'form_vitals']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('history_data', (new UuidRegistry(['table_name' => 'history_data']))->createMissingUuids(), $logEntryComment);

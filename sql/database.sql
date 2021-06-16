@@ -1735,7 +1735,9 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive'
 
 DROP TABLE IF EXISTS `form_clinical_notes`;
 CREATE TABLE `form_clinical_notes` (
-    `id` bigint(20) NOT NULL,
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `form_id` bigint(20) NOT NULL,
+    `uuid` binary(16) DEFAULT NULL,
     `date` DATE DEFAULT NULL,
     `pid` bigint(20) DEFAULT NULL,
     `encounter` varchar(255) DEFAULT NULL,
