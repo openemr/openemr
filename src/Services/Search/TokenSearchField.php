@@ -33,6 +33,18 @@ class TokenSearchField extends BasicSearchField
         $this->setValues($values);
     }
 
+    public function transformValues($transformer)
+    {
+        if (!is_callable($transformer))
+        {
+            throw new \BadMethodCallException("transformer function must be callable");
+        }
+        $values = $this->getValues() ?? [];
+        $values = array_map($transformer, $values);
+        $this->setValues($values);
+        return $values;
+    }
+
     public function setValues(array $values)
     {
         $convertedFields = [];

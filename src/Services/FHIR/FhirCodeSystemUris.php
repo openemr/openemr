@@ -29,4 +29,14 @@ class FhirCodeSystemUris
     const LOINC = "http://loinc.org";
 
     const HL7_OBSERVATION_CATEGORY = "http://terminology.hl7.org/CodeSystem/observation-category";
+
+    // @see https://www.hl7.org/fhir/us/core/ValueSet-us-core-documentreference-category.html
+    const DOCUMENT_REFERENCE_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category";
+
+    // @see https://terminology.hl7.org/1.0.0//CodeSystem-v3-NullFlavor.html
+    const HL7_NULL_FLAVOR = "https://terminology.hl7.org/1.0.0//CodeSystem-v3-NullFlavor.html";
+
+    // @see http://hl7.org/fhir/R4/valueset-formatcodes.html
+    // @see https://profiles.ihe.net/fhir/ihe.formatcode.fhir/background.html
+    const IHE_FORMATCODE_CODESYSTEM = "http://hl7.org/fhir/R4/valueset-formatcodes";
 }

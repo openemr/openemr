@@ -714,7 +714,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             $return = (new FhirDeviceRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirEncounterRestController())->getAll($request->getQueryParams());
+            $return = (new FhirDeviceRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
         return $return;
@@ -725,32 +725,56 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             $return = (new FhirDeviceRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirEncounterRestController())->getOne($request->getQueryParams());
+            $return = (new FhirDeviceRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDiagnosticReportRestController())->getAll($request->getQueryParams());
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDiagnosticReportRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirDiagnosticReportRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDiagnosticReportRestController())->getOne($uuid);
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDiagnosticReportRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirDiagnosticReportRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     'GET /fhir/DocumentReference' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDocumentReferenceRestController())->getAll($request->getQueryParams());
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDocumentReferenceRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirDocumentReferenceRestController())->getAll($getParams);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirDocumentReferenceRestController())->getOne($uuid);
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirDocumentReferenceRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirDocumentReferenceRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },

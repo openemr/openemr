@@ -15,6 +15,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ObservationLabService;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -40,6 +43,9 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirObservationService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use MappedServiceTrait;
+    use PatientSearchTrait;
 
     /**
      * @var ObservationLabService
@@ -60,11 +66,11 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     {
         parent::__construct();
         $this->innerServices = [];
+        // TODO: @adunsulag look at moving each of the service classes into their own namespace so people can add onto the observations
         $this->observationService = new ObservationLabService();
-//        $this->vitalsService = new FhirVitalsService();
-        $this->innerServices[] = new FhirSocialHistoryService();
-        $this->innerServices[] = new FhirVitalsService();
-        $this->innerServices[] = new FhirLaboratoryObservation();
+        $this->addMappedService(new FhirSocialHistoryService());
+        $this->addMappedService(new FhirVitalsService());
+        $this->addMappedService(new FhirLaboratoryObservation());
         $this->logger = new SystemLogger();
     }
 
@@ -80,85 +86,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
         ];
-    }
-
-    /**
-     * Parses an OpenEMR observation record, returning the equivalent FHIR Observation Resource
-     *
-     * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRObservation
-     */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
-    {
-        $observationResource = new FHIRObservation();
-
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
-        $observationResource->setMeta($meta);
-
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $observationResource->setId($id);
-
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['code'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($dataRecord['codetext']);
-            $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observationResource->setCode($categoryCode);
-        } else if (!empty($dataRecord['procedure_code'])) {
-            $categoryCoding->setCode($dataRecord['procedure_code']);
-            $categoryCoding->setSystem('http://loinc.org');
-            $categoryCoding->setDisplay($dataRecord['procedure_name']);
-            $categoryCode->addCoding($categoryCoding);
-            $observationResource->setCode($categoryCode);
-        }
-
-        $subject = new FHIRReference();
-        $subject->setReference('Patient/' . $dataRecord['puuid']);
-        $observationResource->setSubject($subject);
-
-        if (!empty($dataRecord['date_report'])) {
-            $observationResource->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['date_report'])));
-        }
-
-        if (!empty($dataRecord['result_status'])) {
-            $observationResource->setStatus(($dataRecord['result_status']));
-        } else {
-            $observationResource->setStatus("unknown");
-        }
-
-        if (!empty($dataRecord['units'])) {
-            $observationResource->setValueQuantity($dataRecord['units']);
-        }
-
-        if (!empty($dataRecord['range'])) {
-            $observationResource->setValueRange($dataRecord['range']);
-        }
-
-        if (!empty($dataRecord['result'])) {
-            $quantity = new FHIRQuantity();
-            $quantity->setValue($dataRecord['result']);
-            if (!empty($dataRecord['units'])) {
-                $quantity->setUnit($dataRecord['units']);
-            }
-            $observationResource->setValueQuantity($quantity);
-        }
-
-
-        if (!empty($dataRecord['comments'])) {
-            $observationResource->addNote(['text' => $dataRecord['comments']]);
-        }
-
-        if ($encode) {
-            return json_encode($observationResource);
-        } else {
-            return $observationResource;
-        }
     }
 
     /**
@@ -189,18 +116,18 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $service = $this->getObservationServiceForCategory($category);
+                $service = $this->getServiceForCategory($category, 'vital-signs');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
             } else if (isset($fhirSearchParameters['code'])) {
-                $service = $this->getObservationServiceForCode($fhirSearchParameters['code']);
+                $service = $this->getServiceForCode($fhirSearchParameters['code'], FhirVitalsService::VITALS_PANEL_LOINC_CODE);
                 // if we have a service let's search on that
                 if (isset($service)) {
                     $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
                 } else {
-                    $fhirSearchResult = $this->searchAllObservationServices($fhirSearchParameters, $puuidBind);
+                    $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
                 }
             } else {
-                $fhirSearchResult = $this->searchAllObservationServices($fhirSearchParameters, $puuidBind);
+                $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
             (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -209,17 +136,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
-    }
-
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
-    {
     }
 
     /**
@@ -263,76 +179,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $search['_id'] = UuidRegistry::uuidToString($mapping['target_uuid']);
     }
 
-    private function getObservationServiceForCode($code)
-    {
-        $field = new TokenSearchField('code', $code);
-        // shouldn't ever hit the default but we have i there just in case.
-        $values = $field->getValues() ?? [new TokenSearchValue(FhirVitalsService::VITALS_PANEL_LOINC_CODE)];
-        $searchCode = $values[0]->getCode();
-
-        // we only grab the first one as we assume each service only supports a single LOINC observation code
-        foreach ($this->innerServices as $service) {
-            if ($service->supportsCode($searchCode)) {
-                return $service;
-            }
-        }
-        throw new SearchFieldException("code", "Invalid or unsupported code");
-    }
-
-    private function getObservationServiceForCategory($category): FhirServiceBase
-    {
-        // let the field parse our category
-        $field = new TokenSearchField('category', $category);
-        $values = $field->getValues() ?? [new TokenSearchValue('vital-signs')];
-        foreach ($values as $value) {
-            // we only search the first one
-            $parsedCategory = $value->getCode();
-            foreach ($this->innerServices as $service) {
-                if ($service->supportsCategory($parsedCategory)) {
-                    return $service;
-                }
-            }
-        }
-        throw new SearchFieldException("category", "Invalid or unsupported category");
-    }
-
-    private function searchAllObservationServices($fhirSearchParams, $puuidBind)
-    {
-        $processingResult = new ProcessingResult();
-
-        /**
-         * @var $service BaseService
-         */
-        foreach ($this->innerServices as $service) {
-            $innerResult = $service->getAll($fhirSearchParams, $puuidBind);
-            $processingResult->addProcessingResult($innerResult);
-            if ($processingResult->hasErrors()) {
-                // clear our data out and just return the errors
-                $processingResult->clearData();
-                return $processingResult;
-            }
-        }
-        return $processingResult;
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
-    }
     public function getProfileURIs(): array
     {
         return [
@@ -342,10 +188,5 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             ,'https://www.hl7.org/fhir/us/core/StructureDefinition-pediatric-weight-for-height'
             ,'https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-pulse-oximetry'
         ];
-    }
-
-    public function getPatientContextSearchField(): FhirSearchParameterDefinition
-    {
-        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

@@ -151,13 +151,6 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
             $newSearchParams = [];
             $observationCodesToReturn = [];
 
-            if (isset($openEMRSearchParameters['date'])) {
-                $newSearchParams['date'] = $openEMRSearchParameters['date'];
-            }
-
-            if (isset($openEMRSearchParameters['uuid'])) {
-                $newSearchParams['uuid'] = $openEMRSearchParameters['uuid'];
-            }
 
             if (isset($openEMRSearchParameters['code'])) {
                 /**
@@ -171,10 +164,7 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
                     $code = $value->getCode();
                     $observationCodesToReturn[$code] = $code;
                 }
-            }
-
-            if (isset($openEMRSearchParameters['patient'])) {
-                $newSearchParams['patient'] = $openEMRSearchParameters['patient'];
+                unset($openEMRSearchParameters['code']);
             }
 
             if (empty($observationCodesToReturn)) {
@@ -186,10 +176,10 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
             // convert vital sign records from 1:many
 
             // only return social history where tobacco is populated
-            $newSearchParams['tobacco'] = new TokenSearchField('tobacco', [new TokenSearchValue(false)]);
-            $newSearchParams['tobacco']->setModifier(SearchModifier::MISSING);
+            $openEMRSearchParameters['tobacco'] = new TokenSearchField('tobacco', [new TokenSearchValue(false)]);
+            $openEMRSearchParameters['tobacco']->setModifier(SearchModifier::MISSING);
 
-            $result = $this->service->search($newSearchParams, true);
+            $result = $this->service->search($openEMRSearchParameters, true);
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
