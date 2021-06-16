@@ -145,14 +145,12 @@ class ObservationLabService extends BaseService
 
         // AND prs.result NOT IN ('DNR','TNP')
         $excludeDNR_TNP = new StringSearchField('result_string', ['DNR','TNP'], SearchModifier::NOT_EQUALS_EXACT, true);
-        if (isset($search['result_string']) && $search['result_string'] instanceof ISearchField)
-        {
+        if (isset($search['result_string']) && $search['result_string'] instanceof ISearchField) {
             $compoundColumn = new CompositeSearchField('result_string', [], true);
             $compoundColumn->addChild($search['result_string']);
             $compoundColumn->addChild($excludeDNR_TNP);
             $search['result_string'] = $compoundColumn;
-        } else
-        {
+        } else {
             $search['result_string'] = $excludeDNR_TNP;
         }
 
@@ -173,8 +171,7 @@ class ObservationLabService extends BaseService
     public function createResultRecordFromDatabaseResult($row)
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
-        if (!empty($record['range']))
-        {
+        if (!empty($record['range'])) {
             $highlow = preg_split("/[\s,-\--]+/", $record['range']);
             $low = $highlow[0];
             $high = $highlow[1];

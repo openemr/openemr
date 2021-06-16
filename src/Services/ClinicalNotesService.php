@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ClinicalNotesService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services;
-
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -53,8 +53,7 @@ class ClinicalNotesService extends BaseService
         // result for now if the table does not conform to our CORE clinical_notes
         $fields = $this->getFields();
         $processingResult = new ProcessingResult();
-        if (array_search($fields, 'code') === false)
-        {
+        if (array_search($fields, 'code') === false) {
             // there is no data right now for the other form so we leave it be.
             return $processingResult;
         }
@@ -133,8 +132,7 @@ class ClinicalNotesService extends BaseService
     {
         // TODO: @adunsulag this is just for testing until we can figure out the right uuid schematic
         $row['uuid'] = UuidV4::uuid4()->getBytes();
-        if (!empty($row['code']))
-        {
+        if (!empty($row['code'])) {
             $row['code'] = $this->addCoding($row['code']);
         }
         return parent::createResultRecordFromDatabaseResult($row);
@@ -167,16 +165,17 @@ class ClinicalNotesService extends BaseService
      */
     public function clearClinicalRecordsForForm($formId, $pid, $encounter)
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM `form_clinical_notes` WHERE form_id=? AND pid = ? AND encounter = ?"
-            , array($formId, $pid, $encounter));
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `form_clinical_notes` WHERE form_id=? AND pid = ? AND encounter = ?",
+            array($formId, $pid, $encounter)
+        );
     }
 
     public function getClinicalRecordNoteById($id)
     {
         $sql = "select * from `form_clinical_notes` WHERE id = ? ";
         $records = QueryUtils::fetchRecords($sql, [$id]);
-        if (!empty($records))
-        {
+        if (!empty($records)) {
             return $records[0];
         }
         return null;
@@ -206,15 +205,13 @@ class ClinicalNotesService extends BaseService
         $existingRecord = [];
 
 
-        if (empty($form_id) || empty($pid) || empty($encounter) || empty($record) || $userauthorized === null)
-        {
+        if (empty($form_id) || empty($pid) || empty($encounter) || empty($record) || $userauthorized === null) {
             throw new \InvalidArgumentException("Record, form_id, pid, authorized and encounter must be populated");
         }
 
         unset($record['id']);
         // we grab the existing record so we can populate the uuid if necessary
-        if (isset($id))
-        {
+        if (isset($id)) {
             $existingRecord = $this->getClinicalRecordNoteById($id);
         }
 
@@ -234,7 +231,7 @@ class ClinicalNotesService extends BaseService
         }
 
         $keys = array_keys($record);
-        $setValues = array_map(function($val) {
+        $setValues = array_map(function ($val) {
             return $val . " = ? ";
         }, $keys);
         if (!empty($id)) {
@@ -242,9 +239,7 @@ class ClinicalNotesService extends BaseService
             $bindValues = array_values($record);
             $bindValues[] = $id;
             QueryUtils::sqlStatementThrowException($sql, $bindValues);
-        }
-        else
-        {
+        } else {
             $sql = "INSERT INTO " . self::TABLE_NAME . " SET " . implode(", ", $setValues);
             $bindValues = array_values($record);
             $recordId = QueryUtils::sqlInsert($sql, $bindValues);
@@ -260,8 +255,7 @@ class ClinicalNotesService extends BaseService
 
     public function getClinicalNoteIdsForPatientForm(int $formid, $pid, $encounter)
     {
-        if (empty($formid) || empty($pid) || empty($encounter))
-        {
+        if (empty($formid) || empty($pid) || empty($encounter)) {
             throw new \InvalidArgumentException("formid, pid, and encounter must all be populated");
         }
 
@@ -271,8 +265,7 @@ class ClinicalNotesService extends BaseService
 
     public function getClinicalNotesForPatientForm(int $formid, $pid, $encounter)
     {
-        if (empty($formid) || empty($pid) || empty($encounter))
-        {
+        if (empty($formid) || empty($pid) || empty($encounter)) {
             throw new \InvalidArgumentException("formid, pid, and encounter must all be populated");
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirClinicalNotesService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\DocumentReference;
-
 
 use Monolog\Utils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
@@ -87,8 +87,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
 
-        if (!empty($dataRecord['euuid']))
-        {
+        if (!empty($dataRecord['euuid'])) {
             $context = new FHIRDocumentReferenceContext();
 
             // we currently don't track anything dealing with start and end date for the context
@@ -102,26 +101,26 @@ class FhirClinicalNotesService extends FhirServiceBase
         }
 
         // populate our clinical narrative notes
-        if (!empty($dataRecord['description']))
-        {
+        if (!empty($dataRecord['description'])) {
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
             $attachment->setData(base64_encode($dataRecord['description']));
             $content->setAttachment($attachment);
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
-            $contentCoding = UtilsService::createCoding("urn:ihe:iti:xds:2017:mimeTypeSufficient"
-                , "mimeType Sufficient", FhirCodeSystemUris::IHE_FORMATCODE_CODESYSTEM);
+            $contentCoding = UtilsService::createCoding(
+                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+                "mimeType Sufficient",
+                FhirCodeSystemUris::IHE_FORMATCODE_CODESYSTEM
+            );
             $content->setFormat($contentCoding);
             $docReference->addContent($content);
-
         } else {
             // need to support data missing if its not there.
             $docReference->addContent(UtilsService::createDataMissingExtension());
         }
 
-        if (!empty($dataRecord['puuid']))
-        {
+        if (!empty($dataRecord['puuid'])) {
             $docReference->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         }
 
@@ -130,15 +129,13 @@ class FhirClinicalNotesService extends FhirServiceBase
         // TODO: need to handle custodian
         // TODO: need to handle author
 
-        if (!empty($dataRecord['status']))
-        {
+        if (!empty($dataRecord['status'])) {
             $docReference->setStatus($dataRecord['status']);
         } else {
             $docReference->setStatus('current');
         }
 
-        if (!empty($dataRecord['code']))
-        {
+        if (!empty($dataRecord['code'])) {
             $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
             $docReference->setType($type);
         } else {
@@ -170,9 +167,8 @@ class FhirClinicalNotesService extends FhirServiceBase
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         // TODO: @adunsulag need to convert the code value so we have LOINC: in front of the code...
-        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField)
-        {
-            $openEMRSearchParameters['code']->transformValues(function(TokenSearchValue $val) {
+        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
+            $openEMRSearchParameters['code']->transformValues(function (TokenSearchValue $val) {
                 // TODO: @adunsulag I don't like this, is there a way we can mark the code system we are using that will prefix the value
                 // already?
                 $val->setCode("LOINC:" . $val->getCode());
@@ -185,14 +181,12 @@ class FhirClinicalNotesService extends FhirServiceBase
             if ($codeField instanceof TokenSearchField) {
                 $values = $codeField->getValues();
                 foreach ($codeField->getValues() as $value) {
-
                 }
             }
         }
         // we know category is clinical-notes here and we remove it before dropping to the lower level as it doesn't
         // understand category.
-        if (isset($openEMRSearchParameters['category']))
-        {
+        if (isset($openEMRSearchParameters['category'])) {
             unset($openEMRSearchParameters['category']);
         }
         return $this->service->search($openEMRSearchParameters);

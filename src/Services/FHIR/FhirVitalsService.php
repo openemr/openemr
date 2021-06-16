@@ -283,10 +283,8 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         try {
             $observationCodesToReturn = [];
 
-            if (isset($openEMRSearchParameters['category']) && $openEMRSearchParameters['category'] instanceof TokenSearchField)
-            {
-                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY))
-                {
+            if (isset($openEMRSearchParameters['category']) && $openEMRSearchParameters['category'] instanceof TokenSearchField) {
+                if (!$openEMRSearchParameters['category']->hasCodeValue(self::CATEGORY)) {
                     throw new SearchFieldException("category", "invalid value");
                 }
                 // we only support one category and then we remove it.

@@ -42,7 +42,7 @@ class UtilsService
         $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
     }
 
-    public static function createCoding($code, $display, $system) : FHIRCoding
+    public static function createCoding($code, $display, $system): FHIRCoding
     {
         if (!is_string($code)) {
             $code = "$code"; // FHIR expects a string
@@ -54,11 +54,10 @@ class UtilsService
         return $coding;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem, $defaultDisplay=""): FHIRCodeableConcept
+    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem, $defaultDisplay = ""): FHIRCodeableConcept
     {
         $diagnosisCode = new FHIRCodeableConcept();
         foreach ($diagnosisCodes as $code => $display) {
-
             if (!empty($display)) {
                 $diagnosisCode->addCoding(self::createCoding($code, $display, $codeSystem));
             } else {

@@ -270,8 +270,7 @@ class SearchFieldStatementResolver
                 // and avoid db casting...
                 array_push($clauses, "BINARY " . $searchField->getField() . ' = ?');
                 $searchFragment->addBoundValue($value);
-            } else if ($modifier == SearchModifier::NOT_EQUALS_EXACT)
-            {
+            } else if ($modifier == SearchModifier::NOT_EQUALS_EXACT) {
                 array_push($clauses, "BINARY " . $searchField->getField() . ' != ?');
                 $searchFragment->addBoundValue($value);
             }

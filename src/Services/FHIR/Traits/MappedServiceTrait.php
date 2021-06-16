@@ -1,4 +1,5 @@
 <?php
+
 /**
  * MappedServiceTrait.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Traits;
-
 
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -56,7 +56,7 @@ trait MappedServiceTrait
         throw new SearchFieldException("code", "Invalid or unsupported code");
     }
 
-    public function getServiceForCategory($category, $defaultCategory) : FhirServiceBase
+    public function getServiceForCategory($category, $defaultCategory): FhirServiceBase
     {
         // let the field parse our category
         $field = new TokenSearchField('category', $category);
@@ -65,7 +65,6 @@ trait MappedServiceTrait
             // we only search the first one
             $parsedCategory = $value->getCode();
             foreach ($this->getMappedServices() as $service) {
-
                 if ($service->supportsCategory($parsedCategory)) {
                     return $service;
                 }

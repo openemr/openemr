@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirLaboratoryObservation.php
  * @package openemr
@@ -203,9 +204,7 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
             $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
-        }
-        else
-        {
+        } else {
             // TODO: @adunsulag need to set the data absent.
         }
 
@@ -214,12 +213,9 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
         if (!empty($dataRecord['range'])) {
             $referenceRange = new FHIRObservationReferenceRange();
-            if (isset($dataRecord['range_low']))
-            {
+            if (isset($dataRecord['range_low'])) {
                 $referenceRange->setLow(UtilsService::createQuantity($dataRecord['low'], $dataRecord['units'], $dataRecord['units']));
-            }
-            else
-            {
+            } else {
                 $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['high'], $dataRecord['units'], $dataRecord['units']));
             }
 
@@ -252,8 +248,7 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
     private function getValidStatus($status)
     {
         $statii = ['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'];
-        if (array_search($status, $statii) !== false)
-        {
+        if (array_search($status, $statii) !== false) {
             return $status;
         }
         return "unknown";

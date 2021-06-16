@@ -44,8 +44,7 @@ $note_relations = "";
 
 $clinicalNotesService = new ClinicalNotesService();
 
-if (!empty($form_id))
-{
+if (!empty($form_id)) {
     $existingIds  = $clinicalNotesService->getClinicalNoteIdsForPatientForm($form_id, $_SESSION['pid'], $_SESSION['encounter']);
 
     // in order to find the ids that are unique we have to operate on the same type system, we'll convert everything into
@@ -57,10 +56,13 @@ if (!empty($form_id))
     // now grab all of the ids that exist that were not submitted so we can mark them as inactive.  This does a
     // mathmatical set substraction.  We don't really delete the records as we need an audit trail here.
     $recordsIdsToDelete = array_diff($existingIdInts, $submittedIdInts);
-    foreach ($recordsIdsToDelete as $recordId)
-    {
-        $clinicalNotesService->setActivityForClinicalRecord($recordId, $_SESSION['pid']
-            , $_SESSION['encounter'], ClinicalNotesService::ACTIVITY_INACTIVE);
+    foreach ($recordsIdsToDelete as $recordId) {
+        $clinicalNotesService->setActivityForClinicalRecord(
+            $recordId,
+            $_SESSION['pid'],
+            $_SESSION['encounter'],
+            ClinicalNotesService::ACTIVITY_INACTIVE
+        );
     }
 } else {
     $form_id = $clinicalNotesService->createClinicalNotesParentForm($_SESSION['pid'], $_SESSION['encounter'], $userauthorized);

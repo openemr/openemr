@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirDiagnosticReportService.php
  * @package openemr
@@ -69,8 +70,10 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
         $diagnosticReport = new FHIRDiagnosticReport();
         $diagnosticReport->setStatus("registered");
         $diagnosticReport->addCategory(UtilsService::createCodeableConcept(["LP29684-5" => "Radiology"], FhirCodeSystemUris::LOINC));
-        $diagnosticReport->setCode(UtilsService::createCodeableConcept(["1000-9" => "DBG Ab [Presence] in Serum or Plasma from Blood product unit"]
-            , FhirCodeSystemUris::LOINC));
+        $diagnosticReport->setCode(UtilsService::createCodeableConcept(
+            ["1000-9" => "DBG Ab [Presence] in Serum or Plasma from Blood product unit"],
+            FhirCodeSystemUris::LOINC
+        ));
         $diagnosticReport->setSubject(UtilsService::createRelativeReference("Patient", ""));
         $diagnosticReport->setEffectiveDateTime(gmdate('c'));
         $diagnosticReport->setIssued(gmdate('c'));

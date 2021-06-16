@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientSearchTrait.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Traits;
-
 
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;

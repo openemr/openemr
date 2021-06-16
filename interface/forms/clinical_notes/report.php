@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Services\ClinicalNotesService;
+
 /**
  * Clinical Notes form report.php
  *
@@ -24,7 +25,9 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
     $count = 0;
     $clinicalNotesService = new ClinicalNotesService();
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($id, $pid, $encounter) ?? [];
-    $data = array_filter($records, function($val) { return $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE; });
+    $data = array_filter($records, function ($val) {
+        return $val['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE;
+    });
 
     if ($data) {
         ?>

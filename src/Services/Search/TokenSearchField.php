@@ -36,12 +36,9 @@ class TokenSearchField extends BasicSearchField
     public function hasCodeValue($code, $system = null)
     {
         $checkSystem = $system !== null;
-        foreach ($this->getValues() as $tokenValue)
-        {
-            if ($tokenValue instanceof TokenSearchValue && $code == $tokenValue->getCode())
-            {
-                if ($checkSystem)
-                {
+        foreach ($this->getValues() as $tokenValue) {
+            if ($tokenValue instanceof TokenSearchValue && $code == $tokenValue->getCode()) {
+                if ($checkSystem) {
                     return $system == $tokenValue->getSystem();
                 }
                 return true;
@@ -52,8 +49,7 @@ class TokenSearchField extends BasicSearchField
 
     public function transformValues($transformer)
     {
-        if (!is_callable($transformer))
-        {
+        if (!is_callable($transformer)) {
             throw new \BadMethodCallException("transformer function must be callable");
         }
         $values = $this->getValues() ?? [];

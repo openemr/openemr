@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirDocumentReferenceService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;

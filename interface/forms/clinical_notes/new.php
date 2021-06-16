@@ -34,8 +34,7 @@ if ($formid) {
     $clinicalNotesService = new ClinicalNotesService();
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
     $check_res = [];
-    foreach ($records as $record)
-    {
+    foreach ($records as $record) {
         // we are only going to include active clinical notes, but we leave them as historical records in the system
         // FHIR and other resources still refer to them, they will just be marked as inactive...
         if ($record['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE) {
@@ -157,9 +156,9 @@ foreach ($result as $value) {
                     <legend><?php echo xlt('Note Details'); ?></legend>
                     <div class="container-fluid">
                         <?php
-                            foreach ($check_res as $key => $obj) {
-                                $context = "";
-                                ?>
+                        foreach ($check_res as $key => $obj) {
+                            $context = "";
+                            ?>
                         <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                             <fieldset>
                                 <div class="form-row">
@@ -174,12 +173,12 @@ foreach ($result as $value) {
                                         <label for="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
                                         <select name="clinical_notes_type[]" id="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="form-control clinical_notes_type" onchange="typeChange(this)">
                                             <option value=""><?php echo xlt('Select Note Type'); ?></option>
-                                            <?php foreach ($clinical_notes_type as $value) :
+                                        <?php foreach ($clinical_notes_type as $value) :
                                                 $selected = ($value['value'] == $obj["clinical_notes_type"]) ? 'selected="selected"' : '';
-                                                if (!empty($selected)) {
-                                                    $context = $value['title'];
-                                                }
-                                                ?>
+                                            if (!empty($selected)) {
+                                                $context = $value['title'];
+                                            }
+                                            ?>
                                                 <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
                                             <?php endforeach; ?>
                                         </select>
