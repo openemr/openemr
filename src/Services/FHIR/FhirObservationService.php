@@ -130,8 +130,9 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
-                'field' => $exception->getField()]);
+            $systemLogger = new SystemLogger();
+            $systemLogger->error("FhirObservationService->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
