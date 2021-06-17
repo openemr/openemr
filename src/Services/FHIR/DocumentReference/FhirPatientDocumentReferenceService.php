@@ -69,7 +69,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_NUMBER)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('drive_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
