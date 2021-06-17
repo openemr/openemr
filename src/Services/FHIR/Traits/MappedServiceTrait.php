@@ -40,10 +40,9 @@ trait MappedServiceTrait
         $this->services = $services;
     }
 
-    public function getServiceForCode($code, $defaultCode)
+    public function getServiceForCode(TokenSearchField $field, $defaultCode)
     {
-        $field = new TokenSearchField('code', $code);
-        // shouldn't ever hit the default but we have i there just in case.
+        // shouldn't ever hit the default but we have it there just in case.
         $values = $field->getValues() ?? [new TokenSearchValue($defaultCode)];
         $searchCode = $values[0]->getCode();
 
@@ -53,7 +52,7 @@ trait MappedServiceTrait
                 return $service;
             }
         }
-        throw new SearchFieldException("code", "Invalid or unsupported code");
+        throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
     }
 
     public function getServiceForCategory($category, $defaultCategory): FhirServiceBase

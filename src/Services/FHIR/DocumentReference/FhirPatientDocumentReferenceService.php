@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirClinicalNotesService.php
+ * FhirPatientDocumentReferenceService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -11,81 +11,76 @@
 
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
-use Monolog\Utils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
-use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
-use OpenEMR\Services\ClinicalNotesService;
-use OpenEMR\Services\FHIR\a;
+use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\FHIR\FhirCodeSystemUris;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\FHIR\Indicates;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
-use Twig\Token;
 
-class FhirClinicalNotesService extends FhirServiceBase
+class FhirPatientDocumentReferenceService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
 
     /**
-     * @var ClinicalNotesService
+     * @var DocumentService
      */
     private $service;
-
-    const CATEGORY = 'clinical-note';
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->service = new ClinicalNotesService();
+        $this->service = new DocumentService();
     }
+
 
     public function supportsCategory($category)
     {
-        return $category == self::CATEGORY;
+        // we have no category definitions right now for patient
+        return false;
     }
 
 
     public function supportsCode($code)
     {
-        return $this->service->isValidClinicalNoteCode($code);
+        // we don't support searching by code
+        return false;
     }
 
-    /**
-     * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
-     */
     protected function loadSearchParameters()
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_NUMBER)]),
         ];
+    }
+
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        if (isset($openEMRSearchParameters['category'])) {
+            // we have nothing with this category so we are going to return nothing as we never should have gotten here
+
+            unset($openEMRSearchParameters['category']);
+        }
+        return $this->service->search($openEMRSearchParameters);
     }
 
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
@@ -97,11 +92,13 @@ class FhirClinicalNotesService extends FhirServiceBase
         $docReference->setMeta($meta);
 
         $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
+        // TODO: @adunsulag after playing around with this we definitely need a document uuid, drive_uuid doesn't work
+        // as it only applies to anything not couchdb...
+        $id->setValue($dataRecord['drive_uuid']);
         $docReference->setId($id);
 
         $identifier = new FHIRIdentifier();
-        $identifier->setValue(new FHIRString($dataRecord['uuid']));
+        $identifier->setValue(new FHIRString($dataRecord['drive_uuid']));
         $docReference->addIdentifier($identifier);
 
         // TODO: @adunsulag need to support content.attachment.url
@@ -126,12 +123,14 @@ class FhirClinicalNotesService extends FhirServiceBase
         }
 
         // populate our clinical narrative notes
-        if (!empty($dataRecord['description'])) {
+        if (!empty($dataRecord['id'])) {
+            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['id'] . '/Binary';
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
-            $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setContentType($dataRecord['mimetype']);
+            $attachment->setUrl(new FHIRUrl($url));
             $content->setAttachment($attachment);
+            // TODO: if we support tagging a specific document with a reference code we can put that here.
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
             $contentCoding = UtilsService::createCoding(
                 "urn:ihe:iti:xds:2017:mimeTypeSufficient",
@@ -151,12 +150,20 @@ class FhirClinicalNotesService extends FhirServiceBase
             $docReference->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $docReference->addCategory(UtilsService::createCodeableConcept(['clinical-note' => 'Clinical Notes Category'], FhirCodeSystemUris::DOCUMENT_REFERENCE_CATEGORY));
+        // the category is extensible so we are going to use our own code set, this is just a uniquely identifying URL
+        // which is extensible so we are going to put this here
+        // if we have a way of translating LOINC to category we could do this, but for now we don't
+        // TODO: @adunsulag check with @brady.miller is there anyway to translate our document categories into LOINC codes?
+
+        $docCategoryValueSetSystem = $this->getFhirApiURL() . "/fhir/ValueSet/openemr-document-types";
+        $docReference->addCategory(UtilsService::createCodeableConcept(['openemr-document' => 'OpenEMR Document'], $docCategoryValueSetSystem));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         $docReference->setCustodian($orgReference);
 
+        // TODO: @adunsulag check with @sjpadgett and @brady.miller how are patient documents setup?  Do they populate the owner column?
+        // how do you determine if a patient uploaded a document vs a regular user?
         if (!empty($dataRecord['user_uuid'])) {
             if (!empty($dataRecord['npi'])) {
                 $docReference->addAuthor(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
@@ -167,8 +174,8 @@ class FhirClinicalNotesService extends FhirServiceBase
             }
         }
 
-        if (!empty($dataRecord['activity'])) {
-            if ($dataRecord['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE) {
+        if (!empty($dataRecord['deleted'])) {
+            if ($dataRecord['deleted'] != 1) {
                 $docReference->setStatus("current");
             } else {
                 $docReference->setStatus("entered-in-error");
@@ -187,48 +194,12 @@ class FhirClinicalNotesService extends FhirServiceBase
         return $docReference;
     }
 
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
-    {
-        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['code']->transformValues(function (TokenSearchValue $val) {
-                // TODO: @adunsulag I don't like this, is there a way we can mark the code system we are using that will prefix the value
-                // automatically?
-                $val->setCode("LOINC:" . $val->getCode());
-                return $val;
-            });
-        }
-        // we know category is clinical-notes here and we remove it before dropping to the lower level as it doesn't
-        // understand category.
-        if (isset($openEMRSearchParameters['category'])) {
-            unset($openEMRSearchParameters['category']);
-        }
-        // the diagnostic report narratives are found in DiagnosticReport...
-        $openEMRSearchParameters['clinical_notes_type'] = new StringSearchField(
-            'clinical_notes_type',
-            ['laboratory_report_narrative', 'pathology_report_narrative', 'imaging_narrative'],
-            SearchModifier::NOT_EQUALS_EXACT
-        );
-        return $this->service->search($openEMRSearchParameters);
-    }
-
-    /**
-     * Creates the Provenance resource  for the equivalent FHIR Resource
-     *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
-     */
     public function createProvenanceResource($dataRecord, $encode = false)
     {
         if (!($dataRecord instanceof FHIRDocumentReference)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
+
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
         if ($encode) {

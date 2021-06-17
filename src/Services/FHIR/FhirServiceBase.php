@@ -38,8 +38,15 @@ abstract class FhirServiceBase implements IResourceSearchableService
      */
     private $searchFieldFactory;
 
+    /**
+     * Url to the base fhir api location
+     * @var string
+     */
+    private $fhirApiURL;
+
     public function __construct($fhirApiURL = null)
     {
+        $this->fhirApiURL = $fhirApiURL;
         $params = $this->loadSearchParameters();
         $this->resourceSearchParameters = is_array($params) ? $params : [];
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
@@ -51,6 +58,14 @@ abstract class FhirServiceBase implements IResourceSearchableService
             $searchFieldFactory->setFhirUrlResolver($urlResolver);
         }
         $this->setSearchFieldFactory($searchFieldFactory);
+    }
+
+    /**
+     * @return string
+     */
+    public function getFhirApiURL()
+    {
+        return $this->fhirApiURL;
     }
 
     /**

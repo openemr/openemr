@@ -12,27 +12,37 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
+use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirClinicalNotesService;
+use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
     use MappedServiceTrait;
 
+    const US_CORE_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference";
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->addMappedService(new FhirClinicalNotesService());
+        $this->addMappedService(new FhirClinicalNotesService($fhirApiURL));
+        // for regular documents we need to handle the attachment.content.url so we also retrieve all of the documents
+        // connected to a patient
+        $this->addMappedService(new FhirPatientDocumentReferenceService($fhirApiURL));
     }
 
     /**
@@ -45,7 +55,8 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['type']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            // it will search all the services, but since we are only grabbing a single id this should be relatively fast
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -59,13 +70,6 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
     {
         $fhirSearchResult = new ProcessingResult();
         try {
-            if (isset($fhirSearchParameters['_id'])) {
-                $result = $this->populateSurrogateSearchFieldsForUUID($fhirSearchParameters['_id'], $fhirSearchParameters);
-                if ($result instanceof ProcessingResult) { // failed to populate so return the results
-                    return $result;
-                }
-            }
-
             if (isset($puuidBind)) {
                 $field = $this->getPatientContextSearchField();
                 $fhirSearchParameters[$field->getName()] = $puuidBind;
@@ -79,9 +83,9 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
                 $service = $this->getServiceForCategory($category, 'clinical-notes');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['code'])) {
+            } else if (isset($fhirSearchParameters['type'])) {
                 // TODO: @adunsulag should there be a default code here?  Look at the method signature
-                $service = $this->getServiceForCode($fhirSearchParameters['code'], '');
+                $service = $this->getServiceForCode(new TokenSearchField('type', $fhirSearchParameters['type']), '');
                 // if we have a service let's search on that
                 if (isset($service)) {
                     $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
@@ -92,11 +96,25 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            (new SystemLogger())->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [
+            self::US_CORE_PROFILE
+        ];
     }
 }

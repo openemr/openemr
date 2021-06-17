@@ -403,6 +403,17 @@ class Document extends ORDataObject
     }
 
     /**
+     * Returns all of the documents for a specific patient
+     * @param int $patient_id
+     * @return array
+     */
+    public static function getDocumentsForPatient(int $patient_id)
+    {
+        $doc = new Document();
+        return $doc->documents_factory($patient_id);
+    }
+
+    /**
      * Return an array of documents that are connected to another table record in the system.
      * @param int $foreign_id
      * @return Document[]

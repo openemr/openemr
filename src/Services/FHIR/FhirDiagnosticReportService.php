@@ -42,6 +42,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
+        $this->addMappedService(new FhirClinicalNotesService());
     }
 
     /**

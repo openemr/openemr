@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirDocumentReferenceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
@@ -27,10 +28,10 @@ class FhirDocumentReferenceRestController
      */
     private $service;
 
-    public function __construct()
+    public function __construct(HttpRestRequest $request)
     {
         $this->fhirService = new FhirResourcesService();
-        $this->service = new FhirDocumentReferenceService();
+        $this->service = new FhirDocumentReferenceService($request->getApiBaseFullUrl());
     }
 
     /**

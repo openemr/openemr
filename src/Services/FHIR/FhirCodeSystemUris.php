@@ -34,9 +34,9 @@ class FhirCodeSystemUris
     const DOCUMENT_REFERENCE_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category";
 
     // @see https://terminology.hl7.org/1.0.0//CodeSystem-v3-NullFlavor.html
-    const HL7_NULL_FLAVOR = "https://terminology.hl7.org/1.0.0//CodeSystem-v3-NullFlavor.html";
+    const HL7_NULL_FLAVOR = "http://terminology.hl7.org/CodeSystem/v3-NullFlavor";
 
     // @see http://hl7.org/fhir/R4/valueset-formatcodes.html
     // @see https://profiles.ihe.net/fhir/ihe.formatcode.fhir/background.html
-    const IHE_FORMATCODE_CODESYSTEM = "http://hl7.org/fhir/R4/valueset-formatcodes";
+    const IHE_FORMATCODE_CODESYSTEM = "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem";
 }

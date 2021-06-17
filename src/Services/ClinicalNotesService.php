@@ -64,7 +64,7 @@ class ClinicalNotesService extends BaseService
             SELECT 
                 notes.id
                 ,notes.uuid AS uuid
-                ,'current' AS status
+                ,notes.activity
                 ,notes.date
                 ,notes.code
                 ,notes.codetext
@@ -79,6 +79,8 @@ class ClinicalNotesService extends BaseService
                 ,encounters.encounter_date
                 ,users.username
                 ,users.user_uuid
+                ,users.npi
+                ,users.physician_type
             FROM 
                 form_clinical_notes notes
             JOIN (
@@ -86,6 +88,8 @@ class ClinicalNotesService extends BaseService
                     id AS form_id,
                     encounter
                     ,pid
+                FROM    
+                    forms
             ) forms ON forms.form_id = notes.form_id
             LEFT JOIN (
                 select
@@ -108,30 +112,31 @@ class ClinicalNotesService extends BaseService
                     uuid AS user_uuid
                     ,username
                     ,id AS uid
-                    FROM users
+                    ,npi
+                    ,physician_type
+                    FROM
+                        users
             ) users ON notes.`user` = users.username
         ";
             $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
             $sql .= $whereClause->getFragment();
             $sqlBindArray = $whereClause->getBoundValues();
+
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
             while ($row = sqlFetchArray($statementResults)) {
                 $resultRecord = $this->createResultRecordFromDatabaseResult($row);
                 $processingResult->addData($resultRecord);
             }
-            return $processingResult;
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
-
         return $processingResult;
     }
 
     protected function createResultRecordFromDatabaseResult($row)
     {
         // TODO: @adunsulag this is just for testing until we can figure out the right uuid schematic
-        $row['uuid'] = UuidV4::uuid4()->getBytes();
         if (!empty($row['code'])) {
             $row['code'] = $this->addCoding($row['code']);
         }
@@ -245,10 +250,6 @@ class ClinicalNotesService extends BaseService
             $recordId = QueryUtils::sqlInsert($sql, $bindValues);
             $record['id'] = $recordId;
         }
-//
-//        var_dump($sql);
-//        var_dump($bindValues);
-
         // if we want the id&uuid back we need to return the record here
         return $record;
     }
@@ -277,5 +278,22 @@ class ClinicalNotesService extends BaseService
     {
         $sql = "DELETE FROM `form_clinical_notes` WHERE id = ? AND pid= ? AND encounter = ?";
         QueryUtils::sqlStatementThrowException($sql, [$recordId, $pid, $encounter]);
+    }
+
+    /**
+     * Given a code (with or without LOINC prefix) determine if its a valid clinical note code that this service can
+     * respond to.
+     * @param $code string
+     * @return bool true if the code is valid, false otherwise
+     */
+    public function isValidClinicalNoteCode($code)
+    {
+        // make it a LOINC code
+        if (strpos($code, ":") === false) {
+            $code = "LOINC:" . $code;
+        }
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('Clinical_Note_Type', ['notes' => $code]);
+        return !empty($options);
     }
 }
