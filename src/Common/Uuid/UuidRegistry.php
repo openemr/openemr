@@ -201,7 +201,7 @@ class UuidRegistry
         }
     }
 
-    public function createMissingUuidsImproved()
+    public function createMissingUuids()
     {
         try {
             sqlBeginTrans();
@@ -226,69 +226,6 @@ class UuidRegistry
         }
     }
 
-    // Generic function to create missing uuids in a sql table
-    //  This function works in "blocks" of 1000 to avoid mysql/mariadb death when updating a super large (>500K) amount of uuids in one table
-    //  This function returns the number of missing uuids that were populated
-    public function createMissingUuids()
-    {
-        // set up counter
-        $counter = 0;
-
-        // Empty should be NULL, but to be safe also checking for empty and null bytes
-        $done = false;
-        while (!$done) {
-            // just maximum of 1000 at a time to attempt to speed things up and not break when inserting a large number of uuids
-            if (!$this->table_vertical) {
-                // in this standard case, can decrease memory use by just collecting the id
-                $resultSet = sqlStatementNoLog("SELECT `" . $this->table_id . "` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT " . self::UUID_MAX_BATCH_COUNT);
-            } else {
-                // in this more complicated case (ie. vertical table), need to collect all columns
-                $resultSet = sqlStatementNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT " . self::UUID_MAX_BATCH_COUNT);
-            }
-            if (sqlNumRows($resultSet) < self::UUID_MAX_BATCH_COUNT) {
-                $done = true;
-            }
-            while ($row = sqlFetchArray($resultSet)) {
-                if (!$this->table_vertical) {
-                    // standard case, add missing uuid
-                    sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$this->createUuid(), $row[$this->table_id]]);
-                    $counter++;
-                } else {
-                    // more complicated case where setting uuid in a vertical table. In this case need a uuid for each combination of table columns stored in $this->table_vertical array
-                    $stringQuery = "";
-                    $arrayQuery = [];
-                    $prependAnd = false;
-                    foreach ($this->table_vertical as $column) {
-                        if ($prependAnd) {
-                            $stringQuery .= " AND `" . $column . "` = ? ";
-                        } else {
-                            $stringQuery .= " `" . $column . "` = ? ";
-                        }
-                        $arrayQuery[] = $row[$column];
-                        $prependAnd = true;
-                    }
-                    // First, see if it has already been set
-                    $sqlStatement = "SELECT `uuid` FROM `" . $this->table_name . "` WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AND " . $stringQuery;
-                    $setUuid = sqlQueryNoLog($sqlStatement, $arrayQuery);
-                    // original code here was not checking for whether a result was returned, not sure how it ever worked
-                    // as it should have thrown errors all over the place.
-                    $setUuid = $setUuid === false ? false : $setUuid['uuid'];
-                    if (!empty($setUuid)) {
-                        // Already set
-                        array_unshift($arrayQuery, $setUuid);
-                    } else {
-                        // Not already set, so create
-                        array_unshift($arrayQuery, $this->createUuid());
-                    }
-                    // Now populate
-                    sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " . $stringQuery, $arrayQuery);
-                    $counter++;
-                }
-            }
-        }
-
-        return $counter;
-    }
 
     // Generic function to see if there are missing uuids in a sql table (table needs an `id` column to work)
     public function tableNeedsUuidCreation()
