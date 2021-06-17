@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Clinical Notes form report.php
  *
