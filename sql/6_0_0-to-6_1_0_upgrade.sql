@@ -734,6 +734,13 @@ ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
 ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 #EndIf
 
+#IfNotIndex form_vitals uuid
+CREATE UNIQUE INDEX `uuid` ON `form_vitals` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_vitals
+#EndIf
+
 #IfMissingColumn uuid_mapping resource_path
 ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
 #EndIf
