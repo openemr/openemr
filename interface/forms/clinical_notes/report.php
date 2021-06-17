@@ -1,7 +1,4 @@
 <?php
-
-use OpenEMR\Services\ClinicalNotesService;
-
 /**
  * Clinical Notes form report.php
  *
@@ -16,6 +13,8 @@ use OpenEMR\Services\ClinicalNotesService;
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");

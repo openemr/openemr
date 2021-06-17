@@ -739,15 +739,15 @@ ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn form_vitals ped_weight_height
-ALTER TABLE `form_vitals` ADD `ped_weight_height` FLOAT(4,1) NULL DEFAULT '0.00'
+ALTER TABLE `form_vitals` ADD `ped_weight_height` FLOAT(4,1) NULL DEFAULT '0.00';
 #EndIf
 
 #IfMissingColumn form_vitals ped_bmi
-ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) NULL DEFAULT '0.00'
+ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) NULL DEFAULT '0.00';
 #EndIf
 
 #IfMissingColumn form_vitals ped_head_circ
-ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) NULL DEFAULT '0.00'
+ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) NULL DEFAULT '0.00';
 #EndIf
 
 #IfMissingColumn history_data uuid
