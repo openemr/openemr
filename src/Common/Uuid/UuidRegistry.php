@@ -220,6 +220,7 @@ class UuidRegistry
                 } while ($count > 0);
             }
             sqlCommitTrans();
+            return $counter;
         } catch (Exception $exception) {
             sqlRollbackTrans();
             throw $exception;
