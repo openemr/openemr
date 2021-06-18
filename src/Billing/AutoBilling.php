@@ -123,22 +123,14 @@ class AutoBilling
         //insert billing if there is note and entry for this particular encounter
         if (empty($hasBilling['encounter'])) {
             if (!empty($code)) {
-                try {
                     $codetype = "CPT4";
                     $this->insertCPTBilling($event_date, $code, $this->pid, $provider, $this->userid, $enc, $text, $fees, $icd10, $codetype, $modifier);
-                } catch (Exception $e) {
-                    return $e;
-                }
             }
 
-            try {
-                //Enter ICD10 if it exist
-                if (!empty($desc) && empty($res)) {
+            //Enter ICD10 if it exist
+            if (!empty($desc) && empty($res)) {
                     $codetype = "ICD10";
                     $this->insertICDBilling($event_date, $codetype, $icd10, $this->pid, $provider, $this->userid, $enc, $desc);
-                }
-            } catch (Exception $e) {
-                return $e;
             }
         }
     }// End of billing entries
@@ -177,12 +169,9 @@ class AutoBilling
             "justify = ?, " .
             "pricelevel = 'standard'";
 
-        try {
              $justify = "ICD10|$icd10:";
-              sqlStatement($sql, [$event_date, $codetype, $code, $pid, $provider, $userid, $enc, $text, $modifier, $fees, $justify]);
-        } catch (Exception $e) {
-            return $e;
-        }
+              sqlStatementThrowException($sql, [$event_date, $codetype, $code, $pid, $provider, $userid, $enc, $text, $modifier, $fees, $justify]);
+
         return 1;
     }
 
@@ -197,7 +186,6 @@ class AutoBilling
      */
     private function insertICDBilling($event_date, $codetype, $icd10, $pid, $provider, $userid, $enc, $desc)
     {
-
         $sql = "REPLACE INTO billing SET "
             . "date = ?,"
             . "code_type = ?,"
@@ -213,11 +201,7 @@ class AutoBilling
             . "units = '1', "
             . "fee = '0.00'";
 
-        try {
-            sqlStatement($sql, [$event_date, $codetype, $icd10, $pid, $provider, $userid, $enc, $desc]);
-        } catch (Exception $e) {
-            return $e;
-        }
+            sqlStatementThrowException($sql, [$event_date, $codetype, $icd10, $pid, $provider, $userid, $enc, $desc]);
     }
 
     /**
