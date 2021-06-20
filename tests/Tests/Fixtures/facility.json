@@ -31,7 +31,8 @@
     "mail_zip": "",
     "oid": "",
     "iban": "",
-    "info": ""
+    "info": "",
+    "uuid": "uuid('facility')"
 }, {
     "name": "test-fixture-Saint Luke's Hospital of Kansas City",
     "phone": "(816)932-2000",
@@ -65,7 +66,8 @@
     "mail_zip": "",
     "oid": "",
     "iban": "",
-    "info": ""
+    "info": "",
+    "uuid": "uuid('facility')"
 }, {
     "name": "test-fixture-Health Level Seven International",
     "phone": "(+1) 734-677-7777",
@@ -99,5 +101,6 @@
     "mail_zip": "",
     "oid": "",
     "iban": "",
-    "info": ""
+    "info": "",
+    "uuid": "uuid('facility')"
 }]

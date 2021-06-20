@@ -526,7 +526,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
     $main_provid = 0 + ($_POST['ProviderID'] ?? 0);
-    $main_supid  = 0 + ($_POST['SupervisorID'] ?? 0);
+    $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
     $fs->save(
         $_POST['bill'],
@@ -1059,7 +1059,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $default_search_type ?? null;
+                            $search_type = $GLOBALS['default_search_code_type'] ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }

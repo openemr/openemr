@@ -616,3 +616,74 @@ CREATE TABLE `form_clinical_notes` (
 ) ENGINE=InnoDB;
 INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`) VALUES ('Clinical Notes', 1, 'clinical_notes', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '', 1, 0, 'encounters|notes');
 #EndIf
+
+#IfNotRow ccda_components ccda_components_field medical_devices
+INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `ccda_components_name`, `ccda_type`) VALUES
+(23, 'medical_devices', 'Medical Devices', 1),
+(24, 'goals', 'Goals', 1);
+#EndIf
+
+#IfNotRow ccda_sections ccda_sections_field medical_devices
+INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
+(46, 3, 'medical_devices', 'Medical Devices', 0),
+(47, 3, 'goals', 'Goals', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id Care_Team_Status
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','active','Active',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
+#EndIf
+
+#IfMissingColumn patient_data birth_fname
+ALTER TABLE `patient_data` ADD `birth_fname` TEXT;
+#EndIf
+
+#IfMissingColumn patient_data birth_lname
+ALTER TABLE `patient_data` ADD `birth_lname` TEXT;
+#EndIf
+
+#IfMissingColumn patient_data birth_mname
+ALTER TABLE `patient_data` ADD `birth_mname` TEXT;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id birth_fname
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='fname' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='lname' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', IFNULL(@group_id,@backup_group_id), 'Birth Name', @seq+1, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', IFNULL(@group_id,@backup_group_id), '', @seq+2, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', IFNULL(@group_id,@backup_group_id), '', @seq+3, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id evaluation_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id goal
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
+#EndIf
+
+#IfNotIndex audit_details audit_master_id
+CREATE INDEX `audit_master_id` ON `audit_details` (`audit_master_id`);
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id health_concern
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
+#EndIf
+
+#IfMissingColumn form_vitals oxygen_flow_rate
+ALTER TABLE `form_vitals` ADD `oxygen_flow_rate` FLOAT(5,2) NULL DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_clinical_notes note_related_to
+ALTER TABLE `form_clinical_notes` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+#EndIf
+
+#IfMissingColumn form_care_plan note_related_to
+ALTER TABLE `form_care_plan` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+#EndIf

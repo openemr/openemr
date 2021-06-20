@@ -3596,8 +3596,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                   /*
                                    *  The goal here is to auto-code the encounter and link it directly to the billing module.
                                    *  Select Visit Type from dropdown (CPT4) built from practice's fee_sheet_options table.
-                                   *  Active coding system = $default_search_type;
-                                   *  We present the $default_search_type codes found in the Imp/Plan.
+                                   *  Active coding system = $GLOBALS['default_search_code_type'];
+                                   *  We present the active coding system codes found in the Imp/Plan.
                                    *  Perhaps a minor procedure/test was performed?
                                    *  Select options drawn from Eye_todo_done_".$provider_id list with a CODE
                                    *  TODO: Finally we have the "Prior Visit" functionality of the form.
@@ -3605,7 +3605,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                    */
                                 ?>
                               <script>
-                                  var default_search_type = '<?php echo text($default_search_type); ?>';
+                                  var default_search_type = '<?php echo text($GLOBALS['default_search_code_type']); ?>';
                               </script>
 
                               <dt class="borderShadow"><span><?php echo xlt('Coding Engine'); ?></span></dt>

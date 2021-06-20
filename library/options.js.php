@@ -109,13 +109,6 @@ function checkSkipConditions() {
     if (itemid) tofind += '[' + itemid + ']';
     // Some different source IDs are possible depending on the data type.
     var srcelem = document.getElementById('check_' + tofind);
-    var radio_id='form_' + tofind + '[' + value + ']';
-    if(typeof document.getElementById(radio_id)!=="undefined"){
-        srcelem = document.getElementById(radio_id);
-        if(srcelem != null){
-            is_radio = true;
-        }
-    }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
@@ -127,6 +120,7 @@ function checkSkipConditions() {
         srcelem = tmp;
         if (operator == 'eq') operator = 'se';
         if (operator == 'ne') operator = 'ns';
+        is_radio = true;
       }
     }
 

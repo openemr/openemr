@@ -110,6 +110,14 @@ if (typeof isModule === 'undefined') {
     var isModule = false;
 }
 
+if (typeof cpid === 'undefined') {
+    var cpid;
+}
+
+if (typeof cuser === 'undefined') {
+    var cuser;
+}
+
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
     $('#signerAlertBox').remove();
     size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';

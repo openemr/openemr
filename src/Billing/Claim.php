@@ -1458,18 +1458,6 @@ class Claim
             }
         }
 
-        // The above got all the diagnoses used for justification, in the order
-        // used for justification.  Next we go through all diagnoses, justified
-        // or not, to make sure they all get into the claim.  We do it this way
-        // so that the more important diagnoses appear first.
-        foreach ($this->diags as $diag) {
-            if ($strip_periods) {
-                $diag = str_replace('.', '', $diag);
-            }
-
-            $da[$diag] = $diag;
-        }
-
         return $da;
     }
 

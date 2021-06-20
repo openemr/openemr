@@ -10,6 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+#form_pharmacy_id {
+  width: 180px;
+}
+
 .pure-form input[type="text"],
 .pure-form input[type="password"],
 .pure-form input[type="email"],

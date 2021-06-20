@@ -76,10 +76,10 @@ class EncounterccdadispatchController extends AbstractActionController
         $sent_by            = $this->getRequest()->getQuery('sent_by');
         $send               = $this->getRequest()->getQuery('send') ? $this->getRequest()->getQuery('send') : 0;
         $view               = $this->getRequest()->getQuery('view') ? $this->getRequest()->getQuery('view') : 0;
-        $emr_transfer     = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
+        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
         $this->recipients   = $this->getRequest()->getQuery('recipient');
         $this->params       = $this->getRequest()->getQuery('param');
-                $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
+        $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
         $this->components       = $this->getRequest()->getQuery('components') ? $this->getRequest()->getQuery('components') : $this->params('components');
         $downloadccda           = $this->params('downloadccda');
         $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ? $this->getRequest()->getQuery('latest_ccda') : $this->params('latest_ccda');
@@ -132,8 +132,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
                 $content = $this->socket_get($this->data);
 
-                // TODO: Is this supposed to be mispelled by the mirth server like this??  Seems odd...
-                if ($content == 'Authetication Failure') {
+                if ($content == 'Authentication Failure') {
                     echo $this->listenerObject->z_xlt($content);
                     die();
                 }
@@ -153,7 +152,7 @@ class EncounterccdadispatchController extends AbstractActionController
             if ($view && !$downloadccda) {
                 $xml = simplexml_load_string($content);
                 $xsl = new \DOMDocument();
-                $xsl->load(dirname(__FILE__) . '/../../../../../public/xsl/ccda.xsl');
+                $xsl->load(__DIR__ . '/../../../../../public/xsl/ccda.xsl');
                 $proc = new \XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
                 $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
@@ -197,51 +196,57 @@ class EncounterccdadispatchController extends AbstractActionController
     public function socket_get($data)
     {
         $output = "";
+        $system = new System();
 
         // Create a TCP Stream Socket
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($socket === false) {
-            throw new Exception("Socket Creation Failed");
+            throw new \Exception("Socket Creation Failed");
         }
-
-        $system = new System();
-        // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
-        if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
-            $path = $GLOBALS['fileroot'] . "/ccdaservice";
-            if (IS_WINDOWS) {
-                // TODO: we need to test the system commands / escape commands on windows.
-                $cmd = "node " . $path . "/serveccda.js";
-                $pipeHandle = popen("start /B " . $cmd, "r");
-                if ($pipeHandle === false) {
-                    throw new Exception("Failed to start local ccdaservice");
+        // Let's check if server is already running
+        $server_active = socket_connect($socket, "localhost", "6661");
+        if ($server_active === false) {
+            // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
+            if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
+                $path = $GLOBALS['fileroot'] . "/ccdaservice";
+                if (IS_WINDOWS) {
+                    // node server is quite with errors(hidden process) so we'll do redirect of tty
+                    // to generally Windows/Temp.
+                    $redirect_errors = " > " .
+                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
+                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
+                    $pipeHandle = popen("start /B " . $cmd, "r");
+                    if ($pipeHandle === false) {
+                        throw new Exception("Failed to start local ccdaservice");
+                    }
+                    if (pclose($pipeHandle) === -1) {
+                        error_log("Failed to close pipehandle for ccdaservice");
+                    }
+                } else {
+                    $command = 'nodejs';
+                    if (!$system->command_exists($command)) {
+                        if ($system->command_exists('node')) {
+                            // older or custom Ubuntu systems that have node rather than nodejs command
+                            $command = 'node';
+                        } else {
+                            error_log("Node is not installed on the system.  Connection failed");
+                            throw new \Exception('Connection Failed.');
+                        }
+                    }
+                    $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
+                    exec($cmd . " > /dev/null &");
                 }
-                if (pclose($pipeHandle) === -1) {
-                    error_log("Failed to close pipehandle for ccdaservice");
+                sleep(2); // give cpu a rest
+                $result = socket_connect($socket, "localhost", "6661");
+                if ($result === false) { // hmm something is amiss with service. user will likely try again.
+                    error_log("Failed to start and connect to local ccdaservice server on port 6661");
+                    throw new \Exception("Connection Failed");
                 }
             } else {
-                $command = 'nodejs';
-                if (!$system->command_exists($command)) {
-                    if ($system->command_exists('node')) { // older or custom Ubuntu systems that have node rather than nodejs command
-                        $command = 'node';
-                    } else {
-                        error_log("Node is not installed on the system.  Connection failed");
-                        throw new Exception('Connection Failed.');
-                    }
-                }
-                $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
-                exec($cmd . " > /dev/null &");
+                error_log("C-CDA Service is not enabled in Global Settings");
+                throw new \Exception("Please Enable C-CDA Alternate Service in Global Settings");
             }
-            sleep(2); // give cpu a rest
-            $result = socket_connect($socket, "localhost", "6661");
-            if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                throw new Exception("Connection Failed");
-            }
-        } else {
-            error_log("C-CDA Service is not enabled in Global Settings");
-            throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
         }
-
 
         $data = chr(11) . $data . chr(28) . "\r";
         // Write to socket!
@@ -320,6 +325,9 @@ class EncounterccdadispatchController extends AbstractActionController
         if (in_array('continuity_care_document', $sections_list)) {
             $this->data .= $this->getContinuityCareDocument($pid, $encounter, $components_list);
         }
+
+        // we're sending everything anyway. document type will tell engine what to include in cda.
+        $this->data .= $this->getEncounterccdadispatchTable()->getClinicalNotes($pid, $encounter);
 
         if (in_array('progress_note', $sections_list)) {
             $this->data .= $this->getEncounterccdadispatchTable()->getProgressNotes($pid, $encounter);
@@ -423,8 +431,13 @@ class EncounterccdadispatchController extends AbstractActionController
             $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid, $encounter);
         }
 
-//        if(in_array('referral',$components_list))
-//            $ccd .= $this->getEncounterccdadispatchTable()->getRefferals($pid,$encounter);
+        if (in_array('medical_devices', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getMedicalDeviceList($pid, $encounter);
+        }
+
+        if (in_array('referral', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid, $encounter);
+        }
         return $ccd;
     }
 

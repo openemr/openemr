@@ -802,6 +802,7 @@ if ($_REQUEST["mode"] == "new") {
                 $item["units"] = $res["units"];
                 $item["fee"] = $res["pr_price"];
             }
+            $billed = "0";
             $item["justify"] .= ":";
             BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
         }

@@ -428,7 +428,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         async: true,
         frameContent: "", // for iframe embedded content
         html: "", // content for alerts, comfirm etc ajax
-        allowDrag: true,
+        allowDrag: false,
         allowResize: true,
         sizeHeight: 'auto', // 'full' will use as much height as allowed
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
@@ -503,7 +503,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
-    var vpht = where.innerHeight;
+    let vpht = where.innerHeight;
+    if (height <= 300) {
+        height = 300;
+    }
     mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
@@ -519,7 +522,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '&times;</button></div>').replace('%title%', mTitle);
 
     var frameHtml =
-        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<iframe id="modalframe" class="modalIframe w-100 h-100 border-0" name="%winname%" %url%></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
     var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '85vh');
 
@@ -530,7 +533,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="dialog">' +
             '<div class="modal-content %resize-action%" %contentStyles%>' + '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body px-1">' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div class="modal-body px-1 h-100">' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
     dlgContainer = where.jQuery(mhtml);

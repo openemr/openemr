@@ -277,12 +277,6 @@ require_once(__DIR__ . "/../version.php");
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
 
-// Load twig support
-$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
-$twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
-$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
-$GLOBALS['twig'] = $twigEnv;
-
 try {
     /** @var Kernel */
     $GLOBALS["kernel"] = new Kernel();
@@ -659,10 +653,9 @@ function UrlIfImageExists($filename, $append = true)
 // Override temporary_files_dir
 $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
-// turn off PHP compatibility warnings
-ini_set("session.bug_compat_warn", "off");
+error_reporting(error_reporting() & ~E_USER_DEPRECATED & ~E_USER_WARNING);
 // user debug mode
 if ((int) $GLOBALS['user_debug'] > 1) {
-    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING);
+    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }

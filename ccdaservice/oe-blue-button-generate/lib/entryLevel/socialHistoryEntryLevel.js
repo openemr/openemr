@@ -75,3 +75,29 @@ exports.smokingStatusObservation = {
         return input.value && input.value.indexOf("smoke") > -1;
     }
 };
+
+exports.genderStatusObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.200", "2016-06-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.200"),
+        fieldLevel.templateCode("GenderStatusObservation"),
+        fieldLevel.statusCodeCompleted, {
+            key: "value",
+            attributes: [{
+                "xsi:type": "CD"
+            },
+                leafLevel.codeFromName("2.16.840.1.113883.5.1")
+            ],
+            required: true,
+            dataKey: "gender"
+        }
+    ],
+    existsWhen: function (input) {
+        return input && input.gender;
+    }
+};

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `form_clinical_notes` (
   `codetext` text,
   `description` text,
   `external_id` VARCHAR(30) DEFAULT NULL,
-  `clinical_notes_type` varchar(100) DEFAULT NULL
+  `clinical_notes_type` varchar(100) DEFAULT NULL,
+  `note_related_to` TEXT
 ) ENGINE=InnoDB;
 

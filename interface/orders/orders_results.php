@@ -295,7 +295,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 </head>
 
 <body>
-    <div class="container mt-3">
+    <div class="container-fluid mt-3">
         <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
             <table class="table table-borderless">
                 <tr>

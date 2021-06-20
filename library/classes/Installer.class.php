@@ -1380,7 +1380,7 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
         $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);

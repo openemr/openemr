@@ -136,24 +136,6 @@ exports.allergiesSectionEntriesRequiredHtmlHeader = {
     }]
 };
 
-/*var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
-var medicationsTextRow = [ // Name, did not find class in the medication blue-button-data
-    function (input) {
-        var value = bbuo.deepValue(input, 'product.product.name');
-        if (!bbuo.exists(value)) {
-            value = bbuo.deepValue(input, 'product.unencoded_name');
-        }
-        if (!bbuo.exists(value)) {
-            return "";
-        } else {
-            return value;
-        }
-    },
-    leafLevel.deepInputProperty("supply.repeatNumber", ""),
-    leafLevel.deepInputDate("supply.date_time.point", "")
-];*/
-//exports.medicationsSectionEntriesRequiredHtmlHeader = getText('medications', medicationsTextHeaders, medicationsTextRow);
-
 exports.medicationsSectionEntriesRequiredHtmlHeader = {
     key: "text",
     existsWhen: condition.keyExists("medications"),
@@ -209,7 +191,7 @@ exports.medicationsSectionEntriesRequiredHtmlHeader = {
     }]
 }
 
-    exports.problemsSectionEntriesRequiredHtmlHeader = {
+exports.problemsSectionEntriesRequiredHtmlHeader = {
     key: "text",
     existsWhen: condition.keyExists("problems"),
 
@@ -602,6 +584,55 @@ exports.planOfCareSectionHtmlHeader = {
     }]
 };
 
+exports.goalSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("goals"),
+    content: [{
+        key: "table",
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: {
+                    key: "th",
+                    attributes: {
+                        colspan: "3"
+                    },
+                    text: "Goals"
+                }
+            }, {
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ['Start Date','Goal',  'Status'];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    text: leafLevel.deepInputDate("date_time.point", nda)
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("goal")
+                    },
+                    text: leafLevel.deepInputProperty("name", nda)
+                },  {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("status.code", nda)
+                }]
+            }],
+            dataKey: 'goals'
+        }]
+    }]
+};
+
 exports.socialHistorySectionHtmlHeader = {key: "text",
     existsWhen: condition.keyExists("social_history"),
 
@@ -664,7 +695,7 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                 content: {
                     key: "th",
                     attributes: {
-                        colspan: "6"
+                        colspan: "8"
                     },
                     text: "Vital Sign Observations"
                 }
@@ -674,7 +705,7 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Date','Systolic BP [90-140 mmHg]', 'Diastolic BP [60-90 mmHg]', 'Height', 'Weight Measured', 'BMI (Body Mass Index)'];
+                        return ['Date', 'Body Temperature', 'Systolic BP [90-140 mmHg]', 'Diastolic BP [60-90 mmHg]', 'Heart Rate', 'Height', 'Weight Measured', 'BMI (Body Mass Index)'];
                     }
                 }]
             }]
@@ -690,6 +721,12 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                     attributes: {
                         ID: leafLevel.nextTableReference("vital")
                     },
+                    text: leafLevel.deepInputProperty("vital_list.7.value", nda, "vital_list.7.unit")
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("vital")
+                    },
                     text: leafLevel.deepInputProperty("vital_list.0.value", nda, "vital_list.0.unit")
                 }, {
                     key: "td",
@@ -697,6 +734,12 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                         ID: leafLevel.nextTableReference("vital")
                     },
                     text: leafLevel.deepInputProperty("vital_list.1.value", nda, "vital_list.1.unit")
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("vital")
+                    },
+                    text: leafLevel.deepInputProperty("vital_list.5.value", nda, "vital_list.5.unit")
                 }, {
                     key: "td",
                     attributes: {
@@ -722,6 +765,93 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
     }]
 };
 
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("medical_devices"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Implant", "UDI"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("device")
+                    },
+                    text: leafLevel.deepInputProperty("device.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("device.udi", "na"),
+                }
+                ]
+            }],
+            dataKey: 'medical_devices'
+        }]
+    }]
+};
+
+exports.functionalStatusSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("functional_status"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Functional Category", "Effective Date"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("functional_status")
+                    },
+                    text: leafLevel.deepInputProperty("observation.value.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("observation.date_time.point", nda),
+                }
+                ]
+            }],
+            dataKey: 'functional_status'
+        }]
+    }]
+};
+
+exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.problemsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
@@ -731,5 +861,7 @@ exports.encountersSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.immunizationsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.payersSectionHtmlHeaderNA = "Not Available";
 exports.planOfCareSectionHtmlHeaderNA = "Not Available";
+exports.goalSectionHtmlHeaderNA = "Not Available";
 exports.socialHistorySectionHtmlHeaderNA = "Not Available";
 exports.vitalSignsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA = "Not Available";

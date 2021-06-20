@@ -70,6 +70,11 @@ foreach ($result as $value) {
             document.getElementById("code_date_" + rowid1[1]).value = '';
             document.getElementById("clinical_notes_type_" + rowid1[1]).value = '';
             document.getElementById("user_" + rowid1[1]).value = '';
+            if (typeof doTemplateEditor !== 'undefined') {
+                document.getElementById("description_" + rowid1[1]).addEventListener('dblclick', event => {
+                    doTemplateEditor(this, event, event.target.dataset.textcontext);
+                })
+            }
         }
 
         function changeIds(class_val) {
@@ -175,8 +180,8 @@ foreach ($result as $value) {
                                         </div>
                                         <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
                                     </div>
-                        </div>
-                            </fieldset>
+                            </div>
+                        </fieldset>
                     </div>
                     <hr />
                         <?php }
@@ -184,7 +189,7 @@ foreach ($result as $value) {
                         <div class="tb_row" id="tb_row_1">
                             <fieldset>
                                 <div class="form-row">
-                                    <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["code"] ?? $_SESSION["authUser"]); ?>" />
+                                    <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                     <input type="hidden" id="code_1" name="code[]" class="code" value="<?php echo attr($obj["code"] ?? ''); ?>" />
                                     <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                                     <div class="forms col-lg-1">

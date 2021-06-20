@@ -1579,7 +1579,7 @@ function generate_form_field($frow, $currvalue)
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND authorized = 1 ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform  select-dropdown'  multiple='multiple'>";
+        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-dropdown' style='width:100%;'  multiple='multiple'>";
         $got_selected = false;
         while ($urow = sqlFetchArray($ures)) {
             $uname = text($urow['fname'] . ' ' . $urow['lname']);
@@ -4343,7 +4343,7 @@ function dropdown_facility(
     if ($multiple) {
         $name = $name . "[]";
     }
-    echo "   <select class='form-control";
+    echo "   <select style='width: 100%;' class='form-control";
     if ($multiple) {
         echo " select-dropdown";
     }

@@ -76,7 +76,7 @@ class FeeSheetHtml extends FeeSheet
   //
     public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false, $tooltip = '')
     {
-        $s = "   <span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
+        $s = "   <span><select class='form-control' name='" . attr($tagname) . "'";
         if ($disabled) {
             $s .= " disabled";
         }

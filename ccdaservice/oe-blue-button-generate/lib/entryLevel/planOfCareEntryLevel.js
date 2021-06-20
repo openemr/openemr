@@ -9,6 +9,40 @@ var key = contentModifier.key;
 var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
+
+exports.healthConcernActivityAct = {
+    key: "act",
+    attributes: {
+        classCode: "ACT",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.132", "2015-08-01"),
+        fieldLevel.uniqueId,
+        fieldLevel.id, {
+            key: "code",
+            attributes: {
+                code: "75310-3",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Health Concern"
+            },
+        }, {
+            key: "text",
+            content: [{
+                key: "reference",
+                attributes: {
+                    "value": leafLevel.nextReference("concern")
+                }
+            }]
+        },
+        fieldLevel.statusCodeActive
+    ],
+    existsWhen: function (input) {
+        return input.type === "act";
+    }
+};
+
 exports.planOfCareActivityAct = {
     key: "act",
     attributes: {
@@ -23,7 +57,7 @@ exports.planOfCareActivityAct = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -45,7 +79,7 @@ exports.planOfCareActivityObservation = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -67,7 +101,7 @@ exports.planOfCareActivityProcedure = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -89,7 +123,7 @@ exports.planOfCareActivityEncounter = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -111,7 +145,7 @@ exports.planOfCareActivitySubstanceAdministration = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -133,7 +167,7 @@ exports.planOfCareActivitySupply = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew,
+        fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
     existsWhen: function (input) {
@@ -182,7 +216,7 @@ exports.planOfCareActivityInstructions = {
             attributes: leafLevel.code,
             dataKey: "plan"
         },
-        fieldLevel.statusCodeNew, {
+        fieldLevel.statusCodeActive, {
             key: "priorityCode",
             attributes: {
                 "code": leafLevel.deepInputProperty("code"),

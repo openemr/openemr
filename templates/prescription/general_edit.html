@@ -16,9 +16,10 @@
 <script>
 
 {literal}
-    function my_process_lookup(drug) {
+    function my_process_lookup(drug, rxcode = '') {
       // Pass the variable
-      var newOption = new Option(drug, drug, true, true);
+      let newOption = new Option(drug, drug, true, true);
+      $("#rxnorm_drugcode").val(rxcode);
       $('#drug').append(newOption).trigger('change');
       $('#hiddendiv').hide();
       $("#hiddendiv").html( "&nbsp;" );
@@ -156,10 +157,25 @@
             <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}" />
         </div>
         <div class="form-group mt-3">
-            <label>{xlt t='Drug'}</label>
-            <select class="input-sm form-control" type="input" size="35" name="drug" id="drug"></select>
+            <label class="mr-2">{xlt t='Drug'}</label>
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from native inventory drugs table'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" checked />{xlt t='Use Default'}
+                </label>
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from external RxNorm table. Vocabulary RXNORM'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" {if empty($RXNORMS_AVAILABLE)} disabled{else} checked{/if} />{xlt t='Use RxNorm'}
+                </label>
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-label" title="{xlt t='Search from native loaded RxCUI table.'}">
+                    <input type="radio" class="form-check-input" name="rxcui_select" {if empty($RXCUI_AVAILABLE)}disabled{else} checked{/if}  />{xlt t='Use RxCUI'}
+                </label>
+            </div>
+            <select class="input-sm form-control" type="input" name="drug" id="drug"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
-                ({xlt t='click here to search'})
+                ({xlt t='Search Web API'})
             </a>
             <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
@@ -260,6 +276,7 @@
 
         <input type="hidden" name="id" value="{$prescription->id|attr}" />
         <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        <input type="hidden" id="rxnorm_drugcode" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}" />
 
         <script>
             {if !empty($ENDING_JAVASCRIPT)}{$ENDING_JAVASCRIPT}{/if}
@@ -343,16 +360,18 @@ $(function () {
                   {/literal}
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   {literal}
-                  term: params.term
-                };
+                  term: params.term,
+                  use_rxnorm: document.prescribe.rxcui_select[1].checked,
+                  use_rxcui: document.prescribe.rxcui_select[2].checked
+                }
             },
             processResults: function(data) {
                 return  {
                     results: $.map(data, function(item, index) {
                         return {
-                            text: item,
-                            id: item,
-                            value: item
+                            text: item['display_name'],
+                            id: item['id_name'],
+                            value: item['display_name']
                         }
                     })
                 };
@@ -416,6 +435,16 @@ function CheckRequired(objID) {
     return true;
 }
 
+    $(document).on('select2:select', 'select#drug', function(e) {
+        let idx = this.selectedIndex;
+        if (idx === 0) {
+            // already selected.
+            return false;
+        }
+        let optionText = document.getElementById("drug").options[idx].text;
+        let rxcode = (optionText.split('(RxCUI:').pop().split(')')[0]).trim();
+        $("#rxnorm_drugcode").val(rxcode);
+    });
 
 $(function () {{/literal}
     {datetimepickerSupport input='format'}

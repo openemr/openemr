@@ -19,6 +19,9 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
  */
 class PatientServiceTest extends TestCase
 {
+    /**
+     * @var PatientService
+     */
     private $patientService;
     private $fixtureManager;
 

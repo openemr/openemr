@@ -75,11 +75,12 @@ class HttpRestRouteHandler
                     }
                     if ($return_method === 'standard') {
                         header('Content-Type: application/json');
-                        echo json_encode($result);
+                        // if we fail to encode we WANT an error thrown
+                        echo json_encode($result, JSON_THROW_ON_ERROR);
                         break;
                     }
                     if ($return_method === 'direct-json') {
-                        return json_encode($result);
+                        return json_encode($result, JSON_THROW_ON_ERROR);
                     }
 
                     // $return_method == 'direct'
@@ -95,9 +96,35 @@ class HttpRestRouteHandler
                     , 'clientId' => $restRequest->getClientId()
                     , 'userUUID' => $restRequest->getRequestUserUUIDString()
                     , 'userType' => $restRequest->getRequestUserRole()
+                    , 'path' => $restRequest->getRequestURI()
                 ]
             );
             http_response_code(401);
+            exit;
+        } catch (\JsonException $exception) { // intellisense says this is never thrown but the json_encode WILL throw this
+            (new SystemLogger())->error(
+                "HttpRestRouteHandler::dispatch() failed to encode JSON object" . $exception->getMessage(),
+                [
+                    'clientId' => $restRequest->getClientId()
+                    , 'userUUID' => $restRequest->getRequestUserUUIDString()
+                    , 'userType' => $restRequest->getRequestUserRole()
+                    , 'path' => $restRequest->getRequestURI()
+                ]
+            );
+            http_response_code(500);
+            exit;
+        } catch (Exception $exception) {
+            (new SystemLogger())->error(
+                "HttpRestRouteHandler::dispatch() " . $exception->getMessage(),
+                [
+                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getRequiredSection()
+                    , 'clientId' => $restRequest->getClientId()
+                    , 'userUUID' => $restRequest->getRequestUserUUIDString()
+                    , 'userType' => $restRequest->getRequestUserRole()
+                    , 'path' => $restRequest->getRequestURI()
+                ]
+            );
+            http_response_code(500);
             exit;
         }
     }

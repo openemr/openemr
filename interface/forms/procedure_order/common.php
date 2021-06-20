@@ -513,7 +513,7 @@ function sel_proc_type(formseq) {
     gbl_formseq = formseq;
     let ptvarname = 'form_proc_type[' + formseq + ']';
 
-let title = <?php echo xlj("Find Procedure Order"); ?>;
+    let title = <?php echo xlj("Find Procedure Order"); ?>;
 // This replaces the previous search for an easier/faster order picker tool.
     dlgopen('../../orders/find_order_popup.php' +
     '?labid=' + encodeURIComponent(f.form_lab_id.value) +
@@ -526,19 +526,21 @@ let title = <?php echo xlj("Find Procedure Order"); ?>;
 // This is for callback by the find-procedure-type popup.
 // Sets both the selected type ID and its descriptive name.
 // Also set diagnosis if supplied in configuration and custom test groups.
-function set_proc_type(typeid, typename, diagcodes = '', temptype, testid, newCnt = 0) {
+function set_proc_type(typeid, typename, diagcodes = '', temptype, typetitle, testid, newCnt = 0) {
     let f = document.forms[0];
     let ptvarname = 'form_proc_type[' + gbl_formseq + ']';
     let ptdescname = 'form_proc_type_desc[' + gbl_formseq + ']';
     let ptcodes = 'form_proc_type_diag[' + gbl_formseq + ']';
     let pttransport = 'form_transport[' + gbl_formseq + ']';
     let ptproccode = 'form_proc_code[' + gbl_formseq + ']';
+    let ptproctypename = 'form_proc_order_title[' + gbl_formseq + ']';
     let psc = '';
 
     f[pttransport].value = temptype;
     f[ptvarname].value = typeid;
     f[ptdescname].value = typename;
     f[ptproccode].value = testid;
+    f[ptproctypename].value = typetitle ? typetitle : 'procedure';
     if (diagcodes)
         f[ptcodes].value = diagcodes;
     if (newCnt > 1) {
@@ -880,7 +882,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <select name='form_lab_id' id='form_lab_id' onchange='lab_id_changed(this)' class='form-control'>
                                     <?php
-                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
+                                    $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
                                         if ($pprow['ppid'] == $row['lab_id']) {
@@ -1023,7 +1025,7 @@ $title = array(xl('Order for'), $name, $date);
                 <fieldset class="row">
                      <legend><?php $t = "<span>" .
                         ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
-                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . text($t); ?>
+                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
                     <?php if ($order_data) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
@@ -1036,7 +1038,7 @@ $title = array(xl('Order for'), $name, $date);
                     <?php } ?>
                     <div class="col-md-12 procedure-order-container table-responsive">
                         <div class="form-group form-row bg-dark text-light my-2 py-1">
-                            <label for="form_order_diagnosis" class="col-form-label col-md-2"><?php echo xlt('Primary Diagnosis'); ?></label>
+                            <label for="form_order_diagnosis" class="col-form-label"><?php echo xlt('Primary Diagnosis'); ?></label>
                             <div class="col-md-4">
                                 <?php
                                 if (!$formid) {
@@ -1059,8 +1061,9 @@ $title = array(xl('Order for'), $name, $date);
                                     title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
                                     readonly onfocus='this.blur()' />
                             </div>
-                            <label for="procedure_type_names col-md-2" class="col-form-label"><?php echo xlt('Procedure Type'); ?></label>
-                            <div class="col-md-4">
+                            <!-- @TODO keep for future use -->
+                            <label for="procedure_type_names" class="col-form-label d-none"><?php echo xlt('Default Procedure Type'); ?></label>
+                            <div class="col-md-4 d-none">
                                 <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
                                 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
                                     <?php foreach ($procedure_order_type as $ordered_types) { ?>
@@ -1161,7 +1164,7 @@ $title = array(xl('Order for'), $name, $date);
                                     <td class="procedure-div">
                                         <?php if (empty($formid) || empty($oprow['procedure_order_title'])) : ?>
                                             <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]"
-                                                value="Procedure">
+                                                value="procedure">
                                         <?php else : ?>
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_order_title']) ?>'>
