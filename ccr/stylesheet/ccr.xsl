@@ -51,7 +51,7 @@ this XSLT back to the community.
         <!-- Load in the CSS file -->
         <xsl:choose>
           <xsl:when test="$stylesheet!=''">
-            <link href="{$stylesheet}" rel="stylesheet">
+            <link href="{$stylesheet}" rel="stylesheet"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="defaultCCS"/>
