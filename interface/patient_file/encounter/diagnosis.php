@@ -11,6 +11,7 @@
  */
 
 require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
