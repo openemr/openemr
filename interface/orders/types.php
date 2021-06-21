@@ -46,7 +46,7 @@ if ($popup && $_POST['form_save']) {
             require_once("qoe.inc.php");
             $qoe_init_javascript = '';
             echo ' opener.set_proc_html("';
-            echo generate_qoe_html($form_order, intval($_GET['formid']), 0, intval($_GET['formseq']));
+            echo generate_qoe_html($form_order, (int)$_GET['formid'], 0, (int)$_GET['formseq']);
             echo '", "' . $qoe_init_javascript . '");' . "\n";
         }
         ?>

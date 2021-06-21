@@ -33,6 +33,7 @@ if (isset($_GET['typeid'])) {
         $codes = ($proctype === 'pro') ? '' : $ptrow['related_code'];
         $transport = trim($ptrow['transport']);
         $testid = trim($ptrow['procedure_code']);
+        $proctype_name = trim($ptrow['procedure_type_name']);
 
         if ($ptrow['procedure_type'] == 'fgp') {
             $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", array($typeid));
@@ -57,7 +58,7 @@ if (isset($_GET['typeid'])) {
             $t = 0;
             do {
                 if (!isset($grporders[$i]['procedure_type_id'])) {
-                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($testid) . ", '0');\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($proctype_name) . ", " . js_escape($testid) . ", '0');\n";
                 } else {
                     $t = count($grporders) - $i;
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
@@ -65,7 +66,8 @@ if (isset($_GET['typeid'])) {
                     $codes = ($grporders[$i]['related_code']);
                     $transport = trim($ptrow['transport']);
                     $testid = trim($ptrow['procedure_code']);
-                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($testid) . ", " . js_escape($t) . ");\n";
+                    $proctype_name = trim($ptrow['procedure_type_name']);
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($transport) . ", " . js_escape($proctype_name) . ", " . js_escape($testid) . ", " . js_escape($t) . ");\n";
                 }
                 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
                 // GET parms needed for this are: formid, formseq.
