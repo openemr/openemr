@@ -16,7 +16,7 @@
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $isPortal = false;
@@ -36,7 +36,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     }
 }
 
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
@@ -1449,7 +1449,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
 
         // In House CC number Validation
-        $('#cardNumber').validateCreditCard(function (result) {
+        /*$('#cardNumber').validateCreditCard(function (result) {
             var r = (result.card_type === null ? '' : result.card_type.name.toUpperCase())
             var v = (result.valid === true ? ' Valid Number' : ' Validating')
             if (result.valid === true) {
@@ -1458,7 +1458,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 document.getElementById("cardtype").style.color = "#aa0000";
             }
             $('#cardtype').text(r + v);
-        });
+        });*/
 
         // In House CC Validation
         function validateCC() {
@@ -1482,7 +1482,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
     </script>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1562,7 +1562,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         </script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { // Begin Include Stripe ?>
+    <?php if ($GLOBALS['payment_gateway'] == 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
         <script>
             const stripe = Stripe(publicKey);
             const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
