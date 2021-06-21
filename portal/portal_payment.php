@@ -1409,9 +1409,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                                         <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                     </div>
                                 </div>
-                                <div class="form-row form-group">
+                                <div class="form-group">
                                     <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
-                                    <div id="card-element"></div>
+                                    <div class="form-group" id="card-element"></div>
                                     <div id="card-errors" role="alert"></div>
                                 </div>
                                 <div class="col-md-6">
@@ -1569,12 +1569,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             const style = {
                 base: {
                     color: '#32325d',
-                    lineHeight: '18px',
-                    fontFamily: '"Helvetica Neue", "Helvetica", sans-serif',
+                    lineHeight: '1.2rem',
                     fontSmoothing: 'antialiased',
                     fontSize: '16px',
                     '::placeholder': {
-                        color: '#aaa8a8'
+                        color: '#8e8e8e'
                     }
                 },
                 invalid: {

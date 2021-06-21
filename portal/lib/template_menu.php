@@ -92,7 +92,10 @@ function get_template_dir_array($dir, $cat_dir = ''): array
         $dir .= "/";
     }
 
-    if (false === $d = @dir($dir)) {
+    if (!is_dir($dir)) {
+        return [];
+    }
+    if (false === ($d = @dir($dir))) {
         return [];
     }
     while (false !== ($entry = $d->read())) {

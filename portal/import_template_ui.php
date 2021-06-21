@@ -16,12 +16,13 @@ require_once("../interface/globals.php");
 
 use OpenEMR\Core\Header;
 
+$patient = $_POST['sel_pt'] ?? 0;
 $patient_dir = $_POST['sel_pt'] ?? 0;
 $patient_dir = convert_safe_file_dir_name($patient_dir . "_tpls");
 $cat_dir = convert_safe_file_dir_name($_POST['doc_category']) ?? "";
 // default root
 $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-if ($patient_dir > 0) {
+if ($patient > 0) {
     $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $patient_dir . '/';
 } elseif (!empty($cat_dir)) {
     $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $cat_dir . '/';
