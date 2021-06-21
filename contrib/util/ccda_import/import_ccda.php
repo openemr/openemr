@@ -91,7 +91,8 @@ $millisecondsStart = round(microtime(true) * 1000);
 foreach (glob($dir) as $file) {
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
-        // 3. import as new patient
+        // 3. import as new patient (note need to escape ' characters in the filename)
+        $file = str_replace("'", "\'", $file);
         exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
     } else {
         // development mode is off
