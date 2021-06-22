@@ -606,6 +606,16 @@ use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
 RestConfig::$FHIR_ROUTE_MAP = array(
+    /**
+     * @OA\Get(
+     *     path="/fhir/AllergyIntolerance",
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of AllergyIntolerances."
+     *      , summary="Returns a list of AllergyIntolerances"
+     *     )
+     * )
+     */
     "GET /fhir/AllergyIntolerance" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
