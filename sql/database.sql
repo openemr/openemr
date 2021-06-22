@@ -1197,6 +1197,7 @@ CREATE TABLE `direct_message_log` (
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16) DEFAULT NULL,
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
@@ -1230,6 +1231,7 @@ CREATE TABLE `documents` (
   `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
