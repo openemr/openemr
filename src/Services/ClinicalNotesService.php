@@ -17,7 +17,6 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class ClinicalNotesService extends BaseService
 {
