@@ -213,6 +213,10 @@ class UuidRegistry
                     $count = $this->createMissingUuidsForVerticalTable();
                     $counter += $count;
                 } while ($count > 0);
+                do {
+                    $count = $this->completePartialMissingUuidsForVerticalTable();
+                    $counter += $count;
+                } while ($count > 0);
             } else {
                 do {
                     $count = $this->createMissingUuidsForTableWithId();
@@ -343,7 +347,7 @@ class UuidRegistry
             $this->insertUuidsIntoRegistry($batchUUids);
             for ($i = 0; $i < $gen_count; $i++) {
                 // do single updates
-                sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$batchUUids[$i], $ids[$i][$this->table_id]]);
+                sqlStatementNoLog("UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE `" . $this->table_id . "` = ?", [$batchUUids[$i], $ids[$i][$this->table_id]], true);
                 $counter++;
             }
         }
@@ -359,44 +363,113 @@ class UuidRegistry
     }
 
     /**
-     * Populates any missing uuids for a table that has no single unique column and instead uses a composite key to
-     * represent the table uniqueness.
+     * Participates in populating missing uuids for a group in vertical table. It will use a
+     *  key or composite key to represent the group of entries. Note there are 2 scenarios
+     *  (this function deals with scenario 1):
+     *   1. The entire group is missing a uuid (this function)
+     *   2. The group has a uuid, however, one or more items in the group have not been
+     *      assigned this group uuid. (see completePartialMissingUuidsForVerticalTable() function)
      * @return int
      */
     private function createMissingUuidsForVerticalTable()
     {
         $counter = 0;
-        $count = $this->getTableCountWithMissingUuids();
-        if ($count > 0) {
-            // grab the records
-            $escapedColumns = array_map(function ($col) {
-                return "`$col`";
-            }, array_merge(['uuid'], $this->table_vertical));
-            $gen_count = min($count, self::UUID_MAX_BATCH_COUNT);
-            $sqlFetch = "SELECT " . implode(",", $escapedColumns) . " FROM `" . $this->table_name
-                . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' LIMIT "
-                . $gen_count;
-            $batchUUids = $this->getUnusedUuidBatch($gen_count);
-            $results = QueryUtils::fetchRecordsNoLog($sqlFetch, []);
-            // these absolutely should match but we will use the minimum of the results just to be safe and not exceed
-            // our array bounds
-            $resultCount = count($results);
+
+        // Collect groups that are missing a uuid
+        $columns = array_map(function ($col) {
+            return "`$col`";
+        }, $this->table_vertical);
+        $columnsQtwo = array_map(function ($col) {
+            return "`q2`.`$col`";
+        }, $this->table_vertical);
+        $columnsOn = array_map(function ($col) {
+            return "`q1`.`$col` = `q2`.`$col`";
+        }, $this->table_vertical);
+        $columnsWhere = array_map(function ($col) {
+            return "(`q1`.`$col` IS NULL OR `q1`.`$col` = '')";
+        }, $this->table_vertical);
+        $query = "SELECT " . implode(",", $columnsQtwo) . "
+        FROM
+          (SELECT " . implode(",", $columns) . "
+          FROM `" . $this->table_name . "`
+          WHERE `uuid` IS NOT NULL AND `uuid` != '' AND `uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+          GROUP BY " . implode(",", $columns) . ") AS `q1`
+        RIGHT OUTER JOIN `" . $this->table_name . "` as `q2`
+        ON " . implode(" AND ", $columnsOn) . "
+        WHERE " . implode(" AND ", $columnsWhere) . "
+        GROUP BY " . implode(",", $columnsQtwo) . "
+        LIMIT " . self::UUID_MAX_BATCH_COUNT;
+        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
+        $number = sqlNumRows($groupsWithoutUuid);
+
+        // create uuids and populate the groups with them
+        if ($number > 0) {
+            $batchUUids = $this->getUnusedUuidBatch($number);
+            $this->insertUuidsIntoRegistry($batchUUids);
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(function ($col) {
                     return "`$col` = ? ";
                 }, $this->table_vertical));
-
-            // simpler to go functional then a bunch of nested loops, drops down to c also which will be more performant
-            // would like to drop the anonymous function, but we'll have to benchmark it to see the diff.
-            $mapper = function ($i, &$results, &$columns) {
-                return array_map(function ($col) use ($i, &$results) {
-                    return $results[$i][$col];
-                }, $columns);
-            };
-            for ($i = 0; $i < $resultCount; $i++) {
-                $mappedValues = $mapper($i, $results, $this->table_vertical);
-                $bindValues = array_merge([$batchUUids[$i]], $mappedValues);
+            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+                $mappedValues = array_map(function ($col) use ($row) {
+                    return $row[$col];
+                }, $this->table_vertical);
+                $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
                 sqlStatementNoLog($sqlUpdate, $bindValues, true);
+                $counter++;
+            }
+        }
+        return $counter;
+    }
+
+    /**
+     * Participates in populating missing uuids for a group in vertical table. It will use a
+     *  key or composite key to represent the group of entries. Note there are 2 scenarios
+     *  (this function deals with scenario 2):
+     *   1. The entire group is missing a uuid (see createMissingUuidsForVerticalTable() function)
+     *   2. The group has a uuid, however, one or more items in the group have not been
+     *      assigned this group uuid. (this function)
+     * @return int
+     */
+    private function completePartialMissingUuidsForVerticalTable()
+    {
+        $counter = 0;
+
+        // Collect groups that are missing a uuid
+        $columns = array_map(function ($col) {
+            return "`$col`";
+        }, $this->table_vertical);
+        $columnsQtwo = array_map(function ($col) {
+            return "`q2`.`$col`";
+        }, array_merge(['uuid'], $this->table_vertical));
+        $columnsOn = array_map(function ($col) {
+            return "`q1`.`$col` = `q2`.`$col`";
+        }, $this->table_vertical);
+        $query = "SELECT " . implode(",", $columnsQtwo) . "
+        FROM
+          (SELECT " . implode(",", $columns) . "
+          FROM `" . $this->table_name . "`
+          WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+          GROUP BY " . implode(",", $columns) . ") AS `q1`
+        INNER JOIN `" . $this->table_name . "` as `q2`
+        ON " . implode(" AND ", $columnsOn) . "
+        WHERE `q2`.`uuid` IS NOT NULL AND `q2`.`uuid` != '' AND `q2`.`uuid` != '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'
+        GROUP BY " . implode(",", $columnsQtwo) . "
+        LIMIT " . self::UUID_MAX_BATCH_COUNT;
+        $groupsWithoutUuid = sqlStatementNoLog($query, false, true);
+        $number = sqlNumRows($groupsWithoutUuid);
+
+        // populate the groups with the already existent uuids
+        if ($number > 0) {
+            $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
+                implode(" AND ", array_map(function ($col) {
+                    return "`$col` = ? ";
+                }, $this->table_vertical));
+            while ($row = sqlFetchArray($groupsWithoutUuid)) {
+                $mappedValues = array_map(function ($col) use ($row) {
+                    return $row[$col];
+                }, array_merge(['uuid'], $this->table_vertical));
+                sqlStatementNoLog($sqlUpdate, $mappedValues, true);
                 $counter++;
             }
         }
