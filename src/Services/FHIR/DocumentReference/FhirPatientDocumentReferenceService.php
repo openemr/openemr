@@ -69,7 +69,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('drive_uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -92,13 +92,11 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         $docReference->setMeta($meta);
 
         $id = new FHIRId();
-        // TODO: @adunsulag after playing around with this we definitely need a document uuid, drive_uuid doesn't work
-        // as it only applies to anything not couchdb...
-        $id->setValue($dataRecord['drive_uuid']);
+        $id->setValue($dataRecord['uuid']);
         $docReference->setId($id);
 
         $identifier = new FHIRIdentifier();
-        $identifier->setValue(new FHIRString($dataRecord['drive_uuid']));
+        $identifier->setValue(new FHIRString($dataRecord['uuid']));
         $docReference->addIdentifier($identifier);
 
         // TODO: @adunsulag need to support content.attachment.url

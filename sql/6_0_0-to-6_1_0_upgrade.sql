@@ -754,6 +754,15 @@ ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) NULL DEFAULT '0.00';
 ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 #EndIf
 
+#IfNotIndex history_data uuid
+-- History table uses a historical record data pattern where the same record is duplicated multiple times to retain
+-- history, this makes it so the record has the same uuid.  We only index the record instead of keeping it UNIQUE
+CREATE INDEX `uuid` ON `history_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate history_data
+#EndIf
+
 #IfMissingColumn form_clinical_notes form_id
 ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
 ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
@@ -761,4 +770,22 @@ ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCRE
 
 #IfMissingColumn form_clinical_notes uuid
 ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_clinical_notes uuid
+CREATE UNIQUE INDEX `uuid` ON `form_clinical_notes` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_clinical_notes
+#EndIf
+
+#IfMissingColumn documents uuid
+ALTER TABLE `documents` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex documents uuid
+CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate documents
 #EndIf

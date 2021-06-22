@@ -18,6 +18,7 @@ require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
 
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
@@ -29,6 +30,7 @@ class DocumentService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
+        (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createMissingUuids();
     }
 
     public function isValidPath($path)
@@ -165,6 +167,7 @@ class DocumentService extends BaseService
             $sql = "
             SELECT 
                 docs.id
+                ,docs.uuid
                 ,docs.url
                 ,docs.mimetype
                 ,docs.foreign_id
@@ -228,6 +231,6 @@ class DocumentService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['user_uuid', 'drive_uuid', 'puuid', 'euuid'];
+        return [ 'uuid', 'user_uuid', 'drive_uuid', 'puuid', 'euuid'];
     }
 }

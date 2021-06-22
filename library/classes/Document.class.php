@@ -58,6 +58,11 @@ class Document extends ORDataObject
     */
     public $id;
 
+    /**
+     * @var Unique User Identifier that is for both external reference to this entity and for future offline use.
+     */
+    public $uuid;
+
     /*
     *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
     *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
@@ -763,6 +768,8 @@ class Document extends ORDataObject
             $this->foreign_id = $fid;
         }
 
+        // need to populate our uuid if its empty
+
         parent::persist();
     }
 
@@ -794,6 +801,16 @@ class Document extends ORDataObject
     function get_couch_revid()
     {
         return $this->couch_revid;
+    }
+
+    function set_uuid($uuid)
+    {
+        $this->uuid = $uuid;
+    }
+
+    function get_uuid()
+    {
+        return $this->uuid;
     }
 
     // Function added by Rod to change the patient associated with a document.
@@ -995,6 +1012,9 @@ class Document extends ORDataObject
         } else {
             $this->set_encrypted(self::ENCRYPTED_OFF);
         }
+        // we need our external unique reference identifier that can be mapped back to our table.
+        $docUUID = (new UuidRegistry(['table_name' => $this->_table]))->createUuid();
+        $this->set_uuid($docUUID);
         $this->name = $filename;
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
