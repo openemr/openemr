@@ -7,23 +7,23 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -33,20 +33,20 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
-require_once(dirname(__FILE__) . "/appsql.class.php");
+require_once(__DIR__ . "/appsql.class.php");
 
 use Mpdf\Mpdf;
 
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'];
 $dispose = $_POST['handler'];
-$cpid = $_POST['cpid'] ? $_POST['cpid'] : $GLOBALS['pid'];
-$category = isset($_POST['catid']) ? $_POST['catid'] : 0;
+$cpid = $_POST['cpid'] ?: $GLOBALS['pid'];
+$category = $_POST['catid'] ?? 0;
 
 try {
     if (!$category) {
         $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
-        $category = $result['id'] ? $result['id'] : 3;
+        $category = $result['id'] ?: 3;
     }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
