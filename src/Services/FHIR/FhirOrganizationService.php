@@ -345,7 +345,7 @@ class FhirOrganizationService extends FhirServiceBase
             $fhirOrganization = new FHIROrganization();
             $ref = new FHIRReference();
             $ref->setType($fhirOrganization->get_fhirElementName());
-            $uuid = UuidRegistry::uuidToString($organization['uuid']);
+            $uuid = $organization['uuid'];
             $ref->setReference("Organization/" . $uuid);
             $ref->setId($uuid);
             return $ref;
@@ -368,7 +368,7 @@ class FhirOrganizationService extends FhirServiceBase
                 $reference = new FHIRReference();
                 $fhirOrganization = new FHIROrganization();
                 $reference->setType($fhirOrganization->get_fhirElementName());
-                $reference->setReference(($fhirOrganization->get_fhirElementName() . $organization['uuid']));
+                $reference->setReference(($fhirOrganization->get_fhirElementName() . "/" . $organization['uuid']));
                 $reference->setId($organization['id']);
                 return $reference;
             }

@@ -20,6 +20,8 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
@@ -91,20 +93,19 @@ class FacilityService extends BaseService
         if (!empty($options) && !empty($options["useLegacyImplementation"])) {
             return $this->getPrimaryBusinessEntityLegacy();
         }
-
-        $args = array(
-            "where" => "WHERE FAC.primary_business_entity = 1",
-            "data" => null,
-            "limit" => 1
-        );
+        $searchArgs = ['primary_business_entity' => new StringSearchField('primary_business_entity', [1], SearchModifier::EXACT)];
 
         if (!empty($options) && !empty($options["excludedId"])) {
-            $args["where"] .= " AND FAC.id != ?";
-            $args["data"] = array($options["excludedId"]);
-            return $this->get($args);
+            $searchArgs['id'] = new TokenSearchField('id', $options['excludedId']);
+            $searchArgs['id']->setModifier(SearchModifier::NOT_EQUALS_EXACT);
         }
 
-        return $this->get($args);
+        $results = $this->search($searchArgs);
+        if (!empty($results->getData()))
+        {
+            return array_pop($results->getData());
+        }
+        return null;
     }
 
     public function getAllServiceLocations($options = null)
@@ -144,11 +145,12 @@ class FacilityService extends BaseService
         if (empty($id)) {
             throw new \InvalidArgumentException("Cannot retrieve facility for empty id");
         }
-        return $this->get(array(
-            "where" => "WHERE FAC.id = ?",
-            "data" => array($id),
-            "limit" => 1
-        ));
+        $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
+        if (!empty($result->getData()))
+        {
+            return array_pop($result->getData());
+        }
+        return null;
     }
 
     public function getFacilityForUser($userId)
@@ -283,7 +285,16 @@ class FacilityService extends BaseService
             $sql .= "        FAC.info";
             $sql .= " FROM facility FAC";
 
-            return self::selectHelper($sql, $map);
+            $records = self::selectHelper($sql, $map);
+            $returnRecords = [];
+            if (!empty($records))
+            {
+                foreach ($records as $record)
+                {
+                    $returnRecords[] = $this->createResultRecordFromDatabaseResult($record);
+                }
+            }
+            return $returnRecords;
         } catch (SqlQueryException $exception) {
             (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
@@ -316,43 +327,19 @@ class FacilityService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true)
     {
-        $processingResult = new ProcessingResult();
-
-        // Validating and Converting _id to UUID byte
-        if (isset($search['uuid'])) {
-            $isValid = $this->facilityValidator->validateId(
-                'uuid',
-                self::FACILITY_TABLE,
-                $search['uuid'],
-                true
-            );
-            if ($isValid != true) {
-                return $isValid;
-            }
-            $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
-        }
-        $additionalSql = array();
+        $querySearch = [];
         if (!empty($search)) {
-            $additionalSql['where'] = ' WHERE ';
-            $additionalSql["data"] = array();
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                // equality match
-                array_push($whereClauses, $fieldName . ' = ?');
-                array_push($additionalSql["data"], $fieldValue);
+            if (isset($search['uuid'])) {
+                $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
+                unset($search['uuid']);
             }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $additionalSql['where'] .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-        }
-        $statementResults = $this->get($additionalSql);
-        if ($statementResults) {
-            foreach ($statementResults as $row) {
-                $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-                $processingResult->addData($row);
+            foreach ($search as $field => $value) {
+                if (isset($search[$field])) {
+                    $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
+                }
             }
         }
-
-        return $processingResult;
+        return $this->search($querySearch, $isAndCondition);
     }
 
     /**
@@ -368,20 +355,7 @@ class FacilityService extends BaseService
         if ($isValid !== true) {
             return $isValid;
         }
-        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        $sqlResult = $this->get(array(
-            "where" => "WHERE FAC.uuid = ?",
-            "data" => array($uuidBytes),
-            "limit" => 1
-        ));
-
-        if (!empty($sqlResult)) {
-            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $processingResult->addData($sqlResult);
-        }
-
-
-        return $processingResult;
+        return $this->search(['uuid' => new TokenSearchField('uuid', $uuid, true)]);
     }
 
     /**
