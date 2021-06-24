@@ -22,8 +22,7 @@ namespace OpenEMR\Services\FHIR;
 
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
-use OpenEMR\Services\FHIR\DocumentReference\FhirClinicalNotesService;
+use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -33,7 +32,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
@@ -42,7 +41,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->addMappedService(new FhirClinicalNotesService());
+        $this->addMappedService(new FhirDiagnosticReportClinicalNotesService());
     }
 
     /**
@@ -68,59 +67,44 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
         $fhirSearchResult = new ProcessingResult();
-        $diagnosticReport = new FHIRDiagnosticReport();
-        $diagnosticReport->setStatus("registered");
-        $diagnosticReport->addCategory(UtilsService::createCodeableConcept(["LP29684-5" => "Radiology"], FhirCodeSystemUris::LOINC));
-        $diagnosticReport->setCode(UtilsService::createCodeableConcept(
-            ["1000-9" => "DBG Ab [Presence] in Serum or Plasma from Blood product unit"],
-            FhirCodeSystemUris::LOINC
-        ));
-        $diagnosticReport->setSubject(UtilsService::createRelativeReference("Patient", ""));
-        $diagnosticReport->setEffectiveDateTime(gmdate('c'));
-        $diagnosticReport->setIssued(gmdate('c'));
-        $diagnosticReport->addPerformer(UtilsService::createRelativeReference("Practitioner", ""));
-        $fhirSearchResult->addData($diagnosticReport);
+        try {
+            if (isset($puuidBind)) {
+                $field = $this->getPatientContextSearchField();
+                $fhirSearchParameters[$field->getName()] = $puuidBind;
+            }
+
+            if (isset($fhirSearchParameters['category'])) {
+                /**
+                 * @var TokenSearchField
+                 */
+                $category = $fhirSearchParameters['category'];
+                $categorySearchField = new TokenSearchField('category', $category);
+                $service = $this->getServiceForCategory(
+                    $categorySearchField,
+                    'LAB'
+                );
+                $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
+            } else if (isset($fhirSearchParameters['code'])) {
+                $service = $this->getServiceForCode(
+                    new TokenSearchField('code', $fhirSearchParameters['code']),
+                    ''
+                );
+                // if we have a service let's search on that
+                if (isset($service)) {
+                    $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
+                } else {
+                    $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
+                }
+            } else {
+                $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
+            }
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField()]);
+            // put our exception information here
+            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+        }
         return $fhirSearchResult;
-//        try {
-//            if (isset($fhirSearchParameters['_id'])) {
-//                $result = $this->populateSurrogateSearchFieldsForUUID($fhirSearchParameters['_id'], $fhirSearchParameters);
-//                if ($result instanceof ProcessingResult) { // failed to populate so return the results
-//                    return $result;
-//                }
-//            }
-//
-//            if (isset($puuidBind)) {
-//                $field = $this->getPatientContextSearchField();
-//                $fhirSearchParameters[$field->getName()] = $puuidBind;
-//            }
-//
-//            if (isset($fhirSearchParameters['category'])) {
-//                /**
-//                 * @var TokenSearchField
-//                 */
-//                $category = $fhirSearchParameters['category'];
-//
-//                $service = $this->getServiceForCategory($category, 'clinical-notes');
-//                $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-//            } else if (isset($fhirSearchParameters['code'])) {
-//                // TODO: @adunsulag should there be a default code here?  Look at the method signature
-//                $service = $this->getServiceForCode($fhirSearchParameters['code'], '');
-//                // if we have a service let's search on that
-//                if (isset($service)) {
-//                    $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-//                } else {
-//                    $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
-//                }
-//            } else {
-//                $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
-//            }
-//        } catch (SearchFieldException $exception) {
-//            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
-//                'field' => $exception->getField()]);
-//            // put our exception information here
-//            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
-//        }
-//        return $fhirSearchResult;
     }
 
     public function getProfileURIs(): array

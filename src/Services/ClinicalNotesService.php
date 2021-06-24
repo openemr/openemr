@@ -332,14 +332,12 @@ class ClinicalNotesService extends BaseService
 
     private function getListAsSelectList($optionsList)
     {
-        if (empty($optionsList))
-        {
+        if (empty($optionsList)) {
             return [];
         }
 
         $selectList = [];
-        foreach ($optionsList as $option)
-        {
+        foreach ($optionsList as $option) {
             $selectList[] = ['value' => $option['option_id'], 'code' => $option['notes'], 'title' => $option['title']];
         }
         return $selectList;

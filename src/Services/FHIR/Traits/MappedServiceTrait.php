@@ -55,11 +55,10 @@ trait MappedServiceTrait
         throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
     }
 
-    public function getServiceForCategory($category, $defaultCategory): FhirServiceBase
+    public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
     {
         // let the field parse our category
-        $field = new TokenSearchField('category', $category);
-        $values = $field->getValues() ?? [new TokenSearchValue($defaultCategory)];
+        $values = $category->getValues() ?? [new TokenSearchValue($defaultCategory)];
         foreach ($values as $value) {
             // we only search the first one
             $parsedCategory = $value->getCode();

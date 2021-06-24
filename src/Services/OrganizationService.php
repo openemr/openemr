@@ -57,7 +57,7 @@ class OrganizationService extends BaseService
     {
         $facilityResult = $this->facilityService->getById($facilityId);
         if (!empty($facilityResult)) {
-            $facilityOrgs = $this->getFacilityOrg($facilityResult);
+            $facilityOrgs = $this->getFacilityOrg([$facilityResult]);
             return array_pop($facilityOrgs); // return only one record
         }
         return null;
@@ -67,7 +67,6 @@ class OrganizationService extends BaseService
     {
         $facilityOrgs = array();
         foreach ($facilityRecords as $index => $org) {
-            $address = array();
             if (isset($org['street'])) {
                 $org['line1'] = $org['street'];
             }

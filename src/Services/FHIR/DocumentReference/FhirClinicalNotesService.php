@@ -208,11 +208,11 @@ class FhirClinicalNotesService extends FhirServiceBase
         if (isset($openEMRSearchParameters['category'])) {
             unset($openEMRSearchParameters['category']);
         }
-        // the diagnostic report narratives are found in DiagnosticReport...
-        $openEMRSearchParameters['clinical_notes_type'] = new StringSearchField(
-            'clinical_notes_type',
-            ['laboratory_report_narrative', 'pathology_report_narrative', 'imaging_narrative'],
-            SearchModifier::NOT_EQUALS_EXACT
+        // only return notes that have no category specified, otherwise we are going to use diagnostic report
+        $openEMRSearchParameters['clinical_notes_type'] = new TokenSearchField(
+            'clinical_notes_category',
+            new TokenSearchValue(true),
+            SearchModifier::MISSING
         );
         return $this->service->search($openEMRSearchParameters);
     }

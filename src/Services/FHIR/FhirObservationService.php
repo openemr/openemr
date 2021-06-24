@@ -116,7 +116,10 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                  */
                 $category = $fhirSearchParameters['category'];
 
-                $service = $this->getServiceForCategory($category, 'vital-signs');
+                $service = $this->getServiceForCategory(
+                    new TokenSearchField('category', $fhirSearchParameters['category']),
+                    'vital-signs'
+                );
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
             } else if (isset($fhirSearchParameters['code'])) {
                 $service = $this->getServiceForCode(

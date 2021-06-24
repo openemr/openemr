@@ -47,7 +47,7 @@ class TokenSearchField extends BasicSearchField
         return false;
     }
 
-    public function transformValues($transformer)
+    public function transformValues(callable $transformer)
     {
         if (!is_callable($transformer)) {
             throw new \BadMethodCallException("transformer function must be callable");

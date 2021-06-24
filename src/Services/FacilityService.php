@@ -101,8 +101,7 @@ class FacilityService extends BaseService
         }
 
         $results = $this->search($searchArgs);
-        if (!empty($results->getData()))
-        {
+        if (!empty($results->getData())) {
             return array_pop($results->getData());
         }
         return null;
@@ -146,8 +145,7 @@ class FacilityService extends BaseService
             throw new \InvalidArgumentException("Cannot retrieve facility for empty id");
         }
         $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
-        if (!empty($result->getData()))
-        {
+        if (!empty($result->getData())) {
             return array_pop($result->getData());
         }
         return null;
@@ -287,10 +285,8 @@ class FacilityService extends BaseService
 
             $records = self::selectHelper($sql, $map);
             $returnRecords = [];
-            if (!empty($records))
-            {
-                foreach ($records as $record)
-                {
+            if (!empty($records)) {
+                foreach ($records as $record) {
                     $returnRecords[] = $this->createResultRecordFromDatabaseResult($record);
                 }
             }

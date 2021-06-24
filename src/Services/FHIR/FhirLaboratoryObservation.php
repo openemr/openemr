@@ -22,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\ObservationLabService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -37,6 +38,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
     // @see http://hl7.org/fhir/R4/valueset-observation-status.html
@@ -98,26 +101,6 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
 
     /**
-     * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR processing result.
-     */
-    protected function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: Implement insertOpenEMRRecord() method.
-    }
-
-    /**
-     * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
-     */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: Implement updateOpenEMRRecord() method.
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
@@ -139,7 +122,7 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
             // need to transform these into something we can consume
             foreach ($result->getData() as $record) {
                 // each vital record becomes a 1 -> many record for our observations
-                $this->parseDataRecordsIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
+                $this->parseDataRecordsIntoObservationRecords($processingResult, $record);
             }
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -152,17 +135,6 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
     {
         $processingResult->addData($record);
     }
-
-    /**
-     * Parses a FHIR Resource, returning the equivalent OpenEMR record.
-     *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
 
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
