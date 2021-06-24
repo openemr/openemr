@@ -30,8 +30,8 @@ use OpenEMR\Services\ClinicalNotesService;
 
 $returnurl = 'encounter_top.php';
 $formid = 0 + ($_GET['id'] ?? 0);
+$clinicalNotesService = new ClinicalNotesService();
 if ($formid) {
-    $clinicalNotesService = new ClinicalNotesService();
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
     $check_res = [];
     foreach ($records as $record) {
@@ -53,11 +53,10 @@ if ($formid) {
         ]
     ];
 }
-$sql1 = "SELECT `option_id` AS `value`, notes AS code, `title` FROM `list_options` WHERE list_id = ? ORDER BY `seq`";
-$result = sqlStatement($sql1, array('Clinical_Note_Type'));
-foreach ($result as $value) {
-    $clinical_notes_type[] = $value;
-}
+
+$clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
+$clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
+
 ?>
 <html>
 <head>
@@ -124,9 +123,19 @@ foreach ($result as $value) {
                 let codeContext = document.getElementById("description_" + oId);
                 let type = othis.options[othis.selectedIndex].value;
                 let i = codeArray.findIndex((v, idx) => codeArray[idx].value === type);
-                codeEl.value = jsText(codeArray[i].code);
-                codeTextEl.value = jsText(codeArray[i].title);
-                codeContext.dataset.textcontext = jsText(codeArray[i].title);
+                if (i >= 0)
+                {
+                    codeEl.value = jsText(codeArray[i].code);
+                    codeTextEl.value = jsText(codeArray[i].title);
+                    codeContext.dataset.textcontext = jsText(codeArray[i].title);
+                } else {
+                    console.error("Code not found in array for selected element ", codeEl);
+                    // they are clearing out the value so we are going to empty everything out.
+                    codeEl.value = "";
+                    codeTextEl.value = "";
+                    codeContext.vlaue = "";
+                }
+
             } catch (e) {
                 alert(jsText(e));
             }
@@ -165,57 +174,77 @@ foreach ($result as $value) {
                                     <input type="hidden" id="id_<?php echo attr($key) + 1; ?>" name="id[]" class="id" value="<?php echo attr($obj["id"]); ?>" />
                                     <input type="hidden" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="code" value="<?php echo attr($obj["code"]); ?>" />
                                     <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
-                                    <div class="forms col-lg-1">
-                                        <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                        <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
-                                    </div>
-                                    <div class="forms col-lg-2">
-                                        <label for="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
-                                        <select name="clinical_notes_type[]" id="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="form-control clinical_notes_type" onchange="typeChange(this)">
-                                            <option value=""><?php echo xlt('Select Note Type'); ?></option>
-                                        <?php foreach ($clinical_notes_type as $value) :
-                                                $selected = ($value['value'] == $obj["clinical_notes_type"]) ? 'selected="selected"' : '';
-                                            if (!empty($selected)) {
-                                                $context = $value['title'];
-                                            }
-                                            ?>
-                                                <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="forms col-lg-9">
-                                        <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Narrative'); ?>:</label>
-                                        <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo text($context); ?>" class="form-control description" rows="14"><?php echo text($obj["description"]); ?></textarea>
-                                    </div>
-                                    <div class="form-row w-100 mt-2 text-center">
-                                        <div class="col-lg-12">
-                                            <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                <?php echo xlt('Add'); ?>
-                                            </button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                <?php echo xlt('Delete'); ?>
-                                            </button>
+                                    <div class="forms col-lg-4">
+                                        <div class="row pl-2">
+                                            <div class="col-12">
+                                                <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
+                                                <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
+                                                <select name="clinical_notes_type[]" id="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="form-control clinical_notes_type" onchange="typeChange(this)">
+                                                    <option value=""><?php echo xlt('Select Note Type'); ?></option>
+                                                    <?php foreach ($clinical_notes_type as $value) :
+                                                        $selected = ($value['value'] == $obj["clinical_notes_type"]) ? 'selected="selected"' : '';
+                                                        if (!empty($selected)) {
+                                                            $context = $value['title'];
+                                                        }
+                                                        ?>
+                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="clinical_notes_category_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Category'); ?>:</label>
+                                                <select name="clinical_notes_category[]" id="clinical_notes_category_<?php echo attr($key) + 1; ?>" class="form-control clinical_notes_category">
+                                                    <option value=""><?php echo xlt('Select Note Category'); ?></option>
+                                                    <?php foreach ($clinical_notes_category as $value) :
+                                                        $selected = ($value['value'] == $obj["clinical_notes_category"]) ? 'selected="selected"' : '';
+                                                        if (!empty($selected)) {
+                                                            $context = $value['title'];
+                                                        }
+                                                        ?>
+                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
                                     </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                    <hr />
+                                    <div class="forms col-lg-8">
+                                        <div class="row pl-2 pr-2">
+                                            <div class="col-12">
+                                                <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Narrative'); ?>:</label>
+                                                <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo text($context); ?>" class="form-control description" rows="14"><?php echo text($obj["description"]); ?></textarea>
+                                            </div>
+                                            <div class="col-12 text-sm-center text-md-left">
+                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                                    <?php echo xlt('Add'); ?>
+                                                </button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                    <?php echo xlt('Delete'); ?>
+                                                </button>
+                                                <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <hr />
                         <?php } ?>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-12 position-override">
-                    <div class="btn-group" role="group">
-                        <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
-                        <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel'); ?></button>
+                        <div class="form-group">
+                            <div class="col-sm-12 position-override">
+                                <div class="btn-group" role="group">
+                                    <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
+                                    <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel'); ?></button>
+                                </div>
+                                <input type="hidden" id="clickId" value="" />
+                            </div>
+                        </div>
                     </div>
-                    <input type="hidden" id="clickId" value="" />
-                </div>
+                </form>
             </div>
-            </form>
         </div>
-    </div>
     </div>
 </body>
 </html>

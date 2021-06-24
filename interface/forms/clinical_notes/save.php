@@ -40,6 +40,7 @@ $code_des = $_POST["description"];
 $ids = $_POST['id'] ?? [];
 $count = $_POST["count"];
 $clinical_notes_type = $_POST['clinical_notes_type'];
+$clinical_notes_category = $_POST['clinical_notes_category'];
 $note_relations = "";
 
 $clinicalNotesService = new ClinicalNotesService();
@@ -81,6 +82,7 @@ if (!empty($count)) {
         $record['codetext'] = $code_text[$key] ?: null;
         $record['description'] = $code_des[$key] ?: null;
         $record['clinical_notes_type'] = $clinical_notes_type[$key] ?: null;
+        $record['clinical_notes_category'] = $clinical_notes_category[$key] ?: null;
         if (empty($record['id'])) {
             // we only populate this on an insert as we don't want someone tampering with the user that created this
             // record, this avoids issues where the record can be impersonated by someone else (IE falsifying who entered

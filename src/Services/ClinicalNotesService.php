@@ -71,6 +71,9 @@ class ClinicalNotesService extends BaseService
                 ,notes.external_id
                 ,notes.clinical_notes_type
                 ,notes.note_related_to
+                ,notes.clinical_notes_category
+                ,lo_category.category_code
+                ,lo_category.category_title
                 ,patients.pid
                 ,patients.puuid
                 ,encounters.eid
@@ -116,6 +119,17 @@ class ClinicalNotesService extends BaseService
                     FROM
                         users
             ) users ON notes.`user` = users.username
+            LEFT JOIN
+            (
+                SELECT
+                    notes AS category_code
+                    ,title AS category_title
+                    ,option_id
+                FROM
+                    list_options
+                WHERE
+                    list_id = 'Clinical_Note_Category'
+            ) lo_category ON notes.clinical_notes_category = lo_category.option_id
         ";
             $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -269,7 +283,13 @@ class ClinicalNotesService extends BaseService
             throw new \InvalidArgumentException("formid, pid, and encounter must all be populated");
         }
 
-        $sql = "SELECT * FROM `form_clinical_notes` WHERE `form_id`=? AND `pid` = ? AND `encounter` = ?";
+        $sql = "SELECT fcn.* 
+                        ,lo_category.title AS category_title
+                        ,lo_category.notes AS category_code
+                FROM `form_clinical_notes` fcn 
+                LEFT JOIN list_options lo_category ON lo_category.option_id = fcn.clinical_notes_category
+                LEFT JOIN list_options lo_type ON lo_type.option_id = fcn.clinical_notes_type
+                WHERE fcn.`form_id`=? AND fcn.`pid` = ? AND fcn.`encounter` = ?";
         return QueryUtils::fetchRecords($sql, array($formid, $pid, $encounter));
     }
 
@@ -294,5 +314,34 @@ class ClinicalNotesService extends BaseService
         $listService = new ListService();
         $options = $listService->getOptionsByListName('Clinical_Note_Type', ['notes' => $code]);
         return !empty($options);
+    }
+
+    public function getClinicalNoteTypes()
+    {
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('Clinical_Note_Type');
+        return $this->getListAsSelectList($options);
+    }
+
+    public function getClinicalNoteCategories()
+    {
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('Clinical_Note_Category');
+        return $this->getListAsSelectList($options);
+    }
+
+    private function getListAsSelectList($optionsList)
+    {
+        if (empty($optionsList))
+        {
+            return [];
+        }
+
+        $selectList = [];
+        foreach ($optionsList as $option)
+        {
+            $selectList[] = ['value' => $option['option_id'], 'code' => $option['notes'], 'title' => $option['title']];
+        }
+        return $selectList;
     }
 }

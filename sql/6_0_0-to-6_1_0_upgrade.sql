@@ -789,3 +789,15 @@ CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
 
 #IfUuidNeedUpdate documents
 #EndIf
+
+#IfNotRow list_options list_id Clinical_Note_Category
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+#EndIf
+
+#IfMissingColumn form_clinical_notes clinical_notes_category
+ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL AFTER `clinical_notes_type`;
+#EndIf
