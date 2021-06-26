@@ -16,7 +16,11 @@ require_once("gad7.inc.php");  // common strings, require_once(globals.php), oth
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
-use Mpdf\Mpdf;  /* used to generate a pdf of the form */
+use Mpdf\Mpdf; /* to generate pdf files*/
+
+$form_folder = "gad7";
+/* $rootdir = "public_html/interface"; /* change to find algorithmically */
+
 ?>
 <html><head>
  <head>
@@ -74,12 +78,14 @@ return ( conf );
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B" >
 &nbsp &nbsp
 <input type="button" value="<?php echo attr($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
+ 
  <br>
+
 <span class="text"><h2><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></h2></span>
 <table>
 <tr>
 <td>
-<span class="text"><?php echo xlt('Feeling nervous, anxious, or on edge'); ?></span>
+<span class="text"><?php echo  text($str_nervous); ?></span>
 <select name="nervous_score" onchange="update_score(0, my_form.nervous_score.value);">
      <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -98,7 +104,7 @@ return ( conf );
 </tr>
  </table>
   <table>
-<span class="text" ><?php echo xlt('Not being able to stop or control worrying'); ?></span>
+<span class="text" ><?php echo text($str_control_worry); ?></span>
 <select name="control_worry_score" onchange="update_score(1, my_form.control_worry_score.value);" >
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -118,7 +124,7 @@ return ( conf );
   <table>
   <tr>
   <td>
-<span class="text" ><?php echo xlt('Worrying too much about different things'); ?></span>
+<span class="text" ><?php echo text($str_worry); ?></span>
 <select name="worry_score" onchange="update_score(2, my_form.worry_score.value);" >
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -137,7 +143,7 @@ return ( conf );
  </table>
  <table>
  <tr><td>
-<span class="text" ><?php echo xlt('Trouble relaxing'); ?></span>
+<span class="text" ><?php echo text($str_relax); ?></span>
 <select name="relax_score" onchange="update_score(3, my_form.relax_score.value);">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -156,7 +162,7 @@ return ( conf );
  </table>
   <table>
   <tr><td>
-<span class="text" ><?php echo xlt("Being so restless that it's hard to sit still"); ?></span>
+<span class="text" ><?php echo text($str_restless); ?></span>
 <select name="restless_score" onchange="update_score(4, my_form.restless_score.value);">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -175,7 +181,7 @@ return ( conf );
  </table>
  <table>
  <tr><td>
-<span class="text" ><?php echo xlt('Becoming easily annoyed or irritable'); ?></span>
+<span class="text" ><?php echo text($str_annoyed); ?></span>
 <select name="irritable_score" onchange="update_score(5, my_form.irritable_score.value);">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
@@ -194,7 +200,7 @@ return ( conf );
  </table>
   <table>
   <tr><td>
-<span class="text" ><?php echo xlt('Feeling afraid as if something awful might happen'); ?></span>
+<span class="text" ><?php echo text($str_afraid); ?></span>
 <select name="fear_score" onchange="update_score(6, my_form.fear_score.value);">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
