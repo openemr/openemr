@@ -94,24 +94,7 @@ class UuidRegistry
             //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
             //  reference:
             //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
-            $factory = new UuidFactory();
-            $codec = new TimestampFirstCombCodec($factory->getUuidBuilder());
-            $factory->setCodec($codec);
-            $factory->setRandomGenerator(new CombGenerator(
-                $factory->getRandomGenerator(),
-                $factory->getNumberConverter()
-            ));
-            $timestampFirstComb = $factory->uuid4();
-            $uuid = $timestampFirstComb->getBytes();
-
-            /** temp debug stuff
-            error_log(bin2hex($uuid)); // log hex uuid
-            error_log(bin2hex($timestampFirstComb->getBytes())); // log hex uuid
-            error_log($timestampFirstComb->toString()); // log string uuid
-            $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString(); // convert byte uuid to string and log below
-            error_log($test_uuid);
-            error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes())); // convert string uuid to byte and log hex
-             */
+            $uuid = $this->getUUIDBatch(1)[0];
 
             // Check to ensure uuid is unique in uuid_registry (unless $this->disable_tracker is set to true)
             if (!$this->disable_tracker) {
@@ -138,11 +121,7 @@ class UuidRegistry
 
         // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
-            if (!$this->table_vertical) {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, $this->couchdb, $this->document_drive, $this->mapped]);
-            } else {
-                sqlQueryNoLog("INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())", [$uuid, $this->table_name, $this->table_id, json_encode($this->table_vertical), $this->couchdb, $this->document_drive, $this->mapped]);
-            }
+            $this->insertUuidsIntoRegistry([$uuid]);
         }
 
         // Return the uuid
@@ -480,7 +459,7 @@ class UuidRegistry
      * Given a batch of UUIDs it inserts them into the uuid registry.
      * @param $batchUuids
      */
-    public function insertUuidsIntoRegistry(&$batchUuids)
+    public function insertUuidsIntoRegistry($batchUuids)
     {
         $count = count($batchUuids);
         $sql = "INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES ";
