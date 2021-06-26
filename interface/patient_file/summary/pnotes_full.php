@@ -225,11 +225,15 @@ $(function () {
     // load divs
 
     // I can't find a reason to load this!
-    /*$("#stats_div").load("stats.php",
+    // @todo Brady I had this commented from when I did the demo cleanup.
+    // now I'm unsure even though stats is loaded elsewhere in demo loading,it may be used
+    // in pnotes when loaded elsewhere. Not even sure what the script is for!
+    // I put back however, i'm still unsure that it doesn't cause conflict in demo being loaded twice.
+    $("#stats_div").load("stats.php",
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
-    );*/
+    );
 
     $("#notes_div").load("pnotes_fragment.php",
         {
