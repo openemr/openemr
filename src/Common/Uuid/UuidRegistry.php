@@ -35,8 +35,6 @@ use Ramsey\Uuid\Uuid;
 class UuidRegistry
 {
 
-    // Maximum tries to create a unique uuid before failing (this should never happen)
-    const MAX_TRIES = 100;
     const UUID_MAX_BATCH_COUNT = 1000;
 
     private $table_name;      // table to check if uuid has already been used in
@@ -75,49 +73,11 @@ class UuidRegistry
      */
     public function createUuid()
     {
-        $isUnique = false;
-        $i = 0;
-        while (!$isUnique) {
-            $i++;
-            if ($i > 1) {
-                // There was a uuid creation collision, so need to try again.
-                error_log("OpenEMR Warning: There was a collision when creating a unique UUID. This is try number " . $i . ". Will try again.");
-            }
-            if ($i > self::MAX_TRIES) {
-                // This error should never happen. If so, then the random generation of the
-                //  OS is compromised and no use continuing to run OpenEMR.
-                error_log("OpenEMR Error: Unable to create a unique UUID");
-                exit;
-            }
-
-            // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
-            //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
-            //  reference:
-            //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
-            $uuid = $this->getUUIDBatch(1)[0];
-
-            // Check to ensure uuid is unique in uuid_registry (unless $this->disable_tracker is set to true)
-            if (!$this->disable_tracker) {
-                $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
-            }
-            if (empty($checkUniqueRegistry)) {
-                if (!empty($this->table_name)) {
-                    // If using $this->table_name, then ensure uuid is unique in that table
-                    $checkUniqueTable = sqlQueryNoLog("SELECT * FROM `" . $this->table_name . "` WHERE `uuid` = ?", [$uuid]);
-                    if (empty($checkUniqueTable)) {
-                        $isUnique = true;
-                    }
-                } elseif ($this->document_drive === 1) {
-                    // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
-                    $checkUniqueTable = sqlQueryNoLog("SELECT * FROM `documents` WHERE `drive_uuid` = ?", [$uuid]);
-                    if (empty($checkUniqueTable)) {
-                        $isUnique = true;
-                    }
-                } else {
-                    $isUnique = true;
-                }
-            }
-        }
+        // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
+        //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
+        //  reference:
+        //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
+        $uuid = $this->getUnusedUuidBatch(1)[0];
 
         // Insert the uuid into uuid_registry (unless $this->disable_tracker is set to true)
         if (!$this->disable_tracker) {
@@ -289,11 +249,11 @@ class UuidRegistry
                 $dbUUIDs =  QueryUtils::fetchRecordsNoLog("SELECT `uuid` FROM `" . $this->table_name . "` WHERE " . $sqlWhere, $uuids);
             } elseif ($this->document_drive === 1) {
                 $sqlColumns = array_map(function ($u) {
-                    return '`uuid` = ?';
+                    return '`drive_uuid` = ?';
                 }, $uuids);
                 $sqlWhere = implode(" OR ", $sqlColumns);
                 // If using for document labeling on drive, then ensure drive_uuid is unique in documents table
-                $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `drive_uuid` FROM `documents` WHERE " . $sqlWhere, $uuids);
+                $dbUUIDs = QueryUtils::fetchRecordsNoLog("SELECT `drive_uuid` as `uuid` FROM `documents` WHERE " . $sqlWhere, $uuids);
             }
         }
 
@@ -302,14 +262,11 @@ class UuidRegistry
         if ($count <= 0) {
             return $uuids;
         }
-        $newGenLimit = $limit;
-        if ($count < $limit) {
-            $newGenLimit = $limit - $count;
-        }
+
         // generate some new uuids since we had duplicates... which should never happen... but we have this here in
         // case we do
-        $outstanding = $this->getUnusedUuidBatch($newGenLimit);
-        return array_merge($dbUUIDs, $outstanding);
+        error_log("OpenEMR Warning: There was a collision when creating a unique UUID. Will try again.");
+        return $this->getUnusedUuidBatch($limit);
     }
 
     private function createMissingUuidsForTableWithId()
