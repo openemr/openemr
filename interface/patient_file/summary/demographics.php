@@ -425,7 +425,23 @@ require_once("$srcdir/options.js.php");
 
         // load divs
         placeHtml("stats.php", "stats_div", true);
-        placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+        placeHtml("pnotes_fragment.php", 'pnotes_ps_expand').then(() => {
+            // must be delegated event!
+            $(this).on("click", ".complete_btn", function(){
+                let btn = $(this);
+                let csrf = new FormData;
+                csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
+                    {
+                    method: "POST",
+                    credentials: 'same-origin',
+                    body: csrf
+                })
+                .then(function() {
+                    placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+                });
+            });
+        });
         placeHtml("disc_fragment.php", "disclosures_ps_expand");
         placeHtml("labdata_fragment.php", "labdata_ps_expand");
         placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
