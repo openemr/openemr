@@ -109,7 +109,7 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id,
             addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
@@ -1812,4 +1812,19 @@ function is_patient_deceased($pid, $date = '')
 
         return $results;
     }
+}
+
+function hasDownSyndrome($pid)
+{
+
+    $sql = "Select * from lists where pid = ? and type = 'medical_problem' and diagnosis like '%Q90.9%'";
+    $res = sqlStatement($sql, array($pid));
+
+    if ( sqlNumRows($res) > 0 ) {
+        return true;
+
+    } else {
+        return false;
+    }
+
 }
