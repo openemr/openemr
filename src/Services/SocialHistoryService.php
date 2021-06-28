@@ -25,7 +25,7 @@ class SocialHistoryService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createMissingUuids();
+        (new UuidRegistry(['table_name' => self::TABLE_NAME, 'table_vertical' => ['pid']]))->createMissingUuids();
     }
 
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
@@ -190,10 +190,6 @@ class SocialHistoryService extends BaseService
             }, array_keys($record)));
         }
         return QueryUtils::sqlInsert($sql, $arraySqlBind);
-    }
-
-    public function save()
-    {
     }
 
     function getUuidFields(): array
