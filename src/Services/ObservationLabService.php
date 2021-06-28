@@ -22,6 +22,7 @@ use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use Ramsey\Uuid\UuidFactory;
 
 class ObservationLabService extends BaseService
 {
@@ -52,7 +53,7 @@ class ObservationLabService extends BaseService
 
     private function getSampleLaboratoryResults()
     {
-        $factory = new \Ramsey\Uuid\UuidFactory();
+        $factory = new UuidFactory();
         $uuid = $factory->uuid4()->toString();
         $processingResult = new ProcessingResult();
         $data = [
