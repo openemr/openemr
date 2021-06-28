@@ -70,6 +70,11 @@ endforeach;
                 document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
                 document.getElementById("care_plan_type_" + rowid1[1]).value = '';
                 document.getElementById("user_" + rowid1[1]).value = '';
+                if (typeof doTemplateEditor !== 'undefined') {
+                    document.getElementById("description_" + rowid1[1]).addEventListener('dblclick', event => {
+                        doTemplateEditor(this, event, event.target.dataset.textcontext);
+                    })
+                }
             }
 
             function changeIds(class_val) {
@@ -133,6 +138,7 @@ endforeach;
                                 <?php
                                 if (!empty($check_res)) {
                                     foreach ($check_res as $key => $obj) {
+                                        $context = "";
                                         ?>
                                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                                         <div class="form-row">
@@ -153,25 +159,31 @@ endforeach;
                                                     <option value=""></option>
                                                     <?php foreach ($care_plan_type as $value) :
                                                         $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
+                                                        if (!empty($selected)) {
+                                                            $context = $value['title'];
+                                                        }
                                                         ?>
                                                         <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                                                     <?php endforeach;?>
                                                     </select>
                                             </div>
-                                            <div class="forms col-md-4">
+                                            <div class="forms col-md-6">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
+                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="forms col-md-2">
-                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                    <?php echo xlt('Add'); ?>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                    <?php echo xlt('Delete'); ?>
-                                                </button>
+                                            <div class="form-row w-100 mt-2 text-center">
+                                                <div class="forms col-md-12">
+                                                    <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                                        <?php echo xlt('Add'); ?>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                        <?php echo xlt('Delete'); ?>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
                                             </div>
-                                            <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
                                         </div>
+                                        <hr />
                                     </div>
                                 <?php }
                                 } else {  ?>
@@ -179,7 +191,7 @@ endforeach;
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.parentElement.id);'>
                                                 <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
@@ -199,19 +211,22 @@ endforeach;
                                                     <?php endforeach;?>
                                                 </select>
                                             </div>
-                                            <div class="forms col-md-4">
+                                            <div class="forms col-md-6">
                                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj["description"] ?? ''); ?></textarea>
+                                                <textarea name="description[]"  id="description_1" data-textcontext="" class="form-control description" rows="6" ><?php echo text($obj["description"] ?? ''); ?></textarea>
                                             </div>
-                                            <div class="forms col-md-2">
-                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                    <?php echo xlt('Add'); ?>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-delete btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                    <?php echo xlt('Delete'); ?>
-                                                </button>
+                                            <div class="form-row w-100 mt-2 text-center">
+                                                <div class="forms col-md-12">
+                                                    <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                                        <?php echo xlt('Add'); ?>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-delete btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                        <?php echo xlt('Delete'); ?>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
                                             </div>
-                                            <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
+                                            <hr />
                                         </div>
                                     </div>
                                 <?php } ?>

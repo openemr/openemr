@@ -35,11 +35,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // mdsupport : li code
-function listitemCode($strDisp, $strInsert)
+function listitemCode($strDisp, $strInsert, $ref = '')
 {
     if ($strInsert) {
+        if (!empty($ref)) {
+            $id = text($ref);
+            $ref = " {|$id|}";
+        }
         echo '<li><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
-             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></li>';
+             "'" . text($strInsert) . $ref . "'" . ');">' . text($strDisp) . '</a></li>';
     }
 }
 
@@ -258,14 +262,17 @@ if (empty($isNN) && empty($rowContext)) {
                                 </li>
                                 <?php
                                 foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
-                                    $res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
+                                    $res = sqlStatement('SELECT title, id, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
                                     if (sqlNumRows($res)) { ?>
                                     <li>
                                         <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
                                         <ul>
                                             <?php
                                             while ($row = sqlFetchArray($res)) {
-                                                listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']));
+                                                if (!empty($isNN)) {
+                                                    $row['id'] = "";
+                                                }
+                                                listitemCode((strlen($row['title']) > 20) ? (substr($row['title'], 0, 18) . '..') : $row['title'], ($row['title'] . $row['codes']), $row['id']);
                                             }
                                             ?>
                                         </ul>

@@ -169,19 +169,6 @@ foreach ($msgs as $i) {
             $('#cardgroup').on('show.bs.collapse', '.collapse', function () {
                 $('#cardgroup').find('.collapse.show').collapse('hide');
             });
-
-            $("[data-toggle='pill']").on("click", function (e) {
-                e.preventDefault();
-                // don't toggle if already active.
-                if ($(this).hasClass('active')) {
-                    return false;
-                }
-                $(".nav-item").removeClass("active");
-                let canHide = $(".navbar-toggler-icon").is(":visible");
-                if (canHide) {
-                    $("[data-toggle='sidebar-offcanvas']").click();
-                }
-            });
             $('#popwait').addClass('d-none');
             $('#callccda').click(function () {
                 $('#popwait').removeClass('d-none');
@@ -340,13 +327,13 @@ foreach ($msgs as $i) {
 
 <body class="fixed">
     <header class="header">
-        <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
+        <nav class="navbar fixed-top navbar-light bg-light">
             <div class="container-fluid">
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
                 </a>
                 <!-- Sidebar toggle button-->
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
                 </button>
                 <ul class="nav navbar-nav flex-row sticky-top">
                     <li class="nav-item dropdown">
@@ -391,7 +378,7 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3 border-right bg-secondary" id="left-collapse">
+        <aside class="left-side sidebar-offcanvas collapse mt-3 border-right bg-secondary show" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <ul class="nav nav-pills flex-column sticky-top text-dark">

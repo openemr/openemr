@@ -187,7 +187,7 @@ if ($this->exclude) {
                     <div class="controls inline-inputs">
                     <?php
                   # Generate drop down list for Marital Status
-                    echo generate_select_list('status', 'marital', $row['marital'], xl('Marital Status'), 'Unassigned', "form-control");
+                    echo generate_select_list('status', 'marital', $row['status'], xl('Marital Status'), 'Unassigned', "form-control");
                     ?>
                     <span class="help-inline"></span>
                     </div>

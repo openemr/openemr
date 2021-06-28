@@ -157,7 +157,7 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid position-fixed">
+    <div class="container-fluid sticky-top">
         <div class="input-group bg-white">
             <div class="input-group-prepend">
                 <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
@@ -190,7 +190,7 @@ function get_history_codes($pid)
         </div>
     </div>
     <div class="container-fluid">
-        <div class="table-responsive mt-5">
+        <div class="table-responsive mt-1">
             <table class="table table-sm table-hover" id="historyTable">
                 <thead>
                     <tr>

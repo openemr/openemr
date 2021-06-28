@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
     <meta name="author" content="Dashboard | sjpadgett@gmail.com" />
 
     <?php
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    Header::setupHeader(['datetime-picker']);
     echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
