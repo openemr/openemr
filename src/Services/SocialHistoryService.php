@@ -169,7 +169,7 @@ class SocialHistoryService extends BaseService
         return $this->insertRecord($record);
     }
 
-    private function getUuidRegistry() : UuidRegistry
+    private function getUuidRegistry(): UuidRegistry
     {
         return new UuidRegistry(['table_name' => self::TABLE_NAME, 'table_vertical' => ['pid', 'date']]);
     }
