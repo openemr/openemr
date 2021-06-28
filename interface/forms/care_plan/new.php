@@ -101,7 +101,7 @@ endforeach;
                 id = id.split('tb_row_');
                 var checkId = '_' + id[1];
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4,RXCUI', '_blank', 700, 400);
             }
 
             function set_related(codetype, code, selector, codedesc) {
@@ -169,7 +169,7 @@ endforeach;
                                             </div>
                                             <div class="forms col-md-6">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6" ><?php echo text($obj["description"]); ?></textarea>
+                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo text($context); ?>" class="form-control description" rows="6" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
                                             <div class="form-row w-100 mt-2 text-center">
                                                 <div class="forms col-md-12">
