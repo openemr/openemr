@@ -224,7 +224,7 @@ class UuidRegistry
      * @param int $limit
      * @return array
      */
-    public function getUnusedUuidBatch($limit = 10)
+    private function getUnusedUuidBatch($limit = 10)
     {
         if ($limit <= 0) {
             return [];
@@ -416,7 +416,7 @@ class UuidRegistry
      * Given a batch of UUIDs it inserts them into the uuid registry.
      * @param $batchUuids
      */
-    public function insertUuidsIntoRegistry($batchUuids)
+    private function insertUuidsIntoRegistry($batchUuids)
     {
         $count = count($batchUuids);
         $sql = "INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES ";
