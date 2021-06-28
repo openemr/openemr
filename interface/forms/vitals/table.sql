@@ -25,5 +25,6 @@ CREATE TABLE IF NOT EXISTS `form_vitals` (
 `ped_weight_height` FLOAT(4,1)      DEFAULT '0.00' NULL,
 `ped_bmi`           FLOAT(4,1)      DEFAULT '0.00' NULL,
 `ped_head_circ`     FLOAT(4,1)      DEFAULT '0.00' NULL,
-PRIMARY KEY (id)
+PRIMARY KEY (id),
+UNIQUE KEY `uuid` (uuid)
 ) ENGINE=InnoDB;
