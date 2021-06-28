@@ -443,7 +443,7 @@ if (!empty($row['lab_id'])) {
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
-            throw new(sprintf('Directory "%s" was not created', $log_file));
+            throw new Exception(sprintf('Directory "%s" was not created', $log_file));
         }
     }
 // filename
