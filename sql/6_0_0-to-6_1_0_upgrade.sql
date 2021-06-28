@@ -767,7 +767,7 @@ ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 CREATE INDEX `uuid` ON `history_data` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate history_data
+#IfUuidNeedUpdateVertical history_data pid:date
 #EndIf
 
 #IfMissingColumn form_clinical_notes form_id

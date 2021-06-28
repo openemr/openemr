@@ -25,7 +25,7 @@ class SocialHistoryService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        (new UuidRegistry(['table_name' => self::TABLE_NAME, 'table_vertical' => ['pid']]))->createMissingUuids();
+        $this->getUuidRegistry()->createMissingUuids();
     }
 
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
@@ -79,7 +79,8 @@ class SocialHistoryService extends BaseService
                 ,patients.pid
                 ,patients.puuid
             FROM
-            history_data history
+            (
+             SELECT idhistory_data history
             LEFT JOIN
             (
                 SELECT 
@@ -165,9 +166,12 @@ class SocialHistoryService extends BaseService
         if (!is_array($record)) {
             throw new \InvalidArgumentException("argument must be a valid array");
         }
-        $uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
-        $record['uuid'] = $uuid;
         return $this->insertRecord($record);
+    }
+
+    private function getUuidRegistry() : UuidRegistry
+    {
+        return new UuidRegistry(['table_name' => self::TABLE_NAME, 'table_vertical' => ['pid', 'date']]);
     }
 
     private function insertRecord($record)
@@ -176,7 +180,7 @@ class SocialHistoryService extends BaseService
         if (!is_numeric($pid)) {
             throw new \InvalidArgumentException("pid must be a valid number");
         }
-        $uuid = $record['uuid'] ?? (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
+        $uuid = $this->getUuidRegistry()->createUuid();
         $sql = "insert into history_data set pid = ?, date = NOW(), uuid = ? ";
         $arraySqlBind = [$pid, $uuid];
 
