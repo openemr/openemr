@@ -65,7 +65,7 @@ class C_InsuranceCompany extends Controller
             $this->icompanies[0] = new InsuranceCompany();
         }
 
-        $this::populate_object($this->icompanies[0]);
+        self::populate_object($this->icompanies[0]);
 
         $this->icompanies[0]->persist();
         $this->icompanies[0]->populate();
