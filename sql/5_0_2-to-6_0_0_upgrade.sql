@@ -581,6 +581,10 @@ ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
 #EndIf
 
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfUuidNeedUpdate patient_data
 #EndIf
 
@@ -689,10 +693,6 @@ CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
 #IfUuidNeedUpdate users
-#EndIf
-
-#IfMissingColumn uuid_registry table_vertical
-ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
 #IfMissingColumn facility_user_ids uuid
