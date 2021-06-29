@@ -35,6 +35,7 @@ $code_des = $_POST["description"];
 $count = $_POST["count"];
 $care_plan_type = $_POST['care_plan_type'];
 $care_plan_user = $_POST["user"];
+$note_relations = "";
 
 if ($id && $id != 0) {
     sqlStatement("DELETE FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
@@ -59,6 +60,7 @@ if (!empty($count)) {
         $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
         $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
         $care_user_val = $care_plan_user[$key] ?: $_SESSION["authUser"];
+        $note_relations = parse_note($description_val);
         $sets = "id = ?,
             pid = ?,
             groupname = ?,
@@ -70,7 +72,8 @@ if (!empty($count)) {
             codetext = ?,
             description = ?,
             date =  ?,
-            care_plan_type = ?";
+            care_plan_type = ?,
+            note_related_to = ?";
         sqlStatement(
             "INSERT INTO form_care_plan SET " . $sets,
             [
@@ -84,7 +87,8 @@ if (!empty($count)) {
                 $codetext_val,
                 $description_val,
                 $code_date[$key],
-                $care_plan_type_val
+                $care_plan_type_val,
+                $note_relations
             ]
         );
     endforeach;
@@ -93,3 +97,9 @@ if (!empty($count)) {
 formHeader("Redirecting....");
 formJump();
 formFooter();
+
+function parse_note($note)
+{
+    $result = preg_match_all("/\{\|([^\]]*)\|}/", $note, $matches);
+    return json_encode($matches[1]);
+}

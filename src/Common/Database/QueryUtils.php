@@ -14,6 +14,26 @@ namespace OpenEMR\Common\Database;
 
 class QueryUtils
 {
+
+    public static function fetchRecordsNoLog($sqlStatement, $binds)
+    {
+        // Below line is to avoid a nasty bug in windows.
+        if (empty($binds)) {
+            $binds = false;
+        }
+
+        $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($sqlStatement, $binds);
+
+        if ($recordset === false) {
+            throw new SqlQueryException($sqlStatement, "Failed to execute statement. Error: "
+                . getSqlLastError() . " Statement: " . $sqlStatement);
+        }
+        $list = [];
+        while ($record = sqlFetchArray($recordset)) {
+            $list[] = $record;
+        }
+        return $list;
+    }
     /**
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
      * @param $sqlStatement

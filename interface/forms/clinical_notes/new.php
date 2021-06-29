@@ -70,6 +70,11 @@ foreach ($result as $value) {
             document.getElementById("code_date_" + rowid1[1]).value = '';
             document.getElementById("clinical_notes_type_" + rowid1[1]).value = '';
             document.getElementById("user_" + rowid1[1]).value = '';
+            if (typeof doTemplateEditor !== 'undefined') {
+                document.getElementById("description_" + rowid1[1]).addEventListener('dblclick', event => {
+                    doTemplateEditor(this, event, event.target.dataset.textcontext);
+                })
+            }
         }
 
         function changeIds(class_val) {
@@ -175,8 +180,8 @@ foreach ($result as $value) {
                                         </div>
                                         <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
                                     </div>
-                        </div>
-                            </fieldset>
+                            </div>
+                        </fieldset>
                     </div>
                     <hr />
                         <?php }
