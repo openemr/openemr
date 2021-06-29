@@ -690,7 +690,7 @@ ALTER TABLE `form_care_plan` ADD `note_related_to` TEXT COMMENT 'Reference to li
 
 #IfNotTable insurance_type_codes
 CREATE TABLE `insurance_type_codes` (
-  `id` int(2) NOT NULL default '0',
+  `id` int(2) NOT NULL,
   `type` varchar(60) NOT NULL,
   `claim_type` text,
   PRIMARY KEY (`id`)
