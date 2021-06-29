@@ -561,16 +561,20 @@ CREATE TABLE `uuid_registry` (
 ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfMissingColumn uuid_registry couchdb
 ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
-#IfMissingColumn uuid_registry mapped
-ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
-#EndIf
-
 #IfMissingColumn uuid_registry document_drive
 ALTER TABLE `uuid_registry` ADD `document_drive` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn uuid_registry mapped
+ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -689,10 +693,6 @@ CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
 #IfUuidNeedUpdate users
-#EndIf
-
-#IfMissingColumn uuid_registry table_vertical
-ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
 #IfMissingColumn facility_user_ids uuid
