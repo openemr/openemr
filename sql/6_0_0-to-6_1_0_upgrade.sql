@@ -817,6 +817,19 @@ ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(1
 UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
 #EndIf
 
+#IfMissingColumn procedure_report uuid
+ALTER TABLE `procedure_report` ADD `uuid` binary(16) DEFAULT NULL AFTER `procedure_report_id`;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_report procedure_report_id
+#EndIf
+
+#IfMissingColumn procedure_providers uuid
+ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid`;
+#EndIf
+
+#IfUuidNeedUpdateId procedure_providers ppid
+#EndIf
 #IfMissingColumn patient_data dupscore
 ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
 #EndIf

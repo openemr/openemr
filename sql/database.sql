@@ -8891,6 +8891,7 @@ CREATE TABLE gprelations (
 DROP TABLE IF EXISTS `procedure_providers`;
 CREATE TABLE `procedure_providers` (
   `ppid`         bigint(20)   NOT NULL auto_increment,
+  `uuid`         binary(16)   DEFAULT NULL,
   `name`         varchar(255) NOT NULL DEFAULT '',
   `npi`          varchar(15)  NOT NULL DEFAULT '',
   `send_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
@@ -9057,6 +9058,7 @@ CREATE TABLE `procedure_answers` (
 DROP TABLE IF EXISTS `procedure_report`;
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)     DEFAULT NULL,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
