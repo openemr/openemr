@@ -809,7 +809,7 @@ VALUES
 #EndIf
 
 #IfMissingColumn form_clinical_notes clinical_notes_category
-ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL AFTER `clinical_notes_type`;
+ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL;
 #EndIf
 
 
