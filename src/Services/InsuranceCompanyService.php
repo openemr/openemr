@@ -22,6 +22,7 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Validators\InsuranceValidator;
+use OpenEMR\Common\Database\QueryUtils;
 
 class InsuranceCompanyService extends BaseService
 {
@@ -51,7 +52,6 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sqlBindArray = array();
         $sql  = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
@@ -74,7 +74,7 @@ class InsuranceCompanyService extends BaseService
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
-            sqlStatementThrowException($sql, $whereFragment->getBoundValues());
+            $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
 
             if (!empty($records)) {
                 foreach ($records as $row) {
@@ -159,7 +159,7 @@ class InsuranceCompanyService extends BaseService
         return sqlQuery($sql, array($id));
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid)  : ProcessingResult
     {
         return $this->getAll(['uuid' => $uuid]);
     }

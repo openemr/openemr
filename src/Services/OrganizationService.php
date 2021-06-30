@@ -1,7 +1,7 @@
 <?php
 
 /**
- * InsuranceService
+ * OrganizationService -- TODO: this is almost a FHIR construct and perhaps should be moved up to the FHIR service layer
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -15,11 +15,14 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class OrganizationService extends BaseService
 {
 
+    const ORGANIZATION_TYPE_FACILITY  ="facility";
+    const ORGANIZATION_TYPE_INSURANCE = 'insurance';
     /**
      * @var \OpenEMR\Services\FacilityService
      */
@@ -31,20 +34,35 @@ class OrganizationService extends BaseService
     private $insuranceService;
 
     /**
+     * @var BaseService[]
+     */
+    private $services;
+
+    /**
      * Default constructor.
      */
     public function __construct()
     {
         $this->facilityService = new FacilityService();
         $this->insuranceService = new InsuranceCompanyService();
+        $this->services = [$this->facilityService, $this->insuranceService, new ProcedureProviderService()];
     }
 
 
     public function getOne($uuid)
     {
-        $facilityResult = $this->facilityService->getOne($uuid);
-        $insuranceResult = $this->insuranceService->getOne($uuid);
-        return $this->processResults($facilityResult, $insuranceResult);
+        $searchParams = ['uuid' => new TokenSearchValue($uuid, null, true)];
+        foreach($this->services as $service) {
+            $result = $service->search($searchParams);
+            $this->processResultsForService($service);
+            if ($result->hasErrors())
+            {
+                return $result;
+            } else if (!empty($result->getData()))
+            {
+                return $this->processResultsForService($result, $service);
+            }
+        }
     }
 
     /**
@@ -63,6 +81,18 @@ class OrganizationService extends BaseService
         return null;
     }
 
+    private function getProcedureProviderOrg($records)
+    {
+        $providerRecords = array();
+        foreach ($records as $index => $org) {
+            $org['orgType'] = "procedureProvider";
+            $org['facility_npi'] = $org['npi'];
+            $org['active'] = $org['active'] == '1';
+            array_push($providerRecords, $org);
+        }
+        return $providerRecords;
+    }
+
     private function getFacilityOrg($facilityRecords)
     {
         $facilityOrgs = array();
@@ -70,7 +100,8 @@ class OrganizationService extends BaseService
             if (isset($org['street'])) {
                 $org['line1'] = $org['street'];
             }
-            $org['orgType'] = "facility";
+            $org['orgType'] = self::ORGANIZATION_TYPE_FACILITY;
+            $org['active'] = $org['service_location'] == '1';
             array_push($facilityOrgs, $org);
         }
         return $facilityOrgs;
@@ -89,31 +120,32 @@ class OrganizationService extends BaseService
             if (isset($org['country'])) {
                 $org['country_code'] = $org['country'];
             }
-            $org['orgType'] = "insurance";
+            $org['orgType'] = self::ORGANIZATION_TYPE_INSURANCE;
             // TODO: @adunsulag check with code reviewers to make sure this is the right value for an insurance org
             // since the callers of this service are 'viewing' an organization which is a facade over insurance & facility
             // we need to make sure both records have the same column.
             $org['service_location'] = 0;
+            $org['active'] = $org['inactive'] !== '1';
             array_push($insuranceOrgs, $org);
         }
         return $insuranceOrgs;
     }
 
-    private function processResults($facilityResult, $insuranceResult)
+    private function processResultsForService(ProcessingResult $result, BaseService $service)
     {
-        $processingResult = new ProcessingResult();
-        $facilityOrgs = $this->getFacilityOrg($facilityResult->getData());
-        $insuranceOrgs = $this->getInsuranceOrg($insuranceResult->getData());
-        $OrgRecords = array_merge($facilityOrgs, $insuranceOrgs);
-        if (count($OrgRecords) > 0) {
-            $processingResult->setData($OrgRecords);
+        $newResult = new ProcessingResult();
+        if ($service instanceof FacilityService)
+        {
+            $newResult->setData($this->getFacilityOrg($result->getData()));
+        } else if ($service instanceof InsuranceCompanyService)
+        {
+            $newResult->setData($this->getInsuranceOrg($result->getData()));
+        } else if ($service instanceof ProcedureProviderService) {
+            $newResult->setData($this->getProcedureProviderOrg($result->getData()));
         } else {
-            $processingResult->setValidationMessages(array_merge($insuranceResult->getValidationMessages(), $facilityResult->getValidationMessages()));
-            $processingResult->setInternalErrors(array_merge($insuranceResult->getInternalErrors(), $facilityResult->getInternalErrors()));
+            $newResult->addInternalError("Unsupported organization type found");
         }
-
-
-        return $processingResult;
+        return $newResult;
     }
 
     public function getPrimaryBusinessEntity()
@@ -123,9 +155,21 @@ class OrganizationService extends BaseService
 
     public function search($search = array(), $isAndCondition = true)
     {
-        $facilityResult = $this->facilityService->search($search, $isAndCondition);
-        $insuranceResult = $this->insuranceService->search($search, $isAndCondition);
-        return $this->processResults($facilityResult, $insuranceResult);
+        $combinedResult = new ProcessingResult();
+        foreach ($this->services as $service)
+        {
+            $result = $service->search($search, $isAndCondition);
+            if ($result->hasErrors())
+            {
+                return $result;
+            }
+            else
+            {
+                $transformedResult = $this->processResultsForService($result, $service);
+                $combinedResult->addProcessingResult($transformedResult);
+            }
+        }
+        return $combinedResult;
     }
 
     public function getAll($search = array(), $isAndCondition = true)
@@ -142,14 +186,15 @@ class OrganizationService extends BaseService
      */
     public function insert($data)
     {
-        if ($data['orgType'] == 'facility') {
+        if ($data['orgType'] == self::ORGANIZATION_TYPE_FACILITY) {
             $data = $this->prepareFacilitydata($data);
             return $this->facilityService->insert($data);
         }
-        if ($data['orgType'] == 'insurance') {
+        if ($data['orgType'] == self::ORGANIZATION_TYPE_INSURANCE) {
             $data = $this->prepareInsurancedata($data);
             return $this->insuranceService->insert($data);
         }
+        // TODO: do we want to allow inserting of procedure provider?
     }
 
     /**
@@ -168,26 +213,19 @@ class OrganizationService extends BaseService
             return $processingResult;
         }
 
-        if ($data['orgType'] == 'facility') {
-            $data = $this->prepareFacilitydata($data);
+        if ($data['orgType'] == self::ORGANIZATION_TYPE_FACILITY) {
+            $data = $this->prepareData($data);
             return $this->facilityService->update($uuid, $data);
         }
-        if ($data['orgType'] == 'insurance') {
-            $data = $this->prepareInsurancedata($data);
+        if ($data['orgType'] == self::ORGANIZATION_TYPE_INSURANCE) {
+            $data = $this->prepareData($data);
             return $this->insuranceService->update($uuid, $data);
         }
     }
 
-    private function prepareFacilitydata($data)
+    private function prepareData($data)
     {
         //For now return the data -- make modification based on how the Organization data is structured
-        unset($data['orgType']);
-        return $data;
-    }
-
-    private function prepareInsurancedata($data)
-    {
-    //For now return the data -- make modification based on how the Organization data is structured
         unset($data['orgType']);
         return $data;
     }

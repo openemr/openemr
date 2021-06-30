@@ -344,7 +344,7 @@ class FacilityService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid) : ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $isValid = $this->facilityValidator->validateId('uuid', self::FACILITY_TABLE, $uuid, true);

@@ -87,7 +87,7 @@ class FhirOrganizationService extends FhirServiceBase
         $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
         $organizationResource->setMeta($meta);
 
-        $organizationResource->setActive($dataRecord['service_location'] == "1" ? true : false);
+        $organizationResource->setActive($dataRecord['active'] === true);
 
         $narrativeText = '';
         if (isset($dataRecord['name'])) {
@@ -156,7 +156,7 @@ class FhirOrganizationService extends FhirServiceBase
             $orgType = new FHIRCodeableConcept();
             $type = new FHIRCoding();
             $type->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
-            if ($dataRecord['orgType'] == 'facility') {
+            if ($dataRecord['orgType'] == 'facility' || $dataRecord['orgType'] == 'procedureProvider') {
                 $type->setCode("prov");
             }
             if ($dataRecord['orgType'] == 'insurance') {
