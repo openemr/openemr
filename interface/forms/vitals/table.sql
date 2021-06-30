@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS `form_vitals` (
 `waist_circ`        FLOAT(5,2)      default 0,
 `head_circ`         FLOAT(4,2)      default 0,
 `oxygen_saturation` FLOAT(5,2)      default 0,
-`oxygen_flow_rate`  FLOAT(5,2)      DEFAULT '0.00' NULL,
-`ped_weight_height` FLOAT(4,1)      DEFAULT '0.00' NULL,
-`ped_bmi`           FLOAT(4,1)      DEFAULT '0.00' NULL,
-`ped_head_circ`     FLOAT(4,1)      DEFAULT '0.00' NULL,
+`oxygen_flow_rate`  FLOAT(5,2)      DEFAULT '0.00',
+`ped_weight_height` FLOAT(4,1)      DEFAULT '0.00',
+`ped_bmi`           FLOAT(4,1)      DEFAULT '0.00',
+`ped_head_circ`     FLOAT(4,1)      DEFAULT '0.00',
 PRIMARY KEY (id),
 UNIQUE KEY `uuid` (uuid)
 ) ENGINE=InnoDB;
