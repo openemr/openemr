@@ -67,6 +67,7 @@ class SocialHistoryService extends BaseService
 
     public function search($search, $isAndCondition = true, $limit = null)
     {
+        // history_data contains a table record for every single insert into the database
         $sql = "
             SELECT 
                 history.id
@@ -79,8 +80,15 @@ class SocialHistoryService extends BaseService
                 ,patients.pid
                 ,patients.puuid
             FROM
+            history_data history
+            JOIN
             (
-             SELECT idhistory_data history
+             SELECT 
+                    -- we could have this be max date, but this should be fine
+                    max(id) AS id
+                    FROM history_data
+                    GROUP BY pid
+            ) latest_history_records ON history.id = latest_history_records.id
             LEFT JOIN
             (
                 SELECT 
@@ -171,7 +179,7 @@ class SocialHistoryService extends BaseService
 
     private function getUuidRegistry(): UuidRegistry
     {
-        return new UuidRegistry(['table_name' => self::TABLE_NAME, 'table_vertical' => ['pid', 'date']]);
+        return new UuidRegistry(['table_name' => self::TABLE_NAME]);
     }
 
     private function insertRecord($record)

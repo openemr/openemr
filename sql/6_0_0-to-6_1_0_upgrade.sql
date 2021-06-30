@@ -762,12 +762,10 @@ ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 #EndIf
 
 #IfNotIndex history_data uuid
--- History table uses a historical record data pattern where the same record is duplicated multiple times to retain
--- history, this makes it so the record has the same uuid.  We only index the record instead of keeping it UNIQUE
 CREATE UNIQUE INDEX `uuid` ON `history_data` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateVertical history_data pid:date
+#IfUuidNeedUpdate history_data
 #EndIf
 
 #IfMissingColumn form_clinical_notes form_id
