@@ -39,4 +39,6 @@ class FhirCodeSystemUris
     // @see http://hl7.org/fhir/R4/valueset-formatcodes.html
     // @see https://profiles.ihe.net/fhir/ihe.formatcode.fhir/background.html
     const IHE_FORMATCODE_CODESYSTEM = "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem";
+
+    const DIAGNOSTIC_SERVICE_SECTION_ID = "https://terminology.hl7.org/1.0.0//CodeSystem-v2-0074.html";
 }

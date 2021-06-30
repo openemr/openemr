@@ -23,6 +23,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
+use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportLaboratoryService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -41,7 +42,8 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->addMappedService(new FhirDiagnosticReportClinicalNotesService());
+        $this->addMappedService(new FhirDiagnosticReportClinicalNotesService($fhirApiURL));
+        $this->addMappedService(new FhirDiagnosticReportLaboratoryService($fhirApiURL));
     }
 
     /**
