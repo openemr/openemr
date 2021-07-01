@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
@@ -32,18 +33,36 @@ class UtilsService
         return $reference;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem): FHIRCodeableConcept
+    public static function createQuantity($value, $unit, $code)
     {
-        $diagnosisCoding = new FHIRCoding();
+        $quantity = new FHIRQuantity();
+        $quantity->setCode($code);
+        $quantity->setValue($value);
+        $quantity->setUnit($unit);
+        $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+    }
+
+    public static function createCoding($code, $display, $system): FHIRCoding
+    {
+        if (!is_string($code)) {
+            $code = "$code"; // FHIR expects a string
+        }
+        $coding = new FHIRCoding();
+        $coding->setCode($code);
+        $coding->setDisplay($display);
+        $coding->setSystem($system);
+        return $coding;
+    }
+
+    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem, $defaultDisplay = ""): FHIRCodeableConcept
+    {
         $diagnosisCode = new FHIRCodeableConcept();
         foreach ($diagnosisCodes as $code => $display) {
-            if (!is_string($code)) {
-                $code = "$code"; // FHIR expects a string
+            if (!empty($display)) {
+                $diagnosisCode->addCoding(self::createCoding($code, $display, $codeSystem));
+            } else {
+                $diagnosisCode->addCoding(self::createCoding($code, $defaultDisplay, $codeSystem));
             }
-            $diagnosisCoding->setCode($code);
-            $diagnosisCoding->setDisplay($display);
-            $diagnosisCoding->setSystem($codeSystem);
-            $diagnosisCode->addCoding($diagnosisCoding);
         }
         return $diagnosisCode;
     }
@@ -132,5 +151,10 @@ class UtilsService
             $name->addGiven($dataRecord['mname']);
         }
         return $name;
+    }
+
+    public static function createUnknownCodeableConcept()
+    {
+        return self::createCodeableConcept(['UNK' => 'unknown'], FhirCodeSystemUris::HL7_NULL_FLAVOR);
     }
 }

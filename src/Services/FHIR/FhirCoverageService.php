@@ -129,7 +129,7 @@ class FhirCoverageService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->coverageService->getAll($openEMRSearchParameters, false);
     }

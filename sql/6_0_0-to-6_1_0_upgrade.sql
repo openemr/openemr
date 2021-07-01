@@ -687,3 +687,132 @@ ALTER TABLE `form_clinical_notes` ADD `note_related_to` TEXT COMMENT 'Reference 
 #IfMissingColumn form_care_plan note_related_to
 ALTER TABLE `form_care_plan` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
 #EndIf
+
+#IfNotTable insurance_type_codes
+CREATE TABLE `insurance_type_codes` (
+  `id` int(2) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `claim_type` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
+
+#EndIf
+
+#IfNotColumnTypeDefault insurance_companies alt_cms_id varchar NULL
+ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
+#EndIf
+
+
+#IfMissingColumn form_vitals uuid
+ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_vitals uuid
+CREATE UNIQUE INDEX `uuid` ON `form_vitals` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_vitals
+#EndIf
+
+#IfMissingColumn uuid_mapping resource_path
+ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_vitals ped_weight_height
+ALTER TABLE `form_vitals` ADD `ped_weight_height` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_bmi
+ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_head_circ
+ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn history_data uuid
+ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex history_data uuid
+CREATE UNIQUE INDEX `uuid` ON `history_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate history_data
+#EndIf
+
+#IfMissingColumn form_clinical_notes form_id
+ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
+ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_clinical_notes uuid
+ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_clinical_notes uuid
+CREATE UNIQUE INDEX `uuid` ON `form_clinical_notes` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_clinical_notes
+#EndIf
+
+#IfMissingColumn documents uuid
+ALTER TABLE `documents` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex documents uuid
+CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate documents
+#EndIf
+
+#IfNotRow list_options list_id Clinical_Note_Category
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+       ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+#EndIf
+
+#IfMissingColumn form_clinical_notes clinical_notes_category
+ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL;
+#EndIf
+
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id consultation_note notes LOINC:11488-4
+UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
+#EndIf

@@ -556,7 +556,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         // do any conversions on the data that we need here
 

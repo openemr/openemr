@@ -33,8 +33,8 @@ if (isset($_GET['docUpdateId'])) {
 }
 
 ?>
-<div class='tabContainer' >
-  <div class='tab current' >
+<div class='tabContainer'>
+  <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
     $N = $GLOBALS['num_of_messages_displayed'];
@@ -86,7 +86,7 @@ if (isset($_GET['docUpdateId'])) {
                 $body = $iter['body'];
                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-                echo " <tr class='text' id='" . text($iter['id']) . ">\n";
+                echo " <tr class='text' id=" . text($iter['id']) . ">\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";

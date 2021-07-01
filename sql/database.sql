@@ -1197,6 +1197,7 @@ CREATE TABLE `direct_message_log` (
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16) DEFAULT NULL,
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
@@ -1230,6 +1231,7 @@ CREATE TABLE `documents` (
   `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
@@ -1735,7 +1737,9 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive'
 
 DROP TABLE IF EXISTS `form_clinical_notes`;
 CREATE TABLE `form_clinical_notes` (
-    `id` bigint(20) NOT NULL,
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `form_id` bigint(20) NOT NULL,
+    `uuid` binary(16) DEFAULT NULL,
     `date` DATE DEFAULT NULL,
     `pid` bigint(20) DEFAULT NULL,
     `encounter` varchar(255) DEFAULT NULL,
@@ -1748,7 +1752,10 @@ CREATE TABLE `form_clinical_notes` (
     `description` text,
     `external_id` VARCHAR(30) DEFAULT NULL,
     `clinical_notes_type` varchar(100) DEFAULT NULL,
-    `note_related_to` text
+    `clinical_notes_category` varchar(100) DEFAULT NULL,
+    `note_related_to` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -2166,6 +2173,7 @@ CREATE TABLE `form_soap` (
 DROP TABLE IF EXISTS `form_vitals`;
 CREATE TABLE `form_vitals` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` BINARY(16) DEFAULT NULL,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
   `user` varchar(255) default NULL,
@@ -2188,8 +2196,12 @@ CREATE TABLE `form_vitals` (
   `oxygen_saturation` float(5,2) default '0.00',
   `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `ped_weight_height` float(4,1) default '0.00',
+  `ped_bmi` float(4,1) default '0.00',
+  `ped_head_circ` float(4,1) default '0.00',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -2657,6 +2669,7 @@ CREATE TABLE `groups` (
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `coffee` longtext,
   `tobacco` longtext,
   `alcohol` longtext,
@@ -2746,7 +2759,8 @@ CREATE TABLE `history_data` (
   `userarea11` text,
   `userarea12` text,
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3021,7 +3035,7 @@ CREATE TABLE `insurance_companies` (
   `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
-  `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
+  `alt_cms_id` varchar(15) default NULL,
   `inactive` int(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
@@ -3091,6 +3105,51 @@ CREATE TABLE `insurance_numbers` (
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `insurance_type_codes`
+--
+
+DROP TABLE IF EXISTS `insurance_type_codes`;
+CREATE TABLE `insurance_type_codes` (
+  `id` int(2) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `claim_type` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `insurance_type_codes`
+--
+
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
 
 -- --------------------------------------------------------
 
@@ -8519,6 +8578,7 @@ CREATE TABLE `uuid_mapping` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `resource` varchar(255) NOT NULL DEFAULT '',
+  `resource_path` VARCHAR(255) DEFAULT NULL,
   `table` varchar(255) NOT NULL DEFAULT '',
   `target_uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,
@@ -10737,10 +10797,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','general_note','General Note',40,0,0,'','LOINC:34109-9','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','discharge_summary','Discharge Summary Note',50,0,0,'','LOINC:18842-5','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','procedure_note','Procedure Note',60,0,0,'','LOINC:28570-0','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:81222-2','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:11488-4','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+                           , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+    ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
 
 -- --------------------------------------------------------
 

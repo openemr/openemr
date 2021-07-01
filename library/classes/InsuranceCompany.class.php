@@ -12,34 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-define("INS_TYPE_OTHER_HCFA", 1);
-define("INS_TYPE_MEDICARE", 2);
-define("INS_TYPE_MEDICAID", 3);
-define("INS_TYPE_CHAMPUSVA", 4);
-define("INS_TYPE_CHAMPUS", 5);
-define("INS_TYPE_BCBS", 6);
-define("INS_TYPE_FECA", 7);
-define("INS_TYPE_SELF_PAY", 8);
-define("INS_TYPE_CENTRAL_CERTIFICATION", 9);
-define("INS_TYPE_OTHER_NON-FEDERAL_PROGRAMS", 10);
-define("INS_TYPE_PREFERRED_PROVIDER_ORGANIZATION", 11);
-define("INS_TYPE_POINT_OF_SERVICE", 12);
-define("INS_TYPE_EXCLUSIVE_PROVIDER_ORGANIZATION", 13);
-define("INS_TYPE_INDEMNITY_INSURANCE", 14);
-define("INS_TYPE_HMO_MEDICARE_RISK", 15);
-define("INS_TYPE_AUTOMOBILE_MEDICAL", 16);
-define("INS_TYPE_COMMERCIAL_INSURANCE", 17);
-define("INS_TYPE_DISABILITY", 18);
-define("INS_TYPE_HEALTH_MAINTENANCE_ORGANIZATION", 19);
-define("INS_TYPE_LIABILITY", 20);
-define("INS_TYPE_LIABILITY_MEDICAL", 21);
-define("INS_TYPE_OTHER_FEDERAL_PROGRAM", 22);
-define("INS_TYPE_TITLE_V", 23);
-define("INS_TYPE_VETERANS_ADMINISTRATION_PLAN", 24);
-define("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN", 25);
-define("INS_TYPE_MUTUALLY_DEFINED", 26);
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Services\InsuranceCompanyService;
 
 /**
  * class Insurance Company
@@ -55,88 +29,38 @@ class InsuranceCompany extends ORDataObject
     var $cms_id;
     var $alt_cms_id;
     var $eligibility_id;
-    //this is now deprecated use new x12 partners instead
     var $x12_receiver_id;
     var $x12_default_partner_id;
     var $x12_default_eligibility_id;
     var $inactive;
+    var $InsuranceCompany;
     /*
-    *   OpenEMR used this value to determine special formatting for the specified type of payer.
-    *   This value is a mutually exclusive choice answering the FB.Payer.isX API calls
-    *   It references a set of constant defined in this file INS_TYPE_XXX
-    *   Defaults to type INS_TYPE_OTHER_HCFA
-    *   @var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
+    *   OpenEMR can use this value to determine special formatting for the specified type of payer.
+    *   It is the key to the array returned by the InsuranceCompanyService
+    *   getInsuranceTypes and getInsuranceClaimTypes methods.
+    *   @var int Holds constant for type of payer
     */
     var $ins_type_code;
 
     /*
-    *   Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
-    *   @var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
+    *   Array used to populate select dropdowns or other form elements
+    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
     */
-    var $ins_type_code_array = array('','Other HCFA'
-                                        ,'Medicare Part B'
-                                        ,'Medicaid'
-                                        ,'ChampUSVA'
-                                        ,'ChampUS'
-                                        ,'Blue Cross Blue Shield'
-                                        ,'FECA'
-                                        ,'Self Pay'
-                                        ,'Central Certification'
-                                        ,'Other Non-Federal Programs'
-                                        ,'Preferred Provider Organization (PPO)'
-                                        ,'Point of Service (POS)'
-                                        ,'Exclusive Provider Organization (EPO)'
-                                        ,'Indemnity Insurance'
-                                        ,'Health Maintenance Organization (HMO) Medicare Risk'
-                                        ,'Automobile Medical'
-                                        ,'Commercial Insurance Co.'
-                                        ,'Disability'
-                                        ,'Health Maintenance Organization'
-                                        ,'Liability'
-                                        ,'Liability Medical'
-                                        ,'Other Federal Program'
-                                        ,'Title V'
-                                        ,'Veterans Administration Plan'
-                                        ,'Workers Compensation Health Plan'
-                                        ,'Mutually Defined'
-                                        );
+    var $ins_type_code_array;
 
-    var $ins_claim_type_array = array(''
-                                       ,'16'
-                                       ,'MB'
-                                       ,'MC'
-                                       ,'CH'
-                                       ,'CH'
-                                       ,'BL'
-                                       ,'16'
-                                       ,'09'
-                                       ,'10'
-                                       ,'11'
-                                       ,'12'
-                                       ,'13'
-                                       ,'14'
-                                       ,'15'
-                                       ,'16'
-                                       ,'AM'
-                                       ,'CI'
-                                       ,'DS'
-                                       ,'HM'
-                                       ,'LI'
-                                       ,'LM'
-                                       ,'OF'
-                                       ,'TV'
-                                       ,'VA'
-                                       ,'WC'
-                                       ,'ZZ'
-                                       );
-
+    /*
+    *   Array used with electronic claim submissions and
+    *   corresponds with $ins_type_code_array
+    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
+    */
+    var $ins_claim_type_array;
 
     var $address;
 
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    function __construct($id = "", $prefix = "")
+    public function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
         $this->name = "";
@@ -147,6 +71,9 @@ class InsuranceCompany extends ORDataObject
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
+        $this->InsuranceCompany = new InsuranceCompanyService();
+        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypes();
+        $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
         if ($id != "") {
             $this->populate();
         }
@@ -154,117 +81,117 @@ class InsuranceCompany extends ORDataObject
         $this->X12Partner = new X12Partner();
     }
 
-    function set_id($id = "")
+    public function set_id($id = "")
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
     // special function that the html forms use to prepopulate which allows for partial edits and wizard functionality
-    function set_form_id($id = "")
+    public function set_form_id($id = "")
     {
         if (!empty($id)) {
             $this->populate($id);
         }
     }
 
-    function set_address($aobj)
+    public function set_address($aobj)
     {
         $this->address = $aobj;
     }
-    function get_address()
+    public function get_address()
     {
         return $this->address;
     }
-    function set_address_line1($line)
+    public function set_address_line1($line)
     {
         $this->address->set_line1($line);
     }
-    function set_address_line2($line)
+    public function set_address_line2($line)
     {
         $this->address->set_line2($line);
     }
 
-    function set_city($city)
+    public function set_city($city)
     {
         $this->address->set_city($city);
     }
-    function set_state($state)
+    public function set_state($state)
     {
         $this->address->set_state($state);
     }
-    function set_zip($zip)
+    public function set_zip($zip)
     {
         $this->address->set_zip($zip);
     }
-    function set_inactive($inactive)
+    public function set_inactive($inactive)
     {
         $this->inactive = $inactive;
     }
-    function get_inactive()
+    public function get_inactive()
     {
         return $this->inactive;
     }
-    function set_name($name)
+    public function set_name($name)
     {
         $this->name = $name;
     }
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
-    function set_attn($attn)
+    public function set_attn($attn)
     {
         $this->attn = $attn;
     }
-    function get_attn()
+    public function get_attn()
     {
         return $this->attn;
     }
-    function set_cms_id($id)
+    public function set_cms_id($id)
     {
         $this->cms_id = $id;
     }
-    function get_cms_id()
+    public function get_cms_id()
     {
         return $this->cms_id;
     }
-    function set_alt_cms_id($id)
+    public function set_alt_cms_id($id)
     {
         $this->alt_cms_id = $id;
     }
-    function get_alt_cms_id()
+    public function get_alt_cms_id()
     {
         return $this->alt_cms_id;
     }
-    function set_eligibility_id($id)
+    public function set_eligibility_id($id)
     {
         $this->eligibility_id = $id;
     }
-    function get_eligibility_id()
+    public function get_eligibility_id()
     {
         return $this->eligibility_id;
     }
-    function set_ins_type_code($type)
+    public function set_ins_type_code($type)
     {
         $this->ins_type_code = $type;
     }
-    function get_ins_type_code()
+    public function get_ins_type_code()
     {
         return $this->ins_type_code;
     }
-    function get_ins_type_code_display()
+    public function get_ins_type_code_display()
     {
         return $this->ins_type_code_array[$this->ins_type_code];
     }
-    function get_ins_claim_type()
+    public function get_ins_claim_type()
     {
         return $this->ins_claim_type_array[$this->ins_type_code];
     }
-    function get_phone()
+    public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_WORK) {
@@ -274,7 +201,7 @@ class InsuranceCompany extends ORDataObject
 
         return "";
     }
-    function _set_number($num, $type)
+    public function set_number($num, $type)
     {
         $found = false;
         for ($i = 0; $i < count($this->phone_numbers); $i++) {
@@ -292,17 +219,17 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    function set_phone($phone)
+    public function set_phone($phone)
     {
-        $this->_set_number($phone, TYPE_WORK);
+        $this->set_number($phone, TYPE_WORK);
     }
 
-    function set_fax($fax)
+    public function set_fax($fax)
     {
-        $this->_set_number($fax, TYPE_FAX);
+        $this->set_number($fax, TYPE_FAX);
     }
 
-    function get_fax()
+    public function get_fax()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_FAX) {
@@ -313,58 +240,46 @@ class InsuranceCompany extends ORDataObject
         return "";
     }
 
-    function set_x12_receiver_id($id)
-    {
-        //trigger_error("The set_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
-        $this->x12_receiver_id = $id;
-    }
-
-    function get_x12_receiver_id()
-    {
-        //trigger_error("The get_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
-        return $this->x12_receiver_id;
-    }
-
-    function set_x12_default_partner_id($id)
+    public function set_x12_default_partner_id($id)
     {
         $this->x12_receiver_id = $id;
     }
 
-    function get_x12_default_partner_id()
+    public function get_x12_default_partner_id()
     {
         return $this->x12_receiver_id;
     }
 
-    function get_x12_default_partner_name()
+    public function get_x12_default_partner_name()
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
         return ($xa[$this->get_x12_default_partner_id()] ?? null);
     }
 
-    function set_x12_default_eligibility_id($id)
+    public function set_x12_default_eligibility_id($id)
     {
         $this->x12_default_eligibility_id = $id;
     }
 
-    function get_x12_default_eligibility_id()
+    public function get_x12_default_eligibility_id()
     {
         return $this->x12_default_eligibility_id;
     }
 
-    function get_x12_default_eligibility_name()
+    public function get_x12_default_eligibility_name()
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
         return $xa[$this->get_x12_default_eligibility_id()];
     }
 
-    function populate()
+    public function populate()
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
         $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
     }
 
-    function persist()
+    public function persist()
     {
         parent::persist();
         $this->address->persist($this->id);
@@ -373,25 +288,7 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    function utility_insurance_companies_array()
-    {
-        $pharmacy_array = array();
-        $sql = "SELECT p.id, p.name, a.line1, a.line2, a.city, a.state FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
-        $res = sqlQ($sql);
-        while ($row = sqlFetchArray($res)) {
-                $d_string = $row['city'];
-            if (!empty($row['city']) && $row['state']) {
-                $d_string .= ", ";
-            }
-
-                $d_string .=  $row['state'];
-                $pharmacy_array[strval($row['id'])] = $row['name'] . " " . $d_string;
-        }
-
-        return ($pharmacy_array);
-    }
-
-    function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
+    public function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
     {
         if (empty($city)) {
              $city = "";
@@ -416,7 +313,7 @@ class InsuranceCompany extends ORDataObject
         return $icompanies;
     }
 
-    function toString($html = false)
+    public function toString($html = false)
     {
         $string .= "\n"
         . "ID: " . $this->id . "\n"

@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\Services\Search\ReferenceSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 
 class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
@@ -145,9 +146,10 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         // TODO: Implement searchForOpenEMRRecords() method.
+        return new ProcessingResult();
     }
 
     /**

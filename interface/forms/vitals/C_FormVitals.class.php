@@ -85,6 +85,7 @@ class C_FormVitals extends Controller
         $i = 1;
         while ($result = sqlFetchArray($res)) {
             $results[$i]['id'] = $result['id'];
+            $results[$i]['uuid'] = $result['uuid'];
             $results[$i]['encdate'] = substr($result['encdate'], 0, 10);
             $results[$i]['date'] = $result['date'];
             $results[$i]['activity'] = $result['activity'];
@@ -103,6 +104,9 @@ class C_FormVitals extends Controller
             $results[$i]['head_circ'] = $result['head_circ'];
             $results[$i]['oxygen_saturation'] = $result['oxygen_saturation'];
             $results[$i]['oxygen_flow_rate'] = $result['oxygen_flow_rate'];
+            $results[$i]['ped_weight_height'] = $result['ped_weight_height'];
+            $results[$i]['ped_bmi'] = $result['ped_bmi'];
+            $results[$i]['ped_head_circ'] = $result['ped_head_circ'];
             $i++;
         }
 

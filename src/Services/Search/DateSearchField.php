@@ -169,9 +169,9 @@ class DateSearchField extends BasicSearchField
         }
 
         // seconds
-        if (!empty($matches[5])) {
+        if (!empty($matches[6])) {
             // remove the ':'
-            $seconds = intval(substr($matches[5], 1));
+            $seconds = intval(substr($matches[6], 1));
             $seconds = min([max([$seconds, 0]), 59]);
             $lowerBoundRange['s'] = $seconds;
             $upperBoundRange['s'] = $seconds;

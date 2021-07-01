@@ -18,6 +18,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Immunization Service
@@ -152,7 +153,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!empty($dataRecord['administration_site'])) {
             $doseQuantity = new FHIRQuantity();
             $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem(FhirCodeSystemUris::IMMUNIZATION_UNIT_AMOUNT);
+            $doseQuantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
             $doseQuantity->setCode($dataRecord['amount_administered_unit']);
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
@@ -215,7 +216,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->immunizationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }

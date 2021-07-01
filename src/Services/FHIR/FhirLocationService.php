@@ -16,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\LocationService;
+use OpenEMR\Validators\ProcessingResult;
 
 class FhirLocationService extends FhirServiceBase
 {
@@ -131,7 +132,7 @@ class FhirLocationService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->locationService->getAll($openEMRSearchParameters, false);
     }

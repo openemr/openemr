@@ -368,6 +368,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Consent.read",
             "user/Coverage.read",
             "user/Coverage.write",
+            "user/Device.read",
+            "user/DiagnosticReport.read",
             "user/DocumentReference.read",
             "user/DocumentReference.write",
             "user/Encounter.read",

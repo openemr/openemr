@@ -91,6 +91,25 @@ class ProcessingResult
     }
 
     /**
+     * Removes all the data in the processing result
+     */
+    public function clearData()
+    {
+        $this->data = [];
+    }
+
+    /**
+     * Given another processing result, combine all of its properties into this processing result
+     * @param ProcessingResult $other  The result to combine into the current object.
+     */
+    public function addProcessingResult(ProcessingResult $other)
+    {
+        $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
+        $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
+        $this->data = array_merge($this->data, $other->data);
+    }
+
+    /**
      * @return true if the instance has 1 or more internal errors.
      */
     public function hasInternalErrors()

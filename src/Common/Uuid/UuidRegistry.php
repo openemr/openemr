@@ -111,10 +111,14 @@ class UuidRegistry
         //  procedure_result (with custom id procedure_result_id)
         //  users
         self::appendPopulateLog('ccda', (new UuidRegistry(['table_name' => 'ccda']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('documents', (new UuidRegistry(['table_name' => 'documents']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('drugs', (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('facility', (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('facility_user_ids', (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('form_clinical_notes', (new UuidRegistry(['table_name' => 'form_clinical_notes']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('form_encounter', (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('form_vitals', (new UuidRegistry(['table_name' => 'form_vitals']))->createMissingUuids(), $logEntryComment);
+        self::appendPopulateLog('history_data', (new UuidRegistry(['table_name' => 'history_data']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('immunizations', (new UuidRegistry(['table_name' => 'immunizations']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('insurance_companies', (new UuidRegistry(['table_name' => 'insurance_companies']))->createMissingUuids(), $logEntryComment);
         self::appendPopulateLog('insurance_data', (new UuidRegistry(['table_name' => 'insurance_data']))->createMissingUuids(), $logEntryComment);
@@ -224,7 +228,7 @@ class UuidRegistry
      * @param int $limit
      * @return array
      */
-    public function getUnusedUuidBatch($limit = 10)
+    private function getUnusedUuidBatch($limit = 10)
     {
         if ($limit <= 0) {
             return [];
@@ -416,7 +420,7 @@ class UuidRegistry
      * Given a batch of UUIDs it inserts them into the uuid registry.
      * @param $batchUuids
      */
-    public function insertUuidsIntoRegistry($batchUuids)
+    private function insertUuidsIntoRegistry($batchUuids)
     {
         $count = count($batchUuids);
         $sql = "INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES ";
