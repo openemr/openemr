@@ -82,7 +82,7 @@ $esignApi = new Api();
         var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
         var jsGlobals = {};
         // used in tabs_view_model.js.
-        jsGlobals['globals']['enable_group_therapy'] = $GLOBALS['enable_group_therapy'];
+        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
