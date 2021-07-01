@@ -8583,7 +8583,7 @@ CREATE TABLE `uuid_mapping` (
   `target_uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
+  KEY `uuid` (`uuid`),
   KEY `resource` (`resource`),
   KEY `table` (`table`),
   KEY `target_uuid` (`target_uuid`)
