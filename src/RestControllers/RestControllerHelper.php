@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
@@ -162,6 +163,11 @@ class RestControllerHelper
         if (empty($service)) {
             return; // nothing to do here as the service isn't defined.
         }
+
+        if (!$service instanceof IResourceSearchableService) {
+            return; // nothing to do here as the source is not searchable.
+        }
+
         if (empty($capResource->getSearchInclude())) {
             $capResource->addSearchInclude('*');
         }

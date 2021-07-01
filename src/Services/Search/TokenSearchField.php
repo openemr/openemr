@@ -26,6 +26,38 @@ class TokenSearchField extends BasicSearchField
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
+    public function addValue(TokenSearchValue $value)
+    {
+        $values = $this->getValues();
+        $values[] = $value;
+        $this->setValues($values);
+    }
+
+    public function hasCodeValue($code, $system = null)
+    {
+        $checkSystem = $system !== null;
+        foreach ($this->getValues() as $tokenValue) {
+            if ($tokenValue instanceof TokenSearchValue && $code == $tokenValue->getCode()) {
+                if ($checkSystem) {
+                    return $system == $tokenValue->getSystem();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function transformValues(callable $transformer)
+    {
+        if (!is_callable($transformer)) {
+            throw new \BadMethodCallException("transformer function must be callable");
+        }
+        $values = $this->getValues() ?? [];
+        $values = array_map($transformer, $values);
+        $this->setValues($values);
+        return $values;
+    }
+
     public function setValues(array $values)
     {
         $convertedFields = [];

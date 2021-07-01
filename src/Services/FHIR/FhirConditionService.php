@@ -221,7 +221,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
     }

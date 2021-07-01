@@ -20,6 +20,10 @@ class FacilityRestControllerTest extends TestCase
     const FACILITY_API_URL = "/apis/api/facility";
 
     private $facilityData;
+
+    /**
+     * @var FacilityRestController
+     */
     private $facilityController;
 
     /**

@@ -157,7 +157,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($searchParam, $puuidBind = null)
+    protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
         return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
     }

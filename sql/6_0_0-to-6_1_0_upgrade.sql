@@ -730,3 +730,89 @@ ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
 #EndIf
 
 
+#IfMissingColumn form_vitals uuid
+ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_vitals uuid
+CREATE UNIQUE INDEX `uuid` ON `form_vitals` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_vitals
+#EndIf
+
+#IfMissingColumn uuid_mapping resource_path
+ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_vitals ped_weight_height
+ALTER TABLE `form_vitals` ADD `ped_weight_height` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_bmi
+ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_head_circ
+ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn history_data uuid
+ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex history_data uuid
+CREATE UNIQUE INDEX `uuid` ON `history_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate history_data
+#EndIf
+
+#IfMissingColumn form_clinical_notes form_id
+ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
+ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_clinical_notes uuid
+ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_clinical_notes uuid
+CREATE UNIQUE INDEX `uuid` ON `form_clinical_notes` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_clinical_notes
+#EndIf
+
+#IfMissingColumn documents uuid
+ALTER TABLE `documents` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex documents uuid
+CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate documents
+#EndIf
+
+#IfNotRow list_options list_id Clinical_Note_Category
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+       ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+#EndIf
+
+#IfMissingColumn form_clinical_notes clinical_notes_category
+ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL;
+#EndIf
+
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id consultation_note notes LOINC:11488-4
+UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
+#EndIf

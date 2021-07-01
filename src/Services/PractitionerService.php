@@ -69,6 +69,12 @@ class PractitionerService extends BaseService
         return ['uuid'];
     }
 
+    public function isValidPractitionerUuid($uuid)
+    {
+        $result = $this->getOne($uuid);
+        return !empty($result->getData());
+    }
+
     public function search($search, $isAndCondition = true)
     {
         // we only retrieve from our database when our practitioners are not null

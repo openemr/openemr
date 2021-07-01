@@ -244,7 +244,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
     }

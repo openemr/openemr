@@ -17,6 +17,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Validators\ProcessingResult;
 
 class FhirMedicationRequestService extends FhirServiceBase
 {
@@ -216,7 +217,7 @@ class FhirMedicationRequestService extends FhirServiceBase
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->prescriptionService->getAll($openEMRSearchParameters, false, $puuidBind);
     }

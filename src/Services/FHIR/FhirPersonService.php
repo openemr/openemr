@@ -274,7 +274,7 @@ class FhirPersonService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $records = $this->userService->getAll($openEMRSearchParameters, false);
         $records = empty($records) ? [] : $records;
