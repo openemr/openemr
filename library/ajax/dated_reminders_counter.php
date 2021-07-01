@@ -30,6 +30,8 @@ if (SessionTracker::isSessionExpired()) {
     echo json_encode(['timeoutMessage' => 'timeout']);
     exit;
 }
+// keep this below above time out check.
+OpenEMR\Common\Session\SessionUtil::setSession('keepAliveTime', time());
 
 $portal_count = array();
 // if portal is enabled get various alerts
