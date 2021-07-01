@@ -25,6 +25,7 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
