@@ -150,6 +150,21 @@ services:
     - 9084:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+  openemr-8-0:
+    restart: always
+    image: openemr/openemr:flex-3.13-8
+    ports:
+    - 8085:80
+    - 9085:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
@@ -167,7 +182,7 @@ services:
       XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9084'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9085'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -184,21 +199,6 @@ services:
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
       CARE_COORDINATION_MODULE_ON: 1
-  openemr-8-0:
-    restart: always
-    image: openemr/openemr:flex-3.13-8
-    ports:
-    - 8085:80
-    - 9085:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
