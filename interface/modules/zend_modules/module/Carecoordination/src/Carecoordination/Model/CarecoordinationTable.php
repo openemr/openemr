@@ -175,20 +175,20 @@ class CarecoordinationTable extends AbstractTableGateway
         $xmltoarray = new \Laminas\Config\Reader\Xml();
         $xml = $xmltoarray->fromString((string)$xml_content_new);
 
-        $patient_role = $xml['recordTarget']['patientRole'];
-        $patient_pub_pid = $patient_role['id'][0]['extension'];
-        $patient_ssn = $patient_role['id'][1]['extension'];
-        $patient_address = $patient_role['addr']['streetAddressLine'];
-        $patient_city = $patient_role['addr']['city'];
-        $patient_state = $patient_role['addr']['state'];
-        $patient_postalcode = $patient_role['addr']['postalCode'];
-        $patient_country = $patient_role['addr']['country'];
-        $patient_phone_type = $patient_role['telecom']['use'];
-        $patient_phone_no = $patient_role['telecom']['value'];
-        $patient_fname = $patient_role['patient']['name']['given'][0];
-        $patient_lname = $patient_role['patient']['name']['given'][1];
-        $patient_family_name = $patient_role['patient']['name']['family'];
-        $patient_gender_code = $patient_role['patient']['administrativeGenderCode']['code'];
+        $patient_role = $xml['recordTarget']['patientRole'] ?? null;
+        $patient_pub_pid = $patient_role['id'][0]['extension'] ?? null;
+        $patient_ssn = $patient_role['id'][1]['extension'] ?? null;
+        $patient_address = $patient_role['addr']['streetAddressLine'] ?? null;
+        $patient_city = $patient_role['addr']['city'] ?? null;
+        $patient_state = $patient_role['addr']['state'] ?? null;
+        $patient_postalcode = $patient_role['addr']['postalCode'] ?? null;
+        $patient_country = $patient_role['addr']['country'] ?? null;
+        $patient_phone_type = $patient_role['telecom']['use'] ?? null;
+        $patient_phone_no = $patient_role['telecom']['value'] ?? null;
+        $patient_fname = $patient_role['patient']['name']['given'][0] ?? null;
+        $patient_lname = $patient_role['patient']['name']['given'][1] ?? null;
+        $patient_family_name = $patient_role['patient']['name']['family'] ?? null;
+        $patient_gender_code = $patient_role['patient']['administrativeGenderCode']['code'] ?? null;
         if (empty($patient_role['patient']['administrativeGenderCode']['displayName'])) {
             if ($patient_role['patient']['administrativeGenderCode']['code'] == 'F') {
                 $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Female';
@@ -198,96 +198,96 @@ class CarecoordinationTable extends AbstractTableGateway
                 $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Male';
             }
         }
-        $patient_gender_name = $patient_role['patient']['administrativeGenderCode']['displayName'];
-        $patient_dob = $patient_role['patient']['birthTime']['value'];
-        $patient_marital_status = $patient_role['patient']['religiousAffiliationCode']['code'];
-        $patient_marital_status_display = $patient_role['patient']['religiousAffiliationCode']['displayName'];
-        $patient_race = $patient_role['patient']['raceCode']['code'];
-        $patient_race_display = $patient_role['patient']['raceCode']['displayName'];
-        $patient_ethnicity = $patient_role['patient']['ethnicGroupCode']['code'];
-        $patient_ethnicity_display = $patient_role['patient']['ethnicGroupCode']['displayName'];
-        $patient_language = $patient_role['patient']['languageCommunication']['languageCode']['code'];
+        $patient_gender_name = $patient_role['patient']['administrativeGenderCode']['displayName'] ?? null;
+        $patient_dob = $patient_role['patient']['birthTime']['value'] ?? null;
+        $patient_marital_status = $patient_role['patient']['religiousAffiliationCode']['code'] ?? null;
+        $patient_marital_status_display = $patient_role['patient']['religiousAffiliationCode']['displayName'] ?? null;
+        $patient_race = $patient_role['patient']['raceCode']['code'] ?? null;
+        $patient_race_display = $patient_role['patient']['raceCode']['displayName'] ?? null;
+        $patient_ethnicity = $patient_role['patient']['ethnicGroupCode']['code'] ?? null;
+        $patient_ethnicity_display = $patient_role['patient']['ethnicGroupCode']['displayName'] ?? null;
+        $patient_language = $patient_role['patient']['languageCommunication']['languageCode']['code'] ?? null;
 
-        $author = $xml['recordTarget']['author']['assignedAuthor'];
-        $author_id = $author['id']['extension'];
-        $author_address = $author['addr']['streetAddressLine'];
-        $author_city = $author['addr']['city'];
-        $author_state = $author['addr']['state'];
-        $author_postalCode = $author['addr']['postalCode'];
-        $author_country = $author['addr']['country'];
-        $author_phone_use = $author['telecom']['use'];
-        $author_phone = $author['telecom']['value'];
-        $author_name_given = $author['assignedPerson']['name']['given'];
-        $author_name_family = $author['assignedPerson']['name']['family'];
+        $author = $xml['recordTarget']['author']['assignedAuthor'] ?? null;
+        $author_id = $author['id']['extension'] ?? null;
+        $author_address = $author['addr']['streetAddressLine'] ?? null;
+        $author_city = $author['addr']['city'] ?? null;
+        $author_state = $author['addr']['state'] ?? null;
+        $author_postalCode = $author['addr']['postalCode'] ?? null;
+        $author_country = $author['addr']['country'] ?? null;
+        $author_phone_use = $author['telecom']['use'] ?? null;
+        $author_phone = $author['telecom']['value'] ?? null;
+        $author_name_given = $author['assignedPerson']['name']['given'] ?? null;
+        $author_name_family = $author['assignedPerson']['name']['family'] ?? null;
 
-        $data_enterer = $xml['recordTarget']['dataEnterer']['assignedEntity'];
-        $data_enterer_id = $data_enterer['id']['extension'];
-        $data_enterer_address = $data_enterer['addr']['streetAddressLine'];
-        $data_enterer_city = $data_enterer['addr']['city'];
-        $data_enterer_state = $data_enterer['addr']['state'];
-        $data_enterer_postalCode = $data_enterer['addr']['postalCode'];
-        $data_enterer_country = $data_enterer['addr']['country'];
-        $data_enterer_phone_use = $data_enterer['telecom']['use'];
-        $data_enterer_phone = $data_enterer['telecom']['value'];
-        $data_enterer_name_given = $data_enterer['assignedPerson']['name']['given'];
-        $data_enterer_name_family = $data_enterer['assignedPerson']['name']['family'];
+        $data_enterer = $xml['recordTarget']['dataEnterer']['assignedEntity'] ?? null;
+        $data_enterer_id = $data_enterer['id']['extension'] ?? null;
+        $data_enterer_address = $data_enterer['addr']['streetAddressLine'] ?? null;
+        $data_enterer_city = $data_enterer['addr']['city'] ?? null;
+        $data_enterer_state = $data_enterer['addr']['state'] ?? null;
+        $data_enterer_postalCode = $data_enterer['addr']['postalCode'] ?? null;
+        $data_enterer_country = $data_enterer['addr']['country'] ?? null;
+        $data_enterer_phone_use = $data_enterer['telecom']['use'] ?? null;
+        $data_enterer_phone = $data_enterer['telecom']['value'] ?? null;
+        $data_enterer_name_given = $data_enterer['assignedPerson']['name']['given'] ?? null;
+        $data_enterer_name_family = $data_enterer['assignedPerson']['name']['family'] ?? null;
 
-        $informant = $xml['recordTarget']['informant'][0]['assignedEntity'];
-        $informant_id = $informant['id']['extension'];
-        $informant_address = $informant['addr']['streetAddressLine'];
-        $informant_city = $informant['addr']['city'];
-        $informant_state = $informant['addr']['state'];
-        $informant_postalCode = $informant['addr']['postalCode'];
-        $informant_country = $informant['addr']['country'];
-        $informant_phone_use = $informant['telecom']['use'];
-        $informant_phone = $informant['telecom']['value'];
-        $informant_name_given = $informant['assignedPerson']['name']['given'];
-        $informant_name_family = $informant['assignedPerson']['name']['family'];
+        $informant = $xml['recordTarget']['informant'][0]['assignedEntity'] ?? null;
+        $informant_id = $informant['id']['extension'] ?? null;
+        $informant_address = $informant['addr']['streetAddressLine'] ?? null;
+        $informant_city = $informant['addr']['city'] ?? null;
+        $informant_state = $informant['addr']['state'] ?? null;
+        $informant_postalCode = $informant['addr']['postalCode'] ?? null;
+        $informant_country = $informant['addr']['country'] ?? null;
+        $informant_phone_use = $informant['telecom']['use'] ?? null;
+        $informant_phone = $informant['telecom']['value'] ?? null;
+        $informant_name_given = $informant['assignedPerson']['name']['given'] ?? null;
+        $informant_name_family = $informant['assignedPerson']['name']['family'] ?? null;
 
-        $personal_informant = $xml['recordTarget']['informant'][1]['relatedEntity'];
-        $personal_informant_name = $personal_informant['relatedPerson']['name']['given'];
-        $personal_informant_family = $personal_informant['relatedPerson']['name']['family'];
+        $personal_informant = $xml['recordTarget']['informant'][1]['relatedEntity'] ?? null;
+        $personal_informant_name = $personal_informant['relatedPerson']['name']['given'] ?? null;
+        $personal_informant_family = $personal_informant['relatedPerson']['name']['family'] ?? null;
 
-        $custodian = $xml['recordTarget']['custodian']['assignedCustodian']['representedCustodianOrganization'];
-        $custodian_name = $custodian['name'];
-        $custodian_address = $custodian['addr']['streetAddressLine'];
-        $custodian_city = $custodian['addr']['city'];
-        $custodian_state = $custodian['addr']['state'];
-        $custodian_postalCode = $custodian['addr']['postalCode'];
-        $custodian_country = $custodian['addr']['country'];
-        $custodian_phone = $custodian['telecom']['value'];
-        $custodian_phone_use = $custodian['telecom']['use'];
+        $custodian = $xml['recordTarget']['custodian']['assignedCustodian']['representedCustodianOrganization'] ?? null;
+        $custodian_name = $custodian['name'] ?? null;
+        $custodian_address = $custodian['addr']['streetAddressLine'] ?? null;
+        $custodian_city = $custodian['addr']['city'] ?? null;
+        $custodian_state = $custodian['addr']['state'] ?? null;
+        $custodian_postalCode = $custodian['addr']['postalCode'] ?? null;
+        $custodian_country = $custodian['addr']['country'] ?? null;
+        $custodian_phone = $custodian['telecom']['value'] ?? null;
+        $custodian_phone_use = $custodian['telecom']['use'] ?? null;
 
-        $informationRecipient = $xml['recordTarget']['informationRecipient']['intendedRecipient'];
-        $informationRecipient_name = $informationRecipient['informationRecipient']['name']['given'];
-        $informationRecipient_name = $informationRecipient['informationRecipient']['name']['family'];
-        $informationRecipient_org = $informationRecipient['receivedOrganization']['name'];
+        $informationRecipient = $xml['recordTarget']['informationRecipient']['intendedRecipient'] ?? null;
+        $informationRecipient_name = $informationRecipient['informationRecipient']['name']['given'] ?? null;
+        $informationRecipient_name = $informationRecipient['informationRecipient']['name']['family'] ?? null;
+        $informationRecipient_org = $informationRecipient['receivedOrganization']['name'] ?? null;
 
-        $legalAuthenticator = $xml['recordTarget']['legalAuthenticator'];
-        $legalAuthenticator_signatureCode = $legalAuthenticator['signatureCode']['code'];
-        $legalAuthenticator_id = $legalAuthenticator['assignedEntity']['id']['extension'];
-        $legalAuthenticator_address = $legalAuthenticator['assignedEntity']['addr']['streetAddressLine'];
-        $legalAuthenticator_city = $legalAuthenticator['assignedEntity']['addr']['city'];
-        $legalAuthenticator_state = $legalAuthenticator['assignedEntity']['addr']['state'];
-        $legalAuthenticator_postalCode = $legalAuthenticator['assignedEntity']['addr']['postalCode'];
-        $legalAuthenticator_country = $legalAuthenticator['assignedEntity']['addr']['country'];
-        $legalAuthenticator_phone = $legalAuthenticator['assignedEntity']['telecom']['value'];
-        $legalAuthenticator_phone_use = $legalAuthenticator['assignedEntity']['telecom']['use'];
-        $legalAuthenticator_name_given = $legalAuthenticator['assignedEntity']['assignedPerson']['name']['given'];
-        $legalAuthenticator_name_family = $legalAuthenticator['assignedEntity']['assignedPerson']['name']['family'];
+        $legalAuthenticator = $xml['recordTarget']['legalAuthenticator'] ?? null;
+        $legalAuthenticator_signatureCode = $legalAuthenticator['signatureCode']['code'] ?? null;
+        $legalAuthenticator_id = $legalAuthenticator['assignedEntity']['id']['extension'] ?? null;
+        $legalAuthenticator_address = $legalAuthenticator['assignedEntity']['addr']['streetAddressLine'] ?? null;
+        $legalAuthenticator_city = $legalAuthenticator['assignedEntity']['addr']['city'] ?? null;
+        $legalAuthenticator_state = $legalAuthenticator['assignedEntity']['addr']['state'] ?? null;
+        $legalAuthenticator_postalCode = $legalAuthenticator['assignedEntity']['addr']['postalCode'] ?? null;
+        $legalAuthenticator_country = $legalAuthenticator['assignedEntity']['addr']['country'] ?? null;
+        $legalAuthenticator_phone = $legalAuthenticator['assignedEntity']['telecom']['value'] ?? null;
+        $legalAuthenticator_phone_use = $legalAuthenticator['assignedEntity']['telecom']['use'] ?? null;
+        $legalAuthenticator_name_given = $legalAuthenticator['assignedEntity']['assignedPerson']['name']['given'] ?? null;
+        $legalAuthenticator_name_family = $legalAuthenticator['assignedEntity']['assignedPerson']['name']['family'] ?? null;
 
-        $authenticator = $xml['recordTarget']['authenticator'];
-        $authenticator_signatureCode = $authenticator['signatureCode']['code'];
-        $authenticator_id = $authenticator['assignedEntity']['id']['extension'];
-        $authenticator_address = $authenticator['assignedEntity']['addr']['streetAddressLine'];
-        $authenticator_city = $authenticator['assignedEntity']['addr']['city'];
-        $authenticator_state = $authenticator['assignedEntity']['addr']['state'];
-        $authenticator_postalCode = $authenticator['assignedEntity']['addr']['postalCode'];
-        $authenticator_country = $authenticator['assignedEntity']['addr']['country'];
-        $authenticator_phone = $authenticator['assignedEntity']['telecom']['value'];
-        $authenticator_phone_use = $authenticator['assignedEntity']['telecom']['use'];
-        $authenticator_name_given = $authenticator['assignedEntity']['assignedPerson']['name']['given'];
-        $authenticator_name_family = $authenticator['assignedEntity']['assignedPerson']['name']['family'];
+        $authenticator = $xml['recordTarget']['authenticator'] ?? null;
+        $authenticator_signatureCode = $authenticator['signatureCode']['code'] ?? null;
+        $authenticator_id = $authenticator['assignedEntity']['id']['extension'] ?? null;
+        $authenticator_address = $authenticator['assignedEntity']['addr']['streetAddressLine'] ?? null;
+        $authenticator_city = $authenticator['assignedEntity']['addr']['city'] ?? null;
+        $authenticator_state = $authenticator['assignedEntity']['addr']['state'] ?? null;
+        $authenticator_postalCode = $authenticator['assignedEntity']['addr']['postalCode'] ?? null;
+        $authenticator_country = $authenticator['assignedEntity']['addr']['country'] ?? null;
+        $authenticator_phone = $authenticator['assignedEntity']['telecom']['value'] ?? null;
+        $authenticator_phone_use = $authenticator['assignedEntity']['telecom']['use'] ?? null;
+        $authenticator_name_given = $authenticator['assignedEntity']['assignedPerson']['name']['given'] ?? null;
+        $authenticator_name_family = $authenticator['assignedEntity']['assignedPerson']['name']['family'] ?? null;
 
         $components = $xml['component']['structuredBody']['component'];
         $components_oids = array(
@@ -318,7 +318,7 @@ class CarecoordinationTable extends AbstractTableGateway
             // the original code logic assumed there was more than one indexed array with a root key...
             // however the new Laminas XML reader returns a root value
             if (!empty($components[$i]['section']['templateId']['root'])) {
-                if ($components_oids[$components[$i]['section']['templateId']['root']] != '') {
+                if (!empty($components_oids[$components[$i]['section']['templateId']['root']])) {
                     $func_name = $components_oids[$components[$i]['section']['templateId']['root']];
                     $this->$func_name($components[$i]);
                 }
@@ -353,72 +353,72 @@ class CarecoordinationTable extends AbstractTableGateway
         } else {
             $name = $xml['recordTarget']['patientRole']['patient']['name'];
         }
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : $name['given'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['lname'] = $name['family'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['sex'] = $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id'][0]['extension'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['city'] = $xml['recordTarget']['patientRole']['addr']['city'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', $xml['recordTarget']['patientRole']['telecom']['value']);
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'];
-        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['ethnicity'] = $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'];
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['sex'] = $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id'][0]['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['city'] = $xml['recordTarget']['patientRole']['addr']['city'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['patient_data'][1]['ethnicity'] = $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? null;
 
         //Author details
-        $this->ccda_data_array['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['address'] = $xml['author']['assignedAuthor']['addr']['streetAddressLine'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['city'] = $xml['author']['assignedAuthor']['addr']['city'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['state'] = $xml['author']['assignedAuthor']['addr']['state'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['zip'] = $xml['author']['assignedAuthor']['addr']['postalCode'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['country'] = $xml['author']['assignedAuthor']['addr']['country'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['phone'] = $xml['author']['assignedAuthor']['telecom']['value'];
-        $this->ccda_data_array['field_name_value_array']['author'][1]['name'] = $xml['author']['assignedAuthor']['assignedPerson']['name']['given'];
+        $this->ccda_data_array['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['address'] = $xml['author']['assignedAuthor']['addr']['streetAddressLine'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['city'] = $xml['author']['assignedAuthor']['addr']['city'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['state'] = $xml['author']['assignedAuthor']['addr']['state'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['zip'] = $xml['author']['assignedAuthor']['addr']['postalCode'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['country'] = $xml['author']['assignedAuthor']['addr']['country'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['phone'] = $xml['author']['assignedAuthor']['telecom']['value'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['author'][1]['name'] = $xml['author']['assignedAuthor']['assignedPerson']['name']['given'] ?? null;
 
         //Data Enterer
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['extension'] = $xml['dataEnterer']['assignedEntity']['id']['extension'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['address'] = $xml['dataEnterer']['assignedEntity']['addr']['streetAddressLine'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['city'] = $xml['dataEnterer']['assignedEntity']['addr']['city'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['state'] = $xml['dataEnterer']['assignedEntity']['addr']['state'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['zip'] = $xml['dataEnterer']['assignedEntity']['addr']['postalCode'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['country'] = $xml['dataEnterer']['assignedEntity']['addr']['country'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['phone'] = $xml['dataEnterer']['assignedEntity']['telecom']['value'];
-        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['name'] = $xml['dataEnterer']['assignedEntity']['assignedPerson']['name']['given'];
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['extension'] = $xml['dataEnterer']['assignedEntity']['id']['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['address'] = $xml['dataEnterer']['assignedEntity']['addr']['streetAddressLine'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['city'] = $xml['dataEnterer']['assignedEntity']['addr']['city'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['state'] = $xml['dataEnterer']['assignedEntity']['addr']['state'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['zip'] = $xml['dataEnterer']['assignedEntity']['addr']['postalCode'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['country'] = $xml['dataEnterer']['assignedEntity']['addr']['country'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['phone'] = $xml['dataEnterer']['assignedEntity']['telecom']['value'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['dataEnterer'][1]['name'] = $xml['dataEnterer']['assignedEntity']['assignedPerson']['name']['given'] ?? null;
 
         //Informant
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['extension'] = $xml['informant'][0]['assignedEntity']['id']['extension'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['street'] = $xml['informant'][0]['assignedEntity']['addr']['streetAddressLine'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['city'] = $xml['informant'][0]['assignedEntity']['addr']['city'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['state'] = $xml['informant'][0]['assignedEntity']['addr']['state'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['postalCode'] = $xml['informant'][0]['assignedEntity']['addr']['postalCode'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['country'] = $xml['informant'][0]['assignedEntity']['addr']['country'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['phone'] = $xml['informant'][0]['assignedEntity']['telecom']['value'];
-        $this->ccda_data_array['field_name_value_array']['informant'][1]['name'] = $xml['informant'][0]['assignedEntity']['assignedPerson']['name']['given'];
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['extension'] = $xml['informant'][0]['assignedEntity']['id']['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['street'] = $xml['informant'][0]['assignedEntity']['addr']['streetAddressLine'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['city'] = $xml['informant'][0]['assignedEntity']['addr']['city'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['state'] = $xml['informant'][0]['assignedEntity']['addr']['state'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['postalCode'] = $xml['informant'][0]['assignedEntity']['addr']['postalCode'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['country'] = $xml['informant'][0]['assignedEntity']['addr']['country'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['phone'] = $xml['informant'][0]['assignedEntity']['telecom']['value'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['informant'][1]['name'] = $xml['informant'][0]['assignedEntity']['assignedPerson']['name']['given'] ?? null;
 
         //Personal Informant
-        $this->ccda_data_array['field_name_value_array']['custodian'][1]['extension'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['id']['extension'];
-        $this->ccda_data_array['field_name_value_array']['custodian'][1]['organisation'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['name'];
+        $this->ccda_data_array['field_name_value_array']['custodian'][1]['extension'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['id']['extension'] ?? null;
+        $this->ccda_data_array['field_name_value_array']['custodian'][1]['organisation'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['name'] ?? null;
 
         //documentationOf
         $doc_of_str = '';
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'])) {
+        if (!empty($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']) && !is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'])) {
             $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'] . " ";
         }
 
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'])) {
+        if (!empty($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']) && !is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'])) {
             $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'] . " ";
         }
 
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'])) {
+        if (!empty($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']) && !is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'])) {
             $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'] . " ";
         }
 
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'])) {
+        if (!empty($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']) && !is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'])) {
             $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'] . " ";
         }
 
@@ -443,12 +443,12 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function allergy($component)
     {
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_allergy_value($value);
             }
         } else {
-            $this->fetch_allergy_value($component['section']['entry']);
+            $this->fetch_allergy_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -457,10 +457,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_allergy_value($allergy_array)
     {
-        if (
-            $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != ''
-            && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0
-        ) {
+        if (!empty($allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
             $i = 1;
             // if there are already items here we want to add to them.
             if (!empty($this->ccda_data_array['field_name_value_array']['lists2'])) {
@@ -468,19 +465,19 @@ class CarecoordinationTable extends AbstractTableGateway
             }
 
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $allergy_array['act']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $allergy_array['act']['effectiveTime']['low']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $allergy_array['act']['effectiveTime']['high']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $allergy_array['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $allergy_array['act']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $allergy_array['act']['effectiveTime']['low']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $allergy_array['act']['effectiveTime']['high']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $allergy_array['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $allergy_array['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'] ?? null;
             $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
             unset($allergy_array);
             return;
@@ -489,13 +486,13 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function medication($component)
     {
-            $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        $component['section']['text'] = '';
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_medication_value($value);
             }
         } else {
-            $this->fetch_medication_value($component['section']['entry']);
+            $this->fetch_medication_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -504,47 +501,47 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_medication_value($medication_data)
     {
-        if ($medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
+        if (!empty($medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['lists3'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['lists3']);
             }
 
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['type'] = 'medication';
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['extension'] = $medication_data['substanceAdministration']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['root'] = $medication_data['substanceAdministration']['id']['root'];
-            if ($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'] == '') {
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['extension'] = $medication_data['substanceAdministration']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['root'] = $medication_data['substanceAdministration']['id']['root'] ?? null;
+            if (empty($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'])) {
                 $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
             } else {
                 $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'];
             }
 
-            if ($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value']) {
+            if (!empty($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'])) {
                 $this->ccda_data_array['field_name_value_array']['lists3'][$i]['enddate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'];
             }
 
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route'] = $medication_data['substanceAdministration']['routeCode']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route_display'] = $medication_data['substanceAdministration']['routeCode']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose'] = $medication_data['substanceAdministration']['doseQuantity']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose_unit'] = $medication_data['substanceAdministration']['doseQuantity']['unit'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate'] = $medication_data['substanceAdministration']['rateQuantity']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate_unit'] = $medication_data['substanceAdministration']['rateQuantity']['unit'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_code'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_text'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['note'] = $medication_data['substanceAdministration']['text']['reference']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['indication'] = $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ? $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] : $medication_data['substanceAdministration']['entryRelationship']['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['prn'] = $medication_data['substanceAdministration']['precondition']['criterion']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['modified_time'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['time']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route'] = $medication_data['substanceAdministration']['routeCode']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route_display'] = $medication_data['substanceAdministration']['routeCode']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose'] = $medication_data['substanceAdministration']['doseQuantity']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose_unit'] = $medication_data['substanceAdministration']['doseQuantity']['unit'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate'] = $medication_data['substanceAdministration']['rateQuantity']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['rate_unit'] = $medication_data['substanceAdministration']['rateQuantity']['unit'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_code'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['drug_text'] = $medication_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['note'] = $medication_data['substanceAdministration']['text']['reference']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['indication'] = $medication_data['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ?? ($medication_data['substanceAdministration']['entryRelationship']['observation']['value']['displayName'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['prn'] = $medication_data['substanceAdministration']['precondition']['criterion']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['modified_time'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['time']['value'] ?? null;
 
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_title'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['prefix'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_fname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['given'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_lname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['family'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_root'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_address'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['streetAddressLine'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_city'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['city'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_state'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['state'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_postalCode'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['postalCode'];
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_country'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] ? $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] : $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_title'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['prefix'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['prefix'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_fname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['given'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_lname'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['family'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['family'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_root'] = $medication_data['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['id']['root'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_address'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['streetAddressLine'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_city'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['city'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_state'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['state'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_postalCode'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['postalCode'] ?? null);
+            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['provider_country'] = $medication_data['substanceAdministration']['performer']['assignedEntity']['addr']['country']['value'] ?? ($medication_data['substanceAdministration']['entryRelationship'][1]['supply']['performer']['assignedEntity']['addr']['country'] ?? null);
             $this->ccda_data_array['entry_identification_array']['lists3'][$i] = $i;
             unset($medication_data);
             return;
@@ -554,12 +551,12 @@ class CarecoordinationTable extends AbstractTableGateway
     public function medical_problem($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_medical_problem_value($value);
             }
         } else {
-            $this->fetch_medical_problem_value($component['section']['entry']);
+            $this->fetch_medical_problem_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -568,22 +565,22 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_medical_problem_value($medical_problem_data)
     {
-        if ($medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != '' && $medical_problem_data['act']['entryRelationship']['observation']['value']['code'] != 0) {
+        if (!empty($medical_problem_data['act']['entryRelationship']['observation']['value']['code'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['lists1'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['lists1']);
             }
             $this->ccda_data_array['field_name_value_array']['lists1'][$i]['type'] = 'medical_problem';
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['extension'] = $medical_problem_data['act']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['root'] = $medical_problem_data['act']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['begdate'] = $medical_problem_data['act']['effectiveTime']['low']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['enddate'] = $medical_problem_data['act']['effectiveTime']['high']['value'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code_text'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation_text'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['status'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['modified_time'] = $medical_problem_data['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'];
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['extension'] = $medical_problem_data['act']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['root'] = $medical_problem_data['act']['id']['root'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['begdate'] = $medical_problem_data['act']['effectiveTime']['low']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['enddate'] = $medical_problem_data['act']['effectiveTime']['high']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['list_code_text'] = $medical_problem_data['act']['entryRelationship']['observation']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['observation_text'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['status'] = $medical_problem_data['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists1'][$i]['modified_time'] = $medical_problem_data['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'] ?? null;
             $this->ccda_data_array['entry_identification_array']['lists1'][$i] = $i;
             unset($medical_problem_data);
             return;
@@ -593,7 +590,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function immunization($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_immunization_value($value);
             }
@@ -612,27 +609,27 @@ class CarecoordinationTable extends AbstractTableGateway
             if (!empty($this->ccda_data_array['field_name_value_array']['immunization'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['immunization']);
             }
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['extension'] = $immunization_data['substanceAdministration']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['root'] = $immunization_data['substanceAdministration']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['administered_date'] = $immunization_data['substanceAdministration']['effectiveTime']['value'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code'] = $immunization_data['substanceAdministration']['routeCode']['code'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code_text'] = $immunization_data['substanceAdministration']['routeCode']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code_text'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered'] = $immunization_data['substanceAdministration']['doseQuantity']['value'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered_unit'] = $immunization_data['substanceAdministration']['doseQuantity']['unit'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['completion_status'] = $immunization_data['substanceAdministration']['statusCode']['code'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['manufacturer'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturerOrganization']['name'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_npi'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_name'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_address'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_city'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_state'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_postalCode'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_country'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['country'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_telecom'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['telecom']['value'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'];
-            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'];
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['extension'] = $immunization_data['substanceAdministration']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['root'] = $immunization_data['substanceAdministration']['id']['root'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['administered_date'] = $immunization_data['substanceAdministration']['effectiveTime']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code'] = $immunization_data['substanceAdministration']['routeCode']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['route_code_text'] = $immunization_data['substanceAdministration']['routeCode']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['cvx_code_text'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered'] = $immunization_data['substanceAdministration']['doseQuantity']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['amount_administered_unit'] = $immunization_data['substanceAdministration']['doseQuantity']['unit'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['completion_status'] = $immunization_data['substanceAdministration']['statusCode']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['manufacturer'] = $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturerOrganization']['name'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_npi'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_name'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['assignedPerson']['name']['given'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_address'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['streetAddressLine'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_city'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['city'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_state'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['state'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_postalCode'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['postalCode'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_country'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['addr']['country'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['provider_telecom'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['telecom']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $immunization_data['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'] ?? null;
             $this->ccda_data_array['entry_identification_array']['immunization'][$i] = $i;
             unset($immunization_data);
             return;
@@ -642,7 +639,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function procedure($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 if ($key % 3 != 0) {
                     continue; //every third entry section has the procedure details
@@ -651,7 +648,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $this->fetch_procedure_value($value);
             }
         } else {
-            $this->fetch_procedure_value($component['section']['entry']);
+            $this->fetch_procedure_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -660,31 +657,31 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_procedure_value($procedure_data)
     {
-        if ($procedure_data['procedure']['code']['code'] != '' && $procedure_data['procedure']['code']['code'] != 0) {
+        if (!empty($procedure_data['procedure']['code']['code'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['procedure'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['procedure']);
             }
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['extension'] = $procedure_data['procedure']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['root'] = $procedure_data['procedure']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code'] = $procedure_data['procedure']['code']['code'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code_text'] = $procedure_data['procedure']['code']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['codeSystemName'] = $procedure_data['procedure']['code']['codeSystemName'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['date'] = $procedure_data['procedure']['effectiveTime']['value'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization1'] = $procedure_data['procedure']['performer']['assignedEntity']['representedOrganization']['name'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['streetAddressLine'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['city'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['state'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['postalCode'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['country'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_telecom1'] = $procedure_data['procedure']['performer']['assignedEntity']['telecom']['value'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['extension'] = $procedure_data['procedure']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['root'] = $procedure_data['procedure']['id']['root'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code'] = $procedure_data['procedure']['code']['code'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['code_text'] = $procedure_data['procedure']['code']['displayName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['codeSystemName'] = $procedure_data['procedure']['code']['codeSystemName'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['date'] = $procedure_data['procedure']['effectiveTime']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization1'] = $procedure_data['procedure']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['streetAddressLine'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['city'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['state'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['postalCode'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country1'] = $procedure_data['procedure']['performer']['assignedEntity']['addr']['country'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_telecom1'] = $procedure_data['procedure']['performer']['assignedEntity']['telecom']['value'] ?? null;
 
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization2'] = $procedure_data['procedure']['participant']['participantRole']['playingEntity']['name'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['streetAddressLine'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['city'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['state'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['postalCode'];
-            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['country'];
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization2'] = $procedure_data['procedure']['participant']['participantRole']['playingEntity']['name'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_address2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['streetAddressLine'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_city2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['city'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_state2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['state'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_postalcode2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['postalCode'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['procedure'][$i]['represented_organization_country2'] = $procedure_data['procedure']['participant']['participantRole']['addr']['country'] ?? null;
             $this->ccda_data_array['entry_identification_array']['procedure'][$i] = $i;
             unset($procedure_data);
             return;
@@ -694,7 +691,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function lab_result($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_lab_result_value($value);
             }
@@ -713,25 +710,25 @@ class CarecoordinationTable extends AbstractTableGateway
             $i += count($this->ccda_data_array['field_name_value_array']['procedure_result']);
         }
         foreach ($lab_result_data['organizer']['component'] as $key => $value) {
-            if ($value['observation']['code']['code']) {
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'];
+            if (!empty($value['observation']['code']['code'])) {
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'] ?? null;
 
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'];
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'];
-                if ($value['observation']['referenceRange']['observationRange']['text']) {
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'] ?? null;
+                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?? null;
+                if (!empty($value['observation']['referenceRange']['observationRange']['text'])) {
                     $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
                 } else {
-                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['value']['low']['value'] . '-' . $value['observation']['referenceRange']['observationRange']['value']['high']['value'] . ' ' . $value['observation']['referenceRange']['observationRange']['value']['low']['unit'];
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = ($value['observation']['referenceRange']['observationRange']['value']['low']['value'] ?? '') . '-' . ($value['observation']['referenceRange']['observationRange']['value']['high']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['low']['unit'] ?? '');
                 }
 
                 $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
@@ -746,7 +743,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function vital_sign($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_vital_sign_value($value);
             }
@@ -765,9 +762,9 @@ class CarecoordinationTable extends AbstractTableGateway
             if (!empty($this->ccda_data_array['field_name_value_array']['vital_sign'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['vital_sign']);
             }
-            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['extension'] = $vital_sign_data['organizer']['id']['extension'];
-            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['root'] = $vital_sign_data['organizer']['id']['root'];
-            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['date'] = $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'];
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['extension'] = $vital_sign_data['organizer']['id']['extension'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['root'] = $vital_sign_data['organizer']['id']['root'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['date'] = $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] ?? null;
             $vitals_array = array(
             '8310-5' => 'temperature',
             '8462-4' => 'bpd',
@@ -782,11 +779,13 @@ class CarecoordinationTable extends AbstractTableGateway
 
             for ($j = 0; $j < 9; $j++) {
                 $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'];
-                if ($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship']) {
-                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'];
-                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'];
+                if (!empty($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'])) {
+                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
                 } else {
-                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'];
+                    if (array_key_exists($code, $vitals_array)) {
+                        $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
+                    }
                 }
             }
 
@@ -799,12 +798,12 @@ class CarecoordinationTable extends AbstractTableGateway
     public function social_history($component)
     {
             $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_social_history_value($value);
             }
         } else {
-            $this->fetch_social_history_value($component['section']['entry']);
+            $this->fetch_social_history_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -813,7 +812,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_social_history_value($social_history_data)
     {
-        if ($social_history_data['observation']['value']['code'] != '' && $social_history_data['observation']['value']['code'] != 0) {
+        if (!empty($social_history_data['observation']['value']['code'])) {
             $social_history_array = array(
             '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
             );
@@ -895,12 +894,12 @@ class CarecoordinationTable extends AbstractTableGateway
     public function care_plan($component)
     {
         $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_care_plan_value($value);
             }
         } else {
-            $this->fetch_care_plan_value($component['section']['entry']);
+            $this->fetch_care_plan_value($component['section']['entry'] ?? null);
         }
 
         unset($component);
@@ -909,7 +908,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_care_plan_value($care_plan_data)
     {
-        if ($care_plan_data['act']['code']['code'] != '' && $care_plan_data['act']['code']['code'] != 0) {
+        if (!empty($care_plan_data['act']['code']['code'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['care_plan'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['care_plan']);
@@ -1481,7 +1480,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        return $res_cur['title'];
+        return ($res_cur['title'] ?? null);
     }
 
     public function insertApprovedData($data)
@@ -2123,7 +2122,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $lab_results = array();
         $j = 0;
         foreach ($lab_array as $key => $value) {
-            if (is_countable($lab_results[$value['extension']]['result'])) {
+            if (!empty($lab_results[$value['extension']]['result']) && is_countable($lab_results[$value['extension']]['result'])) {
                 $j = count($lab_results[$value['extension']]['result']) + 1;
                 $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
                 $lab_results[$value['extension']]['date'] = $value['date'];
@@ -2279,10 +2278,10 @@ class CarecoordinationTable extends AbstractTableGateway
                 $resfield = [];
                 foreach ($this->ccda_data_array['field_name_value_array'][$row['table_name']][$row['entry_identification']] as $itemKey => $item) {
                     if (is_array($item)) {
-                        if ($item['status'] || $item['enddate']) {
-                            $item = trim($item['value']) . "|" . trim($item['status']) . "|" . trim($item['begdate']);
+                        if (!empty($item['status']) || !empty($item['enddate'])) {
+                            $item = trim($item['value'] ?? '') . "|" . trim($item['status'] ?? '') . "|" . trim($item['begdate'] ?? '');
                         } else {
-                            $item = trim($item['value']);
+                            $item = trim($item['value'] ?? '');
                         }
                     } else {
                         $item = trim($item);
@@ -2368,7 +2367,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_prescriptions['lists3'][$b]['extension'] = $newdata['lists3']['extension'];
                 $arr_prescriptions['lists3'][$b]['root'] = $newdata['lists3']['root'];
                 $arr_prescriptions['lists3'][$b]['begdate'] = $newdata['lists3']['begdate'];
-                $arr_prescriptions['lists3'][$b]['enddate'] = $newdata['lists3']['enddate'];
+                $arr_prescriptions['lists3'][$b]['enddate'] = $newdata['lists3']['enddate'] ?? null;
                 $arr_prescriptions['lists3'][$b]['route'] = $newdata['lists3']['route'];
                 $arr_prescriptions['lists3'][$b]['note'] = $newdata['lists3']['note'];
                 $arr_prescriptions['lists3'][$b]['indication'] = $newdata['lists3']['indication'];
@@ -2443,15 +2442,15 @@ class CarecoordinationTable extends AbstractTableGateway
             } elseif ($table == 'vital_sign') {
                 $arr_vitals['vitals'][$q]['extension'] = $newdata['vital_sign']['extension'];
                 $arr_vitals['vitals'][$q]['date'] = $newdata['vital_sign']['date'];
-                $arr_vitals['vitals'][$q]['temperature'] = $newdata['vital_sign']['temperature'];
-                $arr_vitals['vitals'][$q]['bpd'] = $newdata['vital_sign']['bpd'];
-                $arr_vitals['vitals'][$q]['bps'] = $newdata['vital_sign']['bps'];
-                $arr_vitals['vitals'][$q]['head_circ'] = $newdata['vital_sign']['head_circ'];
-                $arr_vitals['vitals'][$q]['pulse'] = $newdata['vital_sign']['pulse'];
-                $arr_vitals['vitals'][$q]['height'] = $newdata['vital_sign']['height'];
-                $arr_vitals['vitals'][$q]['oxygen_saturation'] = $newdata['vital_sign']['oxygen_saturation'];
-                $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'];
-                $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'];
+                $arr_vitals['vitals'][$q]['temperature'] = $newdata['vital_sign']['temperature'] ?? null;
+                $arr_vitals['vitals'][$q]['bpd'] = $newdata['vital_sign']['bpd'] ?? null;
+                $arr_vitals['vitals'][$q]['bps'] = $newdata['vital_sign']['bps'] ?? null;
+                $arr_vitals['vitals'][$q]['head_circ'] = $newdata['vital_sign']['head_circ'] ?? null;
+                $arr_vitals['vitals'][$q]['pulse'] = $newdata['vital_sign']['pulse'] ?? null;
+                $arr_vitals['vitals'][$q]['height'] = $newdata['vital_sign']['height'] ?? null;
+                $arr_vitals['vitals'][$q]['oxygen_saturation'] = $newdata['vital_sign']['oxygen_saturation'] ?? null;
+                $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'] ?? null;
+                $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'] ?? null;
                 $q++;
             } elseif ($table == 'social_history') {
                 $tobacco_status = array(
@@ -2583,18 +2582,18 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
 
-        $this->InsertImmunization($arr_immunization['immunization'], $pid, 0);
-        $this->InsertPrescriptions($arr_prescriptions['lists3'], $pid, 0);
-        $this->InsertAllergies($arr_allergies['lists2'], $pid, 0);
-        $this->InsertMedicalProblem($arr_med_pblm['lists1'], $pid, 0);
-        $this->InsertEncounter($arr_encounter['encounter'], $pid, 0);
-        $this->InsertVitals($arr_vitals['vitals'], $pid, 0);
-        $lab_results = $this->buildLabArray($arr_procedure_res['procedure_result']);
-        $this->InsertProcedures($arr_procedures['procedure'], $pid, 0);
+        $this->InsertImmunization(($arr_immunization['immunization'] ?? null), $pid, 0);
+        $this->InsertPrescriptions(($arr_prescriptions['lists3'] ?? null), $pid, 0);
+        $this->InsertAllergies(($arr_allergies['lists2'] ?? null), $pid, 0);
+        $this->InsertMedicalProblem(($arr_med_pblm['lists1'] ?? null), $pid, 0);
+        $this->InsertEncounter(($arr_encounter['encounter'] ?? null), $pid, 0);
+        $this->InsertVitals(($arr_vitals['vitals'] ?? null), $pid, 0);
+        $lab_results = $this->buildLabArray($arr_procedure_res['procedure_result'] ?? null);
+        $this->InsertProcedures(($arr_procedures['procedure'] ?? null), $pid, 0);
         $this->InsertLabResults($lab_results, $pid);
-        $this->InsertCarePlan($arr_care_plan['care_plan'], $pid, 0);
-        $this->InsertFunctionalCognitiveStatus($arr_functional_cognitive_status['functional_cognitive_status'], $pid, 0);
-        $this->InsertReferrals($arr_referral['referral'], $pid, 0);
+        $this->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, 0);
+        $this->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, 0);
+        $this->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -2643,7 +2642,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        return $res_cur['option_id'];
+        return ($res_cur['option_id'] ?? null);
     }
 
     public function InsertEncounter($enc_array, $pid, $revapprove = 1)
@@ -2956,7 +2955,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                  ORDER BY id DESC
                                                  LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
-                $encounter_for_forms = $res_enc_cur['encounter'];
+                $encounter_for_forms = $res_enc_cur['encounter'] ?? null;
             } else {
                 foreach ($res_query_sel_enc as $value2) {
                     $encounter_for_forms = $value2['encounter'];
@@ -2987,7 +2986,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $encounter_for_forms,
                 $vitals_id,
                 $pid,
-                $_SESSION['authUser']));
+                ($_SESSION['authUser'] ?? null)));
         }
     }
 
@@ -3099,7 +3098,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                    ORDER BY id DESC
                                                    LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
-                $encounter_for_billing = $res_enc_cur['encounter'];
+                $encounter_for_billing = $res_enc_cur['encounter'] ?? null;
             } else {
                 foreach ($res_query_sel_enc as $val) {
                     $encounter_for_billing = $val['encounter'];
@@ -3117,7 +3116,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if (count($res) == 0) {
                 //codes
                 $qc_insert = "INSERT INTO codes(code_text,code_text_short,code,code_type,active) VALUES (?,?,?,?,?)";
-                $appTable->zQuery($qc_insert, array($value['code_text'], $value['code_text'], $value['code'], $ct_id, 1));
+                $appTable->zQuery($qc_insert, array($value['code_text'], $value['code_text'], $value['code'], ($ct_id ?? null), 1));
             }
 
             $query_selectB = "SELECT * FROM external_procedures WHERE ep_code = ? AND ep_code_type = ? AND ep_encounter = ? AND ep_pid = ?";
@@ -3410,7 +3409,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $query_sel_users = "SELECT *
                               FROM users
                               WHERE abook_type='external_provider' AND npi=?";
-            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
+            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'] ?? null));
             if ($res_query_sel_users->count() > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
@@ -3841,7 +3840,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $result = $appTable->zQuery($query_select, array('outcome', $value['observation_text']));
             if ($result->count() > 0) {
                 $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ? AND codes = ?";
-                $appTable->zQuery($q_update, array('outcome', $value['observation_text'], 'SNOMED-CT:' . $value['observation']));
+                $appTable->zQuery($q_update, array('outcome', $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? '')));
                 foreach ($result as $value1) {
                     $o_id = $value1['option_id'];
                 }
@@ -3852,7 +3851,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 }
 
                 $q_insert = "INSERT INTO list_options (list_id,option_id,title,codes,activity) VALUES (?,?,?,?,?)";
-                $appTable->zQuery($q_insert, array('outcome', $o_id, $value['observation_text'], 'SNOMED-CT:' . $value['observation'], 1));
+                $appTable->zQuery($q_insert, array('outcome', $o_id, $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? ''), 1));
             }
 
             $q_sel_med_pblm = "SELECT *
