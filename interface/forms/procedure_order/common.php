@@ -662,7 +662,7 @@ function sel_related(varname) {
 // Also note the controlling script here runs from interface/patient_file/encounter/.
     let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
     <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
-    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10', '_blank', 985, 750, '', title);
+    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10,LOINC,CPT4', '_blank', 985, 750, '', title);
 }
 
 // This is for callback by the find-code popup.
@@ -1115,6 +1115,7 @@ $title = array(xl('Order for'), $name, $date);
                                 "Select id, url, documentationOf From documents where foreign_id = ? And list_id = ? Order By id",
                                 array($pid, $formid)
                             );
+                            $req = []; // initialize this to empty to fix php8 issue.
                             while ($oprow = sqlFetchArray($reqres)) {
                                 $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
                                 if ($gbl_lab === "labcorp") {
