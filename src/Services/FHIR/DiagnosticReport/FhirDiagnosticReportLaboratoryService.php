@@ -61,9 +61,10 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
+            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['procedure_code']),
+            // we ignore category for now because it defaults to LAB, at some point in the future we may allow a different category
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -128,10 +129,15 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
                 $report->addResult($obsReference);
             }
         }
-        if (!empty($dataRecord['puuid'])) {
-            $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
+        if (!empty($dataRecord['patient']['uuid'])) {
+            $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid']));
         }
         $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemUris::DIAGNOSTIC_SERVICE_SECTION_ID));
+
+        if (!empty($dataRecord['encounter']['uuid']))
+        {
+            $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
+        }
 
         if (!empty($dataRecordReport['status'])) {
             $report->setStatus($dataRecordReport['status']);

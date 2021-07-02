@@ -1,5 +1,4 @@
 <?php
-
 /**
  * FhirLaboratoryObservation.php
  * @package openemr
@@ -9,31 +8,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Services\FHIR;
+namespace OpenEMR\Services\FHIR\Observation;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
+use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Indicates;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\OpenEMR;
+use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
-use OpenEMR\Services\ListService;
-use OpenEMR\Services\ObservationLabService;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
-use OpenEMR\Services\SocialHistoryService;
-use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompartmentResourceService
@@ -48,7 +45,7 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
     const CATEGORY = "laboratory";
 
     /**
-     * @var ObservationLabService
+     * @var ProcedureService
      */
     private $service;
 
@@ -58,7 +55,8 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->service = new ObservationLabService();
+        $this->service = new ProcedureService($fhirApiURL);
+//        $this->service = new ObservationLabService();
     }
 
     public function getResourcePathForCode($code)
@@ -79,9 +77,9 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
     public function supportsCode($code)
     {
-        // if we have no codes here than we just won't respond to the request
-        // obviously this could be cached if we wanted to optimize this.
-        return $this->service->isValidProcedureCode($code);
+        // we support pretty much any LOINC code, we could hit procedure_order_code and procedure_results to be
+        // specific but we'll just let the query execute.
+        return true;
     }
 
 
@@ -94,8 +92,8 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['result_code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date_report']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('result_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -133,7 +131,23 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
     private function parseDataRecordsIntoObservationRecords(ProcessingResult $processingResult, $record)
     {
-        $processingResult->addData($record);
+        $patient = $record['patient'] ?? null;
+
+        if (!empty($record['reports']))
+        {
+            foreach ($record['reports'] as $report)
+            {
+                if (!empty($report['results']))
+                {
+                    foreach ($report['results'] as $result)
+                    {
+                        $result['patient'] = $patient;
+                        $result['report_date'] = $report['date'];
+                        $processingResult->addData($result);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -155,8 +169,8 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
         $id->setValue($dataRecord['uuid']);
         $observation->setId($id);
 
-        if (!empty($dataRecord['date_report'])) {
-            $observation->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['date'])));
+        if (!empty($dataRecord['report_date'])) {
+            $observation->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['report_date'])));
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
@@ -170,41 +184,54 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['result_code'])) {
-            $categoryCoding->setCode($dataRecord['result_code']);
-            $categoryCoding->setDisplay($dataRecord['result_text']);
+        if (!empty($dataRecord['code'])) {
+            $categoryCoding->setCode($dataRecord['code']);
+            $categoryCoding->setDisplay($dataRecord['text']);
             $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         } else {
-            // TODO: @adunsulag need to set the data absent.
+            $observation->setCode(UtilsService::createUnknownCodeableConcept());
         }
 
-        $status = $this->getValidStatus($dataRecord['result_status'] ?? 'unknown');
+        $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
         $observation->setStatus($status);
 
-        if (!empty($dataRecord['range'])) {
+        if (!empty($dataRecord['range_low']) && !empty($dataRecord['range_high'])) {
             $referenceRange = new FHIRObservationReferenceRange();
             if (isset($dataRecord['range_low'])) {
-                $referenceRange->setLow(UtilsService::createQuantity($dataRecord['low'], $dataRecord['units'], $dataRecord['units']));
-            } else {
-                $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['high'], $dataRecord['units'], $dataRecord['units']));
+                $referenceRange->setLow(UtilsService::createQuantity($dataRecord['range_low'], $dataRecord['units'], $dataRecord['units']));
             }
-
+            if (isset($dataRecord['range_high']))
+            {
+                $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['range_high'], $dataRecord['units'], $dataRecord['units']));
+            }
             $observation->addReferenceRange($referenceRange);
         }
 
         if (!empty($dataRecord['result'])) {
             if (is_numeric($dataRecord['result'])) {
                 $quantity = new FHIRQuantity();
-                $quantity->setValue($dataRecord['result']);
+                $quantityValue = $dataRecord['result'];
                 if (!empty($dataRecord['units'])) {
                     $quantity->setUnit($dataRecord['units']);
                 }
-                $observation->setValueQuantity($quantity);
+
+                if (is_float($quantityValue) )
+                {
+                    $observation->setValueQuantity(floatval($quantityValue));
+                }
+                else
+                {
+                    $observation->setValueQuantity(intval($quantityValue));
+                }
             } else {
                 $observation->setValueString($dataRecord['result']);
             }
+        } else {
+            $observation->setDataAbsentReason(UtilsService::createDataMissingExtension());
+            // if we have a document reference let's add it here
+
         }
 
 
@@ -212,7 +239,9 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
             $observation->addNote(['text' => $dataRecord['comments']]);
         }
 
-        $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
+        if (!empty($dataRecord['patient'])) {
+            $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['patient']['uuid']));
+        }
 
         return $observation;
     }

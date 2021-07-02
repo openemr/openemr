@@ -1,5 +1,4 @@
 <?php
-
 /**
  * FhirSocialHistoryService.php
  * @package openemr
@@ -9,9 +8,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Services\FHIR;
+namespace OpenEMR\Services\FHIR\Observation;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -19,8 +17,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
+use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\OpenEMR;
+use OpenEMR\Services\FHIR\openEMRSearchParameters;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -30,7 +33,6 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\SocialHistoryService;
-use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
 // TODO: @adunsulag look at refactoring this class into a base class with FhirVitalsService depending on what happens

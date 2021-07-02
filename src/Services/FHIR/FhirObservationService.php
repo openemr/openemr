@@ -15,6 +15,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Observation\FhirLaboratoryObservation;
+use OpenEMR\Services\FHIR\Observation\FhirSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirVitalsService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -67,7 +70,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         parent::__construct();
         $this->innerServices = [];
         // TODO: @adunsulag look at moving each of the service classes into their own namespace so people can add onto the observations
-        $this->observationService = new ObservationLabService();
+//        $this->observationService = new ObservationLabService();
         $this->addMappedService(new FhirSocialHistoryService());
         $this->addMappedService(new FhirVitalsService());
         $this->addMappedService(new FhirLaboratoryObservation());
@@ -153,6 +156,22 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search)
     {
         $processingResult = new ProcessingResult();
+
+        // we first grab the uuid from our registry and find out if its a mapping observation resource
+        // (such as vital signs)
+        $registryRecord = UuidRegistry::getRegistryRecordForUuid($fhirResourceId);
+
+        if (empty($registryRecord)) {
+            $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
+            return $processingResult;
+        }
+
+        // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
+        if ($registryRecord['mapped'] != '1')
+        {
+            return;
+        }
+
         // we are going to get our
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
 

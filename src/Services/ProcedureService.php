@@ -44,7 +44,7 @@ class ProcedureService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['result_uuid','report_uuid', 'lab_uuid','puuid', 'order_uuid'];
+        return ['result_uuid','report_uuid', 'lab_uuid','puuid', 'order_uuid', 'euuid'];
     }
 
     public function search($search, $isAndCondition = true)
@@ -84,7 +84,6 @@ class ProcedureService extends BaseService
                     ,presult.result_range
                     ,presult.result_abnormal
                     ,presult.result_comments
-                    ,presult.result_document_id
                     ,presult.result_status
      
                     ,order_codes.procedure_name
@@ -97,7 +96,13 @@ class ProcedureService extends BaseService
      
                     ,patients.puuid
                     ,patients.pid
-                    
+
+                    ,encounters.eid
+                    ,encounters.euuid
+                    ,encounters.encounter_date
+
+                    ,docs.doc_id
+                    ,docs.doc_uuid
                 FROM (
                     SELECT 
                         procedure_result_id
@@ -148,6 +153,15 @@ class ProcedureService extends BaseService
                 ON 
                     porder.procedure_order_id = preport.procedure_order_id
                 LEFT JOIN
+                (
+                     select
+                        encounter AS eid
+                        ,uuid AS euuid
+                        ,`date` AS encounter_date
+                    FROM
+                        form_encounter
+                ) encounters ON porder.order_encounter_id = encounters.eid
+                LEFT JOIN
                     (
                         SELECT
                                ppid AS lab_id
@@ -170,9 +184,18 @@ class ProcedureService extends BaseService
                         ,uuid AS puuid
                     FROM
                         patient_data
-                 ) patients
+                ) patients
                 ON 
-                    patients.pid = porder.order_patient_id ";
+                    patients.pid = porder.order_patient_id 
+                
+                LEFT JOIN (
+                    select 
+                       id AS doc_id
+                       ,uuid AS doc_uuid
+                    FROM
+                        documents
+                ) docs ON presult.result_document_id = docs.doc_id
+                ";
 
         $excludeDNR_TNP = new StringSearchField('result_string', ['DNR','TNP'], SearchModifier::NOT_EQUALS_EXACT, true);
         if (isset($search['result_string']) && $search['result_string'] instanceof ISearchField) {
@@ -232,14 +255,32 @@ class ProcedureService extends BaseService
                     , 'diagnosis' => $record['order_diagnosis']
                     , 'activity' => $record['order_activity']
                     , 'provider_id' => $record['order_provider_id']
-                    , 'lab' => [
+                    , 'reports' => []
+                ];
+                if (!empty($record['lab_id']))
+                {
+                    $procedure['lab'] = [
                         'id' => $record['lab_id'] ?? null
                         ,'uuid' => $record['lab_uuid'] ?? null
                         ,'name' => $record['lab_name'] ?? null
                         ,'npi' => $record['lab_npi'] ?? null
-                    ]
-                    , 'reports' => []
-                ];
+                    ];
+                }
+                if (!empty($record['pid']))
+                {
+                    $procedure['patient'] = [
+                        'pid' => $record['pid']
+                        ,'uuid' => $record['puuid']
+                    ];
+                }
+                if (!empty($record['eid']))
+                {
+                    $procedure['encounter'] = [
+                        'id' => $record['eid']
+                        ,'uuid' => $record['euuid']
+                        ,'date' => $record['encounter_date']
+                    ];
+                }
                 $procedures[] = $procedureUuid;
             } else {
                 $procedure = $procedureByUuid[$procedureUuid];

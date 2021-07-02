@@ -830,7 +830,10 @@ ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid
 
 #IfUuidNeedUpdateId procedure_providers ppid
 #EndIf
-#IfMissingColumn patient_data dupscore
+
+#IfMissingColumn procedure_type procedure_type_name
+ALTER TABLE `procedure_type` ADD COLUMN `procedure_type_name` VARCHAR(100);
+#EndIf#IfMissingColumn patient_data dupscore
 ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
 #EndIf
 

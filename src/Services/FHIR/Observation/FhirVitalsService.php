@@ -1,4 +1,12 @@
 <?php
+/**
+ * FhirVitalsService.php
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /**
  * FhirVitalsService.php
@@ -9,7 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Services\FHIR;
+namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
@@ -21,6 +29,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
+use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;

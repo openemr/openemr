@@ -134,6 +134,23 @@ class UuidRegistry
     }
 
     /**
+     * Returns the uuid registry record for a given uuid.
+     * @param string|binary $uuid The uuid to search
+     * @param bool $is_binary Whether the passed in uuid is a string or binary
+     * @return array|null
+     */
+    public static function getRegistryRecordForUuid($uuid, $is_binary = false)
+    {
+        $sql = "select * from `uuid_registry` WHERE uuid = ?";
+        $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
+        $result = QueryUtils::fetchRecords($sql, [$uuid_as_binary]);
+        if (!empty($result)) {
+            return $result[0];
+        }
+        return $result;
+    }
+
+    /**
      * Given a table name it returns the UuidRegistry object for that table name
      * @param $table_name The name of the table that has a uuid column
      * @return UuidRegistry

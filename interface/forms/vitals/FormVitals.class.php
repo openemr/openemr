@@ -11,7 +11,7 @@ define("EVENT_OTHER", 4);
  *
  */
 
-use OpenEMR\Services\FHIR\FhirVitalsService;
+use OpenEMR\Services\FHIR\Observation\FhirVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
