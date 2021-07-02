@@ -16,6 +16,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class ClinicalNotesService extends BaseService
@@ -52,7 +54,7 @@ class ClinicalNotesService extends BaseService
         // result for now if the table does not conform to our CORE clinical_notes
         $fields = $this->getFields();
         $processingResult = new ProcessingResult();
-        if (array_search($fields, 'code') === false) {
+        if (array_search('code', $fields) === false) {
             // there is no data right now for the other form so we leave it be.
             return $processingResult;
         }
@@ -84,12 +86,29 @@ class ClinicalNotesService extends BaseService
                 ,users.npi
                 ,users.physician_type
             FROM 
-                form_clinical_notes notes
+                (
+                    select 
+                        id
+                        ,uuid
+                        ,activity
+                        ,`date`
+                        ,`code`
+                        ,codetext
+                        ,`description`
+                        ,external_id
+                        ,clinical_notes_type
+                        ,note_related_to
+                        ,clinical_notes_category
+                        ,form_id
+                        ,user
+                 FROM
+                    form_clinical_notes 
+             ) notes
             JOIN (
                 SELECT
                     id AS form_id,
                     encounter
-                    ,pid
+                    ,pid AS form_pid
                 FROM    
                     forms
             ) forms ON forms.form_id = notes.form_id
@@ -107,7 +126,7 @@ class ClinicalNotesService extends BaseService
                     uuid AS puuid
                     ,pid
                     FROM patient_data
-            ) patients ON forms.pid = patients.pid
+            ) patients ON forms.form_pid = patients.pid
             LEFT JOIN
             (
                 SELECT 
@@ -275,6 +294,17 @@ class ClinicalNotesService extends BaseService
 
         $sql = "SELECT id FROM `form_clinical_notes` WHERE `form_id`=? AND `pid` = ? AND `encounter` = ?";
         return QueryUtils::fetchTableColumn($sql, 'id', array($formid, $pid, $encounter));
+    }
+
+    /**
+     * Retrieve all of the clinical notes for a given patient
+     * @param $pid
+     * @return ProcessingResult
+     */
+    public function getClinicalNotesForPatient($pid) : ProcessingResult
+    {
+        $search['pid'] = new TokenSearchField('pid', new TokenSearchValue($pid));
+        return $this->search($search);
     }
 
     public function getClinicalNotesForPatientForm(int $formid, $pid, $encounter)
