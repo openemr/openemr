@@ -301,7 +301,7 @@ class ClinicalNotesService extends BaseService
      * @param $pid
      * @return ProcessingResult
      */
-    public function getClinicalNotesForPatient($pid) : ProcessingResult
+    public function getClinicalNotesForPatient($pid): ProcessingResult
     {
         $search['pid'] = new TokenSearchField('pid', new TokenSearchValue($pid));
         return $this->search($search);
