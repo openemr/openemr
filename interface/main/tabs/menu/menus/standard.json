@@ -852,7 +852,19 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "super"
+              "delete"
+            ]
+          },
+          {
+            "label": "Manage Duplicates",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/patient_file/manage_dup_patients.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "delete"
             ]
           }
         ],
@@ -861,6 +873,10 @@
           [
             "admin",
             "super"
+          ],
+          [
+            "admin",
+            "delete"
           ]
         ]
       },

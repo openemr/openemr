@@ -8,9 +8,10 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +19,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
+
+require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
 $facilityService = new FacilityService();
 
@@ -1074,6 +1077,7 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
+        updateDupScore($result['pid']);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
@@ -1794,4 +1798,22 @@ function is_patient_deceased($pid, $date = '')
 
         return $results;
     }
+}
+
+// This computes, sets and returns the dup score for the given patient.
+//
+function updateDupScore($pid)
+{
+    $row = sqlQuery(
+        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+        "p1.pid = ? AND p2.pid < p1.pid",
+        array($pid)
+    );
+    $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
+    sqlStatement(
+        "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
+        array($dupscore, $pid)
+    );
+    return $dupscore;
 }
