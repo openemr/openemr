@@ -6,13 +6,15 @@
  * some patient created before it. Optional arguments specifying values are:
  *
  * --webdir   The full path to the OpenEMR web directory. Defaults to the directory
- *            two levels below that of this script.
+ *            two levels above that of this script.
  * --site     The site ID. Defaults to "default".
  * --maxmins  The maximum number of minutes to run. Defaults to 60. Use 0 for no limit.
  *
- * A "-q" argument (no value) suppresses messages on stdout.
- * A "-c" argument (no value) clears existing scores to recompute all of them;
- * except scores of -1 are not cleared because they are manually assigned.
+ * Arguments not having a value may be:
+ * 
+ * -q         Suppresses messages on stdout.
+ * -c         Clears existing scores to recompute all of them; except scores of -1 
+ *            are not cleared because they are manually assigned.
  *
  * Because we are comparing every patient with every other patient, this script can
  * run for a very long time with a large database. Thus we want to do it offline.
@@ -32,6 +34,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// The number of scores to compute between tests for time expiration.
 $querylimit = 1000;
 
 function sqlExec($link, $query)
@@ -71,7 +74,7 @@ if (stripos(PHP_OS, 'WIN') === 0) {
     $args['webdir'] = str_replace("\\", "/", $args['webdir']);
 }
 
-$confname = $args['webdir'] . "/sites/default/sqlconf.php";
+$confname = $args['webdir'] . "/sites/" . $args['site'] . "/sqlconf.php";
 if (!is_file($confname)) {
     die("File not found: " . $confname . "\n");
 }
@@ -121,8 +124,6 @@ while (!$finished && time() < $endtime) {
     while ($row1 = mysqli_fetch_assoc($res1)) {
         $scores[$row1['pid']] = $row1['dupscore'];
     };
-
-    // print_r($scores); // debugging
 
     mysqli_free_result($res1);
     foreach ($scores as $pid => $score) {

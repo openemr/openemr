@@ -7207,6 +7207,7 @@ CREATE TABLE `patient_data` (
   `birth_fname` TEXT,
   `birth_lname` TEXT,
   `birth_mname` TEXT,
+  `dupscore` INT NOT NULL default -9,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
