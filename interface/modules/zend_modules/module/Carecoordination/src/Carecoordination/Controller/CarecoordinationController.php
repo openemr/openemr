@@ -104,7 +104,7 @@ class CarecoordinationController extends AbstractActionController
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
-            'file_location' => basename($_FILES['file']['name']),
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
         ));
