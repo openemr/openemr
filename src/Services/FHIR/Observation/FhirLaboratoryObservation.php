@@ -213,25 +213,31 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
             if (is_numeric($dataRecord['result'])) {
                 $quantity = new FHIRQuantity();
                 $quantityValue = $dataRecord['result'];
-                if (!empty($dataRecord['units'])) {
-                    $quantity->setUnit($dataRecord['units']);
+                $unit = $dataRecord['units'] ?? null;
+                if (!empty($unit)) {
+                    if ($unit === 'in') {
+                        $unit = 'in_i';
+                    } else if ($unit === 'lb') {
+                        $unit = 'lb_av';
+                    }
+                    $quantity->setUnit($unit);
+                    $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
                 }
 
                 if (is_float($quantityValue) )
                 {
-                    $observation->setValueQuantity(floatval($quantityValue));
+                    $quantity->setValue(floatval($quantityValue));
                 }
                 else
                 {
-                    $observation->setValueQuantity(intval($quantityValue));
+                    $quantity->setValue(intval($quantityValue));
                 }
+                $observation->setValueQuantity($quantity);
             } else {
                 $observation->setValueString($dataRecord['result']);
             }
         } else {
             $observation->setDataAbsentReason(UtilsService::createDataMissingExtension());
-            // if we have a document reference let's add it here
-
         }
 
 
