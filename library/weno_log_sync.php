@@ -18,3 +18,5 @@ function start_weno()
     $logsync = $container->getLogproperties();
     $logsync->logSync();
 }
+//For manual launch of log sync
+start_weno();

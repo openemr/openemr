@@ -53,6 +53,8 @@ class LogProperties
      */
     private $provider;
 
+    private $credentialsInformation;
+
     /**
      * LogProperties constructor.
      */
@@ -65,7 +67,16 @@ class LogProperties
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-        $this->provider = $this->container->getTransmitproperties();
+        $this->credentialInformation = $this->providerCredentials();
+    }
+
+    private function providerCredentials()
+    {
+        //find the first Weno user password in the settings and get ID and password
+        $sql = "select ue.id, ue.email, us.setting_value from users ue JOIN user_settings us ON us.setting_user = ue.id "
+                . "where us.setting_label = 'global:weno_provider_password' and ue.email != ''";
+        $credentials = sqlQuery($sql);
+        return $credentials;
     }
 
     /**
@@ -73,23 +84,18 @@ class LogProperties
      */
     public function logEcps()
     {
-        $email = $this->provider->getProviderEmail();
-        $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
-        $md5 = md5($prov_pass);                       // hash the current password
-        $workday = date("l");
-        //This is to cover working on Saturday but not on Sunday.
-        //Checking Saturday for any prescriptions that were written.
-        if ($workday == 'Monday') {
-            $yesterday = date("Y-m-d", strtotime("-2 day"));
-        } else {
-            $yesterday = date("Y-m-d", strtotime("yesterday"));
-        }
+        //$credentialInformation = $this->providerCredentials();                                                   // get the credentials to be used
+        $email = $this->credentialInformation;                                                                    // an array is returned
+        $pass_value = $this->credentialInformation;
+        $prov_pass =  $this->cryptoGen->decryptStandard($pass_value['setting_value']);                // decrypt the password
+        $md5 = md5($prov_pass);                                                                                  // hash the password
+
 
         $p = [
             "UserEmail" => $email['email'],
             "MD5Password" => $md5,
-            "FromDate" => $yesterday,
-            "ToDate" => $yesterday,
+            "FromDate" => date("Y-m-d"),
+            "ToDate" => date("Y-m-d"),
             "ResponseFormat" => "CSV"
         ];
         $plaintext = json_encode($p);                //json encode email and password
@@ -105,9 +111,10 @@ class LogProperties
      */
     public function logReview()
     {
-        $email = $this->provider->getProviderEmail();
-        $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
-        $md5 = md5($prov_pass);                       // hash the current password
+        $email = $this->credentialInformation;
+        $pass_value = $this->credentialInformation;
+        $prov_pass =  $this->cryptoGen->decryptStandard($pass_value['setting_value']);      // gets the password stored for the
+        $md5 = md5($prov_pass);                                                             // hash the current password
 
         $p = [
             "UserEmail" => $email['email'],
@@ -126,7 +133,7 @@ class LogProperties
      */
     public function logSync()
     {
-        $provider_info = $this->provider->getProviderEmail();
+        $provider_info = $this->credentialInformation;
 
         $logurlparam = $this->logEcps();
         $syncLogs = "https://online.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
