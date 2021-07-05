@@ -30,7 +30,18 @@ use OpenEMR\Services\ClinicalNotesService;
 
 $returnurl = 'encounter_top.php';
 $formid = 0 + ($_GET['id'] ?? 0);
+
 $clinicalNotesService = new ClinicalNotesService();
+
+if (empty($formid)) {
+    $sql = "SELECT id, encounter FROM `form_clinical_notes` WHERE pid = ? AND encounter = ?  LIMIT 1";
+    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['id'] ?? 0;
+    if (!empty($formid)) {
+        echo "<script>var message=" .
+            js_escape(xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.")) .
+        "</script>";
+    }
+}
 if ($formid) {
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
     $check_res = [];
@@ -65,9 +76,11 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
     <?php Header::setupHeader(['datetime-picker']); ?>
     <script>
         <?php echo "const codeArray=" . json_encode($clinical_notes_type, true) . ";\n"; ?>
-        function duplicateRow(e) {
-            var newRow = e.cloneNode(true);
-            e.parentNode.insertBefore(newRow, e.nextSibling);
+        function duplicateRow(oldId) {
+            event.preventDefault();
+            let dupRow = document.getElementById(oldId);
+            let newRow = dupRow.cloneNode(true);
+            dupRow.parentNode.insertBefore(newRow, dupRow.nextSibling);
             changeIds('tb_row');
             changeIds('description');
             changeIds('code');
@@ -107,9 +120,10 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
             }
         }
 
-        function deleteRow(rowId) {
-            if (rowId != 'tb_row_1') {
-                var elem = document.getElementById(rowId);
+        function deleteRow(othis) {
+            rowId = $(othis).parents('.tb_row').attr("id");
+            if (rowId != 'tb_row_1' && rowId) {
+                let elem = document.getElementById(rowId);
                 elem.parentNode.removeChild(elem);
             }
         }
@@ -152,6 +166,10 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
+
+            if (typeof message !== 'undefined') {
+                alert(message);
+            }
         });
     </script>
 </head>
@@ -216,11 +234,11 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Narrative'); ?>:</label>
                                                 <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo text($context); ?>" class="form-control description" rows="14"><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="col-12 text-sm-center text-md-left">
-                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                            <div class="col-12 text-sm-center text-md-left mt-1">
+                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow('tb_row_<?php echo attr($key) + 1; ?>');" title='<?php echo xla('Click here to duplicate the row'); ?>'>
                                                     <?php echo xlt('Add'); ?>
                                                 </button>
-                                                <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteRow(this);" title='<?php echo xla('Click here to delete the row'); ?>'>
                                                     <?php echo xlt('Delete'); ?>
                                                 </button>
                                                 <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
@@ -229,11 +247,11 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                     </div>
                                 </div>
                             </fieldset>
+                            <hr />
                         </div>
-                        <hr />
                         <?php } ?>
                         <div class="form-group">
-                            <div class="col-sm-12 position-override">
+                            <div class="col-sm-12">
                                 <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel'); ?></button>

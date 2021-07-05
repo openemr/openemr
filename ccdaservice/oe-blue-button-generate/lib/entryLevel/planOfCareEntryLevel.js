@@ -4,6 +4,7 @@ var fieldLevel = require('../fieldLevel');
 var leafLevel = require('../leafLevel');
 var condition = require("../condition");
 var contentModifier = require("../contentModifier");
+var sharedEntryLevel = require("./sharedEntryLevel");
 
 var key = contentModifier.key;
 var required = contentModifier.required;
@@ -69,7 +70,7 @@ exports.planOfCareActivityObservation = {
     key: "observation",
     attributes: {
         classCode: "OBS",
-        moodCode: "RQO"
+        moodCode: leafLevel.inputProperty("mood_code")
     },
     content: [
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.44"),
@@ -78,6 +79,14 @@ exports.planOfCareActivityObservation = {
             key: "code",
             attributes: leafLevel.code,
             dataKey: "plan"
+        }, {
+            key: "originalText",
+            content: {
+                key: "reference",
+                attributes: {
+                    "value": leafLevel.nextReference("treatment_plan")
+                }
+            }
         },
         fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
@@ -124,13 +133,61 @@ exports.planOfCareActivityEncounter = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        [fieldLevel.performer, dataKey("performers")], {
+            key: "participant",
+            attributes: {
+                typeCode: "LOC"
+            },
+            content: [
+                [sharedEntryLevel.serviceDeliveryLocation, required]
+            ],
+            dataKey: "locations"
+        }, {
+            key: "entryRelationship",
+            attributes: {
+                typeCode: "RSON"
+            },
+            content: [
+                [sharedEntryLevel.indication, required]
+            ],
+            dataKey: "findings",
+            dataTransform: function (input) {
+                input = input.map(function (e) {
+                    e.code = {
+                        code: "282291009",
+                        name: "Diagnosis",
+                        code_system: "2.16.840.1.113883.6.96",
+                        code_system_name: "SNOMED CT"
+                    };
+                    return e;
+                });
+                return input;
+            }
+        }
     ],
     existsWhen: function (input) {
         return input.type === "encounter";
     }
 };
 
+var carePlanMedicationInformation = {
+    key: "manufacturedProduct",
+    attributes: {
+        classCode: "MANU"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.23", "2014-06-09"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.23"),
+        {
+            key: "manufacturedMaterial",
+            content: [{
+                key: "code",
+                attributes: leafLevel.code,
+            }]
+        }
+    ]
+};
 exports.planOfCareActivitySubstanceAdministration = {
     key: "substanceAdministration",
     attributes: {
@@ -138,15 +195,21 @@ exports.planOfCareActivitySubstanceAdministration = {
         moodCode: "RQO"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.42", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.42"),
         fieldLevel.uniqueId,
         fieldLevel.id, {
-            key: "code",
-            attributes: leafLevel.code,
-            dataKey: "plan"
+            key: "text",
+            text: leafLevel.input,
+            dataKey: "name"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        {
+            key: "consumable",
+            content: carePlanMedicationInformation,
+            dataKey: "plan"
+        },
     ],
     existsWhen: function (input) {
         return input.type === "substanceAdministration";
@@ -176,7 +239,6 @@ exports.planOfCareActivitySupply = {
 };
 
 var goal = {
-
     key: "code",
     attributes: {
         "code": leafLevel.deepInputProperty("code"),
