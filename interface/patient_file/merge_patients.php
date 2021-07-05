@@ -28,7 +28,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
 
-if (!AclMain::aclCheckCore('admin', 'delete')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 ?>
@@ -322,7 +322,7 @@ if ($form_pid2) {
 
 </p>
 
-<form method='post' action='merge_patients.php?<?php echo "pid1=$form_pid1&pid2=$form_pid2"; ?>'>
+<form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
 <table class="table w-100">
@@ -335,7 +335,7 @@ if ($form_pid2) {
     value=' (<?php echo attr($target_string); ?>)'
     onclick='sel_patient(this, this.form.form_target_pid)'
     title='<?php echo xla('Click to select patient'); ?>' readonly />
-   <input type='hidden' name='form_target_pid' value='<?php echo $target_pid; ?>' />
+   <input type='hidden' name='form_target_pid' value='<?php echo attr($target_pid); ?>' />
   </td>
   <td>
     <?php echo xlt('This is the main chart that is to receive the merged data.'); ?>
@@ -350,7 +350,7 @@ if ($form_pid2) {
     value='<?php echo attr($source_string); ?>'
     onclick='sel_patient(this, this.form.form_source_pid)'
     title='<?php echo xla('Click to select patient'); ?>' readonly />
-   <input type='hidden' name='form_source_pid' value='<?php echo $source_pid; ?>' />
+   <input type='hidden' name='form_source_pid' value='<?php echo attr($source_pid); ?>' />
   </td>
   <td>
     <?php echo xlt('This is the chart that is to be merged into the main chart and then deleted.'); ?>

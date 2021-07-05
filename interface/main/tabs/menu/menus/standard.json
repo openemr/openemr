@@ -852,7 +852,7 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "delete"
+              "super"
             ]
           },
           {
@@ -864,7 +864,7 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "delete"
+              "super"
             ]
           }
         ],
@@ -873,10 +873,6 @@
           [
             "admin",
             "super"
-          ],
-          [
-            "admin",
-            "delete"
           ]
         ]
       },

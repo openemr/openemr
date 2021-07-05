@@ -73,15 +73,15 @@ function displayRow($row, $pid = '')
     ?>
  <tr bgcolor='<?php echo $bgcolor; ?>'>
   <td class="detail" bgcolor="#dddddd">
-   <select onchange='selchange(this, <?php echo "$pid, " . $row['pid']; ?>)' style='width:100%'>
+   <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
     <?php echo $options; // this is html and already escaped as required ?>
    </select>
   </td>
   <td class="detail" align="right">
     <?php echo text($myscore); ?>
   </td>
-  <td class="detail" align="right" onclick="openNewTopWindow(<?php echo $row['pid']; ?>)"
-    title="Click to open in a new window or tab" style="color:blue;cursor:pointer">
+  <td class="detail" align="right" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
+    title="<?php echo xla('Click to open in a new window or tab'); ?>" style="color:blue;cursor:pointer">
     <?php echo text($row['pid']); ?>
   </td>
   <td class="detail">
@@ -91,7 +91,7 @@ function displayRow($row, $pid = '')
     <?php echo text($ptname); ?>
   </td>
   <td class="detail">
-    <?php echo oeFormatShortDate($row['DOB']); ?>
+    <?php echo text(oeFormatShortDate($row['DOB'])); ?>
   </td>
   <td class="detail">
     <?php echo text($row['ss']); ?>
@@ -103,7 +103,7 @@ function displayRow($row, $pid = '')
     <?php echo text($phones); ?>
   </td>
   <td class="detail">
-    <?php echo oeFormatShortDate($row['regdate']); ?>
+    <?php echo text(oeFormatShortDate($row['regdate'])); ?>
   </td>
   <td class="detail">
     <?php echo text($facname); ?>
@@ -121,8 +121,8 @@ if (!empty($_POST)) {
     }
 }
 
-if (!AclMain::aclCheckCore('admin', 'delete')) {
-    die(xl("Unauthorized access."));
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    die(xlt("Unauthorized access."));
 }
 
 $scorecalc = getDupScoreSQL();
@@ -149,10 +149,6 @@ table.mymaintable td {
 
 </style>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-
 <script>
 
 $(function () {
@@ -161,8 +157,6 @@ $(function () {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
     }
 });
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function openNewTopWindow(pid) {
  document.fnew.patientID.value = pid;
@@ -175,10 +169,10 @@ function selchange(sel, toppid, rowpid) {
   if (sel.value == '') return;
   top.restoreSession();
   if (sel.value == 'MK') {
-    window.location = 'merge_patients.php?pid1=' + rowpid + '&pid2=' + toppid;
+    window.location = 'merge_patients.php?pid1=' + encodeURIComponent(rowpid) + '&pid2=' + encodeURIComponent(toppid);
   }
   else if (sel.value == 'MD') {
-    window.location = 'merge_patients.php?pid1=' + toppid + '&pid2=' + rowpid;
+    window.location = 'merge_patients.php?pid1=' + encodeURIComponent(toppid) + '&pid2=' + encodeURIComponent(rowpid);
   }
   else {
     // Currently 'U' and 'R' actions are supported and rowpid is meaningless.
@@ -295,7 +289,7 @@ while ($row1 = sqlFetchArray($res1)) {
 
 <!-- form used to open a new top level window when a patient row is clicked -->
 <form name='fnew' method='post' target='_blank'
- action='../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>'>
+ action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='patientID' value='0' />
 </form>

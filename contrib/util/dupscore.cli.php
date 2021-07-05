@@ -38,29 +38,8 @@
 // The number of scores to compute between tests for time expiration.
 $querylimit = 1000;
 
-function sqlExec($link, $query)
-{
-    if (!mysqli_query($link, $query)) {
-        die("Query failed: $query\n");
-    }
-    return true;
-}
-
-function sqlSelect($link, $query)
-{
-    $res = mysqli_query($link, $query);
-    if (!$res) {
-        die("Query failed: $query\n");
-    }
-    return $res;
-}
-
-function sqlSelectOne($link, $query)
-{
-    $res = sqlSelect($link, $query);
-    $row = mysqli_fetch_assoc($res);
-    mysqli_free_result($res);
-    return $row;
+if (php_sapi_name() !== 'cli') {
+    die("This script must be run from the command line!\n");
 }
 
 $args = getopt('cq', array('webdir:', 'site:', 'maxmins:'));
@@ -75,26 +54,13 @@ if (stripos(PHP_OS, 'WIN') === 0) {
     $args['webdir'] = str_replace("\\", "/", $args['webdir']);
 }
 
-$confname = $args['webdir'] . "/sites/" . $args['site'] . "/sqlconf.php";
-if (!is_file($confname)) {
-    die("File not found: " . $confname . "\n");
-}
-
 // Bring in the getDupScoreSQL() function.
 require_once($args['webdir'] . "/library/dupscore.inc.php");
 
-$link = false;
-include($confname);
-$link = mysqli_connect($host, $login, $pass, $dbase, $port);
-if (empty($link)) {
-    die("Failed to open database '$dbase'\n");
-}
-
-if (!isset($args['q'])) {
-    echo "Opened database '$dbase'.\n";
-}
-
-sqlExec($link, "SET sql_mode = ''");
+// Bring in some libraries and settings shared with web scripts.
+$_GET['site'] = $args['site'];
+$ignoreAuth = 1;
+require_once($args['webdir'] . "/interface/globals.php");
 
 $endtime = time() + 365 * 24 * 60 * 60; // a year from now
 if (!empty($args['maxmins'])) {
@@ -103,9 +69,9 @@ if (!empty($args['maxmins'])) {
 
 if (isset($args['c'])) {
     // Note -1 means the patient is manually flagged as not a duplicate.
-    sqlExec($link, "UPDATE patient_data SET dupscore = -9 WHERE dupscore != -1");
+    sqlStatementNoLog("UPDATE patient_data SET dupscore = -9 WHERE dupscore != -1");
     if (!isset($args['q'])) {
-        echo "All scores have been cleared.\n";
+        echo xl("All scores have been cleared.") . "\n";
     }
 }
 
@@ -121,16 +87,18 @@ while (!$finished && time() < $endtime) {
 
     // echo "$query1\n"; // debugging
 
-    $res1 = sqlSelect($link, $query1);
-    while ($row1 = mysqli_fetch_assoc($res1)) {
+    $res1 = sqlStatementNoLog($query1);
+    while ($row1 = sqlFetchArray($res1)) {
         $scores[$row1['pid']] = $row1['dupscore'];
     };
-
-    mysqli_free_result($res1);
     foreach ($scores as $pid => $score) {
-        sqlExec($link, "UPDATE patient_data SET dupscore = $score WHERE pid = $pid");
+        sqlStatementNoLog(
+            "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
+            array($score, $pid)
+        );
         ++$count;
     }
+
     if (!isset($args['q']) && count($scores) > 0) {
         echo "$count... ";
     }
@@ -141,12 +109,12 @@ while (!$finished && time() < $endtime) {
 
 if (!isset($args['q'])) {
     if (!$count) {
-        echo "No patients without scores were found.";
+        echo xl("No patients without scores were found.");
     }
     if ($finished) {
-        echo "\nAll done.\n";
+        echo "\n" . xl("All done.") . "\n";
     } else {
-        echo "\nThis run is incomplete due to time expiration.\n";
+        echo "\n" . xl("This run is incomplete due to time expiration.") . "\n";
     }
 }
 
