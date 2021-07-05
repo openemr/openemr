@@ -17,24 +17,28 @@ function getDupScoreSQL()
 {
     return
     //  5 First name
-    "(TRIM(p1.fname) = TRIM(p2.fname)) * 5 + " .
+    "5 * (SOUNDEX(p1.fname) = SOUNDEX(p2.fname)) + " .
     //  3 Last name
-    "(p1.lname = p2.lname) * 3 + " .
+    "3 * (SOUNDEX(p1.lname) = SOUNDEX(p2.lname)) + " .
     //  4 Any phone number
-    "((TRIM(p1.phone_home) != '' AND ( " .
-      "REPLACE(REPLACE(p1.phone_home, '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_home, '-', ''), ' ', '') OR " .
-      "REPLACE(REPLACE(p1.phone_home, '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_biz , '-', ''), ' ', '') OR " .
-      "REPLACE(REPLACE(p1.phone_home, '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', '')))" .
+    "4 * (" .
+      "(TRIM(p1.phone_home) != '' AND ( " .
+      "REPLACE(REPLACE(p1.phone_home, '-', ''), ' ', '') IN ( " .
+      "REPLACE(REPLACE(p2.phone_home, '-', ''), ' ', ''), " .
+      "REPLACE(REPLACE(p2.phone_biz , '-', ''), ' ', ''), " .
+      "REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', '')))) " .
     "OR (TRIM(p1.phone_biz) != '' AND ( " .
-      "REPLACE(REPLACE(p1.phone_biz , '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_biz , '-', ''), ' ', '') OR " .
-      "REPLACE(REPLACE(p1.phone_biz , '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', ''))) " .
+      "REPLACE(REPLACE(p1.phone_biz , '-', ''), ' ', '') IN ( " .
+      "REPLACE(REPLACE(p2.phone_biz , '-', ''), ' ', ''), " .
+      "REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', '')))) " .
     "OR (TRIM(p1.phone_cell) != '' AND ( " .
-      "REPLACE(REPLACE(p1.phone_cell, '-', ''), ' ', '') = REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', ''))) " .
-    ") * 4 + " .
+      "REPLACE(REPLACE(p1.phone_cell, '-', ''), ' ', '') = " .
+      "REPLACE(REPLACE(p2.phone_cell, '-', ''), ' ', ''))) " .
+    ") + " .
     //  6 Birth date
-    "(p1.DOB IS NOT NULL AND p2.DOB IS NOT NULL AND p1.DOB = p2.DOB) * 6 + " .
-    // 7 Email
-    "(TRIM(p1.email) != '' AND TRIM(p2.email) != '' AND TRIM(p1.email) = TRIM(p2.email)) * 7 + " .
+    "6 * (p1.DOB IS NOT NULL AND p2.DOB IS NOT NULL AND p1.DOB = p2.DOB) + " .
+    //  7 Email
+    "7 * (TRIM(p1.email) != '' AND TRIM(p1.email) = TRIM(p2.email)) + " .
     // 15 Government ID
-    "(TRIM(p1.ss) != '' AND TRIM(p2.ss) != '' AND TRIM(p1.ss) = TRIM(p2.ss)) * 15";
+    "15 * (TRIM(p1.ss) != '' AND TRIM(p1.ss) = TRIM(p2.ss))";
 }

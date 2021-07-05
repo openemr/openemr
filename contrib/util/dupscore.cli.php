@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 
 /**
@@ -11,9 +12,9 @@
  * --maxmins  The maximum number of minutes to run. Defaults to 60. Use 0 for no limit.
  *
  * Arguments not having a value may be:
- * 
+ *
  * -q         Suppresses messages on stdout.
- * -c         Clears existing scores to recompute all of them; except scores of -1 
+ * -c         Clears existing scores to recompute all of them; except scores of -1
  *            are not cleared because they are manually assigned.
  *
  * Because we are comparing every patient with every other patient, this script can
