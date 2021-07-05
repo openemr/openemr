@@ -56,7 +56,7 @@ class SendtoTable extends AbstractTableGateway
     {
         $appTable   = new ApplicationTable();
         $sql        = "SELECT option_id, title FROM list_options WHERE list_id = 'abook_type'";
-        $result     = $appTable->zQuery($sql, array($formId));
+        $result     = $appTable->zQuery($sql);
         return $result;
     }
 

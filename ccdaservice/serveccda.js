@@ -19,7 +19,6 @@ var oidFacility = "";
 var all = "";
 var npiProvider = "";
 var npiFacility = "";
-
 function trim(s) {
     if (typeof s === 'string') return s.trim();
     return s;
@@ -509,21 +508,11 @@ function populateEncounter(pd) {
     let code_system_name = "";
     let status = "Active";
     // just to get diagnosis. for findings..
-    if (typeof pd.encounter_procedures.encounter_diagnosis !== 'undefined') {
-        name = pd.encounter_procedures.encounter_diagnosis.text;
-        code = cleanCode(pd.encounter_procedures.encounter_diagnosis.code);
-        code_system_name = pd.encounter_procedures.encounter_diagnosis.code_type;
-        status = pd.encounter_procedures.encounter_diagnosis.status;
-    } else if (typeof pd.encounter_procedures.procedures !== 'undefined') {
-        if (isOne(pd.encounter_procedures.procedures) === 1) {
-            name = pd.encounter_procedures.procedures.text;
-            code = cleanCode(pd.encounter_procedures.procedures.code);
-            code_system_name = pd.encounter_procedures.procedures.code_type;
-        } else {
-            name = pd.encounter_procedures.procedures[0].text;
-            code = cleanCode(pd.encounter_procedures.procedures[0].code);
-            code_system_name = pd.encounter_procedures.procedures[0].code_type;
-        }
+    if (typeof pd.encounter_diagnosis !== 'undefined') {
+        name = pd.encounter_diagnosis.text;
+        code = cleanCode(pd.encounter_diagnosis.code);
+        code_system_name = pd.encounter_diagnosis.code_type;
+        status = pd.encounter_diagnosis.status;
     }
     return {
         "encounter": {
@@ -591,7 +580,6 @@ function populateEncounter(pd) {
                 }
             ]
         }],
-        // @todo this should be array of all procedures/DX. see about in spec!
         "findings": [{
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -983,6 +971,74 @@ function getResultSet(results) {
 }
 
 function getPlanOfCare(pd) {
+    let name = '';
+    let code = '';
+    let code_system_name = "";
+    let status = "Active";
+    let one = true;
+    let encounter;
+
+    for (let key in all.encounter_list.encounter) {
+        // skip loop if the property is from prototype
+        if (!all.encounter_list.encounter.hasOwnProperty(key)) {
+            continue;
+        }
+        encounter = all.encounter_list.encounter[key];
+        if (pd.encounter == encounter.encounter_id) {
+            one = false;
+            name = encounter.encounter_diagnosis.text;
+            code = cleanCode(encounter.encounter_diagnosis.code);
+            code_system_name = encounter.encounter_diagnosis.code_type;
+            status = encounter.encounter_diagnosis.status;
+            encounter = all.encounter_list.encounter[key]; // to be sure.
+            break;
+        }
+    }
+    if (one) {
+        let value = all.encounter_list.encounter.encounter_diagnosis;
+        if (pd.encounter != value.encounter_id) {
+
+        }
+        name = value.text;
+        code = cleanCode(value.code);
+        code_system_name = value.code_type;
+        status = value.status;
+        encounter = all.encounter_list.encounter;
+    }
+
+    let planType = "observation";
+    switch(pd.care_plan_type) {
+        case 'plan_of_care':
+            planType = "observation"; // mood code INT. sets code in template
+            break;
+        case 'test_or_order':
+            planType = "observation"; // mood code RQO
+            break;
+        case 'procedure':
+            planType = "procedure";
+            break;
+        case 'appointments':
+            planType = "encounter";
+            break;
+        case 'instructions':
+            planType = "instructions";
+            break;
+        case 'referral':
+            planType = ""; // for now exclude. unsure how to template.
+            break;
+        default:
+            planType = "observation";
+    }
+    if (pd.code_type === 'RXCUI') {
+        pd.code_type = 'RXNORM';
+    }
+    if (pd.code_type === 'RXNORM') {
+        planType = "substanceAdministration";
+    }
+    if (planType === "") {
+        return false;
+    }
+
     return {
         "plan": {
             "name": pd.code_text || "",
@@ -997,16 +1053,80 @@ function getPlanOfCare(pd) {
             "name": pd.description || ""
         },
         "date_time": {
-            "center": {
+            "point": {
                 "date": fDate(pd.date_formatted),
                 "precision": "day"
             }
         },
-        "type": "observation",
+        "type": planType,
         "status": {
             "code": cleanCode(pd.status)
         },
-        "name": pd.description
+        "performers": [{
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": encounter.npi || ""
+            }],
+            "code": [{
+                "name": encounter.physician_type,
+                "code": cleanCode(encounter.physician_type_code),
+                "code_system_name": "SNOMED CT"
+            }],
+            "name": [
+                {
+                    "last": encounter.lname || "",
+                    "first": encounter.fname || ""
+                }
+            ],
+            "phone": [
+                {
+                    "number": encounter.work_phone,
+                    "type": "work place"
+                }
+            ]
+        }],
+        "locations": [{
+            "name": encounter.location,
+            "location_type": {
+                "name": encounter.location_details,
+                "code": "1160-1",
+                "code_system_name": "HealthcareServiceLocation"
+            },
+            "address": [{
+                "street_lines": [encounter.facility_address],
+                "city": encounter.facility_city,
+                "state": encounter.facility_state,
+                "zip": encounter.facility_zip,
+                "country": encounter.facility_country || "US"
+            }],
+            "phone": [
+                {
+                    "number": encounter.facility_phone,
+                    "type": "work place"
+                }
+            ]
+        }],
+        "findings": [{
+            "identifiers": [{
+                "identifier": encounter.sha_extension,
+                "extension": encounter.extension
+            }],
+            "value": {
+                "name": name,
+                "code": code,
+                "code_system_name": code_system_name
+            },
+            "date_time": {
+                "low": {
+                    "date": fDate(encounter.date),
+                    "precision": "day"
+                }
+            },
+            "status": status,
+            "reason": encounter.encounter_reason
+        }],
+        "name": pd.description,
+        "mood_code": pd.moodCode
     };
 }
 
@@ -1851,6 +1971,27 @@ function genCcda(pd) {
 
     data.demographics = Object.assign(demographic);
 
+// Encounters
+    let encs = [];
+    let enc = {};
+    encs.encounters = [];
+    try {
+        count = isOne(pd.encounter_list.encounter);
+    } catch (e) {
+        count = 0
+    }
+    if (count > 1) {
+        for (let i in pd.encounter_list.encounter) {
+            enc[i] = populateEncounter(pd.encounter_list.encounter[i]);
+            encs.encounters.push(enc[i]);
+        }
+    } else if (count !== 0) {
+        enc = populateEncounter(pd.encounter_list.encounter);
+        encs.encounters.push(enc);
+    }
+    if (count !== 0) {
+        data.encounters = Object.assign(encs.encounters);
+    }
 // vitals
     many.vitals = [];
     try {
@@ -1891,27 +2032,6 @@ function genCcda(pd) {
     }
     if (count !== 0) {
         data.medications = Object.assign(meds.medications);
-    }
-// Encounters
-    let encs = [];
-    let enc = {};
-    encs.encounters = [];
-    try {
-        count = isOne(pd.encounter_list.encounter);
-    } catch (e) {
-        count = 0
-    }
-    if (count > 1) {
-        for (let i in pd.encounter_list.encounter) {
-            enc[i] = populateEncounter(pd.encounter_list.encounter[i]);
-            encs.encounters.push(enc[i]);
-        }
-    } else if (count !== 0) {
-        enc = populateEncounter(pd.encounter_list.encounter);
-        encs.encounters.push(enc);
-    }
-    if (count !== 0) {
-        data.encounters = Object.assign(encs.encounters);
     }
 // Allergies
     let allergies = [];
@@ -2046,16 +2166,20 @@ function genCcda(pd) {
     }
     if (count > 1) {
         for (let i in pd.planofcare.item) {
-            if (cleanCode(pd.planofcare.item[i].code) === '') {
+            if (cleanCode(pd.planofcare.item[i].date_formatted) === '') {
                 i--;
                 continue;
             }
             theone[i] = getPlanOfCare(pd.planofcare.item[i]);
-            many.plan_of_care.push(theone[i]);
+            if (theone[i]) {
+                many.plan_of_care.push(theone[i]);
+            }
         }
     } else if (count !== 0) {
         theone = getPlanOfCare(pd.planofcare.item);
-        many.plan_of_care.push(theone);
+        if (theone) {
+            many.plan_of_care.push(theone);
+        }
     }
     if (count !== 0) {
         data.plan_of_care = Object.assign(many.plan_of_care);
@@ -2178,6 +2302,7 @@ function genCcda(pd) {
 
     meta.ccda_header = Object.assign(header);
     doc.meta = Object.assign(meta);
+    // build to cda
     let xml = bbg.generateCCD(doc);
 
 // Debug
@@ -2199,7 +2324,7 @@ function genCcda(pd) {
 
 function processConnection(connection) {
     conn = connection; // make it global
-    var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
+    let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
 //console.log(remoteAddress);
     conn.setEncoding('utf8');
 
@@ -2214,17 +2339,18 @@ function processConnection(connection) {
             return;
         }
         xml_complete += xml.toString();
-        if (xml.toString().match(/\<\/CCDA\>$/g)) {
+        if (xml.toString().match(/<\/CCDA>$/g)) {
             // ---------------------start--------------------------------
             let doc = "";
             xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
-
+            // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
                 // console.log(JSON.stringify(data, null, 4));
                 if (error) { // need try catch
                     console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
                     return;
                 }
+                // create document
                 doc = genCcda(data.CCDA);
             });
 
@@ -2247,7 +2373,7 @@ function processConnection(connection) {
     }
 
     function eventErrorConn(err) {
-        //console.log('Connection %s error: %s', remoteAddress, err.message);
+        console.log('Connection %s error: %s', remoteAddress, err.message);
     }
 
 // Connection Events //
