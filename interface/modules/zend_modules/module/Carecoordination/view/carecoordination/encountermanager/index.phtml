@@ -319,7 +319,7 @@ foreach($this->status_details as $row_status){
                                                         </tr>
                                                         <?php
                                                         $slno_sub   = 0;
-                                                        if (is_array($status_details[$row['pid']])) {
+                                                        if (!empty($status_details[$row['pid']]) && is_array($status_details[$row['pid']])) {
                                                             foreach ($status_details[$row['pid']] as $row_status) {
                                                                 $slno_sub++;
                                                                 ?>

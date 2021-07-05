@@ -61,9 +61,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $provider = $resultSelctProvider_row['provider_id'];
         }
 
-        $query = "SELECT id, fname, lname, specialty FROM users 
-			WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) 
-			AND authorized = 1 
+        $query = "SELECT id, fname, lname, specialty FROM users
+			WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' )
+			AND authorized = 1
 			ORDER BY lname, fname";
 
         $result = $appTable->zQuery($query, array());
@@ -75,7 +75,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         );
         $i = 1;
         foreach ($result as $row) {
-            if ($row['id'] == $provider) {
+            if ($row['id'] == ($provider ?? '')) {
                 $select =  true;
             } else {
                 $select = false;
@@ -111,9 +111,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $records = array();
         $query_string = array();
 
-        $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname,l.date AS issuedate, l.id AS issueid,l.title AS issuetitle 
+        $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname,l.date AS issuedate, l.id AS issueid,l.title AS issuetitle
 			FROM
-			  lists l, patient_data p, codes c, form_encounter AS fe 
+			  lists l, patient_data p, codes c, form_encounter AS fe
 			WHERE c.reportable = 1 ";
 
         if ($provider_selected) {
@@ -121,11 +121,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = $provider_selected;
         }
 
-        $query .= " AND l.id NOT IN 
-			(SELECT 
-				lists_id 
+        $query .= " AND l.id NOT IN
+			(SELECT
+				lists_id
 			FROM
-				syndromic_surveillance) 
+				syndromic_surveillance)
 			AND l.date >= ? AND l.date <= ? AND l.pid = p.pid ";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
@@ -134,26 +134,26 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
         }
 
-        $query .= " AND l.diagnosis LIKE 'ICD9:%' 
-					AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') ) 
-					AND fe.pid = l.pid 
-				UNION DISTINCT 
-				SELECT c.code_text, b.pid AS patientid, p.language, b.code, CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname, b.date AS issuedate,  b.id AS issueid, '' AS issuetitle 
+        $query .= " AND l.diagnosis LIKE 'ICD9:%'
+					AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') )
+					AND fe.pid = l.pid
+				UNION DISTINCT
+				SELECT c.code_text, b.pid AS patientid, p.language, b.code, CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname, b.date AS issuedate,  b.id AS issueid, '' AS issuetitle
 				FROM
-					billing b, patient_data p, codes c, form_encounter fe 
-				WHERE c.reportable = 1 
+					billing b, patient_data p, codes c, form_encounter fe
+				WHERE c.reportable = 1
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
             $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
         }
 
-        $query .= " AND c.code = b.code 
-			AND fe.date IN 
-			(SELECT 
-				MAX(fenc.date) 
+        $query .= " AND c.code = b.code
+			AND fe.date IN
+			(SELECT
+				MAX(fenc.date)
 			FROM
-				form_encounter AS fenc 
+				form_encounter AS fenc
 			WHERE fenc.pid = fe.pid) ";
 
         if ($provider_selected) {
@@ -204,8 +204,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string = array();
 
         $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,
-			DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address, 
-			p.country_code, p.phone_home, p.phone_biz, p.status, p.sex, p.ethnoracial,p.county, c.code_text, c.code, c.code_type, DATE_FORMAT(l.date,'%Y%m%d') as issuedate, 
+			DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address,
+			p.country_code, p.phone_home, p.phone_biz, p.status, p.sex, p.ethnoracial,p.county, c.code_text, c.code, c.code_type, DATE_FORMAT(l.date,'%Y%m%d') as issuedate,
 			concat(p.fname, '^',p.mname,'^', p.lname) as patientname, l.id AS issueid,l.title AS issuetitle,fac.name,fac.facility_npi,p.race,p.ethnicity,p.postal_code,fe.encounter
 			FROM
 			  lists l, patient_data p, codes c, form_encounter AS fe
@@ -217,11 +217,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = $provider_selected;
         }
 
-        $query .= " AND l.id NOT IN 
-			(SELECT 
-			  lists_id 
+        $query .= " AND l.id NOT IN
+			(SELECT
+			  lists_id
 			FROM
-			  syndromic_surveillance) 
+			  syndromic_surveillance)
 			AND l.date >= ? AND l.date <= ? AND l.pid = p.pid ";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
@@ -231,18 +231,18 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = implode(',', $code_selected);
         }
 
-        $query .= " AND l.diagnosis LIKE 'ICD9:%' 
-				AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') ) 
-				AND fe.pid = l.pid 
-			  UNION DISTINCT 
-			  SELECT c.code_text, b.pid AS patientid, p.language, b.code, DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, 
-				  concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address, p.country_code, p.phone_home, p.phone_biz, p.status, 
+        $query .= " AND l.diagnosis LIKE 'ICD9:%'
+				AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') )
+				AND fe.pid = l.pid
+			  UNION DISTINCT
+			  SELECT c.code_text, b.pid AS patientid, p.language, b.code, DATE_FORMAT(p.DOB,'%Y%m%d') as DOB,
+				  concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address, p.country_code, p.phone_home, p.phone_biz, p.status,
 				  p.sex, p.ethnoracial,p.county, c.code_text, c.code, c.code_type, DATE_FORMAT(fe.date,'%Y%m%d') as issuedate, concat(p.fname, '^',p.mname,'^', p.lname) as patientname,
 				  b.id AS issueid, '' AS issuetitle ,fac.name,fac.facility_npi,p.race,p.ethnicity,p.postal_code,fe.encounter
 			  FROM
 				billing b, patient_data p, codes c, form_encounter fe
         LEFT JOIN facility AS fac ON fac.id = fe.facility_id
-			  WHERE c.reportable = 1 
+			  WHERE c.reportable = 1
 				AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
@@ -250,12 +250,12 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = implode(',', $code_selected);
         }
 
-        $query .= " AND c.code = b.code 
-		  AND fe.date IN 
-		  (SELECT 
-			MAX(fenc.date) 
+        $query .= " AND c.code = b.code
+		  AND fe.date IN
+		  (SELECT
+			MAX(fenc.date)
 		  FROM
-			form_encounter AS fenc 
+			form_encounter AS fenc
 		  WHERE fenc.pid = fe.pid) ";
 
         if ($provider_selected) {
@@ -563,8 +563,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         $appTable  = new ApplicationTable();
         if ($option_id) {
-            $query   = "SELECT notes 
-                    FROM list_options 
+            $query   = "SELECT notes
+                    FROM list_options
                     WHERE list_id=? AND option_id=?";
             $result  = $appTable->zQuery($query, array($list_id,$option_id));
             $res_cur = $result->current();

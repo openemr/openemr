@@ -20,7 +20,7 @@ class Controller extends Smarty
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
          $this->assign("CONTROLLER", "controller.php?");
-         $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);
+         $this->assign("CONTROLLER_THIS", "controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
          $this->assign('GLOBALS', $GLOBALS);
     }
 

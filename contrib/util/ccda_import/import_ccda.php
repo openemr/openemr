@@ -112,7 +112,7 @@ foreach (glob($dir) as $file) {
     $incrementCounter = 50; // echo every 50 records imported
     if (($counter % $incrementCounter) == 0) {
         $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-        outputMessage($counter . " patients imported (" . $timeSec . " total seconds) (" . (($lasttimeSec ? ($timeSec - $lasttimeSec) : $timeSec) / $incrementCounter) . " average seconds per patient for last " . $incrementCounter . " patients)\n");
+        outputMessage($counter . " patients imported (" . $timeSec . " total seconds) (" . ((isset($lasttimeSec) ? ($timeSec - $lasttimeSec) : $timeSec) / $incrementCounter) . " average seconds per patient for last " . $incrementCounter . " patients)\n");
         $lasttimeSec = $timeSec;
     }
 }
