@@ -589,7 +589,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function immunization($component)
     {
-            $component['section']['text'] = '';
+        $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetch_immunization_value($value);
@@ -598,13 +598,13 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->fetch_immunization_value($component['section']['entry']);
         }
 
-            unset($component);
-            return;
+        unset($component);
+        return;
     }
 
     public function fetch_immunization_value($immunization_data)
     {
-        if ($immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != '' && $immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'] != 0) {
+        if (!empty($immunization_data['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['immunization'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['immunization']);
