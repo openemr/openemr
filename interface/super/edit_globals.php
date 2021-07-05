@@ -126,8 +126,8 @@ function checkBackgroundServices()
      * Setup background services for Weno when it is enabled
      * this is to sync the prescription logs
      */
-    $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
-    updateBackgroundService('WenoExchange', $wenoservices, 1);
+    $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '0' : '1';
+    updateBackgroundService('WenoExchange', $wenoservices, 10);
 }
 ?>
 <!DOCTYPE html>
