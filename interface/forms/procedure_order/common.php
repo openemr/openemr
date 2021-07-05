@@ -662,7 +662,7 @@ function sel_related(varname) {
 // Also note the controlling script here runs from interface/patient_file/encounter/.
     let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
     <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
-    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10,LOINC,SNOMED', '_blank', 985, 750, '', title);
+    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10,SNOMED', '_blank', 985, 750, '', title);
 }
 
 // This is for callback by the find-code popup.
