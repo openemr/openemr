@@ -2657,7 +2657,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $query_sel_users = "SELECT *
                               FROM users
                               WHERE abook_type='external_provider' AND npi=?";
-            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
+            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'] ?? null));
             if ($res_query_sel_users->count() > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
@@ -2689,13 +2689,13 @@ class CarecoordinationTable extends AbstractTableGateway
                                   'external_provider'
                                 )";
                 $res_query_ins_users = $appTable->zQuery($query_ins_users, array('',
-                    $value['provider_name'],
-                    $value['provider_npi'],
-                    $value['represented_organization_name'],
-                    $value['provider_address'],
-                    $value['provider_city'],
-                    $value['provider_state'],
-                    $value['provider_postalCode']));
+                    $value['provider_name'] ?? null,
+                    $value['provider_npi'] ?? null,
+                    $value['represented_organization_name'] ?? null,
+                    $value['provider_address'] ?? null,
+                    $value['provider_city'] ?? null,
+                    $value['provider_state'] ?? null,
+                    $value['provider_postalCode'] ?? null));
                       $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
@@ -2703,7 +2703,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $query_sel_fac = "SELECT *
                             FROM users
                             WHERE abook_type='external_org' AND organization=?";
-            $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization_name']));
+            $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization_name'] ?? null));
             if ($res_query_sel_fac->count() > 0) {
                 foreach ($res_query_sel_fac as $value2) {
                     $facility_id = $value2['id'];
@@ -2733,12 +2733,12 @@ class CarecoordinationTable extends AbstractTableGateway
                                 'external_org'
                               )";
                 $res_query_ins_fac = $appTable->zQuery($query_ins_fac, array('',
-                    $value['represented_organization_name'],
-                    $value['represented_organization_telecom'],
-                    $value['represented_organization_address'],
-                    $value['represented_organization_city'],
-                    $value['represented_organization_state'],
-                    $value['represented_organization_zip']));
+                    $value['represented_organization_name'] ?? null,
+                    $value['represented_organization_telecom'] ?? null,
+                    $value['represented_organization_address'] ?? null,
+                    $value['represented_organization_city'] ?? null,
+                    $value['represented_organization_state'] ?? null,
+                    $value['represented_organization_zip'] ?? null));
                       $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
 
@@ -2752,11 +2752,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $encounter_date_value = fixDate($encounter_date);
             }
 
-            $q_sel_encounter = "SELECT *
+            if (!empty($value['extension'])) {
+                $q_sel_encounter = "SELECT *
                                FROM form_encounter
                                WHERE external_id=? AND pid=?";
-            $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
-            if ($res_q_sel_encounter->count() == 0) {
+                $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
+            }
+            if (empty($value['extension']) || $res_q_sel_encounter->count() == 0) {
                 $query_insert1 = "INSERT INTO form_encounter
                            (
                             pid,
@@ -2780,10 +2782,10 @@ class CarecoordinationTable extends AbstractTableGateway
                 $result = $appTable->zQuery($query_insert1, array($pid,
                     $encounter_id,
                     $encounter_date_value,
-                    $value['represented_organization_name'],
+                    $value['represented_organization_name'] ?? null,
                     $facility_id,
                     $provider_id,
-                    $value['extension']));
+                    $value['extension'] ?? null));
                 $enc_id = $result->getGeneratedValue();
             } else {
                 $q_upd_encounter = "UPDATE form_encounter
@@ -2809,8 +2811,8 @@ class CarecoordinationTable extends AbstractTableGateway
             }
 
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
-            $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, $_SESSION["authProvider"], 'Default', 0, 'newpatient'));
-            if ($value['encounter_diagnosis_issue'] != '') {
+            $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient'));
+            if (!empty($value['encounter_diagnosis_issue'])) {
                 $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
                 $result = $appTable->zQuery($query_select, array($value['encounter_diagnosis_date'], $value['encounter_diagnosis_issue'], $pid));
                 if ($result->count() > 0) {
@@ -2836,7 +2838,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
             //to external_encounters
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
-            $appTable->zQuery($insertEX, array($encounter_date_value, $pid, $provider_id, $facility_id, $value['encounter_diagnosis_issue'], $value['extension']));
+            $appTable->zQuery($insertEX, array($encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)));
         }
     }
 
@@ -2857,11 +2859,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $vitals_date_value = fixDate($vitals_date);
             }
 
-            $q_sel_vitals = "SELECT *
+            if (!empty($value['extension'])) {
+                $q_sel_vitals = "SELECT *
                            FROM form_vitals
                            WHERE external_id=?";
-            $res_q_sel_vitals = $appTable->zQuery($q_sel_vitals, array($value['extension']));
-            if ($res_q_sel_vitals->count() == 0) {
+                $res_q_sel_vitals = $appTable->zQuery($q_sel_vitals, array($value['extension']));
+            }
+            if (empty($value['extension']) || $res_q_sel_vitals->count() == 0) {
                 $query_insert = "INSERT INTO form_vitals
                          (
                           pid,
@@ -2949,6 +2953,16 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($vitals_date_forms, $pid));
 
             if ($res_query_sel_enc->count() == 0) {
+                $res_enc = $appTable->zQuery("SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1", array($pid));
+                if ($res_enc->count() == 0) {
+                    // need to create a form_encounter for the patient to hold the vitals since the patient does not have any encounters
+                    $data[0]['date'] = $value['date'];
+                    $this->InsertEncounter($data, $pid, 0);
+                }
                 $res_enc = $appTable->zQuery("SELECT encounter
                                                  FROM form_encounter
                                                  WHERE pid=?
@@ -3308,11 +3322,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $appTable->zQuery($q_insert_completion_status, array($value['manufacturer'], $value['manufacturer']));
             }
 
-            $q_sel_imm = "SELECT *
+            if (!empty($value['extension'])) {
+                $q_sel_imm = "SELECT *
                         FROM immunizations
                         WHERE external_id=? AND patient_id=?";
-            $res_q_sel_imm = $appTable->zQuery($q_sel_imm, array($value['extension'], $pid));
-            if ($res_q_sel_imm->count() == 0) {
+                $res_q_sel_imm = $appTable->zQuery($q_sel_imm, array($value['extension'], $pid));
+            }
+            if (empty($value['extension']) || $res_q_sel_imm->count() == 0) {
                 $query = "INSERT INTO immunizations
                   ( patient_id,
                     administered_date,
@@ -3532,12 +3548,20 @@ class CarecoordinationTable extends AbstractTableGateway
                 $appTable->zQuery($q_insert, array('drug_form', $oidu_unit, $value['dose_unit'], 1));
             }
 
-            $q_sel_pres = "SELECT *
+            $res_q_sel_pres = null; // to avoid php8 warnings
+            if (!empty($value['extension'])) {
+                $q_sel_pres = "SELECT *
                          FROM prescriptions
                          WHERE patient_id = ? AND external_id = ?";
-            $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
-
-            if ($res_q_sel_pres->count() == 0) {
+                $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
+            } else {
+                // prevent bunch of duplicated prescriptions/medications
+                $q_sel_pres_r = "SELECT *
+                         FROM `prescriptions`
+                         WHERE `patient_id` = ? AND `drug` = ?";
+                $res_q_sel_pres_r = $appTable->zQuery($q_sel_pres_r, array($pid, $value['drug_text']));
+            }
+            if ((empty($value['extension']) && $res_q_sel_pres_r->count() == 0) || ($res_q_sel_pres->count() == 0)) {
                 $query = "INSERT INTO prescriptions
                   ( patient_id,
                     date_added,
@@ -3669,11 +3693,6 @@ class CarecoordinationTable extends AbstractTableGateway
                 }
             }
 
-            $q_sel_allergies = "SELECT *
-                              FROM lists
-                              WHERE external_id=? AND type='allergy' AND pid=?";
-            $res_q_sel_allergies = $appTable->zQuery($q_sel_allergies, array($value['extension'], $pid));
-
             $severity_option_id = $this->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $value['severity_al']);
             $severity_text = $this->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $value['severity_al']);
             if ($severity_option_id == '' || $severity_option_id == null) {
@@ -3729,7 +3748,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 }
             }
 
-            if ($res_q_sel_allergies->count() == 0) {
+            if (!empty($value['extension'])) {
+                $q_sel_allergies = "SELECT *
+                              FROM lists
+                              WHERE external_id=? AND type='allergy' AND pid=?";
+                $res_q_sel_allergies = $appTable->zQuery($q_sel_allergies, array($value['extension'], $pid));
+            }
+            if (empty($value['extension']) || $res_q_sel_allergies->count() == 0) {
                 $query = "INSERT INTO lists
                   ( pid,
                     date,
@@ -3854,11 +3879,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $appTable->zQuery($q_insert, array('outcome', $o_id, $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? ''), 1));
             }
 
-            $q_sel_med_pblm = "SELECT *
+            if (!empty($value['extension'])) {
+                $q_sel_med_pblm = "SELECT *
                              FROM lists
                              WHERE external_id=? AND type='medical_problem' AND begdate=? AND diagnosis=? AND pid=?";
-            $res_q_sel_med_pblm = $appTable->zQuery($q_sel_med_pblm, array($value['extension'], $med_pblm_begdate_value, 'SNOMED-CT:' . $value['list_code'], $pid));
-            if ($res_q_sel_med_pblm->count() == 0) {
+                $res_q_sel_med_pblm = $appTable->zQuery($q_sel_med_pblm, array($value['extension'], $med_pblm_begdate_value, 'SNOMED-CT:' . $value['list_code'], $pid));
+            }
+            if (empty($value['extension']) || $res_q_sel_med_pblm->count() == 0) {
                 $query = "INSERT INTO lists
                   ( pid,
                     date,
