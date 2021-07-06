@@ -828,3 +828,7 @@ ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL
 #IfNotIndex external_procedures ep_pid
 CREATE INDEX `ep_pid` ON `external_procedures` (`ep_pid`);
 #EndIf
+
+#IfNotIndex users abook_type
+CREATE INDEX `abook_type` ON `users` (`abook_type`);
+#EndIf
