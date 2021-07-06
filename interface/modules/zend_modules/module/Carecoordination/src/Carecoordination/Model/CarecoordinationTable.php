@@ -29,6 +29,10 @@ class CarecoordinationTable extends AbstractTableGateway
 
     protected $ccda_data_array;
 
+    const NPI_SAMPLE = "1234";
+    const ORGANIZATION_SAMPLE = "Organization Sample";
+    const ORGANIZATION2_SAMPLE = "Organization 2 Sample";
+
     public function __construct()
     {
         $this->ccda_data_array = [];
@@ -2654,11 +2658,17 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
-            $query_sel_users = "SELECT *
+
+            if (empty($value['provider_npi'])) {
+                $value['provider_npi'] = self::NPI_SAMPLE;
+            }
+            if (!empty($value['provider_npi'])) {
+                $query_sel_users = "SELECT *
                               FROM users
                               WHERE abook_type='external_provider' AND npi=?";
-            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'] ?? null));
-            if ($res_query_sel_users->count() > 0) {
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
+            }
+            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
@@ -2696,15 +2706,20 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['provider_city'] ?? null,
                     $value['provider_state'] ?? null,
                     $value['provider_postalCode'] ?? null));
-                      $provider_id = $res_query_ins_users->getGeneratedValue();
+                $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
             //facility
-            $query_sel_fac = "SELECT *
+            if (empty($value['represented_organization_name'])) {
+                $value['represented_organization_name'] = self::ORGANIZATION_SAMPLE;
+            }
+            if (!empty($value['represented_organization_name'])) {
+                $query_sel_fac = "SELECT *
                             FROM users
                             WHERE abook_type='external_org' AND organization=?";
-            $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization_name'] ?? null));
-            if ($res_query_sel_fac->count() > 0) {
+                $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization_name']));
+            }
+            if (!empty($value['represented_organization_name']) && $res_query_sel_fac->count() > 0) {
                 foreach ($res_query_sel_fac as $value2) {
                     $facility_id = $value2['id'];
                 }
@@ -2739,7 +2754,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['represented_organization_city'] ?? null,
                     $value['represented_organization_state'] ?? null,
                     $value['represented_organization_zip'] ?? null));
-                      $facility_id = $res_query_ins_fac->getGeneratedValue();
+                $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
 
             if ($value['date'] != 0 && $revapprove == 0) {
@@ -3023,11 +3038,16 @@ class CarecoordinationTable extends AbstractTableGateway
             }
 
             //facility1
-            $query3 = "SELECT *
+            if (empty($value['represented_organization1'])) {
+                $value['represented_organization1'] = self::ORGANIZATION_SAMPLE;
+            }
+            if (!empty($value['represented_organization1'])) {
+                $query3 = "SELECT *
                  FROM users
                  WHERE abook_type='external_org' AND organization=?";
-            $res3 = $appTable->zQuery($query3, array($value['represented_organization1']));
-            if ($res3->count() > 0) {
+                $res3 = $appTable->zQuery($query3, array($value['represented_organization1']));
+            }
+            if (!empty($value['represented_organization1']) && $res3->count() > 0) {
                 foreach ($res3 as $value3) {
                     $facility_id = $value3['id'];
                 }
@@ -3058,15 +3078,20 @@ class CarecoordinationTable extends AbstractTableGateway
                     $value['represented_organization_city1'],
                     $value['represented_organization_state1'],
                     $value['represented_organization_postalcode1']));
-                      $facility_id = $res4->getGeneratedValue();
+                $facility_id = $res4->getGeneratedValue();
             }
 
             //facility2
-            $query6 = "SELECT *
+            if (empty($value['represented_organization2'])) {
+                $value['represented_organization2'] = self::ORGANIZATION2_SAMPLE;
+            }
+            if (!empty($value['represented_organization2'])) {
+                $query6 = "SELECT *
                  FROM users
                  WHERE abook_type='external_org' AND organization=?";
-            $res6 = $appTable->zQuery($query6, array($value['represented_organization2']));
-            if ($res6->count() > 0) {
+                $res6 = $appTable->zQuery($query6, array($value['represented_organization2']));
+            }
+            if (!empty($value['represented_organization2']) && $res6->count() > 0) {
                 foreach ($res6 as $value6) {
                     $facility_id2 = $value6['id'];
                 }
@@ -3111,6 +3136,16 @@ class CarecoordinationTable extends AbstractTableGateway
                                                    WHERE pid=?
                                                    ORDER BY id DESC
                                                    LIMIT 1", array($pid));
+                if ($res_enc->count() == 0) {
+                    // need to create a form_encounter for the patient since the patient does not have any encounters
+                    $data[0]['date'] = $value['date'];
+                    $this->InsertEncounter($data, $pid, 0);
+                }
+                $res_enc = $appTable->zQuery("SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1", array($pid));
                 $res_enc_cur = $res_enc->current();
                 $encounter_for_billing = $res_enc_cur['encounter'] ?? null;
             } else {
@@ -3159,11 +3194,16 @@ class CarecoordinationTable extends AbstractTableGateway
 
         foreach ($imm_array as $key => $value) {
             //provider
-            $query_sel_users = "SELECT *
+            if (empty($value['provider_npi'])) {
+                $value['provider_npi'] = self::NPI_SAMPLE;
+            }
+            if (!empty($value['provider_npi'])) {
+                $query_sel_users = "SELECT *
                               FROM users
                               WHERE abook_type='external_provider' AND npi=?";
-            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
-            if ($res_query_sel_users->count() > 0) {
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
+            }
+            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
@@ -3202,11 +3242,16 @@ class CarecoordinationTable extends AbstractTableGateway
             }
 
             //facility
-            $query_sel_fac = "SELECT *
+            if (empty($value['represented_organization'])) {
+                $value['represented_organization'] = self::ORGANIZATION_SAMPLE;
+            }
+            if (!empty($value['represented_organization'])) {
+                $query_sel_fac = "SELECT *
                             FROM users
                             WHERE abook_type='external_org' AND organization=?";
-            $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization']));
-            if ($res_query_sel_fac->count() > 0) {
+                $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization']));
+            }
+            if (!empty($value['represented_organization']) && $res_query_sel_fac->count() > 0) {
                 foreach ($res_query_sel_fac as $value2) {
                     $facility_id = $value2['id'];
                 }
@@ -3422,11 +3467,16 @@ class CarecoordinationTable extends AbstractTableGateway
             }
 
             //provider
-            $query_sel_users = "SELECT *
+            if (empty($value['provider_npi'])) {
+                $value['provider_npi'] = self::NPI_SAMPLE;
+            }
+            if (!empty($value['provider_npi'])) {
+                $query_sel_users = "SELECT *
                               FROM users
                               WHERE abook_type='external_provider' AND npi=?";
-            $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'] ?? null));
-            if ($res_query_sel_users->count() > 0) {
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
+            }
+            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }

@@ -11183,7 +11183,8 @@ CREATE TABLE `external_procedures` (
   `ep_code_text` longtext,
   `ep_facility_id` varchar(255) DEFAULT NULL,
   `ep_external_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ep_id`)
+  PRIMARY KEY (`ep_id`),
+  KEY `ep_pid` (`ep_pid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
