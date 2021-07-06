@@ -54,13 +54,13 @@ if (stripos(PHP_OS, 'WIN') === 0) {
     $args['webdir'] = str_replace("\\", "/", $args['webdir']);
 }
 
-// Bring in the getDupScoreSQL() function.
-require_once($args['webdir'] . "/library/dupscore.inc.php");
-
 // Bring in some libraries and settings shared with web scripts.
 $_GET['site'] = $args['site'];
 $ignoreAuth = 1;
 require_once($args['webdir'] . "/interface/globals.php");
+
+// Bring in the getDupScoreSQL() function.
+require_once("$srcdir/dupscore.inc.php");
 
 $endtime = time() + 365 * 24 * 60 * 60; // a year from now
 if (!empty($args['maxmins'])) {
@@ -83,7 +83,7 @@ while (!$finished && time() < $endtime) {
     $query1 = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
         " FROM patient_data AS p1, patient_data AS p2" .
         " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
-        " GROUP BY p1.pid ORDER BY p1.pid LIMIT $querylimit";
+        " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($querylimit);
 
     // echo "$query1\n"; // debugging
 
