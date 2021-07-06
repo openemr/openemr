@@ -700,7 +700,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $this->fetch_lab_result_value($value);
             }
         } else {
-            $this->fetch_lab_result_value($component['section']['entry']);
+            $this->fetch_lab_result_value($component['section']['entry'] ?? null);
         }
 
             unset($component);
@@ -713,35 +713,36 @@ class CarecoordinationTable extends AbstractTableGateway
         if (!empty($this->ccda_data_array['field_name_value_array']['procedure_result'])) {
             $i += count($this->ccda_data_array['field_name_value_array']['procedure_result']);
         }
-        foreach ($lab_result_data['organizer']['component'] as $key => $value) {
-            if (!empty($value['observation']['code']['code'])) {
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'] ?? null;
+        if (!empty($lab_result_data['organizer']['component'])) {
+            foreach ($lab_result_data['organizer']['component'] as $key => $value) {
+                if (!empty($value['observation']['code']['code'])) {
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'] ?? null;
 
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'] ?? null;
-                $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?? null;
-                if (!empty($value['observation']['referenceRange']['observationRange']['text'])) {
-                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
-                } else {
-                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = ($value['observation']['referenceRange']['observationRange']['value']['low']['value'] ?? '') . '-' . ($value['observation']['referenceRange']['observationRange']['value']['high']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['low']['unit'] ?? '');
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'] ?? null;
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'] ?? null;
+                    if (!empty($value['observation']['referenceRange']['observationRange']['text'])) {
+                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
+                    } else {
+                        $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = ($value['observation']['referenceRange']['observationRange']['value']['low']['value'] ?? '') . '-' . ($value['observation']['referenceRange']['observationRange']['value']['high']['value'] ?? '') . ' ' . ($value['observation']['referenceRange']['observationRange']['value']['low']['unit'] ?? '');
+                    }
+
+                    $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
+                    $i++;
                 }
-
-                $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
-                $i++;
             }
         }
-
-            unset($lab_result_data);
-            return;
+        unset($lab_result_data);
+        return;
     }
 
     public function vital_sign($component)
@@ -761,7 +762,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_vital_sign_value($vital_sign_data)
     {
-        if ($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != '' && $vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'] != 0) {
+        if (!empty($vital_sign_data['organizer']['component'][0]['observation']['effectiveTime']['value'])) {
             $i = 1;
             if (!empty($this->ccda_data_array['field_name_value_array']['vital_sign'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['vital_sign']);
@@ -782,7 +783,7 @@ class CarecoordinationTable extends AbstractTableGateway
             );
 
             for ($j = 0; $j < 9; $j++) {
-                $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'];
+                $code = $vital_sign_data['organizer']['component'][$j]['observation']['code']['code'] ?? null;
                 if (!empty($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'])) {
                     $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
                     $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
