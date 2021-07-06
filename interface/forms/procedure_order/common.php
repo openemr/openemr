@@ -443,7 +443,7 @@ if (!empty($row['lab_id'])) {
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $log_file));
+            throw new Exception(sprintf('Directory "%s" was not created', $log_file));
         }
     }
 // filename
@@ -662,7 +662,7 @@ function sel_related(varname) {
 // Also note the controlling script here runs from interface/patient_file/encounter/.
     let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
     <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
-    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10', '_blank', 985, 750, '', title);
+    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10,SNOMED', '_blank', 985, 750, '', title);
 }
 
 // This is for callback by the find-code popup.
@@ -1115,6 +1115,7 @@ $title = array(xl('Order for'), $name, $date);
                                 "Select id, url, documentationOf From documents where foreign_id = ? And list_id = ? Order By id",
                                 array($pid, $formid)
                             );
+                            $req = array();
                             while ($oprow = sqlFetchArray($reqres)) {
                                 $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
                                 if ($gbl_lab === "labcorp") {
@@ -1249,7 +1250,7 @@ $title = array(xl('Order for'), $name, $date);
                         </div>
                         <div class="col-md-12">
                             <legend class="bg-dark text-light"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height:500px;">
+                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
                                 <?php
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;

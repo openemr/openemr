@@ -14,12 +14,14 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\System\System;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Carecoordination\Controller\EncountermanagerController;
 use Exception;
+use XSLTProcessor;
 
 class EncounterccdadispatchController extends AbstractActionController
 {
@@ -133,7 +135,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $content = $this->socket_get($this->data);
 
                 if ($content == 'Authentication Failure') {
-                    echo $this->listenerObject->z_xlt($content);
+                    echo $this->listenerObject::z_xlt($content);
                     die();
                 }
 
@@ -144,16 +146,16 @@ class EncounterccdadispatchController extends AbstractActionController
                     if ($hie_hook) {
                         echo $content;
                     } else {
-                        echo $this->listenerObject->z_xlt("Queued for Transfer");
+                        echo $this->listenerObject::z_xlt("Queued for Transfer");
                     }
                 }
             }
 
             if ($view && !$downloadccda) {
                 $xml = simplexml_load_string($content);
-                $xsl = new \DOMDocument();
+                $xsl = new DOMDocument();
                 $xsl->load(__DIR__ . '/../../../../../public/xsl/ccda.xsl');
-                $proc = new \XSLTProcessor();
+                $proc = new XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
                 $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
                 $proc->transformToURI($xml, $outputFile);
@@ -170,7 +172,7 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
-            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
+            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, '');
             $content            = $this->socket_get($this->data);
 
             $content = trim($content);
@@ -201,7 +203,7 @@ class EncounterccdadispatchController extends AbstractActionController
         // Create a TCP Stream Socket
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($socket === false) {
-            throw new \Exception("Socket Creation Failed");
+            throw new Exception("Socket Creation Failed");
         }
         // Let's check if server is already running
         $server_active = socket_connect($socket, "localhost", "6661");
@@ -230,7 +232,7 @@ class EncounterccdadispatchController extends AbstractActionController
                             $command = 'node';
                         } else {
                             error_log("Node is not installed on the system.  Connection failed");
-                            throw new \Exception('Connection Failed.');
+                            throw new Exception('Connection Failed.');
                         }
                     }
                     $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
@@ -240,11 +242,11 @@ class EncounterccdadispatchController extends AbstractActionController
                 $result = socket_connect($socket, "localhost", "6661");
                 if ($result === false) { // hmm something is amiss with service. user will likely try again.
                     error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                    throw new \Exception("Connection Failed");
+                    throw new Exception("Connection Failed");
                 }
             } else {
                 error_log("C-CDA Service is not enabled in Global Settings");
-                throw new \Exception("Please Enable C-CDA Alternate Service in Global Settings");
+                throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
 

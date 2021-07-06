@@ -309,7 +309,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     while ($row = sqlFetchArray($result)) {
         echo "&nbsp;&nbsp;";
         echo "<a class='link'";
-        echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
+        echo " href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
         text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)

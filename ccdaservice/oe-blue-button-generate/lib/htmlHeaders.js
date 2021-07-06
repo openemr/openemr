@@ -546,7 +546,7 @@ exports.planOfCareSectionHtmlHeader = {
                     attributes: {
                         colspan: "4"
                     },
-                    text: "Plan of Care"
+                    text: "Plan of Treatment"
                 }
             }, {
                 key: "tr",
@@ -565,7 +565,7 @@ exports.planOfCareSectionHtmlHeader = {
                 content: [{
                     key: "td",
                     attributes: {
-                        ID: leafLevel.nextTableReference("problem")
+                        ID: leafLevel.nextTableReference("treatment_plan")
                     },
                     text: leafLevel.deepInputProperty("plan.name", nda)
                 }, {

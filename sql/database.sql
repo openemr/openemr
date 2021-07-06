@@ -8938,6 +8938,7 @@ CREATE TABLE `procedure_type` (
   `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
   `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
   `transport`           varchar(31)  DEFAULT NULL,
+  `procedure_type_name` varchar(64)  NULL,
   PRIMARY KEY (`procedure_type_id`),
   KEY parent (parent)
 ) ENGINE=InnoDB;

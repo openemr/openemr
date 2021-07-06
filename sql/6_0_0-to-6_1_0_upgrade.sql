@@ -820,3 +820,7 @@ UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Typ
 #IfMissingColumn patient_data dupscore
 ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
 #EndIf
+
+#IfMissingColumn procedure_type procedure_type_name
+ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL
+#EndIf
