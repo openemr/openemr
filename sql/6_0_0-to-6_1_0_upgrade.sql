@@ -817,6 +817,10 @@ ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(1
 UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
 #EndIf
 
+#IfMissingColumn patient_data dupscore
+ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
+#EndIf
+
 #IfMissingColumn procedure_type procedure_type_name
 ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL
 #EndIf

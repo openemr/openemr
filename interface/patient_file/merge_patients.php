@@ -8,7 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,10 +16,14 @@
 set_time_limit(0);
 
 require_once("../globals.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+$form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
+$form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
@@ -160,7 +164,7 @@ if (!empty($_POST['form_submit'])) {
     $tprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($target_pid));
     $sprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($source_pid));
 
-  // Do some checking to make sure source and target exist and are the same person.
+    // Do some checking to make sure source and target exist and are the same person.
     if (empty($tprow['pid'])) {
         die(xlt('Target patient not found'));
     }
@@ -169,20 +173,20 @@ if (!empty($_POST['form_submit'])) {
         die(xlt('Source patient not found'));
     }
 
-    if ($tprow['ss'] != $sprow['ss']) {
-        die(xlt('Target and source SSN do not match'));
-    }
-
-    if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
-        die(xlt('Target patient has no DOB'));
-    }
-
-    if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
-        die(xlt('Source patient has no DOB'));
-    }
-
-    if ($tprow['DOB'] != $sprow['DOB']) {
-        die(xlt('Target and source DOB do not match'));
+    // SSN and DOB checking are skipped if we are coming from the dup manager.
+    if (!$form_pid1 || !$form_pid2) {
+        if ($tprow['ss'] != $sprow['ss']) {
+            die(xlt('Target and source SSN do not match'));
+        }
+        if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+            die(xlt('Target patient has no DOB'));
+        }
+        if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+            die(xlt('Source patient has no DOB'));
+        }
+        if ($tprow['DOB'] != $sprow['DOB']) {
+            die(xlt('Target and source DOB do not match'));
+        }
     }
 
     $tdocdir = "$OE_SITE_DIR/documents/" . check_file_dir_name($target_pid);
@@ -269,15 +273,48 @@ if (!empty($_POST['form_submit'])) {
             $crow = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
             "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'");
             if (!empty($crow['Field'])) {
-                  $colname = $crow['Field'];
-                  updateRows($tblname, $colname, $source_pid, $target_pid);
+                $colname = $crow['Field'];
+                updateRows($tblname, $colname, $source_pid, $target_pid);
+                // Note employer_data is included here; its rows are never deleted and the
+                // most recent row for each patient is the one that is normally relevant.
             }
         }
     }
 
+    // Recompute dupscore for target patient.
+    updateDupScore($target_pid);
+
     echo "<br />" . xlt('Merge complete.') . "</div>";
 
+    echo "<br />&nbsp;<br />\n";
+    echo "<input type='button' class='btn btn-primary' value='" . xla('Go to Duplicate Manager') .
+        "' onclick='window.location = \"manage_dup_patients.php\"' />\n";
+    echo "</body></html>";
+
     exit(0);
+}
+
+
+$target_string = xl('Click to select');
+$source_string = xl('Click to select');
+$target_pid = '0';
+$source_pid = '0';
+
+if ($form_pid1) {
+    $target_pid = $form_pid1;
+    $row = sqlQuery(
+        "SELECT lname, fname FROM patient_data WHERE pid = ?",
+        array($target_pid)
+    );
+    $target_string = $row['lname'] . ', ' . $row['fname'] . " ($target_pid)";
+}
+if ($form_pid2) {
+    $source_pid = $form_pid2;
+    $row = sqlQuery(
+        "SELECT lname, fname FROM patient_data WHERE pid = ?",
+        array($source_pid)
+    );
+    $source_string = $row['lname'] . ', ' . $row['fname'] . " ($source_pid)";
 }
 ?>
 
@@ -285,7 +322,7 @@ if (!empty($_POST['form_submit'])) {
 
 </p>
 
-<form method='post' action='merge_patients.php'>
+<form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
 <table class="table w-100">
@@ -294,8 +331,11 @@ if (!empty($_POST['form_submit'])) {
     <?php echo xlt('Target Patient') ?>
   </td>
   <td>
-   <input type='text' class="form-control" size='30' name='form_target_patient' value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient(this, this.form.form_target_pid)' title='<?php echo xla('Click to select patient'); ?>' readonly />
-   <input type='hidden' name='form_target_pid' value='0' />
+   <input type='text' class="form-control" size='30' name='form_target_patient'
+    value=' (<?php echo attr($target_string); ?>)'
+    onclick='sel_patient(this, this.form.form_target_pid)'
+    title='<?php echo xla('Click to select patient'); ?>' readonly />
+   <input type='hidden' name='form_target_pid' value='<?php echo attr($target_pid); ?>' />
   </td>
   <td>
     <?php echo xlt('This is the main chart that is to receive the merged data.'); ?>
@@ -307,10 +347,10 @@ if (!empty($_POST['form_submit'])) {
   </td>
   <td>
    <input type='text' class='form-control' size='30' name='form_source_patient'
-    value=' (<?php echo xla('Click to select'); ?>)'
+    value='<?php echo attr($source_string); ?>'
     onclick='sel_patient(this, this.form.form_source_pid)'
     title='<?php echo xla('Click to select patient'); ?>' readonly />
-   <input type='hidden' name='form_source_pid' value='0' />
+   <input type='hidden' name='form_source_pid' value='<?php echo attr($source_pid); ?>' />
   </td>
   <td>
     <?php echo xlt('This is the chart that is to be merged into the main chart and then deleted.'); ?>
@@ -321,7 +361,7 @@ if (!empty($_POST['form_submit'])) {
 </div>
 </form>
 <div class="jumbotron">
-    <p class="font-weight-bold"><?php echo xlt('This utility is experimental. Back up your database and documents before using it!'); ?></p>
+    <p class="font-weight-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
 
 <?php if (!$PRODUCTION) { ?>
 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
@@ -333,7 +373,9 @@ if (!empty($_POST['form_submit'])) {
 
 <p><?php echo xlt('The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'); ?></p>
 
+<?php if (!$form_pid1 || !$form_pid2) { ?>
 <p><?php echo xlt('The merge will not run unless SSN and DOB for the two charts are identical. DOBs cannot be empty.'); ?></p>
+<?php } ?>
 </div>
 </div>
 </body>
