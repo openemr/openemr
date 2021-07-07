@@ -19,6 +19,7 @@ var oidFacility = "";
 var all = "";
 var npiProvider = "";
 var npiFacility = "";
+
 function trim(s) {
     if (typeof s === 'string') return s.trim();
     return s;
@@ -68,11 +69,11 @@ function templateDate(date, precision) {
 }
 
 function cleanCode(code) {
-    return code;
-    /*if (code.length < 2) {
+    if (code.length < 2) {
         code = "";
+        return code;
     }
-    return code.replace(/[.#]/, "");*/
+    return code.replace(/[.#]/, "");
 }
 
 function isOne(who) {
@@ -995,19 +996,16 @@ function getPlanOfCare(pd) {
         }
     }
     if (one) {
-        let value = all.encounter_list.encounter.encounter_diagnosis;
-        if (pd.encounter != value.encounter_id) {
-
-        }
+        let value = encounter.encounter_diagnosis;
         name = value.text;
         code = cleanCode(value.code);
         code_system_name = value.code_type;
         status = value.status;
-        encounter = all.encounter_list.encounter;
+        encounter = encounter;
     }
 
     let planType = "observation";
-    switch(pd.care_plan_type) {
+    switch (pd.care_plan_type) {
         case 'plan_of_care':
             planType = "observation"; // mood code INT. sets code in template
             break;
@@ -1046,7 +1044,7 @@ function getPlanOfCare(pd) {
             "code_system_name": pd.code_type || "SNOMED CT"
         },
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809b4a"
+            "identifier": pd.sha_extension
         }],
         "goal": {
             "code": cleanCode(pd.code) || "",
@@ -1138,7 +1136,7 @@ function getGoals(pd) {
             "code_system_name": pd.code_type || ""
         },
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809b4a"
+            "identifier": pd.sha_extension
         }],
         "date_time": {
             "point": {
@@ -1182,14 +1180,14 @@ function getFunctionalStatus(pd) {
 
 function getMentalStatus(pd) {
     return {
-            "value": {
-                "name": pd.code_text !== "NULL" ? pd.code_text : "",
-                "code": cleanCode(pd.code) || "",
-                "code_system_name": pd.code_type || ""
-            },
-            "identifiers": [{
-                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
-            }],
+        "value": {
+            "name": pd.code_text !== "NULL" ? pd.code_text : "",
+            "code": cleanCode(pd.code) || "",
+            "code_system_name": pd.code_type || ""
+        },
+        "identifiers": [{
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
+        }],
 
         "date_time": {
             "low": templateDate(pd.date_formatted, "day")
@@ -1205,10 +1203,46 @@ function getAssessments(pd) {
 }
 
 function getHealthConcerns(pd) {
+    let one = true;
+    let issue_uuid;
+    let problems = [], problem = {};
+    if (isOne(pd.issues.issue_uuid) !== 0) {
+        for (let key in pd.issues.issue_uuid) {
+            issue_uuid = pd.issues.issue_uuid[key];
+            if (issue_uuid) {
+                one = false;
+            }
+            problem = {
+                "identifiers": [{
+                    "identifier": issue_uuid
+                }]
+            };
+            problems.push(problem);
+        }
+    }
+        if (one) {
+            if (pd.issues.issue_uuid) {
+                problem = {
+                    "identifiers": [{
+                        "identifier": pd.issues.issue_uuid
+                    }]
+                };
+                problems.push(problem);
+            }
+        }
     return {
         "type": "act",
-        "text": pd.text
-    };
+        "text": pd.text,
+        "value": {
+            "name": pd.code_text || "",
+            "code": cleanCode(pd.code) || "",
+            "code_system_name": pd.code_type || "SNOMED CT"
+        },
+        "identifiers": [{
+            "identifier": pd.sha_extension
+        }],
+        problems: problems
+    }
 }
 
 function getReferralReason(pd) {
@@ -2131,9 +2165,30 @@ function genCcda(pd) {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
     }
 // Health Concerns
-    if (pd.health_concerns.text !== "") {
-        data.health_concern = Object.assign(getHealthConcerns(pd.health_concerns, pd));
+    many = [];
+    theone = {};
+    many.health_concerns = [];
+    try {
+        count = isOne(pd.health_concerns.concern);
+    } catch (e) {
+        count = 0
     }
+    if (count > 1) {
+        for (let i in pd.health_concerns.concern) {
+            theone[i] = getHealthConcerns(pd.health_concerns.concern[i]);
+            many.health_concerns.push(theone[i]);
+        }
+    } else if (count !== 0) {
+        theone = getHealthConcerns(pd.health_concerns.concern);
+        many.health_concerns.push(theone);
+    }
+    if (count !== 0) {
+        data.health_concerns = Object.assign(many.health_concerns);
+    }
+// Results
+/*    if (pd.results) {
+        data.results = Object.assign(getResultSet(pd.results, pd)['results']);
+    }*/
 // Immunizations
     many = [];
     theone = {};

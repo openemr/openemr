@@ -10,6 +10,46 @@ var key = contentModifier.key;
 var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 
+exports.healthConcernObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.5", "2014-06-09"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.5"),
+        fieldLevel.uniqueId,
+        fieldLevel.id, {
+            key: "code",
+            attributes: {
+                code: "11323-3",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Health Status"
+            },
+        }, {
+            key: "originalText",
+            content: {
+                key: "reference",
+                attributes: {
+                    "value": leafLevel.nextReference("concerns")
+                }
+            }
+        },
+        fieldLevel.statusCodeActive, {
+            key: "value",
+            attributes: [
+                leafLevel.typeCD,
+                leafLevel.code
+            ],
+            dataKey: "value",
+            existsWhen: condition.codeOrDisplayname
+        },
+        fieldLevel.effectiveTime
+    ],
+
+}
 
 exports.healthConcernActivityAct = {
     key: "act",
@@ -28,16 +68,30 @@ exports.healthConcernActivityAct = {
                 codeSystemName: "LOINC",
                 displayName: "Health Concern"
             },
-        }, {
-            key: "text",
-            content: [{
-                key: "reference",
-                attributes: {
-                    "value": leafLevel.nextReference("concern")
-                }
-            }]
         },
-        fieldLevel.statusCodeActive
+        fieldLevel.statusCodeActive,
+        [{
+            key: "entryRelationship",
+            content: [
+                {
+                    key: "act",
+                    attributes: {
+                        classCode: "ACT",
+                        moodCode: "EVN"
+                    }
+                },
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.122"),
+                fieldLevel.id, {
+                    key: "code",
+                    attributes: {
+                        nullFlavor: "NP",
+                    },
+                    datakey: "problems.identifiers",
+                },
+                fieldLevel.statusCodeCompleted
+            ],
+            dataKey: "problems"
+        }]
     ],
     existsWhen: function (input) {
         return input.type === "act";
@@ -78,7 +132,7 @@ exports.planOfCareActivityObservation = {
         fieldLevel.id, {
             key: "code",
             attributes: leafLevel.code,
-            dataKey: "plan"
+            dataKey: "code"
         }, {
             key: "originalText",
             content: {

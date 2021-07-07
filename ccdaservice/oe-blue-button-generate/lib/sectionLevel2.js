@@ -625,17 +625,23 @@ exports.healthConcernSection = function (htmlHeader, na) {
                 fieldLevel.templateTitle("HealthConcernSection"), {
                     key: "text",
                     text: na,
-                    existsWhen: condition.keyDoesntExist("health_concern")
+                    existsWhen: condition.keyDoesntExist("health_concerns")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "health_concern.text"
+                    dataKey: "health_concerns.text"
                 }, {
                     key: "entry",
                     content: [
-                        entryLevel.healthConcernActivityAct // located in planofcare entry.
+                        [entryLevel.healthConcernObservation]
                     ],
-                    dataKey: "health_concern"
+                    dataKey: "health_concerns"
+                }, {
+                    key: "entry",
+                    content: [
+                        [entryLevel.healthConcernActivityAct]
+                    ],
+                    dataKey: "health_concerns"
                 }
             ]
         }]
