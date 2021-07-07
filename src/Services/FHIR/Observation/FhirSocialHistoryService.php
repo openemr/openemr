@@ -318,14 +318,12 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
         $tobaccoColumn = $dataRecord['tobacco'] ?? "";
         $tobacco = explode('|', $tobaccoColumn);
         if (empty($tobacco[3])) {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
             return;
         }
         $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
         if (empty($listOption)) {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
             return;
         }
         $description = lookup_code_descriptions($listOption['codes']);

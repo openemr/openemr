@@ -15,7 +15,8 @@ class FhirCodeSystemUris
 {
     const SNOMED_CT = "http://snomed.info/sct";
     const NUCC_PROVIDER = "http://nucc.org/provider-taxonomy";
-    const DATA_ABSENT_REASON = "http://hl7.org/fhir/StructureDefinition/data-absent-reason";
+    const DATA_ABSENT_REASON_EXTENSION = "http://hl7.org/fhir/StructureDefinition/data-absent-reason";
+    const DATA_ABSENT_REASON_CODE_SYSTEM = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
 
     // @see http://hl7.org/fhir/R4/valueset-immunization-status-reason.html
     const IMMUNIZATION_STATUS_REASON = "http://hl7.org/fhir/ValueSet/immunization-status-reason";

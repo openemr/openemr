@@ -53,15 +53,7 @@ class ProcedureService extends BaseService
         // @see https://www.healthit.gov/isa/sites/isa/files/2020-07/USCDI-Version-1-July-2020-Errata-Final.pdf
         // To see the mappings you can see here: https://www.hl7.org/fhir/us/core/general-guidance.html
         /**
-         *
-        -- will need uuid for the ordering provider
         -- TODO: @adunsulag look at adding procedure_providers to Organization group
-         *
-        -- may need uuid for encounter
-         *
-        -- may need user uuid
-         *
-        -- we break these into two fields so we can do different searches on numbers vs strings
          */
         $sql = "SELECT
                     porder.order_uuid
@@ -88,6 +80,8 @@ class ProcedureService extends BaseService
      
                     ,order_codes.procedure_name
                     ,order_codes.procedure_code
+     
+                    ,pcode_types.standard_code
 
                     ,labs.lab_id
                     ,labs.lab_uuid
@@ -179,6 +173,12 @@ class ProcedureService extends BaseService
                 ON 
                     order_codes.procedure_order_id = porder.procedure_order_id AND order_codes.procedure_order_seq = preport.procedure_order_seq
                 LEFT JOIN (
+                    select
+                        standard_code,
+                        procedure_code AS proc_code
+                    FROM procedure_type
+                ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
+                LEFT JOIN (
                     select 
                         pid
                         ,uuid AS puuid
@@ -252,6 +252,7 @@ class ProcedureService extends BaseService
                     'name' => $record['procedure_name']
                     ,'uuid' => $record['order_uuid']
                     , 'code' => $record['procedure_code']
+                    , 'standard_code' => $record['standard_code']
                     , 'diagnosis' => $record['order_diagnosis']
                     , 'activity' => $record['order_activity']
                     , 'provider_id' => $record['order_provider_id']

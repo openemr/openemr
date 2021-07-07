@@ -186,7 +186,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
             $docReference->setType($type);
         } else {
-            $docReference->setType(UtilsService::createUnknownCodeableConcept());
+            $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
         return $docReference;

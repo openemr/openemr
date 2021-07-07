@@ -582,8 +582,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 'Oxygen saturation in Arterial blood'
             );
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
@@ -613,8 +612,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if ($quantity != null) {
             $observation->setValueQuantity($quantity);
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
@@ -670,8 +668,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if ($quantity != null) {
             $component->setValueQuantity($quantity);
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $component->setDataAbsentReason($concept);
+            $component->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
         $observation->addComponent($component);
     }

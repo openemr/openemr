@@ -33,6 +33,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
+// TODO: @adunsulag rename this to FhirLaboratoryObservationService or perhaps FhirObservationLaboratoryService to be similar to our DiagnosticReport
 class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
@@ -184,14 +185,15 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
-        if (!empty($dataRecord['code'])) {
+        // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
+        if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($dataRecord['text']);
             $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         } else {
-            $observation->setCode(UtilsService::createUnknownCodeableConcept());
+            $observation->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
         $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
@@ -237,7 +239,7 @@ class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompa
                 $observation->setValueString($dataRecord['result']);
             }
         } else {
-            $observation->setDataAbsentReason(UtilsService::createDataMissingExtension());
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
 

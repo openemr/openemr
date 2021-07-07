@@ -61,7 +61,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['procedure_code']),
+            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['standard_code']),
             // we ignore category for now because it defaults to LAB, at some point in the future we may allow a different category
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
@@ -145,11 +145,14 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
             $report->setStatus('final');
         }
 
-        if (!empty($dataRecord['code'])) {
-            $code = UtilsService::createCodeableConcept([$dataRecord['code'] => $dataRecord['name']], FhirCodeSystemUris::LOINC);
+        // note we use standard_code instead of code as we require a LOINC code here and standard_code is for LOINC
+        // codes in the system.  @see procedure_type table if you are confused by the difference between procedure_code
+        // and standard_code
+        if (!empty($dataRecord['standard_code'])) {
+            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']], FhirCodeSystemUris::LOINC);
             $report->setCode($code);
         } else {
-            $report->setCode(UtilsService::createUnknownCodeableConcept());
+            $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
         return $report;
@@ -172,6 +175,20 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         if (empty($openEMRSearchParameters['_id'])) {
             $openEMRSearchParameters['_id'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)]);
             $openEMRSearchParameters['_id']->setModifier(SearchModifier::MISSING);
+        }
+
+        if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField)
+        {
+            foreach ($openEMRSearchParameters['standard_code']->getValues() as $value)
+            {
+                // TODO: @adunsulag do we need to handle unknowable codes across all FHIR code systems?
+                if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT)
+                {
+                    $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', new TokenSearchValue(true));
+                    $openEMRSearchParameters['standard_code']->setModifier(SearchModifier::MISSING);
+                    break;
+                }
+            }
         }
         return $this->service->search($openEMRSearchParameters);
     }

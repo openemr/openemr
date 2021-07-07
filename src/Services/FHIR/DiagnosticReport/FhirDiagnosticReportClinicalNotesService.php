@@ -147,7 +147,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
             $code = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
             $report->setCode($code);
         } else {
-            $report->setCode(UtilsService::createUnknownCodeableConcept());
+            $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
         return $report;

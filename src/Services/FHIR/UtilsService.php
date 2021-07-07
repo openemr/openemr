@@ -25,6 +25,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
 {
+    const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
+    const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
+
     public static function createRelativeReference($type, $uuid)
     {
         $reference = new FHIRReference();
@@ -73,7 +76,7 @@ class UtilsService
         // for some reason in order to get this to work we have to wrap our inner exception
         // into an outer exception.  This might be just a PHPism with the way JSON encodes things
         $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON);
+        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
         $outerExtension->addExtension($extension);
@@ -153,8 +156,13 @@ class UtilsService
         return $name;
     }
 
-    public static function createUnknownCodeableConcept()
+    public static function createNullFlavorUnknownCodeableConcept()
     {
-        return self::createCodeableConcept(['UNK' => 'unknown'], FhirCodeSystemUris::HL7_NULL_FLAVOR);
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemUris::HL7_NULL_FLAVOR);
+    }
+
+    public static function createDataAbsentUnknownCodeableConcept()
+    {
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemUris::DATA_ABSENT_REASON_CODE_SYSTEM);
     }
 }
