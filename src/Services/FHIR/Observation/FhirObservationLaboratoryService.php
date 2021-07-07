@@ -1,6 +1,6 @@
 <?php
 /**
- * FhirLaboratoryObservation.php
+ * FhirObservationLaboratoryService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -33,8 +33,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-// TODO: @adunsulag rename this to FhirLaboratoryObservationService or perhaps FhirObservationLaboratoryService to be similar to our DiagnosticReport
-class FhirLaboratoryObservation extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationLaboratoryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
 

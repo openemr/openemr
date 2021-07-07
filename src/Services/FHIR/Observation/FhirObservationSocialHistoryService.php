@@ -1,6 +1,6 @@
 <?php
 /**
- * FhirSocialHistoryService.php
+ * FhirObservationSocialHistoryService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -38,7 +38,7 @@ use OpenEMR\Validators\ProcessingResult;
 // TODO: @adunsulag look at refactoring this class into a base class with FhirVitalsService depending on what happens
 // with procedures.  There's a bunch of shared code here we may want to combine into a single shared trait or class
 // once we implement procedures if there is enough commonality, we may refactor this all into a central class.
-class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'

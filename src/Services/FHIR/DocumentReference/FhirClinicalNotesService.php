@@ -155,7 +155,7 @@ class FhirClinicalNotesService extends FhirServiceBase
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-        $docReference->setCustodian($orgReference);
+//        $docReference->setCustodian($orgReference);
 
         if (!empty($dataRecord['user_uuid'])) {
             if (!empty($dataRecord['npi'])) {

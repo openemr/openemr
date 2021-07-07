@@ -158,7 +158,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-        $docReference->setCustodian($orgReference);
+//        $docReference->setCustodian($orgReference);
 
         // TODO: @adunsulag check with @sjpadgett and @brady.miller how are patient documents setup?  Do they populate the owner column?
         // how do you determine if a patient uploaded a document vs a regular user?

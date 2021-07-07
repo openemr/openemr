@@ -15,9 +15,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\FHIR\Observation\FhirLaboratoryObservation;
-use OpenEMR\Services\FHIR\Observation\FhirSocialHistoryService;
-use OpenEMR\Services\FHIR\Observation\FhirVitalsService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -71,9 +71,9 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->innerServices = [];
         // TODO: @adunsulag look at moving each of the service classes into their own namespace so people can add onto the observations
 //        $this->observationService = new ObservationLabService();
-        $this->addMappedService(new FhirSocialHistoryService());
-        $this->addMappedService(new FhirVitalsService());
-        $this->addMappedService(new FhirLaboratoryObservation());
+        $this->addMappedService(new FhirObservationSocialHistoryService());
+        $this->addMappedService(new FhirObservationVitalsService());
+        $this->addMappedService(new FhirObservationLaboratoryService());
         $this->logger = new SystemLogger();
     }
 
@@ -127,7 +127,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             } else if (isset($fhirSearchParameters['code'])) {
                 $service = $this->getServiceForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),
-                    FhirVitalsService::VITALS_PANEL_LOINC_CODE
+                    FhirObservationVitalsService::VITALS_PANEL_LOINC_CODE
                 );
                 // if we have a service let's search on that
                 if (isset($service)) {

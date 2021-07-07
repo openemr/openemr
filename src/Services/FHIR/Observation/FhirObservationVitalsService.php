@@ -1,15 +1,6 @@
 <?php
 /**
- * FhirVitalsService.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
-/**
- * FhirVitalsService.php
+ * FhirObservationVitalsService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -42,7 +33,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
