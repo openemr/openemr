@@ -463,8 +463,17 @@ class CryptoGen
             }
         }
 
+        // Ensure have a key (if do not have key, then is critical error, and will exit)
         if (empty($key)) {
-            error_log("OpenEMR Error : Key creation is not working - Exiting.");
+            if ($keySource == 'database') {
+                error_log("OpenEMR Error : Key creation in database is not working - Exiting.");
+            } else { //$keySource == 'drive'
+                if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)) {
+                    error_log("OpenEMR Error : Key creation in drive is not working - Exiting.");
+                } else {
+                    error_log("OpenEMR Error : Key in drive is not compatible (ie. can not be decrypted) with key in database - Exiting.");
+                }
+            }
             die();
         }
 
