@@ -155,7 +155,7 @@ class FhirClinicalNotesService extends FhirServiceBase
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-//        $docReference->setCustodian($orgReference);
+        $docReference->setCustodian($orgReference);
 
         if (!empty($dataRecord['user_uuid'])) {
             if (!empty($dataRecord['npi'])) {
@@ -211,9 +211,9 @@ class FhirClinicalNotesService extends FhirServiceBase
         // only return notes that have no category specified, otherwise we are going to use diagnostic report
         $openEMRSearchParameters['clinical_notes_type'] = new TokenSearchField(
             'clinical_notes_category',
-            new TokenSearchValue(true),
-            SearchModifier::MISSING
+            new TokenSearchValue(true)
         );
+        $openEMRSearchParameters['clinical_notes_type']->setModifier(SearchModifier::MISSING);
         return $this->service->search($openEMRSearchParameters);
     }
 

@@ -76,15 +76,12 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
             }
 
             if (isset($fhirSearchParameters['category'])) {
-                /**
-                 * @var TokenSearchField
-                 */
                 $category = $fhirSearchParameters['category'];
+                $categorySearchField = new TokenSearchField('category', $category);;
 
-                $service = $this->getServiceForCategory($category, 'clinical-notes');
+                $service = $this->getServiceForCategory($categorySearchField, 'clinical-notes');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
             } else if (isset($fhirSearchParameters['type'])) {
-                // TODO: @adunsulag should there be a default code here?  Look at the method signature
                 $service = $this->getServiceForCode(new TokenSearchField('type', $fhirSearchParameters['type']), '');
                 // if we have a service let's search on that
                 if (isset($service)) {
