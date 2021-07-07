@@ -37,6 +37,7 @@ exports.planOfCareActivitySubstanceAdministration = planOfCareEntryLevel.planOfC
 exports.planOfCareActivitySupply = planOfCareEntryLevel.planOfCareActivitySupply;
 exports.planOfCareActivityInstructions = planOfCareEntryLevel.planOfCareActivityInstructions;
 exports.healthConcernActivityAct = planOfCareEntryLevel.healthConcernActivityAct;
+exports.healthConcernObservation = planOfCareEntryLevel.healthConcernObservation;
 
 exports.goalActivityObservation = goalEntryLevel.goalActivityObservation;
 
