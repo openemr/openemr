@@ -8495,8 +8495,9 @@ CREATE TABLE `users` (
   `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   `portal_user` tinyint(1) NOT NULL DEFAULT '0',
   `supervisor_id` int(11) NOT NULL DEFAULT '0',
-    UNIQUE KEY `uuid` (`uuid`),
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `abook_type` (`abook_type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 --
@@ -11183,7 +11184,8 @@ CREATE TABLE `external_procedures` (
   `ep_code_text` longtext,
   `ep_facility_id` varchar(255) DEFAULT NULL,
   `ep_external_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ep_id`)
+  PRIMARY KEY (`ep_id`),
+  KEY `ep_pid` (`ep_pid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
