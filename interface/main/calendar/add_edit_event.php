@@ -1317,7 +1317,7 @@ function find_available(extra) {
         '&facility=' + f +
         '&startdate=' + formDate.value +
         '&evdur=' + document.forms[0].form_duration.value +
-        '&eid=<?php echo 0 + $eid; ?>' + extra,
+        '&eid=<?php echo (int)$eid; ?>' + extra,
         '', 725, 200, '', title);
 }
 </script>
