@@ -943,7 +943,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $insname = '';
         }
 
-        $rows[$insname . '|' . $ptname . '|' . $encounter_id] = $row;
+        $rows[$insname . '|' . $patient_id . '|' . $ptname . '|' . $encounter_id] = $row;
     } // end while
 
 
@@ -1084,7 +1084,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     $orow = -1;
 
     foreach ($rows as $key => $row) {
-        list($insname, $ptname, $trash) = explode('|', $key);
+        list($insname, $unused , $ptname, $trash) = explode('|', $key);
         list($pid, $encounter) = explode(".", $row['invnumber']);
         if ($form_payer_id) {
             if ($ins_co_name <> $row['ins1']) {
