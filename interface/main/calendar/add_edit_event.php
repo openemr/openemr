@@ -1354,7 +1354,7 @@ function find_available(extra) {
             $starth = $_REQUEST["starttimeh"] ?? null;
             $uid = $_REQUEST["userid"] ?? null;
             $starttm = $_REQUEST["starttimem"] ?? null;
-            $dt = $_REQUEST["date"];
+            $dt = $_REQUEST["date"] ?? null;
             $cid = $_REQUEST["catid"] ?? null;
         ?>
         <li class="nav-item">
