@@ -159,7 +159,7 @@ class InsuranceCompanyService extends BaseService
         return sqlQuery($sql, array($id));
     }
 
-    public function getOne($uuid)  : ProcessingResult
+    public function getOne($uuid): ProcessingResult
     {
         return $this->getAll(['uuid' => $uuid]);
     }

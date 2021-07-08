@@ -21,7 +21,7 @@ use OpenEMR\Validators\ProcessingResult;
 class OrganizationService extends BaseService
 {
 
-    const ORGANIZATION_TYPE_FACILITY  ="facility";
+    const ORGANIZATION_TYPE_FACILITY  = "facility";
     const ORGANIZATION_TYPE_INSURANCE = 'insurance';
     /**
      * @var \OpenEMR\Services\FacilityService
@@ -52,14 +52,12 @@ class OrganizationService extends BaseService
     public function getOne($uuid)
     {
         $searchParams = ['uuid' => new TokenSearchValue($uuid, null, true)];
-        foreach($this->services as $service) {
+        foreach ($this->services as $service) {
             $result = $service->search($searchParams);
             $this->processResultsForService($service);
-            if ($result->hasErrors())
-            {
+            if ($result->hasErrors()) {
                 return $result;
-            } else if (!empty($result->getData()))
-            {
+            } else if (!empty($result->getData())) {
                 return $this->processResultsForService($result, $service);
             }
         }
@@ -134,11 +132,9 @@ class OrganizationService extends BaseService
     private function processResultsForService(ProcessingResult $result, BaseService $service)
     {
         $newResult = new ProcessingResult();
-        if ($service instanceof FacilityService)
-        {
+        if ($service instanceof FacilityService) {
             $newResult->setData($this->getFacilityOrg($result->getData()));
-        } else if ($service instanceof InsuranceCompanyService)
-        {
+        } else if ($service instanceof InsuranceCompanyService) {
             $newResult->setData($this->getInsuranceOrg($result->getData()));
         } else if ($service instanceof ProcedureProviderService) {
             $newResult->setData($this->getProcedureProviderOrg($result->getData()));
@@ -156,15 +152,11 @@ class OrganizationService extends BaseService
     public function search($search = array(), $isAndCondition = true)
     {
         $combinedResult = new ProcessingResult();
-        foreach ($this->services as $service)
-        {
+        foreach ($this->services as $service) {
             $result = $service->search($search, $isAndCondition);
-            if ($result->hasErrors())
-            {
+            if ($result->hasErrors()) {
                 return $result;
-            }
-            else
-            {
+            } else {
                 $transformedResult = $this->processResultsForService($result, $service);
                 $combinedResult->addProcessingResult($transformedResult);
             }

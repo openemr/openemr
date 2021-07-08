@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirObservationLaboratoryService.php
  * @package openemr
@@ -133,14 +134,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     {
         $patient = $record['patient'] ?? null;
 
-        if (!empty($record['reports']))
-        {
-            foreach ($record['reports'] as $report)
-            {
-                if (!empty($report['results']))
-                {
-                    foreach ($report['results'] as $result)
-                    {
+        if (!empty($record['reports'])) {
+            foreach ($record['reports'] as $report) {
+                if (!empty($report['results'])) {
+                    foreach ($report['results'] as $result) {
                         $result['patient'] = $patient;
                         $result['report_date'] = $report['date'];
                         $processingResult->addData($result);
@@ -203,8 +200,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             if (isset($dataRecord['range_low'])) {
                 $referenceRange->setLow(UtilsService::createQuantity($dataRecord['range_low'], $dataRecord['units'], $dataRecord['units']));
             }
-            if (isset($dataRecord['range_high']))
-            {
+            if (isset($dataRecord['range_high'])) {
                 $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['range_high'], $dataRecord['units'], $dataRecord['units']));
             }
             $observation->addReferenceRange($referenceRange);
@@ -225,12 +221,9 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                     $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
                 }
 
-                if (is_float($quantityValue) )
-                {
+                if (is_float($quantityValue)) {
                     $quantity->setValue(floatval($quantityValue));
-                }
-                else
-                {
+                } else {
                     $quantity->setValue(intval($quantityValue));
                 }
                 $observation->setValueQuantity($quantity);

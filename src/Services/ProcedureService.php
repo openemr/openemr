@@ -258,8 +258,7 @@ class ProcedureService extends BaseService
                     , 'provider_id' => $record['order_provider_id']
                     , 'reports' => []
                 ];
-                if (!empty($record['lab_id']))
-                {
+                if (!empty($record['lab_id'])) {
                     $procedure['lab'] = [
                         'id' => $record['lab_id'] ?? null
                         ,'uuid' => $record['lab_uuid'] ?? null
@@ -267,15 +266,13 @@ class ProcedureService extends BaseService
                         ,'npi' => $record['lab_npi'] ?? null
                     ];
                 }
-                if (!empty($record['pid']))
-                {
+                if (!empty($record['pid'])) {
                     $procedure['patient'] = [
                         'pid' => $record['pid']
                         ,'uuid' => $record['puuid']
                     ];
                 }
-                if (!empty($record['eid']))
-                {
+                if (!empty($record['eid'])) {
                     $procedure['encounter'] = [
                         'id' => $record['eid']
                         ,'uuid' => $record['euuid']

@@ -167,8 +167,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         }
 
         // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
-        if ($registryRecord['mapped'] != '1')
-        {
+        if ($registryRecord['mapped'] != '1') {
             return;
         }
 

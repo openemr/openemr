@@ -346,8 +346,7 @@ class FhirOrganizationService extends FhirServiceBase
             $ref = new FHIRReference();
             $ref->setType($fhirOrganization->get_fhirElementName());
             $uuid = $organization['uuid'];
-            $ref->setReference("Organization/" . $uuid);
-            $ref->setId($uuid);
+            $ref->setReference($fhirOrganization->get_fhirElementName() . "/" . $uuid);
             return $ref;
         }
         return null;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirObservationSocialHistoryService.php
  * @package openemr

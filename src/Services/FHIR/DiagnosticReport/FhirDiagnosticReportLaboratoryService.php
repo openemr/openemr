@@ -134,8 +134,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         }
         $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemUris::DIAGNOSTIC_SERVICE_SECTION_ID));
 
-        if (!empty($dataRecord['encounter']['uuid']))
-        {
+        if (!empty($dataRecord['encounter']['uuid'])) {
             $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
         }
 
@@ -177,13 +176,10 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
             $openEMRSearchParameters['_id']->setModifier(SearchModifier::MISSING);
         }
 
-        if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField)
-        {
-            foreach ($openEMRSearchParameters['standard_code']->getValues() as $value)
-            {
+        if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField) {
+            foreach ($openEMRSearchParameters['standard_code']->getValues() as $value) {
                 // TODO: @adunsulag do we need to handle unknowable codes across all FHIR code systems?
-                if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT)
-                {
+                if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT) {
                     $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', new TokenSearchValue(true));
                     $openEMRSearchParameters['standard_code']->setModifier(SearchModifier::MISSING);
                     break;
