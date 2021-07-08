@@ -179,11 +179,11 @@ class OrganizationService extends BaseService
     public function insert($data)
     {
         if ($data['orgType'] == self::ORGANIZATION_TYPE_FACILITY) {
-            $data = $this->prepareFacilitydata($data);
+            $data = $this->prepareData($data);
             return $this->facilityService->insert($data);
         }
         if ($data['orgType'] == self::ORGANIZATION_TYPE_INSURANCE) {
-            $data = $this->prepareInsurancedata($data);
+            $data = $this->prepareData($data);
             return $this->insuranceService->insert($data);
         }
         // TODO: do we want to allow inserting of procedure provider?

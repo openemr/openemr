@@ -58,7 +58,8 @@ class ProcedureProviderService extends BaseService
                         ,prov.lab_director
                         ,prov.active
                         ,prov.type
-                        FROM procedure_providers prov";
+                        FROM procedure_providers prov
+                        ";
 
         $processingResult = new ProcessingResult();
         try {
@@ -74,7 +75,7 @@ class ProcedureProviderService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), $exception);
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
             (new SystemLogger())->error($exception->getMessage(), $exception);
