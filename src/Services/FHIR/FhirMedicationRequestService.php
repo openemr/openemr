@@ -191,26 +191,6 @@ class FhirMedicationRequestService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR MedicationRequest Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR MedicationRequest Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->prescriptionService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields

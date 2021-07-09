@@ -15,6 +15,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -83,6 +84,15 @@ class UtilsService
         return $outerExtension;
     }
 
+    public static function createContactPoint($value, $system, $use): FHIRContactPoint
+    {
+        $fhirContactPoint = new FHIRContactPoint();
+        $fhirContactPoint->setSystem($system);
+        $fhirContactPoint->setValue($value);
+        $fhirContactPoint->setUse($use);
+        return $fhirContactPoint;
+    }
+
     public static function createAddressFromRecord($dataRecord): ?FHIRAddress
     {
         $address = new FHIRAddress();
@@ -103,6 +113,11 @@ class UtilsService
             $address->addLine($dataRecord['street']);
             $hasAddress = true;
         }
+
+        if (!empty($dataRecord['line2'])) {
+            $address->addLine($dataRecord['line2']);
+        }
+
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
             $hasAddress = true;

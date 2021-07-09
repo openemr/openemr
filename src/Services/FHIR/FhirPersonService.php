@@ -221,27 +221,6 @@ class FhirPersonService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $user = $this->userService->getUserByUUID($fhirResourceId);
-        $processingResult = new ProcessingResult();
-        if (empty($user)) {
-            $validationMessages = [
-                'uuid' => ["invalid or nonexisting value" => " value " . $fhirResourceId]
-            ];
-            $processingResult->setValidationMessages($validationMessages);
-            return $processingResult;
-        }
-        $fhirRecord = $this->parseOpenEMRRecord($user);
-        $processingResult->setData([]);
-        $processingResult->addData($fhirRecord);
-        return $processingResult;
-    }
-
-    /**
      * Inserts an OpenEMR record into the sytem.
      *
      * @param array $openEmrRecord OpenEMR practitioner record

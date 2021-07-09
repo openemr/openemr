@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+// TODO: @adunsulag rename this to FhirCodeSystemConstants so we can include oids and other constants here
 class FhirCodeSystemUris
 {
     const SNOMED_CT = "http://snomed.info/sct";
@@ -27,6 +28,7 @@ class FhirCodeSystemUris
     const PROVIDER_NPI = "http://hl7.org/fhir/sid/us-npi";
 
     public const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
+
     const LOINC = "http://loinc.org";
 
     const HL7_OBSERVATION_CATEGORY = "http://terminology.hl7.org/CodeSystem/observation-category";
@@ -42,4 +44,11 @@ class FhirCodeSystemUris
     const IHE_FORMATCODE_CODESYSTEM = "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem";
 
     const DIAGNOSTIC_SERVICE_SECTION_ID = "http://terminology.hl7.org/CodeSystem/v2-0074";
+
+    // @see http://oid-info.com/get/2.16.840.1.113883.4.7
+    const OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER = "urn:oid:2.16.840.1.113883.4.7";
+
+    const HL7_IDENTIFIER_TYPE_TABLE = "http://hl7.org/fhir/v2/0203";
+
+    const HL7_ORGANIZATION_TYPE = "http://terminology.hl7.org/CodeSystem/organization-type";
 }

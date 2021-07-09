@@ -193,27 +193,6 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $conditionResource->setClinicalStatus($clinical_Status);
     }
 
-
-    /**
-     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->conditionService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *

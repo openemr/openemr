@@ -45,7 +45,7 @@ class OrganizationService extends BaseService
     {
         $this->facilityService = new FacilityService();
         $this->insuranceService = new InsuranceCompanyService();
-        $this->services = [$this->facilityService, $this->insuranceService, new ProcedureProviderService()];
+        $this->services = [$this->facilityService, $this->insuranceService]; //, new ProcedureProviderService()];
     }
 
 

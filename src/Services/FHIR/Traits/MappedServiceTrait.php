@@ -25,7 +25,7 @@ trait MappedServiceTrait
      */
     private $services = [];
 
-    public function addMappedService($service)
+    public function addMappedService(FhirServiceBase $service)
     {
         $this->services[] = $service;
     }
@@ -37,38 +37,15 @@ trait MappedServiceTrait
 
     public function setMappedServices(array $services)
     {
-        $this->services = $services;
-    }
-
-    public function getServiceForCode(TokenSearchField $field, $defaultCode)
-    {
-        // shouldn't ever hit the default but we have it there just in case.
-        $values = $field->getValues() ?? [new TokenSearchValue($defaultCode)];
-        $searchCode = $values[0]->getCode();
-
-        // we only grab the first one as we assume each service only supports a single LOINC observation code
-        foreach ($this->getMappedServices() as $service) {
-            if ($service->supportsCode($searchCode)) {
-                return $service;
+        $validServices = [];
+        foreach ($services as $service) {
+            if ($service instanceof FhirServiceBase) {
+                $validServices[] = $service;
+            } else {
+                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . get_class($service));
             }
         }
-        throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
-    }
-
-    public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
-    {
-        // let the field parse our category
-        $values = $category->getValues() ?? [new TokenSearchValue($defaultCategory)];
-        foreach ($values as $value) {
-            // we only search the first one
-            $parsedCategory = $value->getCode();
-            foreach ($this->getMappedServices() as $service) {
-                if ($service->supportsCategory($parsedCategory)) {
-                    return $service;
-                }
-            }
-        }
-        throw new SearchFieldException("category", "Invalid or unsupported category");
+        $this->services = $validServices;
     }
 
     public function searchAllServices($fhirSearchParams, $puuidBind)
@@ -88,5 +65,33 @@ trait MappedServiceTrait
             }
         }
         return $processingResult;
+    }
+
+    public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind)
+    {
+        $processingResult = new ProcessingResult();
+        foreach ($this->getMappedServices() as $service) {
+            $filteredParams = $service->getSupportedSearchParams($fhirSearchParams);
+            $innerResult = $service->getAll($filteredParams, $puuidBind);
+            $processingResult->addProcessingResult($innerResult);
+            if ($processingResult->hasErrors()) {
+                // clear our data out and just return the errors
+                $processingResult->clearData();
+                return $processingResult;
+            }
+        }
+        return $processingResult;
+    }
+
+    public function getMappedServiceForResourceUuid($resourceUuid)
+    {
+        $search = ['_id' => new TokenSearchField('uuid', [new TokenSearchValue($resourceUuid, null, true)])];
+        foreach ($this->getMappedServices() as $service) {
+            $innerResult = $service->getAll($search);
+            if ($innerResult->hasData()) {
+                return $service;
+            }
+        }
+        return null;
     }
 }

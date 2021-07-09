@@ -102,26 +102,6 @@ class FhirCoverageService extends FhirServiceBase
         }
     }
 
-
-    /**
-     * Performs a FHIR Coverage Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->coverageService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *

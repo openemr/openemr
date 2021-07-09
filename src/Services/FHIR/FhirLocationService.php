@@ -107,25 +107,6 @@ class FhirLocationService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Location Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Location Resource ID.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->locationService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields

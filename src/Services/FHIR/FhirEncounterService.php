@@ -17,12 +17,16 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService
+class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
 {
+    use PatientSearchTrait;
+
     /**
      * @var EncounterService
      */
@@ -41,8 +45,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['pid']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
         ];
     }
@@ -129,25 +133,6 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         } else {
             return $encounterResource;
         }
-    }
-
-    /**
-     * Performs a FHIR Encounter Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Encounter Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->encounterService->getEncounter($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
     }
 
     /**

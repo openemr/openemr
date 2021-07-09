@@ -141,23 +141,6 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
-     * Performs a FHIR Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $search = [
-            '_id' => $fhirResourceId
-        ];
-        if (!empty($puuidBind)) {
-            $search['patient'] = 'Patient/' . $puuidBind;
-        }
-        return $this->getAll($search);
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields

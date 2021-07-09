@@ -6,32 +6,18 @@ use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
-use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ObservationLabService;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ReferenceSearchField;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
-use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -47,7 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirObservationService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
-    use MappedServiceTrait;
+    use MappedServiceCodeTrait;
     use PatientSearchTrait;
 
     /**

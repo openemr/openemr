@@ -52,6 +52,7 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
+        // TODO: where are we saving insurance fax, phone numbers?  They're saved on the forms, but not in the table.
         $sql  = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
@@ -84,10 +85,10 @@ class InsuranceCompanyService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), $exception);
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), $exception);
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
