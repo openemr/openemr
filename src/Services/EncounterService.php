@@ -73,7 +73,7 @@ class EncounterService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['provider_uuid', 'facility_uuid', 'encounter_uuid', 'puuid'];
+        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'];
     }
 
     /**
@@ -216,6 +216,7 @@ class EncounterService extends BaseService
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
             $sql .= " ORDER BY fe.eid DESC";
+
             $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
 
             if (!empty($records)) {

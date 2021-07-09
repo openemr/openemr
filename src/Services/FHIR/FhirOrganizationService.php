@@ -131,7 +131,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
 
     public function getPrimaryBusinessEntityReference()
     {
-        return $this->facilityService->getPrimaryBusinessEntityReference();
+        $ref = $this->facilityService->getPrimaryBusinessEntityReference();
+        return $ref;
     }
 
     /**

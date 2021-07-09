@@ -77,7 +77,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      */
     public function createProvenanceResource($dataRecord, $encode = false)
     {
-
         if (!($dataRecord instanceof FHIRAllergyIntolerance)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }

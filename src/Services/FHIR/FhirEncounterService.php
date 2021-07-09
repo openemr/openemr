@@ -45,7 +45,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function loadSearchParameters()
     {
         return  [
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('euuid', ServiceField::TYPE_UUID)]),
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
         ];
@@ -67,14 +67,14 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();
-        $id->setValue($dataRecord['uuid']);
+        $id->setValue($dataRecord['euuid']);
         $encounterResource->setId($id);
 
         $status = new FHIRCode('finished');
         $encounterResource->setStatus($status);
 
-        if (!empty($dataRecord['provider_id'])) {
-            $parctitioner = new FHIRReference(['reference' => 'Practitioner/' . $dataRecord['provider_id']]);
+        if (!empty($dataRecord['provider_uuid'])) {
+            $parctitioner = new FHIRReference(['reference' => 'Practitioner/' . $dataRecord['provider_uuid']]);
             $participant = new FHIREncounterParticipant(array(
                 'individual' => $parctitioner,
                 'period' => ['start' => gmdate('c', strtotime($dataRecord['date']))]
@@ -89,8 +89,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $encounterResource->addParticipant($participant);
         }
 
-        if (!empty($dataRecord['facility_id'])) {
-            $serviceOrg = new FHIRReference(['reference' => 'Organization/' . $dataRecord['facility_id']]);
+        if (!empty($dataRecord['facility_uuid'])) {
+            $serviceOrg = new FHIRReference(['reference' => 'Organization/' . $dataRecord['facility_uuid']]);
             $encounterResource->setServiceProvider($serviceOrg);
         }
 
