@@ -21,9 +21,16 @@ namespace OpenEMR\Billing;
 
 class BillingReport
 {
-    public static function generateTheQueryPart()
+    public static function generateTheQueryPart($daysheet = false)
     {
         global $query_part, $query_part2, $billstring, $auth;
+
+        if ($daysheet) {
+            global $query_part_day, $query_part_day1;
+            $query_part_day = '';
+            $query_part_day1 = '';
+        }
+
         //Search Criteria section.
         $billstring = '';
         $auth = '';
@@ -72,12 +79,18 @@ class BillingReport
                 } elseif (strpos($criteria_value, "form_encounter.date|between|") !== false) {
                     $elements = explode('|', $criteria_value);
                     $query_part .= ' AND ' . "(form_encounter.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
+                    if ($daysheet) {
+                        $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                        $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    }
                 } elseif (strpos($criteria_value, "billing.date|between|") !== false) {
                     $elements = explode('|', $criteria_value);
                     $query_part .= ' AND ' . "(billing.date between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
                 } elseif (strpos($criteria_value, "claims.process_time|between|") !== false) {
                     $elements = explode('|', $criteria_value);
                     $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
+                    $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
                 } else {
                     $elements = explode('|', $criteria_value);
                     $criteriaItemsWhitelist = [
@@ -93,6 +106,10 @@ class BillingReport
                         'like'
                     ];
                     $query_part .= ' AND ' . escape_identifier($elements[0], $criteriaItemsWhitelist, true) . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
+
+                    if (substr($criteria_value, 0, 12) === 'billing.user' && ($daysheet)) {
+                        $query_part_day .=  ' AND ' . 'ar_activity.post_user' . " " . escape_identifier($elements[1], $criteriaComparisonWhitelist, true) . " '" . add_escape_custom($elements[2]) . "'";
+                    }
                 }
             }
         }
