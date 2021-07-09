@@ -14,7 +14,9 @@
 
 use OpenEMR\Services\UserService;
 
-@define('__POSTCALENDAR__', 'PostCalendar');
+if (!defined('__POSTCALENDAR__')) {
+    @define('__POSTCALENDAR__', 'PostCalendar');
+}
 
 /**
  *  $Id$
