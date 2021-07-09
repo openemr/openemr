@@ -822,7 +822,7 @@ ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
 #EndIf
 
 #IfMissingColumn procedure_type procedure_type_name
-ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL
+ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL;
 #EndIf
 
 #IfNotIndex external_procedures ep_pid
