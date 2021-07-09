@@ -89,8 +89,10 @@ class BillingReport
                 } elseif (strpos($criteria_value, "claims.process_time|between|") !== false) {
                     $elements = explode('|', $criteria_value);
                     $query_part .= ' AND ' . "(claims.process_time between '" . add_escape_custom($elements[2]) . "' and '" . add_escape_custom($elements[3]) . "')";
-                    $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
-                    $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    if ($daysheet) {
+                        $query_part_day .= ' AND ' . "(ar_activity.post_time between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                        $query_part_day1 .= ' AND ' . "(payments.dtime between '" . add_escape_custom($elements[1]) . "' and '" . add_escape_custom($elements[2]) . "')";
+                    }
                 } else {
                     $elements = explode('|', $criteria_value);
                     $criteriaItemsWhitelist = [
