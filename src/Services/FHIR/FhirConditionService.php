@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -27,6 +28,8 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var ConditionService
      */
@@ -203,21 +206,6 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)

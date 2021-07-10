@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -26,6 +27,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var CarePlanService
      */
@@ -124,20 +127,6 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         return $this->service->search($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord, $encode = false)
     {
         $provenanceService = new FhirProvenanceService();

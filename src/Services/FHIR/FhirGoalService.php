@@ -21,6 +21,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -28,6 +29,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var CarePlanService
      */
@@ -152,20 +155,6 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return $this->service->search($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord, $encode = false)
     {
         $provenanceService = new FhirProvenanceService();

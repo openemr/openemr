@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ReferenceSearchValue;
@@ -42,6 +43,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  */
 class FhirAllergyIntoleranceService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var AllergyIntoleranceService
      */
@@ -246,21 +249,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
     }
 
     public function getProfileURIs(): array

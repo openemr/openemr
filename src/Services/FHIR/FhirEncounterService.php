@@ -17,6 +17,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -26,6 +27,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use PatientSearchTrait;
+    use FhirServiceBaseEmptyTrait;
 
     /**
      * @var EncounterService
@@ -145,26 +147,6 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
         return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     /**

@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -27,6 +28,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     // @see http://hl7.org/fhir/R4/valueset-care-team-status.html
     private const CARE_TEAM_STATUS_ACTIVE = "active";
     private const CARE_TEAM_STATUS_PROPOSED = "proposed";
@@ -186,20 +189,6 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         return $this->careTeamService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         if (!($dataRecord instanceof FHIRCareTeam)) {

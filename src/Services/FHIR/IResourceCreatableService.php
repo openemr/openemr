@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Validators\ProcessingResult;
 
 interface IResourceCreatableService
@@ -20,5 +21,5 @@ interface IResourceCreatableService
      * @param $fhirResource The FHIR resource
      * @return The OpenEMR Service Result
      */
-    public function insert($fhirResource): ProcessingResult;
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult;
 }

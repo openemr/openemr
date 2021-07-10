@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
@@ -110,14 +111,14 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * @param $fhirResource The source FHIR resource
      * @return a mapped OpenEMR data record (array)
      */
-    abstract public function parseFhirResource($fhirResource = array());
+    abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
 
     /**
      * Inserts a FHIR resource into the system.
      * @param $fhirResource The FHIR resource
      * @return The OpenEMR Service Result
      */
-    public function insert($fhirResource): ProcessingResult
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         return $this->insertOpenEmrRecord($openEmrRecord);
@@ -135,7 +136,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      * @param $fhirResource The FHIR resource.
      * @return The OpenEMR Service Result
      */
-    public function update($fhirResourceId, $fhirResource): ProcessingResult
+    public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         $openEmrRecord['uuid'] = $fhirResourceId;
