@@ -18,7 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\ClinicalNotesService;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -135,7 +135,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
 
         $codeParts = explode(":", $dataRecord['category_code']);
 
-        $report->addCategory(UtilsService::createCodeableConcept([end($codeParts) => $dataRecord['category_title']], FhirCodeSystemUris::LOINC));
+        $report->addCategory(UtilsService::createCodeableConcept([end($codeParts) => $dataRecord['category_title']], FhirCodeSystemConstants::LOINC));
 
         if (!empty($dataRecord['status'])) {
             $report->setStatus($dataRecord['status']);
@@ -144,7 +144,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['code'])) {
-            $code = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
+            $code = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
             $report->setCode($code);
         } else {
             $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());

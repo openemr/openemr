@@ -11,8 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-// TODO: @adunsulag rename this to FhirCodeSystemConstants so we can include oids and other constants here
-class FhirCodeSystemUris
+class FhirCodeSystemConstants
 {
     const SNOMED_CT = "http://snomed.info/sct";
     const NUCC_PROVIDER = "http://nucc.org/provider-taxonomy";

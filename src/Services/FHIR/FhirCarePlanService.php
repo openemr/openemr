@@ -85,7 +85,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $codeableConcept = new FHIRCodeableConcept();
         $coding = new FHIRCoding();
         $coding->setCode("assess-plan");
-        $coding->setSystem(FhirCodeSystemUris::HL7_SYSTEM_CAREPLAN_CATEGORY);
+        $coding->setSystem(FhirCodeSystemConstants::HL7_SYSTEM_CAREPLAN_CATEGORY);
         $codeableConcept->addCoding($coding);
         $carePlanResource->addCategory($codeableConcept);
 

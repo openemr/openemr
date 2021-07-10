@@ -16,7 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -112,8 +112,8 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         $organizationResource->setId($id);
 
         $identifiers = [
-            'cms_id' => FhirCodeSystemUris::HL7_IDENTIFIER_TYPE_TABLE
-            ,'alt_cms_id' => FhirCodeSystemUris::HL7_IDENTIFIER_TYPE_TABLE
+            'cms_id' => FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE
+            ,'alt_cms_id' => FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE
         ];
         foreach ($identifiers as $id => $system) {
             if (!empty($dataRecord[$id])) {
@@ -132,7 +132,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         }
 
         $organizationResource->addAddress(UtilsService::createAddressFromRecord($dataRecord));
-        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => "Insurance Company"], FhirCodeSystemUris::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => "Insurance Company"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
 
         if ($encode) {
             return json_encode($organizationResource);
@@ -185,7 +185,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         }
 
         foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == FhirCodeSystemUris::HL7_IDENTIFIER_TYPE_TABLE) {
+            if ($identifier['system'] == FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
                 if (empty($data['cms_id'])) {
                     $data['cms_id'] = $identifier['value'];
                 } else {

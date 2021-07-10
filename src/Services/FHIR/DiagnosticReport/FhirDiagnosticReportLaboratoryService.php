@@ -17,7 +17,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -132,7 +132,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         if (!empty($dataRecord['patient']['uuid'])) {
             $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid']));
         }
-        $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemUris::DIAGNOSTIC_SERVICE_SECTION_ID));
+        $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemConstants::DIAGNOSTIC_SERVICE_SECTION_ID));
 
         if (!empty($dataRecord['encounter']['uuid'])) {
             $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
@@ -148,7 +148,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         // codes in the system.  @see procedure_type table if you are confused by the difference between procedure_code
         // and standard_code
         if (!empty($dataRecord['standard_code'])) {
-            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']], FhirCodeSystemUris::LOINC);
+            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']], FhirCodeSystemConstants::LOINC);
             $report->setCode($code);
         } else {
             $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());

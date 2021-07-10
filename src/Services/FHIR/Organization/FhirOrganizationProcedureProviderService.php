@@ -15,7 +15,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -106,7 +106,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
         $organizationResource->setId($id);
 
         $identifiers = [
-            'npi' => FhirCodeSystemUris::PROVIDER_NPI
+            'npi' => FhirCodeSystemConstants::PROVIDER_NPI
         ];
         foreach ($identifiers as $id => $system) {
             if (!empty($dataRecord[$id])) {
@@ -124,7 +124,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
             $organizationResource->setName(UtilsService::createDataMissingExtension());
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemUris::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
 
         if ($encode) {
             return json_encode($organizationResource);

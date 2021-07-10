@@ -90,7 +90,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
             $statusReason = new FHIRCodeableConcept();
             $statusReasonCoding = new FHIRCoding();
-            $statusReasonCoding->setSystem(FhirCodeSystemUris::IMMUNIZATION_OBJECTION_REASON);
+            $statusReasonCoding->setSystem(FhirCodeSystemConstants::IMMUNIZATION_OBJECTION_REASON);
             $statusReasonCoding->setCode("PATOBJ");
             $statusReasonCoding->setDisplay("patient objection");
             $statusReason->addCoding($statusReasonCoding);
@@ -155,7 +155,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!empty($dataRecord['administration_site'])) {
             $doseQuantity = new FHIRQuantity();
             $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+            $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $doseQuantity->setCode($dataRecord['amount_administered_unit']);
             $immunizationResource->setDoseQuantity($doseQuantity);
         }

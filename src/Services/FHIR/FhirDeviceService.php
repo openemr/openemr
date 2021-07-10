@@ -76,7 +76,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         }
 
         if (!empty($dataRecord['code'])) {
-            $codeableConcept = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::SNOMED_CT);
+            $codeableConcept = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::SNOMED_CT);
             $device->setType($codeableConcept);
         } else {
             $device->setType(UtilsService::createDataMissingExtension());

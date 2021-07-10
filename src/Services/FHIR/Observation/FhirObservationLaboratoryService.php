@@ -18,7 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Indicates;
@@ -174,7 +174,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         $obsConcept = new FHIRCodeableConcept();
         $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemUris::HL7_OBSERVATION_CATEGORY);
+        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
         $obsCategoryCoding->setCode(self::CATEGORY);
         $obsConcept->addCoding($obsCategoryCoding);
         $observation->addCategory($obsConcept);
@@ -185,7 +185,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($dataRecord['text']);
-            $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
+            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         } else {
@@ -218,7 +218,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         $unit = 'lb_av';
                     }
                     $quantity->setUnit($unit);
-                    $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+                    $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
                 }
 
                 if (is_float($quantityValue)) {

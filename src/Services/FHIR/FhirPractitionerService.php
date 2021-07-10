@@ -139,7 +139,7 @@ class FhirPractitionerService extends FhirServiceBase
 
         if (!empty($dataRecord['npi'])) {
             $identifier = new FHIRIdentifier();
-            $identifier->setSystem(FhirCodeSystemUris::PROVIDER_NPI);
+            $identifier->setSystem(FhirCodeSystemConstants::PROVIDER_NPI);
             $identifier->setValue($dataRecord['npi']);
             $practitionerResource->addIdentifier($identifier);
         } else {
@@ -235,7 +235,7 @@ class FhirPractitionerService extends FhirServiceBase
         }
 
         foreach ($fhirResource->getIdentifier() as $index => $identifier) {
-            if ((string)$identifier->getSystem() == FhirCodeSystemUris::PROVIDER_NPI) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
                 $data['npi'] = (string)$identifier->getValue() ?? null;
             }
         }

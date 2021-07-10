@@ -115,7 +115,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                     $roleCoding->setCode($code);
                     $roleCoding->setDisplay($description);
                     // our codes are NUCC codes in our system
-                    $roleCoding->setSystem(FhirCodeSystemUris::NUCC_PROVIDER);
+                    $roleCoding->setSystem(FhirCodeSystemConstants::NUCC_PROVIDER);
                     $role->addCoding($roleCoding);
                 } else {
                     // need to provide the data absent reason
@@ -155,11 +155,11 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                     $roleCoding->setCode($code);
                     $roleCoding->setDisplay($description);
                     if ($codeParts[0] === "SNOMED-CT") {
-                        $roleCoding->setSystem(FhirCodeSystemUris::SNOMED_CT);
+                        $roleCoding->setSystem(FhirCodeSystemConstants::SNOMED_CT);
                     } else {
                         // NUCC codes in OpenEMR don't appear to be prefixed with anything and that's the only option for
                         // a facility taxonomy here so we leave it at this.
-                        $roleCoding->setSystem(FhirCodeSystemUris::NUCC_PROVIDER);
+                        $roleCoding->setSystem(FhirCodeSystemConstants::NUCC_PROVIDER);
                     }
                 }
                 $organization->addRole($role);

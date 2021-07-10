@@ -18,7 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -295,7 +295,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         if (!empty($dataRecord['code'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
+            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         }
@@ -330,7 +330,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $description = lookup_code_descriptions($listOption['codes']);
         $statusCode = str_replace("SNOMED-CT:", "", $listOption['codes']);
 
-        $concept = UtilsService::createCodeableConcept([$statusCode => $description], FhirCodeSystemUris::SNOMED_CT);
+        $concept = UtilsService::createCodeableConcept([$statusCode => $description], FhirCodeSystemConstants::SNOMED_CT);
         $observation->setValueCodeableConcept($concept);
     }
 

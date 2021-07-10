@@ -43,7 +43,7 @@ class UtilsService
         $quantity->setCode($code);
         $quantity->setValue($value);
         $quantity->setUnit($unit);
-        $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
@@ -77,7 +77,7 @@ class UtilsService
         // for some reason in order to get this to work we have to wrap our inner exception
         // into an outer exception.  This might be just a PHPism with the way JSON encodes things
         $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON_EXTENSION);
+        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
         $outerExtension->addExtension($extension);
@@ -173,12 +173,12 @@ class UtilsService
 
     public static function createNullFlavorUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemUris::HL7_NULL_FLAVOR);
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemConstants::HL7_NULL_FLAVOR);
     }
 
     public static function createDataAbsentUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemUris::DATA_ABSENT_REASON_CODE_SYSTEM);
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM);
     }
 
     /**

@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
 class CodeTypesService
 {
@@ -84,11 +84,11 @@ class CodeTypesService
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
-                $system = FhirCodeSystemUris::SNOMED_CT;
+                $system = FhirCodeSystemConstants::SNOMED_CT;
             } elseif (self::CODE_TYPE_NUCC == $codeType) {
-                $system = FhirCodeSystemUris::NUCC_PROVIDER;
+                $system = FhirCodeSystemConstants::NUCC_PROVIDER;
             } else if (self::CODE_TYPE_LOINC == $codeType) {
-                $system = FhirCodeSystemUris::LOINC;
+                $system = FhirCodeSystemConstants::LOINC;
             }
         }
         return $system;

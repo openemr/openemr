@@ -19,7 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -182,8 +182,8 @@ class FhirOrganizationFacilityService extends FhirServiceBase
         $organizationResource->setId($id);
 
         $identifiers = [
-            'facility_npi' => FhirCodeSystemUris::PROVIDER_NPI
-            ,'domain_identifier' => FhirCodeSystemUris::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER
+            'facility_npi' => FhirCodeSystemConstants::PROVIDER_NPI
+            ,'domain_identifier' => FhirCodeSystemConstants::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER
         ];
         foreach ($identifiers as $id => $system) {
             if (!empty($dataRecord[$id])) {
@@ -214,7 +214,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             }
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemUris::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
 
         if ($encode) {
             return json_encode($organizationResource);
@@ -279,10 +279,10 @@ class FhirOrganizationFacilityService extends FhirServiceBase
         }
 
         foreach ($fhirResource->getIdentifier() as $index => $identifier) {
-            if ((string)$identifier->getSystem() == FhirCodeSystemUris::PROVIDER_NPI) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
                 $data['facility_npi'] = (string)$identifier->getValue() ?? null;
             }
-            if ((string)$identifier->getSystem() == FhirCodeSystemUris::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemConstants::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
                 $data['domain_identifier'] = (string)$identifier->getValue() ?? null;
             }
         }

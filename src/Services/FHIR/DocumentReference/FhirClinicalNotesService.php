@@ -25,7 +25,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceCont
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\FHIR\a;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -136,7 +136,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $contentCoding = UtilsService::createCoding(
                 "urn:ihe:iti:xds:2017:mimeTypeSufficient",
                 "mimeType Sufficient",
-                FhirCodeSystemUris::IHE_FORMATCODE_CODESYSTEM
+                FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
             );
             $content->setFormat($contentCoding);
             $docReference->addContent($content);
@@ -151,7 +151,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $docReference->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $docReference->addCategory(UtilsService::createCodeableConcept(['clinical-note' => 'Clinical Note'], FhirCodeSystemUris::DOCUMENT_REFERENCE_CATEGORY));
+        $docReference->addCategory(UtilsService::createCodeableConcept(['clinical-note' => 'Clinical Note'], FhirCodeSystemConstants::DOCUMENT_REFERENCE_CATEGORY));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
@@ -178,7 +178,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['code'])) {
-            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
+            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
             $docReference->setType($type);
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
