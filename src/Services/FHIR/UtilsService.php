@@ -180,4 +180,29 @@ class UtilsService
     {
         return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemUris::DATA_ABSENT_REASON_CODE_SYSTEM);
     }
+
+    /**
+     * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
+     * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.
+     * If the start has no value or if the end period has no value it will return null values for the properties.
+     * @param FHIRPeriod $period  The object representing the period interval.
+     * @return array Containing two keys of 'start' and 'end' representing the period.
+     */
+    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    {
+        $end = null;
+        $start = null;
+        if ($period !== null) {
+            if (!empty($period->getEnd())) {
+                $end = strtotime($period->getEnd()->getValue());
+            }
+            if (!empty($period->getStart())) {
+                $start = strtotime($period->getStart()->getValue());
+            }
+        }
+        return [
+            'start' => $start,
+            'end' => $end
+        ];
+    }
 }

@@ -23,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\Services\ListService;
@@ -425,102 +426,97 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
         // TODO: ONC certification only deals with READ operations, the mapping of FHIR values such as language,ethnicity
         // etc are NOT being done here and so the creation/updating of resources is currently NOT correct, this will
         // need to be addressed by future development work.
-        $data = array();
-
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
+        if (!$fhirResource instanceof FHIRPatient) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        if (isset($fhirResource['name'])) {
-            $name = [];
-            foreach ($fhirResource['name'] as $sub_name) {
-                if ($sub_name['use'] === 'official') {
+        $data = array();
+        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+
+        if (!empty($fhirResource->getName())) {
+            $name = new FHIRHumanName();
+            foreach ($fhirResource->getName() as $sub_name) {
+                if ((string)$sub_name->getUse() === 'official') {
                     $name = $sub_name;
                     break;
                 }
             }
-            if (isset($name['family'])) {
-                $data['lname'] = $name['family'];
-            }
-            if ($name['given'][0]) {
-                $data['fname'] = $name['given'][0];
-            }
-            if (isset($name['given'][1])) {
-                $data['mname'] = $name['given'][1];
-            }
-            if (isset($name['prefix'][0])) {
-                $data['title'] = $name['prefix'][0];
-            }
+            $data['lname'] = (string)$name->getFamily() ?? null;
+
+            $given = $name->getGiven() ?? [];
+            // we cast due to the way FHIRString works
+            $data['fname'] = (string)($given[0] ?? null);
+            $data['mname'] = (string)($given[1] ?? null);
+
+            $prefix = $name->getPrefix() ?? [];
+            // we don't support updating the title right now, it requires updating another table which is breaking
+            // the service class.  As far as I can tell, this was never tested and never worked.
+            $data['title'] = $prefix[0] ?? null;
         }
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
+
+        $addresses = $fhirResource->getAddress();
+        if (!empty($addresses)) {
+            $activeAddress = $addresses[0];
+            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            foreach ($fhirResource->getAddress() as $address) {
+                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
+                if (empty($addressPeriod['end'])) {
+                    $activeAddress = $address;
+                }
+                // if our current period is more recent than our most recent address we want to grab that one
+                else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    $mostRecentPeriods = $addressPeriod;
+                    $activeAddress = $address;
+                }
             }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
-            if (isset($fhirResource['address'][0]['country'][0])) {
-                $data['country_code'] = $fhirResource['address'][0]['country'];
-            }
+
+            $lineValues = array_map(function ($val) {
+                return (string)$val;
+            }, $activeAddress->getLine() ?? []);
+            $data['street'] = implode("\n", $lineValues) ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
+            $data['city'] = (string)$activeAddress->getCity() ?? null;
+            $data['state'] = (string)$activeAddress->getState() ?? null;
         }
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'mobile':
-                                $data['phone_cell'] = $telecom['value'];
-                                break;
-                            case 'home':
-                                $data['phone_home'] = $telecom['value'];
-                                break;
-                            case 'work':
-                                $data['phone_biz'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        $data['email'] = $telecom['value'];
-                        break;
-                    default:
-                    //Should give Error for incapability
-                        break;
+
+        $telecom = $fhirResource->getTelecom();
+        if (!empty($telecom)) {
+            foreach ($telecom as $contactPoint) {
+                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $contactValue = (string)$contactPoint->getValue();
+                if ($systemValue === 'email') {
+                    $data[$systemValue] = (string)$contactValue;
+                } else if ($systemValue == "phone") {
+                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $useMapping = ['mobile' => 'phone_cell', 'home' => 'phone_home', 'work' => 'phone_biz'];
+                    if (isset($useMapping[$use])) {
+                        $data[$useMapping[$use]] = $contactValue;
+                    }
                 }
             }
         }
-        if (isset($fhirResource['birthDate'])) {
-            $data['DOB'] = $fhirResource['birthDate'];
-        }
-        if (isset($fhirResource['gender'])) {
-            $data['sex'] = $fhirResource['gender'];
-        }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if (!isset($identifier['type']['coding'][0])) {
-                continue;
-            }
+        $data['DOB'] = (string)$fhirResource->getBirthDate();
+        $data['sex'] = (string)$fhirResource->getGender();
 
-            $code = $identifier['type']['coding'][0]['code'];
-            switch ($code) {
-                case 'SS':
-                    $data['ss'] = $identifier['value'];
-                    break;
-                case 'PT':
-                    $data['pubpid'] = $identifier['value'];
-                    break;
+        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+            $type = $identifier->getType();
+            $validCodes = ['SS' => 'ss', 'PT' => 'pubpid'];
+            $coding = $type->getCoding() ?? [];
+            foreach ($coding as $codingItem) {
+                $codingCode = (string)$codingItem->getCode();
+
+                if (isset($validCodes[$codingCode])) {
+                    $data[$validCodes[$codingCode]] = $identifier->getValue() ?? null;
+                }
             }
         }
+
         return $data;
     }
 

@@ -54,6 +54,7 @@ class EncounterServiceTest extends TestCase
         $uuidString = UuidRegistry::uuidToString($uuid);
         // getOne
         $actualResult = $this->service->getEncounter($uuidString);
+        $this->assertNotNull($actualResult, "Processing result should be returned");
         $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
     }

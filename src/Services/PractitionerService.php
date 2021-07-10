@@ -230,12 +230,15 @@ class PractitionerService extends BaseService
         }
 
         $query = $this->buildUpdateColumns($data);
+
         $sql = " UPDATE users SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
 
+
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         array_push($query['bind'], $uuidBinary);
+
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {

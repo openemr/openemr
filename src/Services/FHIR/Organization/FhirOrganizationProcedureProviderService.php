@@ -89,7 +89,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
         $fhirMeta->setVersionId('1');
         $fhirMeta->setLastUpdated(gmdate('c'));
         $organizationResource->setMeta($fhirMeta);
-        $organizationResource->setActive($dataRecord['inactive'] == '0');
+        $organizationResource->setActive($dataRecord['active'] == '1');
 
         $narrativeText = '';
         if (isset($dataRecord['name'])) {

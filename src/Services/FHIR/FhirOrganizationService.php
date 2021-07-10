@@ -117,12 +117,17 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
 
     public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
+
         if (!($fhirResource instanceof FHIROrganization)) {
             throw new \BadMethodCallException("fhir resource must be of type " . FHIROrganization::class);
         }
-        $service = $this->getMappedServiceForResourceUuid($fhirResourceId);
-        if (!empty($service)) {
-            return $service->update($fhirResourceId, $fhirResource);
+        try {
+            $service = $this->getMappedServiceForResourceUuid($fhirResourceId);
+            if (!empty($service)) {
+                return $service->update($fhirResourceId, $fhirResource);
+            }
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
         }
         $processingResult = new ProcessingResult();
         $processingResult->setValidationMessages(['_id' => 'Invalid fhir resource id']);

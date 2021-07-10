@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
@@ -21,14 +22,22 @@ class FhirPractitionerServiceCrudTest extends TestCase
 {
     private $fixtureManager;
     private $practitionerFixture;
+    /**
+     * @var FHIRPractitioner
+     */
     private $fhirPractitionerFixture;
+
+    /**
+     * @var FhirPractitionerService
+     */
     private $fhirPractitionerService;
 
     protected function setUp(): void
     {
         $this->fixtureManager = new PractitionerFixtureManager();
         $this->practitionerFixture = (array) $this->fixtureManager->getSinglePractitionerFixture();
-        $this->fhirPractitionerFixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();
+        $fixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();
+        $this->fhirPractitionerFixture = FhirPractitionerSerializer::deserialize($fixture);
         $this->fhirPractitionerService = new FhirPractitionerService();
     }
 
@@ -44,7 +53,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
      */
     public function testInsert()
     {
-        unset($this->fhirPractitionerFixture['id']);
+        $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -61,7 +70,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
      */
     public function testInsertWithErrors()
     {
-        unset($this->fhirPractitionerFixture['name']);
+        $this->fhirPractitionerFixture->name = []; // clear the names TODO: I don't like this public accessor, can we fix it?s
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertEquals(0, count($processingResult->getData()));
@@ -74,7 +83,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
      */
     public function testUpdate()
     {
-        unset($this->fhirPractitionerFixture['id']);
+        $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -82,8 +91,8 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        $this->fhirPractitionerFixture['name'][0]['family'] = 'Smith';
-        $this->fhirPractitionerFixture['id'] = $fhirId;
+        $this->fhirPractitionerFixture->getName()[0]->setFamily('Smith');
+        $this->fhirPractitionerFixture->setId($fhirId);
         $actualResult = $this->fhirPractitionerService->update($fhirId, $this->fhirPractitionerFixture);
         $this->assertTrue($actualResult->isValid());
 

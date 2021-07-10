@@ -85,13 +85,12 @@ trait MappedServiceTrait
 
     public function getMappedServiceForResourceUuid($resourceUuid)
     {
-        $search = ['_id' => new TokenSearchField('uuid', [new TokenSearchValue($resourceUuid, null, true)])];
+        $search = ['_id' => $resourceUuid];
         foreach ($this->getMappedServices() as $service) {
             $innerResult = $service->getAll($search);
             if ($innerResult->hasData()) {
                 return $service;
             }
         }
-        return null;
     }
 }

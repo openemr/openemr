@@ -66,8 +66,8 @@ class EncounterService extends BaseService
      */
     public function getEncounter($euuid, $puuidBind = null)
     {
-        $search = ['eeuid' => new TokenSearchField('eeuid', [new TokenSearchValue($euuid, null, true)])];
-        $this->getEncountersBySearch($search, true, $puuidBind);
+        $search = ['euuid' => new TokenSearchField('euuid', [new TokenSearchValue($euuid, null, true)])];
+        return $this->getEncountersBySearch($search, true, $puuidBind);
     }
 
 

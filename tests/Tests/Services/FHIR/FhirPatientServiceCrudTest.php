@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -21,14 +22,23 @@ class FhirPatientServiceCrudTest extends TestCase
 {
     private $fixtureManager;
     private $patientFixture;
+
+    /**
+     * @var FHIRPatient
+     */
     private $fhirPatientFixture;
+
+    /**
+     * @var FhirPatientService
+     */
     private $fhirPatientService;
 
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
         $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
-        $this->fhirPatientFixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
+        $fixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
+        $this->fhirPatientFixture = FhirPatientSerializer::deserialize($fixture);
         $this->fhirPatientService = new FhirPatientService();
     }
 
@@ -44,7 +54,7 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testInsert()
     {
-        unset($this->fhirPatientFixture['id']);
+        $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -61,7 +71,7 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testInsertWithErrors()
     {
-        unset($this->fhirPatientFixture['name']);
+        $this->fhirPatientFixture->name = [];
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertEquals(0, count($processingResult->getData()));
@@ -74,7 +84,7 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testUpdate()
     {
-        unset($this->fhirPatientFixture['id']);
+        $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -82,8 +92,8 @@ class FhirPatientServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        $this->fhirPatientFixture['name'][0]['family'] = 'Smith';
-        $this->fhirPatientFixture['id'] = $fhirId;
+        $this->fhirPatientFixture->getName()[0]->setFamily('Smith');
+        $this->fhirPatientFixture->setId($fhirId);
         $actualResult = $this->fhirPatientService->update($fhirId, $this->fhirPatientFixture);
         $this->assertTrue($actualResult->isValid());
 

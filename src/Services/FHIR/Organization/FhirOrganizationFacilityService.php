@@ -12,19 +12,18 @@
 namespace OpenEMR\Services\FHIR\Organization;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\FHIR\FhirCodeSystemUris;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
@@ -114,6 +113,19 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        if (!isset($openEMRSearchParameters['name'])) {
+            // make sure we only return records that have a name or an identifier, otherwise its invalid for FHIR
+
+            $name = new TokenSearchField('name', [new TokenSearchValue(false)]);
+            $name->setModifier(SearchModifier::MISSING);
+            $domainIdentifier = new TokenSearchField('domain_identifier', [new TokenSearchValue(false)]);
+            $domainIdentifier->setModifier(SearchModifier::MISSING);
+            $npi = new TokenSearchField('facility_npi', [new TokenSearchValue(false)]);
+            $npi->setModifier(SearchModifier::MISSING);
+            $openEMRSearchParameters['identifier-name'] = new CompositeSearchField('identifier-name', [], false);
+            $openEMRSearchParameters['identifier-name']->setChildren([$name, $domainIdentifier, $npi]);
+        }
+
         return $this->facilityService->search($openEMRSearchParameters);
     }
 
@@ -130,6 +142,12 @@ class FhirOrganizationFacilityService extends FhirServiceBase
         return $processingResult;
     }
 
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        $processingResult = $this->facilityService->insert($openEmrRecord);
+        return $processingResult;
+    }
+
 
     /**
      * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
@@ -140,21 +158,14 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
-        if (
-            (empty($dataRecord['cms_id']) || empty($dataRecord['domain_identifier']))
-            && empty($dataRecord['name'])
-        ) {
-            // TODO: @adunsulag we need to architect what happens if we fail the organization constraint requirements
-            // ie there MUST be a name OR an identifier
-            // @see http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-organization.html#summary-of-constraints
-        }
         $organizationResource = new FHIROrganization();
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         $fhirMeta->setLastUpdated(gmdate('c'));
         $organizationResource->setMeta($fhirMeta);
-        $organizationResource->setActive($dataRecord['active'] === true);
+        // facilities have no active / inactive state
+        $organizationResource->setActive(true);
 
         $narrativeText = '';
         if (isset($dataRecord['name'])) {
@@ -172,7 +183,6 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
         $identifiers = [
             'facility_npi' => FhirCodeSystemUris::PROVIDER_NPI
-            ,'cms_id' => FhirCodeSystemUris::HL7_IDENTIFIER_TYPE_TABLE
             ,'domain_identifier' => FhirCodeSystemUris::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER
         ];
         foreach ($identifiers as $id => $system) {
@@ -219,83 +229,61 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
+        if (!$fhirResource instanceof FHIROrganization) {
+            // we use get class to get the sub class type.
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+        }
+
         $data = array();
 
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
-        }
+        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        // convert the strings to a
+        $data['name'] = (string)$fhirResource->getName() ?? null;
 
-        if (isset($fhirResource['name'])) {
-            $data['name'] = $fhirResource['name'];
-        }
-
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
-            }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
-        }
-        //setting default OrgType to facility
-        $data['orgType'] = 'facility';
-        if (isset($fhirResource['type'])) {
-            foreach ($fhirResource['type'] as $orgtype) {
-                foreach ($orgtype['coding'] as $coding) {
-                    if ($coding['code'] == 'pay') {
-                        $data['orgType'] = 'insurance';
-                    }
-                    if ($coding['code'] == 'prov') {
-                        $data['orgType'] = 'facility';
-                    }
+        $addresses = $fhirResource->getAddress();
+        if (!empty($addresses)) {
+            $activeAddress = $addresses[0];
+            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            foreach ($fhirResource->getAddress() as $address) {
+                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
+                if (empty($addressPeriod['end'])) {
+                    $activeAddress = $address;
+                }
+                // if our current period is more recent than our most recent address we want to grab that one
+                else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    $mostRecentPeriods = $addressPeriod;
+                    $activeAddress = $address;
                 }
             }
+
+            $lineValues = array_map(function ($val) {
+                return (string)$val;
+            }, $activeAddress->getLine() ?? []);
+            $data['street'] = implode("\n", $lineValues) ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
+            $data['city'] = (string)$activeAddress->getCity() ?? null;
+            $data['state'] = (string)$activeAddress->getState() ?? null;
         }
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['phone'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['email'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'fax':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['fax'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    default:
-                        //Should give Error for incapability
-                        break;
+
+        $telecom = $fhirResource->getTelecom();
+        if (!empty($telecom)) {
+            foreach ($telecom as $contactPoint) {
+                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $validSystems = ['phone' => 'phone', 'email' => 'email', 'fax' => 'fax'];
+                if (isset($validSystems[$systemValue])) {
+                    $data[$systemValue] = (string)$contactPoint->getValue() ?? null;
                 }
             }
         }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == FhirCodeSystemUris::PROVIDER_NPI) {
-                $data['facility_npi'] = $identifier['value'];
+        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemUris::PROVIDER_NPI) {
+                $data['facility_npi'] = (string)$identifier->getValue() ?? null;
             }
-            if ($identifier['system'] == FhirCodeSystemUris::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
-                $data['domain_identifier'] = $identifier['value'];
+            if ((string)$identifier->getSystem() == FhirCodeSystemUris::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
+                $data['domain_identifier'] = (string)$identifier->getValue() ?? null;
             }
         }
         return $data;

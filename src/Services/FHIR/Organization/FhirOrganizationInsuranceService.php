@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Organization;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -148,62 +149,39 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      */
     public function parseFhirResource($fhirResource = array())
     {
+        if (!$fhirResource instanceof FHIROrganization) {
+            // we use get class to get the sub class type.
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+        }
+
         $data = array();
 
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
-        }
+        $data['uuid'] = $fhirResource->getId() ?? null;
+        $data['name'] = !empty($fhirResource->getName()) ? $fhirResource->getName()->getValue() : null;
 
-        if (isset($fhirResource['name'])) {
-            $data['name'] = $fhirResource['name'];
-        }
-
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
-            }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
-        }
-        //setting default OrgType to facility
-        $data['orgType'] = 'insurance';
-
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['phone'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['email'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'fax':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['fax'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    default:
-                        //Should give Error for incapability
-                        break;
+        $addresses = $fhirResource->getAddress();
+        if (!empty($addresses)) {
+            $activeAddress = $addresses[0];
+            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            foreach ($fhirResource->getAddress() as $address) {
+                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
+                if (empty($addressPeriod['end'])) {
+                    $activeAddress = $address;
+                }
+                // if our current period is more recent than our most recent address we want to grab that one
+                else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    $mostRecentPeriods = $addressPeriod;
+                    $activeAddress = $address;
                 }
             }
+
+            $lineValues = array_map(function ($val) {
+                return $val->getValue();
+            }, $activeAddress->getLine() ?? []);
+            $data['street'] = implode("\n", $lineValues) ?? null;
+            $data['postal_code'] = !empty($activeAddress->getPostalCode()) ? $activeAddress->getPostalCode()->getValue() : null;
+            $data['city'] = !empty($activeAddress->getCity()) ? $activeAddress->getCity()->getValue() : null;
+            $data['state'] = !empty($activeAddress->getState()) ? $activeAddress->getState()->getValue() : null;
         }
 
         foreach ($fhirResource['identifier'] as $index => $identifier) {
