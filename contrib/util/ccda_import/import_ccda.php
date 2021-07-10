@@ -47,9 +47,6 @@ if (php_sapi_name() !== 'cli' || count($argv) != 5) {
     die;
 }
 
-// get around a large ccda data array
-ini_set("memory_limit", -1);
-
 function outputMessage($message)
 {
     echo $message;

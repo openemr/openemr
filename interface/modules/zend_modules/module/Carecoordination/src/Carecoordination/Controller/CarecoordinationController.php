@@ -113,6 +113,9 @@ class CarecoordinationController extends AbstractActionController
 
     public function newpatientImportCommandAction()
     {
+        // get around a large ccda data array
+        ini_set("memory_limit", -1);
+
         $request = $this->getRequest();
         if (!$request instanceof ConsoleRequest) {
             throw new RuntimeException('You can only use this action from a console!');
