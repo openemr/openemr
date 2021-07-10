@@ -310,7 +310,7 @@ class ClinicalNotesService extends BaseService
     public function getClinicalNotesForPatientForm(int $formid, $pid, $encounter)
     {
         if (empty($formid) || empty($pid)) {
-            throw new \InvalidArgumentException("formid, pid, and encounter must all be populated");
+            throw new \InvalidArgumentException("formid, and pid must all be populated");
         }
 
         $sql = "SELECT fcn.* 
