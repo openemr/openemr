@@ -80,7 +80,7 @@ $formid = $_GET['id'];
 
 // If Save was clicked, save the info.
 //
-if ($_POST['bn_save']) {
+if (!empty($_POST['bn_save'])) {
     $fu_timing = $_POST['fu_timing'];
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();

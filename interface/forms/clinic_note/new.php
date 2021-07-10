@@ -29,7 +29,7 @@ if (! $encounter) { // comes from globals.php
 
 function rbvalue($rbname)
 {
-    $tmp = $_POST[$rbname];
+    $tmp = $_POST[$rbname] ?? null;
     if (! $tmp) {
         $tmp = '0';
     }
@@ -46,7 +46,7 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
+    if (!empty($row) && ($row[$colname] == $value)) {
         $ret .= " checked";
     }
 
@@ -76,11 +76,11 @@ function cbcell($name, $desc, $colname)
     return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
 
-$formid = $_GET['id'];
+$formid = $_GET['id'] ?? null;
 
 // If Save was clicked, save the info.
 //
-if ($_POST['bn_save']) {
+if (!empty($_POST['bn_save'])) {
     $fu_timing = $_POST['fu_timing'];
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -142,21 +142,21 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> <?php echo xlt("History"); ?> </td>
   <td width='95%' nowrap>
-   <textarea name='form_history' rows='7' style='width:100%'><?php echo text($row['history']) ?></textarea>
+   <textarea name='form_history' rows='7' style='width:100%'><?php echo text($row['history'] ?? '') ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> <?php echo xlt("Examination"); ?> </td>
   <td nowrap>
-   <textarea name='form_examination' rows='7' style='width:100%'><?php echo text($row['examination']) ?></textarea>
+   <textarea name='form_examination' rows='7' style='width:100%'><?php echo text($row['examination'] ?? '') ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> <?php echo xlt("Plan"); ?> </td>
   <td nowrap>
-   <textarea name='form_plan' rows='7' style='width:100%'><?php echo text($row['plan']) ?></textarea>
+   <textarea name='form_plan' rows='7' style='width:100%'><?php echo text($row['plan'] ?? '') ?></textarea>
   </td>
  </tr>
 
@@ -171,7 +171,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
        title='<?php echo xla("When to follow up"); ?>'
-       value='<?php echo attr($row['followup_timing']) ?>' />
+       value='<?php echo attr($row['followup_timing'] ?? '') ?>' />
      </td>
     </tr>
     <tr>
