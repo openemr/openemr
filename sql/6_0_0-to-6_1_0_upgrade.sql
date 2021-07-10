@@ -598,6 +598,15 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 #EndIf
 
+#---------- Migrate old form_clinical_notes to form_clinic_note if it is installed ----------#
+#IfColumn form_clinical_notes followup_timing
+ALTER TABLE `form_clinical_notes` RENAME TO `form_clinic_note`;
+UPDATE `forms` SET `form_name` = 'Clinic Note' WHERE `form_name` = 'Clinical Notes';
+UPDATE `forms` SET `formdir` = 'clinic_note' WHERE `formdir` = 'clinical_notes';
+UPDATE `registry` SET `name` = 'Clinic Note' WHERE `name` = 'Clinical Notes';
+UPDATE `registry` SET `directory` = 'clinic_note' WHERE `directory` = 'clinical_notes';
+#EndIf
+
 #IfNotTable form_clinical_notes
 CREATE TABLE `form_clinical_notes` (
     `id` bigint(20) NOT NULL,
