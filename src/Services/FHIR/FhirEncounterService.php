@@ -146,7 +146,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
      */
     protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
-        return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
+        return $this->encounterService->search($searchParam, true, $puuidBind);
     }
 
     /**

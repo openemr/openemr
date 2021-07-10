@@ -67,7 +67,7 @@ class EncounterService extends BaseService
     public function getEncounter($euuid, $puuidBind = null)
     {
         $search = ['euuid' => new TokenSearchField('euuid', [new TokenSearchValue($euuid, null, true)])];
-        return $this->getEncountersBySearch($search, true, $puuidBind);
+        return $this->search($search, true, $puuidBind);
     }
 
 
@@ -87,7 +87,7 @@ class EncounterService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getEncountersBySearch($search = array(), $isAndCondition = true, $puuidBind = true)
+    public function search($search = array(), $isAndCondition = true, $puuidBind = true)
     {
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();
