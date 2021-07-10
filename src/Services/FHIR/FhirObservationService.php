@@ -55,8 +55,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     {
         parent::__construct();
         $this->innerServices = [];
-        // TODO: @adunsulag look at moving each of the service classes into their own namespace so people can add onto the observations
-//        $this->observationService = new ObservationLabService();
         $this->addMappedService(new FhirObservationSocialHistoryService());
         $this->addMappedService(new FhirObservationVitalsService());
         $this->addMappedService(new FhirObservationLaboratoryService());
