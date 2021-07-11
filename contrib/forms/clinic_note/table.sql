@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS form_clinical_notes (
+CREATE TABLE IF NOT EXISTS form_clinic_note (
  id                bigint(20)   NOT NULL auto_increment,
  activity          tinyint(1)   NOT NULL DEFAULT 1,  -- 0 if deleted
 
@@ -8,12 +8,6 @@ CREATE TABLE IF NOT EXISTS form_clinical_notes (
 
  followup_required int(11)      NOT NULL DEFAULT 0,  -- radio
  followup_timing   varchar(255) NOT NULL DEFAULT '',
-
- -- resolved, improved, status quo, worse:
- -- outcome           int(11)      NOT NULL DEFAULT 0,  -- radio
-
- -- gp, hospital specialist:
- -- destination       int(11)      NOT NULL DEFAULT 0,  -- radio
 
  PRIMARY KEY (id)
 ) ENGINE=InnoDB;
