@@ -41,7 +41,7 @@ class X125010837I
             "*" . $claim->x12gsisa03() .
             "*" . $claim->x12gsisa04() .
             "*" . $claim->x12gsisa05() .
-            "*" . $claim->x12gssenderid() .
+            "*" . $claim->x12_sender_id() .
             "*" . $claim->x12gsisa07() .
             "*" . $claim->x12gsreceiverid() .
             // date of transmission "*030911" .
