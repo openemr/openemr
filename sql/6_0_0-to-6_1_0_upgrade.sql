@@ -603,7 +603,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ALTER TABLE `form_clinical_notes` RENAME TO `form_clinic_note`;
 UPDATE `forms` SET `form_name` = 'Clinic Note' WHERE `form_name` = 'Clinical Notes';
 UPDATE `forms` SET `formdir` = 'clinic_note' WHERE `formdir` = 'clinical_notes';
-UPDATE `registry` SET `name` = 'Clinic Note' WHERE `name` = 'Clinical Notes';
+UPDATE `registry` SET `name` = 'Clinic Note' WHERE `name` LIKE 'Clinical Notes%' AND `directory` = 'clinical_notes';
 UPDATE `registry` SET `directory` = 'clinic_note' WHERE `directory` = 'clinical_notes';
 #EndIf
 
