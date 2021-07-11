@@ -954,7 +954,7 @@ if (
         if ($formdir == 'newpatient') {
             $form_author = $providerNameRes;
         } else {
-            $form_author = $user['fname'] . "  " . $user['lname'];
+            $form_author = ($user['fname'] ?? '') . "  " . ($user['lname'] ?? '');
         }
         echo "<div class='form_header'>";
         echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .

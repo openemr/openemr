@@ -185,7 +185,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
   "LEFT OUTER JOIN addresses AS a3 ON a3.foreign_id = c3.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $insrow[2]['id'], $pid)));
+ $row = sqlFetchArray(sqlStatement($query, array(($insrow[0]['id'] ?? null), ($insrow[1]['id'] ?? null), ($insrow[2]['id'] ?? null), $pid)));
 
  $rowed = getEmployerData($pid);
 
@@ -255,7 +255,7 @@ if ($row['providerID']) {
 
  // Employer Section.
  //
-if ($rowed['id']) {
+if (!empty($rowed['id'])) {
     OpenTag("employer");
     Add("name", $rowed['name']);
     Add("street", $rowed['street']);

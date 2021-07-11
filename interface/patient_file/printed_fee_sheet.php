@@ -388,8 +388,8 @@ foreach ($pid_list as $pid) {
     while (--$pages >= 0) {
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
         $html .= '<table style="width: 100%"><tr>' .
-            '<td>' . xlt('Patient') . ': <span style="font-weight: bold;">' . text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) . '</span></td>' .
-            '<td>' . xlt('DOB') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($patdata['DOB'])) . '</span></td>' .
+            '<td>' . xlt('Patient') . ': <span style="font-weight: bold;">' . text($patdata['fname'] ?? '') . ' ' . text($patdata['mname'] ?? '') . ' ' . text($patdata['lname'] ?? '') . '</span></td>' .
+            '<td>' . xlt('DOB') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($patdata['DOB'] ?? '')) . '</span></td>' .
             '<td>' . xlt('Date of Service') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($appointment[0]['pc_eventDate'] ?? '')) . ' ' . text(oeFormatTime($appointment[0]['pc_startTime'] ?? '')) . '</span></td>' .
             '<td>' . xlt('Ref Prov') . ': <span style="font-weight: bold;">' . text($referDoc['fname'] ?? '') . ' ' . text($referDoc['lname'] ?? '') . '</span></td>' .
             '</tr></table>';
@@ -482,7 +482,7 @@ foreach ($pid_list as $pid) {
                                 "pid = ? AND type = ? " .
                                 "ORDER BY date DESC LIMIT 1";
                         $row = sqlQuery($query, array($pid, $instype));
-                        if ($row['provider']) {
+                        if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
                             $insco_name = trim($icobj->get_name());

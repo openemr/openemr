@@ -30,7 +30,7 @@ if (!empty($_POST)) {
 
 $popup = empty($_GET['popup']) ? 0 : 1;
 $rtn_selection = 0;
-if ($_GET['popup'] == 2 || $_POST['popup'] == 2) {
+if ((!empty($_GET['popup']) && $_GET['popup'] == 2) || (!empty($_POST['popup']) && $_POST['popup'] == 2)) {
     $rtn_selection = 2;
 }
 
