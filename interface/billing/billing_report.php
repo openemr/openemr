@@ -831,8 +831,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!$list && isset($_POST["mode"])) {
                 $alertmsg = "Please select at least one critera.";
             } else {
-                ?>
-                <?php
                 if (!isset($_POST["mode"])) {
                     if (!isset($_POST["from_date"])) {
                         $from_date = date("Y-m-d");
