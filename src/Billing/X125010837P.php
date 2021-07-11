@@ -151,7 +151,7 @@ class X125010837P
 
         ++$edicount;
         $out .= "PER" . // Loop 1000A, Submitter EDI contact information
-        // if 3rd party entered in x12_parter, the methods in the claim class will grab information from the address book, aka table `users`
+        // if 3rd party entered in practice x12 partners, the methods in the claim class will grab information from the address book, aka table `users`
         "*" . "IC" .
         "*" . $claim->billingContactName() .
         "*" . "TE" .
@@ -1616,7 +1616,7 @@ class X125010837P
                 $out .= "NM1" . // Loop 1000A Submitter
                 "*" . "41" .
                 "*";
-                // check for 3rd party
+                // check for 3rd party submitter name entered in practice settings x12 partner
                 if ($claim->x12_submitter_name()) {
                     // non-person entity
                     $out .= "2" .
