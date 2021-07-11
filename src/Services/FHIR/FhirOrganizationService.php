@@ -29,6 +29,8 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirOrganizationService implements IResourceSearchableService, IResourceReadableService, IResourceUpdateableService, IResourceCreatableService
 {
+    use MappedServiceTrait;
+
     const ORGANIZATION_TYPE_INSURANCE = "Ins";
     const ORGANIZATION_TYPE_PAYER = "Pay";
     const ORGANIZATION_TYPE_PROVIDER = "Prov";
@@ -42,8 +44,6 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      * @var FhirOrganizationInsuranceService
      */
     private $insuranceService;
-
-    use MappedServiceTrait;
 
     public function __construct()
     {

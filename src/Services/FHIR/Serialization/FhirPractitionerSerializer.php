@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR\Serialization;
 
-
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;

@@ -167,9 +167,8 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
-                }
-                // if our current period is more recent than our most recent address we want to grab that one
-                else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    // if our current period is more recent than our most recent address we want to grab that one
                     $mostRecentPeriods = $addressPeriod;
                     $activeAddress = $address;
                 }
