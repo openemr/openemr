@@ -53,6 +53,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         $this->addMappedService($this->facilityService);
         $this->addMappedService($this->insuranceService);
         // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
+        // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
     }
 

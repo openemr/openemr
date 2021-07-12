@@ -821,11 +821,19 @@ UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Typ
 ALTER TABLE `procedure_report` ADD `uuid` binary(16) DEFAULT NULL AFTER `procedure_report_id`;
 #EndIf
 
+#IfNotIndex procedure_report uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_report` (`uuid`);
+#EndIf
+
 #IfUuidNeedUpdateId procedure_report procedure_report_id
 #EndIf
 
 #IfMissingColumn procedure_providers uuid
 ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid`;
+#EndIf
+
+#IfNotIndex procedure_providers uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_providers` (`uuid`);
 #EndIf
 
 #IfUuidNeedUpdateId procedure_providers ppid

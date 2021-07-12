@@ -132,6 +132,18 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         }
 
         $organizationResource->addAddress(UtilsService::createAddressFromRecord($dataRecord));
+
+        $contactPoints = ['work_number' => 'work', 'fax_number' => 'fax'];
+        foreach ($contactPoints as $field => $contact) {
+            if (!empty($dataRecord[$field])) {
+                $organizationResource->addTelecom(UtilsService::createContactPoint(
+                    $dataRecord[$field],
+                    $contact,
+                    'work'
+                ));
+            }
+        }
+
         $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => "Insurance Company"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
 
         if ($encode) {
