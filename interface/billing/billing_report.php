@@ -828,8 +828,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
             $list = BillingReport::getBillsListBetween("%");
             // don't query the whole encounter table if no criteria selected
-            if (!$list && isset($_POST["mode"])) {
-                $alertmsg = "Please select at least one critera.";
+            if (!$list && isset($_POST["mode"]) && array_key_exists('final_this_page_criteria', $_POST)) {
+                $alertmsg = "Search returned no results.";
+            } elseif (!$list && isset($_POST["mode"])) {
+                $alertmsg = "Please select at least one criteria.";
             } else {
                 if (!isset($_POST["mode"])) {
                     if (!isset($_POST["from_date"])) {
