@@ -25,7 +25,7 @@ class SocialHistoryService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        $this->getUuidRegistry()->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
@@ -69,7 +69,7 @@ class SocialHistoryService extends BaseService
     {
         // history_data contains a table record for every single insert into the database
         $sql = "
-            SELECT 
+            SELECT
                 history.id
                 ,history.uuid
                 ,history.date
@@ -83,7 +83,7 @@ class SocialHistoryService extends BaseService
             history_data history
             JOIN
             (
-             SELECT 
+             SELECT
                     -- we could have this be max date, but this should be fine
                     max(id) AS id
                     FROM history_data
@@ -91,7 +91,7 @@ class SocialHistoryService extends BaseService
             ) latest_history_records ON history.id = latest_history_records.id
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS puuid
                     ,pid
                     FROM patient_data

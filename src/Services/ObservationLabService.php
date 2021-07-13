@@ -28,9 +28,7 @@ class ObservationLabService extends BaseService
 {
 
     private const PROCEDURE_RESULT_TABLE = "procedure_result";
-    private const PROCEDURE_RESULT_TABLE_ID = "procedure_result_id";
     private const PATIENT_TABLE = "patient_data";
-    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -38,12 +36,7 @@ class ObservationLabService extends BaseService
     public function __construct()
     {
         parent::__construct(self::PROCEDURE_RESULT_TABLE);
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::PROCEDURE_RESULT_TABLE,
-            'table_id' => self::PROCEDURE_RESULT_TABLE_ID
-        ]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PROCEDURE_RESULT_TABLE, self::PATIENT_TABLE]);
     }
 
     public function getUuidFields(): array
@@ -93,7 +86,7 @@ class ObservationLabService extends BaseService
         // To see the mappings you can see here: https://www.hl7.org/fhir/us/core/general-guidance.html
         $sql = "SELECT
                     presult.procedure_result_id
-                    ,presult.uuid 
+                    ,presult.uuid
                     ,presult.result_code
                     ,presult.result_text
                     ,presult.units
@@ -107,38 +100,38 @@ class ObservationLabService extends BaseService
                     ,order_codes.procedure_code ,
                     patients.puuid
                     ,preport.date_report
-                FROM 
+                FROM
                     procedure_result AS presult
                     -- we mix and match quantities with string values and in order to handle complex searches we break
                     -- them apart so we can apply different operators to each
                 JOIN (
-                    SELECT 
+                    SELECT
                         uuid
                         ,result AS result_quantity
                         ,result AS result_string
                     FROM
                         procedure_result
                 ) typed_procedure_result ON presult.uuid = typed_procedure_result.uuid
-                LEFT JOIN 
+                LEFT JOIN
                     procedure_report AS preport
-                ON 
+                ON
                     preport.procedure_report_id = presult.procedure_report_id
-                LEFT JOIN 
+                LEFT JOIN
                     procedure_order AS porder
-                ON 
+                ON
                     porder.procedure_order_id = preport.procedure_order_id
-                LEFT JOIN 
+                LEFT JOIN
                     procedure_order_code AS order_codes
-                ON 
+                ON
                     order_codes.procedure_order_id = porder.procedure_order_id
                 LEFT JOIN (
-                    select 
+                    select
                         pid
                         ,uuid AS puuid
                     FROM
                         patient_data
                  ) patients
-                ON 
+                ON
                     patients.pid = porder.patient_id ";
 
         $excludeDNR_TNP = new StringSearchField('result_string', ['DNR','TNP'], SearchModifier::NOT_EQUALS_EXACT, true);

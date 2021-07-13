@@ -30,7 +30,7 @@ class DocumentService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
     public function isValidPath($path)
@@ -165,7 +165,7 @@ class DocumentService extends BaseService
 
         try {
             $sql = "
-            SELECT 
+            SELECT
                 docs.id
                 ,docs.uuid
                 ,docs.url
@@ -183,8 +183,8 @@ class DocumentService extends BaseService
                 ,users.user_username
                 ,users.user_npi
                 ,users.user_physician_type
-                
-            FROM 
+
+            FROM
                 documents docs
             LEFT JOIN (
                 select
@@ -196,14 +196,14 @@ class DocumentService extends BaseService
             ) encounters ON docs.encounter_id = encounters.eid
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS puuid
                     ,pid
                     FROM patient_data
             ) patients ON docs.foreign_id = patients.pid
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS user_uuid
                     ,username AS user_username
                     ,id AS user_id

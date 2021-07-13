@@ -72,15 +72,7 @@
 
 --  #IfUuidNeedUpdate
 --    argument: table_name
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateId
---    argument: table_name primary_id
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateVertical
---    argument: table_name table_columns
---    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
+--    behavior: this will add and populate a uuid column into table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
 
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
@@ -703,7 +695,7 @@ ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#IfUuidNeedUpdate facility_user_ids
 #EndIf
 
 #IfMissingColumn facility uuid
@@ -1966,7 +1958,7 @@ ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId procedure_order procedure_order_id
+#IfUuidNeedUpdate procedure_order
 #EndIf
 
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
@@ -1993,7 +1985,7 @@ ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId drugs drug_id
+#IfUuidNeedUpdate drugs
 #EndIf
 
 #IfMissingColumn prescriptions uuid
@@ -2051,7 +2043,7 @@ ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `procedure_result` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId procedure_result procedure_result_id
+#IfUuidNeedUpdate procedure_result
 #EndIf
 
 #IfNotColumnType form_bronchitis user varchar(50)

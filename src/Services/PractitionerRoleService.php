@@ -23,7 +23,8 @@ class PractitionerRoleService extends BaseService
 {
 
     private const PRACTITIONER_ROLE_TABLE = "facility_user_ids";
-    private $uuidRegistry;
+    private const PRACTITIONER_TABLE = "users";
+    private const FACILITY_TABLE = "facility";
 
     /**
      * Default constructor.
@@ -31,13 +32,7 @@ class PractitionerRoleService extends BaseService
     public function __construct()
     {
         parent::__construct('facility_user_ids');
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::PRACTITIONER_ROLE_TABLE,
-            'table_vertical' => ['uid', 'facility_id']
-        ]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
-        (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PRACTITIONER_ROLE_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE]);
     }
 
     public function getUuidFields(): array
@@ -60,7 +55,7 @@ class PractitionerRoleService extends BaseService
                 providers.user_name,
                 providers.provider_id,
                 providers.provider_uuid,
-                
+
                 facilities.facility_uuid,
                 facilities.facility_name,
                 role_codes.role_code,
@@ -82,54 +77,54 @@ class PractitionerRoleService extends BaseService
                            IF(users.mname IS NULL OR users.mname = '','',' '),COALESCE(users.mname,''),
                            IF(users.lname IS NULL OR users.lname = '','',' '),COALESCE(users.lname,'')
                         ) as user_name
-                    FROM 
+                    FROM
                         facility_user_ids
-                    JOIN users ON 
+                    JOIN users ON
                         facility_user_ids.uid = users.id
-                    WHERE 
+                    WHERE
                         field_id='provider_id'
-                    
+
                 ) providers
                 JOIN (
-                    select 
+                    select
                         field_value AS role_code,
                         field_id,
                         role.title AS role_title,
                         facility_id,
-                        uid AS user_id 
-                    FROM 
+                        uid AS user_id
+                    FROM
                         facility_user_ids
-                    JOIN 
+                    JOIN
                         list_options as role ON role.option_id = field_value
-                    WHERE 
+                    WHERE
                         field_value != '' AND field_value IS NOT NULL
                         AND role.list_id='us-core-provider-role'
-                ) role_codes ON 
+                ) role_codes ON
                     providers.user_id = role_codes.user_id AND providers.facility_id = role_codes.facility_id AND role_codes.field_id='role_code'
                 JOIN (
-                    select 
+                    select
                         uuid AS facility_uuid
                         ,id AS facility_id
                         ,name AS facility_name
                     FROM
                         facility
-                ) facilities 
+                ) facilities
                     ON providers.facility_id = facilities.facility_id
                 LEFT JOIN (
-                    select 
+                    select
                         field_value AS specialty_code,
                         specialty.title AS specialty_title,
                         field_id,
                         facility_id,
-                        uid AS user_id 
-                     FROM 
+                        uid AS user_id
+                     FROM
                         facility_user_ids facilities_specialty
-                    JOIN 
+                    JOIN
                         list_options as specialty ON specialty.option_id = field_value
-                    WHERE 
+                    WHERE
                         field_id='specialty_code'
                         AND specialty.list_id='us-core-provider-specialty'
-                ) specialty_codes ON 
+                ) specialty_codes ON
                     providers.user_id = specialty_codes.user_id AND providers.facility_id = specialty_codes.facility_id AND specialty_codes.field_id='specialty_code'";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

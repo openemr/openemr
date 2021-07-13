@@ -28,7 +28,6 @@ class AllergyIntoleranceService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
-    private $uuidRegistry;
     private $allergyIntoleranceValidator;
 
     /**
@@ -36,12 +35,9 @@ class AllergyIntoleranceService extends BaseService
      */
     public function __construct()
     {
-        parent::__construct('lists');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::ALLERGY_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+        parent::__construct(self::ALLERGY_TABLE);
+        UuidRegistry::createMissingUuidsForTables([self::ALLERGY_TABLE, self::PATIENT_TABLE, self::PRACTITIONER_TABLE,
+            self::FACILITY_TABLE]);
         $this->allergyIntoleranceValidator = new AllergyIntoleranceValidator();
     }
 
@@ -73,14 +69,14 @@ class AllergyIntoleranceService extends BaseService
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
         LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
         RIGHT JOIN (
-            SELECT 
+            SELECT
                 patient_data.uuid AS puuid
                 ,patient_data.pid
                 ,patient_data.uuid AS patient_uuid
             FROM patient_data
         ) patient ON patient.pid = lists.pid
         LEFT JOIN (
-            select 
+            select
             users.uuid
             ,users.uuid AS practitioner_uuid
             ,users.username
@@ -91,7 +87,7 @@ class AllergyIntoleranceService extends BaseService
             WHERE users.npi IS NOT NULL -- we only want actual physicians here rather than all users
         ) practitioners ON practitioners.username = lists.user
         LEFT JOIN (
-            select 
+            select
             facility.uuid
             ,facility.uuid AS organization_uuid
             ,facility.name

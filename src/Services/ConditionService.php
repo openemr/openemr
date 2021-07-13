@@ -27,7 +27,6 @@ class ConditionService extends BaseService
     private const CONDITION_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
-    private $uuidRegistry;
     private $conditionValidator;
 
     /**
@@ -35,11 +34,8 @@ class ConditionService extends BaseService
      */
     public function __construct()
     {
-        parent::__construct('lists');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::CONDITION_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        parent::__construct(self::CONDITION_TABLE);
+        UuidRegistry::createMissingUuidsForTables([self::CONDITION_TABLE, self::PATIENT_TABLE, self::ENCOUNTER_TABLE]);
         $this->conditionValidator = new ConditionValidator();
     }
 

@@ -35,9 +35,7 @@ class CareTeamService extends BaseService
      */
     public function __construct()
     {
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE]);
         UuidMapping::createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
     }
 
@@ -45,24 +43,24 @@ class CareTeamService extends BaseService
     {
         // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
         // on the property without changing code).
-        $sql = "SELECT 
+        $sql = "SELECT
                     careteam_mapping.puuid,
                     careteam_mapping.uuid,
                     careteam_mapping.care_team_provider as providers,
                     careteam_mapping.care_team_facility as facilities,
                     careteamStatus.careteam_status
                 FROM (
-                    SELECT 
+                    SELECT
                         uuid_mapping.target_uuid AS puuid
                         ,uuid_mapping.uuid
                         ,patient_data.care_team_provider
                         ,patient_data.care_team_facility
-                    FROM 
+                    FROM
                         uuid_mapping
                     -- we join on this to make sure we've got data integrity since we don't actually use foreign keys right now
-                    JOIN 
+                    JOIN
                         patient_data ON uuid_mapping.target_uuid = patient_data.uuid
-                    WHERE 
+                    WHERE
                         uuid_mapping.resource='CareTeam'
                 ) careteam_mapping
                 CROSS JOIN (

@@ -36,7 +36,6 @@ require_once dirname(__FILE__) . "/../../library/encounter.inc";
 class EncounterService extends BaseService
 {
     private $encounterValidator;
-    private $uuidRegistry;
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
@@ -48,11 +47,8 @@ class EncounterService extends BaseService
     public function __construct()
     {
         parent::__construct('form_encounter');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PROVIDER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::ENCOUNTER_TABLE, self::PATIENT_TABLE, self::PROVIDER_TABLE,
+            self::FACILITY_TABLE]);
         $this->encounterValidator = new EncounterValidator();
     }
 
@@ -142,19 +138,19 @@ class EncounterService extends BaseService
                        fe.class_code,
                        class.notes as class_title,
                        opc.pc_catname,
-                        
+
                        patient.pid,
                        patient.puuid,
                        facilities.facility_id,
                        facilities.facility_uuid,
                        facilities.facility_name,
-       
+
                        fa.billing_facility_id,
                        fa.billing_facility_uuid,
                        fa.billing_facility_name
-       
+
                        FROM (
-                           select 
+                           select
                                encounter as eid,
                                uuid as euuid,
                                `date`,
@@ -183,20 +179,20 @@ class EncounterService extends BaseService
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        LEFT JOIN (
-                           select 
+                           select
                                 id AS billing_facility_id
                                 ,uuid AS billing_facility_uuid
                                 ,`name` AS billing_facility_name
                            from facility
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
-                           select 
+                           select
                                   pid
                                  ,uuid AS puuid
                            FROM patient_data
-                       ) patient ON fe.pid = patient.pid 
+                       ) patient ON fe.pid = patient.pid
                        LEFT JOIN (
-                           select 
+                           select
                                 id AS provider_id
                                 ,uuid AS provider_uuid
                                 ,`username` AS provider_name
@@ -205,7 +201,7 @@ class EncounterService extends BaseService
                                 npi IS NOT NULL and npi != ''
                        ) providers ON fe.provider_id = providers.provider_id
                        LEFT JOIN (
-                           select 
+                           select
                                 id AS facility_id
                                 ,uuid AS facility_uuid
                                 ,`name` AS facility_name
@@ -259,7 +255,7 @@ class EncounterService extends BaseService
 
         $encounter = generate_id();
         $data['encounter'] = $encounter;
-        $data['uuid'] = $this->uuidRegistry->createUuid();
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
