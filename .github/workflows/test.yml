@@ -1112,9 +1112,9 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    continue-on-error: true
     name: PHP 8.1 - Nginx - MariaDB 10.5 (set as ok to fail)
     runs-on: ubuntu-20.04
+    continue-on-error: true
     env:
       DOCKER_DIR: nginx_81
       OPENEMR_DIR: /usr/share/nginx/html/openemr

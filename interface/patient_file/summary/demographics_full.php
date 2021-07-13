@@ -591,7 +591,7 @@ echo xlt($CapInstype); ?></a></li><?php } ?>
                         <?php
                         foreach ($insurancei as $iid => $iname) {
                             echo "<option value='" . attr($iid) . "'";
-                            if (strtolower($iid) == strtolower($result3["provider"] ?? null)) {
+                            if (!empty($result3["provider"]) && (strtolower($iid) == strtolower($result3["provider"]))) {
                                 echo " selected";
                             }
 
@@ -832,9 +832,9 @@ echo xlt($CapInstype); ?></a></li><?php } ?>
                 <td class='required'>:</td>
                 <td colspan='2'>
                     <select class='form-control' name='i<?php echo attr($i); ?>accept_assignment'>
-                     <option value="TRUE" <?php if (strtoupper($result3["accept_assignment"] ?? '') == "TRUE") {
+                        <option value="TRUE" <?php if (!empty($result3["accept_assignment"]) && (strtoupper($result3["accept_assignment"]) == "TRUE")) {
                             echo "selected"; }?>><?php echo xlt('YES'); ?></option>
-                     <option value="FALSE" <?php if (strtoupper($result3["accept_assignment"] ?? '') == "FALSE") {
+                        <option value="FALSE" <?php if (!empty($result3["accept_assignment"]) && (strtoupper($result3["accept_assignment"]) == "FALSE")) {
                             echo "selected"; }?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>

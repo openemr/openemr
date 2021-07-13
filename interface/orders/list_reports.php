@@ -589,7 +589,7 @@ function doWait(e){
                     echo "  <td colspan='2'>&nbsp;</td>";
                 }
 
-                // Generate order columns.$info['match']
+                // Generate order columns.
                 if ($lastpoid != $order_id) {
                     $lastpcid = -1;
                     echo "  <td>";
