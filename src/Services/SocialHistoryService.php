@@ -177,18 +177,13 @@ class SocialHistoryService extends BaseService
         return $this->insertRecord($record);
     }
 
-    private function getUuidRegistry(): UuidRegistry
-    {
-        return new UuidRegistry(['table_name' => self::TABLE_NAME]);
-    }
-
     private function insertRecord($record)
     {
         $pid = $record['pid'] ?? null;
         if (!is_numeric($pid)) {
             throw new \InvalidArgumentException("pid must be a valid number");
         }
-        $uuid = $this->getUuidRegistry()->createUuid();
+        $uuid = UuidRegistry::getRegistryForTable(self::TABLE_NAME)->createUuid();
         $sql = "insert into history_data set pid = ?, date = NOW(), uuid = ? ";
         $arraySqlBind = [$pid, $uuid];
 
