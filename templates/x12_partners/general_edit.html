@@ -36,7 +36,7 @@
     <div class="form-row my-sm-2">
         <label for="x12_isa02" class="col-form-label col-sm-2">{xlt t='User Logon (If 03 above, else leave spaces) (ISA02)'}</label>
         <div class="col-sm-8">
-            <input type="text" id="x12_isa02" name="x12_isa02" class="form-control" value="{$partner->get_x12_isa02()|attr}" onKeyDown="PreventIt(event)">
+            <input type="text" id="x12_isa02" name="x12_isa02" class="form-control" value="{$partner->get_x12_isa02()|attr}" onKeyDown="PreventIt(event)" maxlength="10">
         </div>
     </div>
     <div class="form-row my-sm-2">
@@ -48,7 +48,7 @@
     <div class="form-row my-sm-2">
         <label for="x12_isa04" class="col-form-label col-sm-2">{xlt t='User Password (ISA04~ if 01 above, else leave spaces)'}</label>
         <div class="col-sm-8">
-            <input type="text" id="x12_isa04" name="x12_isa04" class="form-control" value="{$partner->get_x12_isa04()|attr}" onKeyDown="PreventIt(event)">
+            <input type="text" id="x12_isa04" name="x12_isa04" class="form-control" value="{$partner->get_x12_isa04()|attr}" onKeyDown="PreventIt(event)" maxlength="10">
         </div>
     </div>
     <div class="form-row my-sm-2">

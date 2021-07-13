@@ -41,10 +41,10 @@ class X125010837P
         "*" . $claim->x12gsisa03() .
         "*" . $claim->x12gsisa04() .
         "*" . $claim->x12gsisa05() .
-        "*" . $claim->x12gssenderid() .
+        "*" . $claim->x12_sender_id() .
         "*" . $claim->x12gsisa07() .
         "*" . $claim->x12gsreceiverid() .
-        "*" . "030911" .  // dummy data replace by billing_process.php
+        "*" . "030911" .  // dummy data replaced by billing_process.php
         "*" . "1630" . // ditto
         "*" . "^" .
         "*" . "00501" .
@@ -60,7 +60,7 @@ class X125010837P
         "*" . trim($claim->x12gs03()) .
         "*" . date('Ymd', $today) .
         "*" . date('Hi', $today) .
-        "*" . "1" .
+        "*" . "1" . // TODO use a tracking number
         "*" . "X" .
         "*" . $claim->x12gsversionstring() .
         "~\n";
@@ -83,40 +83,75 @@ class X125010837P
         "~\n";
 
         ++$edicount;
-        if ($claim->federalIdType() == "SY") { // check entity type for NM*102 1 == person, 2 == non-person entity
-            $firstName = $claim->providerFirstName();
-            $lastName = $claim->providerLastName();
-            $middleName = $claim->providerMiddleName();
-            $suffixName = $claim->providerSuffixName();
+        // check entity type for NM*102 1 == person, 2 == non-person entity
+        // SY = ssn so is 1 or person but we also check for a 3rd party submitter
+        if ($claim->federalIdType() == "SY") {
             $out .= "NM1" . // Loop 1000A Submitter
             "*" . "41" .
-            "*" . "1" .
-            "*" . $lastName .
-            "*" . $firstName .
-            "*" . $middleName .
-            "*" . // Name Prefix not used
-            "*" . $suffixName .
-            "*" . "46";
-        } else {
-            $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
-            if ($billingFacilityName == '') {
-                $log .= "*** billing facility name in 1000A loop is empty\n";
+            "*";
+            // check for 3rd party
+            if ($claim->x12_submitter_name()) {
+                // non-person entity
+                $out .= "2" .
+                "*" . $claim->x12_submitter_name() .
+                "*" .
+                "*" .
+                "*" .
+                "*" .
+                "*" . "46" .
+                "*" . $claim->x12_sender_id();
+            // use provider name since using ssn as tax id
+            // insurance companies may be deprecating use of ssn 7-10-21
+            } else {
+                $firstName = $claim->providerFirstName();
+                $lastName = $claim->providerLastName();
+                $middleName = $claim->providerMiddleName();
+                $suffixName = $claim->providerSuffixName();
+                $out .= "1" .
+                "*" . $lastName .
+                "*" . $firstName .
+                "*" . $middleName .
+                "*" . // Name Prefix not used
+                "*" . $suffixName .
+                "*" . "46" .
+                "*" . $claim->clearingHouseETIN();
             }
+        // non-person entity, use 2
+        } else {
             $out .= "NM1" .
             "*" . "41" .
-            "*" . "2" .
-            "*" . $billingFacilityName .
-            "*" .
-            "*" .
-            "*" .
-            "*" .
-            "*" . "46";
+            "*" . "2";
+            // check for 3rd party
+            if ($claim->x12_submitter_name()) {
+                $out .= "*" . $claim->x12_submitter_name() .
+                "*" .
+                "*" .
+                "*" .
+                "*" .
+                "*" .
+                "*" . "46" .
+                "*" . $claim->x12_sender_id();
+            // else use provider's group name
+            } else {
+                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                if ($billingFacilityName == '') {
+                    $log .= "*** billing facility name in 1000A loop is empty\n";
+                }
+                $out .= $billingFacilityName .
+                "*" .
+                "*" .
+                "*" .
+                "*" .
+                "*" . "46" .
+                "*" . $claim->clearingHouseETIN();
+            }
         }
-        $out .= "*" . $claim->billingFacilityETIN();
+        // close the NM1 segment
         $out .= "~\n";
 
         ++$edicount;
         $out .= "PER" . // Loop 1000A, Submitter EDI contact information
+        // if 3rd party entered in practice x12 partners, the methods in the claim class will grab information from the address book, aka table `users`
         "*" . "IC" .
         "*" . $claim->billingContactName() .
         "*" . "TE" .
@@ -700,13 +735,15 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
-            ++$edicount;
-            error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
-            $out .= "REF" .
-            "*" . "F8" .
-            "*" . $claim->icnResubmissionNumber() .
-            "~\n";
+        if ($claim->billing_options) {
+            if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
+                ++$edicount;
+                error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
+                $out .= "REF" .
+                "*" . "F8" .
+                "*" . $claim->icnResubmissionNumber() .
+                "~\n";
+            }
         }
 
         if ($claim->cliaCode() && ($claim->claimType() === 'MB')) {
@@ -1529,7 +1566,7 @@ class X125010837P
             "*" . $claim->x12gsisa03() .
             "*" . $claim->x12gsisa04() .
             "*" . $claim->x12gsisa05() .
-            "*" . $claim->x12gssenderid() .
+            "*" . $claim->x12_sender_id() .
             "*" . $claim->x12gsisa07() .
             "*" . $claim->x12gsreceiverid() .
             "*" . "030911" .  // dummy data replace by billing_process.php
@@ -1548,7 +1585,7 @@ class X125010837P
             "*" . trim($claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
-            "*" . "1" .
+            "*" . "1" . // TODO add a tracking number
             "*" . "X" .
             "*" . $claim->x12gsversionstring() .
             "~\n";
@@ -1575,36 +1612,70 @@ class X125010837P
                 "~\n";
 
             ++$edicount;
-            if ($claim->federalIdType() == "SY") { // check entity type for NM*102 1 == person, 2 == non-person entity
-                $firstName = $claim->providerFirstName();
-                $lastName = $claim->providerLastName();
-                $middleName = $claim->providerMiddleName();
-                $suffixName = $claim->providerSuffixName();
+            // check entity type for NM*102 1 == person, 2 == non-person entity
+            // SY = ssn so is 1 or person but we also check for a 3rd party submitter
+            if ($claim->federalIdType() == "SY") {
                 $out .= "NM1" . // Loop 1000A Submitter
-                    "*" . "41" .
-                    "*" . "1" .
+                "*" . "41" .
+                "*";
+                // check for 3rd party submitter name entered in practice settings x12 partner
+                if ($claim->x12_submitter_name()) {
+                    // non-person entity
+                    $out .= "2" .
+                    "*" . $claim->x12_submitter_name() .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" . "46" .
+                    "*" . $claim->x12_sender_id();
+                // use provider name since using ssn as tax id
+                // insurance companies may be deprecating use of ssn 7-10-21
+                } else {
+                    $firstName = $claim->providerFirstName();
+                    $lastName = $claim->providerLastName();
+                    $middleName = $claim->providerMiddleName();
+                    $suffixName = $claim->providerSuffixName();
+                    $out .= "1" .
                     "*" . $lastName .
                     "*" . $firstName .
                     "*" . $middleName .
                     "*" . // Name Prefix not used
                     "*" . $suffixName .
-                    "*" . "46";
-            } else {
-                $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
-                if ($billingFacilityName == '') {
-                    $log .= "*** billing facility name in 1000A loop is empty\n";
+                    "*" . "46" .
+                    "*" . $claim->clearingHouseETIN();
                 }
+            // non-person entity, use 2
+            } else {
                 $out .= "NM1" .
-                    "*" . "41" .
-                    "*" . "2" .
-                    "*" . $billingFacilityName .
+                "*" . "41" .
+                "*" . "2";
+                // check for 3rd party
+                if ($claim->x12_submitter_name()) {
+                    $out .= "*" . $claim->x12_submitter_name() .
                     "*" .
                     "*" .
                     "*" .
                     "*" .
-                    "*" . "46";
+                    "*" .
+                    "*" . "46" .
+                    "*" . $claim->x12_sender_id();
+                // else use provider's group name
+                } else {
+                    $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+                    if ($billingFacilityName == '') {
+                        $log .= "*** billing facility name in 1000A loop is empty\n";
+                    }
+                    $out .= $billingFacilityName .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" . "46" .
+                    "*" . $claim->clearingHouseETIN();
+                }
             }
-            $out .= "*" . $claim->billingFacilityETIN();
+            // close the NM1 segment
             $out .= "~\n";
 
             ++$edicount;

@@ -572,7 +572,7 @@ class Claim
         return Claim::X12_VERSION;
     }
 
-    public function x12gssenderid()
+    public function x12_sender_id()
     {
         $tmp = ($this->x12_partner['x12_sender_id'] ?? '');
         while (strlen($tmp) < 15) {
@@ -591,9 +591,6 @@ class Claim
       * In most cases, the ISA08 and GS03 are the same. However
       *
       * In some clearing houses ISA08 and GS03 are different
-      * Example: https://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
-      * In this .pdf, the ISA08 is specified to be 100000 while the GS03 is specified to be 77044
-      *
       * Therefore if the x12_gs03 segement is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
@@ -743,15 +740,29 @@ class Claim
 
     public function billingContactName()
     {
-        return $this->x12Clean(trim($this->billing_facility['attn']));
+        if (!$this->x12_submitter_name()) {
+            return $this->x12Clean(trim($this->billing_facility['attn']));
+        } else {
+            $query = "SELECT organization FROM users WHERE federaltaxid = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            return $this->x12Clean(trim($ores['organization']));
+        }
     }
 
     public function billingContactPhone()
     {
+        if (!$this->x12_submitter_name()) {
+            $tmp_phone = $this->x12Clean(trim($this->billing_facility['phone']));
+        } else {
+            $query = "SELECT phonew1 FROM users WHERE federaltaxid = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            $tmp_phone = $this->x12Clean(trim($ores['phonew1']));
+        }
+
         if (
             preg_match(
                 "/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
-                $this->billing_facility['phone'],
+                $tmp_phone,
                 $tmp
             )
         ) {
@@ -763,7 +774,13 @@ class Claim
 
     public function billingContactEmail()
     {
-        return $this->x12Clean(trim($this->billing_facility['email']));
+        if (!$this->x12_submitter_name()) {
+            return $this->x12Clean(trim($this->billing_facility['email']));
+        } else {
+            $query = "SELECT email FROM users WHERE federaltaxid = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            return $this->x12Clean(trim($ores['email']));
+        }
     }
 
     public function facilityName()
