@@ -6,29 +6,18 @@ use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
-use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ObservationLabService;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ReferenceSearchField;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
-use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -44,7 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirObservationService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
-    use MappedServiceTrait;
+    use MappedServiceCodeTrait;
     use PatientSearchTrait;
 
     /**
@@ -66,11 +55,9 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     {
         parent::__construct();
         $this->innerServices = [];
-        // TODO: @adunsulag look at moving each of the service classes into their own namespace so people can add onto the observations
-        $this->observationService = new ObservationLabService();
-        $this->addMappedService(new FhirSocialHistoryService());
-        $this->addMappedService(new FhirVitalsService());
-        $this->addMappedService(new FhirLaboratoryObservation());
+        $this->addMappedService(new FhirObservationSocialHistoryService());
+        $this->addMappedService(new FhirObservationVitalsService());
+        $this->addMappedService(new FhirObservationLaboratoryService());
         $this->logger = new SystemLogger();
     }
 
@@ -124,7 +111,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             } else if (isset($fhirSearchParameters['code'])) {
                 $service = $this->getServiceForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),
-                    FhirVitalsService::VITALS_PANEL_LOINC_CODE
+                    FhirObservationVitalsService::VITALS_PANEL_LOINC_CODE
                 );
                 // if we have a service let's search on that
                 if (isset($service)) {
@@ -153,6 +140,21 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     private function populateSurrogateSearchFieldsForUUID($fhirResourceId, &$search)
     {
         $processingResult = new ProcessingResult();
+
+        // we first grab the uuid from our registry and find out if its a mapping observation resource
+        // (such as vital signs)
+        $registryRecord = UuidRegistry::getRegistryRecordForUuid($fhirResourceId);
+
+        if (empty($registryRecord)) {
+            $processingResult->setValidationMessages(['_id' => 'Resource not found for that id']);
+            return $processingResult;
+        }
+
+        // if its not mapped we will leave the _id alone and let the subsequent sub service pull the right resource
+        if ($registryRecord['mapped'] != '1') {
+            return;
+        }
+
         // we are going to get our
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
 

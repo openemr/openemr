@@ -8891,6 +8891,7 @@ CREATE TABLE gprelations (
 DROP TABLE IF EXISTS `procedure_providers`;
 CREATE TABLE `procedure_providers` (
   `ppid`         bigint(20)   NOT NULL auto_increment,
+  `uuid`         binary(16)   DEFAULT NULL,
   `name`         varchar(255) NOT NULL DEFAULT '',
   `npi`          varchar(15)  NOT NULL DEFAULT '',
   `send_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
@@ -8909,7 +8910,8 @@ CREATE TABLE `procedure_providers` (
   `lab_director` bigint(20)   NOT NULL DEFAULT '0',
   `active`       tinyint(1)   NOT NULL DEFAULT '1',
   `type`         varchar(31)  DEFAULT NULL,
-  PRIMARY KEY (`ppid`)
+  PRIMARY KEY (`ppid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -8941,7 +8943,8 @@ CREATE TABLE `procedure_type` (
   `transport`           varchar(31)  DEFAULT NULL,
   `procedure_type_name` varchar(64)  NULL,
   PRIMARY KEY (`procedure_type_id`),
-  KEY parent (parent)
+  KEY parent (parent),
+  KEY `ptype_procedure_code` (`procedure_code`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -9057,6 +9060,7 @@ CREATE TABLE `procedure_answers` (
 DROP TABLE IF EXISTS `procedure_report`;
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)     DEFAULT NULL,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
@@ -9069,7 +9073,8 @@ CREATE TABLE `procedure_report` (
   `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',
   `report_notes`        text           COMMENT 'notes from the lab',
   PRIMARY KEY (`procedure_report_id`),
-  KEY procedure_order_id (procedure_order_id)
+  KEY procedure_order_id (procedure_order_id),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------

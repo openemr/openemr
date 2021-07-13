@@ -2,11 +2,17 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Validators\ProcessingResult;
 
 require_once(__DIR__ . '/../../../_rest_config.php');
@@ -92,7 +98,8 @@ class FhirOrganizationRestController
             return RestControllerHelper::responseHandler($fhirValidationService, null, 400);
         }
 
-        $processingResult = $this->fhirOrganizationService->insert($fhirJson);
+        $organization = $this->createOrganizationFromJSON($fhirJson);
+        $processingResult = $this->fhirOrganizationService->insert($organization);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
@@ -109,7 +116,13 @@ class FhirOrganizationRestController
             return RestControllerHelper::responseHandler($fhirValidationService, null, 400);
         }
 
-        $processingResult = $this->fhirOrganizationService->update($fhirId, $fhirJson);
+        $organization = $this->createOrganizationFromJSON($fhirJson);
+        $processingResult = $this->fhirOrganizationService->update($fhirId, $organization);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+    }
+
+    private function createOrganizationFromJSON($fhirJson)
+    {
+        return FhirOrganizationSerializer::deserialize($fhirJson);
     }
 }

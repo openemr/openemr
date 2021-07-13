@@ -71,6 +71,11 @@ class ProcessingResult
         array_push($this->internalErrors, $internalError);
     }
 
+    public function hasData()
+    {
+        return !empty($this->data);
+    }
+
     public function getData()
     {
         return $this->data;

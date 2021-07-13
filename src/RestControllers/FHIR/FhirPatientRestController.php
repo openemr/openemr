@@ -17,6 +17,7 @@ use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Validators\ProcessingResult;
 
 require_once(__DIR__ . '/../../../_rest_config.php');
@@ -49,7 +50,9 @@ class FhirPatientRestController
             return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
 
-        $processingResult = $this->fhirPatientService->insert($fhirJson);
+        $object = FhirPatientSerializer::deserialize($fhirJson);
+
+        $processingResult = $this->fhirPatientService->insert($object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
@@ -65,8 +68,9 @@ class FhirPatientRestController
         if (!empty($fhirValidate)) {
             return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
+        $object = FhirPatientSerializer::deserialize($fhirJson);
 
-        $processingResult = $this->fhirPatientService->update($fhirId, $fhirJson);
+        $processingResult = $this->fhirPatientService->update($fhirId, $object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 

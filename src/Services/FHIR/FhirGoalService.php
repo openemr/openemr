@@ -21,6 +21,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -28,6 +29,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var CarePlanService
      */
@@ -141,23 +144,6 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
-     * Performs a FHIR Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $search = [
-            '_id' => $fhirResourceId
-        ];
-        if (!empty($puuidBind)) {
-            $search['patient'] = 'Patient/' . $puuidBind;
-        }
-        return $this->getAll($search);
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
@@ -169,20 +155,6 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return $this->service->search($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord, $encode = false)
     {
         $provenanceService = new FhirProvenanceService();

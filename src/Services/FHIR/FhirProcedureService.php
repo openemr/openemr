@@ -126,28 +126,6 @@ class FhirProcedureService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Procedure Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Procedure Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind);
-        $surgeryResult = $this->surgeryService->getOne($fhirResourceId, $puuidBind);
-        $processingResult = $this->processResults($procedureResult, $surgeryResult);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields

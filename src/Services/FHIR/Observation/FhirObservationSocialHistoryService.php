@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirSocialHistoryService.php
+ * FhirObservationSocialHistoryService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -9,9 +9,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Services\FHIR;
+namespace OpenEMR\Services\FHIR\Observation;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -19,8 +18,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\OpenEMR;
+use OpenEMR\Services\FHIR\openEMRSearchParameters;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -30,13 +34,9 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\SocialHistoryService;
-use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
-// TODO: @adunsulag look at refactoring this class into a base class with FhirVitalsService depending on what happens
-// with procedures.  There's a bunch of shared code here we may want to combine into a single shared trait or class
-// once we implement procedures if there is enough commonality, we may refactor this all into a central class.
-class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationSocialHistoryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -292,7 +292,7 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
         if (!empty($dataRecord['code'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
+            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         }
@@ -316,20 +316,18 @@ class FhirSocialHistoryService extends FhirServiceBase implements IPatientCompar
         $tobaccoColumn = $dataRecord['tobacco'] ?? "";
         $tobacco = explode('|', $tobaccoColumn);
         if (empty($tobacco[3])) {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
             return;
         }
         $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
         if (empty($listOption)) {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
             return;
         }
         $description = lookup_code_descriptions($listOption['codes']);
         $statusCode = str_replace("SNOMED-CT:", "", $listOption['codes']);
 
-        $concept = UtilsService::createCodeableConcept([$statusCode => $description], FhirCodeSystemUris::SNOMED_CT);
+        $concept = UtilsService::createCodeableConcept([$statusCode => $description], FhirCodeSystemConstants::SNOMED_CT);
         $observation->setValueCodeableConcept($concept);
     }
 

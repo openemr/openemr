@@ -22,7 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
 use OpenEMR\Services\DocumentService;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -133,7 +133,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $contentCoding = UtilsService::createCoding(
                 "urn:ihe:iti:xds:2017:mimeTypeSufficient",
                 "mimeType Sufficient",
-                FhirCodeSystemUris::IHE_FORMATCODE_CODESYSTEM
+                FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
             );
             $content->setFormat($contentCoding);
             $docReference->addContent($content);
@@ -183,10 +183,10 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['code'])) {
-            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::LOINC, $dataRecord['codetext']);
+            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
             $docReference->setType($type);
         } else {
-            $docReference->setType(UtilsService::createUnknownCodeableConcept());
+            $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
         return $docReference;

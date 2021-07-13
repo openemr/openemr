@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -32,6 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
 
     /**
      * @var ImmunizationService
@@ -88,7 +90,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
             $statusReason = new FHIRCodeableConcept();
             $statusReasonCoding = new FHIRCoding();
-            $statusReasonCoding->setSystem(FhirCodeSystemUris::IMMUNIZATION_OBJECTION_REASON);
+            $statusReasonCoding->setSystem(FhirCodeSystemConstants::IMMUNIZATION_OBJECTION_REASON);
             $statusReasonCoding->setCode("PATOBJ");
             $statusReasonCoding->setDisplay("patient objection");
             $statusReason->addCoding($statusReasonCoding);
@@ -153,7 +155,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!empty($dataRecord['administration_site'])) {
             $doseQuantity = new FHIRQuantity();
             $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+            $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $doseQuantity->setCode($dataRecord['amount_administered_unit']);
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
@@ -172,41 +174,6 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         } else {
             return $immunizationResource;
         }
-    }
-
-    /**
-     * Parses a FHIR Immunization Resource, returning the equivalent OpenEMR immunization record.
-     *
-     * @param array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
-    /**
-     * Inserts an OpenEMR record into the system.
-     *
-     * @param array $openEmrRecord OpenEMR immunization record
-     * @return ProcessingResult
-     */
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // return $this->immunizationService->insert($openEmrRecord);
-    }
-
-
-    /**
-     * Updates an existing OpenEMR record.
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
-     * @return ProcessingResult
-     */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // $processingResult = $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord);
-        // return $processingResult;
     }
 
     /**

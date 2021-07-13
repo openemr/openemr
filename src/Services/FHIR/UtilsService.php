@@ -15,6 +15,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -25,6 +26,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
 {
+    const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
+    const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
+
     public static function createRelativeReference($type, $uuid)
     {
         $reference = new FHIRReference();
@@ -39,7 +43,7 @@ class UtilsService
         $quantity->setCode($code);
         $quantity->setValue($value);
         $quantity->setUnit($unit);
-        $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
@@ -73,11 +77,20 @@ class UtilsService
         // for some reason in order to get this to work we have to wrap our inner exception
         // into an outer exception.  This might be just a PHPism with the way JSON encodes things
         $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON);
+        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
         $outerExtension->addExtension($extension);
         return $outerExtension;
+    }
+
+    public static function createContactPoint($value, $system, $use): FHIRContactPoint
+    {
+        $fhirContactPoint = new FHIRContactPoint();
+        $fhirContactPoint->setSystem($system);
+        $fhirContactPoint->setValue($value);
+        $fhirContactPoint->setUse($use);
+        return $fhirContactPoint;
     }
 
     public static function createAddressFromRecord($dataRecord): ?FHIRAddress
@@ -100,6 +113,11 @@ class UtilsService
             $address->addLine($dataRecord['street']);
             $hasAddress = true;
         }
+
+        if (!empty($dataRecord['line2'])) {
+            $address->addLine($dataRecord['line2']);
+        }
+
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
             $hasAddress = true;
@@ -153,8 +171,38 @@ class UtilsService
         return $name;
     }
 
-    public static function createUnknownCodeableConcept()
+    public static function createNullFlavorUnknownCodeableConcept()
     {
-        return self::createCodeableConcept(['UNK' => 'unknown'], FhirCodeSystemUris::HL7_NULL_FLAVOR);
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemConstants::HL7_NULL_FLAVOR);
+    }
+
+    public static function createDataAbsentUnknownCodeableConcept()
+    {
+        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM);
+    }
+
+    /**
+     * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
+     * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.
+     * If the start has no value or if the end period has no value it will return null values for the properties.
+     * @param FHIRPeriod $period  The object representing the period interval.
+     * @return array Containing two keys of 'start' and 'end' representing the period.
+     */
+    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    {
+        $end = null;
+        $start = null;
+        if ($period !== null) {
+            if (!empty($period->getEnd())) {
+                $end = strtotime($period->getEnd()->getValue());
+            }
+            if (!empty($period->getStart())) {
+                $start = strtotime($period->getStart()->getValue());
+            }
+        }
+        return [
+            'start' => $start,
+            'end' => $end
+        ];
     }
 }

@@ -90,7 +90,6 @@ class ObservationLabService extends BaseService
     {
         // note that these are Laboratory tests & values/results as mapped in USCDI Data elements v1
         // @see https://www.healthit.gov/isa/sites/isa/files/2020-07/USCDI-Version-1-July-2020-Errata-Final.pdf
-        // They are NOT to be confused with billing procedures which is in the 'billing' table
         // To see the mappings you can see here: https://www.hl7.org/fhir/us/core/general-guidance.html
         $sql = "SELECT
                     presult.procedure_result_id

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirDiagnosticReportClinicalNotesService.php
+ * FhirDiagnosticReportLaboratoryService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -17,7 +17,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -28,7 +27,7 @@ use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\ListService;
+use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
@@ -37,20 +36,22 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
+class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
 
     /**
-     * @var ClinicalNotesService
+     * @var ProcedureService
      */
     private $service;
+
+    const LAB_CATEGORY = "LAB";
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->service = new ClinicalNotesService();
+        $this->service = new ProcedureService();
     }
 
     /**
@@ -60,25 +61,26 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category_code']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'code' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['standard_code']),
+            // we ignore category for now because it defaults to LAB, at some point in the future we may allow a different category
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
     public function supportsCategory($category)
     {
-        $loincCategory = "LOINC:" . $category;
-        $listService = new ListService();
-        $options = $listService->getOptionsByListName('Clinical_Note_Category', ['notes' => $loincCategory]);
-        return !empty($options);
+        return $category === self::LAB_CATEGORY;
     }
 
 
     public function supportsCode($code)
     {
-        return $this->service->isValidClinicalNoteCode($code);
+        // we'll let them search on any LOINC code, technically we could just search procedure_codes for a valid code
+        // and return false if there is nothing there... but unless the queries get really inefficient, we can just
+        // leave this here
+        return true;
     }
 
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
@@ -89,12 +91,16 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         $meta->setLastUpdated(gmdate('c'));
         $report->setMeta($meta);
 
+
+        $dataRecordReport = array_pop($dataRecord['reports']);
+
+
         $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
+        $id->setValue($dataRecordReport['uuid']);
         $report->setId($id);
 
-        if (!empty($dataRecord['date'])) {
-            $date = gmdate('c', strtotime($dataRecord['date']));
+        if (!empty($dataRecordReport['date'])) {
+            $date = gmdate('c', strtotime($dataRecordReport['date']));
             $report->setEffectiveDateTime(new FHIRDateTime($date));
             $report->setIssued(new FHIRInstant($date));
         } else {
@@ -107,44 +113,42 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
 
         $fhirOrganizationService = new FhirOrganizationService();
 
-        if (!empty($dataRecord['user_uuid'])) {
-            if (!empty($dataRecord['user_npi'])) {
-                $report->addPerformer(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
-            } else {
-                $orgReference = $fhirOrganizationService->getOrganizationReferenceForUser($dataRecord['user_uuid']);
-                $report->addPerformer($orgReference);
-            }
+        if (!empty($dataRecord['lab']['uuid'])) {
+            $orgReference = UtilsService::createRelativeReference("Organization", $dataRecord['lab']['uuid']);
+            $report->addPerformer($orgReference);
         } else {
             $report->addPerformer($fhirOrganizationService->getPrimaryBusinessEntityReference());
         }
 
-        // populate our clinical narrative notes
-        if (!empty($dataRecord['description'])) {
-            $attachment = new FHIRAttachment();
-            $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
-            $report->addPresentedForm($attachment);
-        } else {
-            // need to support data missing if its not there.
-            $report->addPresentedForm(UtilsService::createDataMissingExtension());
+        if (!empty($dataRecordReport['results'])) {
+            foreach ($dataRecordReport['results'] as $result) {
+                $obsReference = UtilsService::createRelativeReference("Observation", $result['uuid']);
+                if (!empty($result['text'])) {
+                    $obsReference->setDisplay(xlt($result['text']));
+                }
+                $report->addResult($obsReference);
+            }
+        }
+        if (!empty($dataRecord['patient']['uuid'])) {
+            $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid']));
+        }
+        $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemConstants::DIAGNOSTIC_SERVICE_SECTION_ID));
+
+        if (!empty($dataRecord['encounter']['uuid'])) {
+            $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
         }
 
-        if (!empty($dataRecord['puuid'])) {
-            $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
-        }
-
-        $codeParts = explode(":", $dataRecord['category_code']);
-
-        $report->addCategory(UtilsService::createCodeableConcept([end($codeParts) => $dataRecord['category_title']], FhirCodeSystemConstants::LOINC));
-
-        if (!empty($dataRecord['status'])) {
-            $report->setStatus($dataRecord['status']);
+        if (!empty($dataRecordReport['status'])) {
+            $report->setStatus($dataRecordReport['status']);
         } else {
             $report->setStatus('final');
         }
 
-        if (!empty($dataRecord['code'])) {
-            $code = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
+        // note we use standard_code instead of code as we require a LOINC code here and standard_code is for LOINC
+        // codes in the system.  @see procedure_type table if you are confused by the difference between procedure_code
+        // and standard_code
+        if (!empty($dataRecord['standard_code'])) {
+            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']], FhirCodeSystemConstants::LOINC);
             $report->setCode($code);
         } else {
             $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
@@ -161,26 +165,28 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['code']->transformValues([$this, 'addLOINCPrefix']);
+        // this service ignores category_code
+        if (isset($openEMRSearchParameters['category'])) {
+            unset($openEMRSearchParameters['category']);
+        }
+        // procedure service can return procedures that have no attached report to them.  Because of this situation
+        // we have to make sure we exclude any procedures where the report_uuid is empty
+        if (empty($openEMRSearchParameters['_id'])) {
+            $openEMRSearchParameters['_id'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)]);
+            $openEMRSearchParameters['_id']->setModifier(SearchModifier::MISSING);
         }
 
-        if (isset($openEMRSearchParameters['category_code']) && $openEMRSearchParameters['category_code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['category_code']->transformValues([$this, 'addLOINCPrefix']);
-        } else {
-            // we need to make sure we only include things with a category code in our clinical notes
-            $openEMRSearchParameters['category_code'] = new TokenSearchField('category_code', [new TokenSearchValue(false)]);
-            $openEMRSearchParameters['category_code']->setModifier(SearchModifier::MISSING);
+        if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField) {
+            foreach ($openEMRSearchParameters['standard_code']->getValues() as $value) {
+                // TODO: @adunsulag do we need to handle unknowable codes across all FHIR code systems?
+                if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT) {
+                    $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', new TokenSearchValue(true));
+                    $openEMRSearchParameters['standard_code']->setModifier(SearchModifier::MISSING);
+                    break;
+                }
+            }
         }
         return $this->service->search($openEMRSearchParameters);
-    }
-
-    public function addLOINCPrefix(TokenSearchValue $val)
-    {
-        // TODO: @adunsulag I don't like this, is there a way we can mark the code system we are using that will prefix the value
-        // already?
-        $val->setCode("LOINC:" . $val->getCode());
-        return $val;
     }
 
     /**

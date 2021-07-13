@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FhirVitalsService.php
+ * FhirObservationVitalsService.php
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -9,7 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Services\FHIR;
+namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
@@ -21,6 +21,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -29,7 +34,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
+class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -446,7 +451,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if (!empty($dataRecord['code'])) {
             $categoryCoding->setCode($dataRecord['code']);
             $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemUris::LOINC);
+            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         }
@@ -458,7 +463,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
 
         $obsConcept = new FHIRCodeableConcept();
         $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemUris::HL7_OBSERVATION_CATEGORY);
+        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
         $obsCategoryCoding->setCode($dataRecord['category']);
         $obsConcept->addCoding($obsCategoryCoding);
         $observation->addCategory($obsConcept);
@@ -541,7 +546,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         $oxSaturation = new FHIRCoding();
         $oxSaturation->setCode($code);
         $oxSaturation->setDisplay($this->getDescriptionForCode($code));
-        $oxSaturation->setSystem(FhirCodeSystemUris::LOINC);
+        $oxSaturation->setSystem(FhirCodeSystemConstants::LOINC);
 
         $observation->getCode()->addCoding($oxSaturation);
     }
@@ -569,8 +574,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
                 'Oxygen saturation in Arterial blood'
             );
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
@@ -600,8 +604,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if ($quantity != null) {
             $observation->setValueQuantity($quantity);
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $observation->setDataAbsentReason($concept);
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
@@ -610,7 +613,7 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
         if ($this->columnHasPositiveFloatValue($column, $record)) {
             $quantity = new FHIRQuantity();
             $quantity->setValue(floatval($record[$column]));
-            $quantity->setSystem(FhirCodeSystemUris::UNITS_OF_MEASURE);
+            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $unit = $record[$column . '_unit'] ?? null;
             // @see http://hl7.org/fhir/R4/observation-vitalsigns.html for the codes on this
             if ($unit === 'in') {
@@ -651,14 +654,13 @@ class FhirVitalsService extends FhirServiceBase implements IPatientCompartmentRe
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
     {
         $component = new FHIRObservationComponent();
-        $coding = UtilsService::createCodeableConcept([$code => xlt($description)], FhirCodeSystemUris::LOINC);
+        $coding = UtilsService::createCodeableConcept([$code => xlt($description)], FhirCodeSystemConstants::LOINC);
         $component->setCode($coding);
         $quantity = $this->getFHIRQuantityForColumn($column, $dataRecord);
         if ($quantity != null) {
             $component->setValueQuantity($quantity);
         } else {
-            $concept = UtilsService::createCodeableConcept(["unknown" => "unknown"], FhirCodeSystemUris::DATA_ABSENT_REASON);
-            $component->setDataAbsentReason($concept);
+            $component->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
         $observation->addComponent($component);
     }

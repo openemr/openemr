@@ -81,7 +81,7 @@ class EncounterRestController
      */
     public function getAll($puuid)
     {
-        $processingResult = $this->encounterService->getEncountersBySearch([], true, $puuid);
+        $processingResult = $this->encounterService->search([], true, $puuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);

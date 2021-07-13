@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
@@ -25,7 +26,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-abstract class FhirServiceBase implements IResourceSearchableService
+abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
 {
 
     /**
@@ -73,6 +74,27 @@ abstract class FhirServiceBase implements IResourceSearchableService
      */
     abstract protected function loadSearchParameters();
 
+    /**
+     * Returns only the supported search parameters that the service supports from the passed in parameters array.  If
+     * the search parameters include any search modifiers they are retained in the return array if the value is supported
+     * @param $paramsToFilter hashmap of search terms to search values
+     * @return array Hashmap of supported search terms to the search values
+     */
+    public function getSupportedSearchParams($paramsToFilter)
+    {
+        $searchParams = $this->getSearchParams();
+        if (empty($searchParams)) {
+            return [];
+        }
+        $filteredParams = [];
+        foreach ($paramsToFilter as $param => $value) {
+            if ($this->getSearchFieldFactory()->hasSearchField($param)) {
+                $filteredParams[$param] = $paramsToFilter[$param];
+            }
+        }
+        return $filteredParams;
+    }
+
 
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
@@ -89,14 +111,14 @@ abstract class FhirServiceBase implements IResourceSearchableService
      * @param $fhirResource The source FHIR resource
      * @return a mapped OpenEMR data record (array)
      */
-    abstract public function parseFhirResource($fhirResource = array());
+    abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
 
     /**
      * Inserts a FHIR resource into the system.
      * @param $fhirResource The FHIR resource
      * @return The OpenEMR Service Result
      */
-    public function insert($fhirResource)
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         return $this->insertOpenEmrRecord($openEmrRecord);
@@ -114,7 +136,7 @@ abstract class FhirServiceBase implements IResourceSearchableService
      * @param $fhirResource The FHIR resource.
      * @return The OpenEMR Service Result
      */
-    public function update($fhirResourceId, $fhirResource)
+    public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         $openEmrRecord['uuid'] = $fhirResourceId;
@@ -146,7 +168,7 @@ abstract class FhirServiceBase implements IResourceSearchableService
      * Performs a FHIR Resource lookup by FHIR Resource ID
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
      */
-    public function getOne($fhirResourceId, $puuidBind = null)
+    public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
     {
         // every FHIR resource must support the _id search parameter so we will just piggy bag on
         $searchParam = ['_id' => $fhirResourceId];

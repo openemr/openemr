@@ -23,8 +23,9 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
+use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportLaboratoryService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
-use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -36,12 +37,13 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
-    use MappedServiceTrait;
+    use MappedServiceCodeTrait;
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-        $this->addMappedService(new FhirDiagnosticReportClinicalNotesService());
+        $this->addMappedService(new FhirDiagnosticReportClinicalNotesService($fhirApiURL));
+        $this->addMappedService(new FhirDiagnosticReportLaboratoryService($fhirApiURL));
     }
 
     /**

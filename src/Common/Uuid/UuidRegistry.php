@@ -35,8 +35,31 @@ use Ramsey\Uuid\Uuid;
 
 class UuidRegistry
 {
-
     const UUID_MAX_BATCH_COUNT = 1000;
+    const UUID_TABLE_DEFINITIONS = [
+        'ccda' => ['table_name' => 'ccda'],
+        'documents' => ['table_name' => 'documents'],
+        'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
+        'facility' => ['table_name' => 'facility'],
+        'facility_user_ids' => ['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']],
+        'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
+        'form_encounter' => ['table_name' => 'form_encounter'],
+        'form_vitals' => ['table_name' => 'form_vitals'],
+        'history_data' => ['table_name' => 'history_data'],
+        'immunizations' => ['table_name' => 'immunizations'],
+        'insurance_companies' => ['table_name' => 'insurance_companies'],
+        'insurance_data' => ['table_name' => 'insurance_data'],
+        'lists' => ['table_name' => 'lists'],
+        'patient_data' => ['table_name' => 'patient_data'],
+        'prescriptions' => ['table_name' => 'prescriptions'],
+        'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
+        'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
+        'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
+        'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
+        'users' => ['table_name' => 'users']
+    ];
+    // Maximum tries to create a unique uuid before failing (this should never happen)
+    const MAX_TRIES = 100;
 
     private $table_name;      // table to check if uuid has already been used in
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
@@ -97,38 +120,11 @@ class UuidRegistry
         $logEntryComment = '';
 
         // Update for tables (alphabetically ordered):
-        //  ccda
-        //  drugs (with custom id drug_id)
-        //  facility
-        //  facility_user_ids (vertical table)
-        //  form_encounter
-        //  immunizations
-        //  insurance_companies
-        //  insurance_data
-        //  lists
-        //  patient_data
-        //  prescriptions
-        //  procedure_order (with custom id procedure_order_id)
-        //  procedure_result (with custom id procedure_result_id)
-        //  users
-        self::appendPopulateLog('ccda', (new UuidRegistry(['table_name' => 'ccda']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('documents', (new UuidRegistry(['table_name' => 'documents']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('drugs', (new UuidRegistry(['table_name' => 'drugs', 'table_id' => 'drug_id']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('facility', (new UuidRegistry(['table_name' => 'facility']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('facility_user_ids', (new UuidRegistry(['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']]))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('form_clinical_notes', (new UuidRegistry(['table_name' => 'form_clinical_notes']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('form_encounter', (new UuidRegistry(['table_name' => 'form_encounter']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('form_vitals', (new UuidRegistry(['table_name' => 'form_vitals']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('history_data', (new UuidRegistry(['table_name' => 'history_data']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('immunizations', (new UuidRegistry(['table_name' => 'immunizations']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('insurance_companies', (new UuidRegistry(['table_name' => 'insurance_companies']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('insurance_data', (new UuidRegistry(['table_name' => 'insurance_data']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('lists', (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('patient_data', (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('prescriptions', (new UuidRegistry(['table_name' => 'prescriptions']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('procedure_order', (new UuidRegistry(['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('procedure_result', (new UuidRegistry(['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id']))->createMissingUuids(), $logEntryComment);
-        self::appendPopulateLog('users', (new UuidRegistry(['table_name' => 'users']))->createMissingUuids(), $logEntryComment);
+        // TODO: we could have these definitions stored in the database which would allow uuid generation to be driven by the sql_upgrade.php script
+        $tables = self::UUID_TABLE_DEFINITIONS;
+        foreach ($tables as $table_name => $uuidProperties) {
+                self::appendPopulateLog($table_name, (new UuidRegistry($uuidProperties))->createMissingUuids(), $logEntryComment);
+        }
 
         // log it
         if ($log && !empty($logEntryComment)) {
@@ -136,6 +132,63 @@ class UuidRegistry
             EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
         }
     }
+
+    /**
+     * Returns the uuid registry record for a given uuid.
+     * @param string|binary $uuid The uuid to search
+     * @param bool $is_binary Whether the passed in uuid is a string or binary
+     * @return array|null
+     */
+    public static function getRegistryRecordForUuid($uuid, $is_binary = false)
+    {
+        $sql = "select * from `uuid_registry` WHERE uuid = ?";
+        $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
+        $result = QueryUtils::fetchRecords($sql, [$uuid_as_binary]);
+        if (!empty($result)) {
+            return $result[0];
+        }
+        return $result;
+    }
+
+    /**
+     * Given a table name it returns the UuidRegistry object for that table name
+     * @param $table_name The name of the table that has a uuid column
+     * @return UuidRegistry
+     */
+    public static function getRegistryForTable($table_name): UuidRegistry
+    {
+        $tableDefinition = self::getUuidTableDefinitionForTable($table_name);
+        if (empty($tableDefinition)) {
+            throw new \InvalidArgumentException("Table name does not exist in uuid registry");
+        }
+        return new UuidRegistry($tableDefinition);
+    }
+
+    /**
+     * Given the name of a table that is supported in the uuid registry, return its uuid registry definition.  If there
+     * is no definition an empty array is returned
+     * @param $table_name The name of the table
+     * @return array The definition definition or empty array
+     */
+    public static function getUuidTableDefinitionForTable($table_name)
+    {
+        if (isset(self::UUID_TABLE_DEFINITIONS[$table_name])) {
+            return self::UUID_TABLE_DEFINITIONS[$table_name];
+        }
+        return [];
+    }
+
+    /**
+     * Given an array of table names populate all of the missing uuids for that array of uuid tables.
+     * @param $table_names string array of table names found in the UuidRegistry::UUID_TABLE_DEFINITIONS table constant.
+     */
+    public static function createMissingUuidsForTables(array $table_names)
+    {
+        foreach ($table_names as $table) {
+            self::getRegistryForTable($table)->createMissingUuids();
+        }
+    }
+
 
     // Helper function for above populateAllMissingUuids function
     private static function appendPopulateLog($table, $count, &$logEntry)

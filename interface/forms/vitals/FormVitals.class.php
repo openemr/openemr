@@ -11,7 +11,7 @@ define("EVENT_OTHER", 4);
  *
  */
 
-use OpenEMR\Services\FHIR\FhirVitalsService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -408,7 +408,7 @@ class FormVitals extends ORDataObject
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
         parent::persist();
-        $fhirVitalsService = new FhirVitalsService();
+        $fhirVitalsService = new FhirObservationVitalsService();
         // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
 
         // TODO: @adunsulag look at making this into an event and our FHIR module listens to vital saves and can respond

@@ -13,7 +13,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Services\FHIR\FhirVitalsService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use PHPUnit\Framework\TestCase;
 
 class FhirVitalsServiceTest extends TestCase
@@ -41,7 +41,7 @@ class FhirVitalsServiceTest extends TestCase
         $values = [$id, 'test-vital-signs'];
         QueryUtils::sqlStatementThrowException($sql, $values);
 
-        $service = new FhirVitalsService();
+        $service = new FhirObservationVitalsService();
 
         // now let's make sure we have a bunch of uuid's generated
         $uuid = QueryUtils::fetchSingleValue("select `uuid` FROM form_vitals WHERE id=?", 'uuid', [$id]);
