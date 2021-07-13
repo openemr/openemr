@@ -471,7 +471,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                     // but has permissions to create/edit encounter.
                                     $flag_it = "";
                                     if ($activeUser['authorized'] != 1) {
-                                        if ($p_id === (int)$result['provider_id']) {
+                                        if ($p_id === (int)($result['provider_id'] ?? null)) {
                                             $flag_it = " (" . xlt("Non Provider") . ")";
                                         } else {
                                             continue;
@@ -506,7 +506,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 } elseif (!empty($default_fac_override)) {
                                     $def_facility = $default_fac_override;
                                 } else {
-                                    $def_facility = $facilityService->getFacilityForUser($_SESSION['authUserID'])['id'];
+                                    $def_facility = ($facilityService->getFacilityForUser($_SESSION['authUserID'])['id'] ?? null);
                                 }
                                 $posCode = '';
                                 $facilities = $facilityService->getAllServiceLocations();

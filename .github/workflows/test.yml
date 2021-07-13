@@ -1112,7 +1112,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    name: PHP 8.1 - Nginx - MariaDB 10.5
+    name: PHP 8.1 - Nginx - MariaDB 10.5 (Note skipping lots of tests in PHP 8.1 for now)
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_81
@@ -1155,50 +1155,50 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
-      - name: Unit testing
+      - name: Unit testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          #build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing
+      - name: E2e testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          #build_test_e2e
         if: ${{ success() || failure() }}
 
-      - name: Api testing
+      - name: Api testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          #build_test_api
         if: ${{ success() || failure() }}
 
-      - name: Fixtures testing
+      - name: Fixtures testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          #build_test_fixtures
         if: ${{ success() || failure() }}
 
-      - name: Services testing
+      - name: Services testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          #build_test_services
         if: ${{ success() || failure() }}
 
-      - name: Validators testing
+      - name: Validators testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          #build_test_validators
         if: ${{ success() || failure() }}
 
-      - name: Controllers testing
+      - name: Controllers testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          #build_test_controllers
         if: ${{ success() || failure() }}
 
-      - name: Common testing
+      - name: Common testing (skipping in PHP 8.1 for now)
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          #build_test_common
         if: ${{ success() || failure() }}

@@ -61,7 +61,7 @@ $factories = array(
 
 // This settings can be change in the global settings under security tab
 $adapters = array();
-if ($GLOBALS['allow_multiple_databases']) {
+if (!empty($GLOBALS['allow_multiple_databases'])) {
     // Open pdo connection
     $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');

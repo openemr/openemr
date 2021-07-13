@@ -1706,7 +1706,7 @@ class BillingUtilities
         $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
             "WHERE pid = ? AND type = 'primary' " .
             "AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1", array($patient_id, $encdate));
-        if ($tmp['provider']) {
+        if (!empty($tmp['provider'])) {
             return sprintf('%01.2f', floatval($tmp['copay']));
         }
 

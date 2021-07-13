@@ -138,7 +138,7 @@ if (!empty($_POST['form_csvexport'])) {
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
             </td>
-        </tr>       
+        </tr>
     </table>
 
     </div>
@@ -209,7 +209,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $where = "pn.date >= ? AND pn.date <= ?";
     array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");
 
-    if ($form_patient_id) {
+    if (!empty($form_patient_id)) {
         $where .= " AND p.pubpid = ?";
         array_push($sqlBindArray, $form_patient_id);
     }
@@ -278,8 +278,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     </td>
     <td>
             <?php echo text($update_date); ?>
-    </td>  
-   </tr>              
+    </td>
+   </tr>
             <?php
         } // end not export
     } // end while

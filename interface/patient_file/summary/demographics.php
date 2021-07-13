@@ -188,7 +188,7 @@ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
 $insco_name = "";
-if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco
     $insco_name = getInsuranceProvider($result3['provider']);
 }
 ?>
@@ -833,7 +833,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </tr>
                                     <?php } ?>
 
-                                    <?php if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco ?>
+                                    <?php if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco ?>
                                         <tr>
                                           <td>
                                           <span class='font-weight-bold'><?php echo xlt('Primary Insurance') . ': ' . text($insco_name); ?></span>&nbsp;&nbsp;&nbsp;

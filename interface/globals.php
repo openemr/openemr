@@ -493,7 +493,7 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 // Also important to note that changes to this global setting will not take effect during the same
 //  session (ie. user needs to logout) since not worth it to use resources to open session and write to it
 //  for every call to interface/globals.php .
-$_SESSION["enable_database_connection_pooling"] = $GLOBALS["enable_database_connection_pooling"];
+$_SESSION["enable_database_connection_pooling"] = $GLOBALS["enable_database_connection_pooling"] ?? null;
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -655,7 +655,7 @@ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
 error_reporting(error_reporting() & ~E_USER_DEPRECATED & ~E_USER_WARNING);
 // user debug mode
-if ((int) $GLOBALS['user_debug'] > 1) {
+if (!empty($GLOBALS['user_debug']) && ((int) $GLOBALS['user_debug'] > 1)) {
     error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }

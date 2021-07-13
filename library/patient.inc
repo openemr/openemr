@@ -114,7 +114,7 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id,
             addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
@@ -207,12 +207,12 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
     $s .= "  <td class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
-        $s .= "<b>" . text($r['name']) . "</b>\n";
-        if ($r['street']) {
+        $s .= "<b>" . text($r['name'] ?? '') . "</b>\n";
+        if (!empty($r['street'])) {
             $s .= "<br />" . text($r['street']) . "\n";
         }
 
-        if ($r['city'] || $r['state'] || $r['postal_code']) {
+        if (!empty($r['city']) || !empty($r['state']) || !empty($r['postal_code'])) {
             $s .= "<br />";
             if ($r['city']) {
                 $s .= text($r['city']);
@@ -233,11 +233,11 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
             $s .= "\n";
         }
 
-        if ($r['country_code']) {
+        if (!empty($r['country_code'])) {
             $s .= "<br />" . text($r['country_code']) . "\n";
         }
 
-        if (preg_match('/[1-9]/', $r['phone'])) {
+        if (preg_match('/[1-9]/', ($r['phone'] ?? ''))) {
             $s .= "<br />" . text($r['phone']) . "\n";
         }
     }
@@ -318,13 +318,13 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         }
     }
 
-    return $returnval;
+    return ($returnval ?? null);
 }
 
 function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
-    if (strlen($pi[0]["lname"]) > 0) {
+    if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
         if (strlen($pi[0]["suffix"]) > 0) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
@@ -1146,7 +1146,7 @@ function updateEmployerData($pid, $new, $create = false)
             return sqlInsert("INSERT INTO employer_data SET $set");
         }
 
-        return $old['id'];
+        return ($old['id'] ?? '');
     }
 }
 
