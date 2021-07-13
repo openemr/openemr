@@ -61,7 +61,7 @@ var resultObservation = {
                 },
                 codeSystem: "2.16.840.1.113883.5.83",
                 displayName: leafLevel.input,
-                codeSystemName: "ObservationInterpretation"
+                codeSystemName: "ObservationInterpretation",
             },
             dataKey: "interpretations"
         }, {

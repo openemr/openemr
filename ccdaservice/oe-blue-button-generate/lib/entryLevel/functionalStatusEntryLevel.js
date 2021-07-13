@@ -21,7 +21,7 @@ exports.mentalStatusObservation = {
             attributes: {
                 code: "373930000",
                 codeSystem: "2.16.840.1.113883.6.96",
-                codeSystemName: "SNOMED-CT",
+                codeSystemName: "SNOMED CT",
                 displayName: "Cognitive function"
             },
             content: [{
@@ -33,7 +33,11 @@ exports.mentalStatusObservation = {
                     displayName: "Cognitive function"
                 }
             }]
-        },
+        }, /*{
+            key: "text",
+            text: leafLevel.input,
+            dataKey: "note"
+        },*/
         fieldLevel.statusCodeCompleted,
         [fieldLevel.effectiveTime, required], {
             key: "value",
@@ -91,6 +95,34 @@ var functionalStatusObservation = {
     ]
 };
 
+var functionalStatusSelfCareObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.128"),
+        fieldLevel.id, {
+            key: "code",
+            attributes: {
+                nullFlavor: "NA",
+            },
+        },
+        fieldLevel.statusCodeCompleted,
+        [fieldLevel.effectiveTime, required], {
+            key: "value",
+            attributes: {
+                "xsi:type": "CD",
+                code: "371153006",
+                codeSystem: "2.16.840.1.113883.6.96",
+                codeSystemName: "SNOMED CT",
+                displayName: "Independent"
+            }
+        }
+    ]
+};
+
 exports.functionalStatusOrganizer = {
     key: "organizer",
     attributes: {
@@ -119,6 +151,11 @@ exports.functionalStatusOrganizer = {
         [{
             key: "component",
             content: functionalStatusObservation,
+            dataKey: "observation",
+            required: true
+        }], [{
+            key: "component",
+            content: functionalStatusSelfCareObservation,
             dataKey: "observation",
             required: true
         }]

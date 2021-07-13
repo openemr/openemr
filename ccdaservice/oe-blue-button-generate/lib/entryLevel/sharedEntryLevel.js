@@ -47,7 +47,8 @@ var reactionObservation = exports.reactionObservation = {
         fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.9", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.9"),
         fieldLevel.id,
-        fieldLevel.nullFlavor("code"),
+        //fieldLevel.nullFlavor("code"),
+        fieldLevel.templateCode("AllergyObservation"),
         fieldLevel.text(leafLevel.sameReference("reaction")),
         fieldLevel.statusCodeCompleted,
         fieldLevel.effectiveTime, {

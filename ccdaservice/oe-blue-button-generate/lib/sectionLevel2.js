@@ -578,7 +578,11 @@ exports.mentalStatusSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("mental_status")
-                }, { // mental status does not use a header table.
+                }, {// mental status does not use a header table.
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "mental_status.note"
+                }, {
                     key: "entry",
                     content: [
                         entryLevel.mentalStatusObservation
@@ -633,7 +637,7 @@ exports.healthConcernSection = function (htmlHeader, na) {
                 }, {
                     key: "entry",
                     content: [
-                        [entryLevel.healthConcernObservation]
+                        entryLevel.healthConcernObservation
                     ],
                     dataKey: "health_concerns"
                 }, {
