@@ -3413,7 +3413,7 @@ class GaclApi extends Gacl {
 				return FALSE;
 		}
 
-		$name = trim($name);
+		$name = trim($name ?? '');
 		$value = trim($value);
 
 		if (empty($name) AND empty($value) ) {
