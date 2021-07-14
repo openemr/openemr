@@ -7,16 +7,18 @@
  * @link      http://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
-require_once("../../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
@@ -233,7 +235,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 </head>
 
 <body>
-<div class="container mt-3" id="encounters"> <!-- large outer DIV -->
+<div class="container-fluid mt-3" id="encounters"> <!-- large outer DIV -->
 
     <span class='title'>
         <?php
@@ -288,7 +290,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
             $pagesizes = array(5, 10, 15, 20, 25, 50, 0);
-            for ($idx = 0; $idx < count($pagesizes); $idx++) {
+            for ($idx = 0, $idxMax = count($pagesizes); $idx < $idxMax; $idx++) {
                 echo "<option value='" . attr($pagesizes[$idx]) . "'";
                 if ($pagesize == $pagesizes[$idx]) {
                     echo " selected='true'>";
@@ -492,8 +494,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                     "'>\n";
 
                     // show encounter date
-                    echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" .
-                        text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
+                    echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
@@ -580,7 +581,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                     // are list-based forms sharing a single collection of code.
                             if (substr($formdir, 0, 3) == 'LBF') {
                                 include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-                                call_user_func("lbf_report", $pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
+                                lbf_report($pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
                             } else {
                                 include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
                                 call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
@@ -835,7 +836,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
 </div> <!-- end 'encounters' large outer DIV -->
 
-<div class='position-absolute border' id='tooltipdiv' style='width: 533px; padding:2px; background-color: #ffffaa; visibility: hidden; z-index: 1000; font-size: 12px;'></div>
+<span class='position-absolute border border-danger w-auto jumbotron p-1 m-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
 
 <script>
 // jQuery stuff to make the page a little easier to use

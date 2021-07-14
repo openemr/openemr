@@ -128,6 +128,12 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "General Status"
         },
+        "HealthConcernSection": {
+            "code": "75310-3",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Health Concerns Document"
+        },
         "HistoryOfPastIllnessSection": {
             "code": "11348-0",
             "code_system": "2.16.840.1.113883.6.1",

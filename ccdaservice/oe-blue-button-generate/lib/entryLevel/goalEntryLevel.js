@@ -34,9 +34,11 @@ exports.goalActivityObservation = {
         fieldLevel.statusCodeActive, // always for goals
         fieldLevel.effectiveTime,
         {
-            key: "text",
-            text: leafLevel.input,
-            dataKey: "name"
+            key: "value",
+            attributes: {
+                "xsi:type": "ST"
+            },
+            text: leafLevel.inputProperty("name")
         },
     ],
     existsWhen: function (input) {

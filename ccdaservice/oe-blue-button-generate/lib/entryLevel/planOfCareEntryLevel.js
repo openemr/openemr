@@ -28,7 +28,7 @@ exports.healthConcernObservation = {
                 codeSystemName: "LOINC",
                 displayName: "Health Status"
             },
-        }, {
+        }, /*{
             key: "originalText",
             content: {
                 key: "reference",
@@ -36,8 +36,8 @@ exports.healthConcernObservation = {
                     "value": leafLevel.nextReference("concerns")
                 }
             }
-        },
-        fieldLevel.statusCodeActive, {
+        },*/
+        fieldLevel.statusCodeCompleted, {
             key: "value",
             attributes: [
                 leafLevel.typeCD,
@@ -58,7 +58,7 @@ exports.healthConcernActivityAct = {
         moodCode: "EVN"
     },
     content: [
-        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.132", "2015-08-01"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.132", "2015-08-01"),
         fieldLevel.uniqueId,
         fieldLevel.id, {
             key: "code",
@@ -72,26 +72,29 @@ exports.healthConcernActivityAct = {
         fieldLevel.statusCodeActive,
         [{
             key: "entryRelationship",
-            content: [
-                {
-                    key: "act",
-                    attributes: {
-                        classCode: "ACT",
-                        moodCode: "EVN"
-                    }
+            attributes: {
+                typeCode: "REFR"
+            },
+            content: {
+                key: "act",
+                attributes: {
+                    classCode: "ACT",
+                    moodCode: "EVN"
                 },
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.122"),
-                fieldLevel.id, {
-                    key: "code",
-                    attributes: {
-                        nullFlavor: "NP",
+                content: [
+                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.122"),
+                    fieldLevel.id, {
+                        key: "code",
+                        attributes: {
+                            nullFlavor: "NP",
+                        },
+                        datakey: "problems.identifiers",
                     },
-                    datakey: "problems.identifiers",
-                },
-                fieldLevel.statusCodeCompleted
-            ],
+                    fieldLevel.statusCodeCompleted
+                ]
+            },
             dataKey: "problems"
-        }]
+        }],
     ],
     existsWhen: function (input) {
         return input.type === "act";
@@ -132,8 +135,8 @@ exports.planOfCareActivityObservation = {
         fieldLevel.id, {
             key: "code",
             attributes: leafLevel.code,
-            dataKey: "code"
-        }, {
+            dataKey: "plan"
+        }, /*{
             key: "originalText",
             content: {
                 key: "reference",
@@ -141,7 +144,7 @@ exports.planOfCareActivityObservation = {
                     "value": leafLevel.nextReference("treatment_plan")
                 }
             }
-        },
+        },*/
         fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],
