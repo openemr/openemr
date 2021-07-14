@@ -61,7 +61,7 @@ class UuidMapping
                 $mappedCounter += $count;
             } else {
                 foreach ($mapping['codes'] as $code) {
-                    $count = self::createMissingResourceUuids($mapping['resource'], $mapping['table'], "category=" . $mapping['category']. "&code=" . $code['code']);
+                    $count = self::createMissingResourceUuids($mapping['resource'], $mapping['table'], "category=" . $mapping['category'] . "&code=" . $code['code']);
                     $mappedCounter += $count;
                 }
             }
