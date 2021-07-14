@@ -72,15 +72,10 @@
 
 --  #IfUuidNeedUpdate
 --    argument: table_name
---    behavior: this will add and populate a uuid column into table
+--    behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
 
---  #IfUuidNeedUpdateId
---    argument: table_name primary_id
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateVertical
---    argument: table_name table_columns
---    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
+--  #IfMappingUuidNeedUpdate
+--    behavior: this will populate the mapping_uuid table
 
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
@@ -118,7 +113,7 @@
 #IfUuidNeedUpdate users
 #EndIf
 
-#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#IfUuidNeedUpdate facility_user_ids
 #EndIf
 
 #IfUuidNeedUpdate facility
@@ -130,16 +125,16 @@
 #IfUuidNeedUpdate lists
 #EndIf
 
-#IfUuidNeedUpdateId procedure_order procedure_order_id
+#IfUuidNeedUpdate procedure_order
 #EndIf
 
-#IfUuidNeedUpdateId drugs drug_id
+#IfUuidNeedUpdate drugs
 #EndIf
 
 #IfUuidNeedUpdate prescriptions
 #EndIf
 
-#IfUuidNeedUpdateId procedure_result procedure_result_id
+#IfUuidNeedUpdate procedure_result
 #EndIf
 
 #IfUuidNeedUpdate ccda
@@ -834,7 +829,7 @@ ALTER TABLE `procedure_report` ADD `uuid` binary(16) DEFAULT NULL AFTER `procedu
 CREATE UNIQUE INDEX `uuid` ON `procedure_report` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId procedure_report procedure_report_id
+#IfUuidNeedUpdate procedure_report
 #EndIf
 
 #IfMissingColumn procedure_providers uuid
@@ -845,7 +840,7 @@ ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid
 CREATE UNIQUE INDEX `uuid` ON `procedure_providers` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId procedure_providers ppid
+#IfUuidNeedUpdate procedure_providers
 #EndIf
 
 #IfMissingColumn patient_data dupscore
@@ -867,4 +862,7 @@ CREATE INDEX `abook_type` ON `users` (`abook_type`);
 
 #IfNotIndex procedure_type ptype_procedure_code
 ALTER TABLE `procedure_type` ADD INDEX `ptype_procedure_code`(`procedure_code`);
+#EndIf
+
+#IfMappingUuidNeedUpdate
 #EndIf

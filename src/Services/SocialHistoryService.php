@@ -25,7 +25,7 @@ class SocialHistoryService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        $this->getUuidRegistry()->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
@@ -69,7 +69,7 @@ class SocialHistoryService extends BaseService
     {
         // history_data contains a table record for every single insert into the database
         $sql = "
-            SELECT 
+            SELECT
                 history.id
                 ,history.uuid
                 ,history.date
@@ -83,7 +83,7 @@ class SocialHistoryService extends BaseService
             history_data history
             JOIN
             (
-             SELECT 
+             SELECT
                     -- we could have this be max date, but this should be fine
                     max(id) AS id
                     FROM history_data
@@ -91,7 +91,7 @@ class SocialHistoryService extends BaseService
             ) latest_history_records ON history.id = latest_history_records.id
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS puuid
                     ,pid
                     FROM patient_data
@@ -177,18 +177,13 @@ class SocialHistoryService extends BaseService
         return $this->insertRecord($record);
     }
 
-    private function getUuidRegistry(): UuidRegistry
-    {
-        return new UuidRegistry(['table_name' => self::TABLE_NAME]);
-    }
-
     private function insertRecord($record)
     {
         $pid = $record['pid'] ?? null;
         if (!is_numeric($pid)) {
             throw new \InvalidArgumentException("pid must be a valid number");
         }
-        $uuid = $this->getUuidRegistry()->createUuid();
+        $uuid = UuidRegistry::getRegistryForTable(self::TABLE_NAME)->createUuid();
         $sql = "insert into history_data set pid = ?, date = NOW(), uuid = ? ";
         $arraySqlBind = [$pid, $uuid];
 

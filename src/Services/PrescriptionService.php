@@ -24,7 +24,6 @@ class PrescriptionService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
-    private $uuidRegistry;
     private $patientValidator;
 
     /**
@@ -33,16 +32,8 @@ class PrescriptionService extends BaseService
     public function __construct()
     {
         parent::__construct(self::PRESCRIPTION_TABLE);
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::PRESCRIPTION_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::DRUGS_TABLE,
-            'table_id' => 'drug_id'
-        ]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PRESCRIPTION_TABLE, self::PATIENT_TABLE, self::ENCOUNTER_TABLE,
+            self::PRACTITIONER_TABLE, self::DRUGS_TABLE]);
         $this->patientValidator = new PatientValidator();
     }
 

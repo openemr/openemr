@@ -901,11 +901,11 @@ class AuthorizationController
     {
         switch ($userRole) {
             case 'users':
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:
@@ -913,8 +913,7 @@ class AuthorizationController
         }
         $id = sqlQueryNoLog($account_sql, array($userId))['uuid'];
 
-        $uuidRegistry = new UuidRegistry();
-        return $uuidRegistry::uuidToString($id);
+        return UuidRegistry::uuidToString($id);
     }
 
     public function authorizeUser(): void

@@ -28,7 +28,6 @@ class PractitionerService extends BaseService
 
     private const PRACTITIONER_TABLE = "users";
     private $practitionerValidator;
-    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -36,8 +35,7 @@ class PractitionerService extends BaseService
     public function __construct()
     {
         parent::__construct('users');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PRACTITIONER_TABLE]);
         $this->practitionerValidator = new PractitionerValidator();
     }
 

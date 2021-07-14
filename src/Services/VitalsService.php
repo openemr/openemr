@@ -23,13 +23,13 @@ class VitalsService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_VITALS);
-        (new UuidRegistry(['table_name' => self::TABLE_VITALS]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
     }
 
     public function search($search, $isAndCondition = true)
     {
         $sql = "
-            SELECT 
+            SELECT
                 vitals.id
                 ,vitals.uuid
                 ,vitals.date
@@ -60,7 +60,7 @@ class VitalsService extends BaseService
             FROM
             form_vitals vitals
             JOIN (
-                select 
+                select
                     form_id
                     ,encounter
                     ,pid
@@ -77,14 +77,14 @@ class VitalsService extends BaseService
             ) encounters ON encounters.eid = forms.encounter
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS puuid
                     ,pid
                     FROM patient_data
             ) patients ON vitals.pid = patients.pid
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS user_uuid
                     ,username
                     ,id AS uid

@@ -63,8 +63,7 @@ class CarePlanService extends BaseService
             throw new \InvalidArgumentException("Invalid care plan type of " . $carePlanType);
         }
 
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::ENCOUNTER_TABLE]);
 
         parent::__construct(self::CARE_PLAN_TABLE);
         $this->codeTypesService = new CodeTypesService();
@@ -142,9 +141,9 @@ class CarePlanService extends BaseService
                 ,fcp.date
                 ,l.`notes` AS moodCode
                 ,category.careplan_category
-                 FROM 
+                 FROM
                  (
-                    select 
+                    select
                         id AS form_id
                         ,code
                         ,codetext
@@ -153,7 +152,7 @@ class CarePlanService extends BaseService
                         ,`encounter`
                         ,`pid`
                         ,`care_plan_type`
-                    FROM 
+                    FROM
                         form_care_plan
                     WHERE
                         `care_plan_type` = '$carePlanType'
@@ -162,14 +161,14 @@ class CarePlanService extends BaseService
                     select '$planCategory' AS careplan_category
                  ) category
                  JOIN (
-                    select 
+                    select
                         encounter AS eid
                         ,uuid AS euuid
                     FROM
                         form_encounter
                  ) encounters ON fcp.encounter = encounters.eid
                  LEFT JOIN (
-                    select 
+                    select
                         pid
                         ,uuid AS puuid
                     FROM

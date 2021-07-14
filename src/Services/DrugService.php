@@ -20,7 +20,6 @@ class DrugService extends BaseService
 {
 
     private const DRUG_TABLE = "drugs";
-    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -28,11 +27,7 @@ class DrugService extends BaseService
     public function __construct()
     {
         parent::__construct(self::DRUG_TABLE);
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::DRUG_TABLE,
-            'table_id' => 'drug_id'
-        ]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::DRUG_TABLE]);
     }
 
     /**

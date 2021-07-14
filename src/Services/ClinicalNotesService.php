@@ -30,7 +30,7 @@ class ClinicalNotesService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        (new UuidRegistry(['table_name' => 'form_clinical_notes']))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables(['form_clinical_notes']);
     }
 
     /**
@@ -62,7 +62,7 @@ class ClinicalNotesService extends BaseService
         // we leave status to be current, if we ever support entered-in-error, or superseded we can do that here.
         try {
             $sql = "
-            SELECT 
+            SELECT
                 notes.id
                 ,notes.uuid AS uuid
                 ,notes.activity
@@ -85,9 +85,9 @@ class ClinicalNotesService extends BaseService
                 ,users.user_uuid
                 ,users.npi
                 ,users.physician_type
-            FROM 
+            FROM
                 (
-                    select 
+                    select
                         id
                         ,uuid
                         ,activity
@@ -102,14 +102,14 @@ class ClinicalNotesService extends BaseService
                         ,form_id
                         ,user
                  FROM
-                    form_clinical_notes 
+                    form_clinical_notes
              ) notes
             JOIN (
                 SELECT
                     id AS form_id,
                     encounter
                     ,pid AS form_pid
-                FROM    
+                FROM
                     forms
             ) forms ON forms.form_id = notes.form_id
             LEFT JOIN (
@@ -122,14 +122,14 @@ class ClinicalNotesService extends BaseService
             ) encounters ON encounters.eid = forms.encounter
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS puuid
                     ,pid
                     FROM patient_data
             ) patients ON forms.form_pid = patients.pid
             LEFT JOIN
             (
-                SELECT 
+                SELECT
                     uuid AS user_uuid
                     ,username
                     ,id AS uid
@@ -313,10 +313,10 @@ class ClinicalNotesService extends BaseService
             throw new \InvalidArgumentException("formid, and pid must all be populated");
         }
 
-        $sql = "SELECT fcn.* 
+        $sql = "SELECT fcn.*
                         ,lo_category.title AS category_title
                         ,lo_category.notes AS category_code
-                FROM `form_clinical_notes` fcn 
+                FROM `form_clinical_notes` fcn
                 LEFT JOIN list_options lo_category ON lo_category.option_id = fcn.clinical_notes_category
                 LEFT JOIN list_options lo_type ON lo_type.option_id = fcn.clinical_notes_type
                 WHERE fcn.`form_id`=? AND fcn.`pid` = ? AND fcn.`encounter` = ?";

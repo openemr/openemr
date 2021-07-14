@@ -63,7 +63,7 @@ class SmartLaunchController
         $pid = $event->getPid();
         $patientService = new PatientService();
         // make sure we've created all of our missing UUIDs
-        (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables(['patient_data']);
         // going to work with string uuids
         $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         ?>

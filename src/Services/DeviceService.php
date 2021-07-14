@@ -21,14 +21,11 @@ class DeviceService extends BaseService
 {
     private const DEVICE_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
-    private $uuidRegistry;
 
     public function __construct()
     {
-        parent::__construct('lists');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::DEVICE_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        parent::__construct(self::DEVICE_TABLE);
+        UuidRegistry::createMissingUuidsForTables([self::DEVICE_TABLE, self::PATIENT_TABLE]);
     }
 
     public function search($search, $isAndCondition = true)

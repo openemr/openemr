@@ -118,7 +118,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
@@ -160,7 +160,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();
-                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");

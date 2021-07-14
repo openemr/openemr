@@ -49,7 +49,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     const CATEGORY = "vital-signs";
 
-    private const COLUMN_MAPPINGS = [
+    const COLUMN_MAPPINGS = [
         // @see http://hl7.org/fhir/R4/observation-vitalsigns.html
         self::VITALS_PANEL_LOINC_CODE => [
             // this code contains a lot of the other vital sign codes and is treated specially in this service.

@@ -22,19 +22,14 @@ class SurgeryService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const SURGERY_LIST_PATIENT = "lists";
-    private $uuidRegistry;
+
     /**
      * Default constructor.
      */
     public function __construct()
     {
         parent::__construct(self::SURGERY_LIST_PATIENT);
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::SURGERY_LIST_PATIENT
-        ]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::SURGERY_LIST_PATIENT, self::PATIENT_TABLE, self::ENCOUNTER_TABLE]);
     }
 
     /**
@@ -77,7 +72,7 @@ class SurgeryService extends BaseService
             }
         }
 
-        $sql = "SELECT 
+        $sql = "SELECT
                 slist.id,
                 slist.title,
                 slist.diagnosis,
@@ -87,11 +82,11 @@ class SurgeryService extends BaseService
                 patient.lname,
                 encounter.id,
                 patient.uuid AS puuid,
-                encounter.uuid AS euuid 
-                from lists AS slist 
-                LEFT JOIN patient_data AS patient 
-                ON slist.pid = patient.id 
-                LEFT JOIN form_encounter AS encounter 
+                encounter.uuid AS euuid
+                from lists AS slist
+                LEFT JOIN patient_data AS patient
+                ON slist.pid = patient.id
+                LEFT JOIN form_encounter AS encounter
                 ON slist.pid = encounter.pid
                 WHERE slist.type = 'surgery'";
 
@@ -163,7 +158,7 @@ class SurgeryService extends BaseService
             }
         }
 
-        $sql = "SELECT 
+        $sql = "SELECT
                 slist.id,
                 slist.title,
                 slist.diagnosis,

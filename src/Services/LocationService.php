@@ -28,11 +28,9 @@ class LocationService extends BaseService
      */
     public function __construct()
     {
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE]);
         UuidMapping::createMissingResourceUuids("Location", self::PATIENT_TABLE);
-        (new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]))->createMissingUuids();
         UuidMapping::createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
-        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
         UuidMapping::createMissingResourceUuids("Location", self::FACILITY_TABLE);
     }
 

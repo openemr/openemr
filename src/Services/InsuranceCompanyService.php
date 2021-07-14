@@ -27,8 +27,6 @@ use OpenEMR\Common\Database\QueryUtils;
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private const ADDRESS_TABLE = "addresses";
-    private $uuidRegistry;
     private $insuranceValidator;
     private $addressService = null;
     const TYPE_FAX = 5;
@@ -41,8 +39,7 @@ class InsuranceCompanyService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::INSURANCE_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
         $this->insuranceValidator = new InsuranceValidator();
         parent::__construct(self::INSURANCE_TABLE);
     }
