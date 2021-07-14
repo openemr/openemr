@@ -27,6 +27,7 @@
  * @link      https://www.open-emr.org
  */
 
+use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
@@ -643,7 +644,10 @@ function flush_echo($string = '')
  *
  * #IfUuidNeedUpdate
  *   argument: table_name
- *   behavior: this will add and populate a uuid column into table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
+ *   behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
+ *
+ * #IfMappingUuidNeedUpdate
+ *   behavior: this will populate the mapping_uuid table
  *
  * #IfNotMigrateClickOptions
  *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
@@ -1056,6 +1060,20 @@ function upgradeFromSqlFile($filename, $path = '')
                 flush_echo();
                 $number = $uuidRegistry->createMissingUuids();
                 echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
+                flush_echo();
+            } else {
+                $skipping = true;
+            }
+            if ($skipping) {
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
+            }
+        } elseif (preg_match('/^#IfMappingUuidNeedUpdate/', $line)) {
+            $uuidMappingCount = UuidMapping::createAllMissingResourceUuids();
+            if (!empty($uuidMappingCount)) {
+                $skipping = false;
+                echo "<p>Going to add UUIDs to uuid_mapping table</p>\n";
+                flush_echo();
+                echo "<p class='text-success'>Successfully completed added " . $uuidMappingCount . " UUIDs to uuid_mapping table</p>\n";
                 flush_echo();
             } else {
                 $skipping = true;

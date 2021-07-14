@@ -72,7 +72,10 @@
 
 --  #IfUuidNeedUpdate
 --    argument: table_name
---    behavior: this will add and populate a uuid column into table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
+--    behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
+
+--  #IfMappingUuidNeedUpdate
+--    behavior: this will populate the mapping_uuid table
 
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
@@ -859,4 +862,7 @@ CREATE INDEX `abook_type` ON `users` (`abook_type`);
 
 #IfNotIndex procedure_type ptype_procedure_code
 ALTER TABLE `procedure_type` ADD INDEX `ptype_procedure_code`(`procedure_code`);
+#EndIf
+
+#IfMappingUuidNeedUpdate
 #EndIf

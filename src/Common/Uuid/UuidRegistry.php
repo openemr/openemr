@@ -28,6 +28,7 @@ namespace OpenEMR\Common\Uuid;
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Uuid\UuidMapping;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
 use Ramsey\Uuid\Generator\CombGenerator;
 use Ramsey\Uuid\UuidFactory;
@@ -120,10 +121,15 @@ class UuidRegistry
         $logEntryComment = '';
 
         // Update for tables (alphabetically ordered):
-        // TODO: we could have these definitions stored in the database which would allow uuid generation to be driven by the sql_upgrade.php script
         $tables = self::UUID_TABLE_DEFINITIONS;
         foreach ($tables as $table_name => $uuidProperties) {
-                self::appendPopulateLog($table_name, (new UuidRegistry($uuidProperties))->createMissingUuids(), $logEntryComment);
+            self::appendPopulateLog($table_name, (new UuidRegistry($uuidProperties))->createMissingUuids(), $logEntryComment);
+        }
+
+        // Update for mapped uuids
+        $mappedCounter = UuidMapping::createAllMissingResourceUuids();
+        if (!empty($mappedCounter)) {
+            self::appendPopulateLog('uuid_mapping', $mappedCounter, $logEntryComment);
         }
 
         // log it
@@ -282,7 +288,7 @@ class UuidRegistry
      * @param int $limit
      * @return array
      */
-    private function getUnusedUuidBatch($limit = 10)
+    public function getUnusedUuidBatch($limit = 10)
     {
         if ($limit <= 0) {
             return [];
@@ -474,7 +480,7 @@ class UuidRegistry
      * Given a batch of UUIDs it inserts them into the uuid registry.
      * @param $batchUuids
      */
-    private function insertUuidsIntoRegistry($batchUuids)
+    public function insertUuidsIntoRegistry($batchUuids)
     {
         $count = count($batchUuids);
         $sql = "INSERT INTO `uuid_registry` (`uuid`, `table_name`, `table_id`, `table_vertical`, `couchdb`, `document_drive`, `mapped`, `created`) VALUES ";
