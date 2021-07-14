@@ -14,6 +14,7 @@ define("EVENT_OTHER", 4);
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Utils\MeasurementUtils;
 
 class FormVitals extends ORDataObject
 {
@@ -195,6 +196,11 @@ class FormVitals extends ORDataObject
     {
         return $this->weight;
     }
+
+    public function get_weight_metric()
+    {
+        return MeasurementUtils::lbToKg($this->get_weight());
+    }
     public function set_weight($w)
     {
         if (!empty($w) && is_numeric($w)) {
@@ -207,14 +213,18 @@ class FormVitals extends ORDataObject
             if ($GLOBALS['us_weight_format'] == 2) {
                 $pounds_int = floor($pounds);
                 return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
-            } else {
-                return $pounds;
             }
         }
+        return $pounds;
     }
+
     public function get_height()
     {
         return $this->height;
+    }
+    public function get_height_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_height());
     }
     public function set_height($h)
     {
@@ -225,6 +235,10 @@ class FormVitals extends ORDataObject
     public function get_temperature()
     {
         return $this->temperature;
+    }
+    public function get_temperature_metric()
+    {
+        return MeasurementUtils::fhToCelsius($this->get_temperature());
     }
     public function set_temperature($t)
     {
@@ -295,6 +309,10 @@ class FormVitals extends ORDataObject
     {
         return $this->waist_circ;
     }
+    public function get_waist_circ_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_waist_circ());
+    }
     public function set_waist_circ($w)
     {
         if (!empty($w) && is_numeric($w)) {
@@ -304,6 +322,10 @@ class FormVitals extends ORDataObject
     public function get_head_circ()
     {
         return $this->head_circ;
+    }
+    public function get_head_circ_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_head_circ());
     }
     public function set_head_circ($h)
     {
@@ -408,6 +430,12 @@ class FormVitals extends ORDataObject
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
         parent::persist();
+
+        $properties = get_object_vars($this);
+        // remove any private hidden vars defined in ORDataObject
+        $validKeys = array_filter(array_keys($properties), function($val) { $val[0] !== '_';});
+        $excludeColumns = ['uuid', 'user', 'groupname', 'activity', 'id'];
+
         $fhirVitalsService = new FhirObservationVitalsService();
         // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
 

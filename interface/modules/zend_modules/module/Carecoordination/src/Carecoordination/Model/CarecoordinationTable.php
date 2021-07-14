@@ -2882,6 +2882,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $res_q_sel_vitals = $appTable->zQuery($q_sel_vitals, array($value['extension']));
             }
             if (empty($value['extension']) || $res_q_sel_vitals->count() == 0) {
+                // TODO: @adunsulag we should move this into the vitals service.
                 $query_insert = "INSERT INTO form_vitals
                          (
                           pid,
