@@ -569,9 +569,12 @@ if ($StringEcho) {
 ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
-    $module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
+    $module_query = sqlStatement(
+        "SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh " .
+        "LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id " .
+        "LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id " .
+        "WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id"
+    );
     $DivId = 'mod_installer';
     if (sqlNumRows($module_query)) {
         if (!$StringEcho) {
@@ -591,8 +594,8 @@ if ($StringEcho) {
                 $added      = "index";
                 $modulePath = $GLOBALS['zendModDir'];
             }
-            $relative_link = "../../modules/" . $modulePath . "/" . $modulerow['path'];
-            $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+            $relative_link = "../../modules/" . $modulePath . "/public/" . $modulerow['path'];
+            $nickname = $modulerow['menu_name'] ?: 'Noname';
             if ($jid == 0 || ($modid != $modulerow['mod_id'])) {
                 if ($jid !== 0) {
                     $StringEcho .= "</div>\n";
@@ -604,10 +607,8 @@ if ($StringEcho) {
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
-            attr_js($rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($option_id)) .
-                ", " . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
-            text(xl_form_title($nickname)) . "</button>\n";
+            $StringEcho .= "<button class='dropdown-item' onclick='openNewForm(" .
+            attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")'>" . text(xl_form_title($nickname)) . "</button>\n";
         }
         $StringEcho .= "</div>\n";
         $StringEcho .= '</div>';
@@ -856,7 +857,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
             $notes = array();
             $notes = explode("|", $noteData['docNotes']);
             $dates = explode("|", $noteData['docDates']);
-            for ($i = 0; $i < count($notes); $i++) {
+            for ($i = 0, $iMax = count($notes); $i < $iMax; $i++) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
             }
         }
@@ -1021,7 +1022,7 @@ if (
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse " . attr($expand_default) . "' style='margin-bottom:40px;' ";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='mb-5 collapse " . attr($expand_default) . "' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
@@ -1029,8 +1030,7 @@ if (
         //
         if (substr($formdir, 0, 3) == 'LBF') {
             include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-
-            call_user_func("lbf_report", $attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
+            lbf_report($attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
         } else {
             include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
             call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
@@ -1041,7 +1041,7 @@ if (
         }
 
         echo "</div></td></tr>";
-        $divnos = $divnos + 1;
+        ++$divnos;
     }
     echo "</table>";
 }
