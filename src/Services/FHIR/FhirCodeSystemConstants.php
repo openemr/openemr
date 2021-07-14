@@ -50,4 +50,7 @@ class FhirCodeSystemConstants
     const HL7_IDENTIFIER_TYPE_TABLE = "http://hl7.org/fhir/v2/0203";
 
     const HL7_ORGANIZATION_TYPE = "http://terminology.hl7.org/CodeSystem/organization-type";
+
+    // @see http://hl7.org/fhir/R4/valueset-observation-interpretation.html
+    const HL7_V3_OBSERVATION_INTERPRETATION = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
 }

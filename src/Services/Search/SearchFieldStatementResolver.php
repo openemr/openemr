@@ -37,6 +37,8 @@ class SearchFieldStatementResolver
         }
         if ($field instanceof StringSearchField) {
             return self::resolveStringSearchField($field);
+        } else if ($field instanceof NumberSearchField) {
+
         } else if ($field instanceof DateSearchField) {
             return self::resolveDateField($field);
         } else if ($field instanceof TokenSearchField) {
