@@ -16,10 +16,11 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 
 class UuidMapping
 {
