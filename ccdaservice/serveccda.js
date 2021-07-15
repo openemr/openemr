@@ -545,7 +545,7 @@ function populateEncounter(pd) {
             "code": [{
                 "name": pd.physician_type,
                 "code": cleanCode(pd.physician_type_code),
-                "code_system_name": "SNOMED CT"
+                "code_system_name": pd.physician_code_type
             }],
             "name": [
                 {
@@ -1162,7 +1162,7 @@ function getFunctionalStatus(pd) {
             "value": {
                 "name": pd.code_text !== "NULL" ? pd.code_text : "",
                 "code": cleanCode(pd.code) || "",
-                "code_system_name": pd.code_type || ""
+                "code_system_name": pd.code_type || "SNOMED-CT"
             },
             "identifiers": [{
                 "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab"
@@ -1188,7 +1188,7 @@ function getMentalStatus(pd) {
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
         }],
-
+        "note": pd.description,
         "date_time": {
             "low": templateDate(pd.date_formatted, "day")
             //"high": templateDate(pd.date, "day")
@@ -1362,7 +1362,7 @@ function populateVital(pd) {
                     "precision": getPrecision(fDate(pd.effectivetime))
                 }
             },
-            "interpretations": [pd.BMI_status],
+            "interpretations": [pd.BMI_status == 'Overweight'?'High':'Normal'],
             "value": parseFloat(pd.BMI),
             "unit": "kg/m2"
         }, {
@@ -2177,6 +2177,7 @@ function genCcda(pd) {
         for (let i in pd.health_concerns.concern) {
             theone[i] = getHealthConcerns(pd.health_concerns.concern[i]);
             many.health_concerns.push(theone[i]);
+            break;
         }
     } else if (count !== 0) {
         theone = getHealthConcerns(pd.health_concerns.concern);
