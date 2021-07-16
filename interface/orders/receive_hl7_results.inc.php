@@ -543,7 +543,7 @@ function lookupTestCode($labid, $procedure_code)
 }
 
 // create encounter
-function create_encounter($pid, $provider_id = '', $order_date, $lab_name)
+function create_encounter($pid, $provider_id, $order_date, $lab_name)
 {
     global $orphanLog;
     $conn = $GLOBALS['adodb']['db'];
@@ -559,7 +559,7 @@ function create_encounter($pid, $provider_id = '', $order_date, $lab_name)
             "referral_source = '', " .
             "pid = ?, " .
             "encounter = ?, " .
-            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), "Generated encounter for " . strtoupper($lab_name) . " result", $pid, $encounter, $provider_id)),
+            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), "Generated encounter for " . strtoupper($lab_name) . " result", $pid, $encounter, ($provider_id ?? ''))),
         "newpatient",
         $pid,
         0,

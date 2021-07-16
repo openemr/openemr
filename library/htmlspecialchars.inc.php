@@ -88,7 +88,7 @@ function csvEscape($text)
  */
 function xmlEscape($text)
 {
-    return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES);
+    return htmlspecialchars(($text ?? ''), ENT_XML1 | ENT_QUOTES);
 }
 
 /**
@@ -111,7 +111,7 @@ function xmlEscape($text)
  */
 function text($text)
 {
-    return htmlspecialchars($text, ENT_NOQUOTES);
+    return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
 }
 
 /**
@@ -137,7 +137,7 @@ function text($text)
  */
 function attr($text)
 {
-    return htmlspecialchars($text, ENT_QUOTES);
+    return htmlspecialchars(($text ?? ''), ENT_QUOTES);
 }
 
 /**

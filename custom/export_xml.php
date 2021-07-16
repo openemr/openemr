@@ -24,7 +24,7 @@
 function Add($tag, $text)
 {
     global $out, $indent;
-    $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
+    $text = trim(str_replace(array("\r", "\n", "\t"), " ", ($text ?? '')));
     if ($text) {
         for ($i = 0; $i < $indent; ++$i) {
             $out .= "\t";
