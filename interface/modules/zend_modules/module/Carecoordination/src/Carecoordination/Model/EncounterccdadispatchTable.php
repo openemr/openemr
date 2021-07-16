@@ -550,7 +550,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getProblemList($pid, $encounter)
     {
-        (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
         $query = "select l.*, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
     from lists AS l
@@ -2278,7 +2278,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         }
 
-        (new UuidRegistry(['table_name' => 'lists']))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables(['lists']);
 
         $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
             FROM forms AS f
