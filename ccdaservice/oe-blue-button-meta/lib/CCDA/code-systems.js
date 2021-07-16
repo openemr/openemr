@@ -288,7 +288,7 @@ var sections_entries_codes = {
             "code": "18776-5",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Plan of Care"
+            "name": "Treatment Plan"
         },
         "GoalSection": {
             "code": "61146-7",
@@ -408,13 +408,13 @@ var sections_entries_codes = {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ResultsSection": {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ReviewOfSystemsSection": {
             "code": "10187-3",

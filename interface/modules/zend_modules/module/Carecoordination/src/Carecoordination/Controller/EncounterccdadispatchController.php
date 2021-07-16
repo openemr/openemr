@@ -14,6 +14,7 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\System\System;
@@ -48,7 +49,7 @@ class EncounterccdadispatchController extends AbstractActionController
     protected $latest_ccda;
 
     public function __construct(
-        \Carecoordination\Model\EncounterccdadispatchTable $encounterccdadispatchTable
+        EncounterccdadispatchTable $encounterccdadispatchTable
     ) {
 
         $this->listenerObject   = new Listener();
@@ -76,16 +77,16 @@ class EncounterccdadispatchController extends AbstractActionController
         $combination        = $this->getRequest()->getQuery('combination');
         $this->sections     = $this->getRequest()->getQuery('sections');
         $sent_by            = $this->getRequest()->getQuery('sent_by');
-        $send               = $this->getRequest()->getQuery('send') ? $this->getRequest()->getQuery('send') : 0;
-        $view               = $this->getRequest()->getQuery('view') ? $this->getRequest()->getQuery('view') : 0;
-        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
+        $send               = $this->getRequest()->getQuery('send') ?: 0;
+        $view               = $this->getRequest()->getQuery('view') ?: 0;
+        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ?: 0;
         $this->recipients   = $this->getRequest()->getQuery('recipient');
         $this->params       = $this->getRequest()->getQuery('param');
         $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
-        $this->components       = $this->getRequest()->getQuery('components') ? $this->getRequest()->getQuery('components') : $this->params('components');
+        $this->components       = $this->getRequest()->getQuery('components') ?: $this->params('components');
         $downloadccda           = $this->params('downloadccda');
-        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ? $this->getRequest()->getQuery('latest_ccda') : $this->params('latest_ccda');
-        $hie_hook     = $this->getRequest()->getQuery('hiehook') ? $this->getRequest()->getQuery('hiehook') : 0;
+        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
+        $hie_hook     = $this->getRequest()->getQuery('hiehook') || 0;
         if ($downloadccda == 'download_ccda') {
             $combination      = $this->params('pids');
             $view             = $this->params('view');
@@ -154,7 +155,9 @@ class EncounterccdadispatchController extends AbstractActionController
             if ($view && !$downloadccda) {
                 $xml = simplexml_load_string($content);
                 $xsl = new DOMDocument();
-                $xsl->load(__DIR__ . '/../../../../../public/xsl/ccda.xsl');
+                // cda.xsl is self contained with bootstrap and jquery.
+                // cda-web.xsl is used when referencing styles from internet.
+                $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
                 $proc = new XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
                 $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
@@ -165,15 +168,14 @@ class EncounterccdadispatchController extends AbstractActionController
             }
 
             if ($downloadccda) {
-                $this->forward()->dispatch(EncountermanagerController::class, array('action'    => 'downloadall',
-                                                            'pids'      => $this->params('pids')));
+                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $this->params('pids')));
             } else {
                 die;
             }
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
             $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, '');
-            $content            = $this->socket_get($this->data);
+            $content = $this->socket_get($this->data);
 
             $content = trim($content);
             $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
