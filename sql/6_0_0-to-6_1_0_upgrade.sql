@@ -726,13 +726,11 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
-
 #EndIf
 
-#IfNotColumnTypeDefault insurance_companies alt_cms_id varchar NULL
+#IfNotColumnTypeDefault insurance_companies alt_cms_id varchar(15) NULL
 ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
 #EndIf
-
 
 #IfMissingColumn form_vitals uuid
 ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
