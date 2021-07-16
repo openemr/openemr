@@ -146,7 +146,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                                                "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
-                                        echo "<td>" . generate_display_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
+                                        echo "<td>" . generate_display_field($layout_entry, ($entry_data['field_value'] ?? '')) . "&nbsp;</td>";
                                     }
                                     ?>
                                 </tr>
