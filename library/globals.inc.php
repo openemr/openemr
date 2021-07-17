@@ -856,6 +856,13 @@ $GLOBALS_METADATA = array(
             xl('A referral source may be specified for each visit.')
         ),
 
+        'gbl_visit_onset_date' => array(
+            xl('Onset/Hosp Date for Encounters'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('An onset/hospitalization date may be specified for each visit.')
+        ),
+
         'gbl_form_save_close' => array(
             xl('Display Save and Close Visit button in LBFs'),
             'bool',                           // data type
