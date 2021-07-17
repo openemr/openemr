@@ -38,9 +38,11 @@ class VitalsService extends BaseService
             'bps', 'bpd', 'weight', 'height', 'temperature', 'pulse', 'respiration', 'BMI', 'waist_circ', 'head_circ'
             , 'oxygen_saturation', 'oxygen_flow_rate', 'ped_weight_height', 'ped_bmi', 'ped_head_circ'
         ];
-        $namespacedMeasurementColumns = array_map(function($val) { return "vitals." . $val;}, $measurementColumns);
+        $namespacedMeasurementColumns = array_map(function ($val) {
+            return "vitals." . $val;
+        }, $measurementColumns);
 
-        $selectColumns = array_merge($namespacedMeasurementColumns, ['vitals.id', 'vitals.uuid', 'vitals.date','vitals.external_id', 'vitals.note']);
+        $selectColumns = array_merge($namespacedMeasurementColumns, []);
 
         $sqlSelect = "
                     SELECT patients.pid
@@ -48,6 +50,16 @@ class VitalsService extends BaseService
                     ,encounters.eid
                     ,encounters.euuid
                     ,users.user_uuid
+                    ,vitals.id
+                    ,forms.form_id
+                    ,vitals.uuid
+                    ,vitals.date
+                    ,vitals.external_id
+                    ,vitals.note
+                    ,details.details_id
+                    ,details.interpretation_codes
+                    ,details.interpretation_title
+                    ,details.vitals_column
                     ";
         $sqlFrom = "
                 FROM
@@ -94,39 +106,47 @@ class VitalsService extends BaseService
                         ,id AS uid
                         FROM users
                 ) users ON vitals.`user` = users.username
-        ";
-
-        $interpClauses = [];
-        foreach ($measurementColumns as $column)
-        {
-            // TODO: @adunsulag this is only temporary for us to test out the FHIR api and the UX flow on vitals form
-            $interpClauses[] = "LEFT JOIN (
-                select
-                           103 AS " . $column . "_form_id
-                           ,'LOINC:554-1' AS ". $column . "_codes
-                           ,0 AS ". $column . "_interpretation_id
-                           ,'A' AS ". $column . "_interpretation_code
-                           ,'Above Normal' AS ". $column . "_interpretation_text
+                LEFT JOIN
+                (
+                    SELECT
+                        form_id AS details_form_id
+                        ,id AS details_id
+                        ,interpretation_codes
+                        ,interpretation_title
+                        ,vitals_column
                     FROM
-                        dual
-                ) AS " . $column . "_interp ON vitals.id = " . $column . "_interp." . $column . "_form_id";
-            $selectColumns[] = $column . "_interp." . $column . "_interpretation_id";
-            $selectColumns[] = $column . "_interp." . $column . "_interpretation_code";
-            $selectColumns[] = $column . "_interp." . $column . "_interpretation_text";
-        }
+                        form_vital_details
+                ) details ON details.details_form_id = vitals.`id`
+        ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         $sqlSelect .= "," . implode(",", $selectColumns);
         // lets combine our columns, table selects, and the vitals interpretation clauses
-        $sql = $sqlSelect . $sqlFrom . implode(" ", $interpClauses) . " " . $whereClause->getFragment();
+        $sql = $sqlSelect . $sqlFrom
+            . " " . $whereClause->getFragment();
         $sql .= " ORDER BY encounter_date DESC, `date` DESC ";
 
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = new ProcessingResult();
+        $orderedRecords = [];
+        $recordsById = [];
         while ($row = sqlFetchArray($statementResults)) {
-            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-            $processingResult->addData($resultRecord);
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $details = isset($record['details']) ? array_pop($record['details']) : null;
+
+            if (!isset($recordsById[$row['form_id']])) {
+                $orderedRecords[] = $record['form_id'];
+                $recordsById[$row['form_id']] = $record;
+            }
+            if (!empty($details)) {
+                $existingRecord = &$recordsById[$row['form_id']];
+                $existingRecord["details"][$details['vitals_column']] = $details;
+            }
+        }
+        foreach ($orderedRecords as $formId) {
+            $existingRecord = $recordsById[$formId];
+            $processingResult->addData($existingRecord);
         }
         return $processingResult;
     }
@@ -139,20 +159,17 @@ class VitalsService extends BaseService
         // add in all the measurement fields
 
         $kgToLb = function ($val) {
-            if ($val !=0)
-            {
+            if ($val != 0) {
                 return MeasurementUtils::lbToKg($val);
             }
         };
         $inchesToCm = function ($val) {
-            if ($val !=0)
-            {
+            if ($val != 0) {
                 return MeasurementUtils::inchesToCm($val);
             }
         };
         $fhToCelsius = function ($val) {
-            if ($val !=0)
-            {
+            if ($val != 0) {
                 return MeasurementUtils::fhToCelsius($val);
             }
         };
@@ -192,6 +209,24 @@ class VitalsService extends BaseService
         $convertArrayValue('ped_head_circ', $identity, '%', $record);
 
 
+        $detailColumns = ['details_id', 'interpretation_codes', 'interpretation_title', 'vitals_column'];
+
+
+        // we only set the details record if we actually have a details
+        // we run the loop because we still need to clear out the columns that are null
+        $details = [];
+        foreach ($detailColumns as $column) {
+            $details[$column] = $record[$column] ?? null;
+            unset($record[$column]);
+        }
+        if (isset($details['details_id'])) {
+            // for anything ORM or active record (such as vitals form) we want the details to use the simplified id
+            // instead of the longer named value
+            $details['id'] = $details['details_id'];
+            unset($details['details_id']);
+            $record['details'] = [$details];
+        }
+
         return $record;
     }
 
@@ -218,13 +253,11 @@ class VitalsService extends BaseService
      */
     public function getVitalsHistoryForPatient($pid, $excludeVitalFormId)
     {
-        if (empty($pid))
-        {
+        if (empty($pid)) {
             throw new \InvalidArgumentException("patient pid is required");
         }
         $search = [];
-        if (isset($excludeVitalFormId))
-        {
+        if (isset($excludeVitalFormId)) {
             $search[] = new StringSearchField('id', $excludeVitalFormId, SearchModifier::NOT_EQUALS_EXACT);
         }
 
@@ -235,5 +268,20 @@ class VitalsService extends BaseService
 
         $results = $this->search($search);
         return $results->getData();
+    }
+
+    public function getVitalsForForm(int $form_id)
+    {
+        $search = [];
+        $search[] = new StringSearchField('id', $form_id, SearchModifier::EXACT);
+        $search[] = new StringSearchField('deleted', 0, SearchModifier::EXACT);
+        $search[] = new StringSearchField('formdir', 'vitals', SearchModifier::EXACT);
+        $results = $this->search($search);
+        $data = $results->getData();
+
+        if (!empty($data)) {
+            return $data[0];
+        }
+        return null;
     }
 }

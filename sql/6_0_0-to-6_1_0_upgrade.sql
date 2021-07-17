@@ -862,6 +862,36 @@ CREATE INDEX `abook_type` ON `users` (`abook_type`);
 ALTER TABLE `procedure_type` ADD INDEX `ptype_procedure_code`(`procedure_code`);
 #EndIf
 
+#IfNotTable form_vital_details
+CREATE TABLE `form_vital_details` (
+  `id` 	bigint(20) NOT NULL AUTO_INCREMENT,
+  `form_id` bigint(20) NOT NULL COMMENT 'FK to vital_forms.id',
+  `vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
+  `interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
+  `interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
+  `interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
+  `interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+  PRIMARY KEY (`id`),
+  KEY `fk_list_options_id` (`interpretation_list_id`,`interpretation_option_id`),
+  CONSTRAINT `fk_form_id` FOREIGN KEY (`form_id`)
+      REFERENCES `form_vitals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_list_options_id` FOREIGN KEY (`interpretation_list_id`, `interpretation_option_id`)
+      REFERENCES `list_options` (`list_id`, `option_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Detailed information of each vital_forms observation column';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id vitals-interpretation
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','vitals-interpretation','Observation Interpretation',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','N','Normal',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','H','High',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','L','Low',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','A','Abnormal',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','AA','Critical abnormal',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HH','Critical high',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
+#EndIf
 #IfMappingUuidNeedUpdate
 #EndIf
 

@@ -1,5 +1,8 @@
 <?php
 
+namespace OpenEMR\OEInterface\Forms\vitals;
+
+// TODO: @adunsulag check with @brady.miller Where are these 4 constants used?  Can they be removed I can't find them anywhere..
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
 define("EVENT_SLIP_FALL", 3);
@@ -7,7 +10,7 @@ define("EVENT_OTHER", 4);
 
 
 /**
- * class FormHpTjePrimary
+ * class FormVitals
  *
  */
 
@@ -24,6 +27,8 @@ class FormVitals extends ORDataObject
      * @access public
      */
     const TABLE_NAME = "form_vitals";
+
+    const LIST_OPTION_VITALS_INTERPRETATION = 'vitals-interpretation';
 
 
     /**
@@ -57,6 +62,11 @@ class FormVitals extends ORDataObject
     public $ped_head_circ;
     public $uuid;
 
+    /**
+     * @var FormVitalDetails[]
+     */
+    private $_vitals_details = [];
+
     // public $temp_methods;
     /**
      * Constructor sets all Form attributes to their default value
@@ -70,8 +80,6 @@ class FormVitals extends ORDataObject
         } else {
             $id = "";
             $this->date = $this->get_date();
-            $this->user = $_SESSION['authUser'];
-            $this->groupname = $_SESSION['authProvider'];
         }
 
         $this->_table = self::TABLE_NAME;
@@ -89,7 +97,7 @@ class FormVitals extends ORDataObject
 
     public function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
             . "ID: " . $this->id . "\n";
 
         if ($html) {
@@ -424,6 +432,20 @@ class FormVitals extends ORDataObject
             return UuidRegistry::uuidToString($this->uuid);
         }
     }
+
+    public function get_details_for_column($column)
+    {
+        if (isset($this->_vitals_details[$column])) {
+            return $this->_vitals_details[$column];
+        }
+        return null;
+    }
+
+    public function set_details_for_column($column, FormVitalDetails $details)
+    {
+        $this->_vitals_details[$column] = $details;
+    }
+
     public function persist()
     {
         if (empty($this->uuid)) {
@@ -431,15 +453,35 @@ class FormVitals extends ORDataObject
         }
         parent::persist();
 
-        $properties = get_object_vars($this);
-        // remove any private hidden vars defined in ORDataObject
-        $validKeys = array_filter(array_keys($properties), function($val) { $val[0] !== '_';});
-        $excludeColumns = ['uuid', 'user', 'groupname', 'activity', 'id'];
+        foreach ($this->_vitals_details as $item) {
+            $item->set_form_id($this->get_id());
+            $item->persist();
+        }
 
         $fhirVitalsService = new FhirObservationVitalsService();
         // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
 
         // TODO: @adunsulag look at making this into an event and our FHIR module listens to vital saves and can respond
         $fhirVitalsService->populateResourceMappingUuidsForAllVitals();
+    }
+
+    public function populate_array($results)
+    {
+        parent::populate_array($results);
+
+        // now let's setup our details objects
+        if (isset($results['details'])) {
+            foreach ($results['details'] as $column => $detail) {
+                $vitalsDetail = new FormVitalDetails();
+                $vitalsDetail->populate_array($detail);
+                $vitalsDetail->set_form_id($this->get_id());
+                $this->set_details_for_column($column, $vitalsDetail);
+            }
+        }
+    }
+
+    public function get_vital_details()
+    {
+        return array_values($this->_vitals_details);
     }
 }   // end of Form

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * vitals C_FormVitals.class.php
+ * vitals C_FormVitals.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -10,16 +10,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+namespace OpenEMR\OEInterface\Forms\vitals;
+
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
-require_once("FormVitals.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Common\Utils\MeasurementUtils;
+use Controller;
 
-class C_FormVitals extends Controller
+class FormVitalsController extends Controller
 {
+    /**
+     * @var FormVitals
+     */
+    public $vitals;
 
     var $template_dir;
     var $form_id;
@@ -32,10 +39,16 @@ class C_FormVitals extends Controller
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
 
+    /**
+     * @var array Hashmap of list option vital interpretations where the key is the option_id from list_options
+     */
+    private $interpretationsList = [];
+
     public function __construct($template_mod = "general")
     {
         parent::__construct();
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
+        $this->interpretationsList = $this->get_interpretation_list_options();
 
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
@@ -59,11 +72,18 @@ class C_FormVitals extends Controller
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
+    /**
+     * TODO: can this function be removed?
+     * @deprecated
+     * @return mixed
+     */
     public function default_action_old()
     {
         //$vitals = array();
         //array_push($vitals, new FormVitals());
         $vitals = new FormVitals();
+        $results = [];
+        $this->populate_session_user_information($vitals);
         $this->assign("vitals", $vitals);
         $this->assign("results", $results);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -76,13 +96,16 @@ class C_FormVitals extends Controller
 
     public function default_action()
     {
-
+        $vitalsService = new VitalsService();
         $form_id = $this->form_id;
 
+        $vitals = new FormVitals();
         if (is_numeric($form_id)) {
-            $vitals = new FormVitals($form_id);
+            // TODO: Do we want to throw an error if the form has been deleted or is empty?
+            $vitalsArray = $vitalsService->getVitalsForForm($form_id) ?? [];
+            $vitals->populate_array($vitalsArray);
         } else {
-            $vitals = new FormVitals();
+            $this->populate_session_user_information($vitals);
         }
 
         // get the patient's current age
@@ -97,7 +120,6 @@ class C_FormVitals extends Controller
             'waist_circ', 'head_circ', 'respiration', 'oxygen_saturation', 'oxygen_flow_rate', 'ped_weight_height'
             , 'ped_bmi', 'ped_head_circ'
         ];
-        $vitalsService = new VitalsService();
         // eventually we want this just to use the service search date but we will move this here.
         $records = $vitalsService->getVitalsHistoryForPatient($GLOBALS['pid'], $form_id);
 
@@ -108,12 +130,10 @@ class C_FormVitals extends Controller
             $results[$i]['date'] = $result['date'];
             $results[$i]['activity'] = $result['activity'];
             $results[$i]['note'] = $result['note'];
-            foreach ($vitalsColumn as $column)
-            {
+            foreach ($vitalsColumn as $column) {
                 $results[$i][$column] = $result[$column];
 
-                if (isset($result[$column . '_interpretation_id']))
-                {
+                if (isset($result[$column . '_interpretation_id'])) {
                     $results[$i][$column . '_intrepration_id'] = $result[$column . '_interpretation_id'];
                     $results[$i][$column . '_intrepration_code'] = $result[$column . '_interpretation_code'];
                     $results[$i][$column . '_intrepration_text'] = $result[$column . '_interpretation_text'];
@@ -129,7 +149,7 @@ class C_FormVitals extends Controller
         $this->assign("vitals", $vitals);
         $this->assign("results", ($results ?? null));
 
-        $this->assign('interpretation_options', $this->get_interpretation_list_options());
+        $this->assign('interpretation_options', $this->interpretationsList);
 
         $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -138,13 +158,27 @@ class C_FormVitals extends Controller
     private function get_interpretation_list_options()
     {
         $listService = new \OpenEMR\Services\ListService();
-        $options = $listService->getOptionsByListName('proc_res_abnormal');
-        return array_map(function($option) {
-            return [
+        $options = $listService->getOptionsByListName(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
+        $orderedList = [];
+        foreach ($options as $option) {
+            $item = [
                 'title' => $option['title']
                 ,'id' => $option['option_id']
+                ,'code' => $option['codes']
+                ,'is_default' => $option['is_default'] == '1'
             ];
-        }, $options);
+            $orderedList[] = $item;
+        }
+        return $orderedList;
+    }
+
+    private function get_interpretation_list_as_hash()
+    {
+        $hashList = [];
+        foreach ($this->interpretationsList as $option) {
+            $hashList[$option['id']] = $option;
+        }
+        return $hashList;
     }
 
     private function convertVitalsToCorrectMeasurementUnit(&$resultRow, $vitalsResult)
@@ -181,10 +215,12 @@ class C_FormVitals extends Controller
             if ($value > 0 || $value < 0) { // capture floats
                 // because the internal service converts all of the vitals to the correct format set in globals
                 // we have to undo the conversion if we are displaying the result sets.
-                if (isset($conversionLookup[$unit])
+                if (
+                    isset($conversionLookup[$unit])
                     &&
                     ($this->units_of_measurement == self::MEASUREMENT_PERSIST_IN_METRIC
-                    || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)) {
+                    || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)
+                ) {
                     $converter = $conversionLookup[$unit]['metric'];
                     $usa = MeasurementUtils::$converter($value);
                 } else {
@@ -211,6 +247,7 @@ class C_FormVitals extends Controller
             $_POST["BMI"] = ($weight / $height / $height) * 703;
         }
 
+        // TODO: this should go into the vitals form...
         if ($_POST["BMI"] > 42) {
             $_POST["BMI_status"] = 'Obesity III';
         } elseif ($_POST["BMI"] > 34) {
@@ -247,5 +284,58 @@ class C_FormVitals extends Controller
         }
 
         return;
+    }
+
+    public function populate_object(&$obj)
+    {
+        parent::populate_object($obj);
+
+        // handle all of the vital details that we need here.
+        $detailsToUpdate = array();
+        if (isset($_POST['interpretation'])) {
+            $interpretationList = $this->get_interpretation_list_as_hash();
+            // grab our default list options
+            foreach ($_POST['interpretation'] as $column => $value) {
+                $details = $this->vitals->get_details_for_column($column) ?? new FormVitalDetails();
+
+                // if we have nothing set and nothing saved we are going to leave these values as empty
+                if (empty($value) && empty($details->get_id())) {
+                    continue;
+                }
+
+                if (isset($interpretationList[$value])) {
+                    $interpretation = $interpretationList[$value];
+
+                    // we save off both the code and the text value here which duplicates the data.  However, since
+                    // users can edit the code / text values of these values through list_options we have to have
+                    // a historical record so we save these off
+                    // TODO: change this if list_options ever saves historical records and keeps the id uniquely the same
+                    // then we can remove code/text
+                    $details->set_interpretation_codes($value); // for now the option_id is the code
+                    $details->set_interpretation_title($interpretation['title']);
+                } else {
+                    (new SystemLogger())->error(
+                        "Passed in interpretation does not exist in list options, clearing interpretation id",
+                        ['form_id' => $this->vitals->get_id(), 'column' => $column, 'interpretation' => $value]
+                    );
+                    $details->clear_interpretation();
+                }
+
+                $details->set_interpretation_list_id(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
+                $details->set_interpretation_option_id($value);
+                $details->set_vitals_column($column);
+                $detailsToUpdate[$column] = $details;
+            }
+        }
+
+        foreach ($detailsToUpdate as $column => $details) {
+            $this->vitals->set_details_for_column($column, $details);
+        }
+    }
+
+    private function populate_session_user_information(FormVitals $vitals)
+    {
+        $vitals->set_groupname($_SESSION['authProvider']);
+        $vitals->set_user($_SESSION[$_SESSION['authUser']]);
     }
 }

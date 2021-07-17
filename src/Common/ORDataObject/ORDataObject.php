@@ -7,6 +7,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class ORDataObject
 {
     // any properties that are not database values here should be prefixed with an underscore( _ ) to preserve logic
@@ -15,8 +17,17 @@ class ORDataObject
     protected $_table;
     public $_db; // Need to be public so can access from C_Document class
 
-    public function __construct()
+    public function __construct($table = null, $prefix = null)
     {
+        // TODO: with testing we could probably remove the isset... but we will leave this here until there are more
+        // unit tests saying this doesn't break subclass constructors
+        if (isset($table)) {
+            $this->_table = $table;
+        }
+        if (isset($prefix)) {
+            $this->_prefix = $prefix;
+        }
+
         $this->_db = $GLOBALS['adodb']['db'];
     }
 
@@ -24,7 +35,7 @@ class ORDataObject
     {
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
-        $fields = sqlListFields($this->_table);
+        $fields = QueryUtils::listTableFields($this->_table);
         $db = get_db();
         $pkeys = $db->MetaPrimaryKeys($this->_table);
 
@@ -80,7 +91,7 @@ class ORDataObject
         }
     }
 
-    protected function populate_array($results)
+    public function populate_array($results)
     {
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {

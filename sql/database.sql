@@ -12574,3 +12574,18 @@ CREATE TABLE `export_job` (
   UNIQUE (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB COMMENT='fhir export jobs';
+
+CREATE TABLE `form_vital_details` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`form_id` int(11) NOT NULL COMMENT 'FK to vital_forms.id',
+`vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
+`interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
+`interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
+`interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
+`interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+PRIMARY KEY (`id`),
+KEY `vital_details_form` (`form_id`,`vitals_column`),
+KEY `fk_list_options_id` (`interpretation_list_id`,`interpretation_option_id`),
+CONSTRAINT `fk_list_options_id` FOREIGN KEY (`interpretation_list_id`, `interpretation_option_id`)
+REFERENCES `list_options` (`list_id`, `option_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Detailed information of each vital_forms observation column';

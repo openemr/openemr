@@ -28,10 +28,7 @@
                    onChange="convUnit('usa', '{$unit}','{$input}_input')" title='{xla t=$vitalsValueUSAHelpTitle|default:''}'/>
         </td>
     <td>
-        {if isset($interpretation)}
-            <!-- we only show the selector if this the only row being displayed -->
-            { include file='vitals_interpretation_selector.tpl' }
-        {/if}
+        { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
     {foreach item=result from=$results}
         <td class='historicalvalues'>
@@ -76,9 +73,9 @@
                    onChange="convUnit('metric', '{$unit}','{$input}_input')"/>
         </td>
         <td>
-            {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY && isset($interpretation)}
+            {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY }
                 <!-- we only show the selector if this the only row being displayed -->
-                { include file='vitals_interpretation_selector.tpl' }
+                { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
             {/if}
         </td>
     {foreach item=result from=$results}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NumberSearchField.php
  * @package openemr
@@ -10,10 +11,9 @@
 
 namespace OpenEMR\Services\Search;
 
-
 class NumberSearchField extends BasicSearchField
 {
-    public function __construct($field, $values, $searchModifier=null)
+    public function __construct($field, $values, $searchModifier = null)
     {
         parent::__construct($field, SearchFieldType::NUMBER, $field, $values, $searchModifier);
     }

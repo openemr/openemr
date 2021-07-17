@@ -14,6 +14,8 @@
 
 require_once("../../../library/api.inc");
 
+use OpenEMR\OEInterface\Forms\vitals\FormVitalsController;
+
 function addAppt($days, $time)
 {
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
@@ -23,7 +25,7 @@ function addAppt($days, $time)
 }
 function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 {
-//This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.php
+//This is based on code from /openemr/interface/forms/vitals/FormVitalsController.php
 //if it doesn't work, look there for changes.
     $_POST['process'] = 'true';
     $_POST['weight'] = $weight;
@@ -32,8 +34,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     $_POST['bpd'] = $diastolic;
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
-    require("../vitals/C_FormVitals.class.php");
-    $c = new C_FormVitals();
+    $c = new FormVitalsController();
     echo $c->default_action_process($_POST);
 }
 

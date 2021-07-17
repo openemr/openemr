@@ -166,52 +166,47 @@ function vitalsFormSubmitted() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {include file="vitals_textbox_conversion.tpl" title="Weight" input="weight"
+                                { include file="vitals_textbox_conversion.tpl" title="Weight" input="weight"
                                     vitalsValue=$vitals->get_weight() vitalsValueMetric=$vitals->get_weight_metric()
                                     unit="lbs" unitMetric="kg" vitalsStringFormat="%.2f"
-                                    vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"
-                                    interpretation="weight_interpretation"
-                                }
+                                    vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)" }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Height/Length" input="height"
-                                vitalsValue=$vitals->get_height() vitalsValueMetric=$vitals->get_height_metric() unit="in" unitMetric="cm" vitalsStringFormat="%.2f"
-                                interpretation="height_interpretation" }
+                                    vitalsValue=$vitals->get_height() vitalsValueMetric=$vitals->get_height_metric() unit="in"
+                                    unitMetric="cm" vitalsStringFormat="%.2f" }
 
-                                { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps" vitalsValue=$vitals->get_bps() interpretation="bps_interpretation" }
+                                { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps"
+                                    vitalsValue=$vitals->get_bps() }
 
-                                { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd" vitalsValue=$vitals->get_bpd() interpretation="bpd_interpretation" }
+                                { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd"
+                                    vitalsValue=$vitals->get_bpd() }
 
                                 { include file="vitals_textbox.tpl" title="Pulse" unit="per min" input="pulse"
-                                    vitalsValue=$vitals->get_pulse() vitalsStringFormat="%.0f"
-                                    interpretation="pulse_interpretation" }
+                                    vitalsValue=$vitals->get_pulse() vitalsStringFormat="%.0f" }
 
                                 { include file="vitals_textbox.tpl" title="Respiration" unit="per min"
-                                    input="respiration" vitalsValue=$vitals->get_respiration() vitalsStringFormat="%.0f"
-                                    interpretation="respiration_interpretation" }
+                                    input="respiration" vitalsValue=$vitals->get_respiration() vitalsStringFormat="%.0f" }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Temperature" input="temperature"
                                     vitalsValue=$vitals->get_temperature() vitalsValueMetric=$vitals->get_temperature_metric()
-                                    unit="F" unitMetric="C" vitalsStringFormat="%.2f" interpretation="temperatur_interpretation" }
+                                    unit="F" unitMetric="C" vitalsStringFormat="%.2f" }
 
                                 {include file='vitals_temp_method.tpl'}
 
                                 { include file="vitals_textbox.tpl" title="Oxygen Saturation" unit="%"
                                     input="oxygen_saturation" vitalsValue=$vitals->get_oxygen_saturation()
-                                    vitalsStringFormat="%.0f" interpretation="oxygen_saturation_interpretation" }
+                                    vitalsStringFormat="%.0f" }
 
                                 {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
-                                    input="oxygen_flow_rate" vitalsValue=$vitals->get_oxygen_flow_rate()
-                                    interpretation="oxygen_flow_rate_interpretation" }
+                                    input="oxygen_flow_rate" vitalsValue=$vitals->get_oxygen_flow_rate() }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
                                     vitalsValue=$vitals->get_head_circ() vitalsValueMetric=$vitals->get_head_circ_metric()
-                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
-                                    interpretation="head_circ_interpretation" }
+                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Waist Circumference" input="waist_circ"
                                     vitalsValue=$vitals->get_waist_circ() vitalsValueMetric=$vitals->get_waist_circ_metric()
                                     unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
-                                    interpretation="waist_circ_interpretation"
                                 }
 
                                     <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
@@ -236,20 +231,18 @@ function vitalsFormSubmitted() {
                                 {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                     {include file="vitals_textbox.tpl" title="Pediatric Weight Height Percentile"
                                         unit="%" input="ped_weight_height" vitalsValue=$vitals->get_ped_weight_height()
-                                        interpretation="ped_weight_height_interpretation"
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric BMI Percentile" unit="%"
-                                        input="ped_bmi" vitalsValue=$vitals->get_ped_bmi() interpretation="ped_bmi_interpretation"
+                                        input="ped_bmi" vitalsValue=$vitals->get_ped_bmi()
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric Head Circumference Percentile"
                                         unit="%" input="ped_head_circ" vitalsValue=$vitals->get_ped_head_circ()
-                                        interpretation="ped_head_circ_interpretation"
                                         hide=$hide_circumferences}
                                 {/if}
 
-                                {include file="vitals_textbox.tpl" title="Other Notes" unit="" input="note" vitalsValue=$vitals->get_note()}
+                                {include file="vitals_notes.tpl" title="Other Notes" unit="" input="note" vitalsValue=$vitals->get_note()}
                                     <tr><td>&nbsp;</td></tr>
 
                                     <tr>

@@ -56,7 +56,7 @@ class ListService
 
     public function getOptionsByListName($list_name, $search = array())
     {
-        $sql = "SELECT * FROM list_options WHERE list_id = ?";
+        $sql = "SELECT * FROM list_options WHERE list_id = ? ORDER BY `seq`";
         $binding = [$list_name];
 
 

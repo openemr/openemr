@@ -106,6 +106,7 @@
             "library/translation.inc.php"
         ],
         "psr-4": {
+            "OpenEMR\\OEInterface\\Forms\\": "interface/forms/",
             "OpenEMR\\": "src"
         }
     },

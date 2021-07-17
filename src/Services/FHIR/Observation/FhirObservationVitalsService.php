@@ -63,42 +63,42 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:9279-1'
             ,'code' => '9279-1'
             ,'description' => 'Respiratory Rate'
-            ,'column' => ['respiration', 'respiration_unit', 'respiration_interpretation_code', 'respiration_interpretation_text']
+            ,'column' => ['respiration', 'respiration_unit', 'respiration_interpretation_code', 'respiration_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'8867-4' => [
             'fullcode' => 'LOINC:8867-4'
             ,'code' => '8867-4'
             ,'description' => 'Heart rate'
-            ,'column' => ['pulse', 'pulse_unit', 'pulse_interpretation_code', 'pulse_interpretation_text']
+            ,'column' => ['pulse', 'pulse_unit', 'pulse_interpretation_code', 'pulse_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'2708-6' => [
             'fullcode' => 'LOINC:2708-6'
             ,'code' => '2708-6'
             ,'description' => 'Oxygen saturation in Arterial blood'
-            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_saturation_interpretation_code', 'oxygen_saturation_interpretation_text']
+            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_saturation_interpretation_code', 'oxygen_saturation_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'59408-5' => [
             'fullcode' => 'LOINC:59408-5',
             'code' => '59408-5',
             'description' => 'Oxygen saturation in Arterial blood by Pulse oximetry',
-            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', '_interpretation_code', '_interpretation_text'],
+            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', '_interpretation_code', '_interpretation_title'],
             'in_vitals_panel' => true
         ]
         ,'3151-8' => [
             'fullcode' => 'LOINC:3151-8'
             ,'code' => '3151-8',
             'description' => 'Inhaled oxygen flow rate',
-            'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit', 'oxygen_flow_rate_interpretation_code', 'oxygen_flow_rate_interpretation_text'],
+            'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit', 'oxygen_flow_rate_interpretation_code', 'oxygen_flow_rate_interpretation_title'],
             'in_vitals_panel' => true
         ]
         ,'8310-5' => [
             'fullcode' => 'LOINC:8310-5',
             'code' => '8310-5',
             'description' => 'Body Temperature',
-            'column' => ['temperature', 'temperature_unit', 'temperature_interpretation_code', 'temperature_interpretation_text'],
+            'column' => ['temperature', 'temperature_unit', 'temperature_interpretation_code', 'temperature_interpretation_title'],
             'in_vitals_panel' => true
         ]
         ,'8327-9' => [
@@ -112,28 +112,28 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:8302-2',
             'code' => '8302-2',
             'description' => 'Body height',
-            'column' => ['height', 'height_unit', 'height_interpretation_code', 'height_interpretation_text'],
+            'column' => ['height', 'height_unit', 'height_interpretation_code', 'height_interpretation_title'],
             'in_vitals_panel' => true
         ]
         ,'9843-4' => [
             'fullcode' => 'LOINC:9843-4'
             ,'code' => '9843-4'
             ,'description' => 'Head Occipital-frontal circumference'
-            ,'column' => ['head_circ', 'head_circ_unit', 'head_circ_interpretation_code', 'head_circ_interpretation_text']
+            ,'column' => ['head_circ', 'head_circ_unit', 'head_circ_interpretation_code', 'head_circ_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'29463-7' => [
             'fullcode' => 'LOINC:29463-7'
             ,'code' => '29463-7'
             ,'description' => 'Body weight'
-            ,'column' => ['weight', 'weight_unit', 'weight_interpretation_code', 'weight_interpretation_text']
+            ,'column' => ['weight', 'weight_unit', 'weight_interpretation_code', 'weight_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'39156-5' => [
             'fullcode' => 'LOINC:39156-5'
             ,'code' => '39156-5'
             ,'description' => 'Body mass index (BMI) [Ratio]'
-            ,'column' =>  ['BMI', 'BMI_status', 'BMI_unit', 'BMI_interpretation_code', 'BMI_interpretation_text']
+            ,'column' =>  ['BMI', 'BMI_status', 'BMI_unit', 'BMI_interpretation_code', 'BMI_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'85354-9' => [
@@ -142,7 +142,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'description' => 'Blood pressure systolic and diastolic'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit', 'bpd', 'bpd_unit', 'bps_interpretation_code'
-                , 'bps_interpretation_text', 'bpd_interpretation_code', 'bpd_interpretation_text']
+                , 'bps_interpretation_title', 'bpd_interpretation_code', 'bpd_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'8480-6' => [
@@ -150,7 +150,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'code' => '8480-6'
             ,'description' => 'Systolic blood pressure'
             // we hack this a bit to make it work by having our systolic and diastolic together
-            ,'column' => ['bps', 'bps_unit', 'bps_interpretation_code', 'bps_interpretation_text']
+            ,'column' => ['bps', 'bps_unit', 'bps_interpretation_code', 'bps_interpretation_title']
             ,'in_vitals_panel' => true
         ]
         ,'8462-4' => [
@@ -158,7 +158,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'code' => '8462-4'
             ,'description' => 'Diastolic blood pressure'
             // we hack this a bit to make it work by having our systolic and diastolic together
-            ,'column' => ['bpd', 'bpd_unit', 'bpd_interpretation_code', 'bpd_interpretation_text']
+            ,'column' => ['bpd', 'bpd_unit', 'bpd_interpretation_code', 'bpd_interpretation_title']
             ,'in_vitals_panel' => true
         ]
 
@@ -175,7 +175,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:8289-1'
             ,'code' => '8289-1'
             ,'description' => 'Head Occipital-frontal circumference Percentile'
-            ,'column' => ['ped_head_circ', 'ped_head_circ_unit', 'ped_head_circ_interpretation_code', 'ped_head_circ_interpretation_text']
+            ,'column' => ['ped_head_circ', 'ped_head_circ_unit', 'ped_head_circ_interpretation_code', 'ped_head_circ_interpretation_title']
             ,'in_vitals_panel' => false
         ]
         // 2-20yr @see https://www.cdc.gov/growthcharts/html_charts/bmiagerev.htm
@@ -183,7 +183,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:59576-9'
             ,'code' => '59576-9'
             ,'description' => 'Body mass index (BMI) [Percentile] Per age and sex'
-            ,'column' => ['ped_bmi', 'ped_bmi_unit', 'ped_bmi_interpretation_code', 'ped_bmi_interpretation_text']
+            ,'column' => ['ped_bmi', 'ped_bmi_unit', 'ped_bmi_interpretation_code', 'ped_bmi_interpretation_title']
             ,'in_vitals_panel' => false
         ]
         // @see https://www.cdc.gov/growthcharts/html_charts/wtstat.htm
@@ -195,7 +195,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:77606-2'
             ,'code' => '77606-2'
             ,'description' => 'Weight-for-length Per age and sex'
-            ,'column' => ['ped_weight_height', 'ped_weight_height_unit', 'ped_weight_height_interpretation_code', 'ped_weight_height_interpretation_text']
+            ,'column' => ['ped_weight_height', 'ped_weight_height_unit', 'ped_weight_height_interpretation_code', 'ped_weight_height_interpretation_title']
             ,'in_vitals_panel' => false
         ]
         // need pediatric weight for height observations...
@@ -379,6 +379,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ];
 
             $columns = $this->getColumnsForCode($code);
+            $columns[] = 'details'; // make sure to grab our detail columns
             // if any value of the column is populated we will return that the record has a value.
             foreach ($columns as $column) {
                 if (isset($record[$column]) && $record[$column] != "") {
@@ -608,12 +609,19 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
-        if (isset($record[$column . "_interpretation_code"]))
-        {
-            $code = $record[$column . "_interpretation_code"];
-            $text = $record[$column . "_interpretation_text"];
-            $observation->addInterpretation(UtilsService::createCodeableConcept([$code => $text], FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION));
+        if (isset($record['details'][$column])) {
+            $observation->addInterpretation($this->getInterpretationForColumn($record, $column));
         }
+    }
+
+    private function getInterpretationForColumn($record, $column): ?FHIRCodeableConcept
+    {
+        if (isset($record['details'][$column])) {
+            $code = $record['details'][$column]['interpretation_code'];
+            $text = $record['details'][$column]['interpretation_title'];
+            return UtilsService::createCodeableConcept([$code => $text], FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION);
+        }
+        return null;
     }
 
     private function getFHIRQuantityForColumn($column, $record)
@@ -670,11 +678,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         } else {
             $component->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
-        if (isset($dataRecord[$column . "_interpretation_code"]))
-        {
-            $code = $dataRecord[$column . "_interpretation_code"];
-            $text = $dataRecord[$column . "_interpretation_text"];
-            $component->addInterpretation(UtilsService::createCodeableConcept([$code => $text], FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION));
+        if (isset($dataRecord['details'][$column])) {
+            $component->addInterpretation($this->getInterpretationForColumn($dataRecord, $column));
         }
         $observation->addComponent($component);
     }

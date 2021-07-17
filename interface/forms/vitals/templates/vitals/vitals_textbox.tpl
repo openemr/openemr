@@ -17,9 +17,7 @@
 
     </td>
     <td>
-        {if isset($interpretation) }
-            { include file='vitals_interpretation_selector.tpl' }
-        {/if}
+        { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
 
     {foreach item=result from=$results}
