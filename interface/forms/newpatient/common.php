@@ -421,12 +421,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <div class="col-sm">
                             <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
                         </div>
-                        <div class="col-sm-2" <?php if ($GLOBALS['ippf_specific']) {
-                            echo " style='visibility:hidden;'";
-                                              } ?>>
+                        <div class="col-sm-2" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
                             <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
                             <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                         </div>
                     </div>
