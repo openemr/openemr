@@ -854,6 +854,13 @@ $GLOBALS_METADATA = array(
             xl('A referral source may be specified for each visit.')
         ),
 
+        'gbl_visit_onset_date' => array(
+            xl('Onset/Hosp Date for Encounters'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('An onset/hospitalization date may be specified for each visit.')
+        ),
+
         'gbl_mask_patient_id' => array(
             xl('Mask for Patient IDs'),
             'text',                           // data type
