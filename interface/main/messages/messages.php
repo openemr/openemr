@@ -49,6 +49,8 @@ if ($GLOBALS['medex_enable'] == '1') {
         exit();
     }
     $logged_in = $MedEx->login();
+} else {
+    $logged_in = '';
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -59,8 +61,8 @@ $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
 if (
-    ($_POST['setting_bootstrap_submenu']) ||
-    ($_POST['rcb_selectors'])
+    (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
+    (array_key_exists('rcb_selectors', $_POST))
 ) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
@@ -270,6 +272,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             <?php } ?>
                         </div>
                         <?php
+                        $noteid = '';
                         switch ($task) {
                             case "add":
                                 // Add a new message for a specific patient; the message is documented in Patient Notes.
@@ -958,8 +961,11 @@ if (!empty($_REQUEST['go'])) { ?>
             }
         };
         var PrintNote = function () {
+            <?php if ($noteid) { ?>
             top.restoreSession();
             window.open('../../patient_file/summary/pnotes_print.php?noteid=' + <?php echo js_url($noteid); ?>, '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+            <?php } ?>
+
         };
 
         var SaveNote = function () {
