@@ -18,7 +18,7 @@
 use Laminas\Console\Request as ConsoleRequest;
 
 //fetching controller name and action name from the SOAP request
-$urlArray = explode('/', $_SERVER['REQUEST_URI']);
+$urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
 $countUrlArray = count($urlArray);
 preg_match('/\/(\w*)\?/', $_SERVER['REQUEST_URI'], $matches);
 $actionName = $matches[1] ?? '';

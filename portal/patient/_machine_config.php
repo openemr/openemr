@@ -68,7 +68,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
-GlobalConfig::$WEB_ROOT = resolveHost();
+GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
 if ($GLOBALS['portal_onsite_two_basepath']) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
@@ -85,37 +85,4 @@ if ($GLOBALS['portal_onsite_two_basepath']) {
 // if you receive this error then either install multibyte extensions or set Multibyte to false
 if (GlobalConfig::$CONNECTION_SETTING->Multibyte && !function_exists('mb_strlen')) {
     die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
-}
-
-function resolveHost(): string
-{
-    if (!empty($GLOBALS['site_addr_oath'])) {
-        $host = rtrim(trim($GLOBALS['site_addr_oath']), "/");
-        return rtrim(trim($host . $GLOBALS['webroot']), "/");
-    }
-    $scheme = $_SERVER['REQUEST_SCHEME'] . "://";
-    $possibleHostSources = array('HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR');
-    $sourceTransformations = array(
-        "HTTP_X_FORWARDED_HOST" => function ($value) {
-            $elements = explode(',', $value);
-            return trim(end($elements));
-        }
-    );
-    $host = '';
-    foreach ($possibleHostSources as $source) {
-        if (!empty($host)) {
-            break;
-        }
-        if (empty($_SERVER[$source])) {
-            continue;
-        }
-        $host = $_SERVER[$source];
-        if (array_key_exists($source, $sourceTransformations)) {
-            $host = $sourceTransformations[$source]($host);
-        }
-    }
-    // remove port
-    $host = preg_replace('/:\d+$/', '', trim($host));
-
-    return rtrim(trim($scheme . $host . $GLOBALS['webroot']), "/");
 }

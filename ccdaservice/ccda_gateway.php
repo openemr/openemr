@@ -73,7 +73,7 @@ $parameterArray['recipient'] = 'patient'; // emr_direct or hie
 $parameterArray['site'] = $_SESSION ['site_id']; // set to an onsite portal user
 
 
-$server_url = resolveHost();
+$server_url = $GLOBALS['qualified_site_addr'];
 // CCM returns viewable CCD html file or
 // zip containing a CCDA.xml, CCDA.html and cda.xsl
 $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray, $dowhat);
@@ -87,7 +87,7 @@ if ($dowhat === 'dl') {
     echo $ccdaxml;
     exit;
 }
-
+// display to new tab opened in home
 echo($ccdaxml);
 
 exit;
@@ -116,7 +116,7 @@ function portalccdafetching($pid, $server_url, $parameterArray = [], $action = '
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=1'); // debug break on first line in public/index.php
+        //curl_setopt($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=1'); // debug break on first line in public/index.php
 
         $result = curl_exec($ch) or die(curl_error($ch));
         curl_close($ch);
@@ -125,37 +125,4 @@ function portalccdafetching($pid, $server_url, $parameterArray = [], $action = '
     }
 
     return $result;
-}
-
-function resolveHost(): string
-{
-    if (!empty($GLOBALS['site_addr_oath'])) {
-        $host = rtrim(trim($GLOBALS['site_addr_oath']), "/");
-        return rtrim(trim($host . $GLOBALS['webroot']), "/");
-    }
-    $scheme = $_SERVER['REQUEST_SCHEME'] . "://";
-    $possibleHostSources = array('HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR');
-    $sourceTransformations = array(
-        "HTTP_X_FORWARDED_HOST" => function ($value) {
-            $elements = explode(',', $value);
-            return trim(end($elements));
-        }
-    );
-    $host = '';
-    foreach ($possibleHostSources as $source) {
-        if (!empty($host)) {
-            break;
-        }
-        if (empty($_SERVER[$source])) {
-            continue;
-        }
-        $host = $_SERVER[$source];
-        if (array_key_exists($source, $sourceTransformations)) {
-            $host = $sourceTransformations[$source]($host);
-        }
-    }
-    // remove port
-    $host = preg_replace('/:\d+$/', '', trim($host));
-
-    return rtrim(trim($scheme . $host . $GLOBALS['webroot']), "/");
 }

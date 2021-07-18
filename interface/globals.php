@@ -21,6 +21,7 @@ if ($response !== true) {
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use Dotenv\Dotenv;
+use OpenEMR\Services\VersionService;
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -85,6 +86,31 @@ if (preg_match("/^[^\/]/", $web_root)) {
 //  set manually here:
 //   $webserver_root = "/var/www/openemr";
 //   $web_root =  "/openemr";
+
+$ResolveServerHost = static function () {
+    $scheme = $_SERVER['REQUEST_SCHEME'] . "://";
+    $possibleHostSources = array('HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR');
+    $sourceTransformations = array(
+        "HTTP_X_FORWARDED_HOST" => function ($value) {
+            $elements = explode(',', $value);
+            return trim(end($elements));
+        }
+    );
+    $host = '';
+    foreach ($possibleHostSources as $source) {
+        if (!empty($host)) {
+            break;
+        }
+        if (empty($_SERVER[$source])) {
+            continue;
+        }
+        $host = $_SERVER[$source];
+        if (array_key_exists($source, $sourceTransformations)) {
+            $host = $sourceTransformations[$source]($host);
+        }
+    }
+    return rtrim(trim($scheme . $host), "/");
+};
 
 // Debug function. Can expand for longer trace or file info.
 function GetCallingScriptName()
@@ -227,16 +253,29 @@ $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
 
 //  Check necessary writable paths (add them if do not exist)
 if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl')) {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl', 0755, true);
+    if (!mkdir($concurrentDirectory = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl', 0755, true) && !is_dir($concurrentDirectory)) {
+        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+    }
 }
 if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main')) {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main', 0755, true);
+    if (!mkdir($concurrentDirectory = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main', 0755, true) && !is_dir($concurrentDirectory)) {
+        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+    }
 }
 
 //  Set and check that necessary writeable path exist for mPDF tool
 $GLOBALS['MPDF_WRITE_DIR'] = $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp';
 if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
-    mkdir($GLOBALS['MPDF_WRITE_DIR'], 0755, true);
+    if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
+        throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+    }
+}
+
+if (empty($GLOBALS['site_addr_oath'])) {
+    $GLOBALS['site_addr_oath'] = $ResolveServerHost();
+}
+if (empty($GLOBALS['qualified_site_addr'])) {
+    $GLOBALS['qualified_site_addr'] = rtrim($GLOBALS['site_addr_oath'] . trim($GLOBALS['webroot']), "/");
 }
 
 // Includes composer autoload
@@ -525,8 +564,7 @@ $tmore = xl('(More)');
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
 
-$versionService = new \OpenEMR\Services\VersionService();
-$version = $versionService->fetch();
+$version = (new VersionService())->fetch();
 
 if (!empty($version)) {
     //Version tag

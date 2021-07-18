@@ -2976,7 +2976,7 @@ $GLOBALS_METADATA = array(
         'site_addr_oath' => array(
             xl('Site Address (required for OAuth2, FHIR and CCDA)'),
             'text',
-            'https://' . $_SERVER['HTTP_HOST'] . $GLOBALS['webroot'],
+            $ResolveServerHost(), // anonymous function in globals.php
             xl('Site Address (required for OAuth2, FHIR and CCDA). Example is') . ' https://localhost:8300 .'
         ),
 
