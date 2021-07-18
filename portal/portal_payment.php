@@ -24,11 +24,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
-    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    require_once(__DIR__ . "/../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    require_once(__DIR__ . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -125,13 +125,13 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
 
-    $sum_charges += $charges * 1;
-    $sum_ptpaid += $ptpaid * -1;
-    $sum_inspaid += $inspaid * -1;
-    $sum_duept += $duept * 1;
-    $sum_patcopay += $patcopay * 1;
-    $sum_copay += $copay * 1;
-    $sum_balance += $balance * 1;
+    $sum_charges += (float)$charges * 1;
+    $sum_ptpaid += (float)$ptpaid * -1;
+    $sum_inspaid += (float)$inspaid * -1;
+    $sum_duept += (float)$duept * 1;
+    $sum_patcopay += (float)$patcopay * 1;
+    $sum_copay += (float)$copay * 1;
+    $sum_balance += (float)$balance * 1;
 }
 
 // We use this to put dashes, colons, etc. back into a timestamp.

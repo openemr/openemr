@@ -19,9 +19,18 @@ var oidFacility = "";
 var all = "";
 var npiProvider = "";
 var npiFacility = "";
+var webRoot = "";
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
+    return s;
+}
+
+function cleanText(s) {
+    if (typeof s === 'string') {
+        s = s.replace(new RegExp('\r?\n','g'), '<br />');
+        return s.trim();
+    }
     return s;
 }
 
@@ -69,6 +78,9 @@ function templateDate(date, precision) {
 }
 
 function cleanCode(code) {
+    if (typeof code === 'undefined') {
+        return "";
+    }
     if (code.length < 2) {
         code = "";
         return code;
@@ -88,8 +100,10 @@ function isOne(who) {
 }
 
 function headReplace(content) {
-    var r = '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>\n';
-    r += content.substr(content.search(/<ClinicalDocument/i));
+    let xslUrl = "CDA.xsl";
+    let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
+        '<?xml-stylesheet type="text/xsl" href="' + xslUrl + '"?>';
+    r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
     return r;
 }
 
@@ -457,8 +471,8 @@ function populateMedication(pd) {
                 "code": pd.indications_code,
                 "code_system_name": "SNOMED CT"
             }
-        },*/
-        /*"dispense": {
+        },
+        "dispense": {
             "identifiers": [{
                 "identifier": "1.2.3.4.56789.1",
                 "extension": "cb734647-fc99-424c-a864-7e3cda82e704"
@@ -979,31 +993,6 @@ function getPlanOfCare(pd) {
     let one = true;
     let encounter;
 
-    for (let key in all.encounter_list.encounter) {
-        // skip loop if the property is from prototype
-        if (!all.encounter_list.encounter.hasOwnProperty(key)) {
-            continue;
-        }
-        encounter = all.encounter_list.encounter[key];
-        if (pd.encounter == encounter.encounter_id) {
-            one = false;
-            name = encounter.encounter_diagnosis.text;
-            code = cleanCode(encounter.encounter_diagnosis.code);
-            code_system_name = encounter.encounter_diagnosis.code_type;
-            status = encounter.encounter_diagnosis.status;
-            encounter = all.encounter_list.encounter[key]; // to be sure.
-            break;
-        }
-    }
-    if (one) {
-        let value = encounter.encounter_diagnosis;
-        name = value.text;
-        code = cleanCode(value.code);
-        code_system_name = value.code_type;
-        status = value.status;
-        encounter = encounter;
-    }
-
     let planType = "observation";
     switch (pd.care_plan_type) {
         case 'plan_of_care':
@@ -1037,6 +1026,31 @@ function getPlanOfCare(pd) {
         return false;
     }
 
+    for (let key in all.encounter_list.encounter) {
+        // skip loop if the property is from prototype
+        if (!all.encounter_list.encounter.hasOwnProperty(key)) {
+            continue;
+        }
+        encounter = all.encounter_list.encounter[key];
+        if (pd.encounter == encounter.encounter_id) {
+            one = false;
+            name = encounter.encounter_diagnosis.text;
+            code = cleanCode(encounter.encounter_diagnosis.code);
+            code_system_name = encounter.encounter_diagnosis.code_type;
+            status = encounter.encounter_diagnosis.status;
+            encounter = all.encounter_list.encounter[key]; // to be sure.
+            break;
+        }
+    }
+    if (one) {
+        let value = encounter.encounter_diagnosis || "";
+        name = value.text;
+        code = cleanCode(value.code);
+        code_system_name = value.code_type;
+        status = value.status;
+        encounter = encounter;
+    }
+
     return {
         "plan": {
             "name": pd.code_text || "",
@@ -1048,7 +1062,7 @@ function getPlanOfCare(pd) {
         }],
         "goal": {
             "code": cleanCode(pd.code) || "",
-            "name": pd.description || ""
+            "name": cleanText(pd.description) || ""
         },
         "date_time": {
             "point": {
@@ -1123,7 +1137,7 @@ function getPlanOfCare(pd) {
             "status": status,
             "reason": encounter.encounter_reason
         }],
-        "name": pd.description,
+        "name": cleanText(pd.description),
         "mood_code": pd.moodCode
     };
 }
@@ -1160,7 +1174,7 @@ function getFunctionalStatus(pd) {
         }],
         "observation": {
             "value": {
-                "name": pd.code_text !== "NULL" ? pd.code_text : "",
+                "name": pd.code_text !== "NULL" ? cleanText(pd.code_text) : "",
                 "code": cleanCode(pd.code) || "",
                 "code_system_name": pd.code_type || "SNOMED-CT"
             },
@@ -1188,7 +1202,7 @@ function getMentalStatus(pd) {
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
         }],
-        "note": pd.description,
+        "note": cleanText(pd.description),
         "date_time": {
             "low": templateDate(pd.date_formatted, "day")
             //"high": templateDate(pd.date, "day")
@@ -1198,7 +1212,7 @@ function getMentalStatus(pd) {
 
 function getAssessments(pd) {
     return {
-        "description": pd.description
+        "description": cleanText(pd.description)
     };
 }
 
@@ -1232,7 +1246,7 @@ function getHealthConcerns(pd) {
         }
     return {
         "type": "act",
-        "text": pd.text,
+        "text": cleanText(pd.text),
         "value": {
             "name": pd.code_text || "",
             "code": cleanCode(pd.code) || "",
@@ -1247,7 +1261,7 @@ function getHealthConcerns(pd) {
 
 function getReferralReason(pd) {
     return {
-        "reason": pd.text
+        "reason": cleanText(pd.text)
     };
 }
 
@@ -1704,7 +1718,7 @@ function populateHeader(pd) {
             "2.16.840.1.113883.10.20.22.1.1",
             "2.16.840.1.113883.10.20.22.1.2"
         ],
-        "title": "OpenEMR Transitions of Care : Consolidated CDA",
+        "title": "OpenEMR Transitions of Care",
         "date_time": {
             "date": pd.created_time_timezone,
             "precision": "none"
@@ -1997,6 +2011,7 @@ function genCcda(pd) {
     npiProvider = all.primary_care_provider.provider.npi;
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.3.8888.999999";
     npiFacility = all.encounter_provider.facility_npi;
+    webRoot = all.serverRoot;
 
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
@@ -2033,16 +2048,6 @@ function genCcda(pd) {
     } catch (e) {
         count = 0
     }
-    /*if (count > 1) {
-        for (let i in pd.history_physical.vitals_list.vitals) {
-            theone = populateVital(pd.history_physical.vitals_list.vitals[i]);
-            many.vitals.push.apply(many.vitals, theone);
-        }
-    } else if (count === 1) {
-        theone = populateVital(pd.history_physical.vitals_list.vitals);
-        many.vitals.push(theone);
-    }
-    data.vitals = Object.assign(many.vitals);*/
     if (count !== 0) {
         data.vitals = Object.assign(populateVital(pd.history_physical.vitals_list.vitals));
     }
@@ -2186,10 +2191,6 @@ function genCcda(pd) {
     if (count !== 0) {
         data.health_concerns = Object.assign(many.health_concerns);
     }
-// Results
-/*    if (pd.results) {
-        data.results = Object.assign(getResultSet(pd.results, pd)['results']);
-    }*/
 // Immunizations
     many = [];
     theone = {};

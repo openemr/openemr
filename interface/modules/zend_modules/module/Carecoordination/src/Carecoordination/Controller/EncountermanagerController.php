@@ -13,10 +13,14 @@
 
 namespace Carecoordination\Controller;
 
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\Filter\Compress\Zip;
 use Application\Listener\Listener;
+use DOMDocument;
+use Laminas\Filter\Compress\Zip;
+use Laminas\Hydrator\Exception\RuntimeException;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
+use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
 {
@@ -55,8 +59,8 @@ class EncountermanagerController extends AbstractActionController
         $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
 
-        $downloadccda       = $request->getPost('downloadccda') ? $request->getPost('downloadccda') : $request->getQuery()->downloadccda;
-        $latest_ccda    = $request->getPost('latestccda') ? $request->getPost('latestccda') : $this->getRequest()->getQuery('latest_ccda');
+        $downloadccda       = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
+        $latest_ccda    = $request->getPost('latestccda') ?: $this->getRequest()->getQuery('latest_ccda');
 
         if ($downloadccda == 'download_ccda') {
             $pids           = '';
@@ -69,7 +73,7 @@ class EncountermanagerController extends AbstractActionController
                 $combination     = $request->getPost('ccda_pid');
             }
 
-            for ($i = 0; $i < count($combination); $i++) {
+            for ($i = 0, $iMax = count($combination); $i < $iMax; $i++) {
                 if ($i == (count($combination) - 1)) {
                     if ($combination == $pid) {
                         $pids = $pid;
@@ -91,7 +95,7 @@ class EncountermanagerController extends AbstractActionController
                                                                   ));
         }
 
-        $params     = array(
+        $params = array(
                         'from_date'     => $fromDate,
                         'to_date'       => $toDate,
                         'pid'           => $pid,
@@ -134,13 +138,31 @@ class EncountermanagerController extends AbstractActionController
         return $index;
     }
 
+    public function buildCCDAHtml($content)
+    {
+        $xml = simplexml_load_string($content);
+        $xsl = new DOMDocument();
+        // cda.xsl is self contained with bootstrap and jquery.
+        // cda-web.xsl is used when referencing styles from internet.
+        $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
+        $proc = new XSLTProcessor();
+        $proc->importStyleSheet($xsl); // attach the xsl rules
+        $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
+        $proc->transformToURI($xml, $outputFile);
+
+        return file_get_contents($outputFile);
+    }
     public function downloadAction()
     {
         $id         = $this->getRequest()->getQuery('id');
         $dir        = sys_get_temp_dir() . "/CCDA_$id/";
         $filename   = "CCDA_$id.xml";
+        $filename_html = "CCDA_$id.html";
+
         if (!is_dir($dir)) {
-            mkdir($dir, true);
+            if (!mkdir($dir, true) && !is_dir($dir)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            }
             chmod($dir, 0777);
         }
 
@@ -151,8 +173,13 @@ class EncountermanagerController extends AbstractActionController
         $f          = fopen($dir . $filename, "w");
         fwrite($f, $content);
         fclose($f);
+        // html version for viewing
+        $content = $this->buildCCDAHtml($content);
+        $f = fopen($dir . $filename_html, "w");
+        fwrite($f, $content);
+        fclose($f);
 
-        copy(dirname(__FILE__) . "/../../../../../public/css/CDA.xsl", $dir . "CDA.xsl");
+        copy(__DIR__ . "/../../../../../public/xsl/cda.xsl", $dir . "CDA.xsl");
 
         $zip = new Zip();
         $zip->setArchive($zip_dir . $zip_name);
@@ -177,7 +204,9 @@ class EncountermanagerController extends AbstractActionController
             $zip        = new Zip();
             $parent_dir = sys_get_temp_dir() . "/CCDA_" . time();
             if (!is_dir($parent_dir)) {
-                mkdir($parent_dir, true);
+                if (!mkdir($parent_dir, true) && !is_dir($parent_dir)) {
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $parent_dir));
+                }
                 chmod($parent_dir, 0777);
             }
 
@@ -188,16 +217,24 @@ class EncountermanagerController extends AbstractActionController
                 $id       = $row['id'];
                 $dir      = $parent_dir . "/CCDA_{$row['lname']}_{$row['fname']}/";
                 $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
+                $filename_html = "CCDA_{$row['lname']}_{$row['fname']}.html";
                 if (!is_dir($dir)) {
-                    mkdir($dir, true);
+                    if (!mkdir($dir, true) && !is_dir($dir)) {
+                        throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
+                    }
                     chmod($dir, 0777);
                 }
-
+                // xml version for parsing or transfer.
                 $content = $this->getEncountermanagerTable()->getFile($id);
                 $f2      = fopen($dir . $filename, "w");
                 fwrite($f2, $content);
                 fclose($f2);
-                copy(dirname(__FILE__) . "/../../../../../public/css/CDA.xsl", $dir . "CDA.xsl");
+                // html version for viewing
+                $content = $this->buildCCDAHtml($content);
+                $f2      = fopen($dir . $filename_html, "w");
+                fwrite($f2, $content);
+                fclose($f2);
+                copy(__DIR__ . "/../../../../../public/xsl/cda.xsl", $dir . "CDA.xsl");
             }
 
             $zip_dir  = sys_get_temp_dir() . "/";
@@ -218,7 +255,7 @@ class EncountermanagerController extends AbstractActionController
             return $view;
         } else {
         // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
-            $view = new \Laminas\View\Model\JsonModel();
+            $view = new JsonModel();
             $view->setTerminal(true);
             return $view;
         }

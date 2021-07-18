@@ -28,15 +28,7 @@ exports.healthConcernObservation = {
                 codeSystemName: "LOINC",
                 displayName: "Health Status"
             },
-        }, /*{
-            key: "originalText",
-            content: {
-                key: "reference",
-                attributes: {
-                    "value": leafLevel.nextReference("concerns")
-                }
-            }
-        },*/
+        },
         fieldLevel.statusCodeCompleted, {
             key: "value",
             attributes: [
@@ -136,15 +128,7 @@ exports.planOfCareActivityObservation = {
             key: "code",
             attributes: leafLevel.code,
             dataKey: "plan"
-        }, /*{
-            key: "originalText",
-            content: {
-                key: "reference",
-                attributes: {
-                    "value": leafLevel.nextReference("treatment_plan")
-                }
-            }
-        },*/
+        },
         fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime
     ],

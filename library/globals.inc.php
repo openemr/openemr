@@ -2974,10 +2974,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for OAuth2 and FHIR)'),
+            xl('Site Address (required for OAuth2, FHIR and CCDA)'),
             'text',
-            '',
-            xl('Site Address (required for OAuth2 and FHIR). Example is') . ' https://localhost:8300 .'
+            'https://' . $_SERVER['HTTP_HOST'] . $GLOBALS['webroot'],
+            xl('Site Address (required for OAuth2, FHIR and CCDA). Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(
