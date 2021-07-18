@@ -325,7 +325,7 @@ function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
     if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
-        if (strlen($pi[0]["suffix"]) > 0) {
+        if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
 

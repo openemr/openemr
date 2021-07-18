@@ -217,7 +217,7 @@ function echoServiceLines()
                 }
             }
             if (modifiers_are_used(true)) {
-                if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
+                if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
                        "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
@@ -227,7 +227,7 @@ function echoServiceLines()
             }
 
             if (fees_are_used()) {
-                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || !empty($fee)) {
+                if ($codetype == 'COPAY' || !empty($code_types[$codetype]['fee']) || !empty($fee)) {
                     if ($price_levels_are_used) {
                         echo "  <td class='billcell text-center'>";
                         echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
