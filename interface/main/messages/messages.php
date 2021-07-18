@@ -565,7 +565,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 </div>
                             </form>
                             <?php
-                        } else {                           
+                        } else {
                             for ($i = 0; $i < count($sort); $i++) {
                                 $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                             }
