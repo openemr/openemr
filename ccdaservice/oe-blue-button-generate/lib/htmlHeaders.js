@@ -186,6 +186,10 @@ exports.problemsSectionEntriesRequiredHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -194,7 +198,7 @@ exports.problemsSectionEntriesRequiredHtmlHeader = {
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Condition', 'Status'];
+                        return ['Concern', 'Last Observation', 'Reported'];
                     }
                 }]
             }]
@@ -213,7 +217,10 @@ exports.problemsSectionEntriesRequiredHtmlHeader = {
                     attributes: {
                         ID: leafLevel.nextTableReference("healthStatus")
                     },
-                    text: leafLevel.deepInputProperty("problem.severity.code.name", nda)
+                    text: leafLevel.deepInputProperty("patient_status", nda)
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("problem.date_time.low", nda)
                 }]
             }],
             dataKey: 'problems'
@@ -228,6 +235,10 @@ exports.proceduresSectionEntriesRequiredHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -258,10 +269,10 @@ exports.proceduresSectionEntriesRequiredHtmlHeader = {
                     text: leafLevel.deepInputDate("date_time.point", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("performer.0.organization.0.name.0", nda)
+                    text: leafLevel.deepInputProperty("performers.0.organization.0.name.0", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("performer.0.organization.0.phone.0.value.number", nda)
+                    text: leafLevel.deepInputProperty("performers.0.organization.0.phone.0.number", nda)
                 }]
             }],
             dataKey: 'procedures'
@@ -275,6 +286,10 @@ exports.resultsSectionEntriesRequiredHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -335,6 +350,10 @@ exports.encountersSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -394,6 +413,10 @@ exports.immunizationsSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -435,6 +458,10 @@ exports.payersSectionHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -487,6 +514,10 @@ exports.planOfCareSectionHtmlHeader = {
     existsWhen: condition.keyExists("plan_of_care"),
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -530,6 +561,10 @@ exports.goalSectionHtmlHeader = {
     existsWhen: condition.keyExists("goals"),
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -570,6 +605,10 @@ exports.socialHistorySectionHtmlHeader = {key: "text",
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -611,6 +650,10 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{

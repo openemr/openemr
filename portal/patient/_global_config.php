@@ -55,6 +55,9 @@ class GlobalConfig
     /** @var root url of the application */
     public static $ROOT_URL;
 
+    /** @var root url of the application */
+    public static $WEB_ROOT;
+
     /** @var ConnectionSetting object containing settings for the DB connection **/
     public static $CONNECTION_SETTING;
 

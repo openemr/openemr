@@ -19,6 +19,7 @@ var oidFacility = "";
 var all = "";
 var npiProvider = "";
 var npiFacility = "";
+var webRoot = "";
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
@@ -77,6 +78,9 @@ function templateDate(date, precision) {
 }
 
 function cleanCode(code) {
+    if (typeof code === 'undefined') {
+        return "";
+    }
     if (code.length < 2) {
         code = "";
         return code;
@@ -96,9 +100,11 @@ function isOne(who) {
 }
 
 function headReplace(content) {
-    let r = '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="cda-web.xsl"?>';
+    let xslUrl = "CDA.xsl";
+    let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
+        '<?xml-stylesheet type="text/xsl" href="' + xslUrl + '"?>';
     r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
-    return content;
+    return r;
 }
 
 function populateDemographic(pd, g) {
@@ -2005,6 +2011,7 @@ function genCcda(pd) {
     npiProvider = all.primary_care_provider.provider.npi;
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.3.8888.999999";
     npiFacility = all.encounter_provider.facility_npi;
+    webRoot = all.serverRoot;
 
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);

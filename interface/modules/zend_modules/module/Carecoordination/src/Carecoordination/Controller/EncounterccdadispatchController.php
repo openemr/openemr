@@ -51,8 +51,7 @@ class EncounterccdadispatchController extends AbstractActionController
     public function __construct(
         EncounterccdadispatchTable $encounterccdadispatchTable
     ) {
-
-        $this->listenerObject   = new Listener();
+        $this->listenerObject = new Listener();
         $this->encounterccdadispatchTable = $encounterccdadispatchTable;
     }
 
@@ -86,10 +85,19 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->components       = $this->getRequest()->getQuery('components') ?: $this->params('components');
         $downloadccda           = $this->params('downloadccda');
         $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
-        $hie_hook     = $this->getRequest()->getQuery('hiehook') || 0;
-        if ($downloadccda == 'download_ccda') {
+        $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
+        if ($downloadccda === 'download_ccda') {
             $combination      = $this->params('pids');
             $view             = $this->params('view');
+        }
+        if ($_POST['sent_by_app'] === 'portal') {
+            $downloadccda = $this->getRequest()->getPost('downloadccda');
+            if ($downloadccda === 'download_ccda') {
+                $combination      = $this->getRequest()->getPost('combination');
+                $view             = $this->getRequest()->getPost('view');
+                $this->latest_ccda      = $this->getRequest()->getPost('latest_ccda');
+                $this->components       = $this->getRequest()->getPost('components');
+            }
         }
 
         if ($sent_by != '') {
@@ -168,7 +176,8 @@ class EncounterccdadispatchController extends AbstractActionController
             }
 
             if ($downloadccda) {
-                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $this->params('pids')));
+                $pids = $this->params('pids') ?? $combination;
+                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
             } else {
                 die;
             }
@@ -185,6 +194,10 @@ class EncounterccdadispatchController extends AbstractActionController
 
         try {
             ob_clean();
+            if ($_POST['sent_by_app'] === 'portal') {
+                echo $content;
+                exit;
+            }
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
             header("Content-Disposition: attachment; filename=" . $practice_filename);
@@ -281,6 +294,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $components_list = explode('|', $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
+        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
@@ -625,10 +639,9 @@ class EncounterccdadispatchController extends AbstractActionController
             $result = $this->getEncounterccdadispatchTable()->signOff($row['pid'], $row['encounter']);
         }
 
-        $view               =  new ViewModel(array(
-            'encounter'     => $result,
-        'listenerObject' => $this->listenerObject,
-        ));
+        $view = new ViewModel(
+            array('encounter' => $result, 'listenerObject' => $this->listenerObject)
+        );
         $view->setTerminal(true);
         return $view;
     }
