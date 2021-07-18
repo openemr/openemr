@@ -272,7 +272,12 @@ if (!empty($_REQUEST['go'])) { ?>
                             <?php } ?>
                         </div>
                         <?php
+                        $note = '';
                         $noteid = '';
+                        $title = '';
+                        $form_message_status = '';
+                        $reply_to = '';
+                        $patientname = '';
                         switch ($task) {
                             case "add":
                                 // Add a new message for a specific patient; the message is documented in Patient Notes.
@@ -354,6 +359,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                                 break;
                         }
+                        // This is for sorting the records.
+                        $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+                        $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
+                        $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
+                        $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+
                         if ($task == "addnew" or $task == "edit") {
                             // Display the Messages page layout.
                             echo "<form name='form_patient' id='new_note'
@@ -554,13 +565,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 </div>
                             </form>
                             <?php
-                        } else {
-                            // This is for sorting the records.
-                            $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
-                            $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
-                            $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
-                            $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
-
+                        } else {                           
                             for ($i = 0; $i < count($sort); $i++) {
                                 $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                             }
