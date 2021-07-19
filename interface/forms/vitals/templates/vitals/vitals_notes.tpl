@@ -13,8 +13,8 @@
     </td>
     {foreach item=result from=$results}
         <td  class='historicalvalues'>
-            {if $result[$input] != 0}
-                {$result[$input]|text}
+            {if $result->get_note() != 0}
+                {$result->get_note()|text}
             {/if}
         </td>
     {/foreach}

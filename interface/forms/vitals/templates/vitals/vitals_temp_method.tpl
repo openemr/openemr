@@ -7,6 +7,5 @@
             <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xlt t="Temporal Artery"}
         </select></td>
     <td></td>
-    {foreach item=result from=$results}
-        <td class='historicalvalues'>{if $result.temp_method}{xlt t=$result.temp_method}{/if}</td>
-    {/foreach}</tr>
+
+    { include file='vitals_historical_values.tpl' useMetric=false vitalsValue="get_temp_method" results=$results }

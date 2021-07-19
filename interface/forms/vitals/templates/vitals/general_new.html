@@ -161,51 +161,52 @@ function vitalsFormSubmitted() {
                                     </th>
                                     <th>{xlt t="Abn"}</th>
                                     {foreach item=result from=$results}
-                                        <th class='historicalvalues'>{$result.date|date_format:"%Y-%m-%d %H:%M"|text}</th>
+                                        <th class='historicalvalues'>{$result->get_date()|date_format:"%Y-%m-%d %H:%M"|text}</th>
                                     {/foreach}
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- TODO: we could pull much of each individual metric into the controller and have the templates driven by configuration would that be easier to understand? -->
                                 { include file="vitals_textbox_conversion.tpl" title="Weight" input="weight"
-                                    vitalsValue=$vitals->get_weight() vitalsValueMetric=$vitals->get_weight_metric()
+                                    vitals=$vitals vitalsValue="get_weight" vitalsValueMetric="get_weight_metric"
                                     unit="lbs" unitMetric="kg" vitalsStringFormat="%.2f"
                                     vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)" }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Height/Length" input="height"
-                                    vitalsValue=$vitals->get_height() vitalsValueMetric=$vitals->get_height_metric() unit="in"
+                                    vitalsValue="get_height" vitalsValueMetric="get_height_metric" unit="in"
                                     unitMetric="cm" vitalsStringFormat="%.2f" }
 
                                 { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps"
-                                    vitalsValue=$vitals->get_bps() }
+                                    vitals=$vitals vitalsValue="get_bps" }
 
                                 { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd"
-                                    vitalsValue=$vitals->get_bpd() }
+                                    vitals=$vitals vitalsValue="get_bpd" }
 
                                 { include file="vitals_textbox.tpl" title="Pulse" unit="per min" input="pulse"
-                                    vitalsValue=$vitals->get_pulse() vitalsStringFormat="%.0f" }
+                                    vitals=$vitals vitalsValue="get_pulse" vitalsStringFormat="%.0f" }
 
                                 { include file="vitals_textbox.tpl" title="Respiration" unit="per min"
-                                    input="respiration" vitalsValue=$vitals->get_respiration() vitalsStringFormat="%.0f" }
+                                    input="respiration" vitals=$vitals vitalsValue="get_respiration" vitalsStringFormat="%.0f" }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Temperature" input="temperature"
-                                    vitalsValue=$vitals->get_temperature() vitalsValueMetric=$vitals->get_temperature_metric()
+                                    vitals=$vitals vitalsValue="get_temperature" vitalsValueMetric="get_temperature_metric"
                                     unit="F" unitMetric="C" vitalsStringFormat="%.2f" }
 
                                 {include file='vitals_temp_method.tpl'}
 
                                 { include file="vitals_textbox.tpl" title="Oxygen Saturation" unit="%"
-                                    input="oxygen_saturation" vitalsValue=$vitals->get_oxygen_saturation()
+                                    input="oxygen_saturation" vitals=$vitals vitalsValue="get_oxygen_saturation"
                                     vitalsStringFormat="%.0f" }
 
                                 {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
-                                    input="oxygen_flow_rate" vitalsValue=$vitals->get_oxygen_flow_rate() }
+                                    input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate" }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
-                                    vitalsValue=$vitals->get_head_circ() vitalsValueMetric=$vitals->get_head_circ_metric()
+                                    vitals=$vitals vitalsValue="get_head_circ" vitalsValueMetric="get_head_circ_metric"
                                     unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Waist Circumference" input="waist_circ"
-                                    vitalsValue=$vitals->get_waist_circ() vitalsValueMetric=$vitals->get_waist_circ_metric()
+                                    vitals=$vitals vitalsValue="get_waist_circ" vitalsValueMetric="get_waist_circ_metric"
                                     unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
                                 }
 
@@ -213,9 +214,8 @@ function vitalsFormSubmitted() {
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
                                             name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
                                         <td></td>
-                                        {foreach item=result from=$results}
-                                            <td class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5|text}{/if}</td>
-                                        {/foreach}
+                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
+                                            vitalsValue='get_BMI' results=$results }
                                     </tr>
 
                                     <tr>
@@ -223,22 +223,22 @@ function vitalsFormSubmitted() {
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='20'
                                         name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()|attr}"/></td>
                                         <td></td>
-                                        {foreach item=result from=$results}
-                                        <td  class='historicalvalues'>{if $result.BMI_status}{xlt t=$result.BMI_status}{/if}</td>
-                                        {/foreach}
+                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
+                                        vitalsValue='get_BMI_status' results=$results }
                                     </tr>
 
                                 {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                     {include file="vitals_textbox.tpl" title="Pediatric Weight Height Percentile"
-                                        unit="%" input="ped_weight_height" vitalsValue=$vitals->get_ped_weight_height()
+                                        unit="%" input="ped_weight_height"
+                                        vitals=$vitals vitalsValue="get_ped_weight_height"
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric BMI Percentile" unit="%"
-                                        input="ped_bmi" vitalsValue=$vitals->get_ped_bmi()
+                                        input="ped_bmi" vitals=$vitals vitalsValue="get_ped_bmi"
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric Head Circumference Percentile"
-                                        unit="%" input="ped_head_circ" vitalsValue=$vitals->get_ped_head_circ()
+                                        unit="%" input="ped_head_circ" vitals=$vitals vitalsValue="get_ped_head_circ"
                                         hide=$hide_circumferences}
                                 {/if}
 
@@ -284,7 +284,7 @@ var vitals = new Array();
 vitals[0] = formdate + '-' + {$vitals->get_height()|js_escape} + '-' + {$vitals->get_weight()|js_escape} + '-' + {$vitals->get_head_circ()|js_escape};
 // historic values
 {foreach item=result from=$results}
-vitals[vitals.length] = {$result.date|date_format:"%Y%m%d"|js_escape} + '-' + {$result.height.usa|js_escape} + '-' + {$result.weight.usa|js_escape} + '-' + {$result.head_circ.usa|js_escape};
+vitals[vitals.length] = {$result->get_date()|date_format:"%Y%m%d"|js_escape} + '-' + {$result->get_height()|js_escape} + '-' + {$result->get_weight()|js_escape} + '-' + {$result->get_head_circ()|js_escape};
 {/foreach}
 var patientAge= {$patient_age|js_escape};
 var patient_dob= {$patient_dob|js_escape};

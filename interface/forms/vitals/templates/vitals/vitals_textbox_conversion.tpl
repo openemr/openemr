@@ -24,23 +24,14 @@
         <td class='currentvalues p-2'>
     {/if}
             <input type="text" class="form-control" size='5' name='{$input}' id='{$input}_input'
-                   value="{if $vitalsValue != 0}{$vitalsValue|attr}{/if}"
+                   value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"
                    onChange="convUnit('usa', '{$unit}','{$input}_input')" title='{xla t=$vitalsValueUSAHelpTitle|default:''}'/>
         </td>
     <td>
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
-    {foreach item=result from=$results}
-        <td class='historicalvalues'>
-            {if $result[$input].usa != 0}
-                {if isset($vitalsStringFormat) }
-                    {$result[$input].usa|string_format:$vitalsStringFormat|text}
-                {else}
-                    {$result[$input].usa|text}
-                {/if}
-            {/if}
-        </td>
-    {/foreach}
+    { include file='vitals_historical_values.tpl' useMetric=false vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
+            results=$results }
     </tr>
 
 <!-- Metric row comes second -->
@@ -69,7 +60,7 @@
         <td class='currentvalues p-2'>
     {/if}
             <input type="text" class="form-control" size='5' id='{$input}_input_metric'
-                   value="{if $vitalsValue != 0}{$vitalsValueMetric|attr}{/if}"
+                   value="{if $vitals->$vitalsValueMetric() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
                    onChange="convUnit('metric', '{$unit}','{$input}_input')"/>
         </td>
         <td>
@@ -78,15 +69,6 @@
                 { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
             {/if}
         </td>
-    {foreach item=result from=$results}
-        <td class='historicalvalues'>
-            {if $result[$input].metric != 0}
-                {if isset($vitalsStringFormat) }
-                    {$result[$input].metric|string_format:$vitalsStringFormat|text}
-                {else}
-                    {$result[$input].metric|text}
-                {/if}
-            {/if}
-        </td>
-    {/foreach}
+        { include file='vitals_historical_values.tpl' useMetric=true vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
+        results=$results }
     </tr>

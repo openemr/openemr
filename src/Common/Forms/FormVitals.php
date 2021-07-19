@@ -1,19 +1,21 @@
 <?php
+/**
+ * FormVitals.php
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-namespace OpenEMR\OEInterface\Forms\vitals;
-
-// TODO: @adunsulag check with @brady.miller Where are these 4 constants used?  Can they be removed I can't find them anywhere..
-define("EVENT_VEHICLE", 1);
-define("EVENT_WORK_RELATED", 2);
-define("EVENT_SLIP_FALL", 3);
-define("EVENT_OTHER", 4);
-
-
+namespace OpenEMR\Common\Forms;
 /**
  * class FormVitals
  *
  */
 
+use OpenEMR\OEInterface\Forms\vitals\binary;
+use OpenEMR\OEInterface\Forms\vitals\FormVitalDetails;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -298,6 +300,11 @@ class FormVitals extends ORDataObject
     public function get_BMI()
     {
         return $this->BMI;
+    }
+
+    public function get_BMI_short()
+    {
+
     }
     public function set_BMI($bmi)
     {

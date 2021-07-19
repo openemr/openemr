@@ -24,26 +24,45 @@ use OpenEMR\Validators\ProcessingResult;
 
 class VitalsService extends BaseService
 {
+    const MEASUREMENT_METRIC_ONLY = 4;
+    const MEASUREMENT_USA_ONLY = 3;
+    const MEASUREMENT_PERSIST_IN_METRIC = 2;
+    const MEASUREMENT_PERSIST_IN_USA = 1;
+
     private const TABLE_VITALS = "form_vitals";
 
-    public function __construct()
+    /**
+     * @var boolean whether vital measurement for records retrieved should be converted based upon global settings.
+     */
+    private $shouldConvertVitalMeasurements;
+
+    public function __construct(?int $units_of_measurement = null)
     {
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
+        $this->shouldConvertVitalMeasurements = true;
+        if (isset($units_of_measurement))
+        {
+            $this->units_of_measurement = $units_of_measurement;
+        } else {
+            $this->units_of_measurement = $GLOBALS['units_of_measurement'];
+        }
+    }
+
+    /**
+     * Sets whether the vital measurement records returned should be converted to metric / usa format based on the
+     * current unit of measurements setting in the service (either the global flag or what the service was initially created
+     * with).
+     * @param bool $shouldConvert True if the measurements should be converted, false if they should be disabled.
+     */
+    public function setShouldConvertVitalMeasurementsFlag(bool $shouldConvert)
+    {
+        $this->shouldConvertVitalMeasurements = $shouldConvert;
     }
 
     public function search($search, $isAndCondition = true)
     {
-        $measurementColumns = [
-            'bps', 'bpd', 'weight', 'height', 'temperature', 'pulse', 'respiration', 'BMI', 'waist_circ', 'head_circ'
-            , 'oxygen_saturation', 'oxygen_flow_rate', 'ped_weight_height', 'ped_bmi', 'ped_head_circ'
-        ];
-        $namespacedMeasurementColumns = array_map(function ($val) {
-            return "vitals." . $val;
-        }, $measurementColumns);
-
-        $selectColumns = array_merge($namespacedMeasurementColumns, []);
-
+        // TODO: @adunsulag clean this up because we aren't using the detail columns anymore.
         $sqlSelect = "
                     SELECT patients.pid
                     ,patients.puuid
@@ -56,14 +75,28 @@ class VitalsService extends BaseService
                     ,vitals.date
                     ,vitals.external_id
                     ,vitals.note
+                    ,vitals.bps
+                    ,vitals.bpd
+                    ,vitals.weight
+                    ,vitals.height
+                    ,vitals.temperature
+                    ,vitals.temp_method
+                    ,vitals.pulse
+                    ,vitals.respiration
+                    ,vitals.BMI
+                    ,vitals.BMI_status
+                    ,vitals.waist_circ
+                    ,vitals.head_circ
+                    ,vitals.oxygen_saturation
+                    ,vitals.oxygen_flow_rate
+                    ,vitals.ped_weight_height
+                    ,vitals.ped_bmi
+                    ,vitals.ped_head_circ
                     ,details.details_id
                     ,details.interpretation_codes
                     ,details.interpretation_title
                     ,details.vitals_column
-                    ,vital_units_metric.unit
-                    ,vital_units_metric.unit_title
-                    ,vital_units_usa.unit
-                    ,vital_units_usa.unit_title
+                    
                     ";
         $sqlFrom = "
                 FROM
@@ -120,32 +153,31 @@ class VitalsService extends BaseService
                         ,vitals_column
                     FROM
                         form_vital_details
-                ) details ON details.details_form_id = vitals.`id`
-                LEFT JOIN
-                (
-                    SELECT
-                        codes AS unit
-                        ,title AS unit_title
-                        ,option_id
-                    FROM
-                        list_options
-                    WHERE
-                        list_id = 'vitals-units-metric'
-                ) vital_units_usa ON details.vitals_column = units.option_id
-                LEFT JOIN
-                (
-                    SELECT
-                        codes AS unit
-                        ,title AS unit_title
-                        ,option_id
-                    FROM
-                        list_options
-                    WHERE
-                        list_id = 'vitals-units-usa'
-                ) vital_units_metric ON details.vitals_column = units.option_id";
+                ) details ON details.details_form_id = vitals.`id`";
+//                LEFT JOIN
+//                (
+//                    SELECT
+//                        codes AS unit
+//                        ,title AS unit_title
+//                        ,option_id
+//                    FROM
+//                        list_options
+//                    WHERE
+//                        list_id = 'vitals-units-metric'
+//                ) vital_units_usa ON details.vitals_column = units.option_id
+//                LEFT JOIN
+//                (
+//                    SELECT
+//                        codes AS unit
+//                        ,title AS unit_title
+//                        ,option_id
+//                    FROM
+//                        list_options
+//                    WHERE
+//                        list_id = 'vitals-units-usa'
+//                ) vital_units_metric ON details.vitals_column = units.option_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
-        $sqlSelect .= "," . implode(",", $selectColumns);
         // lets combine our columns, table selects, and the vitals interpretation clauses
         $sql = $sqlSelect . $sqlFrom
             . " " . $whereClause->getFragment();
@@ -207,7 +239,9 @@ class VitalsService extends BaseService
             $array[$index . "_unit"] = $unit;
         };
 
-        if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
+        if ($this->shouldConvertVitalMeasurements
+                && ($this->units_of_measurement == self::MEASUREMENT_PERSIST_IN_METRIC
+                    || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)) {
             $convertArrayValue('weight', $kgToLb, 'kg', $record);
             $convertArrayValue('height', $inchesToCm, 'cm', $record);
             $convertArrayValue('head_circ', $inchesToCm, 'cm', $record);

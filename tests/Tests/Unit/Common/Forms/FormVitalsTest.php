@@ -9,11 +9,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Unit\OEInterface\Forms\vitals;
+namespace OpenEMR\Tests\Unit\Common\Forms;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\OEInterface\Forms\vitals\FormVitalDetails;
-use OpenEMR\OEInterface\Forms\vitals\FormVitals;
+use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Services\ListService;
 use PHPUnit\Framework\TestCase;
 
@@ -25,14 +25,14 @@ class FormVitalsTest extends TestCase
     protected function tearDown(): void
     {
         QueryUtils::sqlStatementThrowException("DELETE FROM " . FormVitalDetails::TABLE_NAME
-            . " WHERE form_id IN (select id FROM " . FormVitals::TABLE_NAME . " WHERE note=?)", [self::NOTE_UNIT_TEST]);
-        QueryUtils::sqlStatementThrowException("DELETE FROM " . FormVitals::TABLE_NAME . " WHERE note=?", [self::NOTE_UNIT_TEST]);
+            . " WHERE form_id IN (select id FROM " . \OpenEMR\Common\Forms\FormVitals::TABLE_NAME . " WHERE note=?)", [self::NOTE_UNIT_TEST]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM " . \OpenEMR\Common\Forms\FormVitals::TABLE_NAME . " WHERE note=?", [self::NOTE_UNIT_TEST]);
     }
 
     public function test__construct()
     {
         // make sure we can construct the object and there are no errors
-        $formVitals = new FormVitals();
+        $formVitals = new \OpenEMR\Common\Forms\FormVitals();
         $this->assertNotEmpty($formVitals->get_date(), "Date should be populated");
         $this->assertIsArray($formVitals->get_vital_details(), "Vital details should be array");
     }
@@ -40,7 +40,7 @@ class FormVitalsTest extends TestCase
     public function test_set_details_for_column()
     {
         $details = new FormVitalDetails();
-        $formVitals = new FormVitals();
+        $formVitals = new \OpenEMR\Common\Forms\FormVitals();
 
         // verify column get / set are being done correctly.
         $formVitals->set_details_for_column(self::VITAL_DETAILS_COLUMN, $details);
@@ -49,7 +49,7 @@ class FormVitalsTest extends TestCase
 
     public function test_persist()
     {
-        $formVitals = new FormVitals();
+        $formVitals = new \OpenEMR\Common\Forms\FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
         $formVitals->persist();
 
@@ -61,7 +61,7 @@ class FormVitalsTest extends TestCase
 
     public function test_persist_vitals_with_details()
     {
-        $formVitals = new FormVitals();
+        $formVitals = new \OpenEMR\Common\Forms\FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
 
         $details = new FormVitalDetails();
@@ -86,7 +86,7 @@ class FormVitalsTest extends TestCase
 
     public function test_persist_vitals_with_details_interpretation()
     {
-        $formVitals = new FormVitals();
+        $formVitals = new \OpenEMR\Common\Forms\FormVitals();
         $formVitals->note = self::NOTE_UNIT_TEST;
 
         $listService = new ListService();
@@ -96,7 +96,7 @@ class FormVitalsTest extends TestCase
         $details = new FormVitalDetails();
         $details->set_vitals_column(self::VITAL_DETAILS_COLUMN);
         $details->set_interpretation_option_id($options[0]['option_id']);
-        $details->set_interpretation_list_id(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
+        $details->set_interpretation_list_id(\OpenEMR\Common\Forms\FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
         $details->set_interpretation_title($options[0]['title']);
         $details->set_interpretation_codes($options[0]['codes']);
         $formVitals->set_details_for_column($details->get_vitals_column(), $details);
@@ -138,7 +138,7 @@ class FormVitalsTest extends TestCase
             ]
         ];
 
-        $vitals = new FormVitals();
+        $vitals = new \OpenEMR\Common\Forms\FormVitals();
         $vitals->populate_array($vitalsArray);
         foreach ($vitalsArray as $key => $value) {
             if ($key == 'details') {

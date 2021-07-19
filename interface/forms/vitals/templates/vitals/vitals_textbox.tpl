@@ -9,10 +9,10 @@
     <td class='currentvalues p-2'>
         {if isset($vitalsStringFormat) }
         <input type="text" class="form-control" size='5' name='{$input}' id='{$input}_input'
-               value="{if $vitalsValue != 0}{$vitalsValue|string_format:$vitalsStringFormat|attr}{/if}"/>
+               value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
         {else}
         <input type="text" class="form-control" size='5' name='{$input}' id='{$input}_input'
-               value="{if $vitalsValue != 0}{$vitalsValue|attr}{/if}"/>
+               value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"/>
         {/if}
 
     </td>
@@ -20,19 +20,6 @@
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
 
-    {foreach item=result from=$results}
-        <td  class='historicalvalues'>
-            {if $result[$input] != 0}
-                {if isset($vitalsStringFormat)}
-                    {$result[$input]|string_format:$vitalsStringFormat|text}
-                {else}
-                    {$result[$input]|text}
-                {/if}
-                {if isset($interpretation) && isset($result[$interpretation])}
-                    <!-- we add on our interpretation piece here -->
-                    - {$result[$interpretation]}
-                {/if}
-            {/if}
-        </td>
-    {/foreach}
+    { include file='vitals_historical_values.tpl' useMetric=false vitalsValue=$vitalsValue results=$results
+        vitalsStringFormat=$vitalsStringFormat }
 </tr>
