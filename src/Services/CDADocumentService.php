@@ -37,7 +37,7 @@ class CDADocumentService extends BaseService
         $this->serverUrl = $GLOBALS['qualified_site_addr'];
     }
 
-    public function getLastCdaMeta($pid): bool | array | null
+    public function getLastCdaMeta($pid)
     {
         $query = "SELECT cc.uuid, cc.date, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
@@ -47,11 +47,11 @@ class CDADocumentService extends BaseService
         return sqlQuery($query, array($pid));
     }
 
-    public function getFile($id): bool | string
+    public function getFile($id)
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where uuid=?";
         $row = sqlQuery($query, array($id));
-        $content = false;
+        $content = '';
         if (!empty($row)) {
             if (!empty($row['couch_docid'])) {
                 $couch = new CouchDB();
