@@ -866,3 +866,7 @@ ALTER TABLE `procedure_type` ADD INDEX `ptype_procedure_code`(`procedure_code`);
 
 #IfMappingUuidNeedUpdate
 #EndIf
+
+#IfRow2D list_options list_id page_validation option_id messages#new_note
+UPDATE `list_options` SET `notes` = '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}, "note":{"presence": {"message": "Please enter a note"}}}' where option_id = 'messages#new_note';
+#EndIf
