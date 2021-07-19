@@ -50,7 +50,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     }
     $logged_in = $MedEx->login();
 } else {
-    $logged_in = '';
+    $logged_in = null;
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -915,20 +915,25 @@ if (!empty($_REQUEST['go'])) { ?>
         })
 
         $(function () {
+            
             $("#newnote").click(function (event) {
                 NewNote(event);
             });
+
             $("#printnote").click(function () {
                 PrintNote();
             });
+
             var obj = $("#form_message_status");
             obj.onchange = function () {
                 SaveNote();
             };
+
             $("#cancel").click(function () {
                 CancelNote();
             });
-            $("#note").focus();
+
+            $("#form_patient").focus();
 
             //clear button in messages
             $("#clear_user").click(function(){
