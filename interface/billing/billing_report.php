@@ -1268,17 +1268,19 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $rhtml .= "</td>\n";
                             $justify = "";
 
-                            if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
-                                $js = explode(":", $iter['justify']);
-                                $counter = 0;
-                                foreach ($js as $j) {
-                                    if (!empty($j)) {
-                                        if ($counter == 0) {
-                                            $justify .= " (<b>" . text($j) . "</b>)";
-                                        } else {
-                                            $justify .= " (" . text($j) . ")";
+                            if (array_key_exists($iter['code_type'], $code_types)) {
+                                if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
+                                    $js = explode(":", $iter['justify']);
+                                    $counter = 0;
+                                    foreach ($js as $j) {
+                                        if (!empty($j)) {
+                                            if ($counter == 0) {
+                                                $justify .= " (<b>" . text($j) . "</b>)";
+                                            } else {
+                                                $justify .= " (" . text($j) . ")";
+                                            }
+                                            $counter++;
                                         }
-                                        $counter++;
                                     }
                                 }
                             }
