@@ -2974,10 +2974,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for OAuth2, FHIR and CCDA)'),
+            xl('Site Address Override (if needed for OAuth2, FHIR or CCDA)'),
             'text',
-            $ResolveServerHost(), // anonymous function in globals.php
-            xl('Site Address (required for OAuth2, FHIR and CCDA). Example is') . ' https://localhost:8300 .'
+            '',
+            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR or CCDA. Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(
