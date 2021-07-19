@@ -202,8 +202,8 @@ class BillingReport
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
-        //
-        if ($query_part) {
+        $array = array();
+        if ($query_part || $billstring) {
             $sql = "select distinct $cols " .
                 "from form_encounter, billing, patient_data, claims, insurance_data where " .
                 "billing.encounter = form_encounter.encounter and " .
@@ -216,17 +216,12 @@ class BillingReport
                 "billing.code_type like ? and " .
                 "billing.activity = 1 " .
                 "order by billing.pid, billing.date ASC";
-
             $res = sqlStatement($sql, array($code_type));
-            $array = array();
             for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 array_push($array, $row["id"]);
             }
-
-            return $array;
         }
-
-        return false;
+        return $array;
     }
 
     public static function billCodesList($list, $skip = [])

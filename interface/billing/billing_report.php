@@ -4,15 +4,17 @@
  * Billing Report Program
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -828,9 +830,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
             $list = BillingReport::getBillsListBetween("%");
             // don't query the whole encounter table if no criteria selected
-            if (!$list && isset($_POST["mode"]) && array_key_exists('final_this_page_criteria', $_POST)) {
-                $alertmsg = "Search returned no results.";
-            } elseif (!$list && isset($_POST["mode"])) {
+            if (isset($_POST["mode"]) && !array_key_exists('final_this_page_criteria', $_POST)) {
                 $alertmsg = "Please select at least one criteria.";
             } else {
                 if (!isset($_POST["mode"])) {
