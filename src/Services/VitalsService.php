@@ -60,6 +60,10 @@ class VitalsService extends BaseService
                     ,details.interpretation_codes
                     ,details.interpretation_title
                     ,details.vitals_column
+                    ,vital_units_metric.unit
+                    ,vital_units_metric.unit_title
+                    ,vital_units_usa.unit
+                    ,vital_units_usa.unit_title
                     ";
         $sqlFrom = "
                 FROM
@@ -117,7 +121,28 @@ class VitalsService extends BaseService
                     FROM
                         form_vital_details
                 ) details ON details.details_form_id = vitals.`id`
-        ";
+                LEFT JOIN
+                (
+                    SELECT
+                        codes AS unit
+                        ,title AS unit_title
+                        ,option_id
+                    FROM
+                        list_options
+                    WHERE
+                        list_id = 'vitals-units-metric'
+                ) vital_units_usa ON details.vitals_column = units.option_id
+                LEFT JOIN
+                (
+                    SELECT
+                        codes AS unit
+                        ,title AS unit_title
+                        ,option_id
+                    FROM
+                        list_options
+                    WHERE
+                        list_id = 'vitals-units-usa'
+                ) vital_units_metric ON details.vitals_column = units.option_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         $sqlSelect .= "," . implode(",", $selectColumns);
