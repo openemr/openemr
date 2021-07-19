@@ -203,23 +203,21 @@ class BillingReport
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
         $array = array();
-        if ($query_part || $billstring) {
-            $sql = "select distinct $cols " .
-                "from form_encounter, billing, patient_data, claims, insurance_data where " .
-                "billing.encounter = form_encounter.encounter and " .
-                "billing.pid = form_encounter.pid and " .
-                "patient_data.pid = form_encounter.pid and " .
-                "claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter and " .
-                "insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' " .
-                $auth .
-                $billstring . $query_part . " and " .
-                "billing.code_type like ? and " .
-                "billing.activity = 1 " .
-                "order by billing.pid, billing.date ASC";
-            $res = sqlStatement($sql, array($code_type));
-            for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-                array_push($array, $row["id"]);
-            }
+        $sql = "select distinct $cols " .
+            "from form_encounter, billing, patient_data, claims, insurance_data where " .
+            "billing.encounter = form_encounter.encounter and " .
+            "billing.pid = form_encounter.pid and " .
+            "patient_data.pid = form_encounter.pid and " .
+            "claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter and " .
+            "insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' " .
+            $auth .
+            $billstring . $query_part . " and " .
+            "billing.code_type like ? and " .
+            "billing.activity = 1 " .
+            "order by billing.pid, billing.date ASC";
+        $res = sqlStatement($sql, array($code_type));
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            array_push($array, $row["id"]);
         }
         return $array;
     }
