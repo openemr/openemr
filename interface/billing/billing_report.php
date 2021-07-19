@@ -886,7 +886,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             <div class="table-responsive">
                 <table class="table table-sm">
                     <?php
-                        $divnos = 0;
+                    $divnos = 0;
                     if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) { ?>
                     <tr>
@@ -1465,7 +1465,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
         });
     </script>
-    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos) ?>" />
+    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? null) ?>" />
     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 </body>
 

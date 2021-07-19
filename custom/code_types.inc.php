@@ -321,8 +321,10 @@ function check_code_set_filters($key, $filters = array())
     }
 
     foreach ($filters as $filter) {
-        if ($code_types[$key][$filter] != 1) {
-            return false;
+        if (array_key_exists($key, $code_types)) {
+            if ($code_types[$key][$filter] != 1) {
+                return false;
+            }
         }
     }
 
