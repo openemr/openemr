@@ -83,7 +83,6 @@ class VitalsService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        // TODO: @adunsulag clean this up because we aren't using the detail columns anymore.
         $sqlSelect = "
                     SELECT patients.pid
                     ,patients.puuid
@@ -119,9 +118,6 @@ class VitalsService extends BaseService
                     ,details.interpretation_codes
                     ,details.interpretation_title
                     ,details.vitals_column
-                    
-                    ";
-        $sqlFrom = "
                 FROM
                 (
                     SELECT
@@ -182,8 +178,7 @@ class VitalsService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         // lets combine our columns, table selects, and the vitals interpretation clauses
-        $sql = $sqlSelect . $sqlFrom
-            . " " . $whereClause->getFragment();
+        $sql = $sqlSelect . " " . $whereClause->getFragment();
         $sql .= " ORDER BY encounter_date DESC, `date` DESC ";
 
         $sqlBindArray = $whereClause->getBoundValues();
