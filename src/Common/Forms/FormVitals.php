@@ -544,5 +544,4 @@ class FormVitals extends ORDataObject
         $this->authorized = $authorized;
         return $this;
     }
-
 }   // end of Form

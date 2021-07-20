@@ -333,8 +333,7 @@ class VitalsService extends BaseService
         $sqlOperation = "UPDATE ";
         if (empty($id)) {
             // verify we have enough to save a form
-            if (empty($vitalsData['eid']) && empty($vitalsData['pid']))
-            {
+            if (empty($vitalsData['eid']) && empty($vitalsData['pid'])) {
                 throw new \InvalidArgumentException("encounter eid and patient pid must be populated to insert a new vitals form");
             }
             $sqlOperation = "INSERT INTO ";

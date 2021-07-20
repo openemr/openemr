@@ -464,8 +464,7 @@ class EncounterService extends BaseService
     {
         $vitalsService = new VitalsService();
         $vitals = $vitalsService->getVitalsForForm($vid);
-        if (!empty($vitals) && $vitals['eid'] == $eid && $vitals['pid'] == $pid)
-        {
+        if (!empty($vitals) && $vitals['eid'] == $eid && $vitals['pid'] == $pid) {
             return $vitals;
         }
         return null;

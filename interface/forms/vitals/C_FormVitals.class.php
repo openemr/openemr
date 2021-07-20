@@ -101,8 +101,7 @@ class C_FormVitals extends Controller
             // TODO: Do we want to throw an error if the form has been deleted or is empty?
             $vitalsArray = $vitalsService->getVitalsForForm($form_id) ?? [];
             // vitals form returns string representation of uuid, need to convert it back to binary
-            if (isset($vitalsArray['uuid']))
-            {
+            if (isset($vitalsArray['uuid'])) {
                 $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
             }
             $vitals->populate_array($vitalsArray);
@@ -204,8 +203,7 @@ class C_FormVitals extends Controller
         $vitalsService = new VitalsService();
         $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
         // vitals form returns string representation of uuid, need to convert it back to binary
-        if (isset($vitalsArray['uuid']))
-        {
+        if (isset($vitalsArray['uuid'])) {
             $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
         }
 
@@ -243,8 +241,7 @@ class C_FormVitals extends Controller
                     continue;
                 }
 
-                if (empty($value))
-                {
+                if (empty($value)) {
                     $details->clear_interpretation();
                 } else if (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
