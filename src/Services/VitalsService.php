@@ -297,6 +297,18 @@ class VitalsService extends BaseService
 
     public function create($record)
     {
+        // TODO: not sure we need this anymore.
+    }
+
+
+    public function save(array $vitals)
+    {
+
+        // this makes sure we whitelist only values that can be saved in the form.
+        $vitalsForm = new FormVitals();
+        $vitalsForm->populate_array($vitals);
+        $data = $vitalsForm->get_data_for_save();
+        return $this->saveVitalsArray($data);
     }
 
     /**
@@ -305,7 +317,7 @@ class VitalsService extends BaseService
      * @param array $vitalsData
      * @return array
      */
-    public function save(array $vitalsData)
+    public function saveVitalsArray(array $vitalsData)
     {
         $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $vitalsData);
 
@@ -377,7 +389,7 @@ class VitalsService extends BaseService
         $newForm = empty($vitals->get_id());
 
         $data = $vitals->get_data_for_save();
-        $result = $this->save($data);
+        $result = $this->saveVitalsArray($data);
         $vitals->populate_array($result); // populate any database records and other things we may need
 
         return $vitals;
@@ -478,5 +490,21 @@ class VitalsService extends BaseService
             $values[] = $id;
         }
         QueryUtils::sqlStatementThrowException($sql, $values);
+    }
+
+    public function getVitalsForPatientEncounter($pid, $eid)
+    {
+        $search = [];
+        $search[] = new StringSearchField('pid', $pid, SearchModifier::EXACT);
+        $search[] = new StringSearchField('eid', $eid, SearchModifier::EXACT);
+        $search[] = new StringSearchField('deleted', 0, SearchModifier::EXACT);
+        $search[] = new StringSearchField('formdir', 'vitals', SearchModifier::EXACT);
+        $results = $this->search($search);
+        $data = $results->getData();
+
+        if (!empty($data)) {
+            return $data;
+        }
+        return null;
     }
 }
