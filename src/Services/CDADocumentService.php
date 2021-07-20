@@ -91,8 +91,7 @@ class CDADocumentService extends BaseService
                 'view' => '1',
                 'site' => $_SESSION ['site_id'],
                 'sent_by_app' => 'core_api',
-                'me' => session_id(),
-                'XDEBUG_SESSION' => '1'
+                'me' => session_id()
             ]
         ]);
 
