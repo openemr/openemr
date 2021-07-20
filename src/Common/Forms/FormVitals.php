@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FormVitals.php
  * @package openemr
@@ -9,6 +10,7 @@
  */
 
 namespace OpenEMR\Common\Forms;
+
 /**
  * class FormVitals
  *
@@ -71,6 +73,11 @@ class FormVitals extends ORDataObject
      * @var FormVitalDetails[]
      */
     private $_vitals_details = [];
+
+    /**
+     * @var int Foreign key reference to the encounter (inside form_encounter) this vitals belongs to.
+     */
+    private $encounter;
 
     // public $temp_methods;
     /**
@@ -307,7 +314,6 @@ class FormVitals extends ORDataObject
 
     public function get_BMI_short()
     {
-
     }
     public function set_BMI($bmi)
     {
@@ -478,6 +484,8 @@ class FormVitals extends ORDataObject
     public function populate_array($results)
     {
         parent::populate_array($results);
+        $encounter = $results['eid'] ?? $results['encounter'] ?? null;
+        $this->set_encounter($encounter);
 
         // now let's setup our details objects
         if (isset($results['details'])) {
@@ -498,14 +506,43 @@ class FormVitals extends ORDataObject
     public function get_data_for_save()
     {
         $values = parent::get_data_for_save();
+        $values['eid'] = $this->get_encounter();
+        $values['authorized'] = $this->get_authorized();
         $values['details'] = [];
 
         // now grab the details
         $details = $this->get_vital_details();
-        foreach ($details as $detail)
-        {
+        foreach ($details as $detail) {
             $values['details'][] = $detail->get_data_for_save();
         }
         return $values;
     }
+
+    public function get_encounter()
+    {
+        return $this->encounter;
+    }
+
+    public function set_encounter($eid)
+    {
+        $this->encounter = $eid;
+    }
+    /**
+     * @return mixed
+     */
+    public function get_authorized()
+    {
+        return $this->authorized;
+    }
+
+    /**
+     * @param mixed $authorized
+     * @return FormVitals
+     */
+    public function set_authorized($authorized)
+    {
+        $this->authorized = $authorized;
+        return $this;
+    }
+
 }   // end of Form

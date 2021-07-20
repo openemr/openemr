@@ -212,15 +212,23 @@ class C_FormVitals extends Controller
         $this->vitals = new FormVitals();
         $this->vitals->populate_array($vitalsArray);
         $this->populate_object($this->vitals);
-        
-        $vitalsService->saveVitalsForm($this->vitals);
 
+        $vitalsService->saveVitalsForm($this->vitals);
         return;
     }
 
     public function populate_object(&$obj)
     {
         parent::populate_object($obj);
+
+        if ($GLOBALS['encounter'] < 1) {
+            $GLOBALS['encounter'] = date("Ymd");
+        }
+
+        // have to set these global settings in order for us to save.
+        $obj->set_encounter($GLOBALS['encounter']);
+        $obj->set_pid($GLOBALS['pid']);
+        $obj->set_authorized($_SESSION['userauthorized']);
 
         // handle all of the vital details that we need here.
         $detailsToUpdate = array();

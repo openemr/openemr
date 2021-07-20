@@ -111,11 +111,9 @@ class ORDataObject
     public function get_data_for_save()
     {
         $fields = QueryUtils::listTableFields($this->_table);
-        foreach ($fields as $field)
-        {
+        foreach ($fields as $field) {
             $func = "get_" . $field;
-            if (is_callable([$this, $func]))
-            {
+            if (is_callable([$this, $func])) {
                 $val = call_user_func([$this, $func]);
                 $values[$field] = $val;
             }

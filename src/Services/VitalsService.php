@@ -48,14 +48,12 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        if (isset($units_of_measurement))
-        {
+        if (isset($units_of_measurement)) {
             $this->units_of_measurement = $units_of_measurement;
         } else {
             $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         }
-        if (!empty($GLOBALS['kernel']))
-        {
+        if (!empty($GLOBALS['kernel'])) {
             $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
         } else {
             $this->dispatcher = new EventDispatcher();
@@ -67,7 +65,7 @@ class VitalsService extends BaseService
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher() : EventDispatcher
+    public function getEventDispatcher(): EventDispatcher
     {
         return $this->dispatcher;
     }
@@ -244,9 +242,11 @@ class VitalsService extends BaseService
             $array[$index . "_unit"] = $unit;
         };
 
-        if ($this->shouldConvertVitalMeasurements
+        if (
+            $this->shouldConvertVitalMeasurements
                 && ($this->units_of_measurement == self::MEASUREMENT_PERSIST_IN_METRIC
-                    || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)) {
+                    || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)
+        ) {
             $convertArrayValue('weight', $kgToLb, 'kg', $record);
             $convertArrayValue('height', $inchesToCm, 'cm', $record);
             $convertArrayValue('head_circ', $inchesToCm, 'cm', $record);
@@ -309,10 +309,9 @@ class VitalsService extends BaseService
     {
         $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $vitalsData);
 
-        foreach ($this->getUuidFields() as $field)
-        {
-            if (isset($vitalsData[$field]))
-            {
+        // convert any uuids to their proper format for insertion
+        foreach ($this->getUuidFields() as $field) {
+            if (isset($vitalsData[$field])) {
                 $vitalsData[$field] = UuidRegistry::uuidToBytes($vitalsData[$field]);
             }
         }
@@ -321,19 +320,30 @@ class VitalsService extends BaseService
         $id = $vitalsData['id'] ?? null;
         $sqlOperation = "UPDATE ";
         if (empty($id)) {
+            // verify we have enough to save a form
+            if (empty($vitalsData['eid']) && empty($vitalsData['pid']))
+            {
+                throw new \InvalidArgumentException("encounter eid and patient pid must be populated to insert a new vitals form");
+            }
             $sqlOperation = "INSERT INTO ";
             // use our generate_id function here for us to create a new id
             $vitalsData['id'] = \generate_id();
-        }
-        else {
+            $vitalsData['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_VITALS)->createUuid();
+            \addForm($vitalsData['eid'], "Vitals", $vitalsData['id'], "vitals", $vitalsData['pid'], $vitalsData['authorized']);
+        } else {
             unset($vitalsData['id']);
         }
+        // clear out encounter and other new form settings
+        unset($vitalsData['eid']);
+        unset($vitalsData['authorized']);
 
         $details = $vitalsData['details'] ?? [];
         unset($vitalsData['details']);
         $keys = array_keys($vitalsData);
         $values = array_values($vitalsData);
-        $fields = array_map(function($val) { return '`' . $val . '` = ?';}, $keys);
+        $fields = array_map(function ($val) {
+            return '`' . $val . '` = ?';
+        }, $keys);
         $sqlSet = implode(",", $fields);
 
         $sql = $sqlOperation . self::TABLE_VITALS . " SET " . $sqlSet;
@@ -348,8 +358,7 @@ class VitalsService extends BaseService
         // now go through and update all of our vital details
 
         $updatedDetails = [];
-        foreach ($details as $column => $detail)
-        {
+        foreach ($details as $column => $detail) {
             $detail['form_id'] = $vitalsData['id'];
             $updatedDetails[$column] = $this->saveVitalDetails($detail);
         }
@@ -370,16 +379,6 @@ class VitalsService extends BaseService
         $data = $vitals->get_data_for_save();
         $result = $this->save($data);
         $vitals->populate_array($result); // populate any database records and other things we may need
-
-        if ($GLOBALS['encounter'] < 1) {
-            $GLOBALS['encounter'] = date("Ymd");
-        }
-
-        if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Vitals", $this->vitals->id, "vitals", $GLOBALS['pid'], $_SESSION['userauthorized']);
-            $_POST['process'] = "";
-        }
-
 
         return $vitals;
     }
@@ -447,8 +446,7 @@ class VitalsService extends BaseService
     {
         $saveEvent = new ServiceSaveEvent($this, $vitalsData);
         $filteredData = $this->getEventDispatcher()->dispatch($saveEvent, $type);
-        if ($filteredData instanceof ServiceSaveEvent) // make sure whoever responds back gives us the right data.
-        {
+        if ($filteredData instanceof ServiceSaveEvent) { // make sure whoever responds back gives us the right data.
             $vitalsData = $filteredData->getSaveData();
         }
         return $vitalsData;
@@ -469,7 +467,9 @@ class VitalsService extends BaseService
         unset($vitalDetails['id']);
         $keys = array_keys($vitalDetails);
         $values = array_values($vitalDetails);
-        $fields = array_map(function($val) { return '`' . $val . '` = ?';}, $keys);
+        $fields = array_map(function ($val) {
+            return '`' . $val . '` = ?';
+        }, $keys);
         $sqlSet = implode(",", $fields);
 
         $sql = $sqlOperation . FormVitalDetails::TABLE_NAME . " SET " . $sqlSet;
