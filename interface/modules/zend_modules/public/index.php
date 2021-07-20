@@ -24,6 +24,9 @@ preg_match('/\/(\w*)\?/', $_SERVER['REQUEST_URI'], $matches);
 $actionName = $matches[1] ?? '';
 $controllerName = $urlArray[$countUrlArray - 2] ?? '';
 
+session_id($_REQUEST['me']);
+session_start();
+
 //skipping OpenEMR authentication if the controller is SOAP and action is INDEX
 //SOAP authentication is done in the controller EncounterccdadispatchController
 if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
@@ -32,10 +35,16 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
         session_id($_REQUEST['me']);
         session_start();
     }
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] == '-patient-' && $_SESSION['portal_init']) {
+    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
         $ignoreAuth_onsite_portal = true;
     }
+}
+
+if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
+    // pick up already running session from api's
+    session_id($_REQUEST['me']);
+    session_start();
 }
 
 if (php_sapi_name() === 'cli' && count($argv) != 0) {
@@ -50,6 +59,7 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
     // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
+
 require_once(__DIR__ . "/../../../globals.php");
 require_once(__DIR__ . "/../../../../library/forms.inc");
 require_once(__DIR__ . "/../../../../library/options.inc.php");

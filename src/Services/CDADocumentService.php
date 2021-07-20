@@ -87,11 +87,15 @@ class CDADocumentService extends BaseService
         $response = $httpClient->request('GET', $url, [
             'query' => [
                 'combination' => $pid,
-                'recipient' => 'patient',
-                'view' => '1'
+                'recipient' => 'self',
+                'view' => '1',
+                'site' => $_SESSION ['site_id'],
+                'sent_by_app' => 'core_api',
+                'me' => session_id(),
+                'XDEBUG_SESSION' => '1'
             ]
         ]);
-        $contentType = $response->getHeaders()['content-type'][0];
+
         $status = $response->getStatusCode(); // @todo validate
 
         return $response->getContent();
@@ -109,10 +113,12 @@ class CDADocumentService extends BaseService
                 'combination' => $pid,
                 'recipient' => 'patient',
                 'view' => '0',
-                'hiehook' => '1'
+                'hiehook' => '1',
+                'sent_by_app' => 'core_api',
+                'me' => session_id()
             ]
         ]);
-        $contentType = $response->getHeaders()['content-type'][0];
+
         $status = $response->getStatusCode(); // @todo validate
 
         return $response->getContent();
@@ -135,7 +141,6 @@ class CDADocumentService extends BaseService
             ]
         ]);
 
-        $contentType = $response->getHeaders()['content-type'][0];
         $status = $response->getStatusCode(); // @todo validate
 
         return $response->getContent();
@@ -165,7 +170,6 @@ class CDADocumentService extends BaseService
             'body' => $parameterArray
         ]);
 
-        $contentType = $response->getHeaders()['content-type'][0];
         $status = $response->getStatusCode(); // @todo validate
 
         return $response->getContent();

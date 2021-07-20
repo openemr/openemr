@@ -17,7 +17,6 @@ use OpenEMR\Services\CDADocumentService;
 
 // authenticate for portal or main- never know where it gets used
 // Will start the (patient) portal OpenEMR session/cookie.
-
 require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
@@ -66,7 +65,6 @@ if ($_REQUEST['action'] === 'dl') {
     header("Content-Type: application/zip");
     header("Content-Transfer-Encoding: binary");
     echo $ccda_xml;
-
     exit;
 }
 if ($_REQUEST['action'] === 'view') {
@@ -74,8 +72,16 @@ if ($_REQUEST['action'] === 'view') {
     // CCM returns viewable CCD html file
     // that displays to new tab opened from home
     echo $ccda_xml;
+    exit;
+}
+if ($_REQUEST['action'] === 'report_ccd_view') {
+    $ccda_xml = $cdaService->generateCCDHtml($pid);
+    if (stripos($ccda_xml, '/interface/login_screen.php') !== false) {
+        echo(xlt("Error. Not Authorized."));
+        exit;
+    }
+    echo $ccda_xml;
 
     exit;
 }
-
 die(xlt("Error. Nothing to do."));
