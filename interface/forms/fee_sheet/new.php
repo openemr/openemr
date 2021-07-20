@@ -498,8 +498,8 @@ if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
         $_POST['prod'],
         $main_provid,
         $main_supid,
-        $_POST['default_warehouse'],
-        $_POST['bn_save_close']
+        $_POST['default_warehouse'] ?? null,
+        $_POST['bn_save_close'] ?? null
     );
 
     unset($_POST['dx_update']);

@@ -1068,6 +1068,8 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
         } elseif (preg_match('/^#IfMappingUuidNeedUpdate/', $line)) {
+            echo "<p>Checking for missing mapped resource UUIDs</p>";
+            flush_echo();
             $uuidMappingCount = UuidMapping::createAllMissingResourceUuids();
             if (!empty($uuidMappingCount)) {
                 $skipping = false;
