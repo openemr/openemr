@@ -1268,7 +1268,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $rhtml .= "</td>\n";
                             $justify = "";
 
-                            if ($iter['id'] && ($code_types[$iter['code_type']]['just'] ?? null)) {
+                            if ($iter['id'] && !empty($code_types[$iter['code_type']]['just'])) {
                                 $js = explode(":", $iter['justify']);
                                 $counter = 0;
                                 foreach ($js as $j) {
@@ -1463,7 +1463,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
         });
     </script>
-    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? null) ?>" />
+    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? '') ?>" />
     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 </body>
 
