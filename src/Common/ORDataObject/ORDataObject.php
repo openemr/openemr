@@ -33,6 +33,7 @@ class ORDataObject
 
     public function persist()
     {
+        // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
         $fields = QueryUtils::listTableFields($this->_table);
@@ -105,6 +106,21 @@ class ORDataObject
                 }
             }
         }
+    }
+
+    public function get_data_for_save()
+    {
+        $fields = QueryUtils::listTableFields($this->_table);
+        foreach ($fields as $field)
+        {
+            $func = "get_" . $field;
+            if (is_callable([$this, $func]))
+            {
+                $val = call_user_func([$this, $func]);
+                $values[$field] = $val;
+            }
+        }
+        return $values;
     }
 
     /**

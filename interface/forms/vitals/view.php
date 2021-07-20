@@ -12,9 +12,8 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
+require_once "C_FormVitals.class.php";
 
-use OpenEMR\OEInterface\Forms\vitals\FormVitalsController;
-
-$c = new FormVitalsController();
+$c = new C_FormVitals();
 $c->setFormId($_GET['id']);
 echo $c->default_action();

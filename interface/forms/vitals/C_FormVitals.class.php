@@ -10,20 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\OEInterface\Forms\vitals;
-
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;
+use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
-use OpenEMR\Common\Utils\MeasurementUtils;
 use Controller;
 
-class FormVitalsController extends Controller
+class C_FormVitals extends Controller
 {
     /**
      * @var FormVitals
@@ -33,10 +31,6 @@ class FormVitalsController extends Controller
     var $template_dir;
     var $form_id;
 
-    const MEASUREMENT_METRIC_ONLY = 4;
-    const MEASUREMENT_USA_ONLY = 3;
-    const MEASUREMENT_PERSIST_IN_METRIC = 2;
-    const MEASUREMENT_PERSIST_IN_USA = 1;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -206,19 +200,20 @@ class FormVitalsController extends Controller
             $_POST["temp_method"] = "";
         }
 
-        $this->vitals = new FormVitals($_POST['id']);
+        // grab our vitals data and then populate what is in the post
+        $vitalsService = new VitalsService();
+        $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+        // vitals form returns string representation of uuid, need to convert it back to binary
+        if (isset($vitalsArray['uuid']))
+        {
+            $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
+        }
 
+        $this->vitals = new FormVitals();
+        $this->vitals->populate_array($vitalsArray);
         $this->populate_object($this->vitals);
-
-        $this->vitals->persist();
-        if ($GLOBALS['encounter'] < 1) {
-            $GLOBALS['encounter'] = date("Ymd");
-        }
-
-        if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Vitals", $this->vitals->id, "vitals", $GLOBALS['pid'], $_SESSION['userauthorized']);
-            $_POST['process'] = "";
-        }
+        
+        $vitalsService->saveVitalsForm($this->vitals);
 
         return;
     }
@@ -240,7 +235,10 @@ class FormVitalsController extends Controller
                     continue;
                 }
 
-                if (isset($interpretationList[$value])) {
+                if (empty($value))
+                {
+                    $details->clear_interpretation();
+                } else if (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
 
                     // we save off both the code and the text value here which duplicates the data.  However, since
@@ -248,6 +246,8 @@ class FormVitalsController extends Controller
                     // a historical record so we save these off
                     // TODO: change this if list_options ever saves historical records and keeps the id uniquely the same
                     // then we can remove code/text
+                    $details->set_interpretation_list_id(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
+                    $details->set_interpretation_option_id($value);
                     $details->set_interpretation_codes($value); // for now the option_id is the code
                     $details->set_interpretation_title($interpretation['title']);
                 } else {
@@ -258,8 +258,6 @@ class FormVitalsController extends Controller
                     $details->clear_interpretation();
                 }
 
-                $details->set_interpretation_list_id(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
-                $details->set_interpretation_option_id($value);
                 $details->set_vitals_column($column);
                 $detailsToUpdate[$column] = $details;
             }

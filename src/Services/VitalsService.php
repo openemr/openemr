@@ -12,8 +12,12 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\NumberSearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -21,6 +25,7 @@ use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class VitalsService extends BaseService
 {
@@ -36,6 +41,8 @@ class VitalsService extends BaseService
      */
     private $shouldConvertVitalMeasurements;
 
+    private $dispatcher;
+
     public function __construct(?int $units_of_measurement = null)
     {
         parent::__construct(self::TABLE_VITALS);
@@ -47,6 +54,22 @@ class VitalsService extends BaseService
         } else {
             $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         }
+        if (!empty($GLOBALS['kernel']))
+        {
+            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        } else {
+            $this->dispatcher = new EventDispatcher();
+        }
+    }
+
+    public function setEventDispatcher(EventDispatcher $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
+    public function getEventDispatcher() : EventDispatcher
+    {
+        return $this->dispatcher;
     }
 
     /**
@@ -93,6 +116,8 @@ class VitalsService extends BaseService
                     ,vitals.ped_bmi
                     ,vitals.ped_head_circ
                     ,details.details_id
+                    ,details.interpretation_list_id
+                    ,details.interpretation_option_id
                     ,details.interpretation_codes
                     ,details.interpretation_title
                     ,details.vitals_column
@@ -148,34 +173,14 @@ class VitalsService extends BaseService
                     SELECT
                         form_id AS details_form_id
                         ,id AS details_id
+                        ,interpretation_list_id
+                        ,interpretation_option_id
                         ,interpretation_codes
                         ,interpretation_title
                         ,vitals_column
                     FROM
                         form_vital_details
                 ) details ON details.details_form_id = vitals.`id`";
-//                LEFT JOIN
-//                (
-//                    SELECT
-//                        codes AS unit
-//                        ,title AS unit_title
-//                        ,option_id
-//                    FROM
-//                        list_options
-//                    WHERE
-//                        list_id = 'vitals-units-metric'
-//                ) vital_units_usa ON details.vitals_column = units.option_id
-//                LEFT JOIN
-//                (
-//                    SELECT
-//                        codes AS unit
-//                        ,title AS unit_title
-//                        ,option_id
-//                    FROM
-//                        list_options
-//                    WHERE
-//                        list_id = 'vitals-units-usa'
-//                ) vital_units_metric ON details.vitals_column = units.option_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         // lets combine our columns, table selects, and the vitals interpretation clauses
@@ -268,7 +273,8 @@ class VitalsService extends BaseService
         $convertArrayValue('ped_head_circ', $identity, '%', $record);
 
 
-        $detailColumns = ['details_id', 'interpretation_codes', 'interpretation_title', 'vitals_column'];
+        $detailColumns = ['details_id', 'interpretation_codes', 'interpretation_title', 'vitals_column'
+            , 'interpretation_list_id', 'interpretation_option_id'];
 
 
         // we only set the details record if we actually have a details
@@ -293,11 +299,92 @@ class VitalsService extends BaseService
     {
     }
 
-    public function save()
+    /**
+     * Saves vital information to the vital's form and corresponding vital_form_details records.
+     *
+     * @param array $vitalsData
+     * @return array
+     */
+    public function save(array $vitalsData)
     {
+        $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $vitalsData);
+
+        foreach ($this->getUuidFields() as $field)
+        {
+            if (isset($vitalsData[$field]))
+            {
+                $vitalsData[$field] = UuidRegistry::uuidToBytes($vitalsData[$field]);
+            }
+        }
+
+        // this only works on MySQL/MariaDB variants
+        $id = $vitalsData['id'] ?? null;
+        $sqlOperation = "UPDATE ";
+        if (empty($id)) {
+            $sqlOperation = "INSERT INTO ";
+            // use our generate_id function here for us to create a new id
+            $vitalsData['id'] = \generate_id();
+        }
+        else {
+            unset($vitalsData['id']);
+        }
+
+        $details = $vitalsData['details'] ?? [];
+        unset($vitalsData['details']);
+        $keys = array_keys($vitalsData);
+        $values = array_values($vitalsData);
+        $fields = array_map(function($val) { return '`' . $val . '` = ?';}, $keys);
+        $sqlSet = implode(",", $fields);
+
+        $sql = $sqlOperation . self::TABLE_VITALS . " SET " . $sqlSet;
+
+        if (!empty($id)) {
+            $sql .= " WHERE `id` = ? ";
+            $values[] = $id;
+            $vitalsData['id'] = $id;
+        }
+        QueryUtils::sqlStatementThrowException($sql, $values);
+
+        // now go through and update all of our vital details
+
+        $updatedDetails = [];
+        foreach ($details as $column => $detail)
+        {
+            $detail['form_id'] = $vitalsData['id'];
+            $updatedDetails[$column] = $this->saveVitalDetails($detail);
+        }
+        $vitalsData['details'] = $updatedDetails;
+        $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $vitalsData);
+        return $vitalsData;
     }
 
-    function getUuidFields(): array
+    /**
+     * Given a vitals form object save/create the data and any corresponding vital details into the database.
+     * @param FormVitals $vitals
+     * @return FormVitals
+     */
+    public function saveVitalsForm(FormVitals $vitals)
+    {
+        $newForm = empty($vitals->get_id());
+
+        $data = $vitals->get_data_for_save();
+        $result = $this->save($data);
+        $vitals->populate_array($result); // populate any database records and other things we may need
+
+        if ($GLOBALS['encounter'] < 1) {
+            $GLOBALS['encounter'] = date("Ymd");
+        }
+
+        if (empty($_POST['id'])) {
+            addForm($GLOBALS['encounter'], "Vitals", $this->vitals->id, "vitals", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            $_POST['process'] = "";
+        }
+
+
+        return $vitals;
+    }
+
+    public function getUuidFields(): array
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
@@ -329,7 +416,12 @@ class VitalsService extends BaseService
         return $results->getData();
     }
 
-    public function getVitalsForForm(int $form_id)
+    /**
+     * Retrieves all the vital observation records for the passed in form id.
+     * @param $form_id
+     * @return array|null
+     */
+    public function getVitalsForForm($form_id)
     {
         $search = [];
         $search[] = new StringSearchField('id', $form_id, SearchModifier::EXACT);
@@ -342,5 +434,49 @@ class VitalsService extends BaseService
             return $data[0];
         }
         return null;
+    }
+
+
+    /**
+     *
+     * @param string $type The type of save event to dispatch
+     * @param $vitalsData The vitals data to send in the event
+     * @return array
+     */
+    private function dispatchSaveEvent(string $type, $vitalsData)
+    {
+        $saveEvent = new ServiceSaveEvent($this, $vitalsData);
+        $filteredData = $this->getEventDispatcher()->dispatch($saveEvent, $type);
+        if ($filteredData instanceof ServiceSaveEvent) // make sure whoever responds back gives us the right data.
+        {
+            $vitalsData = $filteredData->getSaveData();
+        }
+        return $vitalsData;
+    }
+
+    /**
+     * Given an array of vitals go through and save it to the database.  Return the created/updated record that was saved
+     * @param array $vitalDetails
+     */
+    private function saveVitalDetails(array $vitalDetails)
+    {
+        $id = $vitalDetails['id'] ?? null;
+        $sqlOperation = "UPDATE ";
+        if (empty($id)) {
+            $sqlOperation = "INSERT INTO ";
+        }
+
+        unset($vitalDetails['id']);
+        $keys = array_keys($vitalDetails);
+        $values = array_values($vitalDetails);
+        $fields = array_map(function($val) { return '`' . $val . '` = ?';}, $keys);
+        $sqlSet = implode(",", $fields);
+
+        $sql = $sqlOperation . FormVitalDetails::TABLE_NAME . " SET " . $sqlSet;
+        if (!empty($id)) {
+            $sql .= " WHERE `id` = ? ";
+            $values[] = $id;
+        }
+        QueryUtils::sqlStatementThrowException($sql, $values);
     }
 }

@@ -14,8 +14,7 @@ namespace OpenEMR\Common\Forms;
  *
  */
 
-use OpenEMR\OEInterface\Forms\vitals\binary;
-use OpenEMR\OEInterface\Forms\vitals\FormVitalDetails;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -33,6 +32,10 @@ class FormVitals extends ORDataObject
     const LIST_OPTION_VITALS_INTERPRETATION = 'vitals-interpretation';
 
 
+    const MEASUREMENT_METRIC_ONLY = 4;
+    const MEASUREMENT_USA_ONLY = 3;
+    const MEASUREMENT_PERSIST_IN_METRIC = 2;
+    const MEASUREMENT_PERSIST_IN_USA = 1;
     /**
      *
      * static
@@ -413,7 +416,7 @@ class FormVitals extends ORDataObject
 
     /**
      * Returns the binary uuid string
-     * @return binary
+     * @return string
      */
     public function get_uuid()
     {
@@ -422,7 +425,7 @@ class FormVitals extends ORDataObject
 
     /**
      * Set the binary uuid string.
-     * @param $uuid binary string
+     * @param $uuid string
      */
     public function set_uuid($uuid)
     {
@@ -490,5 +493,19 @@ class FormVitals extends ORDataObject
     public function get_vital_details()
     {
         return array_values($this->_vitals_details);
+    }
+
+    public function get_data_for_save()
+    {
+        $values = parent::get_data_for_save();
+        $values['details'] = [];
+
+        // now grab the details
+        $details = $this->get_vital_details();
+        foreach ($details as $detail)
+        {
+            $values['details'][] = $detail->get_data_for_save();
+        }
+        return $values;
     }
 }   // end of Form

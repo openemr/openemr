@@ -12,14 +12,14 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
+require_once "C_FormVitals.class.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\OEInterface\Forms\vitals\FormVitalsController;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$c = new FormVitalsController();
+$c = new C_FormVitals();
 echo $c->default_action_process($_POST);
 @formJump();

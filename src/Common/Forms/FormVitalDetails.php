@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\OEInterface\Forms\vitals;
+namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
@@ -197,7 +197,8 @@ class FormVitalDetails extends ORDataObject
     public function clear_interpretation()
     {
         $this->interpretation_codes = null;
-        $this->interpretation_id = null;
+        $this->interpretation_option_id = null;
+        $this->interpretation_list_id = null;
         $this->interpretation_title = null;
     }
 
