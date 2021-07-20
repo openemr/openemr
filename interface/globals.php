@@ -18,9 +18,9 @@ if ($response !== true) {
     die(htmlspecialchars($response));
 }
 
+use Dotenv\Dotenv;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
-use Dotenv\Dotenv;
 use OpenEMR\Services\VersionService;
 
 // Throw error if the php openssl module is not installed.
@@ -88,7 +88,7 @@ if (preg_match("/^[^\/]/", $web_root)) {
 //   $web_root =  "/openemr";
 
 $ResolveServerHost = static function () {
-    $scheme = $_SERVER['REQUEST_SCHEME'] . "://";
+    $scheme = ($_SERVER['REQUEST_SCHEME'] ?? 'https') . "://";
     $possibleHostSources = array('HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR');
     $sourceTransformations = array(
         "HTTP_X_FORWARDED_HOST" => function ($value) {
@@ -269,13 +269,6 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
     if (!mkdir($concurrentDirectory = $GLOBALS['MPDF_WRITE_DIR'], 0755, true) && !is_dir($concurrentDirectory)) {
         throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
     }
-}
-
-if (empty($GLOBALS['site_addr_oath'])) {
-    $GLOBALS['site_addr_oath'] = $ResolveServerHost();
-}
-if (empty($GLOBALS['qualified_site_addr'])) {
-    $GLOBALS['qualified_site_addr'] = rtrim($GLOBALS['site_addr_oath'] . trim($GLOBALS['webroot']), "/");
 }
 
 // Includes composer autoload
@@ -525,6 +518,14 @@ if (!empty($glrow)) {
 // Migrated this to populate after the standard globals in order to support globals that require
 //  more security.
 require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
+
+// Resolve server globals (use the manual override if set already in globals)
+if (empty($GLOBALS['site_addr_oath'])) {
+    $GLOBALS['site_addr_oath'] = $ResolveServerHost();
+}
+if (empty($GLOBALS['qualified_site_addr'])) {
+    $GLOBALS['qualified_site_addr'] = rtrim($GLOBALS['site_addr_oath'] . trim($GLOBALS['webroot']), "/");
+}
 
 // Need to utilize a session since library/sql.inc is established before there are any globals established yet.
 //  This means that the first time, it will be skipped even if the global is turned on. However,

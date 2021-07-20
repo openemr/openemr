@@ -44,7 +44,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ((!$GLOBALS['ccda_alt_service_enable']) > 0) {
+if ($GLOBALS['ccda_alt_service_enable'] > 1) {
     die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
 }
 
