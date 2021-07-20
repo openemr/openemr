@@ -24,9 +24,6 @@ preg_match('/\/(\w*)\?/', $_SERVER['REQUEST_URI'], $matches);
 $actionName = $matches[1] ?? '';
 $controllerName = $urlArray[$countUrlArray - 2] ?? '';
 
-session_id($_REQUEST['me']);
-session_start();
-
 //skipping OpenEMR authentication if the controller is SOAP and action is INDEX
 //SOAP authentication is done in the controller EncounterccdadispatchController
 if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
