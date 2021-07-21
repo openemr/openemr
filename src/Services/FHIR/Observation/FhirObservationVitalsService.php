@@ -617,7 +617,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     private function getInterpretationForColumn($record, $column): ?FHIRCodeableConcept
     {
         if (isset($record['details'][$column])) {
-            $code = $record['details'][$column]['interpretation_code'];
+            $code = $record['details'][$column]['interpretation_codes'];
             $text = $record['details'][$column]['interpretation_title'];
             return UtilsService::createCodeableConcept([$code => $text], FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION);
         }
@@ -631,13 +631,16 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $quantity->setValue(floatval($record[$column]));
             $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $unit = $record[$column . '_unit'] ?? null;
+            $code = $unit;
             // @see http://hl7.org/fhir/R4/observation-vitalsigns.html for the codes on this
             if ($unit === 'in') {
                 $unit = 'in_i';
             } else if ($unit === 'lb') {
                 $unit = 'lb_av';
+            } else if ($unit === 'degF') {
+                $code = '[degF]';
             }
-            $quantity->setCode($unit);
+            $quantity->setCode($code);
             $quantity->setUnit($unit);
             return $quantity;
         }
