@@ -635,10 +635,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // @see http://hl7.org/fhir/R4/observation-vitalsigns.html for the codes on this
             if ($unit === 'in') {
                 $unit = 'in_i';
+                $code = "[" . $unit . "]";
             } else if ($unit === 'lb') {
                 $unit = 'lb_av';
+                $code = "[" . $unit . "]";
             } else if ($unit === 'degF') {
-                $code = '[degF]';
+                $code = "[" . $unit . "]";
             }
             $quantity->setCode($code);
             $quantity->setUnit($unit);
