@@ -27,7 +27,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceService;
 
-$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
+//$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
+$debug = 1;
 $paydate = parse_date($_GET['paydate']);
 $encount = 0;
 
@@ -159,8 +160,7 @@ function era_callback_check(&$out)
     global $StringToEcho,$debug;
 
     if ($_GET['original'] == 'original') {
-        $StringToEcho = "<br/><br/><br/><br/><br/><br/>";
-        $StringToEcho .= "<table class='table table-bordered' cellpadding='0' cellspacing='0' width='750'>";
+        $StringToEcho .= "<table class='table' cellpadding='0' cellspacing='0' width='750'>";
         $StringToEcho .= "<tr class='table-light'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
         $WarningFlag = false;
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
@@ -177,14 +177,17 @@ function era_callback_check(&$out)
             }
 
             $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
-            $StringToEcho .= "<td><input type='checkbox'  name='chk" . attr($out['check_number' . $check_count]) . "' value='" . attr($out['check_number' . $check_count]) . "'/></td>";
-            $StringToEcho .= "<td>" . text($out['check_number' . $check_count]) . "</td>";
+            $StringToEcho .= "<td><input type='checkbox' id='chk" . attr($out['check_number' . $check_count]);
+            $StringToEcho .= "' value='" . attr($out['check_number' . $check_count]) . "'>" . text($out['check_number' . $check_count]) . "</td>";
             $StringToEcho .= "<td>" . text($out['payee_name' . $check_count]) . "</td>";
             $StringToEcho .= "<td align='right'>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
             $StringToEcho .= "</tr>";
         }
 
-        $StringToEcho .= "<tr class='table-light'><td colspan='4' align='center'><input type='submit' name='CheckSubmit' value='Submit'/></td></tr>";
+        $StringToEcho .= "<tr class='table-light'><td align='left'><button type='button' class='btn btn-secondary btn-save' name='Submit1' onclick='checkAll(true)'>" . xlt('Check All') . "</button></td>";
+        $StringToEcho .= "<td><input type='submit' name='CheckSubmit' value='Submit'/></td>";
+        $StringToEcho .= "</tr>";
+ 
         if ($WarningFlag == true) {
             $StringToEcho .= "<tr class='table-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
@@ -784,12 +787,20 @@ if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
+function checkAll(checked) {
+    var f = document.forms[0];
+    for (var i = 0; i < f.elements.length; ++i) {
+        var etype = f.elements[i].type;
+        if (etype === 'checkbox')
+            f.elements[i].checked = checked;
+    }
+}
 </script>
 <input type="hidden" name="paydate" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['paydate'])); ?>" />
-<input type="hidden" name="post_to_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['post_to_date'])); ?>" />
-<input type="hidden" name="deposit_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['deposit_date'])); ?>" />
+<input type="hidden" name="post_to_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['post_to_date'] ?? '')); ?>" />
+<input type="hidden" name="deposit_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['deposit_date'] ?? '')); ?>" />
 <input type="hidden" name="debug" value="<?php echo attr($_REQUEST['debug']); ?>" />
-<input type="hidden" name="InsId" value="<?php echo attr($_REQUEST['InsId']); ?>" />
+<input type="hidden" name="InsId" value="<?php echo attr($_REQUEST['InsId'] ?? ''); ?>" />
 <input type="hidden" name="eraname" value="<?php echo attr($eraname); ?>" />
 </form>
 </body>
