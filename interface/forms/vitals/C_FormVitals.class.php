@@ -19,7 +19,6 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
-use Controller;
 
 class C_FormVitals extends Controller
 {
