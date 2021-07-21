@@ -2166,7 +2166,7 @@ function genCcda(pd) {
     // 2nd is latest referral from transactions.
     if (pd.referral_reason[0].text !== "") {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
-    } else if (pd.referral_reason[1].text !== "") {
+    } else if (pd.referral_reason[1].text !== "" && typeof pd.referral_reason[1].text !== 'undefined') {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
     }
 // Health Concerns

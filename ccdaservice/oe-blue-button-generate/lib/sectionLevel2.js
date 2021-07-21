@@ -73,6 +73,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('allergies'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.6.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6.1"),
@@ -81,7 +82,6 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("allergies")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -91,8 +91,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
                     content: [
                         [entryLevel.allergyProblemAct, required]
                     ],
-                    dataKey: "allergies",
-                    required: true
+                    dataKey: "allergies"
                 }
             ]
         }]
@@ -104,6 +103,7 @@ exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('medications'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.1.1", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1.1"),
@@ -112,7 +112,6 @@ exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("medications")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -122,8 +121,7 @@ exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
                     content: [
                         [entryLevel.medicationActivity, required]
                     ],
-                    dataKey: "medications",
-                    required: true
+                    dataKey: "medications"
                 }
             ]
         }]
@@ -135,6 +133,7 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('problems'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.5.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5.1"),
@@ -143,7 +142,6 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("problems")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -153,8 +151,7 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
                     content: [
                         [entryLevel.problemConcernAct, required]
                     ],
-                    dataKey: "problems",
-                    required: true
+                    dataKey: "problems"
                 }, {
                     key: "entry",
                     existsWhen: condition.keyExists("problems_comment"),
@@ -185,6 +182,7 @@ exports.proceduresSectionEntriesRequired = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('procedures'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.7"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.7.1"),
@@ -193,7 +191,6 @@ exports.proceduresSectionEntriesRequired = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("procedures")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -222,6 +219,7 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('results'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.3.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3.1"),
@@ -230,7 +228,6 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("results")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -240,8 +237,7 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
                     content: [
                         [entryLevel.resultOrganizer, required]
                     ],
-                    dataKey: "results",
-                    required: true
+                    dataKey: "results"
                 }
             ]
         }]
@@ -253,6 +249,7 @@ exports.encountersSectionEntriesOptional = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('encounters'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.22.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.22.1"),
@@ -261,7 +258,6 @@ exports.encountersSectionEntriesOptional = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("encounters")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -283,6 +279,7 @@ exports.immunizationsSectionEntriesOptional = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('immunizations'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.2"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.2.1"),
@@ -291,7 +288,6 @@ exports.immunizationsSectionEntriesOptional = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("immunizations")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -313,6 +309,7 @@ exports.payersSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('payers'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.18"),
                 fieldLevel.templateCode("PayersSection"),
@@ -320,7 +317,6 @@ exports.payersSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("payers")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -342,6 +338,7 @@ exports.assessmentSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('assessments'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
                 fieldLevel.templateCode("AssessmentSection"),
@@ -365,6 +362,7 @@ exports.planOfCareSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('plan_of_care'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.10"),
                 fieldLevel.templateCode("PlanOfCareSection"),
@@ -401,6 +399,7 @@ exports.goalSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('goals'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.60"),
                 fieldLevel.templateCode("GoalSection"),
@@ -431,6 +430,7 @@ exports.socialHistorySection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('social_history'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.17", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.17"),
@@ -480,6 +480,7 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('vitals'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.4.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4.1"),
@@ -510,6 +511,7 @@ exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('medical_devices'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.23", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.23"),
@@ -518,7 +520,6 @@ exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("medical_devices")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -540,6 +541,7 @@ exports.functionalStatusSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('functional_status'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.14", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.14"),
@@ -548,7 +550,6 @@ exports.functionalStatusSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("functional_status")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -558,8 +559,7 @@ exports.functionalStatusSection = function (htmlHeader, na) {
                     content: [
                         entryLevel.functionalStatusOrganizer
                     ],
-                    dataKey: "functional_status",
-                    required: true
+                    dataKey: "functional_status"
                 }
             ]
         }]
@@ -571,6 +571,7 @@ exports.mentalStatusSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('mental_status'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.56", "2015-08-01"),
                 fieldLevel.templateCode("MentalStatusSection"),
@@ -578,7 +579,7 @@ exports.mentalStatusSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("mental_status")
-                }, {// mental status does not use a header table.
+                }, {
                     key: "text",
                     text: leafLevel.input,
                     dataKey: "mental_status.note"
@@ -599,6 +600,7 @@ exports.reasonForReferralSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('referral_reason'),
             content: [
                 fieldLevel.templateIdExt("1.3.6.1.4.1.19376.1.5.3.1.3.1", "2014-06-09"),
                 fieldLevel.templateId("1.3.6.1.4.1.19376.1.5.3.1.3.1"),
@@ -623,6 +625,7 @@ exports.healthConcernSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
+            attributes: condition.isNullFlavorSection('health_concerns'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
                 fieldLevel.templateCode("HealthConcernSection"),
