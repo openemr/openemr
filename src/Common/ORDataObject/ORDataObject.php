@@ -11,8 +11,6 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class ORDataObject
 {
-    // any properties that are not database values here should be prefixed with an underscore( _ ) to preserve logic
-    // where we retrieve all of the properties of a class that present DB columns
     protected $_prefix;
     protected $_table;
     public $_db; // Need to be public so can access from C_Document class
