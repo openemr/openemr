@@ -68,23 +68,6 @@ class C_FormVitals extends Controller
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
-    /**
-     * TODO: can this function be removed?
-     * @deprecated
-     * @return mixed
-     */
-    public function default_action_old()
-    {
-        //$vitals = array();
-        //array_push($vitals, new FormVitals());
-        $vitals = new FormVitals();
-        $results = [];
-        $this->populate_session_user_information($vitals);
-        $this->assign("vitals", $vitals);
-        $this->assign("results", $results);
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-    }
-
     public function setFormId($form_id)
     {
         $this->form_id = $form_id;

@@ -32,7 +32,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     $_POST['bpd'] = $diastolic;
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
-    $c = new FormVitalsController();
+    $c = new C_FormVitals();
     echo $c->default_action_process($_POST);
 }
 
