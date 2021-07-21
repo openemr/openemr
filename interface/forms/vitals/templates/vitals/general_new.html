@@ -159,7 +159,7 @@ function vitalsFormSubmitted() {
                                     <th class='currentvalues p-2' title="{xla t='Date and time of this observation'}">
                                         <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
                                     </th>
-                                    <th>{xlt t="Abn"}</th>
+                                    <th class="editonly">{xlt t="Abn"}</th>
                                     {foreach item=result from=$results}
                                         <th class='historicalvalues'>{$result->get_date()|date_format:"%Y-%m-%d %H:%M"|text}</th>
                                     {/foreach}
@@ -213,7 +213,7 @@ function vitalsFormSubmitted() {
                                     <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
                                             name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
-                                        <td></td>
+                                        <td class="editonly"></td>
                                         { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
                                             vitalsValue='get_BMI' results=$results }
                                     </tr>
@@ -222,7 +222,7 @@ function vitalsFormSubmitted() {
                                         <td>{xlt t="BMI Status"}</td><td>{xlt t="Type"}</td>
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='20'
                                         name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()|attr}"/></td>
-                                        <td></td>
+                                        <td class="editonly"></td>
                                         { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
                                         vitalsValue='get_BMI_status' results=$results }
                                     </tr>

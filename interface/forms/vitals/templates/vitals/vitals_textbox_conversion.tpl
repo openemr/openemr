@@ -27,7 +27,7 @@
                    value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"
                    onChange="convUnit('usa', '{$unit}','{$input}_input')" title='{xla t=$vitalsValueUSAHelpTitle|default:''}'/>
         </td>
-    <td>
+    <td class="editonly">
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
     { include file='vitals_historical_values.tpl' useMetric=false vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
@@ -63,7 +63,7 @@
                    value="{if $vitals->$vitalsValueMetric() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
                    onChange="convUnit('metric', '{$unit}','{$input}_input')"/>
         </td>
-        <td>
+        <td class="editonly">
             {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY }
                 <!-- we only show the selector if this the only row being displayed -->
                 { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }

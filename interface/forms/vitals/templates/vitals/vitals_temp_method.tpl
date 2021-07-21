@@ -6,6 +6,6 @@
             <option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>{xlt t="Axillary"}
             <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xlt t="Temporal Artery"}
         </select></td>
-    <td></td>
+    <td class="editonly"></td>
 
     { include file='vitals_historical_values.tpl' useMetric=false vitalsValue="get_temp_method" results=$results }

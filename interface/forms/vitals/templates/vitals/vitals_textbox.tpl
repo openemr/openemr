@@ -16,7 +16,7 @@
         {/if}
 
     </td>
-    <td>
+    <td class="editonly">
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
 

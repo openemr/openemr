@@ -9,7 +9,7 @@
     <td class='currentvalues p-2'>
         <textarea class="form-control" name='{$input}' id='{$input}_input'>{if $vitalsValue != 0}{$vitalsValue|text}{/if}</textarea>
     </td>
-    <td>
+    <td class="editonly">
     </td>
     {foreach item=result from=$results}
         <td  class='historicalvalues'>
