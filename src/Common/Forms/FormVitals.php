@@ -1,7 +1,10 @@
 <?php
 
 /**
- * FormVitals.php
+ * FormVitals represents a collection of vital measurements for a specific patient in the system.
+ * For backwards compatibility it extends ORDataObject (which implements the a form of the Active record data pattern),
+ * but the preferred mechanism is to use this as a POPO (Plain old PHP object) and save / retrieve data using
+ * the VitalsService class.
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
