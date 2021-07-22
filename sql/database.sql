@@ -6491,6 +6491,17 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
 
+-- Vitals Interpretation Values
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','vitals-interpretation','Observation Interpretation',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','N','Normal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','H','High',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','L','Low',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','A','Abnormal',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','AA','Critical abnormal',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HH','Critical high',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
 -- --------------------------------------------------------
 
 --
@@ -12575,17 +12586,16 @@ CREATE TABLE `export_job` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB COMMENT='fhir export jobs';
 
+DROP TABLE IF EXISTS `form_vital_details`;
 CREATE TABLE `form_vital_details` (
-`id` int(11) NOT NULL AUTO_INCREMENT,
-`form_id` int(11) NOT NULL COMMENT 'FK to vital_forms.id',
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`form_id` bigint(20) NOT NULL COMMENT 'FK to vital_forms.id',
 `vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
 `interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
 `interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
 `interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
 `interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
 PRIMARY KEY (`id`),
-KEY `vital_details_form` (`form_id`,`vitals_column`),
-KEY `fk_list_options_id` (`interpretation_list_id`,`interpretation_option_id`),
-CONSTRAINT `fk_list_options_id` FOREIGN KEY (`interpretation_list_id`, `interpretation_option_id`)
-REFERENCES `list_options` (`list_id`, `option_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Detailed information of each vital_forms observation column';
+KEY `fk_form_id` (`form_id`),
+KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
+) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
