@@ -202,6 +202,8 @@ class C_FormVitals extends Controller
     {
         parent::populate_object($obj);
 
+        $this->populate_session_user_information($obj);
+
         if ($GLOBALS['encounter'] < 1) {
             $GLOBALS['encounter'] = date("Ymd");
         }
