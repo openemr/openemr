@@ -59,8 +59,9 @@
     {else}
         <td class='currentvalues p-2'>
     {/if}
+            <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
             <input type="text" class="form-control" size='5' id='{$input}_input_metric'
-                   value="{if $vitals->$vitalsValueMetric() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
+                   value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
                    onChange="convUnit('metric', '{$unit}','{$input}_input')"/>
         </td>
         <td class="editonly">
