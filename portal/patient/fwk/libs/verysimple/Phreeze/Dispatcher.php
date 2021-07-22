@@ -194,7 +194,7 @@ class Dispatcher
      * @param string $line
      * @param string $context
      */
-    static function HandleException($code, $string, $file, $line, $context)
+    static function HandleException($code, $string, $file, $line, $context = '')
     {
         ExceptionThrower::HandleError($code, $string, $file, $line, $context);
     }

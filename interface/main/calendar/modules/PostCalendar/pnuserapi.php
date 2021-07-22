@@ -1,6 +1,23 @@
 <?php
 
-@define('__POSTCALENDAR__', 'PostCalendar');
+/**
+ * API for the calendar
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @copyright Copyright (c) 2002 The PostCalendar Team
+ * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
+ * @author    The PostCalendar Team
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
+
+use OpenEMR\Services\UserService;
+
+if (!defined('__POSTCALENDAR__')) {
+    @define('__POSTCALENDAR__', 'PostCalendar');
+}
+
 /**
  *  $Id$
  *
@@ -30,6 +47,7 @@
 //=========================================================================
 //  Require utility classes
 //=========================================================================
+
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once($GLOBALS['fileroot'] . "/library/group.inc");
 require_once($GLOBALS['fileroot'] . "/library/encounter_events.inc.php");
@@ -838,7 +856,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
         if ($pc_username == '__PC_ALL__' || $pc_username == -1) {
             $ruserid = -1;
         } else {
-            $ruserid = getIDfromUser($pc_username);
+            $user = (new UserService())->getIdByUsername($pc_username);
+            if ($user) {
+                $ruserid = $user;
+            } else {
+                $ruserid = -1;
+            }
         }
     }
 

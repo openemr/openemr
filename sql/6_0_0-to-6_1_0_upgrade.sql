@@ -72,15 +72,10 @@
 
 --  #IfUuidNeedUpdate
 --    argument: table_name
---    behavior: this will add and populate a uuid column into table
+--    behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
 
---  #IfUuidNeedUpdateId
---    argument: table_name primary_id
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateVertical
---    argument: table_name table_columns
---    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
+--  #IfMappingUuidNeedUpdate
+--    behavior: this will populate the mapping_uuid table
 
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
@@ -118,7 +113,7 @@
 #IfUuidNeedUpdate users
 #EndIf
 
-#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
+#IfUuidNeedUpdate facility_user_ids
 #EndIf
 
 #IfUuidNeedUpdate facility
@@ -130,16 +125,16 @@
 #IfUuidNeedUpdate lists
 #EndIf
 
-#IfUuidNeedUpdateId procedure_order procedure_order_id
+#IfUuidNeedUpdate procedure_order
 #EndIf
 
-#IfUuidNeedUpdateId drugs drug_id
+#IfUuidNeedUpdate drugs
 #EndIf
 
 #IfUuidNeedUpdate prescriptions
 #EndIf
 
-#IfUuidNeedUpdateId procedure_result procedure_result_id
+#IfUuidNeedUpdate procedure_result
 #EndIf
 
 #IfUuidNeedUpdate ccda
@@ -598,6 +593,15 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 #EndIf
 
+#---------- Migrate old form_clinical_notes to form_clinic_note if it is installed ----------#
+#IfColumn form_clinical_notes followup_timing
+ALTER TABLE `form_clinical_notes` RENAME TO `form_clinic_note`;
+UPDATE `forms` SET `form_name` = 'Clinic Note' WHERE `form_name` = 'Clinical Notes';
+UPDATE `forms` SET `formdir` = 'clinic_note' WHERE `formdir` = 'clinical_notes';
+UPDATE `registry` SET `name` = 'Clinic Note' WHERE `name` LIKE 'Clinical Notes%' AND `directory` = 'clinical_notes';
+UPDATE `registry` SET `directory` = 'clinic_note' WHERE `directory` = 'clinical_notes';
+#EndIf
+
 #IfNotTable form_clinical_notes
 CREATE TABLE `form_clinical_notes` (
     `id` bigint(20) NOT NULL,
@@ -615,4 +619,252 @@ CREATE TABLE `form_clinical_notes` (
     `clinical_notes_type` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB;
 INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`) VALUES ('Clinical Notes', 1, 'clinical_notes', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '', 1, 0, 'encounters|notes');
+#EndIf
+
+#IfNotRow ccda_components ccda_components_field medical_devices
+INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `ccda_components_name`, `ccda_type`) VALUES
+(23, 'medical_devices', 'Medical Devices', 1),
+(24, 'goals', 'Goals', 1);
+#EndIf
+
+#IfNotRow ccda_sections ccda_sections_field medical_devices
+INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
+(46, 3, 'medical_devices', 'Medical Devices', 0),
+(47, 3, 'goals', 'Goals', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id Care_Team_Status
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','active','Active',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
+#EndIf
+
+#IfMissingColumn patient_data birth_fname
+ALTER TABLE `patient_data` ADD `birth_fname` TEXT;
+#EndIf
+
+#IfMissingColumn patient_data birth_lname
+ALTER TABLE `patient_data` ADD `birth_lname` TEXT;
+#EndIf
+
+#IfMissingColumn patient_data birth_mname
+ALTER TABLE `patient_data` ADD `birth_mname` TEXT;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id birth_fname
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='fname' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='lname' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', IFNULL(@group_id,@backup_group_id), 'Birth Name', @seq+1, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', IFNULL(@group_id,@backup_group_id), '', @seq+2, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', IFNULL(@group_id,@backup_group_id), '', @seq+3, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id evaluation_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id goal
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
+#EndIf
+
+#IfNotIndex audit_details audit_master_id
+CREATE INDEX `audit_master_id` ON `audit_details` (`audit_master_id`);
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id health_concern
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
+#EndIf
+
+#IfMissingColumn form_vitals oxygen_flow_rate
+ALTER TABLE `form_vitals` ADD `oxygen_flow_rate` FLOAT(5,2) NULL DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_clinical_notes note_related_to
+ALTER TABLE `form_clinical_notes` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+#EndIf
+
+#IfMissingColumn form_care_plan note_related_to
+ALTER TABLE `form_care_plan` ADD `note_related_to` TEXT COMMENT 'Reference to lists id for note relationships(json)';
+#EndIf
+
+#IfNotTable insurance_type_codes
+CREATE TABLE `insurance_type_codes` (
+  `id` int(2) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `claim_type` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
+#EndIf
+
+#IfNotColumnTypeDefault insurance_companies alt_cms_id varchar(15) NULL
+ALTER TABLE `insurance_companies` MODIFY `alt_cms_id` varchar(15) NULL;
+#EndIf
+
+#IfMissingColumn form_vitals uuid
+ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_vitals uuid
+CREATE UNIQUE INDEX `uuid` ON `form_vitals` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_vitals
+#EndIf
+
+#IfMissingColumn uuid_mapping resource_path
+ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_vitals ped_weight_height
+ALTER TABLE `form_vitals` ADD `ped_weight_height` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_bmi
+ALTER TABLE `form_vitals` ADD `ped_bmi` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn form_vitals ped_head_circ
+ALTER TABLE `form_vitals` ADD `ped_head_circ` FLOAT(4,1) DEFAULT '0.00';
+#EndIf
+
+#IfMissingColumn history_data uuid
+ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex history_data uuid
+CREATE UNIQUE INDEX `uuid` ON `history_data` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate history_data
+#EndIf
+
+#IfMissingColumn form_clinical_notes form_id
+ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
+ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_clinical_notes uuid
+ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex form_clinical_notes uuid
+CREATE UNIQUE INDEX `uuid` ON `form_clinical_notes` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate form_clinical_notes
+#EndIf
+
+#IfMissingColumn documents uuid
+ALTER TABLE `documents` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
+#EndIf
+
+#IfNotIndex documents uuid
+CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate documents
+#EndIf
+
+#IfNotRow list_options list_id Clinical_Note_Category
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+       ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+#EndIf
+
+#IfMissingColumn form_clinical_notes clinical_notes_category
+ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(100) DEFAULT NULL;
+#EndIf
+
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id consultation_note notes LOINC:11488-4
+UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
+#EndIf
+
+#IfMissingColumn procedure_report uuid
+ALTER TABLE `procedure_report` ADD `uuid` binary(16) DEFAULT NULL AFTER `procedure_report_id`;
+#EndIf
+
+#IfNotIndex procedure_report uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_report` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate procedure_report
+#EndIf
+
+#IfMissingColumn procedure_providers uuid
+ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid`;
+#EndIf
+
+#IfNotIndex procedure_providers uuid
+CREATE UNIQUE INDEX `uuid` ON `procedure_providers` (`uuid`);
+#EndIf
+
+#IfUuidNeedUpdate procedure_providers
+#EndIf
+
+#IfMissingColumn patient_data dupscore
+ALTER TABLE `patient_data` ADD COLUMN `dupscore` INT NOT NULL default -9;
+#EndIf
+
+#IfMissingColumn procedure_type procedure_type_name
+ALTER TABLE `procedure_type` ADD `procedure_type_name` VARCHAR(64) NULL;
+#EndIf
+
+#IfNotIndex external_procedures ep_pid
+CREATE INDEX `ep_pid` ON `external_procedures` (`ep_pid`);
+#EndIf
+
+#IfNotIndex users abook_type
+CREATE INDEX `abook_type` ON `users` (`abook_type`);
+#EndIf
+
+
+#IfNotIndex procedure_type ptype_procedure_code
+ALTER TABLE `procedure_type` ADD INDEX `ptype_procedure_code`(`procedure_code`);
+#EndIf
+
+#IfMappingUuidNeedUpdate
+#EndIf
+
+#IfRow2D list_options list_id page_validation option_id messages#new_note
+UPDATE `list_options` SET `notes` = '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}, "note":{"presence": {"message": "Please enter a note"}}}' where option_id = 'messages#new_note';
 #EndIf

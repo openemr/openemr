@@ -3,11 +3,11 @@
 class Controller extends Smarty
 {
 
-       var $_current_action;
-       var $_state;
-       var $_args = array();
+       public $_current_action;
+       public $_state;
+       public $_args = array();
 
-    function __construct()
+    public function __construct()
     {
          parent::__construct();
          $this->template_mod = "general";
@@ -15,31 +15,31 @@ class Controller extends Smarty
          $this->_state = true;
          $this->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main';
          $this->compile_check = true;
-         $this->plugins_dir = array(dirname(__FILE__) . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
+         $this->plugins_dir = array(__DIR__ . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
          $this->assign("CONTROLLER", "controller.php?");
-         $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);
+         $this->assign("CONTROLLER_THIS", "controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
          $this->assign('GLOBALS', $GLOBALS);
     }
 
-    function set_current_action($action)
+    public function set_current_action($action)
     {
          $this->_current_action = $action;
     }
 
-    function default_action()
+    public function default_action()
     {
          echo "<html><body></body></html>";
     }
 
-    function process_action()
+    public function process_action()
     {
          $this->default_action();
     }
 
-    function populate_object(&$obj)
+    public function populate_object(&$obj)
     {
         if (!is_object($obj)) {
             $this->function_argument_error();
@@ -48,28 +48,28 @@ class Controller extends Smarty
         foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if ((!(strpos("_", $varname) === 0)) && is_callable(array($obj,$func))) {
+            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
-                call_user_func_array(array(&$obj,$func), array($var, $_POST));
+                $obj->$func($var, $_POST);
             }
         }
 
             return true;
     }
 
-    function function_argument_error()
+    public function function_argument_error()
     {
          $this->display($GLOBALS['template_dir'] . "error/" . $this->template_mod . "_function_argument.html");
          exit;
     }
 
-    function i_once($file)
+    public function i_once($file)
     {
          return include_once($file);
     }
 
-    function act($qarray)
+    public function act($qarray)
     {
 
         if (isset($_GET['process'])) {
@@ -91,7 +91,7 @@ class Controller extends Smarty
             $c_action = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
             $args = array_reverse($args);
 
-        if (!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] . "/controllers/C_" . $c_name . ".class.php")) {
+        if (!$this->i_once($GLOBALS['fileroot'] . "/controllers/C_" . $c_name . ".class.php")) {
             echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
             exit;
         }
@@ -131,20 +131,18 @@ class Controller extends Smarty
 
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
+        } elseif (is_callable(array(&$c_obj,$c_action . "_action"))) {
+            //echo "ca: " . $c_action . "_action";
+            $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
         } else {
-            if (is_callable(array(&$c_obj,$c_action . "_action"))) {
-                //echo "ca: " . $c_action . "_action";
-                $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
-            } else {
-                echo "The action trying to be performed: " . $c_action . " does not exist controller: " . $name;
-            }
+            echo "The action trying to be performed: " . $c_action . " does not exist controller: " . $name;
         }
 
 
             return $output;
     }
 
-    function _link($action = "default", $inlining = false)
+    public function _link($action = "default", $inlining = false)
     {
          $url_parts = explode("&", $_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);

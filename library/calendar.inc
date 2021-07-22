@@ -1,19 +1,16 @@
 <?php
 
+/**
+ * Holds functions for the calendar, one is for holidays
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
+
 //Require once the holidays controller for the is_holiday() function
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
-
-function getIDfromUser($name)
-{
-    $query = "select id from users where username=? limit 1";
-    $rez = sqlStatement($query, array($name));
-    $row = sqlFetchArray($rez);
-    if (!is_numeric($row['id'])) {
-        return -1;
-    } else {
-        return $row['id'];
-    }
-}
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
@@ -69,14 +66,6 @@ function getUserFacWH($uID, $fID)
         $returnVal[] = $row['warehouse_id'];
     }
     return $returnVal;
-}
-
-//retrieve the name based on the username
-function getNameFromUsername($username)
-{
-    $query = "select * from users where username like ? and username != ''";
-    $res = sqlQuery($query, [$username]);
-    return $res;
 }
 
  /**

@@ -17,11 +17,20 @@ namespace OpenEMR\Services;
 require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
 
 use Document;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Validators\ProcessingResult;
 
-class DocumentService
+class DocumentService extends BaseService
 {
+    const TABLE_NAME = "documents";
+
     public function __construct()
     {
+        parent::__construct(self::TABLE_NAME);
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
     public function isValidPath($path)
@@ -148,5 +157,80 @@ class DocumentService
         }
 
         return ['filename' => $filename, 'mimetype' => $filenameSql['mimetype'], 'file' => $document];
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $processingResult = new ProcessingResult();
+
+        try {
+            $sql = "
+            SELECT
+                docs.id
+                ,docs.uuid
+                ,docs.url
+                ,docs.mimetype
+                ,docs.foreign_id
+                ,docs.encounter_id
+                ,docs.foreign_reference_id
+                ,docs.foreign_reference_table
+                ,docs.deleted
+                ,docs.drive_uuid
+                ,docs.`date`
+                ,patients.puuid
+                ,encounters.euuid
+                ,users.user_uuid
+                ,users.user_username
+                ,users.user_npi
+                ,users.user_physician_type
+
+            FROM
+                documents docs
+            LEFT JOIN (
+                select
+                    encounter AS eid
+                    ,uuid AS euuid
+                    ,`date` AS encounter_date
+                FROM
+                    form_encounter
+            ) encounters ON docs.encounter_id = encounters.eid
+            LEFT JOIN
+            (
+                SELECT
+                    uuid AS puuid
+                    ,pid
+                    FROM patient_data
+            ) patients ON docs.foreign_id = patients.pid
+            LEFT JOIN
+            (
+                SELECT
+                    uuid AS user_uuid
+                    ,username AS user_username
+                    ,id AS user_id
+                    ,npi AS user_npi
+                    ,physician_type AS user_physician_type
+                    FROM
+                        users
+            ) users ON docs.`owner` = users.user_id
+        ";
+            $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+            $sql .= $whereClause->getFragment();
+            $sqlBindArray = $whereClause->getBoundValues();
+
+            $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+            while ($row = sqlFetchArray($statementResults)) {
+                $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                $processingResult->addData($resultRecord);
+            }
+        } catch (SearchFieldException $exception) {
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+        }
+        return $processingResult;
+    }
+
+    public function getUuidFields(): array
+    {
+        return [ 'uuid', 'user_uuid', 'drive_uuid', 'puuid', 'euuid'];
     }
 }

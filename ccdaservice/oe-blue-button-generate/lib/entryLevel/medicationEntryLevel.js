@@ -17,6 +17,7 @@ var medicationInformation = {
         classCode: "MANU"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.23", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.23"),
         fieldLevel.id, {
             key: "manufacturedMaterial",
@@ -146,6 +147,7 @@ exports.medicationActivity = {
         }
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.16", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.16"),
         fieldLevel.uniqueId,
         fieldLevel.id, {
@@ -160,13 +162,20 @@ exports.medicationActivity = {
                 "institutionSpecified": "true",
                 "operator": "A"
             },
-            content: {
+            content: [{
                 key: "period",
                 attributes: {
                     value: leafLevel.inputProperty("value"),
-                    unit: leafLevel.inputProperty("unit")
+                    unit: leafLevel.inputProperty("unit"),
                 },
-            },
+                existsWhen: condition.propertyNotEmpty('unit'),
+            }, {
+                key: "period",
+                attributes: {
+                    value: leafLevel.inputProperty("value"),
+                },
+                existsWhen: condition.propertyEmpty('unit'),
+            }],
             dataKey: "administration.interval.period",
         }, {
             key: "routeCode",
@@ -178,6 +187,18 @@ exports.medicationActivity = {
                 value: leafLevel.inputProperty("value"),
                 unit: leafLevel.inputProperty("unit")
             },
+            existsWhen: function (input) {
+                return (input && input['unit']);
+            },
+            dataKey: "administration.dose"
+        }, {
+            key: "doseQuantity",
+            attributes: {
+                value: leafLevel.inputProperty("value")
+            },
+            existsWhen: function (input) {
+                return (input && !input['unit']);
+            },
             dataKey: "administration.dose"
         }, {
             key: "rateQuantity",
@@ -186,16 +207,20 @@ exports.medicationActivity = {
                 unit: leafLevel.inputProperty("unit")
             },
             dataKey: "administration.rate"
-        }, {
+        }, /*{
             key: "administrationUnitCode",
             attributes: leafLevel.code,
+            existsWhen: function (input) {
+                return (input && input['code'] !== "");
+            },
             dataKey: "administration.form"
-        }, {
+        },*/ {
             key: "consumable",
             content: medicationInformation,
             dataKey: "product"
         },
-        fieldLevel.performer, {
+        /* below not required for v2 screw v1 */
+        /*fieldLevel.performer, {
             key: "participant",
             attributes: {
                 typeCode: "CSM"
@@ -241,7 +266,7 @@ exports.medicationActivity = {
             ],
             dataKey: "precondition",
             warning: "templateId needs to be in preconditionForSubstanceAdministration but CCD_1.xml contradicts"
-        }
+        }*/
     ],
     notImplemented: [
         "code",

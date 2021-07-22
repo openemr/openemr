@@ -761,7 +761,7 @@ $GLOBALS_METADATA = array(
         'text_templates_enabled' => array(
             xl('Enable Text Templates in Encounter Forms'),
             'bool',                           // data type
-            '0',                              // default = false
+            '1',                              // default = true
             xl('Allow Double Click to select Nation Note text template from any encounter form text area')
         ),
 
@@ -854,6 +854,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('A referral source may be specified for each visit.')
+        ),
+
+        'gbl_visit_onset_date' => array(
+            xl('Onset/Hosp Date for Encounters'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('An onset/hospitalization date may be specified for each visit.')
         ),
 
         'gbl_form_save_close' => array(
@@ -2967,10 +2974,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for OAuth2 and FHIR)'),
+            xl('Site Address Override (if needed for OAuth2, FHIR or CCDA)'),
             'text',
             '',
-            xl('Site Address (required for OAuth2 and FHIR). Example is') . ' https://localhost:8300 .'
+            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR or CCDA. Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(
@@ -3019,13 +3026,18 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
         ),
-
+        'cc_stripe_terminal' => array(
+            xl('In person payments with Stripe Verifone P400'),
+            'bool',
+            '0',
+            xl('Allow in person credit card payments using Stripe Verifone P400. Ensure Stripe gateway is enabled.')
+        ),
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
-                'InHouse' => xl('In House'),
-                'AuthorizeNet' => xl('Authorize.Net'),
-                'Stripe' => xl('Stripe')
+                'InHouse' => xl('In House Authorize Payments'),
+                'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
+                'Stripe' => xl('Gateway for Stripe Manual Payments')
             ),
             'InHouse',
             xl('Enable a Payment Gateway Service for processing credit card transactions')

@@ -67,17 +67,6 @@ var getText = function (topArrayKey, headers, values) {
     });
     return result;
 };
-// Replace with static table
-/*var alllergiesTextHeaders = ["Substance", "Overall Severity", "Reaction", "Reaction Severity", "Status"];
-var allergiesTextRow = [
-    leafLevel.deepInputProperty("observation.allergen.name", ""),
-    leafLevel.deepInputProperty("observation.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.reaction.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.status.name", "")
-];*/
-
-//exports.allergiesSectionEntriesRequiredHtmlHeader = getText('allergies', alllergiesTextHeaders, allergiesTextRow);
 
 exports.allergiesSectionEntriesRequiredHtmlHeader = {
     key: "text",
@@ -136,24 +125,6 @@ exports.allergiesSectionEntriesRequiredHtmlHeader = {
     }]
 };
 
-/*var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
-var medicationsTextRow = [ // Name, did not find class in the medication blue-button-data
-    function (input) {
-        var value = bbuo.deepValue(input, 'product.product.name');
-        if (!bbuo.exists(value)) {
-            value = bbuo.deepValue(input, 'product.unencoded_name');
-        }
-        if (!bbuo.exists(value)) {
-            return "";
-        } else {
-            return value;
-        }
-    },
-    leafLevel.deepInputProperty("supply.repeatNumber", ""),
-    leafLevel.deepInputDate("supply.date_time.point", "")
-];*/
-//exports.medicationsSectionEntriesRequiredHtmlHeader = getText('medications', medicationsTextHeaders, medicationsTextRow);
-
 exports.medicationsSectionEntriesRequiredHtmlHeader = {
     key: "text",
     existsWhen: condition.keyExists("medications"),
@@ -209,30 +180,25 @@ exports.medicationsSectionEntriesRequiredHtmlHeader = {
     }]
 }
 
-    exports.problemsSectionEntriesRequiredHtmlHeader = {
+exports.problemsSectionEntriesRequiredHtmlHeader = {
     key: "text",
     existsWhen: condition.keyExists("problems"),
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "2"
-                    },
-                    text: "Problems"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Condition', 'Status'];
+                        return ['Concern', 'Last Observation', 'Reported'];
                     }
                 }]
             }]
@@ -251,7 +217,10 @@ exports.medicationsSectionEntriesRequiredHtmlHeader = {
                     attributes: {
                         ID: leafLevel.nextTableReference("healthStatus")
                     },
-                    text: leafLevel.deepInputProperty("problem.severity.code.name", nda)
+                    text: leafLevel.deepInputProperty("patient_status", nda)
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("problem.date_time.low", nda)
                 }]
             }],
             dataKey: 'problems'
@@ -266,18 +235,13 @@ exports.proceduresSectionEntriesRequiredHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "5"
-                    },
-                    text: "Procedures"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
@@ -305,10 +269,10 @@ exports.proceduresSectionEntriesRequiredHtmlHeader = {
                     text: leafLevel.deepInputDate("date_time.point", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("performer.0.organization.0.name.0", nda)
+                    text: leafLevel.deepInputProperty("performers.0.organization.0.name.0", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("performer.0.organization.0.phone.0.value.number", nda)
+                    text: leafLevel.deepInputProperty("performers.0.organization.0.phone.0.number", nda)
                 }]
             }],
             dataKey: 'procedures'
@@ -322,24 +286,19 @@ exports.resultsSectionEntriesRequiredHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "7"
-                    },
-                    text: "Laboratory Results"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Test', 'Result', 'Units', 'Reference Range', 'Date', 'Source'];
+                        return ['Test/Result', 'Value', 'Units', 'Reference Range', 'Interpretation', 'Date'];
                     }
                 }]
             }]
@@ -370,13 +329,13 @@ exports.resultsSectionEntriesRequiredHtmlHeader = {
                     text: leafLevel.deepInputProperty("unit", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("reference_range.range", nda)
+                    text: leafLevel.deepInputProperty("range", nda)
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("interpretations", nda)
                 }, {
                     key: "td",
                     text: leafLevel.deepInputDate("date_time.point", nda),
-                }, {
-                    key: "td",
-                    text: nda
                 }],
                 dataKey: 'results'
             }],
@@ -391,10 +350,11 @@ exports.encountersSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
-            key: "caption",
-            text: "Encounters"
-        }, {
             key: "thead",
             content: [{
                 key: "tr",
@@ -453,18 +413,13 @@ exports.immunizationsSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "3"
-                    },
-                    text: "Immunizations"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
@@ -503,6 +458,10 @@ exports.payersSectionHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
@@ -555,24 +514,19 @@ exports.planOfCareSectionHtmlHeader = {
     existsWhen: condition.keyExists("plan_of_care"),
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "4"
-                    },
-                    text: "Plan of Care"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Program', 'Start Date', 'Status', 'Goals'];
+                        return ['Order/Program', 'Start Date', 'Status', 'Planned Care'];
                     }
                 }]
             }]
@@ -583,21 +537,65 @@ exports.planOfCareSectionHtmlHeader = {
                 content: [{
                     key: "td",
                     attributes: {
-                        ID: leafLevel.nextTableReference("problem")
+                        ID: leafLevel.nextTableReference("treatment_plan")
                     },
                     text: leafLevel.deepInputProperty("plan.name", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputDate("date_time.center", nda)
+                    text: leafLevel.deepInputDate("date_time.point", nda)
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("status.code", nda)
                 },  {
                     key: "td",
-                    text: leafLevel.deepInputProperty("goal.name", nda)
+                    text: leafLevel.deepInputProperty("name", nda)
                 }]
             }],
             dataKey: 'plan_of_care'
+        }]
+    }]
+};
+
+exports.goalSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("goals"),
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ['Start Date','Goal',  'Status'];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    text: leafLevel.deepInputDate("date_time.point", nda)
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("goal")
+                    },
+                    text: leafLevel.deepInputProperty("name", nda)
+                },  {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("status.code", nda)
+                }]
+            }],
+            dataKey: 'goals'
         }]
     }]
 };
@@ -607,18 +605,13 @@ exports.socialHistorySectionHtmlHeader = {key: "text",
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "3"
-                    },
-                    text: "Social History"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
@@ -657,24 +650,19 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
 
     content: [{
         key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
         content: [{
             key: "thead",
             content: [{
-                key: "tr",
-                content: {
-                    key: "th",
-                    attributes: {
-                        colspan: "6"
-                    },
-                    text: "Vital Sign Observations"
-                }
-            }, {
                 key: "tr",
                 content: [{
                     key: "th",
                     text: leafLevel.input,
                     dataTransform: function () {
-                        return ['Date','Systolic BP [90-140 mmHg]', 'Diastolic BP [60-90 mmHg]', 'Height', 'Weight Measured', 'BMI (Body Mass Index)'];
+                        return ['Date', 'Body Temperature', 'Systolic[90-140 mmHg]', 'Diastolic[60-90 mmHg]', 'Heart Rate', 'Height', 'Weight Measured', 'BMI (Body Mass Index)'];
                     }
                 }]
             }]
@@ -690,6 +678,12 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                     attributes: {
                         ID: leafLevel.nextTableReference("vital")
                     },
+                    text: leafLevel.deepInputProperty("vital_list.7.value", nda, "vital_list.7.unit")
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("vital")
+                    },
                     text: leafLevel.deepInputProperty("vital_list.0.value", nda, "vital_list.0.unit")
                 }, {
                     key: "td",
@@ -697,6 +691,12 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
                         ID: leafLevel.nextTableReference("vital")
                     },
                     text: leafLevel.deepInputProperty("vital_list.1.value", nda, "vital_list.1.unit")
+                }, {
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("vital")
+                    },
+                    text: leafLevel.deepInputProperty("vital_list.5.value", nda, "vital_list.5.unit")
                 }, {
                     key: "td",
                     attributes: {
@@ -722,6 +722,93 @@ exports.vitalSignsSectionEntriesOptionalHtmlHeader = {
     }]
 };
 
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("medical_devices"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Implant", "UDI"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("device")
+                    },
+                    text: leafLevel.deepInputProperty("device.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputProperty("device.udi", "na"),
+                }
+                ]
+            }],
+            dataKey: 'medical_devices'
+        }]
+    }]
+};
+
+exports.functionalStatusSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("functional_status"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Functional Category", "Effective Date"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("functional_status")
+                    },
+                    text: leafLevel.deepInputProperty("observation.value.name", nda),
+                }, {
+                    key: "td",
+                    text: leafLevel.deepInputDate("observation.date_time.point", nda),
+                }
+                ]
+            }],
+            dataKey: 'functional_status'
+        }]
+    }]
+};
+
+exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.problemsSectionEntriesRequiredHtmlHeaderNA = "Not Available";
@@ -731,5 +818,7 @@ exports.encountersSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.immunizationsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
 exports.payersSectionHtmlHeaderNA = "Not Available";
 exports.planOfCareSectionHtmlHeaderNA = "Not Available";
+exports.goalSectionHtmlHeaderNA = "Not Available";
 exports.socialHistorySectionHtmlHeaderNA = "Not Available";
 exports.vitalSignsSectionEntriesOptionalHtmlHeaderNA = "Not Available";
+exports.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA = "Not Available";

@@ -34,6 +34,7 @@ class MainMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Visit Forms"] = "updateVisitForms";
+        $this->menu_update_map["Blank Forms"] = "updateBlankForms";
         $this->dispatcher = $dispatcher;
     }
 
@@ -126,65 +127,90 @@ class MainMenuRole extends MenuRole
     //
     protected function updateVisitForms(&$menu_list)
     {
-        $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
         $menu_list->children = array();
-
-        $lres = sqlStatement("SELECT grp_form_id AS option_id, grp_title AS title, grp_aco_spec " .
-            "FROM layout_group_properties WHERE " .
-            "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
-            "ORDER BY grp_seq, grp_title");
-
-        while ($lrow = sqlFetchArray($lres)) {
-            $option_id = $lrow['option_id']; // should start with LBF
-            $title = $lrow['title'];
-            $formURL = $baseURL . urlencode($option_id);
+        $reglastcat = '';
+        $regrows = getFormsByCategory('1', false);
+        foreach ($regrows as $entry) {
+            $option_id = $entry['directory'];
+            $title = trim($entry['nickname']);
+            if (empty($title)) {
+                $title = $entry['name'];
+            }
+            if ($entry['category'] != $reglastcat) {
+                // New category. Close out the previous one if it exists.
+                if ($reglastcat) {
+                    array_push($menu_list->children, $catEntry);
+                }
+                // Create the new category's object.
+                $reglastcat = $entry['category'];
+                $catEntry = new \stdClass();
+                $catEntry->label = xl_form_title($reglastcat);
+                $catEntry->icon = 'fa-caret-right';
+                $catEntry->requirement = 2;
+                $catEntry->children = array();
+            }
+            // Create object for form menu item and put it in its category object.
             $formEntry = new \stdClass();
             $formEntry->label = xl_form_title($title);
-            $formEntry->url = $formURL;
+            $formEntry->url = '/interface/patient_file/encounter/load_form.php?formname=' . urlencode($option_id);
             $formEntry->requirement = 2;
             $formEntry->target = 'enc';
-            // Plug in ACO attribute, if any, of this LBF.
-            if (!empty($lrow['grp_aco_spec'])) {
-                $tmp = explode('|', $lrow['grp_aco_spec']);
-                if (!empty($tmp[1])) {
-                    $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-                }
-            }
-            array_push($menu_list->children, $formEntry);
-        }
-
-        // Traditional forms
-        $reg = getRegistered(1, 'unlimited', 0, 'patient');
-        if (!empty($reg)) {
-            foreach ($reg as $entry) {
-                $option_id = $entry['directory'];
-                $title = trim($entry['nickname']);
-                if ($option_id == 'fee_sheet') {
-                    continue;
-                }
-
-                if ($option_id == 'newpatient') {
-                    continue;
-                }
-
-                if (empty($title)) {
-                    $title = $entry['name'];
-                }
-
-                $formURL = $baseURL . urlencode($option_id);
-                $formEntry = new \stdClass();
-                $formEntry->label = xl_form_title($title);
-                $formEntry->url = $formURL;
-                $formEntry->requirement = 2;
-                $formEntry->target = 'enc';
-                // Plug in ACO attribute, if any, of this form.
+            // Plug in ACO attribute, if any, of this form.
+            if (!empty($entry['aco_spec'])) {
                 $tmp = explode('|', $entry['aco_spec']);
                 if (!empty($tmp[1])) {
                     $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
                 }
-
-                array_push($menu_list->children, $formEntry);
             }
+            if ($catEntry->children) {
+                array_push($catEntry->children, $formEntry);
+            }
+        }
+        // Close out last category.
+        if ($reglastcat) {
+            array_push($menu_list->children, $catEntry);
+        }
+    }
+
+    // This creates LBF menu entries for Reports -> Blank Forms,
+    // within form categories. Core items are already there.
+    // Because these are blank forms there are no access restrictions.
+    //
+    protected function updateBlankForms(&$menu_list)
+    {
+        // Generate the Blank Form items for visit forms, both traditional and LBF.
+        $reglastcat = '';
+        $regrows = getFormsByCategory('1', true);
+        foreach ($regrows as $entry) {
+            $option_id = $entry['directory'];
+            $title = trim($entry['nickname']);
+            if (empty($title)) {
+                $title = $entry['name'];
+            }
+            if ($entry['category'] != $reglastcat) {
+                // New category. Close out the previous one if it exists.
+                if ($reglastcat) {
+                    array_push($menu_list->children, $catEntry);
+                }
+                // Create the new category's object.
+                $reglastcat = $entry['category'];
+                $catEntry = new \stdClass();
+                $catEntry->label = xl_form_title($reglastcat);
+                $catEntry->icon = 'fa-caret-right';
+                $catEntry->requirement = 0;
+                $catEntry->children = array();
+            }
+            // Create object for form menu item and put it in its category object.
+            $formEntry = new \stdClass();
+            $formEntry->label = xl_form_title($title);
+            $formEntry->url = '/interface/forms/LBF/printable.php?isform=1&formname=' . urlencode($option_id);
+            $formEntry->requirement = 0;
+            $formEntry->target = 'pop';
+            array_push($catEntry->children, $formEntry);
+        }
+        // Close out last category.
+        if ($reglastcat) {
+            array_push($menu_list->children, $catEntry);
         }
     }
 }

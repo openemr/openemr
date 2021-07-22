@@ -22,7 +22,7 @@
 function add_escape_custom($s)
 {
     //prepare for safe mysql insertion
-    $s = mysqli_real_escape_string($GLOBALS['dbh'], $s);
+    $s = mysqli_real_escape_string($GLOBALS['dbh'], ($s ?? ''));
     return $s;
 }
 
@@ -92,9 +92,10 @@ function process_cols_escape($s)
  * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
+ * @param   boolean       $throwException Whether to throw a SQL exception instead of dieing
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s, $tables, $long = false)
+function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
 {
     // If $s is asterisk return asterisk to select all columns
     if ($s === "*") {
@@ -140,7 +141,8 @@ function escape_sql_column_name($s, $tables, $long = false)
     }
 
     // Now can escape(via whitelisting) the sql column name
-    return escape_identifier($s, $columns_options, true);
+    $dieIfNoMatch = !$throwException;
+    return escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
 }
 
 /**
@@ -214,9 +216,10 @@ function mitigateSqlTableUpperCase($s)
  *                                          characters (for example 'a-zA-Z0-9_').
  * @param   boolean      $die_if_no_match  If there is no match in the whitelist, then die and echo an error to screen and log.
  * @param   boolean      $case_sens_match  Use case sensitive match (this is default).
+ * @param   boolean      $throw_exception_if_no_match If there is no match in the whitelist then throw an exception
  * @return  string                         Escaped/sanitized sql identifier variable.
  */
-function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true)
+function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true, $throw_exception_if_no_match = false)
 {
     if (is_array($whitelist_items)) {
         // Only return an item within the whitelist_items
@@ -237,6 +240,8 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
                     error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                     die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
+                } else if ($throw_exception_if_no_match) {
+                    throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
                 } else {
                     // Return first token since no match
                     $key = 0;
@@ -251,6 +256,8 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
                 error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                 die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
+            } else if ($throw_exception_if_no_match) {
+                throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
             } else {
                 // Contains all legal characters, so return the legal string
                 return $s;

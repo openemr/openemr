@@ -68,22 +68,13 @@ var getText = function (topArrayKey, headers, values) {
     return result;
 };
 
-/*var alllergiesTextHeaders = ["Substance", "Overall Severity", "Reaction", "Reaction Severity", "Status"];
-var allergiesTextRow = [
-    leafLevel.deepInputProperty("observation.allergen.name", ""),
-    leafLevel.deepInputProperty("observation.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.reaction.name", ""),
-    leafLevel.deepInputProperty("observation.reactions.0.severity.code.name", ""),
-    leafLevel.deepInputProperty("observation.status.name", "")
-];*/
-
 exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     return {
         key: "component",
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.6.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.6.1"),
                 fieldLevel.templateCode("AllergiesSection"),
                 fieldLevel.templateTitle("AllergiesSection"), {
@@ -108,30 +99,13 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
     };
 };
 
-/*var medicationsTextHeaders = ["Medication Class", "# fills", "Last fill date"];
-var medicationsTextRow = [ // Name, did not find class in the medication blue-button-data
-    function (input) {
-        var value = bbuo.deepValue(input, 'product.product.name');
-        if (!bbuo.exists(value)) {
-            value = bbuo.deepValue(input, 'product.unencoded_name');
-        }
-        if (!bbuo.exists(value)) {
-            return "";
-        } else {
-            return value;
-        }
-    },
-    leafLevel.deepInputProperty("supply.repeatNumber", ""),
-    leafLevel.deepInputDate("supply.date_time.point", "")
-];*/
-
 exports.medicationsSectionEntriesRequired = function (htmlHeader, na) {
     return {
         key: "component",
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.1.1", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.1.1"),
                 fieldLevel.templateCode("MedicationsSection"),
                 fieldLevel.templateTitle("MedicationsSection"), {
@@ -162,7 +136,7 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.5.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.5.1"),
                 fieldLevel.templateCode("ProblemSection"),
                 fieldLevel.templateTitle("ProblemSection"), {
@@ -182,7 +156,6 @@ exports.problemsSectionEntriesRequired = function (htmlHeader, na) {
                     dataKey: "problems",
                     required: true
                 }, {
-
                     key: "entry",
                     existsWhen: condition.keyExists("problems_comment"),
                     content: {
@@ -250,7 +223,7 @@ exports.resultsSectionEntriesRequired = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.3.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.3.1"),
                 fieldLevel.templateCode("ResultsSection"),
                 fieldLevel.templateTitle("ResultsSection"), {
@@ -281,7 +254,7 @@ exports.encountersSectionEntriesOptional = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.22"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.22.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.22.1"),
                 fieldLevel.templateCode("EncountersSection"),
                 fieldLevel.templateTitle("EncountersSection"), {
@@ -364,6 +337,29 @@ exports.payersSection = function (htmlHeader, na) {
     };
 };
 
+exports.assessmentSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
+                fieldLevel.templateCode("AssessmentSection"),
+                fieldLevel.templateTitle("AssessmentSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("assessments")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "description"
+                }
+            ],
+            dataKey: "assessments"
+        }]
+    }
+};
+
 exports.planOfCareSection = function (htmlHeader, na) {
     return {
         key: "component",
@@ -376,7 +372,6 @@ exports.planOfCareSection = function (htmlHeader, na) {
                     key: "text",
                     text: na,
                     existsWhen: condition.keyDoesntExist("plan_of_care")
-
                 },
                 htmlHeader, {
                     key: "entry",
@@ -401,12 +396,43 @@ exports.planOfCareSection = function (htmlHeader, na) {
     };
 };
 
+exports.goalSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.60"),
+                fieldLevel.templateCode("GoalSection"),
+                fieldLevel.templateTitle("GoalSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("goals")
+                },
+                htmlHeader, {
+                    key: "entry",
+                    attributes: {
+                        "typeCode": function (input) {
+                            return input.type === "observation" ? "DRIV" : null;
+                        }
+                    },
+                    content: [
+                        entryLevel.goalActivityObservation
+                    ],
+                    dataKey: "goals"
+                }
+            ]
+        }]
+    };
+};
+
 exports.socialHistorySection = function (htmlHeader, na) {
     return {
         key: "component",
         content: [{
             key: "section",
             content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.17", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.17"),
                 fieldLevel.templateCode("SocialHistorySection"),
                 fieldLevel.templateTitle("SocialHistorySection"), {
@@ -420,10 +446,24 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     attributes: {
                         typeCode: "DRIV"
                     },
-                    content: [
-                        entryLevel.smokingStatusObservation,
-                        entryLevel.socialHistoryObservation
-                    ],
+                    content: [entryLevel.smokingStatusObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.genderStatusObservation],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [entryLevel.socialHistoryObservation],
+                    existsWhen: function (input) {
+                        return (!input.value) || input.value.indexOf("smoke") < 0;
+                    },
                     dataKey: "social_history"
                 }
             ]
@@ -441,7 +481,7 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
         content: [{
             key: "section",
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4"),
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.4.1", "2015-08-01"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.4.1"),
                 fieldLevel.templateCode("VitalSignsSection"),
                 fieldLevel.templateTitle("VitalSignsSection"), {
@@ -463,4 +503,151 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
             ]
         }]
     };
+};
+
+exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.23", "2014-06-09"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.23"),
+                fieldLevel.templateCode("MedicalEquipmentSection"),
+                fieldLevel.templateTitle("MedicalEquipmentSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("medical_devices")
+
+                },
+                htmlHeader, {
+                    key: "entry",
+                    content: [
+                        entryLevel.medicalDeviceActivityProcedure,
+                    ],
+                    dataKey: "medical_devices"
+                }
+            ]
+        }],
+        notImplemented: [
+            "entry required"
+        ]
+    };
+};
+
+exports.functionalStatusSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.14", "2014-06-09"),
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.14"),
+                fieldLevel.templateCode("FunctionalStatusSection"),
+                fieldLevel.templateTitle("FunctionalStatusSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("functional_status")
+
+                },
+                htmlHeader, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [
+                        entryLevel.functionalStatusOrganizer
+                    ],
+                    dataKey: "functional_status",
+                    required: true
+                }
+            ]
+        }]
+    };
+};
+
+exports.mentalStatusSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.56", "2015-08-01"),
+                fieldLevel.templateCode("MentalStatusSection"),
+                fieldLevel.templateTitle("MentalStatusSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("mental_status")
+                }, {// mental status does not use a header table.
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "mental_status.note"
+                }, {
+                    key: "entry",
+                    content: [
+                        entryLevel.mentalStatusObservation
+                    ],
+                    dataKey: "mental_status"
+                }
+            ]
+        }]
+    };
+};
+
+exports.reasonForReferralSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("1.3.6.1.4.1.19376.1.5.3.1.3.1", "2014-06-09"),
+                fieldLevel.templateId("1.3.6.1.4.1.19376.1.5.3.1.3.1"),
+                fieldLevel.templateCode("ReasonForReferralSection"),
+                fieldLevel.templateTitle("ReasonForReferralSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("referral_reason")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "reason"
+                }
+            ],
+            dataKey: "referral_reason"
+        }]
+    }
+};
+
+exports.healthConcernSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
+                fieldLevel.templateCode("HealthConcernSection"),
+                fieldLevel.templateTitle("HealthConcernSection"), {
+                    key: "text",
+                    text: na,
+                    existsWhen: condition.keyDoesntExist("health_concerns")
+                }, {
+                    key: "text",
+                    text: leafLevel.input,
+                    dataKey: "health_concerns.text"
+                }, {
+                    key: "entry",
+                    content: [
+                        entryLevel.healthConcernObservation
+                    ],
+                    dataKey: "health_concerns"
+                }, {
+                    key: "entry",
+                    content: [
+                        [entryLevel.healthConcernActivityAct]
+                    ],
+                    dataKey: "health_concerns"
+                }
+            ]
+        }]
+    }
 };

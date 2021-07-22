@@ -9,6 +9,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\SurgeryService;
 
@@ -44,7 +46,7 @@ class FhirProcedureService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['patient.uuid']
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['patient.uuid']),
         ];
     }
 
@@ -124,35 +126,13 @@ class FhirProcedureService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Procedure Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Procedure Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $procedureResult = $this->procedureService->getOne($fhirResourceId, $puuidBind);
-        $surgeryResult = $this->surgeryService->getOne($fhirResourceId, $puuidBind);
-        $processingResult = $this->processResults($procedureResult, $surgeryResult);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $procedureResult = $this->procedureService->getAll($openEMRSearchParameters, false, $puuidBind);
         $surgeryResult = $this->surgeryService->getAll($openEMRSearchParameters, false, $puuidBind);

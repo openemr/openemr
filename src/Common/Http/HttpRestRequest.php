@@ -107,14 +107,45 @@ class HttpRestRequest
      */
     private $headers;
 
+    /**
+     * @var mixed[]
+     */
+    private $queryParams;
+
     public function __construct($restConfig, $server)
     {
         $this->restConfig = $restConfig;
         $this->requestSite = $restConfig::$SITE;
 
-        $this->requestMethod = $server["REQUEST_METHOD"];
+        $this->setRequestMethod($server["REQUEST_METHOD"]);
         $this->setRequestURI($server['REQUEST_URI'] ?? "");
         $this->headers = $this->parseHeadersFromServer($server);
+        $queryParams = $_GET ?? [];
+        // remove the OpenEMR queryParams that our rewrite command injected so we don't mess stuff up.
+        if (isset($queryParams['_REWRITE_COMMAND'])) {
+            unset($queryParams['_REWRITE_COMMAND']);
+        }
+        $this->setQueryParams($queryParams);
+    }
+
+    public function setRequestMethod($requestMethod)
+    {
+        $this->requestMethod = $requestMethod;
+    }
+
+    public function setQueryParams($queryParams)
+    {
+        $this->queryParams = $queryParams;
+    }
+
+    public function getQueryParams()
+    {
+        return $this->queryParams;
+    }
+
+    public function getQueryParam($key)
+    {
+        return $this->queryParams[$key] ?? null;
     }
 
     /**
@@ -404,6 +435,14 @@ class HttpRestRequest
     public function isPatientWriteRequest()
     {
         return $this->isFhir() && $this->isPatientRequest() && $this->getRequestMethod() != 'GET';
+    }
+
+    public function isFhirSearchRequest(): bool
+    {
+        if ($this->isFhir() && $this->getRequestMethod() == "POST") {
+            return str_ends_with($this->getRequestPath(), '_search') !== false;
+        }
+        return false;
     }
 
     public function setRequestPath(string $requestPath)

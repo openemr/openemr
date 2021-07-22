@@ -81,6 +81,8 @@ $esignApi = new Api();
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
         var jsGlobals = {};
+        // used in tabs_view_model.js.
+        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -89,6 +91,7 @@ $esignApi = new Api();
             // Send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR. Notify App for various portal and reminder alerts.
             // Combined portal and reminders ajax to fetch sjp 06-07-2020.
+            // Incorporated timeout mechanism in 2021
             restoreSession();
             let request = new FormData;
             request.append("skip_timeout_reset", "1");
@@ -105,6 +108,10 @@ $esignApi = new Api();
                 }
                 return response.json();
             }).then((data) => {
+                if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
+                    // timeout has happened, so logout
+                    timeoutLogout();
+                }
                 if (isPortalEnabled) {
                     let mail = data.mailCnt;
                     let chats = data.chatCnt;
@@ -125,27 +132,31 @@ $esignApi = new Api();
                 }
                 // Always send reminder count text to model
                 app_view_model.application_data.user().messages(data.reminderText);
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.log('Request failed', error);
             });
 
             // run background-services
-            restoreSession();
-            request = new FormData;
-            request.append("skip_timeout_reset", "1");
-            request.append("ajax", "1");
-            request.append("csrf_token_form", csrf_token_js);
-            fetch(webroot_url + "/library/ajax/execute_background_services.php", {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: request
-            }).then((response) => {
-                if (response.status !== 200) {
-                    console.log('Background Service start failed. Status Code: ' + response.status);
-                }
-            }).catch(function(error) {
-                console.log('HTML Background Service start Request failed: ', error);
-            });
+            // delay 10 seconds to prevent both utility trigger at close to same time.
+            // Both call globals so that is my concern.
+            setTimeout(function () {
+                restoreSession();
+                request = new FormData;
+                request.append("skip_timeout_reset", "1");
+                request.append("ajax", "1");
+                request.append("csrf_token_form", csrf_token_js);
+                fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: request
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Background Service start failed. Status Code: ' + response.status);
+                    }
+                }).catch(function (error) {
+                    console.log('HTML Background Service start Request failed: ', error);
+                });
+            }, 10000);
 
             // auto run this function every 60 seconds
             var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -267,8 +278,6 @@ $esignApi = new Api();
 </style>
 </head>
 <body class="min-vw-100">
-    <!-- Below iframe is to support auto logout when timeout is reached -->
-    <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
@@ -310,7 +319,6 @@ $esignApi = new Api();
 
         $(function () {
             $('.dropdown-toggle').dropdown();
-            goRepeaterServices();
             $('#patient_caret').click(function () {
                 $('#attendantData').slideToggle();
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
@@ -320,7 +328,6 @@ $esignApi = new Api();
                 $(this).removeClass('dropdown-menu-right');
               });
             }
-
         });
         $(function () {
             $('#logo_menu').focus();
@@ -332,6 +339,9 @@ $esignApi = new Api();
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
+        $(function () {
+            goRepeaterServices();
+        });
     </script>
 </body>
 </html>

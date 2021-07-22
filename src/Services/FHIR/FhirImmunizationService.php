@@ -2,7 +2,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -14,6 +16,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Immunization Service
@@ -25,13 +31,16 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirImmunizationService extends FhirServiceBase
+class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
 
     /**
      * @var ImmunizationService
      */
     private $immunizationService;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization';
 
     public function __construct()
     {
@@ -46,7 +55,8 @@ class FhirImmunizationService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "patient" => ["patient.uuid"]
+            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -61,7 +71,9 @@ class FhirImmunizationService extends FhirServiceBase
     {
         $immunizationResource = new FHIRImmunization();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $immunizationResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -69,28 +81,22 @@ class FhirImmunizationService extends FhirServiceBase
         $immunizationResource->setId($id);
 
         $status = new FHIRImmunizationStatusCodes();
-        $statusCoding = new FHIRCoding();
-        $statusCoding->setSystem('http://hl7.org/fhir/event-status');
         if ($dataRecord['added_erroneously'] != "0") {
-            $statusCoding->setCode("entered-in-error");
-            $statusCoding->setDisplay("Entered in Error");
+            $status->setValue("entered-in-error");
         } elseif ($dataRecord['completion_status'] == "Completed") {
-            $statusCoding->setCode("completed");
-            $statusCoding->setDisplay("Completed");
+            $status->setValue("completed");
         } else {
-            $statusCoding->setCode("not-done");
-            $statusCoding->setDisplay("Not Done");
-        }
-        $status->setValue($statusCoding);
-        $immunizationResource->setStatus($status);
+            $status->setValue("not-done");
 
-        $statusReason = new FHIRCodeableConcept();
-        $statusReason->addCoding(array(
-            'system' => "http://terminology.hl7.org/CodeSystem/v3-ActReason",
-            'code' => 'PATOBJ',
-            'display' => 'patient objection'
-        ));
-        $immunizationResource->setStatusReason($statusReason);
+            $statusReason = new FHIRCodeableConcept();
+            $statusReasonCoding = new FHIRCoding();
+            $statusReasonCoding->setSystem(FhirCodeSystemConstants::IMMUNIZATION_OBJECTION_REASON);
+            $statusReasonCoding->setCode("PATOBJ");
+            $statusReasonCoding->setDisplay("patient objection");
+            $statusReason->addCoding($statusReasonCoding);
+            $immunizationResource->setStatusReason($statusReason);
+        }
+        $immunizationResource->setStatus($status);
         $immunizationResource->setPrimarySource($dataRecord['primarySource']);
 
         if (!empty($dataRecord['cvx_code'])) {
@@ -149,18 +155,19 @@ class FhirImmunizationService extends FhirServiceBase
         if (!empty($dataRecord['administration_site'])) {
             $doseQuantity = new FHIRQuantity();
             $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem($dataRecord['http://unitsofmeasure.org']);
+            $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $doseQuantity->setCode($dataRecord['amount_administered_unit']);
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
 
-        if (!empty($dataRecord['education_date'])) {
-            $education = new FHIRImmunizationEducation();
-            $educationDateTime = new FHIRDateTime();
-            $educationDateTime->setValue($dataRecord['education_date']);
-            $education->setPresentationDate($educationDateTime);
-            $immunizationResource->addEducation($education);
-        }
+        // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
+//        if (!empty($dataRecord['education_date'])) {
+//            $education = new FHIRImmunizationEducation();
+//            $educationDateTime = new FHIRDateTime();
+//            $educationDateTime->setValue($dataRecord['education_date']);
+//            $education->setPresentationDate($educationDateTime);
+//            $immunizationResource->addEducation($education);
+//        }
 
         if ($encode) {
             return json_encode($immunizationResource);
@@ -170,72 +177,39 @@ class FhirImmunizationService extends FhirServiceBase
     }
 
     /**
-     * Parses a FHIR Immunization Resource, returning the equivalent OpenEMR immunization record.
-     *
-     * @param array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
-    /**
-     * Inserts an OpenEMR record into the system.
-     *
-     * @param array $openEmrRecord OpenEMR immunization record
-     * @return ProcessingResult
-     */
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // return $this->immunizationService->insert($openEmrRecord);
-    }
-
-
-    /**
-     * Updates an existing OpenEMR record.
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
-     * @return ProcessingResult
-     */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // $processingResult = $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord);
-        // return $processingResult;
-    }
-
-    /**
-     * Performs a FHIR Immunization Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Immunization Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->immunizationService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->immunizationService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->immunizationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        // TODO: If Required in Future
+        if (!($dataRecord instanceof FHIRImmunization)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    public function getProfileURIs(): array
+    {
+        return [self::USCGI_PROFILE_URI];
     }
 }

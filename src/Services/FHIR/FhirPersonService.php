@@ -18,6 +18,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -43,17 +45,21 @@ class FhirPersonService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "active" => ["active"],
-            "email" => ["email"],
-            "phone" => ["phonew1", "phone", "phonecell"],
-            "telecom" => ["email", "phone", "phonew1", "phonecell"],
-            "address" => ["street", "streetb", "zip", "city", "state"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["zip"],
-            "address-state" => ["state"],
-            "family" => ["lname"],
-            "given" => ["fname", "mname"],
-            "name" => ["title", "fname", "mname", "lname"]
+            // not sure if this a token or not
+            'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
+
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ["phonew1", "phone", "phonecell"]),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ["email", "phone", "phonew1", "phonecell"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "streetb", "zip", "city", "state"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['zip']),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+
+            'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
+            'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
+
         ];
     }
 
@@ -91,46 +97,8 @@ class FhirPersonService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $person->setId($id);
 
-        $name = new FHIRHumanName();
-        $name->setUse('official');
-
-        if (isset($dataRecord['title'])) {
-            $name->addPrefix($dataRecord['title']);
-        }
-        if (isset($dataRecord['lname'])) {
-            $name->setFamily($dataRecord['lname']);
-        }
-
-        $givenName = array();
-        if (isset($dataRecord['fname'])) {
-            array_push($givenName, $dataRecord['fname']);
-        }
-
-        if (isset($dataRecord['mname'])) {
-            array_push($givenName, $dataRecord['mname']);
-        }
-
-        if (count($givenName) > 0) {
-            $name->given = $givenName;
-        }
-
-        $person->addName($name);
-
-        $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-        }
-        if (!empty($dataRecord['zip'])) {
-            $address->setPostalCode($dataRecord['zip']);
-        }
-
-        $person->addAddress($address);
+        $person->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        $person->addAddress(UtilsService::createAddressFromRecord($dataRecord));
 
         if (!empty($dataRecord['phone'])) {
             $person->addTelecom(array(
@@ -253,27 +221,6 @@ class FhirPersonService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $user = $this->userService->getUserByUUID($fhirResourceId);
-        $processingResult = new ProcessingResult();
-        if (empty($user)) {
-            $validationMessages = [
-                'uuid' => ["invalid or nonexisting value" => " value " . $fhirResourceId]
-            ];
-            $processingResult->setValidationMessages($validationMessages);
-            return $processingResult;
-        }
-        $fhirRecord = $this->parseOpenEMRRecord($user);
-        $processingResult->setData([]);
-        $processingResult->addData($fhirRecord);
-        return $processingResult;
-    }
-
-    /**
      * Inserts an OpenEMR record into the sytem.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
@@ -306,7 +253,7 @@ class FhirPersonService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $records = $this->userService->getAll($openEMRSearchParameters, false);
         $records = empty($records) ? [] : $records;

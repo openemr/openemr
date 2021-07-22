@@ -17,6 +17,12 @@ exports.inputProperty = function (key) {
     };
 };
 
+exports.docDateProperty = function (key) {
+    return function (input, context) {
+        return context && context[key];
+    };
+};
+
 exports.boolInputProperty = function (key) {
     return function (input) {
         if (input && input.hasOwnProperty(key)) {

@@ -20,7 +20,15 @@ class FacilityRestControllerTest extends TestCase
     const FACILITY_API_URL = "/apis/api/facility";
 
     private $facilityData;
+
+    /**
+     * @var FacilityRestController
+     */
     private $facilityController;
+
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
 
     protected function setUp(): void
@@ -67,7 +75,7 @@ class FacilityRestControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**

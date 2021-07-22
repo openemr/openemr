@@ -36,7 +36,7 @@ if (!isset($_SESSION['portal_init'])) {
 
 $whereto = $_SESSION['whereto'] ?? 'documentscard';
 
-$user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
+$user = $_SESSION['sessionUser'] ?? 'portal user';
 $result = getPatientData($pid);
 
 $msgs = getPortalPatientNotes($_SESSION['portal_username']);
@@ -58,10 +58,12 @@ foreach ($msgs as $i) {
 
     <script>
         var tab_mode = true;
+
         function restoreSession() {
             //dummy functions so the dlgopen function will work in the patient portal
             return true;
         }
+
         var isPortal = 1;
     </script>
     <?php
@@ -75,31 +77,31 @@ foreach ($msgs as $i) {
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
+    <!-- Must be loaded from their server -->
     <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
         <script src="https://js.stripe.com/v3/"></script>
-        <?php } ?>
+    <?php } ?>
     <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
-        // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
         if ($GLOBALS['gateway_mode_production']) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src="<?php echo $script; ?>"></script>
-        <?php } ?>
+    <?php } ?>
 
     <script>
         $(function () {
-           if($('body').css('direction') == "rtl") {
-             $('.float-left').each(function() {
-               $(this).addClass('float-right').removeClass('float-left');
-             });
-             $('.dropdown-menu-right').each(function() {
-               $(this).removeClass('dropdown-menu-right');
-             });
-             $('.dropdown-menu-md-right').each(function() {
-               $(this).removeClass('dropdown-menu-md-right');
-             });
-           }
+            if ($('body').css('direction') == "rtl") {
+                $('.float-left').each(function () {
+                    $(this).addClass('float-right').removeClass('float-left');
+                });
+                $('.dropdown-menu-right').each(function () {
+                    $(this).removeClass('dropdown-menu-right');
+                });
+                $('.dropdown-menu-md-right').each(function () {
+                    $(this).removeClass('dropdown-menu-md-right');
+                });
+            }
             $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table table-sm");
                 $(".demographics td").removeClass("label");
@@ -169,24 +171,8 @@ foreach ($msgs as $i) {
             $('#cardgroup').on('show.bs.collapse', '.collapse', function () {
                 $('#cardgroup').find('.collapse.show').collapse('hide');
             });
+        });
 
-            $("[data-toggle='pill']").on("click", function (e) {
-                e.preventDefault();
-                // don't toggle if already active.
-                if ($(this).hasClass('active')) {
-                    return false;
-                }
-                $(".nav-item").removeClass("active");
-                let canHide = $(".navbar-toggler-icon").is(":visible");
-                if (canHide) {
-                    $("[data-toggle='sidebar-offcanvas']").click();
-                }
-            });
-            $('#popwait').addClass('d-none');
-            $('#callccda').click(function () {
-                $('#popwait').removeClass('d-none');
-            });
-          });
         function editAppointment(mode, deid) {
             let mdata = {};
             let title = '';
@@ -340,20 +326,20 @@ foreach ($msgs as $i) {
 
 <body class="fixed">
     <header class="header">
-        <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
+        <nav class="navbar fixed-top navbar-light bg-light">
             <div class="container-fluid">
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
                 </a>
                 <!-- Sidebar toggle button-->
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#left-collapse" aria-controls="left-collapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
                 </button>
                 <ul class="nav navbar-nav flex-row sticky-top">
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i>
                             <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
                         <div class="dropdown-menu dropdown-menu-md-right" aria-labelledby="newmsgs">
-                            <h6 class="dropdown-header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></h6>
+                            <h6 class="dropdown-header"><?php echo xlt('You have'); ?><?php echo text($newcnt); ?><?php echo xlt('new messages'); ?></h6>
                             <!-- inner menu: contains the actual data -->
                             <?php
                             foreach ($msgs as $i) {
@@ -373,7 +359,7 @@ foreach ($msgs as $i) {
                         <div class="dropdown-menu dropdown-menu-md-right" aria-labelledby="profiletab">
                             <div class="dropdown-header text-center"><?php echo xlt('Account'); ?></div>
                             <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw"></i> <?php echo xlt('Messages'); ?>
-                                    <span class="badge badge-pill badge-danger"><?php echo text($msgcnt); ?></span></a>
+                                <span class="badge badge-pill badge-danger"><?php echo text($msgcnt); ?></span></a>
                             <div class="dropdown-divider"></div>
                             <?php if ($GLOBALS['allow_portal_chat']) {
                                 ?>
@@ -391,7 +377,7 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3 border-right bg-secondary" id="left-collapse">
+        <aside class="left-side sidebar-offcanvas collapse mt-3 border-right bg-secondary show" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <ul class="nav nav-pills flex-column sticky-top text-dark">
@@ -426,7 +412,11 @@ foreach ($msgs as $i) {
                     <li class="nav-item dropdown reporting-menu"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fas fa-book-medical"></i> <?php echo xlt('Reports'); ?></a>
                         <div class="dropdown-menu">
                             <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
-                                <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun"><i class="fas fa-envelope"></i> <?php echo xlt('View CCD'); ?></a>
+                                <a class="dropdown-item" id="callccda" href="#"
+                                    onclick="window.open('<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=<?php echo urlencode(CsrfUtils::collectCsrfToken()); ?>', '_blank');"><i class="fas fa-envelope"></i> <?php echo xlt('View  Summary of Care'); ?>
+                                </a>
+                                <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=<?php echo urlencode(CsrfUtils::collectCsrfToken()); ?>"><i class="fas fa-envelope"></i> <?php echo xlt('Download Summary of Care'); ?>
+                                </a>
                             <?php } ?>
                             <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                                 <span data-toggle="pill"><a class="dropdown-item" href="#reportcard" data-toggle="collapse"
@@ -454,12 +444,11 @@ foreach ($msgs as $i) {
                     <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fa fa-ban"></i> <?php echo xlt('Logout'); ?></a></li>
                 </ul>
             </nav>
-          </aside>
+        </aside>
         <!-- Right side column. Contains content of the page -->
         <aside class="right-side mt-3">
             <!-- Main content -->
             <section class="flex-column" id="cardgroup">
-                <div id="popwait" class="alert alert-warning d-none"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
                 <div class="collapse" id="lists">
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Medications'); ?> </header>
@@ -489,8 +478,8 @@ foreach ($msgs as $i) {
                             <h3 class="text-center"><?php echo xlt('Appointments'); ?></h3>
                             <?php
                             $current_date2 = date('Y-m-d');
-                                $apptLimit = 30;
-                                $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
+                            $apptLimit = 30;
+                            $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
                             if ($appts) {
                                 $stringCM = "(" . xl("Comments field entry present") . ")";
                                 $stringR = "(" . xl("Recurring appointment") . ")";
@@ -559,25 +548,25 @@ foreach ($msgs as $i) {
                         </div>
                         <?php
                     } ?>
-                  <div class="card collapse" id="reportcard">
-                      <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
-                      <div id="reports" class="card-body"></div>
-                  </div>
-                  <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
+                    <div class="card collapse" id="reportcard">
+                        <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
+                        <div id="reports" class="card-body"></div>
+                    </div>
+                    <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
                         ?>
-                      <div class="card collapse" id="downloadcard">
-                          <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
-                          <div id="docsdownload" class="card-body">
-                              <div>
-                                  <span class="text"><?php echo xlt('Download all patient documents'); ?></span>
-                                  <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                                      <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
-                                  </form>
-                              </div>
-                          </div><!-- /.card-body -->
-                      </div>
-                      <?php } ?>
-                      <?php if ($GLOBALS['portal_two_ledger']) { ?>
+                        <div class="card collapse" id="downloadcard">
+                            <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
+                            <div id="docsdownload" class="card-body">
+                                <div>
+                                    <span class="text"><?php echo xlt('Download all patient documents'); ?></span>
+                                    <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
+                                        <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+                                    </form>
+                                </div>
+                            </div><!-- /.card-body -->
+                        </div>
+                    <?php } ?>
+                    <?php if ($GLOBALS['portal_two_ledger']) { ?>
                         <div class="collapse" id="ledgercard">
                             <div class="card">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
@@ -586,14 +575,14 @@ foreach ($msgs as $i) {
                                 </div>
                             </div>
                         </div>
-                        <?php } ?>
-                      <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                            ?>
+                    <?php } ?>
+                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
+                        ?>
                         <div class="card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>
                         </div>
-                        <?php } ?>
+                    <?php } ?>
                     <div class="card collapse" id="profilecard">
                         <div id="profilereport" class="card-body bg-light"></div>
                     </div>

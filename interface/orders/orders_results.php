@@ -38,7 +38,7 @@ if ($form_review and !$reviewauth and !$thisauth) {
 }
 
 // Set pid for pending review.
-if ($_GET['set_pid'] && $form_review) {
+if (!empty($_GET['set_pid']) && $form_review) {
     require_once("$srcdir/pid.inc");
     require_once("$srcdir/patient.inc");
     setpid($_GET['set_pid']);
@@ -78,7 +78,7 @@ function QuotedOrNull($fld)
 
 $current_report_id = 0;
 
-if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
+if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
         list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
@@ -295,7 +295,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 </head>
 
 <body>
-    <div class="container mt-3">
+    <div class="container-fluid mt-3">
         <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
             <table class="table table-borderless">
                 <tr>
@@ -341,7 +341,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                         } // end header for batch option
                         ?>
                         <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-                        <!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
+                        <!--   <input type='checkbox' name='form_all' value='1' <?php if (!empty($_POST['form_all'])) {
                             echo " checked";
                                                                                 } ?>><?php echo xlt('Include Completed') ?>&nbsp;-->
                         <button type="submit" class="btn btn-primary btn-refresh" name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
@@ -737,7 +737,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                 <?php } ?>
                 <?php } ?>
             </div>
-            <?php echo $extra_html; ?>
+            <?php echo ($extra_html ?? ''); ?>
         </form>
     </div>
 </body>

@@ -1127,7 +1127,15 @@ $config = 1; /////////////
             $this->disconnect();
             // Using @ in below call to hide the php warning in cases where the
             //  below connection does not work, which is expected behavior.
-            if (! @$this->user_database_connection()) {
+            // Using try in below call to catch the mysqli exception when the
+            //  below connection does not work, which is expected behavior (needed to
+            //  add this try/catch clause for PHP 8.1).
+            try {
+                $checkUserDatabaseConnection = @$this->user_database_connection();
+            } catch (Exception $e) {
+                $checkUserDatabaseConnection = false;
+            }
+            if (! $checkUserDatabaseConnection) {
                 // Re-connect to mysql via root user
                 if (! $this->root_database_connection()) {
                     return false;
@@ -1241,10 +1249,10 @@ $config = 1; /////////////
     private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $clientFlag = null;
+        $mysqlSsl = false;
         $mysqli = mysqli_init();
         if (defined('MYSQLI_CLIENT_SSL') && file_exists($pathToCerts . "mysql-ca")) {
-            $clientFlag = MYSQLI_CLIENT_SSL;
+            $mysqlSsl = true;
             if (
                 file_exists($pathToCerts . "mysql-key") &&
                 file_exists($pathToCerts . "mysql-cert")
@@ -1270,7 +1278,12 @@ $config = 1; /////////////
                 );
             }
         }
-        if (! mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', $clientFlag)) {
+        if ($mysqlSsl) {
+            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+        } else {
+            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        }
+        if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
             return false;
         }
@@ -1380,7 +1393,7 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
         $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);

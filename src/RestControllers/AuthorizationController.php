@@ -877,17 +877,19 @@ class AuthorizationController
         $auth = new AuthUtils($type);
         $is_true = $auth->confirmPassword($username, $password, $email);
         if (!$is_true) {
-            $this->logger->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username]);
+            $this->logger->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username, 'email' => $email, 'type' => $type]);
             return false;
         }
         if ($this->userId = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
-            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['pid' => $_SESSION['user_id']]);
+            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $_SESSION['user_id'],
+                'username' => $username, 'email' => $email, 'type' => $type]);
             return true;
         }
         if ($id = $auth->getPatientId()) {
             $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
-            $this->logger->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']]);
+            $this->logger->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']
+                , 'username' => $username, 'email' => $email, 'type' => $type]);
             $_SESSION['pid'] = $_SESSION['user_id'];
             return true;
         }
@@ -899,11 +901,11 @@ class AuthorizationController
     {
         switch ($userRole) {
             case 'users':
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:
@@ -911,8 +913,7 @@ class AuthorizationController
         }
         $id = sqlQueryNoLog($account_sql, array($userId))['uuid'];
 
-        $uuidRegistry = new UuidRegistry();
-        return $uuidRegistry::uuidToString($id);
+        return UuidRegistry::uuidToString($id);
     }
 
     public function authorizeUser(): void

@@ -19,6 +19,7 @@ use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\PractitionerService;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
@@ -34,15 +35,21 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $uuidToUser = new UuidUserAccount($this->identifier);
             $fhirUser = '';
             $userRole = $uuidToUser->getUserRole();
+            $fhirUserResource = "Person";
             if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
-                // Jerry Padget indicated Person was the best resource to use for people who are not patients
-                // at some future point we may want to differentiate practioners vs persons, but this is fine for now.
-                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Person/" . $this->identifier;
+                // need to find out if its a practitioner or not
+                $practitionerService = new PractitionerService();
+                // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
+                // from the more generic Person resource.
+                if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
+                    $fhirUserResource = "Practitioner";
+                }
             } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
-                $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/Patient/" . $this->identifier;
+                $fhirUserResource = "Patient";
             } else {
                 (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
             }
+            $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/" . $fhirUserResource . "/" . $this->identifier;
 
             (new SystemLogger())->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
@@ -111,7 +118,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     error_log("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
@@ -153,7 +160,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();
-                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
                     error_log("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");

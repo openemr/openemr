@@ -3,6 +3,8 @@
 var fieldLevel = require('../fieldLevel');
 var leafLevel = require('../leafLevel');
 var condition = require('../condition');
+var contentModifier = require("../contentModifier");
+var dataKey = contentModifier.dataKey;
 
 var severityObservation = exports.severityObservation = {
     key: "observation",
@@ -11,6 +13,7 @@ var severityObservation = exports.severityObservation = {
         "moodCode": "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.8", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.8"),
         fieldLevel.templateCode("SeverityObservation"),
         fieldLevel.text(leafLevel.nextReference("severity")),
@@ -41,9 +44,11 @@ var reactionObservation = exports.reactionObservation = {
         "moodCode": "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.9", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.9"),
         fieldLevel.id,
-        fieldLevel.nullFlavor("code"),
+        //fieldLevel.nullFlavor("code"),
+        fieldLevel.templateCode("AllergyObservation"),
         fieldLevel.text(leafLevel.sameReference("reaction")),
         fieldLevel.statusCodeCompleted,
         fieldLevel.effectiveTime, {
@@ -222,5 +227,77 @@ exports.instructions = {
         },
         //fieldLevel.text(leafLevel.nextReference("instruction")),
         fieldLevel.statusCodeCompleted
+    ]
+};
+
+exports.encDiagnosis = {
+    key: "act",
+    attributes: {
+        classCode: "ACT",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.80", "2015-08-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.80"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.19"),
+        fieldLevel.id, {
+            key: "code",
+            attributes: {
+                'xsi:type': "CE",
+                code: "29308-4",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "ENCOUNTER DIAGNOSIS"
+            }
+        },
+        fieldLevel.effectiveTime, {
+            key: "entryRelationship",
+            attributes: {
+                typeCode: "SUBJ",
+                inversionInd: "false"
+            },
+            content: [{
+                key: "observation",
+                attributes: {
+                    classCode: "OBS",
+                    moodCode: "EVN",
+                    negationInd: "false"
+                },
+                content: [
+                    fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.4", "2015-08-01"),
+                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.4"),
+                    fieldLevel.id, {
+                        key: "code",
+                        attributes: {
+                            code: "404684003",
+                            codeSystem: "2.16.840.1.113883.6.96",
+                            codeSystemName: "SNOMED CT",
+                            displayName: "Finding"
+                        },
+                        content: [{
+                            key: "translation",
+                            attributes: {
+                                code: "75321-0",
+                                codeSystem: "2.16.840.1.113883.6.1",
+                                codeSystemName: "LOINC",
+                                displayName: "Clinical finding"
+                            }
+                        }],
+                    },
+                    fieldLevel.statusCodeCompleted,
+                    [fieldLevel.effectiveTime, dataKey("date_time")],
+                    {
+                        key: "value",
+                        attributes: [
+                            leafLevel.typeCD,
+                            leafLevel.code
+                        ],
+                        dataKey: "value",
+                        existsWhen: condition.codeOrDisplayname
+                    },
+                ],
+            }
+            ]
+        },
     ]
 };

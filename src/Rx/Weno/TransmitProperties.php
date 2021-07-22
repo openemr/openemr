@@ -56,48 +56,33 @@ class TransmitProperties
         }
         $gender = $this->patient['sex'];
         $heighDate = explode(" ", $this->vitals['date']);
-        $phoneprimary = str_replace("-", "", $this->patient['phone_cell']);
+        $phoneprimary = preg_replace('/\D+/', '', $this->patient['phone_cell']);
         //create json array
         $wenObj = [];
-        array_merge(
-            $wenObj,
-            $wenObj['UserEmail'] = $this->provider_email['email'],
-            $wenObj['MD5Password'] = md5($this->provider_pass),
-            $wenObj['LocationID'] = $this->locid['weno_id'],
-            $wenObj['TestPatient'] = $mode,
-            $wenObj['PatientType'] = 'Human',
-            $wenObj['OrgPatientID'] = $this->patient['pid'],
-            $wenObj['LastName'] = $this->patient['lname']
-        );
-        // optional fields (added only if they have a value)
-        //if (isset($this->patient['mname'])) {
-        //    array_merge($wenObj, $wenObj['MiddleName'] = $this->patient['mname']);
-        //};
-        array_merge(
-            $wenObj,
-            $wenObj['FirstName'] = $this->patient['fname'],
-            $wenObj['Gender'] = $gender[0],
-            $wenObj['DateOfBirth'] = $this->patient['dob'],
-            $wenObj['AddressLine1'] = $this->patient['street'],
-            $wenObj['City'] = $this->patient['city'],
-            $wenObj['State'] = $this->patient['state'],
-            $wenObj['PostalCode'] = $this->patient['postal_code'],
-            $wenObj['CountryCode'] = "US",
-            $wenObj['PrimaryPhone'] = $phoneprimary,
-            $wenObj['SupportsSMS'] = 'Y'
-        );
-        // optional fields (added only if they have a value)
-        if (isset($this->patient['email'])) {
-            array_merge($wenObj, $wenObj['PatientEmail'] = $this->patient['email']);
-        };
-        array_merge(
-            $wenObj,
-            $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3),
-            $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3),
-            $wenObj['HeightWeightObservationDate'] = $heighDate[0],
-            $wenObj["ResponsiblePartySameAsPatient"] = 'Y',
-            $wenObj['PatientLocation'] = "Home",
-        );
+        $wenObj['UserEmail'] = $this->provider_email['email'];
+        $wenObj['MD5Password'] = md5($this->provider_pass);
+        $wenObj['LocationID'] = $this->locid['weno_id'];
+        $wenObj['TestPatient'] = $mode;
+        $wenObj['PatientType'] = 'Human';
+        $wenObj['OrgPatientID'] = $this->patient['pid'];
+        $wenObj['LastName'] = $this->patient['lname'];
+
+        $wenObj['FirstName'] = $this->patient['fname'];
+        $wenObj['Gender'] = $gender[0];
+        $wenObj['DateOfBirth'] = $this->patient['dob'];
+        $wenObj['AddressLine1'] = $this->patient['street'];
+        $wenObj['City'] = $this->patient['city'];
+        $wenObj['State'] = $this->patient['state'];
+        $wenObj['PostalCode'] = $this->patient['postal_code'];
+        $wenObj['CountryCode'] = "US";
+        $wenObj['PrimaryPhone'] = $phoneprimary;
+        $wenObj['SupportsSMS'] = 'Y';
+
+        $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3);
+        $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3);
+        $wenObj['HeightWeightObservationDate'] = $heighDate[0];
+        $wenObj["ResponsiblePartySameAsPatient"] = 'Y';
+        $wenObj['PatientLocation'] = "Home";
         return json_encode($wenObj);
     }
 

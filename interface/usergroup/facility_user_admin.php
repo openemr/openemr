@@ -167,7 +167,6 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <input type=hidden name=mode value="facility_user_id">
                 <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]); ?>">
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]); ?>">
-                <?php $iter = sqlQuery("select * from facility_user_ids where id=?", array($my_id)); ?>
 
                 <table class="table table-borderless ">
                     <tr>
@@ -195,7 +194,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                                 <?php
                                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                     "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'], $fac_info['id'], $layout_entry['field_id']));
-                                echo generate_form_field($layout_entry, $entry_data['field_value']);
+                                echo generate_form_field($layout_entry, ($entry_data['field_value'] ?? ''));
                                 ?>
                             </td>
                         </tr>

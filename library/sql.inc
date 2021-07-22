@@ -161,8 +161,9 @@ function sqlStatementThrowException($statement, $binds = false)
     //   Execute function.
     $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
     if ($recordset === false) {
-        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError());
+        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
     }
+    return $recordset;
 }
 
 /**
@@ -194,7 +195,7 @@ function sqlGetLastInsertId()
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
 */
-function sqlStatementNoLog($statement, $binds = false)
+function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -204,7 +205,11 @@ function sqlStatementNoLog($statement, $binds = false)
     // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        if ($throw_exception_on_error) {
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+        } else {
+            HelpfulDie("query failed: $statement", getSqlLastError());
+        }
     }
 
     return $recordset;
@@ -369,7 +374,7 @@ function sqlQuery($statement, $binds = false)
 * @param  array   $binds      binded variables array (optional)
 * @return array|false|""
 */
-function sqlQueryNoLog($statement, $binds = false)
+function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -379,7 +384,11 @@ function sqlQueryNoLog($statement, $binds = false)
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        if ($throw_exception_on_error) {
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+        } else {
+            HelpfulDie("query failed: $statement", getSqlLastError());
+        }
     }
 
     if ($recordset->EOF) {

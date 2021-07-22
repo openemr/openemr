@@ -6,13 +6,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../interface/globals.php");
 
-if ($_POST['mode'] == 'get') {
+if ($_POST['mode'] === 'get') {
     $rebuilt = validateFile($_POST['docid']);
     if ($rebuilt) {
         echo file_get_contents($rebuilt);
@@ -20,7 +20,7 @@ if ($_POST['mode'] == 'get') {
     } else {
         die(xlt('Invalid File'));
     }
-} elseif ($_POST['mode'] == 'save') {
+} elseif ($_POST['mode'] === 'save') {
     $rebuilt = validateFile($_POST['docid']);
     if ($rebuilt) {
         if (stripos($_POST['content'], "<?php") === false) {
@@ -32,29 +32,25 @@ if ($_POST['mode'] == 'get') {
     } else {
         die(xlt('Invalid File'));
     }
-} elseif ($_POST['mode'] == 'delete') {
+} elseif ($_POST['mode'] === 'delete') {
     $rebuilt = validateFile($_POST['docid']);
     if ($rebuilt) {
         unlink($rebuilt);
         exit(true);
-    } else {
-        die(xlt('Invalid File'));
     }
+
+    die(xlt('Invalid File'));
 }
 
-// so it is an import
-if (!isset($_POST['up_dir'])) {
-    $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-} else {
-    if ($_POST['up_dir'] > 0) {
-        $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' .
-            convert_safe_file_dir_name($_POST['up_dir']) . "/";
-    } else {
-        $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-    }
+// so it is an import. create file structure.
+$UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
+if (!empty($_POST['up_dir'])) { // a patient template
+    $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' .
+        convert_safe_file_dir_name($_POST['up_dir']) . "/";
+} else { // so then add what category template belongs.
+    $UPLOAD_DIR .= !empty($_POST['doc_category']) ? (convert_safe_file_dir_name($_POST['doc_category']) . "/") : "";
 }
-
-$UPLOAD_DIR .= !empty($_POST['doc_category']) ? (convert_safe_file_dir_name($_POST['doc_category']) . "/") : "";
+// create dir if needed
 if (!is_dir($UPLOAD_DIR) && !mkdir($UPLOAD_DIR, 0755, true) && !is_dir($UPLOAD_DIR)) {
     die("<p>" . xlt("Unable to import file: Use back button!") . "</p>");
 }
@@ -62,13 +58,14 @@ if (!is_dir($UPLOAD_DIR) && !mkdir($UPLOAD_DIR, 0755, true) && !is_dir($UPLOAD_D
 if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];
     if ($tplFile["error"] !== UPLOAD_ERR_OK) {
-        header("refresh:2;url= import_template_ui.php");
-        echo "<p>" . xlt("An error occurred: Missing file to upload: Use back button!") . "</p>";
+        header("refresh:3;url= import_template_ui.php");
+        echo "<title>" . xlt("Error") . " ...</title><h4 style='color:red;'>" .
+            xlt("An error occurred: Missing file to upload. Returning to form.") . "</h4>";
         exit;
     }
     // ensure a safe filename
     $name = preg_replace("/[^A-Z0-9._-]/i", "_", $tplFile["name"]);
-    if (preg_match("/(.*)\.(php|php3|php4|php5|php7|php8)$/i", $name) !== 0) {
+    if (preg_match("/(.*)\.(php|php7|php8)$/i", $name) !== 0) {
         die(xlt('Executables not allowed'));
     }
     $parts = pathinfo($name);

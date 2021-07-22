@@ -249,7 +249,7 @@ function generate_select_list(
         $lres_inactive = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
         $lrow_inactive = sqlFetchArray($lres_inactive);
-        if ($lrow_inactive['option_id']) {
+        if (!empty($lrow_inactive['option_id'])) {
             $optionValue = htmlspecialchars($lrow_inactive['option_id'], ENT_QUOTES);
             $s .= "<option value='$optionValue' selected>" . htmlspecialchars(xl_list_label($lrow_inactive['title']), ENT_NOQUOTES) . "</option>\n";
             $got_selected = true;
@@ -261,11 +261,11 @@ function generate_select_list(
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue));
 
         if ($lrow > 0 && !empty($backup_list)) {
-            $selected = text(xl_list_label($lrow ['title']));
-            $s .= "<option value='$currescaped' selected> $selected </option>";
+            $selected = text(xl_list_label($lrow['title']));
+            $s .= "<option value='" . attr($currvalue) . "' selected> $selected </option>";
             $s .= "</select>";
         } else {
-            $s .= "<option value='$currescaped' selected>* $currescaped *</option>";
+            $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             $s .= "</select>";
             $fontTitle = xlt('Please choose a valid selection from the list.');
             $fontText = xlt('Fix this');
@@ -512,7 +512,7 @@ function generate_form_field($frow, $currvalue)
 
     // escaped variables to use in html
     $field_id_esc = htmlspecialchars($field_id, ENT_QUOTES);
-    $list_id_esc = htmlspecialchars($list_id, ENT_QUOTES);
+    $list_id_esc = htmlspecialchars(($list_id ?? ''), ENT_QUOTES);
 
     // Added 5-09 by BM - Translate description if applicable
     $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
@@ -549,10 +549,13 @@ function generate_form_field($frow, $currvalue)
     $disabled = isOption($edit_options, '0') === false ? '' : 'disabled';
 
     $lbfchange = (
-        strpos($form_id, 'LBF') === 0 ||
-        strpos($form_id, 'LBT') === 0 ||
-        strpos($form_id, 'DEM') === 0 ||
-        strpos($form_id, 'HIS') === 0
+        !empty($form_id) &&
+        (
+            strpos($form_id, 'LBF') === 0 ||
+            strpos($form_id, 'LBT') === 0 ||
+            strpos($form_id, 'DEM') === 0 ||
+            strpos($form_id, 'HIS') === 0
+        )
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
@@ -1579,7 +1582,7 @@ function generate_form_field($frow, $currvalue)
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND authorized = 1 ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform  select-dropdown'  multiple='multiple'>";
+        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-dropdown' style='width:100%;'  multiple='multiple'>";
         $got_selected = false;
         while ($urow = sqlFetchArray($ures)) {
             $uname = text($urow['fname'] . ' ' . $urow['lname']);
@@ -2440,11 +2443,11 @@ function generate_display_field($frow, $currvalue)
         $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
         "WHERE id = ?", array($currvalue));
         //ViSolve: To display the Organization Name if it exist. Else it will display the user name.
-        if ($urow['organization'] != "") {
+        if (!empty($urow['organization'])) {
             $uname = $urow['organization'];
         } else {
-            $uname = $urow['lname'];
-            if ($urow['fname']) {
+            $uname = $urow['lname'] ?? '';
+            if (!empty($urow['fname'])) {
                 $uname .= ", " . $urow['fname'];
             }
         }
@@ -4343,7 +4346,7 @@ function dropdown_facility(
     if ($multiple) {
         $name = $name . "[]";
     }
-    echo "   <select class='form-control";
+    echo "   <select style='width: 100%;' class='form-control";
     if ($multiple) {
         echo " select-dropdown";
     }

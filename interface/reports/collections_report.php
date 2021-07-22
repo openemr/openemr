@@ -363,9 +363,9 @@ if (!empty($_POST['form_csvexport'])) {
         function editInvoice(e, id) {
             e.stopPropagation();
             e.preventDefault();
-            $("#form_page_y").val(e.pageY);      
-            $("#form_offset_y").val(e.offsetY);      
-            $("#form_y").val(e.y);      
+            $("#form_page_y").val(e.pageY);
+            $("#form_offset_y").val(e.offsetY);
+            $("#form_y").val(e.y);
             let url = './../billing/sl_eob_invoice.php?id=' + encodeURIComponent(id);
             dlgopen(url,'','modal-lg',750,false,'', {
                 onClosed: 'reSubmit'
@@ -398,7 +398,7 @@ if (!empty($_POST['form_csvexport'])) {
                 if (ename.indexOf('form_cb[') == 0)
                     f.elements[i].checked = checked;
             }
-        }        
+        }
     </script>
 
 </head>
@@ -873,8 +873,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $ins_seems_done = true;
         $ladate = $svcdate;
         foreach ($invlines as $key => $value) {
-            $row['charges'] += $value['chg'] + $value['adj'];
-            $row['adjustments'] += 0 - $value['adj'];
+            $row['charges'] += $value['chg'] + ($value['adj'] ?? null);
+            $row['adjustments'] += 0 - ($value['adj'] ?? null);
             $row['paid'] += $value['chg'] - $value['bal'];
             foreach ($value['dtl'] as $dkey => $dvalue) {
                 $dtldate = trim(substr($dkey, 0, 10));
@@ -943,7 +943,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $insname = '';
         }
 
-        $rows[$insname . '|' . $ptname . '|' . $encounter_id] = $row;
+        $rows[$insname . '|' . $patient_id . '|' . $ptname . '|' . $encounter_id] = $row;
     } // end while
 
 
@@ -1084,7 +1084,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     $orow = -1;
 
     foreach ($rows as $key => $row) {
-        list($insname, $ptname, $trash) = explode('|', $key);
+        list($insname, $unused , $ptname, $trash) = explode('|', $key);
         list($pid, $encounter) = explode(".", $row['invnumber']);
         if ($form_payer_id) {
             if ($ins_co_name <> $row['ins1']) {

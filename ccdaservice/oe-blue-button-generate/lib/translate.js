@@ -29,6 +29,13 @@ exports.code = function (input) {
         result.displayName = input.name;
     }
 
+    if (input.code_system_name === "ICD10") {
+        input.code_system_name = "ICD-10-CM";
+    }
+
+    if (input.code_system_name === "SNOMED" || input.code_system_name === "SNOMED-CT") {
+        input.code_system_name = "SNOMED CT";
+    }
     var code_system = input.code_system || (input.code_system_name && css.findFromName(input.code_system_name));
     if (code_system) {
         result.codeSystem = code_system;
@@ -70,6 +77,9 @@ var acronymize = exports.acronymize = function (string) {
     ret = fL + lL;
     if (ret === "PH") {
         ret = "HP";
+    }
+    if (ret === "PM") {
+        ret = "MC";
     }
     if (ret === "HA") {
         ret = "H";

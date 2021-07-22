@@ -155,7 +155,7 @@ function generate_receipt($patient_id, $encounter = 0)
         }
     }
 
-    if ($encprovider) {
+    if (!empty($encprovider)) {
         $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
         "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider));
     }
@@ -305,7 +305,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             <td colspan='5'>&nbsp;</td>
                         </tr>
                         <tr>
-                            <td><?php echo text(oeFormatShortDate($svcdispdate)); ?></td>
+                            <td><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
                             <td><b><?php echo xlt('Total Charges'); ?></b></td>
                             <td class='text-right'>&nbsp;</td>
                             <td class='text-right'>&nbsp;</td>
@@ -437,10 +437,10 @@ function generate_receipt($patient_id, $encounter = 0)
     // Print receipt header for facility
     function printFacilityHeader($frow)
     {
-        echo text($frow['name']) .
-        "<br />" . text($frow['street']) .
-        "<br />" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
-        "<br />" . text($frow['phone']) .
+        echo text($frow['name'] ?? '') .
+        "<br />" . text($frow['street'] ?? '') .
+        "<br />" . text($frow['city'] ?? '') . ', ' . text($frow['state'] ?? '') . ' ' . text($frow['postal_code'] ?? '') .
+        "<br />" . text($frow['phone'] ?? '') .
         "<br />&nbsp" .
         "<br />";
     }

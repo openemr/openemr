@@ -4,15 +4,17 @@
  * Billing Report Program
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -685,6 +687,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $_REQUEST['master_from_date_form_encounter_date'] = date("Y-m-d");
                             $_REQUEST['master_to_date_form_encounter_date'] = date("Y-m-d");
                             $_REQUEST['radio_billing_billed'] = 0;
+                            $_REQUEST['query_drop_down_master_billing_x12_partner_id'] = "";
                         }
                         ?>
                     <?php
@@ -825,63 +828,65 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             } else {
                 $unbilled = "%";
             }
-                $list = BillingReport::getBillsListBetween("%");
-            ?>
-            <?php
-            if (!isset($_POST["mode"])) {
-                if (!isset($_POST["from_date"])) {
-                    $from_date = date("Y-m-d");
-                } else {
-                    $from_date = $_POST["from_date"];
-                }
-                if (empty($_POST["to_date"])) {
-                    $to_date = '';
-                } else {
-                    $to_date = $_POST["to_date"];
-                }
-                if (!isset($_POST["code_type"])) {
-                    $code_type = "all";
-                } else {
-                    $code_type = $_POST["code_type"];
-                }
-                if (!isset($_POST["unbilled"])) {
-                    $unbilled = "on";
-                } else {
-                    $unbilled = $_POST["unbilled"];
-                }
-                if (!isset($_POST["authorized"])) {
-                    $my_authorized = "on";
-                } else {
-                    $my_authorized = $_POST["authorized"];
-                }
+            $list = BillingReport::getBillsListBetween("%");
+            // don't query the whole encounter table if no criteria selected
+            if (isset($_POST["mode"]) && !array_key_exists('final_this_page_criteria', $_POST)) {
+                $alertmsg = "Please select at least one criteria.";
             } else {
-                $from_date = $_POST["from_date"] ?? null;
-                $to_date = $_POST["to_date"] ?? null;
-                $code_type = $_POST["code_type"] ?? null;
-                $unbilled = $_POST["unbilled"] ?? null;
-                $my_authorized = $_POST["authorized"] ?? null;
-            }
+                if (!isset($_POST["mode"])) {
+                    if (!isset($_POST["from_date"])) {
+                        $from_date = date("Y-m-d");
+                    } else {
+                        $from_date = $_POST["from_date"];
+                    }
+                    if (empty($_POST["to_date"])) {
+                        $to_date = '';
+                    } else {
+                        $to_date = $_POST["to_date"];
+                    }
+                    if (!isset($_POST["code_type"])) {
+                        $code_type = "all";
+                    } else {
+                        $code_type = $_POST["code_type"];
+                    }
+                    if (!isset($_POST["unbilled"])) {
+                        $unbilled = "on";
+                    } else {
+                        $unbilled = $_POST["unbilled"];
+                    }
+                    if (!isset($_POST["authorized"])) {
+                        $my_authorized = "on";
+                    } else {
+                        $my_authorized = $_POST["authorized"];
+                    }
+                } else {
+                    $from_date = $_POST["from_date"] ?? null;
+                    $to_date = $_POST["to_date"] ?? null;
+                    $code_type = $_POST["code_type"] ?? null;
+                    $unbilled = $_POST["unbilled"] ?? null;
+                    $my_authorized = $_POST["authorized"] ?? null;
+                }
 
-            if ($my_authorized == "on") {
-                $my_authorized = "1";
-            } else {
-                $my_authorized = "%";
-            }
+                if ($my_authorized == "on") {
+                    $my_authorized = "1";
+                } else {
+                    $my_authorized = "%";
+                }
 
-            if ($unbilled == "on") {
-                $unbilled = "0";
-            } else {
-                $unbilled = "%";
-            }
+                if ($unbilled == "on") {
+                    $unbilled = "0";
+                } else {
+                    $unbilled = "%";
+                }
 
-            if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
-                billCodesList($list);
-            }
-            ?>
+                if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
+                    billCodesList($list);
+                }
+                ?>
             <div class="table-responsive">
                 <table class="table table-sm">
                     <?php
-                        $divnos = 0;
+                    $divnos = 0;
                     if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) { ?>
                     <tr>
@@ -1263,7 +1268,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $rhtml .= "</td>\n";
                             $justify = "";
 
-                            if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
+                            if ($iter['id'] && !empty($code_types[$iter['code_type']]['just'])) {
                                 $js = explode(":", $iter['justify']);
                                 $counter = 0;
                                 foreach ($js as $j) {
@@ -1403,6 +1408,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
     </div>
     <!--end of container div -->
+    <?php } // end if no criteria selected ?>
     <?php $oemr_ui->oeBelowContainerDiv(); ?>
     <script>
         set_button_states();
@@ -1457,7 +1463,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
         });
     </script>
-    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos) ?>" />
+    <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos ?? '') ?>" />
     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 </body>
 

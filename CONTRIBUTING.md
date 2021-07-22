@@ -71,12 +71,14 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 6. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
 7. [Backup and restore OpenEMR data](#dev_tools_backup)
 8. [Send/receive snapshots](#dev_tools_send)
-9. [Turn on and turn off support for multisite feature](#dev_tools_multisite)
-10. [Change the database character set and collation](#dev_tools_charset)
-11. [Test ssl certificate and force/unforce https](#dev_tools_https)
-12. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
-13. [CouchDB integration](#dev_tools_couchdb)
-14. [LDAP integration](#dev_tools_ldap)
+9. [Create and add random patient data](#dev_tools_randompatients)
+10. [Add multisite bank](#dev_tools_bankmultisite)
+11. [Turn on and turn off support for multisite feature](#dev_tools_multisite)
+12. [Change the database character set and collation](#dev_tools_charset)
+13. [Test ssl certificate and force/unforce https](#dev_tools_https)
+14. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
+15. [CouchDB integration](#dev_tools_couchdb)
+16. [LDAP integration](#dev_tools_ldap)
 
 ---
 
@@ -100,7 +102,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools xdebug-log'
       ```
 2. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 7.4. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.0 , then just need to change it to `image: openemr/openemr:flex-3.13-8`. To use PHP 7.3 requires 2 changes; change image to `image: openemr/openemr:flex-3.12` and then add the following environment setting to the openemr service: `XDEBUG_IDE_KEY: PHPSTORM`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.0. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 7.4 , then just need to change it to `image: openemr/openemr:flex-3.13`. To use PHP 7.3 requires 2 changes; change image to `image: openemr/openemr:flex-3.12` and then add the following environment setting to the openemr service: `XDEBUG_IDE_KEY: PHPSTORM`.
 3. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
@@ -217,7 +219,25 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools upgrade 5.0.2'
           ```
-9. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature.
+9. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
+    - Create and add 100 random patients (defaults to development mode set to true, which is set be default to true; development mode will markedly improve performance by bypassing the import of the ccda document and bypassing the use of the audit_master and audit_details tables and will directly import the new patient data from the ccda. Note this should never be done on sites that already contain real data/use, and it will also turn off the audit log during the import.):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools import-random-patients 100'
+      ```
+      or
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools import-random-patients 100 true'
+      ```
+   - Create and add 100 random patients (with development mode set to false)
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools import-random-patients 100 false'
+      ```
+10. <a name="dev_tools_bankmultisite"></a>Create a bank of multisites with selected number of multisites that are all labelled from run1..runx. It will clone from the default instance. This can be helpful for testing of multisites and other larger scale testing.
+    - Create 5 multisites (will be run1, run2, run3, run4, run5):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools generate-multisite-bank 5'
+      ```
+11. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature (to allow setting up multisites in setup.php script).
     - Turn on support for multisite:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools enable-multisite'
@@ -226,7 +246,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools disable-multisite'
       ```
-10. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
+12. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
     - Best to demonstrate this devtool with examples.
         - Set character set to utf8mb4 and collation to utf8mb4_general_ci (this is default for OpenEMR 6 and higher):
           ```sh
@@ -244,7 +264,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools change-encoding-collation utf8 utf8_general_ci'
           ```
-11. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
+13. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
     - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then can import this zip package (example `ssl.zip`) into the docker via:
       ```sh
       docker cp ssl.zip $(docker ps | grep _openemr | cut -f 1 -d " "):/certs/
@@ -269,7 +289,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools un-force-https'
       ```
-12. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
+14. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
     - Place the testing sql ssl CA cert:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl'
@@ -286,7 +306,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools sql-ssl-client-off'
       ```
-13. <a name="dev_tools_couchdb"></a>CouchDB integration.
+15. <a name="dev_tools_couchdb"></a>CouchDB integration.
     - In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB docker is included in this OpenEMR docker development environment. You can visit the CouchDB GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with username `admin` and password `password`. You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR at Administration->Globals->Documents:
         - Document Storage Method->CouchDB
     - After running the following devtools, 'dev-reset', 'dev-install', 'dev-reset-install', 'dev-reset-install-demodata', 'restore-snapshot', then need to restart the couchdb docker via the following command:
@@ -310,7 +330,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools couchdb-ssl-client-off'
           ```
-14. <a name="dev_tools_ldap"></a>LDAP integration.
+16. <a name="dev_tools_ldap"></a>LDAP integration.
     - In OpenEMR, LDAP is an option for authentication. If this is turned on, then this will be supported for the `admin` user, which will use the following password: `admin`
     - Turn on LDAP:
       ```sh

@@ -15,6 +15,7 @@ var vitalSignObservation = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.27", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.27"),
         fieldLevel.id, {
             key: "code",
@@ -51,7 +52,7 @@ var vitalSignObservation = {
             required: true
         }, {
             key: "interpretationCode",
-            attributes: {"nullFlavor": "NI"}, //leafLevel.codeFromName("2.16.840.1.113883.5.83"),
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.5.83"),
             dataKey: "interpretations"
         }
     ],
@@ -70,10 +71,23 @@ exports.vitalSignsOrganizer = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.26", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.26"),
         fieldLevel.uniqueId,
-        fieldLevel.id,
-        fieldLevel.templateCode("VitalSignsOrganizer"), {
+        fieldLevel.id, {
+            key: "code",
+            attributes: {
+                code: "46680005",
+                codeSystem: "2.16.840.1.113883.6.96",
+                codeSystemName: "SNOMED-CT",
+                displayName: "Vital signs"
+            },
+            content: [{
+                key: "translation",
+                attributes: {code: "74728-7", codeSystem: "2.16.840.1.113883.6.1", codeSystemName: "LOINC", displayName: "Vital signs"},
+            }],
+        },
+        {
             key: "statusCode",
             attributes: {
                 code: leafLevel.inputProperty("status")

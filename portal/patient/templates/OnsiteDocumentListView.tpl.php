@@ -358,7 +358,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
             <!-- editor form -->
             <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                <div id="templatediv" class="card-body border p-2 m-1 bg-white">
+                <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
                     <div id="templatecontent" class="template-body bg-white"><div class="text-center"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div></div>
                 </div>
                 <input type="hidden" name="content" id="content" value="" />

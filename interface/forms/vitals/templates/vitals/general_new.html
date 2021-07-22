@@ -271,6 +271,13 @@ function vitalsFormSubmitted() {
                                     <td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"|text}{/if}</td>
                                 {/foreach}</tr>
 
+                                <tr><td class="graph" id="oxygen_flow_rate">{xlt t="Oxygen Flow Rate"}</td><td>{xlt t="l/min"}</td>
+                                    <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
+                                        name='oxygen_flow_rate' id='oxygen_flow_rate_input' value="{if $vitals->get_oxygen_flow_rate() != 0}{$vitals->get_oxygen_flow_rate()|attr}{/if}"/></td>
+                                    {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.oxygen_flow_rate != 0}{$result.oxygen_flow_rate|text}{/if}</td>
+                                    {/foreach}</tr>
+
                                 {if $units_of_measurement == 4 || $gbl_vitals_options > 0}<tr class="hide">{else}<tr>{/if}
                                         {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xlt t="Head Circumference"}</td>
                                     {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xlt t="in"}</td>
@@ -328,7 +335,32 @@ function vitalsFormSubmitted() {
                                         {/foreach}
                                     </tr>
 
-                                    <tr>
+                                {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
+                                <tr><td class="graph" id="ped_weight_height">{xlt t="Pediatric Weight Height Percentile"}</td><td>{xlt t="%"}</td>
+                                    <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
+                                                                         name='ped_weight_height' id='ped_weight_height_input' value="{if $vitals->get_ped_weight_height() != 0}{$vitals->get_ped_weight_height()|attr}{/if}"/></td>
+                                    {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.ped_weight_height != 0}{$result.ped_weight_height|text}{/if}</td>
+                                    {/foreach}</tr>
+
+                                <tr><td class="graph" id="ped_bmi">{xlt t="Pediatric BMI Percentile"}</td><td>{xlt t="%"}</td>
+                                    <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
+                                                                         name='ped_bmi' id='ped_bmi_input' value="{if $vitals->get_ped_bmi() != 0}{$vitals->get_ped_bmi()|attr}{/if}"/></td>
+                                    {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.ped_bmi != 0}{$result.ped_bmi|text}{/if}</td>
+                                    {/foreach}</tr>
+
+                                <tr><td class="graph" id="ped_head_circ">{xlt t="Pediatric Head Circumference Percentile"}</td><td>{xlt t="%"}</td>
+                                    <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
+                                                                         name='ped_head_circ' id='ped_head_circ_input' value="{if $vitals->get_ped_head_circ() != 0}{$vitals->get_ped_head_circ()|attr}{/if}"/></td>
+                                    {foreach item=result from=$results}
+                                    <td  class='historicalvalues'>{if $result.ped_head_circ != 0}{$result.ped_head_circ|text}{/if}</td>
+                                    {/foreach}</tr>
+
+                                {/if}
+
+
+                                <tr>
                                         <td>{xlt t="Other Notes"}</td>
                                         <td>&nbsp;</td>
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='20'
@@ -361,6 +393,7 @@ function vitalsFormSubmitted() {
                 </div>
             <br /><br />
             <input type="hidden" name="id" id='id' value="{$vitals->get_id()|attr}" />
+            <input type="hidden" name="uuid" id='uuid' value="{$vitals->get_uuid_string()|attr}" />
             <input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()|attr}" />
             <input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()|attr}" />
             <input type="hidden" name="process" id='process' value="true" />

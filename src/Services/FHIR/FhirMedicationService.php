@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Medication Service
@@ -126,32 +127,13 @@ class FhirMedicationService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Condition Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Condition Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->medicationService->getOne($fhirResourceId, true);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->medicationService->getAll($openEMRSearchParameters, false, true);
     }

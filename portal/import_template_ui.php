@@ -16,12 +16,12 @@ require_once("../interface/globals.php");
 
 use OpenEMR\Core\Header;
 
-$patient_dir = $_POST['sel_pt'] ?? 0;
-$patient_dir = convert_safe_file_dir_name($patient_dir . "_tpls");
+$patient = (int)($_POST['sel_pt'] ?? 0);
+$patient_dir = $patient > 0 ? convert_safe_file_dir_name($patient . "_tpls") : "";
 $cat_dir = convert_safe_file_dir_name($_POST['doc_category']) ?? "";
 // default root
 $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-if ($patient_dir > 0) {
+if (!empty($patient_dir)) {
     $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $patient_dir . '/';
 } elseif (!empty($cat_dir)) {
     $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $cat_dir . '/';
@@ -84,7 +84,7 @@ function getTemplateList($dir, $location = "")
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'summernote', 'summernote-ext-nugget', 'patientportal-style']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'summernote', 'summernote-ext-nugget']); ?>
 
 </head>
 <script>
@@ -190,10 +190,10 @@ function getTemplateList($dir, $location = "")
         </div>
         <form id="form_upload" class="form-inline" action="import_template.php" method="post" enctype="multipart/form-data">
             <div class="form-group">
-            <div class="btn-group">
-                <input class="btn btn-outline-info" type="file" name="tplFile">
-                <button class="btn btn-outline-primary" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Uploading For'); ?> <label id='ptstatus'></label></button>
-            </div>
+                <div class="btn-group">
+                    <input class="btn btn-outline-info" type="file" name="tplFile">
+                    <button class="btn btn-outline-primary" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Uploading For'); ?> <label id='ptstatus'></label></button>
+                </div>
                 <button class="btn btn-success ml-2" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Dashboard'); ?></button>
             </div>
             <input type='hidden' name="up_dir" value='<?php global $patient_dir;
@@ -234,7 +234,8 @@ function getTemplateList($dir, $location = "")
                                 }
                             }
                             ?>
-                        </select></div>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-secondary"><?php echo xlt('Refresh'); ?></button>
                 </form>
             </div>
@@ -280,22 +281,37 @@ function getTemplateList($dir, $location = "")
             echo "</tbody>";
             echo "</table>";
             ?>
-            <script>
-                $(function () {
-                    $("#sel_pt").change(function () {
-                        $("#edit_form").submit();
-                    });
-
-                    $("#doc_category").change(function () {
-                        $("#edit_form").submit();
-                    });
-
-                    $("#ptstatus").text($("#sel_pt").find(":selected").text());
-                    $("#ptstatus").append(' ' + xl("to Category") + ' ');
-                    $("#ptstatus").append($("#doc_category").find(":selected").text());
-                });
-            </script>
         </div>
     </div>
+    <script>
+        $(function () {
+            $("#sel_pt").change(function () {
+                if (checkCategory()) {
+                    $("#edit_form").submit();
+                }
+            });
+
+            $("#doc_category").change(function () {
+                if (checkCategory()) {
+                    $("#edit_form").submit();
+                }
+            });
+
+            $("#ptstatus").text($("#sel_pt").find(":selected").text());
+            $("#ptstatus").append(' ' + xl("to Category") + ' ');
+            $("#ptstatus").append($("#doc_category").find(":selected").text());
+
+            function checkCategory() {
+                let cat = $("#doc_category").val();
+                let patient = $("#sel_pt").val();
+                if (patient !== "0" && cat !== "") {
+                    alert(xl("Alert! Can only use the General category with patients."));
+                    $("#doc_category").val("");
+                    return false;
+                }
+                return true;
+            }
+        });
+    </script>
 </body>
 </html>

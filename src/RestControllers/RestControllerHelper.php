@@ -12,17 +12,14 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
-use OpenEMR\FHIR\FhirSearchParameterType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationDefinition;
+use OpenEMR\Services\FHIR\IResourceSearchableService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTypeRestfulInteraction;
 use OpenEMR\FHIR\R4\FHIRResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementInteraction;
@@ -30,6 +27,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Validators\ProcessingResult;
 
 class RestControllerHelper
 {
@@ -42,6 +40,9 @@ class RestControllerHelper
      * The default FHIR services class namespace
      */
     const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
+
+    // @see https://www.hl7.org/fhir/search.html#table
+    const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
     /**
      * Configures the HTTP status code and payload returned within a response.
@@ -136,12 +137,14 @@ class RestControllerHelper
      * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
      * @return array|mixed
      */
-    public static function handleFhirProcessingResult($processingResult, $successStatusCode)
+    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode)
     {
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+        } elseif (count($processingResult->getData()) <= 0) {
+            http_response_code(404);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
@@ -160,11 +163,27 @@ class RestControllerHelper
         if (empty($service)) {
             return; // nothing to do here as the service isn't defined.
         }
-        $capResource->addSearchInclude('*');
-        foreach ($service->getSearchParams() as $fhirSearchField => $searchDefinition) {
-            $paramExists = false;
 
-            $type = $searchDefinition['type'] ?? FhirSearchParameterType::STRING;
+        if (!$service instanceof IResourceSearchableService) {
+            return; // nothing to do here as the source is not searchable.
+        }
+
+        if (empty($capResource->getSearchInclude())) {
+            $capResource->addSearchInclude('*');
+        }
+        if ($service instanceof IResourceUSCIGProfileService && empty($capResource->getSearchRevInclude())) {
+            $capResource->addSearchRevInclude(self::FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE);
+        }
+        $searchParams = $service->getSearchParams();
+        $searchParams = is_array($searchParams) ? $searchParams : [];
+        foreach ($searchParams as $fhirSearchField => $searchDefinition) {
+
+            /**
+             * @var FhirSearchParameterDefinition $searchDefinition
+             */
+
+            $paramExists = false;
+            $type = $searchDefinition->getType();
 
             foreach ($capResource->getSearchParam() as $searchParam) {
                 if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
@@ -209,11 +228,14 @@ class RestControllerHelper
             $operation->setName($operationName);
             $operation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
 
-            $extension = new FHIRExtension();
-            $extension->setValueCode(new FHIRCode('SHOULD'));
-            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
-            $operation->addExtension($extension);
-            $capResource->addOperation($operation);
+            // TODO: adunsulag so the Single Patient API fails on this expectation being here yet the Multi-Patient API failed when it wasn't here
+            // need to investigate what, if anything we are missing, perhaps another extension definition that tells the inferno server
+            // that this should be parsed in a single patient context??
+//            $extension = new FHIRExtension();
+//            $extension->setValueCode(new FHIRCode('SHOULD'));
+//            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
+//            $operation->addExtension($extension);
+//            $capResource->addOperation($operation);
         }
     }
 

@@ -17,10 +17,18 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService
+class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
 {
+    use PatientSearchTrait;
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var EncounterService
      */
@@ -39,9 +47,9 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function loadSearchParameters()
     {
         return  [
-            '_id' => ['uuid'],
-            'patient' => ['pid'],
-            'date' => ['date']
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('euuid', ServiceField::TYPE_UUID)]),
+            'patient' => $this->getPatientContextSearchField(),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
         ];
     }
 
@@ -61,14 +69,14 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();
-        $id->setValue($dataRecord['uuid']);
+        $id->setValue($dataRecord['euuid']);
         $encounterResource->setId($id);
 
         $status = new FHIRCode('finished');
         $encounterResource->setStatus($status);
 
-        if (!empty($dataRecord['provider_id'])) {
-            $parctitioner = new FHIRReference(['reference' => 'Practitioner/' . $dataRecord['provider_id']]);
+        if (!empty($dataRecord['provider_uuid'])) {
+            $parctitioner = new FHIRReference(['reference' => 'Practitioner/' . $dataRecord['provider_uuid']]);
             $participant = new FHIREncounterParticipant(array(
                 'individual' => $parctitioner,
                 'period' => ['start' => gmdate('c', strtotime($dataRecord['date']))]
@@ -83,8 +91,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $encounterResource->addParticipant($participant);
         }
 
-        if (!empty($dataRecord['facility_id'])) {
-            $serviceOrg = new FHIRReference(['reference' => 'Organization/' . $dataRecord['facility_id']]);
+        if (!empty($dataRecord['facility_uuid'])) {
+            $serviceOrg = new FHIRReference(['reference' => 'Organization/' . $dataRecord['facility_uuid']]);
             $encounterResource->setServiceProvider($serviceOrg);
         }
 
@@ -130,54 +138,15 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     }
 
     /**
-     * Performs a FHIR Encounter Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Encounter Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->encounterService->getEncounter($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($searchParam, $puuidBind = null)
+    protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
-        return $this->encounterService->getEncountersBySearch($searchParam, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
+        return $this->encounterService->search($searchParam, true, $puuidBind);
     }
 
     /**

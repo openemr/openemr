@@ -2,12 +2,17 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\Services\OrganizationService;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
+use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
+use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
+use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -17,20 +22,39 @@ use OpenEMR\Validators\ProcessingResult;
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786@gmail.com>
+ * @author             Stephen Nielson <stephen@nielson.org>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright          Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirOrganizationService extends FhirServiceBase
+class FhirOrganizationService implements IResourceSearchableService, IResourceReadableService, IResourceUpdateableService, IResourceCreatableService
 {
+    use MappedServiceTrait;
+
+    const ORGANIZATION_TYPE_INSURANCE = "Ins";
+    const ORGANIZATION_TYPE_PAYER = "Pay";
+    const ORGANIZATION_TYPE_PROVIDER = "Prov";
+
     /**
-     * @var FacilityService
+     * @var FhirOrganizationFacilityService
      */
-    private $organizationService;
+    private $facilityService;
+
+    /**
+     * @var FhirOrganizationInsuranceService
+     */
+    private $insuranceService;
 
     public function __construct()
     {
-        parent::__construct();
-        $this->organizationService = new OrganizationService();
+        $this->facilityService = new FhirOrganizationFacilityService();
+        $this->insuranceService = new FhirOrganizationInsuranceService();
+
+        $this->addMappedService($this->facilityService);
+        $this->addMappedService($this->insuranceService);
+        // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
+        // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
+        $this->addMappedService(new FhirOrganizationProcedureProviderService());
     }
 
     /**
@@ -38,298 +62,92 @@ class FhirOrganizationService extends FhirServiceBase
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    public function getSearchParams()
     {
         return  [
-            "email" => ["email"],
-            "phone" => ["phone"],
-            "telecom" => ["email", "phone",],
-            "address" => ["street", "postal_code", "city", "state", "country_code","line1"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["postal_code","zip"],
-            "address-state" => ["state"],
-            "name" => ["name"],
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1", "line2"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
         ];
     }
 
-    /**
-     * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
-     *
-     * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIROrganization
-     */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
     {
-        $organizationResource = new FHIROrganization();
-
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $organizationResource->setMeta($meta);
-
-        $organizationResource->setActive($dataRecord['service_location'] == "1" ? true : false);
-
-        $narrativeText = '';
-        if (isset($dataRecord['name'])) {
-            $narrativeText = $dataRecord['name'];
-        }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $organizationResource->setText($text);
-
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $organizationResource->setId($id);
-
-        if (isset($dataRecord['name'])) {
-            $organizationResource->setName($dataRecord['name']);
-        }
-
-        $address = new FHIRAddress();
-        if (!empty($dataRecord['line1'])) {
-            $address->addLine($dataRecord['line1']);
-        }
-        if (!empty($dataRecord['line2'])) {
-            $address->addLine($dataRecord['line2']);
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-        }
-        if (!empty($dataRecord['postal_code'])) {
-            $address->setPostalCode($dataRecord['postal_code']);
-        }
-        if (isset($dataRecord['country_code'])) {
-            $address->setCountry($dataRecord['country_code']);
-        }
-
-        $organizationResource->addAddress($address);
-
-        if (!empty($dataRecord['phone'])) {
-            $organizationResource->addTelecom(
-                array(
-                'system' => 'phone',
-                'value' => $dataRecord['phone'],
-                'use' => 'work'
-                )
-            );
-        }
-
-        if (isset($dataRecord['email'])) {
-            $organizationResource->addTelecom(
-                array(
-                'system' => 'email',
-                'value' => $dataRecord['email'],
-                'use' => 'work'
-                )
-            );
-        }
-
-        if (isset($dataRecord['orgType'])) {
-            $orgType = new FHIRCodeableConcept();
-            $type = new FHIRCoding();
-            $type->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
-            if ($dataRecord['orgType'] == 'facility') {
-                $type->setCode("prov");
-            }
-            if ($dataRecord['orgType'] == 'insurance') {
-                $type->setCode("pay");
-            }
-            $orgType->addCoding($type);
-            $organizationResource->addType($orgType);
-        }
-
-        if (isset($dataRecord['fax'])) {
-            $organizationResource->addTelecom(
-                array(
-                'system' => 'fax',
-                'value' => $dataRecord['fax'],
-                'use' => 'work'
-                )
-            );
-        }
-
-        if (isset($dataRecord['facility_npi'])) {
-            $fhirIdentifier = [
-                'system' => "http://hl7.org/fhir/sid/us-npi",
-                'value' => $dataRecord['facility_npi']
-            ];
-            $organizationResource->addIdentifier($fhirIdentifier);
-        }
-
-        if (isset($dataRecord['cms_id'])) {
-            $fhirIdentifier = [
-                'system' => "http://hl7.org/fhir/v2/0203",
-                'value' => $dataRecord['cms_id']
-            ];
-            $organizationResource->addIdentifier($fhirIdentifier);
-        }
-
-        if (isset($dataRecord['domain_identifier'])) {
-            $fhirIdentifier = [
-                'system' => "urn:oid:2.16.840.1.113883.4.7",
-                'value' => $dataRecord['domain_identifier']
-            ];
-            $organizationResource->addIdentifier($fhirIdentifier);
-        }
-
-        if ($encode) {
-            return json_encode($organizationResource);
-        } else {
-            return $organizationResource;
-        }
+        return $this->getAll(['_id' => $fhirResourceId], $puuidBind);
     }
 
-    /**
-     * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
-     *
-     * @param  array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
+    public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
-        $data = array();
-
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
+        $fhirSearchResult = new ProcessingResult();
+        try {
+            $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField()]);
+            // put our exception information here
+            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
+        return $fhirSearchResult;
+    }
 
-        if (isset($fhirResource['name'])) {
-            $data['name'] = $fhirResource['name'];
+    public function insert($fhirResource): ProcessingResult
+    {
+        if (!($fhirResource instanceof FHIROrganization)) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIROrganization::class);
         }
-
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
-            }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
-        }
-        //setting default OrgType to facility
-        $data['orgType'] = 'facility';
-        if (isset($fhirResource['type'])) {
-            foreach ($fhirResource['type'] as $orgtype) {
-                foreach ($orgtype['coding'] as $coding) {
-                    if ($coding['code'] == 'pay') {
-                        $data['orgType'] = 'insurance';
-                    }
-                    if ($coding['code'] == 'prov') {
-                        $data['orgType'] = 'facility';
-                    }
+        // we only allow facilities to be created... currently we have no way of creating a lab provider because we
+        // can't differentiate on the type.
+        $concepts = $fhirResource->getType();
+        foreach ($concepts as $concept) {
+            foreach ($concept->getCoding() as $coding) {
+                if ($coding->getCode() == self::ORGANIZATION_TYPE_INSURANCE) {
+                    // insert into the insurance
+                    return $this->insuranceService->insert($fhirResource);
                 }
             }
         }
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['phone'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['email'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'fax':
-                        switch ($telecom['use']) {
-                            case 'work':
-                                $data['fax'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    default:
-                        //Should give Error for incapability
-                        break;
-                }
-            }
-        }
-
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
-                $data['facility_npi'] = $identifier['value'];
-            }
-            if ($identifier['system'] == "urn:oid:2.16.840.1.113883.4.7") {
-                $data['domain_identifier'] = $identifier['value'];
-            }
-        }
-        return $data;
+        // if its not an insurance company we are going to bail out
+        return $this->facilityService->insert($fhirResource);
     }
 
-
-    /**
-     * Inserts an OpenEMR record into the sytem.
-     *
-     * @param  array $openEmrRecord OpenEMR organization record
-     * @return ProcessingResult
-     */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
-        return $this->organizationService->insert($openEmrRecord);
-    }
 
-
-    /**
-     * Updates an existing OpenEMR record.
-     *
-     * @param  $fhirResourceId       //The OpenEMR record's FHIR Resource ID.
-     * @param  $updatedOpenEMRRecord //The "updated" OpenEMR record.
-     * @return ProcessingResult
-     */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        $processingResult = $this->organizationService->update($fhirResourceId, $updatedOpenEMRRecord);
+        if (!($fhirResource instanceof FHIROrganization)) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIROrganization::class);
+        }
+        try {
+            $service = $this->getMappedServiceForResourceUuid($fhirResourceId);
+            if (!empty($service)) {
+                return $service->update($fhirResourceId, $fhirResource);
+            }
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
+        }
+        $processingResult = new ProcessingResult();
+        $processingResult->setValidationMessages(['_id' => 'Invalid fhir resource id']);
         return $processingResult;
     }
 
-    /**
-     * Performs a FHIR Organization Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Organization Resource ID.
-     */
-    public function getOne($fhirResourceId)
+    public function getPrimaryBusinessEntityReference()
     {
-        $processingResult = $this->organizationService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
+        $ref = $this->facilityService->getPrimaryBusinessEntityReference();
+        return $ref;
     }
 
     /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
-     * @return ProcessingResult
+     * Given the uuid of a user assigned to an organization, return a FHIR Reference to the organization record.
+     * @param $userUuid The unique user id of the user we are retrieving the reference for.
+     * @return FHIRReference|null The reference to the organization the user belongs to
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    public function getOrganizationReferenceForUser($userUuid)
     {
-        $processingResult = $this->organizationService->getall($openEMRSearchParameters, false);
-        return $processingResult;
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
+        return $this->facilityService->getOrganizationReferenceForUser($userUuid);
     }
 }

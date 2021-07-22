@@ -22,12 +22,12 @@ class C_FormVitals extends Controller
     var $template_dir;
     var $form_id;
 
-    function __construct($template_mod = "general")
+    public function __construct($template_mod = "general")
     {
         parent::__construct();
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
-        $this->template_dir = dirname(__FILE__) . "/templates/vitals/";
+        $this->template_dir = __DIR__ . "/templates/vitals/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
@@ -40,7 +40,7 @@ class C_FormVitals extends Controller
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
-    function default_action_old()
+    public function default_action_old()
     {
         //$vitals = array();
         //array_push($vitals, new FormVitals());
@@ -50,12 +50,12 @@ class C_FormVitals extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function setFormId($form_id)
+    public function setFormId($form_id)
     {
         $this->form_id = $form_id;
     }
 
-    function default_action()
+    public function default_action()
     {
 
         $form_id = $this->form_id;
@@ -85,6 +85,7 @@ class C_FormVitals extends Controller
         $i = 1;
         while ($result = sqlFetchArray($res)) {
             $results[$i]['id'] = $result['id'];
+            $results[$i]['uuid'] = $result['uuid'];
             $results[$i]['encdate'] = substr($result['encdate'], 0, 10);
             $results[$i]['date'] = $result['date'];
             $results[$i]['activity'] = $result['activity'];
@@ -102,6 +103,10 @@ class C_FormVitals extends Controller
             $results[$i]['waist_circ'] = $result['waist_circ'];
             $results[$i]['head_circ'] = $result['head_circ'];
             $results[$i]['oxygen_saturation'] = $result['oxygen_saturation'];
+            $results[$i]['oxygen_flow_rate'] = $result['oxygen_flow_rate'];
+            $results[$i]['ped_weight_height'] = $result['ped_weight_height'];
+            $results[$i]['ped_bmi'] = $result['ped_bmi'];
+            $results[$i]['ped_head_circ'] = $result['ped_head_circ'];
             $i++;
         }
 
@@ -112,7 +117,7 @@ class C_FormVitals extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function default_action_process()
+    public function default_action_process()
     {
         if ($_POST['process'] != "true") {
             return;
@@ -147,7 +152,7 @@ class C_FormVitals extends Controller
 
         $this->vitals = new FormVitals($_POST['id']);
 
-        parent::populate_object($this->vitals);
+        $this->populate_object($this->vitals);
 
         $this->vitals->persist();
         if ($GLOBALS['encounter'] < 1) {

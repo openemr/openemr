@@ -2,12 +2,19 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Practitioner Service
@@ -41,17 +48,18 @@ class FhirPractitionerService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            "active" => ["active"],
-            "email" => ["email"],
-            "phone" => ["phonew1", "phone", "phonecell"],
-            "telecom" => ["email", "phone", "phonew1", "phonecell"],
-            "address" => ["street", "streetb", "zip", "city", "state"],
-            "address-city" => ["city"],
-            "address-postalcode" => ["zip"],
-            "address-state" => ["state"],
-            "family" => ["lname"],
-            "given" => ["fname", "mname"],
-            "name" => ["title", "fname", "mname", "lname"]
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ["phonew1", "phone", "phonecell"]),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ["email", "phone", "phonew1", "phonecell"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "streetb", "zip", "city", "state"]),
+            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['zip']),
+            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
+            'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
         ];
     }
 
@@ -67,7 +75,9 @@ class FhirPractitionerService extends FhirServiceBase
     {
         $practitionerResource = new FHIRPractitioner();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $practitionerResource->setMeta($meta);
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
@@ -89,46 +99,11 @@ class FhirPractitionerService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $practitionerResource->setId($id);
 
-        $name = new FHIRHumanName();
-        $name->setUse('official');
-
-        if (isset($dataRecord['title'])) {
-            $name->addPrefix($dataRecord['title']);
+        $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        $address = UtilsService::createAddressFromRecord($dataRecord);
+        if (isset($address)) {
+            $practitionerResource->addAddress($address);
         }
-        if (isset($dataRecord['lname'])) {
-            $name->setFamily($dataRecord['lname']);
-        }
-
-        $givenName = array();
-        if (isset($dataRecord['fname'])) {
-            array_push($givenName, $dataRecord['fname']);
-        }
-
-        if (isset($dataRecord['mname'])) {
-            array_push($givenName, $dataRecord['mname']);
-        }
-
-        if (count($givenName) > 0) {
-            $name->given = $givenName;
-        }
-
-        $practitionerResource->addName($name);
-
-        $address = new FHIRAddress();
-        if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
-        }
-        if (!empty($dataRecord['city'])) {
-            $address->setCity($dataRecord['city']);
-        }
-        if (!empty($dataRecord['state'])) {
-            $address->setState($dataRecord['state']);
-        }
-        if (!empty($dataRecord['zip'])) {
-            $address->setPostalCode($dataRecord['zip']);
-        }
-
-        $practitionerResource->addAddress($address);
 
         if (!empty($dataRecord['phone'])) {
             $practitionerResource->addTelecom(array(
@@ -154,7 +129,7 @@ class FhirPractitionerService extends FhirServiceBase
             ));
         }
 
-        if (isset($dataRecord['email'])) {
+        if (!empty($dataRecord['email'])) {
             $practitionerResource->addTelecom(array(
                 'system' => 'email',
                 'value' => $dataRecord['email'],
@@ -162,12 +137,13 @@ class FhirPractitionerService extends FhirServiceBase
             ));
         }
 
-        if (isset($dataRecord['npi'])) {
-            $fhirIdentifier = [
-                'system' => "http://hl7.org/fhir/sid/us-npi",
-                'value' => $dataRecord['npi']
-            ];
-            $practitionerResource->addIdentifier($fhirIdentifier);
+        if (!empty($dataRecord['npi'])) {
+            $identifier = new FHIRIdentifier();
+            $identifier->setSystem(FhirCodeSystemConstants::PROVIDER_NPI);
+            $identifier->setValue($dataRecord['npi']);
+            $practitionerResource->addIdentifier($identifier);
+        } else {
+            $practitionerResource->addIdentifier(UtilsService::createDataMissingExtension());
         }
 
         if ($encode) {
@@ -183,83 +159,86 @@ class FhirPractitionerService extends FhirServiceBase
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
-        $data = array();
-
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
+        if (!$fhirResource instanceof FHIRPractitioner) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        if (isset($fhirResource['name'])) {
-            $name = [];
-            foreach ($fhirResource['name'] as $sub_name) {
-                if ($sub_name['use'] === 'official') {
+        $data = array();
+        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+
+        if (!empty($fhirResource->getName())) {
+            $name = new FHIRHumanName();
+            foreach ($fhirResource->getName() as $sub_name) {
+                if ((string)$sub_name->getUse() === 'official') {
                     $name = $sub_name;
                     break;
                 }
             }
-            if (isset($name['family'])) {
-                $data['lname'] = $name['family'];
-            }
-            if ($name['given'][0]) {
-                $data['fname'] = $name['given'][0];
-            }
-            if (isset($name['given'][1])) {
-                $data['mname'] = $name['given'][1];
-            }
-            if (isset($name['prefix'][0])) {
-                $data['title'] = $name['prefix'][0];
-            }
+            $data['lname'] = (string)$name->getFamily() ?? null;
+
+            $given = $name->getGiven() ?? [];
+            // we cast due to the way FHIRString works
+            $data['fname'] = (string)($given[0] ?? null);
+            $data['mname'] = (string)($given[1] ?? null);
+
+            $prefix = $name->getPrefix() ?? [];
+            // we don't support updating the title right now, it requires updating another table which is breaking
+            // the service class.  As far as I can tell, this was never tested and never worked.
+//            $data['title'] = $prefix[0] ?? null;
         }
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
+        // we don't support updating the user's sex right now, as far as I can tell there is no column for this on the
+        // user level.  As far as I can tell, this was never tested and never worked.
+//        $data['sex'] = (string)$fhirResource->getGender() ?? null;
+
+        $addresses = $fhirResource->getAddress();
+        if (!empty($addresses)) {
+            $activeAddress = $addresses[0];
+            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            foreach ($fhirResource->getAddress() as $address) {
+                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
+                if (empty($addressPeriod['end'])) {
+                    $activeAddress = $address;
+                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    // if our current period is more recent than our most recent address we want to grab that one
+                    $mostRecentPeriods = $addressPeriod;
+                    $activeAddress = $address;
+                }
             }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['zip'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
+
+            $lineValues = array_map(function ($val) {
+                return (string)$val;
+            }, $activeAddress->getLine() ?? []);
+            $data['street'] = implode("\n", $lineValues) ?? null;
+            $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
+            $data['city'] = (string)$activeAddress->getCity() ?? null;
+            $data['state'] = (string)$activeAddress->getState() ?? null;
         }
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'mobile':
-                                $data['phonecell'] = $telecom['value'];
-                                break;
-                            case 'home':
-                                $data['phone'] = $telecom['value'];
-                                break;
-                            case 'work':
-                                $data['phonew1'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        $data['email'] = $telecom['value'];
-                        break;
-                    default:
-                        //Should give Error for incapability
-                        break;
+
+        $telecom = $fhirResource->getTelecom();
+        if (!empty($telecom)) {
+            foreach ($telecom as $contactPoint) {
+                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $contactValue = (string)$contactPoint->getValue();
+                if ($systemValue === 'email') {
+                    $data[$systemValue] = (string)$contactValue;
+                } else if ($systemValue == "phone") {
+                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
+                    if (isset($useMapping[$use])) {
+                        $data[$useMapping[$use]] = $contactValue;
+                    }
                 }
             }
         }
-        if (isset($fhirResource['gender'])) {
-            $data['sex'] = $fhirResource['gender'];
-        }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
-                $data['npi'] = $identifier['value'];
+        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
+                $data['npi'] = (string)$identifier->getValue() ?? null;
             }
         }
+
         return $data;
     }
 
@@ -289,33 +268,15 @@ class FhirPractitionerService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId)
-    {
-        $processingResult = $this->practitionerService->getOne($fhirResourceId);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->practitionerService->getAll($openEMRSearchParameters, false);
+        return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {

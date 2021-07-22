@@ -17,8 +17,15 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
@@ -29,7 +36,6 @@ require_once dirname(__FILE__) . "/../../library/encounter.inc";
 class EncounterService extends BaseService
 {
     private $encounterValidator;
-    private $uuidRegistry;
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
@@ -41,11 +47,8 @@ class EncounterService extends BaseService
     public function __construct()
     {
         parent::__construct('form_encounter');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PROVIDER_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::FACILITY_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::ENCOUNTER_TABLE, self::PATIENT_TABLE, self::PROVIDER_TABLE,
+            self::FACILITY_TABLE]);
         $this->encounterValidator = new EncounterValidator();
     }
 
@@ -59,97 +62,28 @@ class EncounterService extends BaseService
      */
     public function getEncounter($euuid, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult();
-        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
-        if ($isValidEncounter != true) {
-            return $isValidEncounter;
-        }
-        $euuidBytes = UuidRegistry::uuidToBytes($euuid);
+        $search = ['euuid' => new TokenSearchField('euuid', [new TokenSearchValue($euuid, null, true)])];
+        return $this->search($search, true, $puuidBind);
+    }
 
-        if (!empty($puuidBind)) {
-            // code to support patient binding
-            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBind, true);
-            if ($isValidPatient != true) {
-                return $isValidPatient;
-            }
-            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBind), self::PATIENT_TABLE, "pid");
-            if (empty($pid)) {
-                $processingResult->setValidationMessages("Invalid pid");
-                return $processingResult;
-            }
-        }
 
-        $sql = "SELECT fe.encounter as id,
-                       fe.uuid as uuid,
-                       fe.date,
-                       fe.reason,
-                       fe.facility,
-                       fe.facility_id,
-                       fe.pid,
-                       fe.onset_date,
-                       fe.sensitivity,
-                       fe.billing_note,
-                       fe.pc_catid,
-                       fe.last_level_billed,
-                       fe.last_level_closed,
-                       fe.last_stmt_date,
-                       fe.stmt_count,
-                       fe.provider_id,
-                       fe.supervisor_id,
-                       fe.invoice_refno,
-                       fe.referral_source,
-                       fe.billing_facility,
-                       fe.external_id,
-                       fe.pos_code,
-                       fe.class_code,
-                       class.notes as class_title,
-                       opc.pc_catname,
-                       fa.name AS billing_facility_name
-                       FROM form_encounter as fe
-                       LEFT JOIN openemr_postcalendar_categories as opc
-                       ON opc.pc_catid = fe.pc_catid
-                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
-                       LEFT JOIN list_options as class ON class.option_id = fe.class_code
-                       WHERE fe.uuid=?";
-
-        $sqlBindArray = [$euuidBytes];
-
-        if (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " AND `fe`.`pid` = ?";
-            $sqlBindArray[] = $pid;
-        }
-
-        $sql .= " ORDER BY fe.id DESC";
-
-        $sqlResult = sqlQuery($sql, $sqlBindArray);
-
-        if (!empty($sqlResult)) {
-            $puuidBytes = $this->getUuidById($sqlResult['pid'], self::PATIENT_TABLE, "pid");
-            $provideruuidBytes = $this->getUuidById($sqlResult['provider_id'], self::PROVIDER_TABLE, "id");
-            $facilityuuidBytes = $this->getUuidById($sqlResult['facility_id'], self::FACILITY_TABLE, "id");
-            $sqlResult['puuid'] = UuidRegistry::uuidToString($puuidBytes);
-            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $sqlResult['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
-            $sqlResult['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
-            $processingResult->addData($sqlResult);
-        }
-
-        return $processingResult;
+    public function getUuidFields(): array
+    {
+        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'];
     }
 
     /**
      * Returns a list of encounters matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
-     *
+     * TODO: @adunsulag rename this to be search() to be consistent with other services.
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getEncountersBySearch($search = array(), $isAndCondition = true, $puuidBind = true)
+    public function search($search = array(), $isAndCondition = true, $puuidBind = true)
     {
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();
@@ -168,21 +102,6 @@ class EncounterService extends BaseService
             $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
         }
 
-        // Validating and Converting Patient UUID to PID
-        if (isset($search['pid'])) {
-            $isValidEncounter = $this->encounterValidator->validateId(
-                'uuid',
-                self::PATIENT_TABLE,
-                $search['pid'],
-                true
-            );
-            if ($isValidEncounter != true) {
-                return $isValidEncounter;
-            }
-            $puuidBytes = UuidRegistry::uuidToBytes($search['pid']);
-            $search['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        }
-
         if (!empty($puuidBind)) {
             // code to support patient binding
             $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBind, true);
@@ -194,15 +113,13 @@ class EncounterService extends BaseService
                 $processingResult->setValidationMessages("Invalid pid");
                 return $processingResult;
             }
+            $search['puuid'] = new TokenSearchField('eeuid', [new TokenSearchValue($puuidBind, null, true)]);
         }
 
-        $sql = "SELECT fe.encounter as id,
-                       fe.uuid as uuid,
+        $sql = "SELECT fe.eid,
+                       fe.euuid,
                        fe.date,
                        fe.reason,
-                       fe.facility,
-                       fe.facility_id,
-                       fe.pid,
                        fe.onset_date,
                        fe.sensitivity,
                        fe.billing_note,
@@ -221,64 +138,96 @@ class EncounterService extends BaseService
                        fe.class_code,
                        class.notes as class_title,
                        opc.pc_catname,
-                       fa.name AS billing_facility_name
-                       FROM form_encounter as fe
+
+                       patient.pid,
+                       patient.puuid,
+                       facilities.facility_id,
+                       facilities.facility_uuid,
+                       facilities.facility_name,
+
+                       fa.billing_facility_id,
+                       fa.billing_facility_uuid,
+                       fa.billing_facility_name
+
+                       FROM (
+                           select
+                               encounter as eid,
+                               uuid as euuid,
+                               `date`,
+                               reason,
+                               onset_date,
+                               sensitivity,
+                               billing_note,
+                               pc_catid,
+                               last_level_billed,
+                               last_level_closed,
+                               last_stmt_date,
+                               stmt_count,
+                               provider_id,
+                               supervisor_id,
+                               invoice_refno,
+                               referral_source,
+                               billing_facility,
+                               external_id,
+                               pos_code,
+                               class_code,
+                               facility_id,
+                               pid
+                           FROM form_encounter
+                       ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN list_options as class ON class.option_id = fe.class_code
-                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility";
+                       LEFT JOIN (
+                           select
+                                id AS billing_facility_id
+                                ,uuid AS billing_facility_uuid
+                                ,`name` AS billing_facility_name
+                           from facility
+                       ) fa ON fa.billing_facility_id = fe.billing_facility
+                       LEFT JOIN (
+                           select
+                                  pid
+                                 ,uuid AS puuid
+                           FROM patient_data
+                       ) patient ON fe.pid = patient.pid
+                       LEFT JOIN (
+                           select
+                                id AS provider_id
+                                ,uuid AS provider_uuid
+                                ,`username` AS provider_name
+                            FROM users
+                            WHERE
+                                npi IS NOT NULL and npi != ''
+                       ) providers ON fe.provider_id = providers.provider_id
+                       LEFT JOIN (
+                           select
+                                id AS facility_id
+                                ,uuid AS facility_uuid
+                                ,`name` AS facility_name
+                           from facility
+                       ) facilities ON facilities.facility_id = fe.facility_id";
 
-        if (!empty($search)) {
-            $sql .= ' WHERE ';
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= '(';
-            }
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                // process DateTime match
-                if ($search['date']) {
-                    $date = $this->processDateTime($search['date']);
-                    array_push($whereClauses, $fieldName . $date['prefix'] . ' ?');
-                    array_push($sqlBindArray, $date['value']);
-                } else {
-                    // equality match
-                    if ($search['uuid']) {
-                        //Adding fe to fieldname as SQL is failing
-                        array_push($whereClauses, 'fe.' . $fieldName . ' = ?');
-                    } else {
-                        array_push($whereClauses, $fieldName . ' = ?');
-                    }
-                    array_push($sqlBindArray, $fieldValue);
+        try {
+            $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+            $sql .= $whereFragment->getFragment();
+            $sql .= " ORDER BY fe.eid DESC";
+
+            $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
+
+            if (!empty($records)) {
+                foreach ($records as $row) {
+                    $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                    $processingResult->addData($resultRecord);
                 }
             }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= ") AND `fe`.`pid` = ?";
-                $sqlBindArray[] = $pid;
-            }
-            $sql .= " ORDER BY fe.id DESC";
-        } elseif (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `fe`.`pid` = ?";
-            $sqlBindArray[] = $pid;
-        }
-
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        if (!empty($statementResults)) {
-            while ($row = sqlFetchArray($statementResults)) {
-                $puuidBytes = $this->getUuidById($row['pid'], self::PATIENT_TABLE, "pid");
-                $provideruuidBytes = $this->getUuidById($row['provider_id'], self::PROVIDER_TABLE, "id");
-                $facilityuuidBytes = $this->getUuidById($row['facility_id'], self::FACILITY_TABLE, "id");
-                $row['puuid'] = UuidRegistry::uuidToString($puuidBytes);
-                $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-                $row['provider_id'] = UuidRegistry::uuidToString($provideruuidBytes);
-                $row['facility_id'] = UuidRegistry::uuidToString($facilityuuidBytes);
-                $processingResult->addData($row);
-            }
+        } catch (SqlQueryException $exception) {
+            // we shouldn't hit a query exception
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $processingResult->addInternalError("Error selecting data from database");
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
         return $processingResult;
@@ -306,7 +255,7 @@ class EncounterService extends BaseService
 
         $encounter = generate_id();
         $data['encounter'] = $encounter;
-        $data['uuid'] = $this->uuidRegistry->createUuid();
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");

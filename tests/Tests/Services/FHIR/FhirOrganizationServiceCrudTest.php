@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
@@ -18,20 +20,28 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
  */
 class FhirOrganizationServiceCrudTest extends TestCase
 {
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
+
+    /**
+     * @var FHIROrganization
+     */
     private $fhirOrganizationFixture;
     private $fhirOrganizationService;
 
     protected function setUp(): void
     {
         $this->fixtureManager = new FacilityFixtureManager();
-        $this->fhirOrganizationFixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();
+        $fixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();
+        $this->fhirOrganizationFixture = FhirOrganizationSerializer::deserialize($fixture);
         $this->fhirOrganizationService = new FhirOrganizationService();
     }
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**
@@ -41,7 +51,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
      */
     public function testInsert()
     {
-        unset($this->fhirOrganizationFixture['id']);
+        $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -58,7 +68,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
      */
     public function testInsertWithErrors()
     {
-        unset($this->fhirOrganizationFixture['name']);
+        $this->fhirOrganizationFixture->setName(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertEquals(0, count($processingResult->getData()));
@@ -71,7 +81,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
      */
     public function testUpdate()
     {
-        unset($this->fhirOrganizationFixture['id']);
+        $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -79,8 +89,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        $this->fhirOrganizationFixture['name'] = 'test-fixture-Glenmark Clinic';
-        $this->fhirOrganizationFixture['id'] = $fhirId;
+        $this->fhirOrganizationFixture->setName('test-fixture-Glenmark Clinic');
+        $this->fhirOrganizationFixture->setId($fhirId);
         $actualResult = $this->fhirOrganizationService->update($fhirId, $this->fhirOrganizationFixture);
         $this->assertTrue($actualResult->isValid());
 

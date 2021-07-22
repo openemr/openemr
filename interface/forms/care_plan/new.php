@@ -24,8 +24,17 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
-if ($formid) {
+$formid = (int)($_GET['id'] ?? 0);
+if (empty($formid)) {
+    $sql = "SELECT id, encounter FROM `form_care_plan` WHERE pid = ? AND encounter = ?  LIMIT 1";
+    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['id'] ?? 0;
+    if (!empty($formid)) {
+        echo "<script>var message=" .
+            js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .
+            "</script>";
+    }
+}
+if (!empty($formid)) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -56,6 +65,7 @@ endforeach;
                 changeIds('code_date');
                 changeIds('displaytext');
                 changeIds('care_plan_type');
+                changeIds('user');
                 changeIds('count');
                 removeVal(newRow.id);
             }
@@ -68,6 +78,12 @@ endforeach;
                 document.getElementById("code_date_" + rowid1[1]).value = '';
                 document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
                 document.getElementById("care_plan_type_" + rowid1[1]).value = '';
+                document.getElementById("user_" + rowid1[1]).value = '';
+                if (typeof doTemplateEditor !== 'undefined') {
+                    document.getElementById("description_" + rowid1[1]).addEventListener('dblclick', event => {
+                        doTemplateEditor(this, event, event.target.dataset.textcontext);
+                    })
+                }
             }
 
             function changeIds(class_val) {
@@ -85,21 +101,28 @@ endforeach;
 
             function deleteRow(rowId) {
                 if (rowId != 'tb_row_1') {
-                    var elem = document.getElementById(rowId);
+                    let elem = document.getElementById(rowId);
                     elem.parentNode.removeChild(elem);
                 }
             }
 
             function sel_code(id) {
                 id = id.split('tb_row_');
-                var checkId = '_' + id[1];
+                let checkId = '_' + id[1];
+                if (typeof checkId === 'undefined') {
+                    checkId = 1;
+                }
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4,RXCUI', '_blank', 700, 400);
             }
 
             function set_related(codetype, code, selector, codedesc) {
-                var checkId = document.getElementById('clickId').value;
-                document.getElementById("code" + checkId).value = code;
+                let checkId = document.getElementById('clickId').value;
+                if (codetype !== "") {
+                    document.getElementById("code" + checkId).value = (codetype + ":" + code);
+                } else {
+                    document.getElementById("code" + checkId).value = "";
+                }
                 document.getElementById("codetext" + checkId).value = codedesc;
                 document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
             }
@@ -115,6 +138,9 @@ endforeach;
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                     });
                 });
+                if (typeof message !== 'undefined') {
+                    alert(message);
+                }
             });
         </script>
     </head>
@@ -131,6 +157,7 @@ endforeach;
                                 <?php
                                 if (!empty($check_res)) {
                                     foreach ($check_res as $key => $obj) {
+                                        $context = "";
                                         ?>
                                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                                         <div class="form-row">
@@ -139,6 +166,7 @@ endforeach;
                                                 <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
+                                                <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"]); ?>" />
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
@@ -150,25 +178,31 @@ endforeach;
                                                     <option value=""></option>
                                                     <?php foreach ($care_plan_type as $value) :
                                                         $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
+                                                        if (!empty($selected)) {
+                                                            $context = $value['title'];
+                                                        }
                                                         ?>
                                                         <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                                                     <?php endforeach;?>
                                                     </select>
                                             </div>
-                                            <div class="forms col-md-4">
+                                            <div class="forms col-md-6">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" class="form-control description" rows="3" ><?php echo text($obj["description"]); ?></textarea>
+                                                <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="forms col-md-2">
-                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                    <?php echo xlt('Add'); ?>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                    <?php echo xlt('Delete'); ?>
-                                                </button>
+                                            <div class="form-row w-100 mt-2 text-center">
+                                                <div class="forms col-md-12">
+                                                    <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                                        <?php echo xlt('Add'); ?>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                        <?php echo xlt('Delete'); ?>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
                                             </div>
-                                            <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
                                         </div>
+                                        <hr />
                                     </div>
                                 <?php }
                                 } else {  ?>
@@ -176,7 +210,8 @@ endforeach;
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id || "");'>
+                                                <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                             </div>
@@ -195,19 +230,22 @@ endforeach;
                                                     <?php endforeach;?>
                                                 </select>
                                             </div>
-                                            <div class="forms col-md-4">
+                                            <div class="forms col-md-6">
                                                 <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]"  id="description_1" class="form-control description" rows="3" ><?php echo text($obj["description"] ?? ''); ?></textarea>
+                                                <textarea name="description[]"  id="description_1" data-textcontext="" class="form-control description" rows="6" ><?php echo text($obj["description"] ?? ''); ?></textarea>
                                             </div>
-                                            <div class="forms col-md-2">
-                                                <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                    <?php echo xlt('Add'); ?>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-delete btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                    <?php echo xlt('Delete'); ?>
-                                                </button>
+                                            <div class="form-row w-100 mt-2 text-center">
+                                                <div class="forms col-md-12">
+                                                    <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+                                                        <?php echo xlt('Add'); ?>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-delete btn-sm" onclick="deleteRow(this.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+                                                        <?php echo xlt('Delete'); ?>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
                                             </div>
-                                            <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
+                                            <hr />
                                         </div>
                                     </div>
                                 <?php } ?>

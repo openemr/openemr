@@ -2,6 +2,10 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use Google\Service;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
@@ -16,6 +20,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\PractitionerService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ReferenceSearchValue;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Common\Uuid;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -31,16 +41,20 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirAllergyIntoleranceService extends FhirServiceBase
+class FhirAllergyIntoleranceService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     /**
      * @var AllergyIntoleranceService
      */
     private $allergyIntoleranceService;
 
-    public function __construct()
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance';
+
+    public function __construct($fhirAPIURL = null)
     {
-        parent::__construct();
+        parent::__construct($fhirAPIURL);
         $this->allergyIntoleranceService = new AllergyIntoleranceService();
     }
 
@@ -51,8 +65,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => ['lists.pid'],
-            '_id' => ['lists.id']
+            'patient' => $this->getPatientContextSearchField(),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('allergy_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -64,48 +78,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRAllergyIntolerance
      */
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord, $encode = false)
     {
-
-        $allergyProvenance = new FHIRProvenance();
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $allergyProvenance->setMeta($meta);
-
-        $id = new FHIRId();
-        $uuidString = UuidRegistry::uuidToString((new UuidRegistry(['disable_tracker' => true]))->createUuid());
-        $id->setValue($uuidString);
-        $allergyProvenance->setId($id);
-
-        if (isset($dataRecord['uuid'])) {
-            $allergyReference = new FHIRReference();
-            $allergyReference->setReference('AllergyIntolerance/' . $dataRecord['uuid']);
-            $allergyProvenance->addTarget($allergyReference);
+        if (!($dataRecord instanceof FHIRAllergyIntolerance)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        if (isset($dataRecord['date'])) {
-            $allergyProvenance->setRecorded($dataRecord['date']);
-        }
-        if ((isset($dataRecord['practitioner'])) && isset($dataRecord['organization'])) {
-            $agent = new FHIRProvenanceAgent();
-            $agentType = new FHIRCodeableConcept();
-            $agentTypeCoding = array(
-                'system' => "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                'code' => 'author',
-                'display' => 'Author',
-            );
-            $agentType->addCoding($agentTypeCoding);
-            $agent->setType($agentType);
-            $allergyProvenance->addAgent($agent);
-            $agentWho = new FHIRReference();
-            $agentWho->setReference('Practitioner/' . $dataRecord['practitioner']);
-            $agent->setWho($agentWho);
-            $agentBehalf = new FHIRReference();
-            $agentBehalf->setReference('Organization/' . $dataRecord['organization']);
-            $agent->setOnBehalfOf($agentBehalf);
-        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRecorder());
         if ($encode) {
-            return json_encode($allergyProvenance);
+            return json_encode($fhirProvenance);
         } else {
-            return $allergyProvenance;
+            return $fhirProvenance;
         }
     }
 
@@ -119,9 +102,10 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $allergyIntoleranceResource = new FHIRAllergyIntolerance();
-
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $allergyIntoleranceResource->setMeta($meta);
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId("1");
+        $fhirMeta->setLastUpdated(gmdate('c'));
+        $allergyIntoleranceResource->setMeta($fhirMeta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -144,6 +128,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         $allergyIntoleranceResource->setClinicalStatus($clinical_Status);
 
         $allergyIntoleranceCategory = new FHIRAllergyIntoleranceCategory();
+        // @see https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-allergyintolerance-definitions.html#AllergyIntolerance.category
         $allergyIntoleranceCategory->setValue("medication");
         $allergyIntoleranceResource->addCategory($allergyIntoleranceCategory);
 
@@ -175,14 +160,59 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
             $allergyIntoleranceResource->setRecorder($recorder);
         }
 
+        // cardinality is 0..*
+        // however in OpenEMR we currently only track a single reaction, we will populate it if we have it.
+        if (!empty($dataRecord['reaction'])) {
+            $reaction = new FHIRAllergyIntoleranceReaction();
+            $reactionConcept = new FHIRCodeableConcept();
+            $conceptText = $dataRecord['reaction_title'] ?? "";
+            $reactionConcept->setText($conceptText);
+
+            foreach ($dataRecord['reaction'] as $code => $display) {
+                $reactionCoding = new FHIRCoding();
+                // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
+                // strings
+                if (is_numeric($code)) {
+                    $code = "$code";
+                }
+
+                $reactionCoding->setCode($code);
+                $display = !empty($display) ? $display : $dataRecord['reaction_title'];
+                // we trim as some of the database values have white space which violates ONC spec
+                $reactionCoding->setDisplay(trim($display));
+                // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
+                // TODO: @adunsulag check with @brady.miller if we can hard code these to SNOMED as that appears to be
+                // the values in our reaction list... will we have allergy reactions that are NOT SNOMED?
+                $reactionCoding->setSystem('http://snomed.info/sct');
+                $reactionConcept->addCoding($reactionCoding);
+            }
+            $reaction->addManifestation($reactionConcept);
+            $allergyIntoleranceResource->addReaction($reaction);
+        }
+
         if (!empty($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($dataRecord['diagnosis'] as $code => $display) {
+                // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
+                // strings
+                if (is_numeric($code)) {
+                    $code = "$code";
+                }
                 $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($display);
+                // if we have no display value we will just show the code value here
+                $display = !empty($display) ? $display : $dataRecord['title'];
+                // we trim as some of the database values have white space which violates ONC spec
+                $diagnosisCoding->setDisplay(trim($display));
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
+            $allergyIntoleranceResource->setCode($diagnosisCode);
+        } else {
+            $diagnosisCode = new FHIRCodeableConcept();
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCoding->setCode("unknown");
+            $diagnosisCoding->setDisplay(xlt("Unknown"));
+            $diagnosisCode->addCoding($diagnosisCoding);
             $allergyIntoleranceResource->setCode($diagnosisCode);
         }
 
@@ -209,26 +239,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
         }
     }
 
-
-    /**
-     * Performs a FHIR AllergyIntolerance Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR AllergyIntolerance Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->allergyIntoleranceService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
@@ -236,23 +246,18 @@ class FhirAllergyIntoleranceService extends FhirServiceBase
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->allergyIntoleranceService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
+    public function getProfileURIs(): array
     {
-        // TODO: If Required in Future
+        return [self::USCGI_PROFILE_URI];
     }
 
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

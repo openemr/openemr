@@ -27,7 +27,7 @@ services:
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
-    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - logvolume:/var/log
     environment:
       DEBUG_COLORS: "true"
@@ -61,6 +61,7 @@ services:
       OPENEMR_SETTING_ccda_alt_service_enable: 3
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
+      CARE_COORDINATION_MODULE_ON: 1
     depends_on:
     - mysql
   phpmyadmin:
@@ -84,5 +85,5 @@ volumes:
   sitesvolume: {}
   nodemodules: {}
   vendordir: {}
-  ccdamodule: {}
+  ccdanodemodules: {}
   logvolume: {}

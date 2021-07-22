@@ -188,7 +188,7 @@ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
 $insco_name = "";
-if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco
     $insco_name = getInsuranceProvider($result3['provider']);
 }
 ?>
@@ -277,7 +277,6 @@ require_once("$srcdir/options.js.php");
     //
     function editScripts(url) {
         var AddScript = function () {
-
             var __this = $(this);
             __this.find("#clearButton").css("display", "");
             __this.find("#backButton").css("display", "");
@@ -287,7 +286,6 @@ require_once("$srcdir/options.js.php");
             iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=' + <?php echo js_url($pid); ?>;
         };
         var ListScripts = function () {
-
             var __this = $(this);
             __this.find("#clearButton").css("display", "none");
             __this.find("#backButton").css("display", "none");
@@ -297,14 +295,14 @@ require_once("$srcdir/options.js.php");
         };
 
         let title = <?php echo xlj('Prescriptions'); ?>;
-        let w = 910; // for weno width
+        let w = 960; // for weno width
 
-        dlgopen(url, 'editScripts', w, 300, '', '', {
+        dlgopen(url, 'editScripts', w, 400, '', '', {
             buttons: [
                 {text: <?php echo xlj('Add'); ?>, close: false, id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Clear'); ?>, close: false, id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
                 {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
-                {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
+                {text: <?php echo xlj('Quit'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
             ],
             onClosed: 'refreshme',
             allowResize: true,
@@ -425,7 +423,23 @@ require_once("$srcdir/options.js.php");
 
         // load divs
         placeHtml("stats.php", "stats_div", true);
-        placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+        placeHtml("pnotes_fragment.php", 'pnotes_ps_expand').then(() => {
+            // must be delegated event!
+            $(this).on("click", ".complete_btn", function(){
+                let btn = $(this);
+                let csrf = new FormData;
+                csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
+                    {
+                    method: "POST",
+                    credentials: 'same-origin',
+                    body: csrf
+                })
+                .then(function() {
+                    placeHtml("pnotes_fragment.php", 'pnotes_ps_expand');
+                });
+            });
+        });
         placeHtml("disc_fragment.php", "disclosures_ps_expand");
         placeHtml("labdata_fragment.php", "labdata_ps_expand");
         placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
@@ -819,7 +833,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </tr>
                                     <?php } ?>
 
-                                    <?php if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco ?>
+                                    <?php if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco ?>
                                         <tr>
                                           <td>
                                           <span class='font-weight-bold'><?php echo xlt('Primary Insurance') . ': ' . text($insco_name); ?></span>&nbsp;&nbsp;&nbsp;

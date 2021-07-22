@@ -159,7 +159,7 @@ module.exports = OIDs = {
             "N": "Normal",
             "I": "intermediate",
             "MS": "moderately susceptible",
-            "R": "resistent",
+            "R": "resistant",
             "S": "susceptible",
             "VS": "very susceptible",
             "EX": "outside threshold",

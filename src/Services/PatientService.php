@@ -21,6 +21,11 @@ use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -270,6 +275,16 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
+    protected function createResultRecordFromDatabaseResult($record)
+    {
+        if (!empty($record['uuid'])) {
+            $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+        }
+
+        return $record;
+    }
+
+
     /**
      * Returns a list of patients matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
@@ -283,83 +298,21 @@ class PatientService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        $sqlBindArray = array();
-
-        //Converting _id to UUID byte
-        if (isset($search['uuid'])) {
-            $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
-        }
-
-        $sql = 'SELECT  id,
-                        pid,
-                        uuid,
-                        pubpid,
-                        title,
-                        fname,
-                        mname,
-                        lname,
-                        ss,
-                        street,
-                        postal_code,
-                        city,
-                        state,
-                        county,
-                        country_code,
-                        drivers_license,
-                        contact_relationship,
-                        phone_contact,
-                        phone_home,
-                        phone_biz,
-                        phone_cell,
-                        email,
-                        DOB,
-                        sex,
-                        race,
-                        ethnicity,
-                        status
-                FROM patient_data';
-
+        $querySearch = [];
         if (!empty($search)) {
-            $sql .= ' WHERE ';
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= '(';
+            if (isset($puuidBind)) {
+                $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
+            } else if (isset($search['uuid'])) {
+                $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $whereClauses = array();
             $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
-            foreach ($search as $fieldName => $fieldValue) {
-                // support wildcard match on specific fields
-                if (in_array($fieldName, $wildcardFields)) {
-                    array_push($whereClauses, $fieldName . ' LIKE ?');
-                    array_push($sqlBindArray, '%' . $fieldValue . '%');
-                } else {
-                    // equality match
-                    array_push($whereClauses, $fieldName . ' = ?');
-                    array_push($sqlBindArray, $fieldValue);
+            foreach ($wildcardFields as $field) {
+                if (isset($search[$field])) {
+                    $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= ") AND `uuid` = ?";
-                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-            }
-        } elseif (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `uuid` = ?";
-            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
         }
-
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $processingResult->addData($row);
-        }
-
-        return $processingResult;
+        return $this->search($querySearch, $isAndCondition);
     }
 
     /**
@@ -382,42 +335,7 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        $sql = "SELECT  id,
-                        pid,
-                        uuid,
-                        pubpid,
-                        title,
-                        fname,
-                        mname,
-                        lname,
-                        ss,
-                        street,
-                        postal_code,
-                        city,
-                        state,
-                        county,
-                        country_code,
-                        drivers_license,
-                        contact_relationship,
-                        phone_contact,
-                        phone_home,
-                        phone_biz,
-                        phone_cell,
-                        email,
-                        DOB,
-                        sex,
-                        race,
-                        ethnicity,
-                        status
-                FROM patient_data
-                WHERE uuid = ?";
-
-        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
-        $sqlResult = sqlQuery($sql, [$puuidBinary]);
-
-        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-        $processingResult->addData($sqlResult);
-        return $processingResult;
+        return $this->search(['uuid' => new TokenSearchField('uuid', [$puuidString], true)]);
     }
 
     /**

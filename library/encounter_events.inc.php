@@ -1,35 +1,19 @@
 <?php
 
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com>
-//           Ian Jardine ( github.com/epsdky ) ( Modified calendar_arrived )
-//
-// +------------------------------------------------------------------------------+
+/**
+ * Holds library functions used by events
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Ian Jardine ( github.com/epsdky ) ( Modified calendar_arrived )
+ * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
 
 require_once(__DIR__ . '/calendar.inc');
 require_once(__DIR__ . '/patient_tracker.inc.php');
-
 
 //===============================================================================
 //This section handles the events of payment screen.

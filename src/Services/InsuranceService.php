@@ -36,9 +36,7 @@ class InsuranceService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
-        (new UuidRegistry(['table_name' => self::COVERAGE_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::INSURANCE_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::COVERAGE_TABLE, self::PATIENT_TABLE, self::INSURANCE_TABLE]);
         $this->coverageValidator = new CoverageValidator();
     }
 

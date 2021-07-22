@@ -854,6 +854,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "Manage Duplicates",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/patient_file/manage_dup_patients.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
@@ -1377,6 +1389,18 @@
             ]
           },
           {
+            "label": "Message List",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/message_list.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "med"
+            ]
+          },
+          {
             "label": "Clinical",
             "menu_id": "rep0",
             "target": "rep",
@@ -1750,107 +1774,6 @@
               "acct",
               "rep_a"
             ]
-          },
-          {
-            "label": "Peachtree Export",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/export_accounting_transactions.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
-          },
-          {
-            "label": "NetSuite Export",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/netsuite_export.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_netsuite"
-          },
-          {
-            "label": "NetSuite Mapping",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/netsuite_mapping.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_netsuite"
-          },
-          {
-            "label": "Projects",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/restricted_projects_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_projects"
-          },
-          {
-            "label": "LOBI Insurers Report",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/surinam_insurance_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_surinam_insurance"
-          },
-          {
-            "label": "LOBI SZF Report",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/surinam_szf_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_surinam_insurance"
-          },
-          {
-            "label": "Visit Voids and Changes",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/reopened_visits_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
-          },
-          {
-            "label": "Visit Voids and Changes",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/reopened_visits_report.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
           }
         ],
         "requirement": 0
@@ -2040,6 +1963,32 @@
         ],
         "requirement": 0,
         "global_req": "ippf_specific"
+      },
+      {
+        "label": "Blank Forms",
+        "icon": "fa-caret-right",
+        "children": [
+          {
+            "label": "Core",
+            "icon": "fa-caret-right",
+            "children": [
+              {
+                "label": "Demographics",
+                "url": "/interface/patient_file/summary/demographics_print.php",
+                "target": "pop",
+                "requirement": 0
+              },
+              {
+                "label": "Superbill/Fee Sheet",
+                "url": "/interface/patient_file/printed_fee_sheet.php",
+                "target": "pop",
+                "requirement": 0
+              }
+            ],
+            "requirement": 0
+          }
+        ],
+        "requirement": 0
       },
       {
         "label": "Services",

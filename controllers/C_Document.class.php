@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../library/forms.inc");
+require_once(__DIR__ . "/../library/forms.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -21,33 +21,38 @@ use OpenEMR\Services\PatientService;
 class C_Document extends Controller
 {
 
-    var $template_mod;
-    var $documents;
-    var $document_categories;
-    var $tree;
-    var $_config;
-    var $manual_set_owner = false; // allows manual setting of a document owner/service
-    var $facilityService;
-    var $patientService;
+    public $template_mod;
+    public $documents;
+    public $document_categories;
+    public $tree;
+    public $_config;
+    public $manual_set_owner = false; // allows manual setting of a document owner/service
+    public $facilityService;
+    public $patientService;
+    private $Document;
+    private $cryptoGen;
 
-    function __construct($template_mod = "general")
+    public function __construct($template_mod = "general")
     {
         parent::__construct();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "document&");
 
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        if (php_sapi_name() !== 'cli') {
+            // skip when this is being called via command line for the ccda importing
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
 
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
 
-        $this->_args = array("patient_id" => $_GET['patient_id']);
+        $this->_args = array("patient_id" => ($_GET['patient_id'] ?? null));
 
         $this->assign("STYLE", $GLOBALS['style']);
         $t = new CategoryTree(1);
@@ -59,7 +64,7 @@ class C_Document extends Controller
         $this->cryptoGen = new CryptoGen();
     }
 
-    function upload_action($patient_id, $category_id)
+    public function upload_action($patient_id, $category_id)
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
@@ -122,7 +127,7 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
-    function zip_dicom_folder($study_name = null)
+    public function zip_dicom_folder($study_name = null)
     {
         $zip = new ZipArchive();
         $zip_name = $GLOBALS['temporary_files_dir'] . "/" . $study_name;
@@ -160,7 +165,7 @@ class C_Document extends Controller
     }
 
     //Upload multiple files on single click
-    function upload_action_process()
+    public function upload_action_process()
     {
 
         // Collect a manually set owner if this has been set
@@ -331,7 +336,7 @@ class C_Document extends Controller
                 }
                 // Following is just an example of code in such a plugin file.
                 /*****************************************************
-                function documentUploadPostProcess($filename, &$d) {
+                public function documentUploadPostProcess($filename, &$d) {
                   $userid = $_SESSION['authUserID'];
                   $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
                   $owner = strtolower($row['username']);
@@ -350,9 +355,9 @@ class C_Document extends Controller
         //return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
     }
 
-    function note_action_process($patient_id)
+    public function note_action_process($patient_id)
     {
-        // this function is a dual function that will set up a note associated with a document or send a document via email.
+        // this public function is a dual public function that will set up a note associated with a document or send a document via email.
 
         if ($_POST['process'] != "true") {
             return;
@@ -421,12 +426,12 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $n->get_foreign_id());
     }
 
-    function default_action()
+    public function default_action()
     {
         return $this->list_action();
     }
 
-    function view_action(string $patient_id = null, $doc_id)
+    public function view_action(string $patient_id = null, $doc_id)
     {
         global $ISSUE_TYPES;
 
@@ -513,10 +518,10 @@ class C_Document extends Controller
 
         $this->assign("notes", $notes);
 
-        $this->assign("IMG_PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode($d->get_id()));
-            // Populate the dropdown with image procedure order list
-        $imgOptions = "<option value='0'>-- " . xlt('Select Image Procedure') . " --</option>";
-        $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?  and poc.procedure_order_title = 'imaging'", array($patient_id));
+        $this->assign("PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode($d->get_id()));
+        // Populate the dropdown with procedure order list
+        $imgOptions = "<option value='0'>-- " . xlt('Select Procedure') . " --</option>";
+        $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code,poc.procedure_order_title from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?", array($patient_id));
         $mapping    = $this->get_mapped_procedure($d->get_id());
         if (sqlNumRows($imgOrders) > 0) {
             while ($row = sqlFetchArray($imgOrders)) {
@@ -524,11 +529,11 @@ class C_Document extends Controller
                 if ((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id'])) {
                     $sel_proc = 'selected';
                 }
-                $imgOptions .= "<option value='" . attr($row['procedure_order_id']) . "' data-code='" . attr($row['procedure_code']) . "' $sel_proc>" . text($row['procedure_name'] . ' - ' . $row['procedure_code']) . "</option>";
+                $imgOptions .= "<option value='" . attr($row['procedure_order_id']) . "' data-code='" . attr($row['procedure_code']) . "' $sel_proc>" . text($row['procedure_name'] . ' - ' . $row['procedure_code'] . ' : ' . ucfirst($row['procedure_order_title'])) . "</option>";
             }
         }
 
-        $this->assign('IMAGE_PROCEDURE_LIST', $imgOptions);
+        $this->assign('TAG_PROCEDURE_LIST', $imgOptions);
 
         $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag') . "document_id=" . urlencode($d->get_id()));
 
@@ -551,11 +556,11 @@ class C_Document extends Controller
 
     /**
      * Retrieve file from hard disk / CouchDB.
-     * In case that file isn't download this function will return thumbnail image (if exist).
+     * In case that file isn't download this public function will return thumbnail image (if exist).
      * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
      * @param (string) $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
      * */
-    function retrieve_action(string $patient_id = null, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
+    public function retrieve_action(string $patient_id = null, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
@@ -568,7 +573,7 @@ class C_Document extends Controller
             $doEncryption = true;
         }
 
-            //controller function ruins booleans, so need to manually re-convert to booleans
+            //controller public function ruins booleans, so need to manually re-convert to booleans
         if ($as_file == "true") {
                 $as_file = true;
         } elseif ($as_file == "false") {
@@ -860,7 +865,7 @@ class C_Document extends Controller
         }
     }
 
-    function move_action_process(string $patient_id = null, $document_id)
+    public function move_action_process(string $patient_id = null, $document_id)
     {
         if ($_POST['process'] != "true") {
             return;
@@ -907,7 +912,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function validate_action_process(string $patient_id = null, $document_id)
+    public function validate_action_process(string $patient_id = null, $document_id)
     {
 
         $d = new Document($document_id);
@@ -986,7 +991,7 @@ class C_Document extends Controller
 
     // Added by Rod for metadata update.
     //
-    function update_action_process(string $patient_id = null, $document_id)
+    public function update_action_process(string $patient_id = null, $document_id)
     {
 
         if ($_POST['process'] != "true") {
@@ -1038,7 +1043,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function list_action($patient_id = "")
+    public function list_action($patient_id = "")
     {
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
@@ -1068,7 +1073,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    function &_array_recurse($array, $categories = array())
+    public function &_array_recurse($array, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1147,8 +1152,8 @@ class C_Document extends Controller
         return $node;
     }
 
-    //function for logging  the errors in writing file to CouchDB/Hard Disk
-    function document_upload_download_log($patientid, $content)
+    //public function for logging  the errors in writing file to CouchDB/Hard Disk
+    public function document_upload_download_log($patientid, $content)
     {
         $log_path = $GLOBALS['OE_SITE_DIR'] . "/documents/couchdb/";
         $log_file = 'log.txt';
@@ -1172,7 +1177,7 @@ class C_Document extends Controller
         }
     }
 
-    function document_send($email, $body, $attfile, $pname)
+    public function document_send($email, $body, $attfile, $pname)
     {
         if (empty($email)) {
             $this->assign("process_result", "Email could not be sent, the address supplied: '$email' was empty or invalid.");
@@ -1208,8 +1213,8 @@ class C_Document extends Controller
 
         //$this->_last_node = &$node1;
 
-// Function to tag a document to an encounter.
-    function tag_action_process(string $patient_id = null, $document_id)
+// public function to tag a document to an encounter.
+    public function tag_action_process(string $patient_id = null, $document_id)
     {
         if ($_POST['process'] != "true") {
             die("process is '" . text($_POST['process']) . "', expected 'true'");
@@ -1277,7 +1282,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function image_procedure_action(string $patient_id = null, $document_id)
+    public function image_procedure_action(string $patient_id = null, $document_id)
     {
 
         $img_procedure_id = $_POST['image_procedure_id'];
@@ -1302,7 +1307,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function clear_procedure_tag_action(string $patient_id = null, $document_id)
+    public function clear_procedure_tag_action(string $patient_id = null, $document_id)
     {
         if (is_numeric($document_id)) {
             sqlStatement("delete from procedure_result where document_id = ?", $document_id);
@@ -1310,7 +1315,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function get_mapped_procedure($document_id)
+    public function get_mapped_procedure($document_id)
     {
         $map = array();
         if (is_numeric($document_id)) {
@@ -1323,7 +1328,7 @@ class C_Document extends Controller
         return $map;
     }
 
-    function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
+    public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
@@ -1341,8 +1346,8 @@ class C_Document extends Controller
         setGpRelation(1, $doc_id, 6, $noteid);
     }
 
-//clear encounter tag function
-    function clear_encounter_tag_action(string $patient_id = null, $document_id)
+//clear encounter tag public function
+    public function clear_encounter_tag_action(string $patient_id = null, $document_id)
     {
         if (is_numeric($document_id)) {
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));

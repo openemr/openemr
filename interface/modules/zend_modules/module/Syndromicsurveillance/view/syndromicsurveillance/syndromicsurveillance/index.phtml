@@ -1,3 +1,4 @@
+
 <?php
 /**
  * interface/modules/zend_modules/module/Syndromicsurveillance/view/syndromicsurveillance/syndromicsurveillance/index.phtml
@@ -171,7 +172,7 @@ $provider   = $this->provider;
     <input type="hidden" name="form_current_page" id="form_current_page" value="<?php echo $this->escapeHtml($this->form_data['current_page']);?>" />
     <input type="hidden" name="form_total_pages" id="form_total_pages" value="<?php echo $this->escapeHtml($this->form_data['total_pages']);?>" />
     <input type="hidden" name="form_count" id="form_count" value="<?php echo $this->escapeHtml($this->form_data['res_count']);?>" />
-    <input type="hidden" name="form_sl_no" id="form_sl_no" value="<?php echo $this->escapeHtml($slno);?>" />
+    <input type="hidden" name="form_sl_no" id="form_sl_no" value="<?php echo $this->escapeHtml($slno ?? '');?>" />
     <input type="hidden" name="form_new_search" id="form_new_search" value="" />
 </div>
 </form>

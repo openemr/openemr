@@ -34,6 +34,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
     $data = formFetch("form_vitals", $id);
     $patient_data = getPatientData($GLOBALS['pid']);
     $patient_age = getPatientAge($patient_data['DOB']);
+    $is_pediatric_patient = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
 
     $vitals = "";
     if ($data) {
@@ -60,7 +61,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             //modified by BM 06-2009 for required translation
             if ($key == "Temp Method" || $key == "BMI Status") {
                 if ($key == "BMI Status") {
-                    if ($patient_age <= 20 || (preg_match('/month/', $patient_age))) {
+                    if ($is_pediatric_patient) {
                         $value = "See Growth-Chart";
                     }
                 }
@@ -120,14 +121,27 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 } else { // = 1 or not set
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('F') . " (" . text($convValue) . " " . xlt('C')  . ")</div></td>";
                 }
-            } elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI") {
-                $value = number_format($value, 0);
+            } elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI" || $key == "Oxygen Flow Rate") {
+                $c_value = number_format($value, 0);
                 if ($key == "Oxygen Saturation") {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('%') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
+                } elseif ($key == "Oxygen Flow Rate") {
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('l/min') . "</div></td>";
                 } elseif ($key == "BMI") {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('kg/m^2') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('kg/m^2') . "</div></td>";
                 } else { //pulse and respirations
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('per min') . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('per min') . "</div></td>";
+                }
+            } elseif ($key == "Ped Weight Height" || $key == 'Ped Bmi' || $key == 'Ped Head Circ') {
+                if ($is_pediatric_patient) {
+                    $c_value = number_format($value, 0);
+                    if ($key == "Ped Weight Height") {
+                        $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Pediatric Height Weight Percentile") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
+                    } elseif ($key == "Ped Bmi") {
+                        $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Pediatric BMI Percentile") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
+                    } elseif ($key == "Ped Head Circ") {
+                        $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Pediatric Head Circumference Percentile") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
+                    }
                 }
             } else {
                 $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . "</div></td>";
