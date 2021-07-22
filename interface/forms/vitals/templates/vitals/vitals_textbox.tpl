@@ -3,15 +3,15 @@
 {else}
 <tr>
 {/if}
-    <td class="graph" id="{$input}">{xlt t=$title}</td>
-    <td>{xlt t=$unit}</td>
+    <td class="graph" id="{$input|attr}">{$title|xlt}</td>
+    <td>{xlt t=$unit|xlt}</td>
 
     <td class='currentvalues p-2'>
         {if isset($vitalsStringFormat) }
-        <input type="text" class="form-control" size='5' name='{$input}' id='{$input}_input'
+        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
         {else}
-        <input type="text" class="form-control" size='5' name='{$input}' id='{$input}_input'
+        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"/>
         {/if}
 

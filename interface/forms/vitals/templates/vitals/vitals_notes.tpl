@@ -3,11 +3,11 @@
 {else}
 <tr>
 {/if}
-    <td class="graph" id="{$input}">{xlt t=$title}</td>
+    <td class="graph" id="{$input|attr}">{$title|xlt}</td>
     <td>{xlt t=$unit}</td>
 
     <td class='currentvalues p-2'>
-        <textarea class="form-control" name='{$input}' id='{$input}_input'>{if $vitalsValue != 0}{$vitalsValue|text}{/if}</textarea>
+        <textarea class="form-control" name='{$input|attr}' id='{$input|attr}_input'>{if $vitalsValue != 0}{$vitalsValue|text}{/if}</textarea>
     </td>
     <td class="editonly">
     </td>
