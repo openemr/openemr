@@ -23,7 +23,7 @@ class QueryUtils
      */
     public static function listTableFields($table)
     {
-        $sql = "SHOW COLUMNS FROM " . \add_escape_custom($table);
+        $sql = "SHOW COLUMNS FROM `" . \add_escape_custom($table) . "`";
         $field_list = array();
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
