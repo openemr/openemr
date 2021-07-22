@@ -19,6 +19,7 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
+use OpenEMR\Services\ListService;
 
 class C_FormVitals extends Controller
 {
@@ -123,7 +124,7 @@ class C_FormVitals extends Controller
 
     private function get_interpretation_list_options()
     {
-        $listService = new \OpenEMR\Services\ListService();
+        $listService = new ListService();
         $options = $listService->getOptionsByListName(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
         $orderedList = [];
         foreach ($options as $option) {
@@ -258,6 +259,6 @@ class C_FormVitals extends Controller
     private function populate_session_user_information(FormVitals $vitals)
     {
         $vitals->set_groupname($_SESSION['authProvider']);
-        $vitals->set_user($_SESSION[$_SESSION['authUser']]);
+        $vitals->set_user($_SESSION['authUser']);
     }
 }
