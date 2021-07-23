@@ -31,6 +31,7 @@ class ProcedureService extends BaseService
     private const PRACTITIONER_TABLE = "users";
     private const PROCEDURE_PROVIDER_TABLE = "procedure_providers";
     private const PROCEDURE_REPORT_TABLE = "procedure_report";
+    private const PROCEDURE_RESULT_TABLE = "procedure_result";
 
     /**
      * Default constructor.
@@ -39,7 +40,8 @@ class ProcedureService extends BaseService
     {
         parent::__construct(self::PROCEDURE_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::PROCEDURE_TABLE, self::PATIENT_TABLE, self::ENCOUNTER_TABLE
-            , self::PRACTITIONER_TABLE, self::PROCEDURE_REPORT_TABLE, self::PROCEDURE_PROVIDER_TABLE]);
+            , self::PRACTITIONER_TABLE, self::PROCEDURE_REPORT_TABLE, self::PROCEDURE_PROVIDER_TABLE
+            , self::PROCEDURE_RESULT_TABLE]);
     }
 
     public function getUuidFields(): array

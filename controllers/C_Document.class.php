@@ -1333,6 +1333,7 @@ class C_Document extends Controller
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
+        // TODO: This should be moved into a service so we can handle things such as uuid generation....
         if ($encounter != 0) {
             $ep = sqlQuery("select u.username as assigned_to from form_encounter inner join users u on u.id = provider_id where encounter = ?", array($encounter));
         } elseif ($image_procedure_id != 0) {
