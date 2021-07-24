@@ -25,7 +25,7 @@
     {/if}
             <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
                    value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"
-                   onChange="convUnit('usa', '{$unit}','{$input|attr}_input')" title='{$vitalsValueUSAHelpTitle|default:''|xlt}'/>
+                   onChange="convUnit('usa', {$unit|attr_js}, '{$input|attr}_input')" title='{$vitalsValueUSAHelpTitle|default:''|xlt}'/>
         </td>
     <td class="editonly">
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
@@ -62,7 +62,7 @@
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
             <input type="text" class="form-control" size='5' id='{$input|attr}_input_metric'
                    value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
-                   onChange="convUnit('metric', '{$unit}','{$input|attr}_input')"/>
+                   onChange="convUnit('metric', {$unit|attr_js}, '{$input|attr}_input')"/>
         </td>
         <td class="editonly">
             {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY }

@@ -129,7 +129,7 @@ class VitalsService extends BaseService
                         form_vitals
                  ) vitals
                 JOIN (
-                    select 
+                    select
                         form_id
                         ,encounter
                         ,pid AS form_pid
@@ -149,14 +149,14 @@ class VitalsService extends BaseService
                 ) encounters ON encounters.eid = forms.encounter
                 LEFT JOIN
                 (
-                    SELECT 
+                    SELECT
                         uuid AS puuid
                         ,pid
                         FROM patient_data
                 ) patients ON forms.form_pid = patients.pid
                 LEFT JOIN
                 (
-                    SELECT 
+                    SELECT
                         uuid AS user_uuid
                         ,username
                         ,id AS uid
@@ -195,8 +195,7 @@ class VitalsService extends BaseService
                 $recordsById[$row['form_id']] = $record;
             }
             if (!empty($details)) {
-                $existingRecord = &$recordsById[$row['form_id']];
-                $existingRecord["details"][$details['vitals_column']] = $details;
+                $recordsById[$row['form_id']]["details"][$details['vitals_column']] = $details;
             }
         }
         foreach ($orderedRecords as $formId) {
