@@ -756,7 +756,7 @@ exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
                     text: leafLevel.deepInputProperty("device.name", nda),
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("device.udi", "na"),
+                    text: leafLevel.deepInputProperty("device.udi", nda),
                 }
                 ]
             }],
@@ -808,6 +808,47 @@ exports.functionalStatusSectionHtmlHeader = {
     }]
 };
 
+exports.assessmentSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("assessments"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Narrative"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("assessment")
+                    },
+                    text: leafLevel.deepInputProperty("description", nda),
+                }
+                ]
+            }],
+            dataKey: 'assessments'
+        }]
+    }]
+};
+
+exports.assessmentSectionHtmlHeaderNA = "Not Available";
 exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";

@@ -1,19 +1,20 @@
 "use strict";
 
-var bbu = require("../../oe-blue-button-util");
+const bbu = require("../../oe-blue-button-util");
 
-var fieldLevel = require("./fieldLevel");
-var entryLevel = require("./entryLevel");
-var leafLevel = require('./leafLevel');
-var contentModifier = require("./contentModifier");
+const fieldLevel = require("./fieldLevel");
+const entryLevel = require("./entryLevel");
+const leafLevel = require('./leafLevel');
+const sharedEntryLevel = require("./entryLevel/sharedEntryLevel");
+const contentModifier = require("./contentModifier");
 
-var required = contentModifier.required;
-var bbud = bbu.datetime;
-var bbuo = bbu.object;
+const required = contentModifier.required;
+const bbud = bbu.datetime;
+const bbuo = bbu.object;
 
-var nda = "No Data Available";
+const nda = "No Data Available";
 
-var condition = require('./condition');
+const condition = require('./condition');
 
 var getText = function (topArrayKey, headers, values) {
     var result = {
@@ -80,7 +81,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
                 fieldLevel.templateCode("AllergiesSection"),
                 fieldLevel.templateTitle("AllergiesSection"), {
                     key: "text",
-                    text: na,
+                    text: "No known Allergies and Intolerances",
                     existsWhen: condition.keyDoesntExist("allergies")
                 },
                 htmlHeader, {
@@ -338,21 +339,20 @@ exports.assessmentSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('assessments'),
+            attributes: condition.isNullFlavorSection('clinicalNoteAssessments'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
                 fieldLevel.templateCode("AssessmentSection"),
                 fieldLevel.templateTitle("AssessmentSection"), {
                     key: "text",
                     text: na,
-                    existsWhen: condition.keyDoesntExist("assessments")
+                    existsWhen: condition.keyDoesntExist("clinicalNoteAssessments")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "description"
+                    dataKey: "clinicalNoteAssessments.description"
                 }
             ],
-            dataKey: "assessments"
         }]
     }
 };
@@ -454,16 +454,6 @@ exports.socialHistorySection = function (htmlHeader, na) {
                         typeCode: "DRIV"
                     },
                     content: [entryLevel.genderStatusObservation],
-                    dataKey: "social_history"
-                }, {
-                    key: "entry",
-                    attributes: {
-                        typeCode: "DRIV"
-                    },
-                    content: [entryLevel.socialHistoryObservation],
-                    existsWhen: function (input) {
-                        return (!input.value) || input.value.indexOf("smoke") < 0;
-                    },
                     dataKey: "social_history"
                 }
             ]
@@ -577,13 +567,14 @@ exports.mentalStatusSection = function (htmlHeader, na) {
                 fieldLevel.templateCode("MentalStatusSection"),
                 fieldLevel.templateTitle("MentalStatusSection"), {
                     key: "text",
-                    text: na,
+                    text: "Mental Status Not Available",
                     existsWhen: condition.keyDoesntExist("mental_status")
                 }, {
                     key: "text",
                     text: leafLevel.input,
                     dataKey: "mental_status.note"
-                }, {
+                },
+                htmlHeader, {
                     key: "entry",
                     content: [
                         entryLevel.mentalStatusObservation
@@ -612,10 +603,9 @@ exports.reasonForReferralSection = function (htmlHeader, na) {
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "reason"
+                    dataKey: "referral_reason.reason"
                 }
-            ],
-            dataKey: "referral_reason"
+            ]
         }]
     }
 };
@@ -631,7 +621,7 @@ exports.healthConcernSection = function (htmlHeader, na) {
                 fieldLevel.templateCode("HealthConcernSection"),
                 fieldLevel.templateTitle("HealthConcernSection"), {
                     key: "text",
-                    text: na,
+                    text: "Health Concerns Not Available",
                     existsWhen: condition.keyDoesntExist("health_concerns")
                 }, {
                     key: "text",
@@ -649,6 +639,776 @@ exports.healthConcernSection = function (htmlHeader, na) {
                         [entryLevel.healthConcernActivityAct]
                     ],
                     dataKey: "health_concerns"
+                }
+            ]
+        }]
+    }
+};
+
+exports.historyNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("history_physical"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "History and Physical Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "History and Physical Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("history_physical"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'history_physical'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "history_physical"
+                }
+            ]
+        }]
+    }
+};
+
+exports.progressNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("progress_note"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Progress Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "Progress Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("progress_note"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'progress_note'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "progress_note"
+                }
+            ]
+        }]
+    }
+};
+
+exports.consultationNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("consultation_note"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Consultation Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "Consultation Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("consultation_note"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'consultation_note'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "consultation_note"
+                }
+            ]
+        }]
+    }
+};
+
+exports.generalNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("general_note"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "General Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "General Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("general_note"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'general_note'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "general_note"
+                }
+            ]
+        }]
+    }
+};
+
+exports.nurseNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("nurse_note"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Nurse Notes"
+                    }
+                }, {
+                    key: "title",
+                    text: "Nurse Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("nurse_note"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'nurse_note'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "nurse_note"
+                }
+            ]
+        }]
+    }
+};
+
+exports.procedureNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("procedure_note"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Procedure Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "Procedure Notes"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("procedure_note"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'procedure_note'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "procedure_note"
+                }
+            ]
+        }]
+    }
+};
+
+exports.laboratoryReportNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("laboratory_report_narrative"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Laboratory Report Narrative"
+                    }
+                }, {
+                    key: "title",
+                    text: "Laboratory Report Narrative"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("laboratory_report_narrative"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'laboratory_report_narrative'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "laboratory_report_narrative"
+                }
+            ]
+        }]
+    }
+};
+
+exports.imagingNarrativeNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("imaging_narrative"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Imaging Narrative"
+                    }
+                }, {
+                    key: "title",
+                    text: "Imaging Narrative"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("imaging_narrative"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'imaging_narrative'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "imaging_narrative"
+                }
+            ]
+        }]
+    }
+};
+
+exports.dischargeSummaryNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("discharge_summary"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Discharge Summary"
+                    }
+                }, {
+                    key: "title",
+                    text: "Discharge Summary"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("discharge_summary"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'discharge_summary'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "discharge_summary"
+                }
+            ]
+        }]
+    }
+};
+
+exports.pathologyReportNoteSection = function (htmlHeader, noteData) {
+    return {
+        key: "component",
+        existsWhen: condition.keyExists("pathology_report_narrative"),
+        content: [{
+            key: "section",
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.65", "2016-11-01"),
+                {
+                    key: "id",
+                    attributes: {
+                        root: "16C8G888-10D9-23E6-H141-0080055B0002"
+                    }
+                }, {
+                    key: "code",
+                    attributes: {
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        code: "34117-2",
+                        displayName: "Pathology Report Note"
+                    }
+                }, {
+                    key: "title",
+                    text: "Pathology Report Note"
+                }, {
+                    key: "text",
+                    existsWhen: condition.keyExists("pathology_report_narrative"),
+                    content: [{
+                        key: "table",
+                        attributes: {
+                            width: "100%",
+                            border: "1"
+                        },
+                        content: [{
+                            key: "thead",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "th",
+                                    text: leafLevel.input,
+                                    dataTransform: function () {
+                                        return ["Summary", "Author", "Date"];
+                                    }
+                                }]
+                            }]
+                        }, {
+                            key: "tbody",
+                            content: [{
+                                key: "tr",
+                                content: [{
+                                    key: "td",
+                                    attributes: {
+                                        ID: leafLevel.nextTableReference("note")
+                                    },
+                                    text: leafLevel.deepInputProperty("note", nda),
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputProperty("author.author_full_name", nda)
+                                }, {
+                                    key: "td",
+                                    text: leafLevel.deepInputDate("date_time.point", nda),
+                                }
+                                ]
+                            }],
+                            dataKey: 'pathology_report_narrative'
+                        }]
+                    }]
+                }, {
+                    key: "entry",
+                    content: sharedEntryLevel.notesAct,
+                    dataKey: "pathology_report_narrative"
                 }
             ]
         }]

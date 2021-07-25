@@ -97,6 +97,7 @@ exports.vitalSignsOrganizer = {
             key: "component",
             content: vitalSignObservation,
             dataKey: "vital_list",
+            existsWhen: condition.propertyNotEmpty("value"),
             required: true
         }]
     ],

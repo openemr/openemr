@@ -29,7 +29,7 @@ var patient = exports.patient = {
             }, {
                 key: "given",
                 text: leafLevel.inputProperty("middle"),
-                existsWhen: condition.keyExists("middle")
+                existsWhen: condition.propertyNotEmpty("middle")
             }, {
                 key: "family",
                 attributes: {
@@ -37,7 +37,8 @@ var patient = exports.patient = {
                 },
                 text: leafLevel.inputProperty("last")
             }],
-            dataKey: "birth_name"
+            dataKey: "birth_name",
+            existsWhen: condition.propertyNotEmpty("last")
         }, {
             key: "administrativeGenderCode",
             attributes: {
@@ -56,15 +57,18 @@ var patient = exports.patient = {
             key: "maritalStatusCode",
             attributes: {
                 code: function (input) {
-                    if (Object.prototype.toString.call(input) === "[object String]")
+                    if (Object.prototype.toString.call(input) === "[object String]") {
                         return input.substring(0, 1);
-                    else return input.code.substring(0, 1);
+                    }
+                    else {
+                        return input.code.substring(0, 1);
+                    }
                 },
                 displayName: leafLevel.input,
                 codeSystem: "2.16.840.1.113883.5.2",
                 codeSystemName: "HL7 Marital Status"
             },
-            dataKey: "marital_status"
+            dataKey: "marital_status",
         }, {
             key: "religiousAffiliationCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.5.1076"),
