@@ -26,7 +26,7 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_gad7", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_gad7", $_POST, ($_GET["id"] ?? null), $userauthorized);
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(

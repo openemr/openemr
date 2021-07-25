@@ -20,7 +20,7 @@ use Mpdf\Mpdf;  /* used to generate a pdf of the form */
 ?>
 <html><head>
  <head>
-    <title><?php echo text($string_form_title); ?> </title>
+    <title><?php echo text($str_form_title); ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
