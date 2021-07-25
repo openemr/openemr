@@ -1,19 +1,29 @@
 <?php
 
-define("EVENT_VEHICLE", 1);
-define("EVENT_WORK_RELATED", 2);
-define("EVENT_SLIP_FALL", 3);
-define("EVENT_OTHER", 4);
+/**
+ * FormVitals represents a collection of vital measurements for a specific patient in the system.
+ * For backwards compatibility it extends ORDataObject (which implements the a form of the Active record data pattern),
+ * but the preferred mechanism is to use this as a POPO (Plain old PHP object) and save / retrieve data using
+ * the VitalsService class.
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
+namespace OpenEMR\Common\Forms;
 
 /**
- * class FormHpTjePrimary
+ * class FormVitals
  *
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Utils\MeasurementUtils;
 
 class FormVitals extends ORDataObject
 {
@@ -24,7 +34,13 @@ class FormVitals extends ORDataObject
      */
     const TABLE_NAME = "form_vitals";
 
+    const LIST_OPTION_VITALS_INTERPRETATION = 'vitals-interpretation';
 
+
+    const MEASUREMENT_METRIC_ONLY = 4;
+    const MEASUREMENT_USA_ONLY = 3;
+    const MEASUREMENT_PERSIST_IN_METRIC = 2;
+    const MEASUREMENT_PERSIST_IN_USA = 1;
     /**
      *
      * static
@@ -56,6 +72,16 @@ class FormVitals extends ORDataObject
     public $ped_head_circ;
     public $uuid;
 
+    /**
+     * @var FormVitalDetails[]
+     */
+    private $_vitals_details = [];
+
+    /**
+     * @var int Foreign key reference to the encounter (inside form_encounter) this vitals belongs to.
+     */
+    private $encounter;
+
     // public $temp_methods;
     /**
      * Constructor sets all Form attributes to their default value
@@ -69,8 +95,6 @@ class FormVitals extends ORDataObject
         } else {
             $id = "";
             $this->date = $this->get_date();
-            $this->user = $_SESSION['authUser'];
-            $this->groupname = $_SESSION['authProvider'];
         }
 
         $this->_table = self::TABLE_NAME;
@@ -88,7 +112,7 @@ class FormVitals extends ORDataObject
 
     public function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
             . "ID: " . $this->id . "\n";
 
         if ($html) {
@@ -195,6 +219,11 @@ class FormVitals extends ORDataObject
     {
         return $this->weight;
     }
+
+    public function get_weight_metric()
+    {
+        return MeasurementUtils::lbToKg($this->get_weight());
+    }
     public function set_weight($w)
     {
         if (!empty($w) && is_numeric($w)) {
@@ -207,14 +236,18 @@ class FormVitals extends ORDataObject
             if ($GLOBALS['us_weight_format'] == 2) {
                 $pounds_int = floor($pounds);
                 return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
-            } else {
-                return $pounds;
             }
         }
+        return $pounds;
     }
+
     public function get_height()
     {
         return $this->height;
+    }
+    public function get_height_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_height());
     }
     public function set_height($h)
     {
@@ -225,6 +258,10 @@ class FormVitals extends ORDataObject
     public function get_temperature()
     {
         return $this->temperature;
+    }
+    public function get_temperature_metric()
+    {
+        return MeasurementUtils::fhToCelsius($this->get_temperature());
     }
     public function set_temperature($t)
     {
@@ -277,6 +314,10 @@ class FormVitals extends ORDataObject
     {
         return $this->BMI;
     }
+
+    public function get_BMI_short()
+    {
+    }
     public function set_BMI($bmi)
     {
         if (!empty($bmi) && is_numeric($bmi)) {
@@ -295,6 +336,10 @@ class FormVitals extends ORDataObject
     {
         return $this->waist_circ;
     }
+    public function get_waist_circ_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_waist_circ());
+    }
     public function set_waist_circ($w)
     {
         if (!empty($w) && is_numeric($w)) {
@@ -304,6 +349,10 @@ class FormVitals extends ORDataObject
     public function get_head_circ()
     {
         return $this->head_circ;
+    }
+    public function get_head_circ_metric()
+    {
+        return MeasurementUtils::inchesToCm($this->get_head_circ());
     }
     public function set_head_circ($h)
     {
@@ -376,7 +425,7 @@ class FormVitals extends ORDataObject
 
     /**
      * Returns the binary uuid string
-     * @return binary
+     * @return string
      */
     public function get_uuid()
     {
@@ -385,7 +434,7 @@ class FormVitals extends ORDataObject
 
     /**
      * Set the binary uuid string.
-     * @param $uuid binary string
+     * @param $uuid string
      */
     public function set_uuid($uuid)
     {
@@ -402,16 +451,100 @@ class FormVitals extends ORDataObject
             return UuidRegistry::uuidToString($this->uuid);
         }
     }
+
+    public function get_details_for_column($column)
+    {
+        if (isset($this->_vitals_details[$column])) {
+            return $this->_vitals_details[$column];
+        }
+        return null;
+    }
+
+    public function set_details_for_column($column, FormVitalDetails $details)
+    {
+        $this->_vitals_details[$column] = $details;
+    }
+
     public function persist()
     {
         if (empty($this->uuid)) {
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
         parent::persist();
+
+        foreach ($this->_vitals_details as $item) {
+            $item->set_form_id($this->get_id());
+            $item->persist();
+        }
+
         $fhirVitalsService = new FhirObservationVitalsService();
         // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
 
         // TODO: @adunsulag look at making this into an event and our FHIR module listens to vital saves and can respond
         $fhirVitalsService->populateResourceMappingUuidsForAllVitals();
+    }
+
+    public function populate_array($results)
+    {
+        parent::populate_array($results);
+        $encounter = $results['eid'] ?? $results['encounter'] ?? null;
+        $this->set_encounter($encounter);
+
+        // now let's setup our details objects
+        if (isset($results['details'])) {
+            foreach ($results['details'] as $column => $detail) {
+                $vitalsDetail = new FormVitalDetails();
+                $vitalsDetail->populate_array($detail);
+                $vitalsDetail->set_form_id($this->get_id());
+                $this->set_details_for_column($column, $vitalsDetail);
+            }
+        }
+    }
+
+    public function get_vital_details()
+    {
+        return array_values($this->_vitals_details);
+    }
+
+    public function get_data_for_save()
+    {
+        $values = parent::get_data_for_save();
+        $values['eid'] = $this->get_encounter();
+        $values['authorized'] = $this->get_authorized();
+        $values['details'] = [];
+
+        // now grab the details
+        $details = $this->get_vital_details();
+        foreach ($details as $detail) {
+            $values['details'][] = $detail->get_data_for_save();
+        }
+        return $values;
+    }
+
+    public function get_encounter()
+    {
+        return $this->encounter;
+    }
+
+    public function set_encounter($eid)
+    {
+        $this->encounter = $eid;
+    }
+    /**
+     * @return mixed
+     */
+    public function get_authorized()
+    {
+        return $this->authorized;
+    }
+
+    /**
+     * @param mixed $authorized
+     * @return FormVitals
+     */
+    public function set_authorized($authorized)
+    {
+        $this->authorized = $authorized;
+        return $this;
     }
 }   // end of Form

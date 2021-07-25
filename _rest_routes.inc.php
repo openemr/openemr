@@ -133,14 +133,14 @@ RestConfig::$ROUTE_MAP = array(
     },
     "POST /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "notes");
-        $data = (array) (json_decode(file_get_contents("php://input")));
+        $data = json_decode(file_get_contents("php://input"), true) ?? [];
         $return = (new EncounterRestController())->postVital($pid, $eid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
     "PUT /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid) {
         RestConfig::authorization_check("encounters", "notes");
-        $data = (array) (json_decode(file_get_contents("php://input")));
+        $data = json_decode(file_get_contents("php://input"), true) ?? [];
         $return = (new EncounterRestController())->putVital($pid, $eid, $vid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
