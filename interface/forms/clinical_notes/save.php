@@ -89,8 +89,9 @@ if (!empty($count)) {
             // the note).
             $record['user'] = $_SESSION["authUser"];
         }
-//        $record['note_related_to'] = parse_note($record['description']);
-        $record['note_related_to'] = $record['description'];
+        // this is for related issues to the note
+        $record['note_related_to'] = parse_note($record['description']);
+        //$record['note_related_to'] = $record['description'];
         // note this is the form_id from the forms table and is NOT a unique record id
 
         $record['pid'] = $_SESSION['pid'];

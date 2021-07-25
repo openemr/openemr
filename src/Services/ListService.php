@@ -56,7 +56,7 @@ class ListService
 
     public function getOptionsByListName($list_name, $search = array())
     {
-        $sql = "SELECT * FROM list_options WHERE list_id = ?";
+        $sql = "SELECT * FROM list_options WHERE list_id = ? ";
         $binding = [$list_name];
 
 
@@ -69,6 +69,7 @@ class ListService
                 $binding[] = $search[$column];
             }
         }
+        $sql .= " ORDER BY `seq` ";
 
         $statementResults = sqlStatementThrowException($sql, $binding);
 

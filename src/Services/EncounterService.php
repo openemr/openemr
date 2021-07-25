@@ -105,7 +105,7 @@ class EncounterService extends BaseService
         if (!empty($puuidBind)) {
             // code to support patient binding
             $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBind, true);
-            if ($isValidPatient != true) {
+            if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
             $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBind), self::PATIENT_TABLE, "pid");
@@ -113,7 +113,7 @@ class EncounterService extends BaseService
                 $processingResult->setValidationMessages("Invalid pid");
                 return $processingResult;
             }
-            $search['puuid'] = new TokenSearchField('eeuid', [new TokenSearchValue($puuidBind, null, true)]);
+            $search['puuid'] = new TokenSearchField('puuid', [new TokenSearchValue($puuidBind, null, true)]);
         }
 
         $sql = "SELECT fe.eid,
@@ -427,136 +427,47 @@ class EncounterService extends BaseService
 
     public function updateVital($pid, $eid, $vid, $data)
     {
-        $sql  = " UPDATE form_vitals SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     bps=?,";
-        $sql .= "     bpd=?,";
-        $sql .= "     weight=?,";
-        $sql .= "     height=?,";
-        $sql .= "     temperature=?,";
-        $sql .= "     temp_method=?,";
-        $sql .= "     pulse=?,";
-        $sql .= "     respiration=?,";
-        $sql .= "     note=?,";
-        $sql .= "     waist_circ=?,";
-        $sql .= "     head_circ=?,";
-        $sql .= "     oxygen_saturation=?";
-        $sql .= "     where id=?";
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['activity'] = 1;
+        $data['id'] = $vid;
+        $data['pid'] = $pid;
+        $data['eid'] = $eid;
 
-        return sqlStatement(
-            $sql,
-            array(
-                $pid,
-                $data["bps"],
-                $data["bpd"],
-                $data["weight"],
-                $data["height"],
-                $data["temperature"],
-                $data["temp_method"],
-                $data["pulse"],
-                $data["respiration"],
-                $data["note"],
-                $data["waist_circ"],
-                $data["head_circ"],
-                $data["oxygen_saturation"],
-                $vid
-            )
-        );
+        $vitalsService = new VitalsService();
+        $updatedRecords = $vitalsService->save($data);
+        return $updatedRecords;
     }
 
     public function insertVital($pid, $eid, $data)
     {
-        $vitalSql  = " INSERT INTO form_vitals SET";
-        $vitalSql .= "     date=NOW(),";
-        $vitalSql .= "     activity=1,";
-        $vitalSql .= "     pid=?,";
-        $vitalSql .= "     bps=?,";
-        $vitalSql .= "     bpd=?,";
-        $vitalSql .= "     weight=?,";
-        $vitalSql .= "     height=?,";
-        $vitalSql .= "     temperature=?,";
-        $vitalSql .= "     temp_method=?,";
-        $vitalSql .= "     pulse=?,";
-        $vitalSql .= "     respiration=?,";
-        $vitalSql .= "     note=?,";
-        $vitalSql .= "     waist_circ=?,";
-        $vitalSql .= "     head_circ=?,";
-        $vitalSql .= "     oxygen_saturation=?";
+        $data['eid'] = $eid;
+        $data['authorized'] = '1';
+        $data['pid'] = $pid;
+        $vitalsService = new VitalsService();
+        $savedVitals = $vitalsService->save($data);
 
-        $vitalResults = sqlInsert(
-            $vitalSql,
-            array(
-                $pid,
-                $data["bps"],
-                $data["bpd"],
-                $data["weight"],
-                $data["height"],
-                $data["temperature"],
-                $data["temp_method"],
-                $data["pulse"],
-                $data["respiration"],
-                $data["note"],
-                $data["waist_circ"],
-                $data["head_circ"],
-                $data["oxygen_saturation"]
-            )
-        );
-
-        if (!$vitalResults) {
-            return false;
-        }
-
-        $formSql = "INSERT INTO forms SET";
-        $formSql .= "     date=NOW(),";
-        $formSql .= "     encounter=?,";
-        $formSql .= "     form_name='Vitals',";
-        $formSql .= "     authorized='1',";
-        $formSql .= "     form_id=?,";
-        $formSql .= "     pid=?,";
-        $formSql .= "     formdir='vitals'";
-
-        $formResults = sqlInsert(
-            $formSql,
-            array(
-                $eid,
-                $vitalResults,
-                $pid
-            )
-        );
-
-        return array($vitalResults, $formResults);
+        // need to grab the form record here, not sure why people need this but sure, why not, since the old method returned
+        // it we will keep the functionality.
+        $vitalsFormId = $savedVitals['id'];
+        $formId = intval(QueryUtils::fetchSingleValue('select id FROM forms WHERE form_id = ? ', 'id', [$vitalsFormId]));
+        return [$vitalsFormId, $formId];
     }
 
     public function getVitals($pid, $eid)
     {
-        $sql  = "  SELECT fs.*";
-        $sql .= "  FROM forms fo";
-        $sql .= "  JOIN form_vitals fs on fs.id = fo.form_id";
-        $sql .= "  WHERE fo.encounter = ?";
-        $sql .= "    AND fs.pid = ?";
-
-        $statementResults = sqlStatement($sql, array($eid, $pid));
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        $vitalsService = new VitalsService();
+        $vitals = $vitalsService->getVitalsForPatientEncounter($pid, $eid) ?? [];
+        return $vitals;
     }
 
     public function getVital($pid, $eid, $vid)
     {
-        $sql  = "  SELECT fs.*";
-        $sql .= "  FROM forms fo";
-        $sql .= "  JOIN form_vitals fs on fs.id = fo.form_id";
-        $sql .= "  WHERE fo.encounter = ?";
-        $sql .= "    AND fs.id = ?";
-        $sql .= "    AND fs.pid = ?";
-
-        return sqlQuery($sql, array($eid, $vid, $pid));
+        $vitalsService = new VitalsService();
+        $vitals = $vitalsService->getVitalsForForm($vid);
+        if (!empty($vitals) && $vitals['eid'] == $eid && $vitals['pid'] == $pid) {
+            return $vitals;
+        }
+        return null;
     }
 
     public function getSoapNotes($pid, $eid)

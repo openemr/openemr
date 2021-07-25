@@ -14,6 +14,24 @@ namespace OpenEMR\Common\Database;
 
 class QueryUtils
 {
+    /**
+     * Function that will return an array listing
+     * of columns that exist in a table.
+     *
+     * @param   string  $table sql table
+     * @return  array
+     */
+    public static function listTableFields($table)
+    {
+        $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
+        $field_list = array();
+        $records = self::fetchRecords($sql, [], false);
+        foreach ($records as $record) {
+            $field_list[] = $record["Field"];
+        }
+
+        return $field_list;
+    }
 
     public static function fetchRecordsNoLog($sqlStatement, $binds)
     {
@@ -61,11 +79,11 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords($sqlStatement, $binds = array())
+    public static function fetchRecords($sqlStatement, $binds = array(), $noLog = false)
     {
-        $result = self::sqlStatementThrowException($sqlStatement, $binds);
+        $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
-        while ($record = sqlFetchArray($result)) {
+        while ($record = \sqlFetchArray($result)) {
             $list[] = $record;
         }
         return $list;
@@ -118,12 +136,17 @@ class QueryUtils
      *
      * @param  string  $statement  query
      * @param  array   $binds      binded variables array (optional)
+     * @param  noLog   boolean     if true the sql statement bypasses the database logger, false logs the sql statement
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return recordset
      */
-    public static function sqlStatementThrowException($statement, $binds)
+    public static function sqlStatementThrowException($statement, $binds, $noLog = false)
     {
-        return sqlStatementThrowException($statement, $binds);
+        if ($noLog) {
+            return sqlStatementNoLog($statement, $binds, true);
+        } else {
+            return sqlStatementThrowException($statement, $binds);
+        }
     }
 
     /**

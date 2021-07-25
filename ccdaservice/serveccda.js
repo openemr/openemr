@@ -28,7 +28,7 @@ function trim(s) {
 
 function cleanText(s) {
     if (typeof s === 'string') {
-        s = s.replace(new RegExp('\r?\n','g'), '<br />');
+        //s = s.replace(new RegExp('\r?\n','g'), '<br />');
         return s.trim();
     }
     return s;
@@ -79,10 +79,10 @@ function templateDate(date, precision) {
 
 function cleanCode(code) {
     if (typeof code === 'undefined') {
-        return "";
+        return "null_flavor";
     }
     if (code.length < 2) {
-        code = "";
+        code = "null_flavor";
         return code;
     }
     return code.replace(/[.#]/, "");
@@ -127,17 +127,24 @@ function populateDemographic(pd, g) {
             "type": "primary home"
         }]
     }];
-
+    let raceCode = pd.race == "White" ? "European" : "African";
+    if (pd.race === 'Declined To Specify' || pd.race === '') {
+        raceCode = "null_flavor";
+        pd.race = "null_flavor";
+    }
+    if (pd.ethnicity === 'Declined To Specify' || pd.ethnicity === '') {
+        pd.ethnicity = "null_flavor";
+    }
     return {
         "name": {
-            "middle": [pd.mname],
+            "middle": [pd.mname] || "",
             "last": pd.lname,
             "first": pd.fname
         },
         "birth_name": {
-            "middle": pd.birth_mname || pd.mname,
-            "last": pd.birth_lname || pd.lname,
-            "first": pd.birth_fname || pd.fname
+            "middle": pd.birth_mname || "",
+            "last": pd.birth_lname || "",
+            "first": pd.birth_fname || ""
         },
         "dob": {
             "point": {
@@ -145,7 +152,7 @@ function populateDemographic(pd, g) {
                 "precision": "day"
             }
         },
-        "gender": pd.gender.toUpperCase(),
+        "gender": pd.gender.toUpperCase() || "null_flavor",
         "identifiers": [{
             "identifier": oidFacility,
             "extension": "PT-" + pd.id
@@ -170,7 +177,7 @@ function populateDemographic(pd, g) {
         ],
         "ethnicity": pd.ethnicity || "",
         "race": pd.race || "",
-        "race_additional": pd.race == "White" ? "European" : "African",
+        "race_additional": raceCode,
         "languages": [{
             "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
             "preferred": true,
@@ -602,7 +609,7 @@ function populateEncounter(pd) {
             }],
             "value": {
                 "name": name,
-                "code": code,
+                "code": cleanCode(code),
                 "code_system_name": code_system_name
             },
             "date_time": {
@@ -1234,16 +1241,16 @@ function getHealthConcerns(pd) {
             problems.push(problem);
         }
     }
-        if (one) {
-            if (pd.issues.issue_uuid) {
-                problem = {
-                    "identifiers": [{
-                        "identifier": pd.issues.issue_uuid
-                    }]
-                };
-                problems.push(problem);
-            }
+    if (one) {
+        if (pd.issues.issue_uuid) {
+            problem = {
+                "identifiers": [{
+                    "identifier": pd.issues.issue_uuid
+                }]
+            };
+            problems.push(problem);
         }
+    }
     return {
         "type": "act",
         "text": cleanText(pd.text),
@@ -1297,7 +1304,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.bps),
+            "value": parseFloat(pd.bps) || pd.bps,
             "unit": "mm[Hg]"
         }, {
             "identifiers": [{
@@ -1317,7 +1324,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.bpd),
+            "value": parseFloat(pd.bpd) || pd.bpd,
             "unit": "mm[Hg]"
         }, {
             "identifiers": [{
@@ -1337,7 +1344,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.height),
+            "value": parseFloat(pd.height) || pd.height,
             "unit": pd.unit_height
         }, {
             "identifiers": [{
@@ -1357,7 +1364,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.weight),
+            "value": parseFloat(pd.weight) || "",
             "unit": pd.unit_weight
         }, {
             "identifiers": [{
@@ -1376,8 +1383,8 @@ function populateVital(pd) {
                     "precision": getPrecision(fDate(pd.effectivetime))
                 }
             },
-            "interpretations": [pd.BMI_status == 'Overweight'?'High':'Normal'],
-            "value": parseFloat(pd.BMI),
+            "interpretations": [pd.BMI_status == 'Overweight' ? 'High' : 'Normal'],
+            "value": parseFloat(pd.BMI) || "",
             "unit": "kg/m2"
         }, {
             "identifiers": [{
@@ -1397,7 +1404,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.pulse),
+            "value": parseFloat(pd.pulse) || "",
             "unit": "/min"
         }, {
             "identifiers": [{
@@ -1417,7 +1424,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.breath),
+            "value": parseFloat(pd.breath) || "",
             "unit": "/min"
         }, {
             "identifiers": [{
@@ -1437,7 +1444,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.temperature),
+            "value": parseFloat(pd.temperature) || "",
             "unit": pd.unit_temperature
         }, {
             "identifiers": [{
@@ -1457,7 +1464,7 @@ function populateVital(pd) {
                 }
             },
             "interpretations": ["Normal"],
-            "value": parseFloat(pd.oxygen_saturation),
+            "value": parseFloat(pd.oxygen_saturation) || "",
             "unit": "%"
         }
         ]
@@ -1475,7 +1482,7 @@ function populateSocialHistory(pd) {
             "extension": pd.extension
         }],
         "code": {
-            "name": pd.element
+            "name": pd.code
         },
         "value": pd.description,
         "gender": all.patient.gender
@@ -1698,6 +1705,48 @@ function populatePayer(pd) {
                 }
             }
         }
+    };
+}
+
+function populateNote(pd) {
+    return {
+        "date_time": {
+            "point": {
+                "date": fDate(pd.date_formatted),
+                "precision": "day"
+            }
+        },
+        "translations": {
+            code_system: "2.16.840.1.113883.6.1",
+            code_system_name: "LOINC",
+            code: cleanCode(pd.code),
+            name: pd.code_text || ""
+        },
+        "author": {
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": pd.author_npi || "123456789"
+            }],
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.date_formatted),
+                    "precision": "minute"
+                }
+            },
+            "name": {
+                "prefix": pd.author_title,
+                "last": pd.author_last,
+                "first": pd.author_first,
+            },
+            "author_full_name": pd.author_title + " " + pd.author_first + " " + pd.author_last,
+            "organization": [{
+                "identity": {
+                    "root": pd.facility_oid || oidFacility || "",
+                },
+                "name": [pd.facility_name]
+            }]
+        },
+        "note": cleanText(pd.description),
     };
 }
 
@@ -2012,14 +2061,12 @@ function genCcda(pd) {
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.3.8888.999999";
     npiFacility = all.encounter_provider.facility_npi;
     webRoot = all.serverRoot;
-
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.
     Object.assign(demographic, populateProviders());
 
     data.demographics = Object.assign(demographic);
-
 // Encounters
     let encs = [];
     let enc = {};
@@ -2166,7 +2213,7 @@ function genCcda(pd) {
     // 2nd is latest referral from transactions.
     if (pd.referral_reason[0].text !== "") {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
-    } else if (pd.referral_reason[1].text !== "") {
+    } else if (pd.referral_reason[1].text !== "" && typeof pd.referral_reason[1].text !== 'undefined') {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
     }
 // Health Concerns
@@ -2265,7 +2312,7 @@ function genCcda(pd) {
 // Assessments.
     many = [];
     theone = {};
-    many.assessments = [];
+    many.clinicalNoteAssessments = [];
     try {
         count = isOne(pd.clinical_notes.evaluation_note);
     } catch (e) {
@@ -2274,15 +2321,15 @@ function genCcda(pd) {
     if (count > 1) {
         for (let i in pd.clinical_notes.evaluation_note) {
             theone[i] = getAssessments(pd.clinical_notes.evaluation_note[i]);
-            many.assessments.push(theone[i]);
+            many.clinicalNoteAssessments.push(theone[i]);
             break; // for now only one assessment. @todo concat notes to one.
         }
     } else if (count !== 0) {
         theone = getAssessments(pd.clinical_notes.evaluation_note);
-        many.assessments.push(theone);
+        many.clinicalNoteAssessments.push(theone);
     }
     if (count !== 0) {
-        data.assessments = Object.assign(many.assessments);
+        data.clinicalNoteAssessments = Object.assign(many.clinicalNoteAssessments);
     }
 
 // Functional Status.
@@ -2351,6 +2398,58 @@ function genCcda(pd) {
     if (count !== 0) {
         data.social_history = Object.assign(many.social_history);
     }
+// Notes
+    for (let currentNote in pd.clinical_notes) {
+        many = [];
+        theone = {};
+        switch (pd.clinical_notes[currentNote].clinical_notes_type) {
+            case 'evaluation_note':
+                continue;
+                break;
+            case 'progress_note':
+
+                break;
+            case 'history_physical':
+                pd.clinical_notes[currentNote].code_text = "History and Physical";
+                break;
+            case 'nurse_note':
+                break;
+            case 'general_note':
+                break;
+            case 'discharge_summary':
+                break;
+            case 'procedure_note':
+                break;
+            case 'consultation_note':
+                break;
+            case 'imaging_narrative':
+                break;
+            case 'laboratory_report_narrative':
+                break;
+            case 'pathology_report_narrative':
+                break;
+            default:
+                continue;
+        }
+        try {
+            count = isOne(pd.clinical_notes[currentNote]);
+        } catch (e) {
+            count = 0
+        }
+        if (count > 1) {
+            for (let i in pd.clinical_notes[currentNote]) {
+                theone[i] = populateNote(pd.clinical_notes[currentNote]);
+                many.push(theone[i]);
+            }
+        } else if (count !== 0) {
+            theone = populateNote(pd.clinical_notes[currentNote]);
+            many.push(theone);
+        }
+        if (count !== 0) {
+            data[currentNote] = Object.assign(many);
+        }
+    }
+
 // ------------------------------------------ End Sections ----------------------------------------//
 
     doc.data = Object.assign(data);

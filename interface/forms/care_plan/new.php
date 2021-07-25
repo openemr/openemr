@@ -26,8 +26,8 @@ use OpenEMR\Core\Header;
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
 if (empty($formid)) {
-    $sql = "SELECT id, encounter FROM `form_care_plan` WHERE pid = ? AND encounter = ?  LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['id'] ?? 0;
+    $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'care_plan' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
+    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
     if (!empty($formid)) {
         echo "<script>var message=" .
             js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .

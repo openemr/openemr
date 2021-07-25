@@ -1,5 +1,18 @@
 "use strict";
 
+exports.isNullFlavorSection = function (key) {
+    return function (input) {
+        let value = input && input[key];
+        if (!value) {
+            return {
+                nullFlavor: "NI"
+            };
+        } else {
+            return {};
+        }
+    };
+};
+
 exports.keyExists = function (key) {
     let bu = key;
     return function (input) {

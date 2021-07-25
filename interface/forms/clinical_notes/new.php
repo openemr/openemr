@@ -34,8 +34,8 @@ $formid = 0 + ($_GET['id'] ?? 0);
 $clinicalNotesService = new ClinicalNotesService();
 
 if (empty($formid)) {
-    $sql = "SELECT id, encounter FROM `form_clinical_notes` WHERE pid = ? AND encounter = ?  LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['id'] ?? 0;
+    $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'clinical_notes' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
+    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
     if (!empty($formid)) {
         echo "<script>var message=" .
             js_escape(xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.")) .

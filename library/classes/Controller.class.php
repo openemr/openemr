@@ -1,5 +1,6 @@
 <?php
 
+// TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
 

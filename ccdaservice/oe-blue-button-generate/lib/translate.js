@@ -7,6 +7,11 @@ var css = bbm.code_systems;
 
 exports.codeFromName = function (OID) {
     return function (input) {
+        if (input === 'null_flavor') {
+            return {
+                nullFlavor: "UNK"
+            };
+        }
         var cs = css.find(OID);
         var code = cs ? cs.displayNameCode(input) : undefined;
         var systemInfo = cs.systemId(OID);
@@ -21,6 +26,13 @@ exports.codeFromName = function (OID) {
 
 exports.code = function (input) {
     var result = {};
+
+    if (input.code === 'null_flavor') {
+        return {
+            nullFlavor: "UNK"
+        };
+    }
+
     if (input.code) {
         result.code = input.code;
     }
