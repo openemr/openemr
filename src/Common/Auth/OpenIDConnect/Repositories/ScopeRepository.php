@@ -162,13 +162,18 @@ class ScopeRepository implements ScopeRepositoryInterface
         $userIdentifier = null
     ): array {
         $finalizedScopes = [];
+        $scopeListNames = [];
+        $finalizedScopeNames = [];
+        $clientScopes = [];
         // we only let scopes that the client initially registered with through instead of whatever they request in
         // their grant.
         if ($clientEntity instanceof ClientEntity) {
             $clientScopes = $clientEntity->getScopes();
             foreach ($scopes as $scope) {
+                $scopeListNames[] = $scope->getIdentifier();
                 if (\in_array($scope->getIdentifier(), $clientScopes)) {
                     $finalizedScopes[] = $scope;
+                    $finalizedScopeNames[] = $scope->getIdentifier();
                 }
             }
         } else {
@@ -180,10 +185,17 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $finalizedScopes[] = $scope;
+            $finalizedScopeNames[] = "nonce";
         }
 
         // Need a site id for our apis
-        $finalizedScopes[] = $this->getSiteScope();
+        $siteScope = $this->getSiteScope();
+        $finalizedScopeNames[] = $siteScope->getIdentifier();
+        $finalizedScopes[] = $siteScope;
+
+            $this->logger->debug("ScopeRepository->finalizeScopes() scopes finalized ",
+            ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
+                , 'initialScopes' => $scopeListNames]);
         return $finalizedScopes;
     }
 
