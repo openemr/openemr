@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 if ($encounter == "") {
-  $encounter = date("Ymd"); 
+    $encounter = date("Ymd");
 }
 
 $form_date = date("dmY");
