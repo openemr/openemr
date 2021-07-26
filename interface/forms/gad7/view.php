@@ -16,11 +16,9 @@ require_once("gad7.inc.php");  // common strings, require_once(globals.php), oth
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
-use Mpdf\Mpdf; /* to generate pdf files*/
+/* se Mpdf\Mpdf; /* to generate pdf files*/
 
 $form_folder = "gad7";
-/* $rootdir = "public_html/interface"; /* change to find algorithmically */
-
 ?>
 <html><head>
  <head>
@@ -33,6 +31,7 @@ $obj = formFetch("form_gad7", $_GET["id"]); ?>
 <script>
 // get scores from previous saving of the form
 var gad7_score = 0;
+
 </script>
 <SCRIPT
   src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js">
@@ -40,6 +39,7 @@ var gad7_score = 0;
 
 <SCRIPT>
 // stuff that uses embedded php must go here, not in the include javascript file - it must be executed on server side before page is sent to client. included javascript is only executed on the client
+var changes_made = false; 
 
 function create_q8(question, menue){
  // create the question - the second part is italicised
@@ -54,15 +54,22 @@ function create_q8(question, menue){
        question.appendChild(ital);
 
 // populate the   the menue
-         menue.options[0] = new Option ( <?php echo js_escape($str_not); ?>, "0");
-         menue.options[1] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
-         menue.options[2] = new Option ( <?php echo js_escape($str_very); ?>, "2");
-         menue.options[3] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
-         menue.options[4] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+         menue.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+         menue.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
+         menue.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
+         menue.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
+         menue.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
+        /*  menue.options[5] = new Option ( <?php echo js_escape($str_default);  ?>, "4"); */
+        
 }
 // check user really wants to exit without saving new answers
 function nosave_exit() {
-var conf = confirm ( <?php echo js_escape($str_nosave_confirm); ?> );
+var conf = true;
+
+/* if there have been no changes, just exit other wise get user to confirm exit without saving changes */
+if (changes_made) {
+    conf = confirm ( <?php echo js_escape($str_nosave_confirm); ?> );
+    }
 if (conf) {
     window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
     }
@@ -78,15 +85,14 @@ return ( conf );
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B" >
 &nbsp &nbsp
 <input type="button" value="<?php echo attr($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
- 
- <br>
-
+ <br><br>
 <span class="text"><h2><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></h2></span>
+<br>
 <table>
 <tr>
 <td>
 <span class="text"><?php echo  text($str_nervous); ?></span>
-<select name="nervous_score" onchange="update_score(0, my_form.nervous_score.value);">
+<select name="nervous_score" onchange="update_score(0, my_form.nervous_score.value);changes_made=true">
      <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -105,7 +111,7 @@ return ( conf );
  </table>
   <table>
 <span class="text" ><?php echo text($str_control_worry); ?></span>
-<select name="control_worry_score" onchange="update_score(1, my_form.control_worry_score.value);" >
+<select name="control_worry_score" onchange="update_score(1, my_form.control_worry_score.value);changes_made=true" >
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -125,7 +131,7 @@ return ( conf );
   <tr>
   <td>
 <span class="text" ><?php echo text($str_worry); ?></span>
-<select name="worry_score" onchange="update_score(2, my_form.worry_score.value);" >
+<select name="worry_score" onchange="update_score(2, my_form.worry_score.value);changes_made=true" >
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -144,7 +150,7 @@ return ( conf );
  <table>
  <tr><td>
 <span class="text" ><?php echo text($str_relax); ?></span>
-<select name="relax_score" onchange="update_score(3, my_form.relax_score.value);">
+<select name="relax_score" onchange="update_score(3, my_form.relax_score.value);changes_made=true">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -163,7 +169,7 @@ return ( conf );
   <table>
   <tr><td>
 <span class="text" ><?php echo text($str_restless); ?></span>
-<select name="restless_score" onchange="update_score(4, my_form.restless_score.value);">
+<select name="restless_score" onchange="update_score(4, my_form.restless_score.value);changes_made=true">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -182,7 +188,7 @@ return ( conf );
  <table>
  <tr><td>
 <span class="text" ><?php echo text($str_annoyed); ?></span>
-<select name="irritable_score" onchange="update_score(5, my_form.irritable_score.value);">
+<select name="irritable_score" onchange="update_score(5, my_form.irritable_score.value);changes_made=true">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>
@@ -201,7 +207,7 @@ return ( conf );
   <table>
   <tr><td>
 <span class="text" ><?php echo text($str_afraid); ?></span>
-<select name="fear_score" onchange="update_score(6, my_form.fear_score.value);">
+<select name="fear_score" onchange="update_score(6, my_form.fear_score.value);changes_made=true">
     <option value="0"><?php echo text($str_not); ?></option>
     <option value="1"><?php echo text($str_several); ?></option>
     <option value="2"><?php echo text($str_more); ?></option>

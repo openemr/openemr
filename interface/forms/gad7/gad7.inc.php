@@ -15,7 +15,7 @@
  require_once("../../globals.php");
  require_once("$srcdir/api.inc");
  require_once("$srcdir/patient.inc");
- require_once("$srcdir/globals.inc.php");
+ /* require_once("$srcdir/globals.inc.php"); */
 
 // menu strings
 $str_default = xl('Please select an answer');
@@ -27,7 +27,7 @@ $str_somewhat = xl('Somewhat difficult');
 $str_very = xl('Very difficult');
 $str_extremely = xl('Extremely difficult');
 
-$str_nosave_exit = xl("Close form without saving answers");
+$str_nosave_exit = xl("Close without saving");
 $str_nosave_confirm = xl("Are you sure you'd like to quit without saving your answers?");
 $str_generate_pdf = xl("Generate PDF");
 

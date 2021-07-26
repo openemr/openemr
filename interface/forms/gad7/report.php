@@ -18,7 +18,6 @@ require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 */
 require_once("gad7.inc.php");
-use Mpdf\Mpdf;  /* used to generate a pdf of the form */
 
 $gad7_total = 0;
 $pdf_as_string = '';
@@ -87,5 +86,5 @@ function gad7_report($pid, $encounter, $cols, $id)
     print "</tr></table>";
        /* let user download the pdf */
        /*  execute interface/forms/gad7/report-as-pdf.php */
-    print '<br> <a  target="_blank" href="' . $genpdf_file_path . '?form_id=' . $id . '">' . $str_generate_pdf . ' </a><br>';
+    print '<br> <a  target="_blank" href="' . $genpdf_file_path . '?form_id=' . attr_url($id) . '">' . text($str_generate_pdf) . ' </a><br>';
 }
