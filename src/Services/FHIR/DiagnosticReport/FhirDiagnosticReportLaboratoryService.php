@@ -48,6 +48,11 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
 
     const LAB_CATEGORY = "LAB";
 
+    /**
+     * @see list_options order_types (Order Types)
+     */
+    const PROCEDURE_ORDER_TEST_TYPE = "laboratory_test";
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -186,6 +191,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
                 }
             }
         }
+        $openEMRSearchParameters['procedure_type'] = new TokenSearchField('procedure_type', [new TokenSearchValue(self::PROCEDURE_ORDER_TEST_TYPE)]);
         return $this->service->search($openEMRSearchParameters);
     }
 
