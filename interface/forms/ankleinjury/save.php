@@ -27,7 +27,7 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_ankleinjury", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_ankleinjury", $_POST, ($_GET["id"] ?? null), $userauthorized);
     addForm($encounter, "Ankle Evaluation Form", $newid, "ankleinjury", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
@@ -60,14 +60,14 @@ if ($_GET["mode"] == "new") {
             $_SESSION["authUser"],
             $userauthorized,
             $_POST["ankle_date_of_injuary"],
-            $_POST["ankle_work_related"],
+            ($_POST["ankle_work_related"] ?? null),
             $_POST["ankle_foot"],
-            $_POST["ankle_severity_of_pain"],
-            $_POST["ankle_significant_swelling"],
-            $_POST["ankle_onset_of_swelling"],
+            ($_POST["ankle_severity_of_pain"] ?? null),
+            ($_POST["ankle_significant_swelling"] ?? null),
+            ($_POST["ankle_onset_of_swelling"] ?? null),
             $_POST["ankle_how_did_injury_occur"],
-            $_POST["ankle_ottawa_bone_tenderness"],
-            $_POST["ankle_able_to_bear_weight_steps"],
+            ($_POST["ankle_ottawa_bone_tenderness"] ?? null),
+            ($_POST["ankle_able_to_bear_weight_steps"] ?? null),
             $_POST["ankle_x_ray_interpretation"],
             $_POST["ankle_additional_x_ray_notes"],
             $_POST["ankle_diagnosis1"],
