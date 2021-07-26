@@ -55,7 +55,7 @@ $formid = $_GET['id'];
 
 // If Save was clicked, save the info.
 //
-if ($_POST['bn_save']) {
+if (!empty($_POST['bn_save'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -63,8 +63,8 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-        $query = "UPDATE form_body_composition SET 
-        body_type = ?, height = ?, weight = ?, bmi = ?, bmr = ?, impedance = ?, 
+        $query = "UPDATE form_body_composition SET
+        body_type = ?, height = ?, weight = ?, bmi = ?, bmr = ?, impedance = ?,
         fat_pct = ?, fat_mass = ?, ffm = ?, tbw = ?, other = ? WHERE id = ?";
 
         sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
@@ -73,9 +73,9 @@ if ($_POST['bn_save']) {
 
         sqlStatement($query);
     } else { // If adding a new form...
-        $query = "INSERT INTO form_body_composition 
-          ( body_type, height, weight, bmi, bmr, impedance, 
-          fat_pct, fat_mass, ffm, tbw, other ) 
+        $query = "INSERT INTO form_body_composition
+          ( body_type, height, weight, bmi, bmr, impedance,
+          fat_pct, fat_mass, ffm, tbw, other )
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $newid = sqlInsert($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
@@ -96,19 +96,21 @@ if ($formid) {
     "id = ? AND activity = '1'", array($formid));
 } else {
  // Get the most recent scale reading.
-    $items = explode(',', trim(file_get_contents($scale_file_name)));
-    if ($items && count($items) > 11) {
-        $scale_file_age = round((time() - filemtime($scale_file_name)) / 60);
-        $row['body_type'] = $items[0] ? 'Athletic' : 'Standard';
-        $row['height']    = $items[2];
-        $row['weight']    = $items[3];
-        $row['bmi']       = $items[10];
-        $row['bmr']       = $items[11];
-        $row['impedance'] = $items[4];
-        $row['fat_pct']   = $items[5];
-        $row['fat_mass']  = $items[6];
-        $row['ffm']       = $items[7];
-        $row['tbw']       = $items[8];
+    if (file_exists($scale_file_name)) {
+        $items = explode(',', trim(file_get_contents($scale_file_name)));
+        if ($items && count($items) > 11) {
+            $scale_file_age = round((time() - filemtime($scale_file_name)) / 60);
+            $row['body_type'] = $items[0] ? 'Athletic' : 'Standard';
+            $row['height'] = $items[2];
+            $row['weight'] = $items[3];
+            $row['bmi'] = $items[10];
+            $row['bmr'] = $items[11];
+            $row['impedance'] = $items[4];
+            $row['fat_pct'] = $items[5];
+            $row['fat_mass'] = $items[6];
+            $row['ffm'] = $items[7];
+            $row['tbw'] = $items[8];
+        }
     }
 }
 ?>
