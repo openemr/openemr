@@ -228,7 +228,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -273,7 +273,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
                 $searchField = $this->createSearchParameterForField($fhirSearchField, $searchValue);
                 $oeSearchParameters[$searchField->getName()] = $searchField;
             } catch (\InvalidArgumentException $exception) {
-                throw new SearchFieldException($fhirSearchField, "The search field argument was invalid, improperly formatted, or could not be parsed", $exception->getCode(), $exception);
+                $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
+                . " Inner message: " . $exception->getMessage();
+                throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
             }
         }
 

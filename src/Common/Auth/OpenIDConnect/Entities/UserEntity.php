@@ -51,7 +51,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             }
             $fhirUser = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir/" . $fhirUserResource . "/" . $this->identifier;
 
-            (new SystemLogger())->debug("fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
+            (new SystemLogger())->debug("UserEntity->getClaims() fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
 
             $user = $uuidToUser->getUserAccount();
             if (empty($user)) {

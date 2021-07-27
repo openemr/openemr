@@ -26,7 +26,7 @@ class FhirCodeSystemConstants
 
     const PROVIDER_NPI = "http://hl7.org/fhir/sid/us-npi";
 
-    public const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
+    const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
 
     const LOINC = "http://loinc.org";
 
@@ -53,4 +53,6 @@ class FhirCodeSystemConstants
 
     // @see http://hl7.org/fhir/R4/valueset-observation-interpretation.html
     const HL7_V3_OBSERVATION_INTERPRETATION = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
+
+    const HL7_ICD10 = "http://hl7.org/fhir/sid/icd-10";
 }

@@ -971,6 +971,10 @@ class AuthorizationController
 
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes)
     {
+        $this->logger->debug(
+            "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
+            ['userApprovedScopes' => $approvedScopes ]
+        );
         $requestScopes = $request->getScopes();
         $scopeUpdates = [];
         // we only allow scopes from the original session request, if user approved scope it will show up here.
@@ -1034,10 +1038,12 @@ class AuthorizationController
         $code = $request->getParsedBody()['code'] ?? null;
         // grantType could be authorization_code, password or refresh_token.
         $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->logger->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             $_SESSION = json_decode($ssbc['session_cache'], true);
+            $this->logger->debug("AuthorizationController->oauthAuthorizeToken() restored session user from code ", ['session' => $_SESSION]);
         }
         // TODO: explore why we create the request again...
         if ($this->grantType === 'refresh_token') {
