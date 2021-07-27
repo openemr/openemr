@@ -11,16 +11,19 @@
 namespace OpenEMR\Services\FHIR\Procedure;
 
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProcedureService;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -29,6 +32,7 @@ use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
@@ -67,7 +71,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['order_uuid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -82,6 +86,13 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $openEMRSearchParameters = is_array($openEMRSearchParameters) ? $openEMRSearchParameters : [];
         $openEMRSearchParameters['procedure_type'] = new StringSearchField('procedure_type',
             [self::PROCEDURE_ORDER_TEST_TYPE], SearchModifier::NOT_EQUALS_EXACT);
+
+        // we only want records where a report is created as we go off the individual report_uuid
+        if (!isset($openEMRSearchParameters['report_uuid']))
+        {
+            // make sure we only return results with a matching report.
+            $openEMRSearchParameters['report_uuid'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)], SearchModifier::MISSING);
+        }
         return $this->service->search($openEMRSearchParameters);
     }
 
@@ -97,12 +108,15 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
     {
         $procedureResource = new FHIRProcedure();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $procedureResource->setMeta($meta);
 
+        $report = array_pop($dataRecord['reports']);
+
         $id = new FHIRId();
-        // TODO: @adunsulag this right now is procedure_order.uuid... do we want procedure_report.uuid instead?
-        $id->setValue($dataRecord['uuid']);
+        $id->setValue($report['uuid']);
         $procedureResource->setId($id);
 
         if (!empty($dataRecord['patient']['uuid']))
@@ -139,6 +153,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         // then we HAVE to go with standard code or report back nothing...
         if (!empty($dataRecord['code']) || !empty($dataRecord['standard_code'])) {
             $description = $codesService->lookup_code_description($dataRecord['code']);
+            $description = !empty($description) ? $description : null; // we can get an "" string back from lookup
             $system = $codesService->getSystemForCode($dataRecord['code']) ?? null;
 
             // if we can't go with our system we HAVE to use a LOINC code
@@ -153,43 +168,60 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             $procedureResource->setCode(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
-        // date and status are in the reports...
-
-        $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_UNKNOWN;
-        $date = null;
-        if (!empty($dataRecord['reports']))
-        {
-            $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
-            foreach ($dataRecord['reports'] as $report) {
-                $date = $report['date'];
-                if (!empty($report['results'])) {
-                    foreach ($report['results'] as $result) {
-                        if ($result['status'] != 'final') {
-                            $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_IN_PROGRESS;
-                            break;
-                        }
-                    }
+        $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
+        if (!empty($report['results'])) {
+            foreach ($report['results'] as $result) {
+                if ($result['status'] != 'final') {
+                    $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_IN_PROGRESS;
+                    break;
                 }
             }
         }
         $procedureResource->setStatus($status);
 
 
-        if (!empty($date)) {
-            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($date)));
+        if (!empty( $report['date'])) {
+            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($report['date'])));
         } else {
             $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
         }
 
-        if (!empty($dataRecord['report_notes'])) {
+        if (!empty($report['notes'])) {
             $annotation = new FHIRAnnotation();
-            $annotation->setText($dataRecord['report_notes']);
+            $annotation->setText($report['notes']);
         }
 
         if ($encode) {
             return json_encode($procedureResource);
         } else {
             return $procedureResource;
+        }
+    }
+
+    /**
+     * Creates the Provenance resource  for the equivalent FHIR Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function createProvenanceResource($dataRecord, $encode = false)
+    {
+        if (!($dataRecord instanceof FHIRProcedure)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $reference = null;
+        if (!empty($dataRecord->getPerformer()) && count($dataRecord->getPerformer()) == 1)
+        {
+            $dataRecord->getPerformer()[0]->getActor();
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $reference);
+
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
         }
     }
 }

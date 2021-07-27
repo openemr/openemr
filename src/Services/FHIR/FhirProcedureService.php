@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * FHIR Procedure Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirProcedureService
+ * @package            OpenEMR
+ * @link               http://www.open-emr.org
+ * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @author             Stephen Nielson <stephen@nielson.org>
+ * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright          Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
@@ -13,19 +26,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-/**
- * FHIR Procedure Service
- *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirProcedureService
- * @package            OpenEMR
- * @link               http://www.open-emr.org
- * @author             Yash Bothra <yashrajbothra786gmail.com>
- * @author             Stephen Nielson <stephen@nielson.org>
- * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
- * @copyright          Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-class FhirProcedureService extends FhirServiceBase
+class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     use MappedServiceTrait;
     use PatientSearchTrait;
@@ -39,6 +40,8 @@ class FhirProcedureService extends FhirServiceBase
     const PROCEDURE_STATUS_COMPLETED = "completed";
     const PROCEDURE_STATUS_PENDING = "pending";
     const PROCEDURE_STATUS_CANCELLED = "cancelled";
+
+
 
     /**
      * @var ProcedureService
@@ -106,8 +109,17 @@ class FhirProcedureService extends FhirServiceBase
         return $this->processResults($procedureResult, $surgeryResult);
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    public function getProfileURIs(): array
     {
-        // TODO: If Required in Future
+        return [
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure'
+        ];
     }
 }

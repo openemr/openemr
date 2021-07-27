@@ -19,12 +19,14 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirProcedureService;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\SurgeryService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -54,7 +56,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['begdate']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
 
@@ -117,8 +119,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $codes = explode(";", $dataRecord['diagnosis']);
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($codes as $code) {
-                $description = $codesService->lookup_code_description($code) ?? '';
-                $system = $codesService->getSystemForCodeType($code);
+                $description = $codesService->lookup_code_description($code);
+                $description = !empty($description) ? $description : null; // we can get an "" string back from lookup
+                $system = $codesService->getSystemForCode($code);
                 $diagnosisCode->addCoding(UtilsService::createCoding($code, $description, $system));
             }
             $procedureResource->setCode($diagnosisCode);
@@ -136,6 +139,28 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             return json_encode($procedureResource);
         } else {
             return $procedureResource;
+        }
+    }
+
+    /**
+     * Creates the Provenance resource  for the equivalent FHIR Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function createProvenanceResource($dataRecord, $encode = false)
+    {
+        if (!($dataRecord instanceof FHIRProcedure)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
         }
     }
 }

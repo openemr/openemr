@@ -18,6 +18,7 @@ class CodeTypesService
     private $snomedInstalled;
 
     const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
+    const CODE_TYPE_SNOMED = "SNOMED";
     const CODE_TYPE_CPT4 = "CPT4";
     const CODE_TYPE_LOINC = "LOINC";
     const CODE_TYPE_NUCC = "NUCC";
@@ -84,6 +85,8 @@ class CodeTypesService
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
+                $system = FhirCodeSystemConstants::SNOMED_CT;
+            } else if (self::CODE_TYPE_SNOMED == $codeType) {
                 $system = FhirCodeSystemConstants::SNOMED_CT;
             } elseif (self::CODE_TYPE_NUCC == $codeType) {
                 $system = FhirCodeSystemConstants::NUCC_PROVIDER;

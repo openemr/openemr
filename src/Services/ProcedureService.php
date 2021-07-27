@@ -331,6 +331,7 @@ class ProcedureService extends BaseService
                     'date' => $record['report_date']
                     , 'id' => $record['procedure_report_id']
                     , 'uuid' => $record['report_uuid']
+                    , 'notes' => $record['report_notes']
                     , 'results' => []
                 ];
                 $procedure['reports'][] = $reportUuid;
