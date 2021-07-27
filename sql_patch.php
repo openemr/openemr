@@ -54,13 +54,13 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
     upgradeFromSqlFile('patch.sql');
     flush();
 
-    echo '<p style="font-weight:bold; text-align:left; color:green">' . "Going to update UUIDs (this could take some time)" . '</p>\n';
+    echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
     flush_echo();
     $updateUuidLog = UuidRegistry::populateAllMissingUuids();
     if (!empty($updateUuidLog)) {
-        echo "<p class='text-success'>Updated UUIDs: " . $updateUuidLog . "</p><br />\n";
+        echo "Updated UUIDs: " . text($updateUuidLog) . "</p>\n";
     } else {
-        echo "<p class='text-success'>Did not need to update or add any new UUIDs</p><br />\n";
+        echo "Did not need to update or add any new UUIDs</p>\n";
     }
     flush_echo();
 

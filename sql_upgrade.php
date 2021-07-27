@@ -334,7 +334,7 @@ function pausePoll(othis) {
             flush_echo();
             $updateUuidLog = UuidRegistry::populateAllMissingUuids();
             if (!empty($updateUuidLog)) {
-                echo "Updated UUIDs: " . $updateUuidLog . "</p><br />\n";
+                echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
             } else {
                 echo "Did not need to update or add any new UUIDs</p><br />\n";
             }
