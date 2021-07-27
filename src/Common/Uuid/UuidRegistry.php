@@ -116,8 +116,8 @@ class UuidRegistry
     // Generic function to update all missing uuids (to be primarily used in service that is run intermittently in addition to upgrade/patch mechanism)
     // When add support for a new table uuid, need to add it here
     //  Will log by default
-    //  Will not return log by default
-    public static function populateAllMissingUuids($log = true, $returnLog = false)
+    //  Will return log or false
+    public static function populateAllMissingUuids($log = true)
     {
         $logEntryComment = '';
 
@@ -143,8 +143,10 @@ class UuidRegistry
         }
 
         // return it
-        if ($returnLog && !empty($logEntryComment)) {
+        if (!empty($logEntryComment)) {
             return $logEntryComment;
+        } else {
+            return false;
         }
     }
 

@@ -56,7 +56,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
 
     echo '<p style="font-weight:bold; text-align:left; color:green">' . "Going to update UUIDs (this could take some time)" . '</p>\n';
     flush_echo();
-    $updateUuidLog = UuidRegistry::populateAllMissingUuids(false, true);
+    $updateUuidLog = UuidRegistry::populateAllMissingUuids();
     if (!empty($updateUuidLog)) {
         echo "<p class='text-success'>Updated UUIDs: " . $updateUuidLog . "</p><br />\n";
     } else {
