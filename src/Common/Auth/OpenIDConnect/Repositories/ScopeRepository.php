@@ -193,9 +193,12 @@ class ScopeRepository implements ScopeRepositoryInterface
         $finalizedScopeNames[] = $siteScope->getIdentifier();
         $finalizedScopes[] = $siteScope;
 
-            $this->logger->debug("ScopeRepository->finalizeScopes() scopes finalized ",
-            ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
-                , 'initialScopes' => $scopeListNames]);
+            $this->logger->debug(
+                "ScopeRepository->finalizeScopes() scopes finalized ",
+                ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
+                ,
+                'initialScopes' => $scopeListNames]
+            );
         return $finalizedScopes;
     }
 

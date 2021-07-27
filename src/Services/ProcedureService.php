@@ -288,8 +288,7 @@ class ProcedureService extends BaseService
 
                     , 'reports' => []
                 ];
-                if (!empty($record['provider_id']))
-                {
+                if (!empty($record['provider_id'])) {
                     $procedure['provider'] = [
                         'id' => $record['provider_id']
                         ,'uuid' => $record['provider_uuid']

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirProcedureOEProcedureService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Procedure;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
@@ -84,12 +84,14 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         $openEMRSearchParameters = is_array($openEMRSearchParameters) ? $openEMRSearchParameters : [];
-        $openEMRSearchParameters['procedure_type'] = new StringSearchField('procedure_type',
-            [self::PROCEDURE_ORDER_TEST_TYPE], SearchModifier::NOT_EQUALS_EXACT);
+        $openEMRSearchParameters['procedure_type'] = new StringSearchField(
+            'procedure_type',
+            [self::PROCEDURE_ORDER_TEST_TYPE],
+            SearchModifier::NOT_EQUALS_EXACT
+        );
 
         // we only want records where a report is created as we go off the individual report_uuid
-        if (!isset($openEMRSearchParameters['report_uuid']))
-        {
+        if (!isset($openEMRSearchParameters['report_uuid'])) {
             // make sure we only return results with a matching report.
             $openEMRSearchParameters['report_uuid'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)], SearchModifier::MISSING);
         }
@@ -119,12 +121,9 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $id->setValue($report['uuid']);
         $procedureResource->setId($id);
 
-        if (!empty($dataRecord['patient']['uuid']))
-        {
+        if (!empty($dataRecord['patient']['uuid'])) {
             $procedureResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid']));
-        }
-        else
-        {
+        } else {
             $procedureResource->setSubject(UtilsService::createDataMissingExtension());
         }
 
@@ -132,8 +131,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             $procedureResource->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
         }
 
-        if (!empty($dataRecord['provider']['uuid']))
-        {
+        if (!empty($dataRecord['provider']['uuid'])) {
             $performer = new FHIRProcedurePerformer();
             $performer->setActor(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid']));
             $procedureResource->addPerformer($performer);
@@ -159,10 +157,11 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             // if we can't go with our system we HAVE to use a LOINC code
             if (!empty($system)) {
                 $procedureResource->setCode(UtilsService::createCodeableConcept([$dataRecord['code'] => $description], $system));
-            }
-            else {
-                $procedureResource->setCode(UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']]
-                    , FhirCodeSystemConstants::LOINC));
+            } else {
+                $procedureResource->setCode(UtilsService::createCodeableConcept(
+                    [$dataRecord['standard_code'] => $dataRecord['name']],
+                    FhirCodeSystemConstants::LOINC
+                ));
             }
         } else {
             $procedureResource->setCode(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -180,7 +179,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $procedureResource->setStatus($status);
 
 
-        if (!empty( $report['date'])) {
+        if (!empty($report['date'])) {
             $procedureResource->setPerformedDateTime(gmdate('c', strtotime($report['date'])));
         } else {
             $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
@@ -212,8 +211,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $reference = null;
-        if (!empty($dataRecord->getPerformer()) && count($dataRecord->getPerformer()) == 1)
-        {
+        if (!empty($dataRecord->getPerformer()) && count($dataRecord->getPerformer()) == 1) {
             $dataRecord->getPerformer()[0]->getActor();
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $reference);

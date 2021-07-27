@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirProcedureSurgeryService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Procedure;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -91,12 +91,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $procedureResource->setId($id);
-        if (!empty($dataRecord['puuid']))
-        {
+        if (!empty($dataRecord['puuid'])) {
             $procedureResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
-        }
-        else
-        {
+        } else {
             $procedureResource->setSubject(UtilsService::createDataMissingExtension());
         }
 
