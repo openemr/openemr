@@ -45,6 +45,7 @@ require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\VersionService;
 
@@ -328,6 +329,16 @@ function pausePoll(othis) {
                 upgradeFromSqlFile('patch.sql');
             }
             flush();
+
+            echo "<br /><p class='text-success'>Going to update UUIDs (this could take some time)<br />\n";
+            flush_echo();
+            $updateUuidLog = UuidRegistry::populateAllMissingUuids(false, true);
+            if (!empty($updateUuidLog)) {
+                echo "Updated UUIDs: " . $updateUuidLog . "</p><br />\n";
+            } else {
+                echo "Did not need to update or add any new UUIDs</p><br />\n";
+            }
+            flush_echo();
 
             echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
             $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff

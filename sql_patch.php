@@ -26,6 +26,7 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VersionService;
 
 // Force logging off
@@ -52,6 +53,16 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
     <?php
     upgradeFromSqlFile('patch.sql');
     flush();
+
+    echo '<p style="font-weight:bold; text-align:left; color:green">' . "Going to update UUIDs (this could take some time)" . '</p>\n';
+    flush_echo();
+    $updateUuidLog = UuidRegistry::populateAllMissingUuids(false, true);
+    if (!empty($updateUuidLog)) {
+        echo "<p class='text-success'>Updated UUIDs: " . $updateUuidLog . "</p><br />\n";
+    } else {
+        echo "<p class='text-success'>Did not need to update or add any new UUIDs</p><br />\n";
+    }
+    flush_echo();
 
     echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
     $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
