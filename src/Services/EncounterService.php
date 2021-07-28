@@ -69,7 +69,8 @@ class EncounterService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'];
+        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
+            , 'facility_location_uuid', 'billing_location_uuid'];
     }
 
     /**
@@ -143,10 +144,12 @@ class EncounterService extends BaseService
                        facilities.facility_id,
                        facilities.facility_uuid,
                        facilities.facility_name,
+                       facilities.facility_location_uuid,
 
                        fa.billing_facility_id,
                        fa.billing_facility_uuid,
                        fa.billing_facility_name,
+                       fa.billing_location_uuid,
                 
                        fe.provider_id,
                        providers.provider_uuid,
@@ -184,10 +187,13 @@ class EncounterService extends BaseService
                        LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        LEFT JOIN (
                            select
-                                id AS billing_facility_id
-                                ,uuid AS billing_facility_uuid
-                                ,`name` AS billing_facility_name
+                                facility.id AS billing_facility_id
+                                ,facility.uuid AS billing_facility_uuid
+                                ,facility.`name` AS billing_facility_name
+                                ,locations.uuid AS billing_location_uuid
                            from facility
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
                            select
@@ -206,10 +212,13 @@ class EncounterService extends BaseService
                        ) providers ON fe.provider_id = providers.provider_provider_id
                        LEFT JOIN (
                            select
-                                id AS facility_id
-                                ,uuid AS facility_uuid
-                                ,`name` AS facility_name
+                                facility.id AS facility_id
+                                ,facility.uuid AS facility_uuid
+                                ,facility.`name` AS facility_name
+                                ,`locations`.`uuid` AS facility_location_uuid
                            from facility
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) facilities ON facilities.facility_id = fe.facility_id";
 
         try {

@@ -10,6 +10,7 @@ use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterHospitalization;
+use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterLocation;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
@@ -168,13 +169,19 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         }
 
         // SHALL support either location.location OR serviceProvider
+        // however ONC inferno requires both serviceProvider AND location.location
         // location.location - must support
-
         // serviceProvider - must support
         if (!empty($dataRecord['facility_uuid'])) {
             $encounterResource->setServiceProvider(UtilsService::createRelativeReference('Organization', $dataRecord['facility_uuid']));
 
             // grab the facility location address
+            if (!empty($dataRecord['facility_location_uuid']))
+            {
+                $location = new FHIREncounterLocation();
+                $location->setLocation(UtilsService::createRelativeReference("Location", $dataRecord['facility_location_uuid']));
+                $encounterResource->addLocation($location);
+            }
         }
 
         if ($encode) {
