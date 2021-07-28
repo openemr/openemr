@@ -128,7 +128,6 @@ class EncounterService extends BaseService
                        fe.last_level_closed,
                        fe.last_stmt_date,
                        fe.stmt_count,
-                       fe.provider_id,
                        fe.supervisor_id,
                        fe.invoice_refno,
                        fe.referral_source,
@@ -147,7 +146,12 @@ class EncounterService extends BaseService
 
                        fa.billing_facility_id,
                        fa.billing_facility_uuid,
-                       fa.billing_facility_name
+                       fa.billing_facility_name,
+                
+                       fe.provider_id,
+                       providers.provider_uuid,
+                       providers.provider_username
+                       
 
                        FROM (
                            select
@@ -193,13 +197,13 @@ class EncounterService extends BaseService
                        ) patient ON fe.pid = patient.pid
                        LEFT JOIN (
                            select
-                                id AS provider_id
+                                id AS provider_provider_id
                                 ,uuid AS provider_uuid
-                                ,`username` AS provider_name
+                                ,`username` AS provider_username
                             FROM users
                             WHERE
                                 npi IS NOT NULL and npi != ''
-                       ) providers ON fe.provider_id = providers.provider_id
+                       ) providers ON fe.provider_id = providers.provider_provider_id
                        LEFT JOIN (
                            select
                                 id AS facility_id
@@ -231,6 +235,16 @@ class EncounterService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $record = parent::createResultRecordFromDatabaseResult($row);
+        // TODO: @adunsulag how are we supporting the different discharge dispositions as seen here:
+        // http://hl7.org/fhir/R4/valueset-encounter-discharge-disposition.html
+        $record['discharge_disposition'] = "home";
+        $record['discharge_disposition_text'] = "Home";
+        return $record;
     }
 
     /**
