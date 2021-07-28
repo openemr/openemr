@@ -19,6 +19,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirLocationRestController
 {
+    /**
+     * @var FhirLocationService
+     */
     private $fhirLocationService;
     private $fhirService;
 
@@ -35,8 +38,7 @@ class FhirLocationRestController
      */
     public function getOne($fhirId)
     {
-        $processingResult = $this->fhirLocationService->getOne($fhirId);
-        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+        return $this->getAll(['_id' => $fhirId]);
     }
 
     /**

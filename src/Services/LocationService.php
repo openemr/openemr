@@ -12,8 +12,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Uuid\UuidMapping;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -32,6 +34,11 @@ class LocationService extends BaseService
         UuidMapping::createMissingResourceUuids("Location", self::PATIENT_TABLE);
         UuidMapping::createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
         UuidMapping::createMissingResourceUuids("Location", self::FACILITY_TABLE);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
     }
 
     /**
@@ -60,7 +67,8 @@ class LocationService extends BaseService
                     phone_cell as phone,
                     null as fax,
                     null as website,
-                    email from patient_data
+                    email from patient_data,
+                    `type` AS "patient"
                 UNION SELECT
                     uuid as target_uuid,
                     name,
@@ -72,7 +80,8 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     website,
-                    email from facility
+                    email from facility,
+                   `type` AS "facility"
                 UNION SELECT
                     uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
@@ -84,26 +93,22 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     url as website,
-                    email from users) as location
+                    email from users
+                    `type` AS "user"
+            ) as location
                     LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
 
-        if (!empty($search)) {
-            $sql .= ' WHERE ';
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                array_push($whereClauses, $fieldName . ' = ?');
-                array_push($sqlBindArray, $fieldValue);
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-        }
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $processingResult->addData($row);
+        foreach ($statementResults as $result)
+        {
+            $record = $this->createResultRecordFromDatabaseResult($result);
+            $processingResult->addData($record);
         }
 
         return $processingResult;

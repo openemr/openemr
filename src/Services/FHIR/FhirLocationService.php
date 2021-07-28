@@ -12,10 +12,14 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\LocationService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirLocationService extends FhirServiceBase
@@ -37,7 +41,9 @@ class FhirLocationService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [];
+        return  [
+            '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)])
+        ];
     }
 
     /**
@@ -60,43 +66,44 @@ class FhirLocationService extends FhirServiceBase
 
         $locationResource->setStatus("active");
 
-        $locationResource->setAddress(array(
-            'line' => [$dataRecord['street']],
-            'city' => $dataRecord['city'],
-            'state' => $dataRecord['state'],
-            'postalCode' => $dataRecord['postal_code'],
-        ));
-
+        // TODO: what is this `s Home thing, seems really wierd... and its not documented
         if (!empty($dataRecord['name'] && $dataRecord['name'] != "`s Home")) {
             $locationResource->setName($dataRecord['name']);
+        } else {
+            $locationResource->setName(UtilsService::createDataMissingExtension());
         }
 
-        if (!empty($dataRecord['phone'])) {
-            $phone = new FHIRContactPoint();
-            $phone->setSystem('phone');
-            $phone->setValue($dataRecord['phone']);
-            $locationResource->addTelecom($phone);
-        }
+        // TODO: @brady.miller is this the right security ACL for a facilities organization?
+        if ($this->shouldIncludeContactInformationForLocationType($dataRecord['type'])) {
+            $locationResource->setAddress(UtilsService::createAddressFromRecord($dataRecord));
 
-        if (!empty($dataRecord['fax'])) {
-            $fax = new FHIRContactPoint();
-            $fax->setSystem('fax');
-            $fax->setValue($dataRecord['fax']);
-            $locationResource->addTelecom($fax);
-        }
+            if (!empty($dataRecord['phone'])) {
+                $phone = new FHIRContactPoint();
+                $phone->setSystem('phone');
+                $phone->setValue($dataRecord['phone']);
+                $locationResource->addTelecom($phone);
+            }
 
-        if (!empty($dataRecord['website'])) {
-            $url = new FHIRContactPoint();
-            $url->setSystem('website');
-            $url->setValue($dataRecord['website']);
-            $locationResource->addTelecom($url);
-        }
+            if (!empty($dataRecord['fax'])) {
+                $fax = new FHIRContactPoint();
+                $fax->setSystem('fax');
+                $fax->setValue($dataRecord['fax']);
+                $locationResource->addTelecom($fax);
+            }
 
-        if (!empty($dataRecord['email'])) {
-            $email = new FHIRContactPoint();
-            $email->setSystem('email');
-            $email->setValue($dataRecord['email']);
-            $locationResource->addTelecom($email);
+            if (!empty($dataRecord['website'])) {
+                $url = new FHIRContactPoint();
+                $url->setSystem('website');
+                $url->setValue($dataRecord['website']);
+                $locationResource->addTelecom($url);
+            }
+
+            if (!empty($dataRecord['email'])) {
+                $email = new FHIRContactPoint();
+                $email->setSystem('email');
+                $email->setValue($dataRecord['email']);
+                $locationResource->addTelecom($email);
+            }
         }
 
         if ($encode) {
@@ -135,5 +142,23 @@ class FhirLocationService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    private function shouldIncludeContactInformationForLocationType($type)
+    {
+        if ($type == 'patient')
+        {
+            // only those with access to a patient's demographic information can get their data
+            return AclMain::aclCheckCore("patients", "demo") !== false;
+        }
+        else if ($type == 'user')
+        {
+            // only those with access to the user information can get address information about a user.
+            return AclMain::aclCheckCore('admin', 'users') !== false;
+        }
+        else {
+            // facilities we just let all contact information be displayed for the location.
+            return true;
+        }
     }
 }
