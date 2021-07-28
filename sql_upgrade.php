@@ -204,26 +204,34 @@ function progressStatus(msg = '') {
     let progressEl = document.getElementById('progress');
 
     if (currentVersion == "UUID") {
-        if (processProgress < 40) {
+        if (processProgress < 30) {
             processProgress++;
-        } else if (processProgress < 60) {
-            if (Math.random() > 0.5) {
-                processProgress++;
-            }
-        } else if (processProgress < 70) {
-            if (Math.random() > 0.6) {
-                processProgress++;
-            }
-        } else if (processProgress < 80) {
-            if (Math.random() > 0.8) {
-                processProgress++;
-            }
-        } else if (processProgress < 90) {
+        } else if (processProgress < 40) {
             if (Math.random() > 0.9) {
                 processProgress++;
             }
-        } else if (processProgress < 99) {
+        } else if (processProgress < 50) {
             if (Math.random() > 0.95) {
+                processProgress++;
+            }
+        } else if (processProgress < 60) {
+            if (Math.random() > 0.97) {
+                processProgress++;
+            }
+        } else if (processProgress < 70) {
+            if (Math.random() > 0.98) {
+                processProgress++;
+            }
+        } else if (processProgress < 80) {
+            if (Math.random() > 0.99) {
+                processProgress++;
+            }
+        } else if (processProgress < 96) {
+            if (Math.random() > 0.999) {
+                processProgress++;
+            }
+        } else if (processProgress < 99) {
+            if (Math.random() > 0.9999) {
                 processProgress++;
             }
         }
