@@ -112,6 +112,7 @@ class VitalsService extends BaseService
                     ,vitals.ped_weight_height
                     ,vitals.ped_bmi
                     ,vitals.ped_head_circ
+                    ,vitals.inhaled_oxygen_concentration
                     ,details.details_id
                     ,details.interpretation_list_id
                     ,details.interpretation_option_id
@@ -124,7 +125,8 @@ class VitalsService extends BaseService
                         id,uuid,`user`,groupname,authorized,activity,external_id
                          ,`date`,note
                         ,bpd,bps,weight,height,temperature,temp_method,pulse,respiration,BMI,BMI_status,waist_circ
-                         ,head_circ,oxygen_saturation,oxygen_flow_rate,ped_weight_height,ped_bmi,ped_head_circ
+                         ,head_circ,oxygen_saturation,oxygen_flow_rate,inhaled_oxygen_concentration
+                         , ped_weight_height,ped_bmi,ped_head_circ
                     FROM
                         form_vitals
                  ) vitals
@@ -260,6 +262,7 @@ class VitalsService extends BaseService
         $convertArrayValue('bps', $identity, 'mm[Hg]', $record);
         $convertArrayValue('bpd', $identity, 'mm[Hg]', $record);
 
+        $convertArrayValue('inhaled_oxygen_concentration', $identity, 'L/min', $record);
         $convertArrayValue('oxygen_saturation', $identity, '%', $record);
         $convertArrayValue('oxygen_flow_rate', $identity, 'L/min', $record);
         $convertArrayValue('ped_weight_height', $identity, '%', $record);

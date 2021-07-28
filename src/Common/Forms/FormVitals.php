@@ -71,6 +71,7 @@ class FormVitals extends ORDataObject
     public $ped_bmi;
     public $ped_head_circ;
     public $uuid;
+    public $inhaled_oxygen_concentration;
 
     /**
      * @var FormVitalDetails[]
@@ -381,6 +382,20 @@ class FormVitals extends ORDataObject
             $this->oxygen_flow_rate = $o;
         } else {
             $this->oxygen_flow_rate = 0.00;
+        }
+    }
+
+    public function get_inhaled_oxygen_concentration()
+    {
+        return $this->inhaled_oxygen_concentration;
+    }
+
+    public function set_inhaled_oxygen_concentration($value)
+    {
+        if (!empty($value) && is_numeric($value)) {
+            $this->inhaled_oxygen_concentration = $value;
+        } else {
+            $this->inhaled_oxygen_concentration = 0.00;
         }
     }
 
