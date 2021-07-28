@@ -57,8 +57,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 $value = "yes";
             }
 
-            if ($key == 'inhaled_oxygen_concentration')
-            {
+            if ($key == 'inhaled_oxygen_concentration') {
                 $value .= " %";
             }
 
