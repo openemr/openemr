@@ -203,8 +203,36 @@ function progressStatus(msg = '') {
     let eventList = document.getElementById('status-message');
     let progressEl = document.getElementById('progress');
 
-    progressEl.style.width = processProgress + "%";
-    progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+    if (currentVersion == "UUID") {
+        if (processProgress < 40) {
+            processProgress++;
+        } else if (processProgress < 60) {
+            if (Math.random() > 0.5) {
+                processProgress++;
+            }
+        } else if (processProgress < 70) {
+            if (Math.random() > 0.6) {
+                processProgress++;
+            }
+        } else if (processProgress < 80) {
+            if (Math.random() > 0.8) {
+                processProgress++;
+            }
+        } else if (processProgress < 90) {
+            if (Math.random() > 0.9) {
+                processProgress++;
+            }
+        } else if (processProgress < 99) {
+            if (Math.random() > 0.95) {
+                processProgress++;
+            }
+        }
+        progressEl.style.width = processProgress + "%";
+        progressEl.innerHTML = processProgress + "%" + " UUID Update";
+    } else {
+        progressEl.style.width = processProgress + "%";
+        progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+    }
     if (msg) {
         eventList.innerHTML += msg;
         doScrolls();
@@ -330,15 +358,16 @@ function pausePoll(othis) {
             }
             flush();
 
-            echo "<br /><p class='text-success'>Going to update UUIDs (this could take some time)<br />\n";
-            flush_echo();
+            echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
+            flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
             $updateUuidLog = UuidRegistry::populateAllMissingUuids();
             if (!empty($updateUuidLog)) {
                 echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
             } else {
                 echo "Did not need to update or add any new UUIDs</p><br />\n";
             }
-            flush_echo();
+            sleep(2); // fixes odd bug, where if process goes to fast, then the polling does not stop
+            flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
             echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
             $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
