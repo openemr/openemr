@@ -262,7 +262,7 @@ class VitalsService extends BaseService
         $convertArrayValue('bps', $identity, 'mm[Hg]', $record);
         $convertArrayValue('bpd', $identity, 'mm[Hg]', $record);
 
-        $convertArrayValue('inhaled_oxygen_concentration', $identity, 'L/min', $record);
+        $convertArrayValue('inhaled_oxygen_concentration', $identity, '%', $record);
         $convertArrayValue('oxygen_saturation', $identity, '%', $record);
         $convertArrayValue('oxygen_flow_rate', $identity, 'L/min', $record);
         $convertArrayValue('ped_weight_height', $identity, '%', $record);

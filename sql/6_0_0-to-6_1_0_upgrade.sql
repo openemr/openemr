@@ -899,5 +899,5 @@ UPDATE `list_options` SET `notes` = '{"form_datetime":{"futureDate":{"message": 
 #EndIf
 
 #IfMissingColumn form_vitals inhaled_oxygen_concentration
-ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(5,2) DEFAULT '0.00';
+ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00';
 #EndIf
