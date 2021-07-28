@@ -27,8 +27,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceService;
 
-//$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
-$debug = 1;
+$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
 $encount = 0;
 
@@ -156,12 +155,21 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
 // TODO: Sort colors here for Bootstrap themes
 function era_callback_check(&$out)
 {
-    global $InsertionId;//last inserted ID of
+    // last inserted ID of ar_session table
+    global $InsertionId;
     global $StringToEcho,$debug;
 
     if ($_GET['original'] == 'original') {
-        $StringToEcho .= "<table class='table' cellpadding='0' cellspacing='0' width='750'>";
-        $StringToEcho .= "<tr class='table-light'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
+        $StringToEcho .= "<table class='table'>";
+        $StringToEcho .= "<thead>";
+        $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Check Number') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Payee Name') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Payer Name') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Check Amount') . "</th>";
+        $StringToEcho .= "</tr>";
+        $StringToEcho .= "</thead>";
+        $StringToEcho .= "<tbody>";
         $WarningFlag = false;
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
             if ($check_count % 2 == 1) {
@@ -170,28 +178,33 @@ function era_callback_check(&$out)
                 $bgcolor = '#ffdddd';
             }
 
-             $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+            $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+
             if (sqlNumRows($rs) > 0) {
                 $bgcolor = '#ff0000';
                 $WarningFlag = true;
             }
 
             $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
-            $StringToEcho .= "<td><input type='checkbox' id='chk" . attr($out['check_number' . $check_count]);
-            $StringToEcho .= "' value='" . attr($out['check_number' . $check_count]) . "'>" . text($out['check_number' . $check_count]) . "</td>";
+            $StringToEcho .= "<th scope='row'>";
+            $StringToEcho .= "<input type='checkbox' value='' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
+            $StringToEcho .= "<label for='chk" . attr($out['check_number' . $check_count]) . "'>";
+            $StringToEcho .= "&nbsp" . text($out['check_number' . $check_count]) . "</label>";
+            $StringToEcho .= "</th>";
             $StringToEcho .= "<td>" . text($out['payee_name' . $check_count]) . "</td>";
-            $StringToEcho .= "<td align='right'>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
+            $StringToEcho .= "<td>" . text($out['payer_name' . $check_count]) . "</td>";
+            $StringToEcho .= "<td>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
             $StringToEcho .= "</tr>";
         }
 
         $StringToEcho .= "<tr class='table-light'><td align='left'><button type='button' class='btn btn-secondary btn-save' name='Submit1' onclick='checkAll(true)'>" . xlt('Check All') . "</button></td>";
         $StringToEcho .= "<td><input type='submit' name='CheckSubmit' value='Submit'/></td>";
         $StringToEcho .= "</tr>";
- 
+
         if ($WarningFlag == true) {
             $StringToEcho .= "<tr class='table-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
-
+        $StringToEcho .= "</tbody>";
         $StringToEcho .= "</table>";
     } else {
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
@@ -210,8 +223,8 @@ function era_callback(&$out)
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
-    global $InsertionId;//last inserted ID of
-
+    // last inserted ID of ar_session table
+    global $InsertionId;
 
     // Some heading information.
     $chk_123 = $out['check_number'];
@@ -710,7 +723,6 @@ if (!$debug) {
 <form action="sl_eob_process.php" method="get">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<center>
 <?php
 if ($_GET['original'] == 'original') {
     $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
@@ -780,7 +792,6 @@ if ($_GET['original'] == 'original') {
     <?php
 }
 ?>
-</center>
 <script>
 <?php
 if ($alertmsg) {

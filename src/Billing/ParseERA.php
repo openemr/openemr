@@ -472,7 +472,7 @@ class ParseERA
         return '';
     }
 
-    //for getting the check details and provider details
+    // for getting the check details and provider details
     public static function parseERAForCheck($filename)
     {
         $delimiter1 = '~';
@@ -521,6 +521,10 @@ class ParseERA
                 $out['check_amount' . $check_count] = trim($seg[2]);
                 $out['check_date' . $check_count] = trim($seg[16]); // yyyymmdd
                 // TBD: BPR04 is a payment method code.
+            } elseif ($segid == 'N1' && $seg[1] == 'PR') {
+                //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
+                $out['loopid'] = '1000A';
+                $out['payer_name' . $check_count] = trim($seg[2]);
             } elseif ($segid == 'N1' && $seg[1] == 'PE') {
                 //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
                 $out['loopid'] = '1000B';
