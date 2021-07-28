@@ -57,6 +57,10 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 $value = "yes";
             }
 
+            if ($key == 'inhaled_oxygen_concentration') {
+                $value .= " %";
+            }
+
             $key = ucwords(str_replace("_", " ", $key));
 
             //modified by BM 06-2009 for required translation

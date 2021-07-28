@@ -897,3 +897,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 #IfRow2D list_options list_id page_validation option_id messages#new_note
 UPDATE `list_options` SET `notes` = '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}, "note":{"presence": {"message": "Please enter a note"}}}' where option_id = 'messages#new_note';
 #EndIf
+
+#IfMissingColumn form_vitals inhaled_oxygen_concentration
+ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00';
+#EndIf
