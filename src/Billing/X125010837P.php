@@ -826,7 +826,7 @@ class X125010837P
             $out .= "NM1" .     // Loop 2310A Referring Provider
             "*" . "DN" .
             "*" . "1" .
-            "*" . $claim->referrerLastName() .        
+            "*" . $claim->referrerLastName() .
             "*";
             if ($claim->referrerFirstName()) {
                 $out .= $claim->referrerFirstName();
