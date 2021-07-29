@@ -23,6 +23,10 @@ class FhirLocationRestController
      * @var FhirLocationService
      */
     private $fhirLocationService;
+
+    /**
+     * @var FhirResourcesService
+     */
     private $fhirService;
 
     public function __construct()
@@ -38,7 +42,8 @@ class FhirLocationRestController
      */
     public function getOne($fhirId)
     {
-        return $this->getAll(['_id' => $fhirId]);
+        $processingResult = $this->fhirLocationService->getOne($fhirId);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
