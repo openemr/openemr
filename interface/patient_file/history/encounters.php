@@ -646,7 +646,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                         $arlinkend = "";
                         if ($billing_view) {
                                 $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                            "pid = ? AND encounter = ?", array($pid,$result4['encounter']));
+                                            "pid = ? AND encounter = ?", array($pid, $result4['encounter']));
                                 $arid = 0 + $tmp['id'];
                             if ($arid) {
                                 $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);

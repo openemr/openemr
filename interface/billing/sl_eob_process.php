@@ -159,10 +159,10 @@ function era_callback_check(&$out)
     global $InsertionId;
     global $StringToEcho,$debug;
 
-    if ($_GET['original'] == 'original') {
+    if (!empty($_GET['original']) && $_GET['original'] == 'original') {
         $StringToEcho .= "<table class='table'>";
         $StringToEcho .= "<thead>";
-        $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
+        $StringToEcho .= "<tr>";
         $StringToEcho .= "<th scope='col'>" . xlt('Check Number') . "</th>";
         $StringToEcho .= "<th scope='col'>" . xlt('Payee Name') . "</th>";
         $StringToEcho .= "<th scope='col'>" . xlt('Payer Name') . "</th>";
@@ -187,7 +187,7 @@ function era_callback_check(&$out)
 
             $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
             $StringToEcho .= "<th scope='row'>";
-            $StringToEcho .= "<input type='checkbox' value='' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
+            $StringToEcho .= "<input type='checkbox' name='chk" . attr($out['check_number' . $check_count]) . "' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
             $StringToEcho .= "<label for='chk" . attr($out['check_number' . $check_count]) . "'>";
             $StringToEcho .= "&nbsp" . text($out['check_number' . $check_count]) . "</label>";
             $StringToEcho .= "</th>";
@@ -417,7 +417,7 @@ function era_callback(&$out)
                         $description,
                         $debug,
                         '',
-                        $codetype
+                        $codetype ?? ''
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -572,7 +572,7 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype
+                            $codetype ?? ''
                         );
                         $invoice_total -= $adj['amount'];
                     }
@@ -724,7 +724,7 @@ if (!$debug) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
-if ($_GET['original'] == 'original') {
+if (!empty($_GET['original']) && $_GET['original'] == 'original') {
     $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
@@ -764,20 +764,22 @@ if ($_GET['original'] == 'original') {
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
-        foreach ($InsertionId as $key => $value) {
-            $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
-            $row = sqlFetchArray($rs);
-            $pay_total = $row['pay_total'];
-            $rs = sqlQ(
-                "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
-                array($value)
-            );
-            $row = sqlFetchArray($rs);
-            $pay_amount = $row['sum_pay_amount'];
+        if (is_countable($InsertionId)) {  
+            foreach ($InsertionId as $key => $value) {
+                $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+                $row = sqlFetchArray($rs);
+                $pay_total = $row['pay_total'];
+                $rs = sqlQ(
+                    "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
+                    array($value)
+                );
+                $row = sqlFetchArray($rs);
+                $pay_amount = $row['sum_pay_amount'];
 
-            if (($pay_total - $pay_amount) <> 0) {
-                $StringIssue .= $key . ' ';
-                $StringPrint = 'Yes';
+                if (($pay_total - $pay_amount) <> 0) {
+                    $StringIssue .= $key . ' ';
+                    $StringPrint = 'Yes';
+                }
             }
         }
 

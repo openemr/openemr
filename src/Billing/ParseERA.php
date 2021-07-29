@@ -346,8 +346,7 @@ class ParseERA
                 $out['loopid'] = '2110';
                 if ($seg[6] ?? null) {
                     // SVC06 if present is our original procedure code that they are changing.
-                    // We will not put their crap in our invoice, but rather log a note and
-                    // treat it as adjustments to our originally submitted coding.
+                    // We will log a note and treat it as adjustments to our originally submitted coding.
                     $svc = explode($delimiter3, $seg[6]);
                     $tmp = explode($delimiter3, $seg[1]);
                     $out['warnings'] .= "Payer is restating our procedure " . $svc[1] .
@@ -367,12 +366,12 @@ class ParseERA
                 if (strlen($svc[1]) == 7 && empty($svc[2])) {
                     $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
                     $out['svc'][$i]['mod'] = substr($svc[1], 5);
-                } elseif (!empty($svc2)) {
+                } else {
                     $out['svc'][$i]['code'] = $svc[1];
-                    $out['svc'][$i]['mod'] = $svc[2] ? $svc[2] . ':' : '';
-                    $out['svc'][$i]['mod'] .= $svc[3] ? $svc[3] . ':' : '';
-                    $out['svc'][$i]['mod'] .= $svc[4] ? $svc[4] . ':' : '';
-                    $out['svc'][$i]['mod'] .= $svc[5] ? $svc[5] . ':' : '';
+                    $out['svc'][$i]['mod'] = isset($svc[2]) ? $svc[2] . ':' : '';
+                    $out['svc'][$i]['mod'] .= isset($svc[3]) ? $svc[3] . ':' : '';
+                    $out['svc'][$i]['mod'] .= isset($svc[4]) ? $svc[4] . ':' : '';
+                    $out['svc'][$i]['mod'] .= isset($svc[5]) ? $svc[5] . ':' : '';
                     $out['svc'][$i]['mod'] = preg_replace('/:$/', '', $out['svc'][$i]['mod']);
                 }
 

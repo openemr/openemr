@@ -2844,7 +2844,7 @@ function generate_plaintext_field($frow, $currvalue)
             "WHERE list_id = ? AND option_id = ? AND activity = 1",
             array($list_id, $currvalue)
         );
-        $s = xl_list_label($lrow['title']);
+        $s = xl_list_label($lrow['title'] ?? '');
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43
         if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
