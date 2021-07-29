@@ -764,7 +764,7 @@ if (!empty($_GET['original']) && $_GET['original'] == 'original') {
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
-        if (is_countable($InsertionId)) {  
+        if (is_countable($InsertionId)) {
             foreach ($InsertionId as $key => $value) {
                 $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
                 $row = sqlFetchArray($rs);
