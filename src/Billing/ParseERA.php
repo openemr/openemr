@@ -33,7 +33,8 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             $paytotal = $out['amount_approved'];
-            $adjtotal = $out['amount_charged'] - $out['amount_approved'] - $out['amount_patient'];
+            $pattotal = (int)$out['amount_patient'];
+            $adjtotal = $out['amount_charged'] - $paytotal - $pattotal;
             foreach ($out['svc'] as $svc) {
                 $paytotal -= $svc['paid'];
                 foreach ($svc['adj'] as $adj) {
@@ -180,7 +181,7 @@ class ParseERA
                 }
                 $out['loopid'] = '1000A';
                 $out['payer_name'] = trim($seg[2]);
-                $out['payer_id'] = trim($seg[4]); // will be overwritten if in REF*2U below
+                $out['payer_id'] = trim($seg[4] ?? null); // will be overwritten if in REF*2U below
             } elseif ($segid == 'N3' && $out['loopid'] == '1000A') {
                 $out['payer_street'] = trim($seg[1]);
                 // TBD: N302 may exist as an additional address line.
@@ -343,7 +344,7 @@ class ParseERA
                 }
 
                 $out['loopid'] = '2110';
-                if ($seg[6]) {
+                if ($seg[6] ?? null) {
                     // SVC06 if present is our original procedure code that they are changing.
                     // We will not put their crap in our invoice, but rather log a note and
                     // treat it as adjustments to our originally submitted coding.
@@ -366,7 +367,7 @@ class ParseERA
                 if (strlen($svc[1]) == 7 && empty($svc[2])) {
                     $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
                     $out['svc'][$i]['mod'] = substr($svc[1], 5);
-                } else {
+                } elseif (!empty($svc2)) {
                     $out['svc'][$i]['code'] = $svc[1];
                     $out['svc'][$i]['mod'] = $svc[2] ? $svc[2] . ':' : '';
                     $out['svc'][$i]['mod'] .= $svc[3] ? $svc[3] . ':' : '';
@@ -388,7 +389,7 @@ class ParseERA
             } elseif ($segid == 'CAS' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
                 for ($k = 2; $k < 20; $k += 3) {
-                    if (!$seg[$k]) {
+                    if (empty($seg[$k])) {
                         break;
                     }
 
@@ -471,7 +472,7 @@ class ParseERA
         return '';
     }
 
-    //for getting the check details and provider details
+    // for getting the check details and provider details
     public static function parseERAForCheck($filename)
     {
         $delimiter1 = '~';
@@ -520,6 +521,10 @@ class ParseERA
                 $out['check_amount' . $check_count] = trim($seg[2]);
                 $out['check_date' . $check_count] = trim($seg[16]); // yyyymmdd
                 // TBD: BPR04 is a payment method code.
+            } elseif ($segid == 'N1' && $seg[1] == 'PR') {
+                //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
+                $out['loopid'] = '1000A';
+                $out['payer_name' . $check_count] = trim($seg[2]);
             } elseif ($segid == 'N1' && $seg[1] == 'PE') {
                 //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
                 $out['loopid'] = '1000B';
@@ -529,7 +534,7 @@ class ParseERA
                 //if ($out['loopid']) return 'Unexpected TRN segment';
                 $out['check_number' . $check_count] = trim($seg[2]);
                 $out['payer_tax_id' . $check_count] = substr($seg[3], 1); // 9 digits
-                $out['payer_id' . $check_count] = trim($seg[4]);
+                $out['payer_id' . $check_count] = trim($seg[4] ?? null);
                 // Note: TRN04 further qualifies the paying entity within the
                 // organization identified by TRN03.
             }

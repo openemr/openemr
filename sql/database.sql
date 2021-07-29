@@ -2199,6 +2199,7 @@ CREATE TABLE `form_vitals` (
   `ped_weight_height` float(4,1) default '0.00',
   `ped_bmi` float(4,1) default '0.00',
   `ped_head_circ` float(4,1) default '0.00',
+  `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`)

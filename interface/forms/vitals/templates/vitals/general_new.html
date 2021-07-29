@@ -201,6 +201,9 @@ function vitalsFormSubmitted() {
                                 {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
                                     input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate" }
 
+                                {include file="vitals_textbox.tpl" title="Inhaled Oxygen Concentration" unit="%"
+                                    input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration" }
+
                                 { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
                                     vitals=$vitals vitalsValue="get_head_circ" vitalsValueMetric="get_head_circ_metric"
                                     unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
