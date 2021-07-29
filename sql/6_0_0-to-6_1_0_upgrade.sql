@@ -70,13 +70,6 @@
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
 
---  #IfUuidNeedUpdate
---    argument: table_name
---    behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
-
---  #IfMappingUuidNeedUpdate
---    behavior: this will populate the mapping_uuid table
-
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
@@ -104,42 +97,6 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
-#IfUuidNeedUpdate patient_data
-#EndIf
-
-#IfUuidNeedUpdate form_encounter
-#EndIf
-
-#IfUuidNeedUpdate users
-#EndIf
-
-#IfUuidNeedUpdate facility_user_ids
-#EndIf
-
-#IfUuidNeedUpdate facility
-#EndIf
-
-#IfUuidNeedUpdate immunizations
-#EndIf
-
-#IfUuidNeedUpdate lists
-#EndIf
-
-#IfUuidNeedUpdate procedure_order
-#EndIf
-
-#IfUuidNeedUpdate drugs
-#EndIf
-
-#IfUuidNeedUpdate prescriptions
-#EndIf
-
-#IfUuidNeedUpdate procedure_result
-#EndIf
-
-#IfUuidNeedUpdate ccda
-#EndIf
-
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -148,18 +105,12 @@ ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `insurance_companies` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate insurance_companies
-#EndIf
-
 #IfMissingColumn insurance_data uuid
 ALTER TABLE `insurance_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfNotIndex insurance_data uuid
 CREATE UNIQUE INDEX `uuid` ON `insurance_data` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate insurance_data
 #EndIf
 
 #IfMissingColumn facility weno_id
@@ -740,9 +691,6 @@ ALTER TABLE `form_vitals` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 CREATE UNIQUE INDEX `uuid` ON `form_vitals` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate form_vitals
-#EndIf
-
 #IfMissingColumn uuid_mapping resource_path
 ALTER TABLE `uuid_mapping` ADD `resource_path` VARCHAR(255) DEFAULT NULL;
 #EndIf
@@ -767,9 +715,6 @@ ALTER TABLE `history_data` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 CREATE UNIQUE INDEX `uuid` ON `history_data` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate history_data
-#EndIf
-
 #IfMissingColumn form_clinical_notes form_id
 ALTER TABLE `form_clinical_notes` CHANGE `id` `form_id` bigint(20) NOT NULL;
 ALTER TABLE `form_clinical_notes` ADD COLUMN `id` bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
@@ -783,18 +728,12 @@ ALTER TABLE `form_clinical_notes` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 CREATE UNIQUE INDEX `uuid` ON `form_clinical_notes` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate form_clinical_notes
-#EndIf
-
 #IfMissingColumn documents uuid
 ALTER TABLE `documents` ADD `uuid` binary(16) DEFAULT NULL AFTER `id`;
 #EndIf
 
 #IfNotIndex documents uuid
 CREATE UNIQUE INDEX `uuid` ON `documents` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate documents
 #EndIf
 
 #IfNotRow list_options list_id Clinical_Note_Category
@@ -827,18 +766,12 @@ ALTER TABLE `procedure_report` ADD `uuid` binary(16) DEFAULT NULL AFTER `procedu
 CREATE UNIQUE INDEX `uuid` ON `procedure_report` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate procedure_report
-#EndIf
-
 #IfMissingColumn procedure_providers uuid
 ALTER TABLE `procedure_providers` ADD `uuid` binary(16) DEFAULT NULL AFTER `ppid`;
 #EndIf
 
 #IfNotIndex procedure_providers uuid
 CREATE UNIQUE INDEX `uuid` ON `procedure_providers` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate procedure_providers
 #EndIf
 
 #IfMissingColumn patient_data dupscore
@@ -888,10 +821,6 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
-#EndIf
-
-
-#IfMappingUuidNeedUpdate
 #EndIf
 
 #IfRow2D list_options list_id page_validation option_id messages#new_note

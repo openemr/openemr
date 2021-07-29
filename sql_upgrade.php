@@ -45,6 +45,7 @@ require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\VersionService;
 
@@ -202,8 +203,44 @@ function progressStatus(msg = '') {
     let eventList = document.getElementById('status-message');
     let progressEl = document.getElementById('progress');
 
-    progressEl.style.width = processProgress + "%";
-    progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+    if (currentVersion == "UUID") {
+        if (processProgress < 30) {
+            processProgress++;
+        } else if (processProgress < 40) {
+            if (Math.random() > 0.9) {
+                processProgress++;
+            }
+        } else if (processProgress < 50) {
+            if (Math.random() > 0.95) {
+                processProgress++;
+            }
+        } else if (processProgress < 60) {
+            if (Math.random() > 0.97) {
+                processProgress++;
+            }
+        } else if (processProgress < 70) {
+            if (Math.random() > 0.98) {
+                processProgress++;
+            }
+        } else if (processProgress < 80) {
+            if (Math.random() > 0.99) {
+                processProgress++;
+            }
+        } else if (processProgress < 96) {
+            if (Math.random() > 0.999) {
+                processProgress++;
+            }
+        } else if (processProgress < 99) {
+            if (Math.random() > 0.9999) {
+                processProgress++;
+            }
+        }
+        progressEl.style.width = processProgress + "%";
+        progressEl.innerHTML = processProgress + "%" + " UUID Update";
+    } else {
+        progressEl.style.width = processProgress + "%";
+        progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+    }
     if (msg) {
         eventList.innerHTML += msg;
         doScrolls();
@@ -328,6 +365,17 @@ function pausePoll(othis) {
                 upgradeFromSqlFile('patch.sql');
             }
             flush();
+
+            echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
+            flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
+            $updateUuidLog = UuidRegistry::populateAllMissingUuids();
+            if (!empty($updateUuidLog)) {
+                echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
+            } else {
+                echo "Did not need to update or add any new UUIDs</p><br />\n";
+            }
+            sleep(2); // fixes odd bug, where if process goes to fast, then the polling does not stop
+            flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
             echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
             $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
