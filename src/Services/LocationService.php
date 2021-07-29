@@ -111,8 +111,7 @@ class LocationService extends BaseService
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
-        foreach ($statementResults as $result)
-        {
+        foreach ($statementResults as $result) {
             $record = $this->createResultRecordFromDatabaseResult($result);
             $processingResult->addData($record);
         }

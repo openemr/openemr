@@ -554,7 +554,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
                                 foreach ($dischargeDisposiitons as $dispositon) {
                                     $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
-                                ?>
+                                    ?>
                                 <option value="<?php echo $dispositon['option_id']; ?>" <?php echo $selected; ?> ><?php echo $dispositon['title']; ?></option>
                                 <?php } ?>
                             </select>

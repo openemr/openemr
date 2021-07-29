@@ -146,17 +146,13 @@ class FhirLocationService extends FhirServiceBase
 
     private function shouldIncludeContactInformationForLocationType($type)
     {
-        if ($type == 'patient')
-        {
+        if ($type == 'patient') {
             // only those with access to a patient's demographic information can get their data
             return AclMain::aclCheckCore("patients", "demo") !== false;
-        }
-        else if ($type == 'user')
-        {
+        } else if ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return AclMain::aclCheckCore('admin', 'users') !== false;
-        }
-        else {
+        } else {
             // facilities we just let all contact information be displayed for the location.
             return true;
         }

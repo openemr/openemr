@@ -104,23 +104,21 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $class->setCode($dataRecord['class_code']);
             $class->setDisplay($dataRecord['class_title']);
             $encounterResource->setClass($class);
-        }
-        else
-        {
+        } else {
             $encounterResource->setClass(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
         // TODO: @adunsulag check with @brady.miller and find out if this really is the only possible encounter type...  it was here originally
-        $type = UtilsService::createCodeableConcept([self::ENCOUNTER_TYPE_CHECK_UP => self::ENCOUNTER_TYPE_CHECK_UP_DESCRIPTION]
-            , FhirCodeSystemConstants::SNOMED_CT);
+        $type = UtilsService::createCodeableConcept(
+            [self::ENCOUNTER_TYPE_CHECK_UP => self::ENCOUNTER_TYPE_CHECK_UP_DESCRIPTION],
+            FhirCodeSystemConstants::SNOMED_CT
+        );
         $encounterResource->addType($type);
 
         // subject - required
         if (!empty($dataRecord['puuid'])) {
             $encounterResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
-        }
-        else
-        {
+        } else {
             $encounterResource->setSubject(UtilsService::createDataMissingExtension());
         }
 
@@ -163,8 +161,10 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $text = $dataRecord['discharge_disposition_text'];
 
             $hospitalization = new FHIREncounterHospitalization();
-            $hospitalization->setDischargeDisposition(UtilsService::createCodeableConcept([$code => $text],
-                FhirCodeSystemConstants::HL7_DISCHARGE_DISPOSITION));
+            $hospitalization->setDischargeDisposition(UtilsService::createCodeableConcept(
+                [$code => $text],
+                FhirCodeSystemConstants::HL7_DISCHARGE_DISPOSITION
+            ));
             $encounterResource->setHospitalization($hospitalization);
         }
 
@@ -176,8 +176,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $encounterResource->setServiceProvider(UtilsService::createRelativeReference('Organization', $dataRecord['facility_uuid']));
 
             // grab the facility location address
-            if (!empty($dataRecord['facility_location_uuid']))
-            {
+            if (!empty($dataRecord['facility_location_uuid'])) {
                 $location = new FHIREncounterLocation();
                 $location->setLocation(UtilsService::createRelativeReference("Location", $dataRecord['facility_location_uuid']));
                 $encounterResource->addLocation($location);
