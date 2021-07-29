@@ -63,7 +63,9 @@ var allergyIntoleranceObservation = exports.allergyIntoleranceObservation = {
             dataKey: 'intolerance',
             existsWhen: condition.codeOrDisplayname,
             required: true
-        }, {
+        },
+        fieldLevel.author,
+        {
             key: "participant",
             attributes: {
                 "typeCode": "CSM"

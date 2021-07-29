@@ -754,7 +754,7 @@ ALTER TABLE `form_clinical_notes` ADD COLUMN `clinical_notes_category` varchar(1
 #EndIf
 
 
-#IfRow3D list_options list_id Clinical_Note_Type option_id consultation_note notes LOINC:11488-4
+#IfRow3D list_options list_id Clinical_Note_Type option_id consultation_note notes LOINC:81222-2
 UPDATE `list_options` SET notes="LOINC:11488-4" WHERE list_id="Clinical_Note_Type" AND option_id="consultation_note" AND notes="LOINC:81222-2";
 #EndIf
 
@@ -830,3 +830,5 @@ UPDATE `list_options` SET `notes` = '{"form_datetime":{"futureDate":{"message": 
 #IfMissingColumn form_vitals inhaled_oxygen_concentration
 ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00';
 #EndIf
+
+UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_id` = 'Clinical_Note_Type' AND `list_options`.`option_id` = 'laboratory_report_narrative';

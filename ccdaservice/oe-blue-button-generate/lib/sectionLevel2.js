@@ -81,7 +81,7 @@ exports.allergiesSectionEntriesRequired = function (htmlHeader, na) {
                 fieldLevel.templateCode("AllergiesSection"),
                 fieldLevel.templateTitle("AllergiesSection"), {
                     key: "text",
-                    text: "No known Allergies and Intolerances",
+                    text: "No Known Allergies",
                     existsWhen: condition.keyDoesntExist("allergies")
                 },
                 htmlHeader, {
@@ -443,6 +443,7 @@ exports.socialHistorySection = function (htmlHeader, na) {
                 },
                 htmlHeader, {
                     key: "entry",
+                    existsWhen: condition.propertyNotEmpty("value"),
                     attributes: {
                         typeCode: "DRIV"
                     },

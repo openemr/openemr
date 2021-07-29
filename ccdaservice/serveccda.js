@@ -20,6 +20,7 @@ var all = "";
 var npiProvider = "";
 var npiFacility = "";
 var webRoot = "";
+var authorDate = '';
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
@@ -51,6 +52,8 @@ function fDate(str, lim8 = false) {
         return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-')
     } else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
         // maybe a real time so parse
+    } else {
+
     }
 
     return str;
@@ -64,7 +67,7 @@ function getPrecision(str) {
         return "day";
     }
     if (str.length > 8) {
-        pflg = "minute";
+        pflg = "day";
     }
     if (str.length > 12) {
         pflg = "second";
@@ -137,6 +140,8 @@ function populateDemographic(pd, g) {
     }
     return {
         "name": {
+            "prefix": pd.prefix,
+            "suffix": pd.suffix,
             "middle": [pd.mname] || "",
             "last": pd.lname,
             "first": pd.fname
@@ -173,6 +178,9 @@ function populateDemographic(pd, g) {
             }, {
                 "number": pd.phone_mobile,
                 "type": "primary mobile"
+            }, {
+                "email": pd.email,
+                "type": "contact_email"
             }
         ],
         "ethnicity": pd.ethnicity || "",
@@ -314,11 +322,11 @@ function populateMedication(pd) {
             "low": {
                 "date": fDate(pd.start_date),
                 "precision": "day"
-            },
+            }/*,
             "high": {
                 "date": fDate(pd.end_date),
                 "precision": "day"
-            }
+            }*/
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
@@ -335,14 +343,31 @@ function populateMedication(pd) {
             "product": {
                 "name": pd.drug,
                 "code": cleanCode(pd.rxnorm),
+                "code_system_name": "RXNORM"
                 /*"translations": [{
                     "name": pd.drug,
                     "code": pd.rxnorm,
                     "code_system_name": "RXNORM"
                 }],*/
-                "code_system_name": "RXNORM"
             },
             //"manufacturer": ""
+        },
+        "author": {
+            "date_time": {
+                "point": {
+                    "date": fDate(authorDate),
+                    "precision": getPrecision(fDate(pd.start_date))
+                }
+            },
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": pd.npi || ""
+            }],
+            "name": {
+                "prefix": pd.title,
+                "last": pd.lname,
+                "first": pd.fname
+            }
         },
         "supply": {
             "date_time": {
@@ -639,10 +664,27 @@ function populateAllergy(pd) {
                 "identifier": pd.sha_extension || "2a620155-9d11-439e-92b3-5d9815ff4ee8",
                 "extension": pd.id + 1 || ""
             }],
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": authorDate,
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            },
             "allergen": {
                 "name": pd.title,
-                "code": cleanCode(pd.rxnorm_code) ? cleanCode(pd.rxnorm_code) : cleanCode(pd.snomed_code) ? cleanCode(pd.snomed_code) : cleanCode(pd.diagnosis_code),
-                "code_system_name": cleanCode(pd.rxnorm_code) ? "RXNORM" : cleanCode(pd.snomed_code) ? "SNOMED CT" : "ICD-10-CM"
+                "code": pd.rxnorm_code_text ? cleanCode(pd.rxnorm_code) : pd.snomed_code_text ? cleanCode(pd.snomed_code) : cleanCode(pd.diagnosis_code),
+                "code_system_name": pd.rxnorm_code_text ? "RXNORM" : pd.snomed_code_text ? "SNOMED CT" : "ICD-10-CM"
             },
             "date_time": {
                 "low": {
@@ -728,6 +770,23 @@ function populateProblem(pd) {
                     "date": fDate(pd.end_date),
                     "precision": getPrecision()
                 }*/
+            }
+        },
+        "author": {
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": all.primary_care_provider.npi || "123456789"
+            }],
+            "date_time": {
+                "point": {
+                    "date": authorDate,
+                    "precision": "day"
+                }
+            },
+            "name": {
+                "prefix": all.primary_care_provider.provider.prefix,
+                "last": all.primary_care_provider.provider.lname,
+                "first": all.primary_care_provider.provider.fname,
             }
         },
         "performer": [
@@ -1050,12 +1109,12 @@ function getPlanOfCare(pd) {
         }
     }
     if (one) {
-        let value = encounter.encounter_diagnosis || "";
+        let value = all.encounter_list.encounter.encounter_diagnosis || "";
         name = value.text;
         code = cleanCode(value.code);
         code_system_name = value.code_type;
         status = value.status;
-        encounter = encounter;
+        encounter = all.encounter_list.encounter;
     }
 
     return {
@@ -1282,7 +1341,7 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": getPrecision(fDate(pd.effectivetime))
+                "precision": "day"
             }
         },
         // our list of vitals per organizer.
@@ -1300,12 +1359,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bps) || pd.bps,
-            "unit": "mm[Hg]"
+            "unit": "mm[Hg]",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1320,12 +1396,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bpd) || pd.bpd,
-            "unit": "mm[Hg]"
+            "unit": "mm[Hg]",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1340,12 +1433,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.height) || pd.height,
-            "unit": pd.unit_height
+            "unit": pd.unit_height,
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1360,12 +1470,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.weight) || "",
-            "unit": pd.unit_weight
+            "unit": pd.unit_weight,
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1380,12 +1507,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
-            "interpretations": [pd.BMI_status == 'Overweight' ? 'High' : 'Normal'],
+            "interpretations": [pd.BMI_status == 'Overweight' ? 'High' : pd.BMI_status == 'Overweight' ? 'Low' : 'Normal'],
             "value": parseFloat(pd.BMI) || "",
-            "unit": "kg/m2"
+            "unit": "kg/m2",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1400,12 +1544,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.pulse) || "",
-            "unit": "/min"
+            "unit": "/min",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.2",
@@ -1420,12 +1581,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.breath) || "",
-            "unit": "/min"
+            "unit": "/min",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.3",
@@ -1440,12 +1618,29 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.temperature) || "",
-            "unit": pd.unit_temperature
+            "unit": pd.unit_temperature,
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1460,12 +1655,177 @@ function populateVital(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.effectivetime),
-                    "precision": getPrecision(fDate(pd.effectivetime))
+                    "precision": "day"
                 }
             },
             "interpretations": ["Normal"],
             "value": parseFloat(pd.oxygen_saturation) || "",
-            "unit": "%"
+            "unit": "%",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_ped_weight_height
+            }],
+            "vital": { // --------------------------------------------------------------------------------
+                "name": "Weight for Height Percentile",
+                "code": "77606-2",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.ped_weight_height) || "",
+            "unit": "%",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_inhaled_oxygen_concentration
+            }],
+            "vital": {
+                "name": "Inhaled Oxygen Concentration",
+                "code": "3150-0",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.inhaled_oxygen_concentration) || "",
+            "unit": "%",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_ped_bmi
+            }],
+            "vital": {
+                "name": "BMI Percentile",
+                "code": "59576-9",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.ped_bmi) || "",
+            "unit": "%",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
+        }, {
+            "identifiers": [{
+                "identifier": pd.sha_extension,
+                "extension": pd.extension_ped_head_circ
+            }],
+            "vital": {
+                "name": "Head Occipital-frontal Circumference Percentile",
+                "code": "8289-1",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": parseFloat(pd.ped_head_circ) || "",
+            "unit": "%",
+            "author": {
+                "identifiers": [{
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": all.primary_care_provider.npi || "123456789"
+                }],
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.effectivetime),
+                        "precision": "day"
+                    }
+                },
+                "name": {
+                    "prefix": all.primary_care_provider.provider.prefix,
+                    "last": all.primary_care_provider.provider.lname,
+                    "first": all.primary_care_provider.provider.fname,
+                }
+            }
         }
         ]
     }
@@ -1484,6 +1844,7 @@ function populateSocialHistory(pd) {
         "code": {
             "name": pd.code
         },
+        "element": pd.element,
         "value": pd.description,
         "gender": all.patient.gender
     };
@@ -1730,7 +2091,7 @@ function populateNote(pd) {
             "date_time": {
                 "point": {
                     "date": fDate(pd.date_formatted),
-                    "precision": "minute"
+                    "precision": "day"
                 }
             },
             "name": {
@@ -2058,9 +2419,15 @@ function genCcda(pd) {
 
     all = pd;
     npiProvider = all.primary_care_provider.provider.npi;
-    oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.3.8888.999999";
+    oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = all.encounter_provider.facility_npi;
     webRoot = all.serverRoot;
+
+    if (all.encounter_list.encounter.date) {
+        authorDate = all.encounter_list.encounter.date;
+    } else if (all.encounter_list.encounter[0].date) {
+        authorDate = all.encounter_list.encounter[0].date;
+    }
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.

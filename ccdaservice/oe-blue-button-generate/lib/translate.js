@@ -65,9 +65,9 @@ var precisionToFormat = {
     month: 'YYYYMM',
     day: 'YYYYMMDD',
     hour: 'YYYYMMDDHH',
-    minute: 'YYYYMMDDHHMM',
+    minute: 'YYYYMMDDHHmm',
     second: 'YYYYMMDDHHmmss',
-    subsecond: 'YYYYMMDDHHmmss.SSS'
+    tz: 'YYYYMMDDHHmmZZ'
 };
 
 exports.time = function (input) {
@@ -96,6 +96,9 @@ var acronymize = exports.acronymize = function (string) {
     if (ret === "HA") {
         ret = "H";
     }
+    if (ret === "CE") {
+        ret = "EM";
+    }
     return ret;
 };
 
@@ -111,6 +114,11 @@ exports.telecom = function (input) {
                     if (phone.type) {
                         attrs.use = acronymize(phone.type);
                     }
+                    r.push(attrs);
+                } else if (phone && phone.email) {
+                    var attrs = {
+                        value: "mailto:" + phone.email
+                    };
                     r.push(attrs);
                 }
                 return r;
