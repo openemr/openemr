@@ -67,8 +67,10 @@ class LocationService extends BaseService
                     phone_cell as phone,
                     null as fax,
                     null as website,
-                    email from patient_data,
-                    `type` AS "patient"
+                    email,
+                    "patient" AS `type`
+                from 
+                    patient_data
                 UNION SELECT
                     uuid as target_uuid,
                     name,
@@ -80,8 +82,10 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     website,
-                    email from facility,
-                   `type` AS "facility"
+                    email,
+                   "facility" AS `type`
+                from 
+                     facility
                 UNION SELECT
                     uuid as target_uuid,
                     CONCAT(fname,"\'s Home") as name,
@@ -93,10 +97,12 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     url as website,
-                    email from users
-                    `type` AS "user"
+                    email,
+                    "user" AS `type`
+                from 
+                     users
             ) as location
-                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
+            LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
