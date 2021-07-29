@@ -542,6 +542,26 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             ?>
                         </div>
                     </div>
+                    <!-- Discharge Disposition -->
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
+                                <?php
+                                $dischargeListDisposition = new \OpenEMR\Services\ListService();
+                                $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
+                                foreach ($dischargeDisposiitons as $dispositon) {
+                                    $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
+                                ?>
+                                <option value="<?php echo $dispositon['option_id']; ?>" <?php echo $selected; ?> ><?php echo $dispositon['title']; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm"></div>
+                    </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row mt-2">
                         <div class="col-sm-2">

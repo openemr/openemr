@@ -153,7 +153,9 @@ class EncounterService extends BaseService
                 
                        fe.provider_id,
                        providers.provider_uuid,
-                       providers.provider_username
+                       providers.provider_username,
+                       fe.discharge_disposition,
+                       discharge_list.discharge_disposition_text
                        
 
                        FROM (
@@ -179,6 +181,7 @@ class EncounterService extends BaseService
                                pos_code,
                                class_code,
                                facility_id,
+                               discharge_disposition,
                                pid
                            FROM form_encounter
                        ) fe
@@ -219,7 +222,13 @@ class EncounterService extends BaseService
                            from facility
                            LEFT JOIN uuid_mapping AS locations 
                                ON locations.target_uuid = facility.uuid AND locations.resource='Location'
-                       ) facilities ON facilities.facility_id = fe.facility_id";
+                       ) facilities ON facilities.facility_id = fe.facility_id
+                       LEFT JOIN (
+                           select option_id AS discharge_option_id
+                           ,title AS discharge_disposition_text
+                           FROM list_options
+                           WHERE list_id = 'discharge-disposition'
+                       ) discharge_list ON fe.discharge_disposition = discharge_list.discharge_option_id";
 
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -244,16 +253,6 @@ class EncounterService extends BaseService
         }
 
         return $processingResult;
-    }
-
-    protected function createResultRecordFromDatabaseResult($row)
-    {
-        $record = parent::createResultRecordFromDatabaseResult($row);
-        // TODO: @adunsulag how are we supporting the different discharge dispositions as seen here:
-        // http://hl7.org/fhir/R4/valueset-encounter-discharge-disposition.html
-        $record['discharge_disposition'] = "home";
-        $record['discharge_disposition_text'] = "Home";
-        return $record;
     }
 
     /**
