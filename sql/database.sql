@@ -1813,7 +1813,7 @@ CREATE TABLE `form_encounter` (
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   `shift` varchar(31) NOT NULL DEFAULT '',
   `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
-  `discharge_disposition` varchar(100) NULL DEFAULT NULL
+  `discharge_disposition` varchar(100) NULL DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
