@@ -54,13 +54,13 @@ var vitalSignObservation = {
             key: "interpretationCode",
             attributes: leafLevel.codeFromName("2.16.840.1.113883.5.83"),
             dataKey: "interpretations"
-        }
+        },
+        fieldLevel.author
     ],
     notImplemented: [
         "constant statusCode",
         "methodCode",
-        "targetSiteCode",
-        "author"
+        "targetSiteCode"
     ]
 };
 

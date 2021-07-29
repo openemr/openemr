@@ -283,35 +283,7 @@ var representedOrganization = {
             dataKey: "name"
         },
         usRealmAddress,
-        telecom, {
-            key: "telecom",
-            attributes: [{
-                use: "WP",
-                value: function (input) {
-                    return input.value.number;
-                }
-            }],
-            existsWhen: condition.keyExists("value"),
-            dataKey: "phone"
-        }
-    ],
-    dataKey: "organization"
-};
-
-var linkedRepresentedOrganization = {
-    key: "representedOrganization",
-    content: [
-        {
-            key: "id",
-            attributes: {
-                root: leafLevel.inputProperty("root")
-            },
-            dataKey: "identity"
-        }, {
-            key: "name",
-            text: leafLevel.input,
-            dataKey: "name"
-        }
+        telecom
     ],
     dataKey: "organization"
 };
@@ -338,6 +310,7 @@ var assignedEntity = exports.assignedEntity = {
 exports.author = {
     key: "author",
     content: [
+        templateId("2.16.840.1.113883.10.20.22.4.119"),
         [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
@@ -360,11 +333,29 @@ exports.performer = {
     dataKey: "performer"
 };
 
+var linkedRepresentedOrganization = {
+    key: "representedOrganization",
+    content: [
+        {
+            key: "id",
+            attributes: {
+                root: leafLevel.inputProperty("root")
+            },
+            dataKey: "identity"
+        }, {
+            key: "name",
+            text: leafLevel.input,
+            dataKey: "name"
+        }
+    ],
+    dataKey: "organization"
+};
+
 exports.actAuthor = {
     key: "author",
     content: [
         templateId("2.16.840.1.113883.10.20.22.4.119"),
-        [effectiveTime, required], {
+        [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
                 id, {
@@ -377,3 +368,4 @@ exports.actAuthor = {
     ],
     dataKey: "author"
 };
+

@@ -630,7 +630,7 @@ exports.socialHistorySectionHtmlHeader = {key: "text",
                     attributes: {
                         ID: leafLevel.nextTableReference("social")
                     },
-                    text: leafLevel.deepInputProperty("code.name", nda)
+                    text: leafLevel.deepInputProperty("element", nda)
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("value", nda)
