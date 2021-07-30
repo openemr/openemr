@@ -20,8 +20,9 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\UserService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
 
 $facilityService = new FacilityService();
@@ -550,12 +551,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <div class="col-sm">
                             <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
                                 <?php
-                                $dischargeListDisposition = new \OpenEMR\Services\ListService();
+                                $dischargeListDisposition = new ListService();
                                 $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
                                 foreach ($dischargeDisposiitons as $dispositon) {
                                     $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
                                     ?>
-                                <option value="<?php echo $dispositon['option_id']; ?>" <?php echo $selected; ?> ><?php echo $dispositon['title']; ?></option>
+                                <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
                                 <?php } ?>
                             </select>
                         </div>
