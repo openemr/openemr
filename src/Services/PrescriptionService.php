@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\PatientValidator;
@@ -78,13 +80,20 @@ class PrescriptionService extends BaseService
             }
         }
 
+        // order comes from our MedicationRequest intent value set, since we are only reporting on completed prescriptions
+        // we will put the intent down as 'order' @see http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html
         $sql = "SELECT prescriptions.*,
-                patient.uuid AS puuid,
+                'order' AS intent,
+                patient.puuid,
                 encounter.uuid AS euuid,
                 practitioner.uuid AS pruuid,
                 drug.uuid AS drug_uuid
                 FROM prescriptions
-                LEFT JOIN patient_data AS patient
+                LEFT JOIN (
+                    select uuid AS puuid
+                    ,pid
+                    FROM patient_data
+                ) patient
                 ON patient.pid = prescriptions.patient_id
                 LEFT JOIN form_encounter AS encounter
                 ON encounter.encounter = prescriptions.encounter
@@ -93,53 +102,49 @@ class PrescriptionService extends BaseService
                 LEFT JOIN drugs AS drug
                 ON drug.drug_id = prescriptions.drug_id";
 
-        if (!empty($search)) {
-            $sql .= " WHERE ";
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= '(';
-            }
-            $whereClauses = array();
-            $wildcardFields = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                // support wildcard match on specific fields
-                if (in_array($fieldName, $wildcardFields)) {
-                    array_push($whereClauses, $fieldName . ' LIKE ?');
-                    array_push($sqlBindArray, '%' . $fieldValue . '%');
-                } else {
-                    // equality match
-                    array_push($whereClauses, $fieldName . ' = ?');
-                    array_push($sqlBindArray, $fieldValue);
-                }
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= ") AND `patient`.`uuid` = ?";
-                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-            }
-        } elseif (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `patient`.`uuid` = ?";
-            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-        }
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
-            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
-            if ($row['rxnorm_drugcode'] != "") {
-                $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
-            }
-            $processingResult->addData($row);
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($record);
         }
-
         return $processingResult;
+//
+//        $statementResults = sqlStatement($sql, $sqlBindArray);
+//        $processingResult = new ProcessingResult();
+//        while ($row = sqlFetchArray($statementResults)) {
+//            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+//            $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
+//            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
+//            $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
+//            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
+//            if ($row['rxnorm_drugcode'] != "") {
+//                $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
+//            }
+//            $processingResult->addData($row);
+//        }
+//
+//        return $processingResult;
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $record = parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
+
+        if ($record['rxnorm_drugcode'] != "") {
+            $record['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
+        }
+        return $record;
     }
 
     /**
