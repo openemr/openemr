@@ -16,10 +16,16 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\LocationService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirLocationService extends FhirServiceBase
@@ -28,6 +34,12 @@ class FhirLocationService extends FhirServiceBase
      * @var LocationService
      */
     private $locationService;
+
+    /**
+     * The patient uuid bound in the current request
+     * @var string
+     */
+    private $patientUuid;
 
     public function __construct()
     {
@@ -57,7 +69,9 @@ class FhirLocationService extends FhirServiceBase
     {
         $locationResource = new FHIRLocation();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(gmdate('c'));
         $locationResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -66,15 +80,18 @@ class FhirLocationService extends FhirServiceBase
 
         $locationResource->setStatus("active");
 
-        // TODO: what is this `s Home thing, seems really wierd... and its not documented
-        if (!empty($dataRecord['name'] && $dataRecord['name'] != "`s Home")) {
-            $locationResource->setName($dataRecord['name']);
+        if (!empty($dataRecord['name'])) {
+            $name = $dataRecord['name'];
+            if ($dataRecord['type'] != 'facility') {
+                $name = xlt($name);
+            }
+            $locationResource->setName($name);
         } else {
             $locationResource->setName(UtilsService::createDataMissingExtension());
         }
 
         // TODO: @brady.miller is this the right security ACL for a facilities organization?
-        if ($this->shouldIncludeContactInformationForLocationType($dataRecord['type'])) {
+        if ($this->shouldIncludeContactInformationForLocationType($dataRecord['type'], $dataRecord['uuid'])) {
             $locationResource->setAddress(UtilsService::createAddressFromRecord($dataRecord));
 
             if (!empty($dataRecord['phone'])) {
@@ -113,15 +130,49 @@ class FhirLocationService extends FhirServiceBase
         }
     }
 
+    public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
+    {
+        try {
+            $this->patientUuid = $puuidBind;
+            return parent::getOne($fhirResourceId, $puuidBind);
+        }
+        finally
+        {
+            $this->patientUuid = null;
+        }
+    }
+
+    public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
+    {
+        try {
+            $this->patientUuid = $puuidBind;
+            return parent::getAll($fhirSearchParameters, $puuidBind);
+        }
+        finally
+        {
+            $this->patientUuid = null;
+        }
+    }
+
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        // even though its not a patient compartment issue we still don't want certain location data such as clinician home addresses
+        // being returned... or other patient locations...  Wierd that its not in the patient compartment
+        if (!empty($this->patientUuid))
+        {
+            // when we are patient bound we only want facility data returned or return just that patient's information.
+            $patientType = new CompositeSearchField('patient-type', [], false);
+            // patient id is the target_uuid, the uuid column is the mapped 'Location' resource in FHIR
+            $patientType->addChild(new TokenSearchField('table_uuid', [new TokenSearchValue($this->patientUuid, null, true)]));
+            $patientType->addChild(new TokenSearchField('type', [new TokenSearchValue(LocationService::TYPE_FACILITY)]));
+            $openEMRSearchParameters['patient-type'] = $patientType;
+        }
         return $this->locationService->getAll($openEMRSearchParameters, false);
     }
 
@@ -144,14 +195,21 @@ class FhirLocationService extends FhirServiceBase
         // TODO: If Required in Future
     }
 
-    private function shouldIncludeContactInformationForLocationType($type)
+    private function hasAccessToUserLocationData()
     {
-        if ($type == 'patient') {
+        return AclMain::aclCheckCore('admin', 'users') !== false;
+    }
+
+    private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
+    {
+        $isPatientBoundUuid = !empty($this->patientUuid) && $this->patientUuid == $recordUuid;
+        // if its not a patient requesting their own record location information we need to check permissions on this.
+        if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
             return AclMain::aclCheckCore("patients", "demo") !== false;
         } else if ($type == 'user') {
             // only those with access to the user information can get address information about a user.
-            return AclMain::aclCheckCore('admin', 'users') !== false;
+            return $this->hasAccessToUserLocationData();
         } else {
             // facilities we just let all contact information be displayed for the location.
             return true;

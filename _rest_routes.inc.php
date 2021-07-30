@@ -873,12 +873,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
     "GET /fhir/Location" => function (HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getAll($request->getQueryParams());
+        $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     },
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getOne($uuid);
+        $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     },

@@ -40,9 +40,9 @@ class FhirLocationRestController
      * @param $fhirId The FHIR location resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $patientUuid)
     {
-        $processingResult = $this->fhirLocationService->getOne($fhirId);
+        $processingResult = $this->fhirLocationService->getOne($fhirId, $patientUuid);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -50,9 +50,9 @@ class FhirLocationRestController
      * Queries for FHIR location resources using various search parameters.
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $patientUuid)
     {
-        $processingResult = $this->fhirLocationService->getAll($searchParams);
+        $processingResult = $this->fhirLocationService->getAll($searchParams, $patientUuid);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

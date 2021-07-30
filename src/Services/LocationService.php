@@ -25,6 +25,10 @@ class LocationService extends BaseService
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
 
+    const TYPE_FACILITY = "facility";
+    const TYPE_USER = "user";
+    const TYPE_PATIENT = "patient";
+
     /**
      * Default constructor.
      */
@@ -57,8 +61,8 @@ class LocationService extends BaseService
 
         $sql = 'SELECT location.*, uuid_mapping.uuid FROM
                 (SELECT
-                    uuid as target_uuid,
-                    CONCAT(fname,"\'s Home") as name,
+                    uuid as table_uuid,
+                    "Home Address" as name,
                     street,
                     city,
                     postal_code,
@@ -68,11 +72,11 @@ class LocationService extends BaseService
                     null as fax,
                     null as website,
                     email,
-                    "patient" AS `type`
+                    "' . self::TYPE_PATIENT . '" AS `type`
                 from 
                     patient_data
                 UNION SELECT
-                    uuid as target_uuid,
+                    uuid as table_uuid,
                     name,
                     street,
                     city,
@@ -83,12 +87,12 @@ class LocationService extends BaseService
                     fax,
                     website,
                     email,
-                   "facility" AS `type`
+                   "' . self::TYPE_FACILITY. '" AS `type`
                 from 
                      facility
                 UNION SELECT
-                    uuid as target_uuid,
-                    CONCAT(fname,"\'s Home") as name,
+                    uuid as table_uuid,
+                    "Home Address" as name,
                     street,
                     city,
                     zip as postal_code,
@@ -98,15 +102,16 @@ class LocationService extends BaseService
                     fax,
                     url as website,
                     email,
-                    "user" AS `type`
+                    "' . self::TYPE_USER . '" AS `type`
                 from 
                      users
             ) as location
-            LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
+            LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.table_uuid AND uuid_mapping.resource="Location"';
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
+
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
