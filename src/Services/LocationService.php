@@ -87,7 +87,7 @@ class LocationService extends BaseService
                     fax,
                     website,
                     email,
-                   "' . self::TYPE_FACILITY. '" AS `type`
+                   "' . self::TYPE_FACILITY . '" AS `type`
                 from 
                      facility
                 UNION SELECT

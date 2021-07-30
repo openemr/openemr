@@ -135,9 +135,7 @@ class FhirLocationService extends FhirServiceBase
         try {
             $this->patientUuid = $puuidBind;
             return parent::getOne($fhirResourceId, $puuidBind);
-        }
-        finally
-        {
+        } finally {
             $this->patientUuid = null;
         }
     }
@@ -147,9 +145,7 @@ class FhirLocationService extends FhirServiceBase
         try {
             $this->patientUuid = $puuidBind;
             return parent::getAll($fhirSearchParameters, $puuidBind);
-        }
-        finally
-        {
+        } finally {
             $this->patientUuid = null;
         }
     }
@@ -164,8 +160,7 @@ class FhirLocationService extends FhirServiceBase
     {
         // even though its not a patient compartment issue we still don't want certain location data such as clinician home addresses
         // being returned... or other patient locations...  Wierd that its not in the patient compartment
-        if (!empty($this->patientUuid))
-        {
+        if (!empty($this->patientUuid)) {
             // when we are patient bound we only want facility data returned or return just that patient's information.
             $patientType = new CompositeSearchField('patient-type', [], false);
             // patient id is the target_uuid, the uuid column is the mapped 'Location' resource in FHIR
