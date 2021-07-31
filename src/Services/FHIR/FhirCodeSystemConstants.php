@@ -55,4 +55,11 @@ class FhirCodeSystemConstants
     const HL7_V3_OBSERVATION_INTERPRETATION = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
 
     const HL7_ICD10 = "http://hl7.org/fhir/sid/icd-10";
+    public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
+
+    public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";
+
+    public const RFC_3986 = "urn:ietf:rfc:3986";
+
+    const HL7_DISCHARGE_DISPOSITION = "http://terminology.hl7.org/CodeSystem/discharge-disposition";
 }

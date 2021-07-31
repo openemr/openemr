@@ -12,8 +12,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Uuid\UuidMapping;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -22,6 +24,10 @@ class LocationService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
+
+    const TYPE_FACILITY = "facility";
+    const TYPE_USER = "user";
+    const TYPE_PATIENT = "patient";
 
     /**
      * Default constructor.
@@ -32,6 +38,11 @@ class LocationService extends BaseService
         UuidMapping::createMissingResourceUuids("Location", self::PATIENT_TABLE);
         UuidMapping::createMissingResourceUuids("Location", self::PRACTITIONER_TABLE);
         UuidMapping::createMissingResourceUuids("Location", self::FACILITY_TABLE);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
     }
 
     /**
@@ -50,8 +61,8 @@ class LocationService extends BaseService
 
         $sql = 'SELECT location.*, uuid_mapping.uuid FROM
                 (SELECT
-                    uuid as target_uuid,
-                    CONCAT(fname,"\'s Home") as name,
+                    uuid as table_uuid,
+                    "Home Address" as name,
                     street,
                     city,
                     postal_code,
@@ -60,9 +71,12 @@ class LocationService extends BaseService
                     phone_cell as phone,
                     null as fax,
                     null as website,
-                    email from patient_data
+                    email,
+                    "' . self::TYPE_PATIENT . '" AS `type`
+                from 
+                    patient_data
                 UNION SELECT
-                    uuid as target_uuid,
+                    uuid as table_uuid,
                     name,
                     street,
                     city,
@@ -72,10 +86,13 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     website,
-                    email from facility
+                    email,
+                   "' . self::TYPE_FACILITY . '" AS `type`
+                from 
+                     facility
                 UNION SELECT
-                    uuid as target_uuid,
-                    CONCAT(fname,"\'s Home") as name,
+                    uuid as table_uuid,
+                    "Home Address" as name,
                     street,
                     city,
                     zip as postal_code,
@@ -84,26 +101,24 @@ class LocationService extends BaseService
                     phone,
                     fax,
                     url as website,
-                    email from users) as location
-                    LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.target_uuid AND uuid_mapping.resource="Location"';
+                    email,
+                    "' . self::TYPE_USER . '" AS `type`
+                from 
+                     users
+            ) as location
+            LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.table_uuid AND uuid_mapping.resource="Location"';
 
-        if (!empty($search)) {
-            $sql .= ' WHERE ';
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                array_push($whereClauses, $fieldName . ' = ?');
-                array_push($sqlBindArray, $fieldValue);
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-        }
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
+        $sql .= $whereClause->getFragment();
+
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $processingResult->addData($row);
+        foreach ($statementResults as $result) {
+            $record = $this->createResultRecordFromDatabaseResult($result);
+            $processingResult->addData($record);
         }
 
         return $processingResult;

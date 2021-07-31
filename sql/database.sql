@@ -1813,6 +1813,7 @@ CREATE TABLE `form_encounter` (
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   `shift` varchar(31) NOT NULL DEFAULT '',
   `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
+  `discharge_disposition` varchar(100) NULL DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -6503,6 +6504,20 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
+
+-- Discharge Disposition (for encounters and eventually appointments)
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','discharge-disposition','Discharge Disposition',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','home','Home',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','alt-home','Alternative Home',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','other-hcf','Other healthcare facility',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','hosp','Hospice',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','long','Long-term care',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','aadvice','Left against advice',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','exp','Expired',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','psy','Psychiatric hospital',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','rehab','Rehabilitation',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','snf','Skilled nursing facility',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','oth','Other',110,0,1);
 -- --------------------------------------------------------
 
 --

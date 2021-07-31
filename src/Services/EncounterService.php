@@ -69,7 +69,8 @@ class EncounterService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'];
+        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
+            , 'facility_location_uuid', 'billing_location_uuid'];
     }
 
     /**
@@ -128,7 +129,6 @@ class EncounterService extends BaseService
                        fe.last_level_closed,
                        fe.last_stmt_date,
                        fe.stmt_count,
-                       fe.provider_id,
                        fe.supervisor_id,
                        fe.invoice_refno,
                        fe.referral_source,
@@ -144,10 +144,19 @@ class EncounterService extends BaseService
                        facilities.facility_id,
                        facilities.facility_uuid,
                        facilities.facility_name,
+                       facilities.facility_location_uuid,
 
                        fa.billing_facility_id,
                        fa.billing_facility_uuid,
-                       fa.billing_facility_name
+                       fa.billing_facility_name,
+                       fa.billing_location_uuid,
+                
+                       fe.provider_id,
+                       providers.provider_uuid,
+                       providers.provider_username,
+                       fe.discharge_disposition,
+                       discharge_list.discharge_disposition_text
+                       
 
                        FROM (
                            select
@@ -172,6 +181,7 @@ class EncounterService extends BaseService
                                pos_code,
                                class_code,
                                facility_id,
+                               discharge_disposition,
                                pid
                            FROM form_encounter
                        ) fe
@@ -180,10 +190,13 @@ class EncounterService extends BaseService
                        LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        LEFT JOIN (
                            select
-                                id AS billing_facility_id
-                                ,uuid AS billing_facility_uuid
-                                ,`name` AS billing_facility_name
+                                facility.id AS billing_facility_id
+                                ,facility.uuid AS billing_facility_uuid
+                                ,facility.`name` AS billing_facility_name
+                                ,locations.uuid AS billing_location_uuid
                            from facility
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
                            select
@@ -193,20 +206,29 @@ class EncounterService extends BaseService
                        ) patient ON fe.pid = patient.pid
                        LEFT JOIN (
                            select
-                                id AS provider_id
+                                id AS provider_provider_id
                                 ,uuid AS provider_uuid
-                                ,`username` AS provider_name
+                                ,`username` AS provider_username
                             FROM users
                             WHERE
                                 npi IS NOT NULL and npi != ''
-                       ) providers ON fe.provider_id = providers.provider_id
+                       ) providers ON fe.provider_id = providers.provider_provider_id
                        LEFT JOIN (
                            select
-                                id AS facility_id
-                                ,uuid AS facility_uuid
-                                ,`name` AS facility_name
+                                facility.id AS facility_id
+                                ,facility.uuid AS facility_uuid
+                                ,facility.`name` AS facility_name
+                                ,`locations`.`uuid` AS facility_location_uuid
                            from facility
-                       ) facilities ON facilities.facility_id = fe.facility_id";
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
+                       ) facilities ON facilities.facility_id = fe.facility_id
+                       LEFT JOIN (
+                           select option_id AS discharge_option_id
+                           ,title AS discharge_disposition_text
+                           FROM list_options
+                           WHERE list_id = 'discharge-disposition'
+                       ) discharge_list ON fe.discharge_disposition = discharge_list.discharge_option_id";
 
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);

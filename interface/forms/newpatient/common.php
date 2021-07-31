@@ -20,8 +20,9 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\UserService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
 
 $facilityService = new FacilityService();
@@ -541,6 +542,26 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             billing_facility('billing_facility', $default_bill_fac);
                             ?>
                         </div>
+                    </div>
+                    <!-- Discharge Disposition -->
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
+                                <?php
+                                $dischargeListDisposition = new ListService();
+                                $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
+                                foreach ($dischargeDisposiitons as $dispositon) {
+                                    $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
+                                    ?>
+                                <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm"></div>
                     </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row mt-2">

@@ -42,6 +42,8 @@ $encounter_provider = $_POST['provider_id'] ?? null;
 //save therapy group if exist in external_id column
 $external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
+$discharge_disposition = $_POST['discharge_disposition'] ?? null;
+
 $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
@@ -74,7 +76,8 @@ if ($mode == 'new') {
                 class_code = ?,
                 external_id = ?,
                 parent_encounter_id = ?,
-                provider_id = ?",
+                provider_id = ?,
+                discharge_disposition = ?",
             [
                 $date,
                 $onset_date,
@@ -92,6 +95,7 @@ if ($mode == 'new') {
                 $external_id,
                 $parent_enc_id,
                 $provider_id,
+                $discharge_disposition,
             ]
         ),
         "newpatient",
@@ -127,6 +131,7 @@ if ($mode == 'new') {
         $referral_source,
         $class_code,
         $pos_code,
+        $discharge_disposition,
         $id
     );
     sqlStatement(
@@ -142,7 +147,8 @@ if ($mode == 'new') {
             sensitivity = ?,
             referral_source = ?,
             class_code = ?,
-            pos_code = ? WHERE id = ?",
+            pos_code = ?,
+            discharge_disposition = ? WHERE id = ?",
         $sqlBindArray
     );
 } else {
