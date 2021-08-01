@@ -145,10 +145,10 @@ function era_callback(&$out)
     // print_r($out); // debugging
     ++$eracount;
     // $eraname = $out['isa_control_number'];
-    // since it's always sent we're using isa_sender_id instead of payer_id 
+    // since it's always sent we're using isa_sender_id instead of payer_id
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['isa_sender_id'], '0');
-    
+
     if ($out['our_claim_id'] ?? '') {
         list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
         if ($pid && $encounter) {
@@ -654,10 +654,15 @@ if (
         function editInvoice(e, id) {
             e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            dlgopen(url,'','modal-full',700,false,'', {
+            <?php if (!$_FILES['form_erafile']['size']) { ?>
+                dlgopen(url,'','modal-full',700,false,'', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
-            });
+            }); <?php } else { // keep era page up so can check on other remits ?>
+                dlgopen(url,'','modal-full',700,false,'', {
+                sizeHeight: 'full',
+                onClosed: ''
+            }); <?php } ?>
         }
 
         function checkAll(checked) {
@@ -1028,8 +1033,11 @@ if (
                             // will require MySQL 4.1 or greater.
 
                             $num_invoices = 0;
-                            $t_res = sqlStatement($query);
-                            $num_invoices = sqlNumRows($t_res);
+
+                            //if (!$alertmsg) {
+                                $t_res = sqlStatement($query);
+                                $num_invoices = sqlNumRows($t_res);
+                           //}
 
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .

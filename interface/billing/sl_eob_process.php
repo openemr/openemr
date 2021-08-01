@@ -53,14 +53,14 @@ function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "fals
 {
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
-    "  <td class='" . attr($class) . "' colspan='4'>&nbsp;</td>\n";
+    "  <td class='" . attr($class) . "' colspan='4'></td>\n";
     if ($nl2br_process) {
         $dline .= "  <td class='" . attr($class) . "'>" . nl2br(text($description)) . "</td>\n";
     } else {
         $dline .= "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n";
     }
     $dline .=
-    "  <td class='" . attr($class) . "' colspan='2'>&nbsp;</td>\n" .
+    "  <td class='" . attr($class) . "' colspan='2'></td>\n" .
     " </tr>\n";
     echo $dline;
 }
@@ -79,19 +79,19 @@ function writeDetailLine(
 
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) {
-        $ptname = '&nbsp;';
+        $ptname = '';
     } else {
         $last_ptname = $ptname;
     }
 
     if ($invnumber == $last_invnumber) {
-        $invnumber = '&nbsp;';
+        $invnumber = '';
     } else {
         $last_invnumber = $invnumber;
     }
 
     if ($code == $last_code) {
-        $code = '&nbsp;';
+        $code = '';
     } else {
         $last_code = $code;
     }
@@ -346,7 +346,7 @@ function era_callback(&$out)
         }
 
     // Simplify some claim attributes for cleaner code.
-        $service_date = parse_date($out['dos']);
+        $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 

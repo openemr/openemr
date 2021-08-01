@@ -18,21 +18,21 @@ class ParseERA
 {
     public static function parseERA2100(&$out, $cb)
     {
-        if ($GLOBALS['force_claim_balancing']) {
-            if ($out['loopid'] == '2110' || $out['loopid'] == '2100'){
-                // Production date is posted with adjustments, so make sure it exists.
-                if (!$out['production_date']) {
-                    $out['production_date'] = $out['check_date'];
-                }
+        if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
+            // Production date is posted with adjustments, so make sure it exists.
+            if (!$out['production_date']) {
+                $out['production_date'] = $out['check_date'];
+            }
 
-                // Force the sum of service payments to equal the claim payment
-                // amount, and the sum of service adjustments to equal the CLP's
-                // (charged amount - paid amount - patient responsibility amount).
-                // This may result from claim-level adjustments, and in this case the
-                // first SVC item that we stored was a 'Claim' type.  It also may result
-                // from poorly reported payment reversals, in which case we may need to
-                // create the 'Claim' service type here.
-                //
+            // Force the sum of service payments to equal the claim payment
+            // amount, and the sum of service adjustments to equal the CLP's
+            // (charged amount - paid amount - patient responsibility amount).
+            // This may result from claim-level adjustments, and in this case the
+            // first SVC item that we stored was a 'Claim' type.  It also may result
+            // from poorly reported payment reversals, in which case we may need to
+            // create the 'Claim' service type here.
+            //
+            if ($GLOBALS['force_claim_balancing']) {
                 $paytotal = $out['amount_approved'];
                 $pattotal = (int)$out['amount_patient'];
                 $adjtotal = $out['amount_charged'] - $paytotal - $pattotal;
@@ -75,8 +75,8 @@ class ParseERA
                     // }
                 }
             }
+            $cb($out);
         }
-        $cb($out);
     }
 
     public static function parseERA($filename, $cb)
@@ -322,9 +322,10 @@ class ParseERA
                 // ignore
             } elseif ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
                 $out['claim_date'] = trim($seg[2]); // yyyymmdd
+            } elseif ($segid == 'DTM' && $seg[1] == '232' && $out['loopid'] == '2100') {
+                $out['claim_date'] = trim($seg[2]); // yyyymmdd
             } elseif ($segid == 'DTM' && $out['loopid'] == '2100') { // 036 = expiration date of coverage
                 // 050 = date claim received by payer
-                // 232 = claim statement period start
                 // 233 = claim statement period end
                 // ignore?
             } elseif ($segid == 'PER' && $out['loopid'] == '2100') {
@@ -382,7 +383,7 @@ class ParseERA
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
             // DTM01 identifies the type of service date:
-            } elseif ($segid == 'DTM' && $out['loopid'] == '2110') { 
+            } elseif ($segid == 'DTM' && $out['loopid'] == '2110') {
                 // 472 = a single date of service
                 // 150 = service period start
                 // 151 = service period end
