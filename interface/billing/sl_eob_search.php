@@ -1034,10 +1034,9 @@ if (
 
                             $num_invoices = 0;
 
-                            //if (!$alertmsg) {
-                                $t_res = sqlStatement($query);
-                                $num_invoices = sqlNumRows($t_res);
-                           //}
+                            // removed if condition on alert message so biller can see what's in the era
+                            $t_res = sqlStatement($query);
+                            $num_invoices = sqlNumRows($t_res);
 
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
