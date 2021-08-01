@@ -18,64 +18,65 @@ class ParseERA
 {
     public static function parseERA2100(&$out, $cb)
     {
-        if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
-            // Production date is posted with adjustments, so make sure it exists.
-            if (!$out['production_date']) {
-                $out['production_date'] = $out['check_date'];
-            }
+        if ($GLOBALS['force_claim_balancing']) {
+            if ($out['loopid'] == '2110' || $out['loopid'] == '2100'){
+                // Production date is posted with adjustments, so make sure it exists.
+                if (!$out['production_date']) {
+                    $out['production_date'] = $out['check_date'];
+                }
 
-            // Force the sum of service payments to equal the claim payment
-            // amount, and the sum of service adjustments to equal the CLP's
-            // (charged amount - paid amount - patient responsibility amount).
-            // This may result from claim-level adjustments, and in this case the
-            // first SVC item that we stored was a 'Claim' type.  It also may result
-            // from poorly reported payment reversals, in which case we may need to
-            // create the 'Claim' service type here.
-            //
-            $paytotal = $out['amount_approved'];
-            $pattotal = (int)$out['amount_patient'];
-            $adjtotal = $out['amount_charged'] - $paytotal - $pattotal;
-            foreach ($out['svc'] as $svc) {
-                $paytotal -= $svc['paid'];
-                foreach ($svc['adj'] as $adj) {
-                    if ($adj['group_code'] != 'PR') {
-                        $adjtotal -= $adj['amount'];
+                // Force the sum of service payments to equal the claim payment
+                // amount, and the sum of service adjustments to equal the CLP's
+                // (charged amount - paid amount - patient responsibility amount).
+                // This may result from claim-level adjustments, and in this case the
+                // first SVC item that we stored was a 'Claim' type.  It also may result
+                // from poorly reported payment reversals, in which case we may need to
+                // create the 'Claim' service type here.
+                //
+                $paytotal = $out['amount_approved'];
+                $pattotal = (int)$out['amount_patient'];
+                $adjtotal = $out['amount_charged'] - $paytotal - $pattotal;
+                foreach ($out['svc'] as $svc) {
+                    $paytotal -= $svc['paid'];
+                    foreach ($svc['adj'] as $adj) {
+                        if ($adj['group_code'] != 'PR') {
+                            $adjtotal -= $adj['amount'];
+                        }
                     }
                 }
-            }
 
-            $paytotal = round($paytotal, 2);
-            $adjtotal = round($adjtotal, 2);
-            if ($paytotal != 0 || $adjtotal != 0) {
-                if ($out['svc'][0]['code'] != 'Claim') {
-                    array_unshift($out['svc'], array());
-                    $out['svc'][0]['code'] = 'Claim';
-                    $out['svc'][0]['mod'] = '';
-                    $out['svc'][0]['chg'] = '0';
-                    $out['svc'][0]['paid'] = '0';
-                    $out['svc'][0]['adj'] = array();
-                    $out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
-                        "force claim balancing.\n";
+                $paytotal = round($paytotal, 2);
+                $adjtotal = round($adjtotal, 2);
+                if ($paytotal != 0 || $adjtotal != 0) {
+                    if ($out['svc'][0]['code'] != 'Claim') {
+                        array_unshift($out['svc'], array());
+                        $out['svc'][0]['code'] = 'Claim';
+                        $out['svc'][0]['mod'] = '';
+                        $out['svc'][0]['chg'] = '0';
+                        $out['svc'][0]['paid'] = '0';
+                        $out['svc'][0]['adj'] = array();
+                        $out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
+                            "force claim balancing.\n";
+                    }
+
+                    $out['svc'][0]['paid'] += $paytotal;
+                    if ($adjtotal) {
+                        $j = count($out['svc'][0]['adj']);
+                        $out['svc'][0]['adj'][$j] = array();
+                        $out['svc'][0]['adj'][$j]['group_code'] = 'CR'; // presuming a correction or reversal
+                        $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
+                        $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
+                    }
+
+                    // if ($out['svc'][0]['code'] != 'Claim') {
+                    //   $out['warnings'] .= "First service item payment amount " .
+                    //   "adjusted by $paytotal due to payment imbalance. " .
+                    //   "This should not happen!\n";
+                    // }
                 }
-
-                $out['svc'][0]['paid'] += $paytotal;
-                if ($adjtotal) {
-                    $j = count($out['svc'][0]['adj']);
-                    $out['svc'][0]['adj'][$j] = array();
-                    $out['svc'][0]['adj'][$j]['group_code'] = 'CR'; // presuming a correction or reversal
-                    $out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
-                    $out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
-                }
-
-                // if ($out['svc'][0]['code'] != 'Claim') {
-                //   $out['warnings'] .= "First service item payment amount " .
-                //   "adjusted by $paytotal due to payment imbalance. " .
-                //   "This should not happen!\n";
-                // }
             }
-
-            $cb($out);
         }
+        $cb($out);
     }
 
     public static function parseERA($filename, $cb)
@@ -380,7 +381,8 @@ class ParseERA
                 $out['svc'][$i]['adj'] = array();
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
-            } elseif ($segid == 'DTM' && $out['loopid'] == '2110') { // DTM01 identifies the type of service date:
+            // DTM01 identifies the type of service date:
+            } elseif ($segid == 'DTM' && $out['loopid'] == '2110') { 
                 // 472 = a single date of service
                 // 150 = service period start
                 // 151 = service period end

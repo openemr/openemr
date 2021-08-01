@@ -145,16 +145,19 @@ function era_callback(&$out)
     // print_r($out); // debugging
     ++$eracount;
     // $eraname = $out['isa_control_number'];
+    // since it's always sent we're using isa_sender_id instead of payer_id 
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-        '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        '_' . ltrim($out['isa_sender_id'], '0');
+    
+    if ($out['our_claim_id'] ?? '') {
+        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        if ($pid && $encounter) {
+            if ($where) {
+                $where .= ' OR ';
+            }
 
-    if ($pid && $encounter) {
-        if ($where) {
-            $where .= ' OR ';
+            $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
         }
-
-        $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
 
