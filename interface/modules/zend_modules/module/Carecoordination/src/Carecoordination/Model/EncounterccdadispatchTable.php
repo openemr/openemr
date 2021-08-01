@@ -56,8 +56,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $has_suffix = '';
             foreach ($suffixes as $s) {
                 if (stripos($result['lname'], $s) !== false) {
-                    $has_suffix = $s;
-                    $result['lname'] = trim(str_replace($has_suffix, '', $result['lname']));
+                    $has_suffix = "<suffix>" . xmlEscape($s) . "</suffix>";
+                    $result['lname'] = trim(str_replace($s, '', $result['lname']));
                 }
             }
             $patient_data = "<patient>
@@ -66,9 +66,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <prefix>" . xmlEscape($result['title']) . "</prefix>
             <fname>" . xmlEscape($result['fname']) . "</fname>
             <mname>" . xmlEscape($result['mname']) . "</mname>
-            <lname>" . xmlEscape($result['lname']) . "</lname>
-            <suffix>" . xmlEscape($has_suffix) . "</suffix>
-            <birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
+            <lname>" . xmlEscape($result['lname']) . "</lname>" . "\n" .
+            $has_suffix . "\n" .
+            "<birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
             <birth_mname>" . xmlEscape($result['birth_mname']) . "</birth_mname>
             <birth_lname>" . xmlEscape($result['birth_lname']) . "</birth_lname>
             <street>" . xmlEscape($result['street']) . "</street>
