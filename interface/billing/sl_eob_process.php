@@ -368,7 +368,7 @@ function era_callback(&$out)
                 $codekey .= ':' . $svc['mod'];
             }
 
-            $prev = $codes[$codekey];
+            $prev = $codes[$codekey] ?? '';
             $codetype = ''; //will hold code type, if exists
 
             // This reports detail lines already on file for this service item.
