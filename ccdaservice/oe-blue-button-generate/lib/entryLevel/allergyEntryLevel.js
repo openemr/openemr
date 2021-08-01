@@ -33,6 +33,92 @@ var allergyStatusObservation = {
     dataKey: "status"
 };
 
+var allergyIntoleranceObservationNKA = exports.allergyIntoleranceObservationNKA = {
+    key: "observation",
+    attributes: {
+        "classCode": "OBS",
+        "moodCode": "EVN",
+        "negationInd": "true"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.7", "2014-06-09"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.7"),
+        fieldLevel.uniqueId,
+        fieldLevel.id,
+        fieldLevel.templateCode("AllergyObservation"),
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
+            key: "value",
+            attributes: [
+                leafLevel.typeCD,
+                {
+                    "code": "419199007",
+                    "codeSystem": "2.16.840.1.113883.6.96",
+                    "codeSystemName": "SNOMED-CT",
+                    "displayName": "Allergy to substance (disorder)",
+                }],
+            content: {
+                key: "originalText",
+                content: {
+                    key: "reference",
+                    attributes: {
+                        "value": leafLevel.nextReference("reaction")
+                    }
+                }
+            },
+            required: true
+        }, {
+            key: "participant",
+            attributes: {
+                "typeCode": "CSM"
+            },
+            content: [{
+                key: "participantRole",
+                attributes: {
+                    "classCode": "MANU"
+                },
+                content: [{
+                    key: "playingEntity",
+                    attributes: {
+                        classCode: "MMAT"
+                    },
+                    content: [{
+                        key: "code",
+                        attributes: {
+                            nullFlavor: "NA"
+                        }
+                    }]
+                }],
+                required: true
+            }]
+        }]
+}
+
+var allergyProblemActNKA = exports.allergyProblemActNKA = {
+    key: "act",
+    attributes: {
+        classCode: "ACT",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.30", "2015-08-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.30"),
+        fieldLevel.uniqueId,
+        fieldLevel.id,
+        fieldLevel.templateCode("AllergyConcernAct"),
+        fieldLevel.statusCodeActive, [fieldLevel.effectiveTime, required], {
+            key: "entryRelationship",
+            attributes: {
+                typeCode: "SUBJ",
+                inversionInd: "true"
+            },
+            content: [allergyIntoleranceObservationNKA, required],
+            existsWhen: condition.keyExists('no_know_allergies'),
+            required: true
+        }
+    ],
+    existsWhen: condition.keyExists("no_know_allergies"),
+};
+
 var allergyIntoleranceObservation = exports.allergyIntoleranceObservation = {
     key: "observation",
     attributes: {
@@ -165,5 +251,6 @@ var allergyProblemAct = exports.allergyProblemAct = {
             warning: "inversionInd is not in spec"
         }
     ],
+    existsWhen: condition.keyDoesntExist("no_know_allergies"),
     warning: "statusCode is not constant in spec"
 };

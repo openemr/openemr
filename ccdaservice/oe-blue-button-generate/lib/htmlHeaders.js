@@ -70,7 +70,7 @@ var getText = function (topArrayKey, headers, values) {
 
 exports.allergiesSectionEntriesRequiredHtmlHeader = {
     key: "text",
-    existsWhen: condition.keyExists("allergies"),
+    existsWhen: condition.propertyValueEmpty('allergies.0.no_know_allergies'),
 
     content: [{
         key: "table",

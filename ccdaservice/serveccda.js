@@ -650,6 +650,15 @@ function populateEncounter(pd) {
 }
 
 function populateAllergy(pd) {
+    if (!pd) {
+        return {
+            "no_know_allergies": "No Known Allergies",
+            "date_time": {
+                "low": templateDate("", "day"),
+                //"high": templateDate(pd.enddate, "day")
+            }
+        }
+    }
     return {
         "identifiers": [{
             "identifier": pd.sha_id,
@@ -682,13 +691,13 @@ function populateAllergy(pd) {
                 }
             },
             "allergen": {
-                "name": pd.title,
-                "code": pd.rxnorm_code_text ? cleanCode(pd.rxnorm_code) : pd.snomed_code_text ? cleanCode(pd.snomed_code) : cleanCode(pd.diagnosis_code),
-                "code_system_name": pd.rxnorm_code_text ? "RXNORM" : pd.snomed_code_text ? "SNOMED CT" : "ICD-10-CM"
+                "name": pd.title || "",
+                "code": pd.rxnorm_code_text ? cleanCode(pd.rxnorm_code) : pd.snomed_code_text ? cleanCode(pd.snomed_code) : cleanCode(""),
+                "code_system_name": pd.rxnorm_code_text ? "RXNORM" : pd.snomed_code_text ? "SNOMED CT" : ""
             },
             "date_time": {
                 "low": {
-                    "date": fDate(pd.startdate),
+                    "date": fDate(pd.startdate) || fdate(""),
                     "precision": "day"
                 }
             },
@@ -699,14 +708,14 @@ function populateAllergy(pd) {
             },
             "severity": {
                 "code": {
-                    "name": pd.outcome,
+                    "name": pd.outcome || "",
                     "code": cleanCode(pd.outcome_code) || "",
                     "code_system_name": "SNOMED CT"
                 }
             },
             "status": {
-                "name": pd.status_table,
-                "code": cleanCode(pd.status_code) || "",
+                "name": pd.status_table || "",
+                "code": cleanCode(pd.status_code),
                 "code_system_name": "SNOMED CT"
             },
             "reactions": [{
@@ -724,8 +733,8 @@ function populateAllergy(pd) {
                 },
                 "severity": {
                     "code": {
-                        "name": pd.outcome,
-                        "code": cleanCode(pd.outcome_code) || "",
+                        "name": pd.outcome || "",
+                        "code": cleanCode(pd.outcome_code),
                         "code_system_name": "SNOMED CT"
                     }
                 }
@@ -2500,9 +2509,10 @@ function genCcda(pd) {
             allergy[i] = populateAllergy(pd.allergies.allergy[i]);
             allergies.allergies.push(allergy[i]);
         }
-    } else if (count !== 0) {
+    } else if (count <= 1) {
         allergy = populateAllergy(pd.allergies.allergy);
         allergies.allergies.push(allergy);
+        count = 1;
     }
     if (count !== 0) {
         data.allergies = Object.assign(allergies.allergies);

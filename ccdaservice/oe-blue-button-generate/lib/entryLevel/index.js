@@ -16,6 +16,7 @@ var medicationEntryLevel = require("./medicationEntryLevel");
 var medicalDeviceEntryLevel = require("./medicalDeviceEntryLevel");
 
 exports.allergyProblemAct = allergyEntryLevel.allergyProblemAct;
+exports.allergyProblemActNKA = allergyEntryLevel.allergyProblemActNKA;
 
 exports.medicationActivity = medicationEntryLevel.medicationActivity;
 
