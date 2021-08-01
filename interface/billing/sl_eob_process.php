@@ -127,13 +127,13 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     ksort($prev['dtl']);
     foreach ($prev['dtl'] as $dkey => $ddata) {
         $ddate = substr($dkey, 0, 10);
-        $description = $ddata['src'] . $ddata['rsn'];
+        $description = ($ddata['src'] ?? '') . ($ddata['rsn'] ?? '');
         if ($ddate == '          ') { // this is the service item
             $ddate = $dos;
             $description = 'Service Item';
         }
 
-        $amount = sprintf("%.2f", $ddata['chg'] - $ddata['pmt']);
+        $amount = sprintf("%.2f", (int)($ddata['chg'] ?? '') - (int)($ddata['pmt'] ?? ''));
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
         writeDetailLine(
             $bgcolor,

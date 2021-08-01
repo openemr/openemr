@@ -654,7 +654,7 @@ if (
         function editInvoice(e, id) {
             e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            <?php if (!$_FILES['form_erafile']['size']) { ?>
+            <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
                 dlgopen(url,'','modal-full',700,false,'', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
