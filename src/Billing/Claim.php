@@ -533,7 +533,7 @@ class Claim
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv exists to indicate the payer level.
 
-                if(!isset($value['pmt'])) {
+                if (!isset($value['pmt'])) {
                     $value['pmt'] = 0;
                 }
 
