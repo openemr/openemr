@@ -438,7 +438,7 @@ class Claim
             foreach ($this->invoice as $codekey => $codeval) {
                 foreach ($codeval['dtl'] as $key => $value) {
                     // plv exists to indicate the payer level.
-                    if ($value['plv'] == $insnumber) {
+                    if (isset($value['plv']) && $value['plv'] == $insnumber) {
                         $thispaidanything += $value['pmt'];
                     }
                 }
@@ -493,7 +493,7 @@ class Claim
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv (from ar_activity.payer_type) exists to
                 // indicate the payer level.
-                if ($value['plv'] == $insnumber) {
+                if (isset($value['plv']) && $value['plv'] == $insnumber) {
                     if (!$date) {
                         $date = str_replace('-', '', trim(substr($key, 0, 10)));
                     }
@@ -533,8 +533,11 @@ class Claim
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv exists to indicate the payer level.
 
+                if(!isset($value['pmt'])) {
+                    $value['pmt'] = 0;
+                }
+
                 if (empty($value['plv'])) { // 0 indicates patient
-                    $value['pmt'] = $value['pmt'] ?? null;
                     $amount += $value['pmt'];
                 }
             }
@@ -745,7 +748,7 @@ class Claim
         } else {
             $query = "SELECT organization FROM users WHERE federaltaxid = ?";
             $ores = sqlQuery($query, array($this->x12_partner['id_number']));
-            return $this->x12Clean(trim($ores['organization']));
+            return $this->x12Clean(trim($ores['organization'] ?? ''));
         }
     }
 
@@ -756,7 +759,7 @@ class Claim
         } else {
             $query = "SELECT phonew1 FROM users WHERE federaltaxid = ?";
             $ores = sqlQuery($query, array($this->x12_partner['id_number']));
-            $tmp_phone = $this->x12Clean(trim($ores['phonew1']));
+            $tmp_phone = $this->x12Clean(trim($ores['phonew1'] ?? ''));
         }
 
         if (
@@ -779,7 +782,7 @@ class Claim
         } else {
             $query = "SELECT email FROM users WHERE federaltaxid = ?";
             $ores = sqlQuery($query, array($this->x12_partner['id_number']));
-            return $this->x12Clean(trim($ores['email']));
+            return $this->x12Clean(trim($ores['email'] ?? ''));
         }
     }
 

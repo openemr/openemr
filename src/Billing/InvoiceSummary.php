@@ -173,6 +173,8 @@ class InvoiceSummary
                 $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
+                } else {
+                    $tmp['pmt'] = 0;
                 }
 
                 if (isset($row['reason_code'])) {

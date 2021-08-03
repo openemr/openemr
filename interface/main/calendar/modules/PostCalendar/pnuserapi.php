@@ -115,7 +115,7 @@ function postcalendar_userapi_buildView($args)
     //  grab the for post variable
     //=================================================================
     // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username']; // from Michael Brinson 2006-09-19
+    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
     $category = pnVarCleanFromInput('pc_category');
     $topic    = pnVarCleanFromInput('pc_topic');
 
@@ -731,6 +731,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['eventDate']   = $tmp['eventDate'];
         $events[$i]['duration']    = $tmp['duration'];
         // there has to be a more intelligent way to do this
+
         @list($events[$i]['duration_hours'],$dmin) = @explode('.', ($tmp['duration'] / 60 / 60));
         $events[$i]['duration_minutes'] = substr(sprintf('%.2f', '.' . 60 * ($dmin / 100)), 2, 2);
         //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -843,7 +844,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
   // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username']; // from Michael Brinson 2006-09-19
+    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
     if (empty($pc_username) || is_array($pc_username)) {
         $pc_username = "__PC_ALL__";
     }
@@ -1040,7 +1041,11 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
         // get the user id of event's author
-        $cuserid = @$nuke_users[strtolower($tmp['uname'])];
+        if (!empty($nuke_users)) {
+            $cuserid = @$nuke_users[strtolower($tmp['uname'])];
+        } else {
+            $cuserid = '';
+        }
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
@@ -1058,10 +1063,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['time']        = $tmp['time'];
         $events[$i]['eventDate']   = $tmp['eventDate'];
         $events[$i]['duration']    = $tmp['duration'];
-        // there has to be a more intelligent way to do this
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.', ($tmp['duration'] / 60 / 60));
+        $events[$i]['duration_hours'] = floor($tmp['duration'] / 3600);
+        $dmin = floor(($tmp['duration'] / 60) % 60);
         $events[$i]['duration_minutes'] = substr(sprintf('%.2f', '.' . 60 * ($dmin / 100)), 2, 2);
-        //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         $events[$i]['endDate']     = $tmp['endDate'];
         $events[$i]['startTime']   = $tmp['startTime'];
         $events[$i]['recurrtype']  = $tmp['recurrtype'];
