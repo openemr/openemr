@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -204,5 +205,16 @@ class UtilsService
             'start' => $start,
             'end' => $end
         ];
+    }
+
+    public static function createNarrative($message, $status = "generated") : FHIRNarrative
+    {
+        $div = "<div xmlns='http://www.w3.org/1999/xhtml'>" . $message . "</div>";
+        $narrative = new FHIRNarrative();
+        $code = new FHIRCode();
+        $code->setValue($status);
+        $narrative->setStatus($code);
+        $narrative->setDiv($div);
+        return $narrative;
     }
 }

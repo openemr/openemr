@@ -67,4 +67,5 @@ class FhirCodeSystemConstants
     const RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm";
 
     const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
+    public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
 }

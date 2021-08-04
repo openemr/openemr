@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -10,11 +11,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -31,11 +34,15 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirMedicationRequestService extends FhirServiceBase
 {
+    private $medicationRequestIdCounter = 1;
+
     use PatientSearchTrait;
+    use FhirServiceBaseEmptyTrait;
 
     const MEDICATION_REQUEST_STATUS_COMPLETED = "completed";
     const MEDICATION_REQUEST_STATUS_STOPPED = "stopped";
     const MEDICATION_REQUEST_STATUS_ACTIVE = "active";
+    const MEDICATION_REQUEST_STATUS_UNKNOWN = "unknown";
 
     const MEDICATION_REQUEST_INTENT_PLAN = "plan";
     const MEDICATION_REQUEST_INTENT_ORDER = "order";
@@ -43,8 +50,8 @@ class FhirMedicationRequestService extends FhirServiceBase
     /**
      * Constants for the reported flag or reference signaling that information is from a secondary source such as a patient
      */
-    const MEDICATION_REQUEST_REPORTED_SECONDARY_SOURCE = 1;
-    const MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE = 0;
+    const MEDICATION_REQUEST_REPORTED_SECONDARY_SOURCE = true;
+    const MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE = false;
 
     /**
      * Includes requests for medications to be administered or consumed in an inpatient or acute care setting
@@ -65,6 +72,12 @@ class FhirMedicationRequestService extends FhirServiceBase
      * Includes requests for medications created when the patient is being released from a facility
      */
     const MEDICATION_REQUEST_CATEGORY_DISCHARGE = "discharge";
+
+    /**
+     * Unique reference that is contained inside a MedicationRequest if we have no connected RXNorm drug data.
+     */
+    const MEDICATION_REQUEST_REFERENCE_ID_PREFIX = "m";
+
     /**
      * @var PrescriptionService
      */
@@ -84,7 +97,8 @@ class FhirMedicationRequestService extends FhirServiceBase
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'intent' => new FhirSearchParameterDefinition('intent', SearchFieldType::TOKEN, [new ServiceField('intent', ServiceField::TYPE_UUID)]),
+            'intent' => new FhirSearchParameterDefinition('intent', SearchFieldType::TOKEN, ['intent']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -110,13 +124,14 @@ class FhirMedicationRequestService extends FhirServiceBase
         $medRequestResource->setId($id);
 
         // status required
-
-        if (isset($dataRecord['end_date']) && $dataRecord['active'] == '1') {
-            $medRequestResource->setStatus(self::MEDICATION_REQUEST_STATUS_COMPLETED);
-        } elseif ($dataRecord['active'] == '1') {
-            $medRequestResource->setStatus(self::MEDICATION_REQUEST_STATUS_ACTIVE);
-        } else {
-            $medRequestResource->setStatus(self::MEDICATION_REQUEST_STATUS_STOPPED);
+        $validStatii = [self::MEDICATION_REQUEST_STATUS_STOPPED,
+            self::MEDICATION_REQUEST_STATUS_ACTIVE, self::MEDICATION_REQUEST_STATUS_COMPLETED];
+        if (!empty($dataRecord['status'])
+            && array_search($dataRecord['status'], $validStatii) !== false) {
+            $medRequestResource->setStatus($dataRecord['status']);
+        }
+        else {
+            $medRequestResource->setStatus(self::MEDICATION_REQUEST_STATUS_UNKNOWN);
         }
 
         // intent required
@@ -129,123 +144,86 @@ class FhirMedicationRequestService extends FhirServiceBase
         }
 
         // category must support
-        // TODO: @adunsulag need to add a category to the prescriptions table and to our medication list issues table so we can support where this drug is being taken...
-        $medRequestResource->addCategory(UtilsService::createCodeableConcept([self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => xlt("Community"), FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]));
+        $medRequestResource->addCategory(UtilsService::createCodeableConcept([$dataRecord['category'] => xlt($dataRecord['category_text'])]
+            , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
 
         // reported must support
-        // Talking with Sherwin Gaddis (implementor of WENO e-prescribe) anything in prescription will be clinician requested
-        // and anything in the medications list table will be user requested...
+        // we will treat everything as a primary source as OpenEMR has no way of differentiating right now primary versus secondary.
         $medRequestResource->setReportedBoolean(self::MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE);
 
-        // TODO: we need to embed this unless we want to deal with the medication resource and allow _include which we don't support right now
         // medication[x] required
-        if (!empty($dataRecord['rxnorm_drugcode'])) {
+        if (!empty($dataRecord['drugcode'])) {
             $rxnormCoding = new FHIRCoding();
             $rxnormCode = new FHIRCodeableConcept();
             $rxnormCoding->setSystem(FhirCodeSystemConstants::RXNORM);
-            foreach ($dataRecord['rxnorm_drugcode'] as $code => $display) {
-                $rxnormCoding->setCode($code);
+            foreach ($dataRecord['drugcode'] as $code => $display) {
+                $rxnormCoding->setCode($code . "");// value must be a string
                 $rxnormCoding->setDisplay($display);
                 $rxnormCode->addCoding($rxnormCoding);
             }
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
         }
-        if (!empty($dataRecord['drug_uuid'])) {
-            $medication = new FHIRReference();
-            $medication->setReference('Medication/' . $dataRecord['drug_uuid']);
-            $medRequestResource->setMedicationReference($medication);
+        else
+        {
+            $textOnlyCode = new FHIRCodeableConcept();
+            $textOnlyCode->setText($dataRecord['drug']);
+            $medRequestResource->setMedicationCodeableConcept($textOnlyCode);
         }
 
         // subject required
         if (!empty($dataRecord['puuid'])) {
-            $subject = new FHIRReference();
-            $subject->setReference('Patient/' . $dataRecord['puuid']);
-            $medRequestResource->setSubject($subject);
+            $medRequestResource->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         } else {
             $medRequestResource->setSubject(UtilsService::createDataMissingExtension());
         }
 
         // encounter must support
         if (!empty($dataRecord['euuid'])) {
-            $encounter = new FHIRReference();
-            $encounter->setReference('Encounter/' . $dataRecord['euuid']);
-            $medRequestResource->setEncounter($encounter);
+            $medRequestResource->setEncounter(UtilsService::createRelativeReference("Encounter", $dataRecord['euuid']));
         }
 
         // authoredOn must support
         if (!empty($dataRecord['date_added'])) {
             $authored_on = new FHIRDateTime();
-            $authored_on->setValue($dataRecord['date_added']);
+            $authored_on->setValue(gmdate('c', strtotime($dataRecord['date_added'])));
             $medRequestResource->setAuthoredOn($authored_on);
         }
 
         // requester required
         if (!empty($dataRecord['pruuid'])) {
-            $requester = new FHIRReference();
-            $requester->setReference('Practitioner/' . $dataRecord['pruuid']);
-            $medRequestResource->setRequester($requester);
+            $medRequestResource->setRequester(UtilsService::createRelativeReference('Practitioner', $dataRecord['pruuid']));
         } else {
             $medRequestResource->setRequester(UtilsService::createDataMissingExtension());
         }
         
         // dosageInstructions must support
-        if (!empty($dataRecord['unit'] || $dataRecord['interval'])) {
-            list($unitValue) = [
-                '0' => [''],
-                '1' => ['mg'],
-                '2' => ['mg/1cc'],
-                '3' => ['mg/2cc'],
-                '4' => ['mg/3cc'],
-                '5' => ['mg/4cc'],
-                '6' => ['mg/5cc'],
-                '7' => ['mcg'],
-                '8' => ['grams'],
-                '9' => ['mL']
-            ][$dataRecord['unit']] ?? [''];
-            $unit = new FHIRUnitsOfTime();
-            $unit->setValue($unitValue);
-            $decimal = new FHIRDecimal();
-            $decimal->setValue($dataRecord['interval']);
-            $repeat = new FHIRTimingRepeat();
-            $repeat->setPeriodUnit($unit);
-            $repeat->setPeriod($decimal);
-            $timing = new FHIRTiming();
-            $timing->setRepeat($repeat);
-        }
+        // we ignore unit,interval,and route for now as WENO does not populate it and NewCrop does not either inside OpenEMR
+        // instead we will populate the dosageInstructions if we have it in order to meet ONC certification
+        // TODO: @adunsulag if we actually support specific dosage instruction fields like period, interval, etc that
+        // can be used to report in FHIR, populate the dosage instructions here.
 
-        if (!empty($dataRecord['route'])) {
-            list($routeValue, $routeCode) = [
-                '0' => ['', ''],
-                '1' => ['ORAL', 'C38288'],
-                '2' => ['RECTAL', 'C38295'],
-                '3' => ['CUTANEOUS', 'C38675'],
-                '4' => ['To Affected Area', ''],
-                '5' => ['SUBLINGUAL', 'C38300'],
-                '6' => ['ORAL', 'C38288'],
-                '7' => ['OD', ''],
-                '8' => ['OPHTHALMIC', 'C38287'],
-                '9' => ['SUBCUTANEOUS', 'C38299'],
-                '10' => ['INTRAMUSCULAR', 'C28161'],
-                '11' => ['INTRAVENOUS', 'C38276'],
-                '12' => ['NASAL', 'C38284'],
-                '13' => ['AURICULAR (OTIC)', 'C38192'],
-                '14' => ['AURICULAR (OTIC)', 'C38192'],
-                '15' => ['AURICULAR (OTIC)', 'C38192'],
-                '16' => ['INTRADERMAL', 'C38238'],
-                '18' => ['OTHER', 'C38290'],
-                '19' => ['TRANSDERMAL', 'C38305'],
-                '20' => ['INTRAMUSCULAR', 'C28161'],
-            ][$dataRecord['route']] ?? ['', ''];
-            $route = new FHIRCodeableConcept();
-            $routeCoding = new FHIRCoding();
-            $routeCoding->setSystem("http://ncimeta.nci.nih.gov");
-            $routeCoding->setCode($routeCode);
-            $routeCoding->setDisplay($routeValue);
-            $route->addCoding($routeCoding);
+        if (!empty($dataRecord['drug_dosage_instructions'])) {
             $dosage = new FHIRDosage();
-            $dosage->setRoute($route);
-            $dosage->setTiming($timing);
-            $medRequestResource->addDosageInstruction($dosage);
+            // TODO: @adunsulag if inferno fixes their testsuite change to use the object.  The inferno test suite fails
+            // to recognize resourceType even though Dosage is a BackboneElement subtype, so this is one of the few times
+            // we will use an array dataset instead of the actual class
+            $dosageArray = [];
+            if (!empty($dataRecord['route']))
+            {
+                $this->populateRouteOptions($dataRecord, $dosage);
+                if (!empty($dosage->getRoute())) {
+                    $dosageArray['route'] = $dosage->getRoute()->jsonSerialize();
+                }
+            }
+
+            if (!empty($dataRecord['drug_dosage_instructions']))
+            {
+//                $dosage->setText($dataRecord['drug_dosage_instructions']);
+                $dosageArray['text'] = $dataRecord['drug_dosage_instructions'];
+            }
+
+
+            $medRequestResource->addDosageInstruction($dosageArray);
         }
 
         if (!empty($dataRecord['note'])) {
@@ -269,30 +247,87 @@ class FhirMedicationRequestService extends FhirServiceBase
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        // for now we hardcode all of our prescriptions to be 'order' so we don't actually deal with any filtering other than the single status
-        if (isset($openEMRSearchParameters['intent']))
-        {
-            unset($openEMRSearchParameters['intent']);
-        }
-        return $this->prescriptionService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->prescriptionService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        // TODO: If Required in Future
+        if (!($dataRecord instanceof FHIRMedicationRequest)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
+    }
+
+    private function populateRouteOptions($dataRecord, FHIRDosage $dosage)
+    {
+        // the route information isn't populated via the e-perscribe option or medication list anywhere as far
+        // as I can tell and the FHIR code was using drug route options from the National Cancer Institute which
+        // FHIR US-Core suggests we use SNOMED-CT values found here: http://hl7.org/fhir/R4/valueset-route-codes.html
+        // if we end up needing these for certification / testing I've left the SQL that would need to be populated
+        // here as well as the FHIR code
+        /**
+         * UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38288" WHERE list_id='drug_route' AND option_id=1;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38288" WHERE list_id='drug_route' AND option_id=6;
+
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C3829" WHERE list_id='drug_route' AND option_id=2;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38675" WHERE list_id='drug_route' AND option_id=3;
+
+        -- it looks like 4,7,17,and 21 are empty... not sure why
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38300" WHERE list_id='drug_route' AND option_id=5;
+        -- again  7 is empty, not sure why
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38287" WHERE list_id='drug_route' AND option_id=8;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38299" WHERE list_id='drug_route' AND option_id=9;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C28161" WHERE list_id='drug_route' AND option_id=10;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38276" WHERE list_id='drug_route' AND option_id=11;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38284" WHERE list_id='drug_route' AND option_id=12;
+        -- Not sure why 13,14,15 are duplicates
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=13;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=14;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38192" WHERE list_id='drug_route' AND option_id=15;
+
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38238" WHERE list_id='drug_route' AND option_id=16;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38290" WHERE list_id='drug_route' AND option_id=18;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C38305" WHERE list_id='drug_route' AND option_id=19;
+        UPDATE `list_options` SET codes="NCI-CONCEPT-ID:C28161" WHERE list_id='drug_route' AND option_id=20;
+         */
+//            if (!empty($dataRecord['route'])) {
+//
+//                list($routeValue, $routeCode) = [
+//                    '0' => ['', ''],
+//                    '1' => ['ORAL', 'C38288'],
+//                    '2' => ['RECTAL', 'C38295'],
+//                    '3' => ['CUTANEOUS', 'C38675'],
+//                    '4' => ['To Affected Area', ''],
+//                    '5' => ['SUBLINGUAL', 'C38300'],
+//                    '6' => ['ORAL', 'C38288'],
+//                    '7' => ['OD', ''],
+//                    '8' => ['OPHTHALMIC', 'C38287'],
+//                    '9' => ['SUBCUTANEOUS', 'C38299'],
+//                    '10' => ['INTRAMUSCULAR', 'C28161'],
+//                    '11' => ['INTRAVENOUS', 'C38276'],
+//                    '12' => ['NASAL', 'C38284'],
+//                    '13' => ['AURICULAR (OTIC)', 'C38192'],
+//                    '14' => ['AURICULAR (OTIC)', 'C38192'],
+//                    '15' => ['AURICULAR (OTIC)', 'C38192'],
+//                    '16' => ['INTRADERMAL', 'C38238'],
+//                    '18' => ['OTHER', 'C38290'],
+//                    '19' => ['TRANSDERMAL', 'C38305'],
+//                    '20' => ['INTRAMUSCULAR', 'C28161'],
+//                ][$dataRecord['route']] ?? ['', ''];
+//                $route = new FHIRCodeableConcept();
+//                $routeCoding = new FHIRCoding();
+//                $routeCoding->setSystem(FhirCodeSystemConstants::NCIMETA_NCI_NIH);
+//                $routeCoding->setCode($routeCode);
+//                $routeCoding->setDisplay($routeValue);
+//                $route->addCoding($routeCoding);
+//                $dosage->setRoute($route);
+//            }
+
     }
 }

@@ -82,25 +82,152 @@ class PrescriptionService extends BaseService
 
         // order comes from our MedicationRequest intent value set, since we are only reporting on completed prescriptions
         // we will put the intent down as 'order' @see http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html
-        $sql = "SELECT prescriptions.*,
-                'order' AS intent,
-                patient.puuid,
-                encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid,
-                drug.uuid AS drug_uuid
-                FROM prescriptions
+        $sql = "SELECT 
+                combined_prescriptions.uuid
+                ,combined_prescriptions.source_table
+                ,combined_prescriptions.drug
+                ,combined_prescriptions.active
+                ,combined_prescriptions.intent
+                ,combined_prescriptions.category
+                ,'Community' AS category_text
+                ,combined_prescriptions.rxnorm_drugcode
+                ,combined_prescriptions.date_added
+                ,combined_prescriptions.unit
+                ,combined_prescriptions.`interval`
+                ,combined_prescriptions.route
+                ,combined_prescriptions.note
+                ,combined_prescriptions.status
+                ,combined_prescriptions.drug_dosage_instructions
+                ,patient.puuid
+                ,encounter.euuid
+                ,practitioner.pruuid
+                ,drug_uuid
+
+                ,routes_list.route_id
+                ,routes_list.route_title
+                ,routes_list.route_codes
+
+                ,units_list.unit_id
+                ,units_list.unit_title
+                ,units_list.unit_codes
+
+                ,intervals_list.interval_id
+                ,intervals_list.interval_title
+                ,intervals_list.interval_codes
+
+                FROM (
+                      SELECT
+                             prescriptions.uuid
+                            ,'prescriptions' AS 'source_table'
+                            ,prescriptions.drug
+                            ,prescriptions.active
+                            ,prescriptions.end_date
+                            ,'order' AS intent
+                            ,'community' AS category
+                            ,IF(prescriptions.rxnorm_drugcode!=''
+                                ,prescriptions.rxnorm_drugcode
+                                ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
+                            ) AS 'rxnorm_drugcode'
+                            ,date_added
+                            ,COALESCE(prescriptions.unit,drugs.unit) AS unit
+                            ,prescriptions.`interval`
+                            ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
+                            ,prescriptions.`note`
+                            ,patient_id
+                            ,encounter
+                            ,provider_id
+                            ,drugs.uuid AS drug_uuid
+                            ,'This is dosage instructions' AS drug_dosage_instructions
+                            ,CASE 
+                                WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
+                                WHEN prescriptions.active = '1' THEN 'active'
+                                ELSE 'stopped'
+                            END as 'status'
+                            
+                    FROM
+                        prescriptions
+                    LEFT JOIN
+                        -- @brady.miller so drug_id in my databases appears to always be 0 so I'm not sure I can grab anything here.. I know WENO doesn't populate this value...
+                        drugs ON prescriptions.drug_id = drugs.drug_id
+                    UNION
+                    SELECT
+                        lists.uuid
+                        ,'lists' AS 'source_table'
+                        ,lists.title AS drug
+                        ,activity AS active
+                        ,lists.enddate AS end_date
+                        ,'order' AS intent
+                        ,'community' AS category
+                        ,lists.diagnosis AS rxnorm_drugcode
+                        ,`date` AS date_added
+                        ,NULL as unit
+                        ,NULL as 'interval'
+                        ,NULL as `route`
+                        ,NULL as 'note'
+                        ,pid AS patient_id
+                        ,NULL as encounter
+                        ,users.id AS provider_id
+                        ,NULL as drug_uuid
+                        ,'This is dosage instructions' AS drug_dosage_instructions
+                        ,CASE 
+                                WHEN lists.enddate IS NOT NULL AND lists.activity = '1' THEN 'completed'
+                                WHEN lists.activity = '1' THEN 'active'
+                                ELSE 'stopped'
+                        END as 'status'
+                    FROM
+                        lists
+                    LEFT JOIN 
+                            users ON users.username = lists.user
+                    WHERE
+                        type = 'medication'
+                ) combined_prescriptions
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS route_id
+                    ,title AS route_title
+                    ,codes AS route_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'
+                ) routes_list ON routes_list.route_id = combined_prescriptions.route
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS interval_id
+                    ,title AS interval_title
+                    ,codes AS interval_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'      
+                ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS unit_id
+                    ,title AS unit_title
+                    ,codes AS unit_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'
+                ) units_list ON units_list.unit_id = combined_prescriptions.unit
                 LEFT JOIN (
                     select uuid AS puuid
                     ,pid
                     FROM patient_data
                 ) patient
-                ON patient.pid = prescriptions.patient_id
-                LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescriptions.encounter
-                LEFT JOIN users AS practitioner
-                ON practitioner.id = prescriptions.provider_id
-                LEFT JOIN drugs AS drug
-                ON drug.drug_id = prescriptions.drug_id";
+                ON patient.pid = combined_prescriptions.patient_id
+                LEFT JOIN (
+                    SELECT
+                        encounter,
+                        uuid AS euuid
+                    FROM form_encounter
+                ) encounter
+                ON encounter.encounter = combined_prescriptions.encounter
+                LEFT JOIN (
+                    SELECT 
+                           id AS practitioner_id
+                           ,uuid AS pruuid
+                    FROM users
+                ) practitioner
+                ON practitioner.practitioner_id = combined_prescriptions.provider_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -142,8 +269,9 @@ class PrescriptionService extends BaseService
         $record = parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
 
         if ($record['rxnorm_drugcode'] != "") {
-            $record['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
+            $record['drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
         }
+
         return $record;
     }
 
