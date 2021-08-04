@@ -329,6 +329,7 @@ function insuranceSelect()
      echo "   <select name='form_payer_id' class='form-control'>\n";
      echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
  foreach ($insurancei as $iid => $iname) {
+     
   echo "<option value='" . attr($iid) . "'";
   if ($iid == $_POST['form_payer_id']) {
       echo " selected";
@@ -343,7 +344,6 @@ function insuranceSelect()
      echo "   </select>\n";
     }
 }
-
 
 // In the case of CSV export only, a download will be forced.
 if (!empty($_POST['form_csvexport'])) {
