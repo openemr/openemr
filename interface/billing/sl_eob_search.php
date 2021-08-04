@@ -296,8 +296,9 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             $pdf2->SetDirectionality('rtl');
         }
         ob_start();
-        readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
-        //echo $file;
+        // this file contains the HTML to be converted to pdf.
+        readfile($file_to_send, "r");
+
         $content = ob_get_clean();
 
         // Fix a nasty html2pdf bug - it ignores document root!
@@ -454,8 +455,7 @@ if (
     }
     // This loops once for each invoice/encounter.
     //
-    $rcnt = 0;
-    while ($row = $rows[$rcnt++]) {
+    for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
         $svcdate = substr($row['date'], 0, 10);
         $duedate = $svcdate; // TBD?
         $duncount = $row['stmt_count'];
@@ -587,12 +587,18 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                $tmp = make_statement($stmt);
-                if (empty($tmp)) {
-                    $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
-                    $tmp .= "<br />\n\014<br /><br />";
+                if ($_REQUEST['form_category'] == 'Due Pt' && (get_patient_balance($stmt['pid']) < 0)) {
+                    // not printing statement if patient balance is less than zero even though
+                    // a single encounter may have a balance
+                    unset($stmt);
+                } else {
+                    $tmp = make_statement($stmt);
+                    if (empty($tmp)) {
+                        $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
+                        $tmp .= "<br />\n\014<br /><br />";
+                    }
+                    fwrite($fhprint, $tmp);
                 }
-                fwrite($fhprint, $tmp);
             }
         }
     } // end while

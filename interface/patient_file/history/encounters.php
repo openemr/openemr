@@ -53,7 +53,7 @@ $auth_demo = AclMain::aclCheckCore('patients', 'demo');
 $glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'));
 
 $tmp = getPatientData($pid, "squad");
-if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
+if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
 }
 

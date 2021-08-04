@@ -275,7 +275,7 @@ function create_HTML_statement($stmt)
                 $amount = sprintf("%.2f", 0 - $ddata['pmt']);
                 $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
                     substr(oeFormatShortDate($ddate), 8, 2) .
-                    ': ' . $ddata['src'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . $ddata['insurance_company'];
+                    ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                 // $ddata['plv'] is the 'payer_type' field in `ar_activity`, passed in via InvoiceSummary
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
