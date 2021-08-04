@@ -312,11 +312,13 @@ function getInsName($payerid)
     return $tmp['name'];
 }
 
-$ins_co_name='';
-function insuranceSelect(){
+$ins_co_name = '';
+function insuranceSelect()
+{
     global $ins_co_name;
     $insurancei = getInsuranceProviders();
-    if($_POST['form_csvexport']){
+    if ($_POST['form_csvexport'])
+    {
         foreach ($insurancei as $iid => $iname) {
             if ($iid == $_POST['form_payer_id']) {
                 $ins_co_name = $iname;
