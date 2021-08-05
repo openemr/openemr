@@ -312,6 +312,34 @@ function getInsName($payerid)
     return $tmp['name'];
 }
 
+$ins_co_name = '';
+function insuranceSelect()
+{
+    global $ins_co_name;
+    $insurancei = getInsuranceProviders();
+    if ($_POST['form_csvexport']) {
+        foreach ($insurancei as $iid => $iname) {
+            if ($iid == $_POST['form_payer_id']) {
+                $ins_co_name = $iname;
+            }
+        }
+    } else {
+         // added dropdown for payors (TLH)
+         echo "   <select name='form_payer_id' class='form-control'>\n";
+         echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
+        foreach ($insurancei as $iid => $iname) {
+            echo "<option value='" . attr($iid) . "'";
+            if ($iid == $_POST['form_payer_id']) {
+                echo " selected";
+            }
+            echo ">" . text($iname) . "</option>\n";
+            if ($iid == $_POST['form_payer_id']) {
+                $ins_co_name = $iname;
+            }
+        }
+        echo "   </select>\n";
+    }
+}
 // In the case of CSV export only, a download will be forced.
 if (!empty($_POST['form_csvexport'])) {
     header("Pragma: public");
@@ -320,6 +348,7 @@ if (!empty($_POST['form_csvexport'])) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=collections_report.csv");
     header("Content-Description: File Transfer");
+    insuranceSelect();
 } else {
     ?>
 <html>
@@ -529,23 +558,8 @@ if (!empty($_POST['form_csvexport'])) {
                         <?php echo xlt('Payor'); ?>:
                         </td>
                         <td>
-                        <?php  # added dropdown for payors (TLH)
-                               $insurancei = getInsuranceProviders();
-                               echo "   <select name='form_payer_id' class='form-control'>\n";
-                               echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
-                        foreach ($insurancei as $iid => $iname) {
-                            echo "<option value='" . attr($iid) . "'";
-                            if (!empty($_POST['form_payer_id']) && ($iid == $_POST['form_payer_id'])) {
-                                echo " selected";
-                            }
-
-                            echo ">" . text($iname) . "</option>\n";
-                            if (!empty($_POST['form_payer_id']) && ($iid == $_POST['form_payer_id'])) {
-                                $ins_co_name = $iname;
-                            }
-                        }
-
-                               echo "   </select>\n";
+                        <?php  //added dropdown for payors (TLH)
+                        insuranceSelect();
                         ?>
                         </td>
                     </tr>
