@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientIssuesService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services;
-
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -35,8 +35,7 @@ class PatientIssuesService extends BaseService
     public function getOneById($issueId)
     {
         $results = $this->search(['id' => new TokenSearchField('id', [$issueId])]);
-        if (!empty($results->getData()))
-        {
+        if (!empty($results->getData())) {
             return array_pop($results->getData());
         }
         return null;
@@ -52,17 +51,15 @@ class PatientIssuesService extends BaseService
     {
         $this->validateIssueType($issueRecord['type']);
 
-        if (empty($issueRecord['pid']))
-        {
+        if (empty($issueRecord['pid'])) {
             throw new \InvalidArgumentException("issue pid cannot be empty for create");
         }
-        if (!empty($issueRecord['id']))
-        {
+        if (!empty($issueRecord['id'])) {
             throw new \InvalidArgumentException("Cannot insert record with existing id");
         }
 
         $whiteListDict = $this->filterData($issueRecord);
-        $insert = $this->buildInsertColumns($whiteListDict, ['null_value' => NULL]);
+        $insert = $this->buildInsertColumns($whiteListDict, ['null_value' => null]);
 
         $sql = "INSERT INTO lists SET " . $insert['set'];
         $list_id = QueryUtils::sqlInsert($sql, $insert['bind']);
@@ -78,17 +75,15 @@ class PatientIssuesService extends BaseService
     {
         $this->validateIssueType($issueRecord['type']);
 
-        if (empty($issueRecord['id']))
-        {
+        if (empty($issueRecord['id'])) {
             throw new \InvalidArgumentException("issue id cannot be empty for update");
         }
-        if (empty($issueRecord['pid']))
-        {
+        if (empty($issueRecord['pid'])) {
             throw new \InvalidArgumentException("issue pid cannot be empty for update");
         }
 
         $whiteListDict = $this->filterData($issueRecord);
-        $update = $this->buildUpdateColumns($whiteListDict, ['null_value' => NULL]);
+        $update = $this->buildUpdateColumns($whiteListDict, ['null_value' => null]);
         $values = $update['bind'];
         $sql = "UPDATE lists SET " . $update['set'] . " WHERE id = ? AND pid = ? ";
         $values[] = $issueRecord['id'];
@@ -105,21 +100,16 @@ class PatientIssuesService extends BaseService
             $medication = $issueRecord['medication'] ?? [];
 
 
-            if (!empty($medication))
-            {
-
+            if (!empty($medication)) {
                 $medicationIssueService = new MedicationPatientIssueService();
                 $medication['list_id'] = $issueRecord['id'];
                 $existingMedication = $medicationIssueService->getRecordByIssueListId($issueRecord['id']);
-                if (!empty($existingMedication))
-                {
-                    foreach ($medication as $key => $value)
-                    {
+                if (!empty($existingMedication)) {
+                    foreach ($medication as $key => $value) {
                         $existingMedication[$key] = $value;
                     }
                     $medicationIssueService->updateIssue($existingMedication);
-                }
-                else {
+                } else {
                     $medicationIssueService->createIssue($medication);
                 }
             }
@@ -140,8 +130,7 @@ class PatientIssuesService extends BaseService
     private function validateIssueType($type)
     {
         $value = QueryUtils::fetchSingleValue("select type FROM issue_types WHERE type = ? ", 'type', $type);
-        if (empty($value))
-        {
+        if (empty($value)) {
             throw new \InvalidArgumentException("Invalid issue type sent");
         }
     }
@@ -187,16 +176,14 @@ class PatientIssuesService extends BaseService
     protected function createResultRecordFromDatabaseResult($row)
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
-        if (!empty($record['lists_medication_id']))
-        {
+        if (!empty($record['lists_medication_id'])) {
             $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title', 'drug_dosage_instructions'];
             $record['medication'] = [
                 'id' => $row['lists_medication_id']
                 ,'erx_source' => $row['erx_source']
                 ,'erx_uploaded' => $row['erx_uploaded']
             ];
-            foreach ($extractKeys as $key)
-            {
+            foreach ($extractKeys as $key) {
                 $record['medication'][$key] = $row[$key];
                 unset($row[$key]);
             }

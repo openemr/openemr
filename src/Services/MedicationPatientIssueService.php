@@ -1,4 +1,5 @@
 <?php
+
 /**
  * MedicationPatientIssueService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services;
-
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -28,12 +28,10 @@ class MedicationPatientIssueService extends BaseService
 
     public function createIssue($record)
     {
-        if (!empty($record['id']))
-        {
+        if (!empty($record['id'])) {
             throw new \InvalidArgumentException("Cannot insert record with existing id");
         }
-        if (empty($record['list_id']))
-        {
+        if (empty($record['list_id'])) {
             throw new \InvalidArgumentException("issue list_id is required to create this record");
         }
 
@@ -43,17 +41,14 @@ class MedicationPatientIssueService extends BaseService
 
         $sql = "INSERT INTO " . self::TABLE_NAME . " SET " . $insert['set'];
         QueryUtils::sqlStatementThrowException($sql, $insert['bind']);
-
     }
 
     public function updateIssue($record)
     {
-        if (empty($record['id']))
-        {
+        if (empty($record['id'])) {
             throw new \InvalidArgumentException("Cannot update record without id");
         }
-        if (empty($record['list_id']))
-        {
+        if (empty($record['list_id'])) {
             throw new \InvalidArgumentException("issue list_id is required to update this record");
         }
 
@@ -71,13 +66,11 @@ class MedicationPatientIssueService extends BaseService
     {
         $listService = new ListService();
         // we save off the title information because administrators can change list option values and we need a historical record.
-        if (!empty($dataRecord['request_intent']))
-        {
+        if (!empty($dataRecord['request_intent'])) {
             $option = $listService->getListOption(self::LIST_OPTION_MEDICATION_REQUEST_INTENT, $dataRecord['request_intent']);
             $dataRecord['request_intent_title'] = $option['title'] ?? null;
         }
-        if (!empty($dataRecord['usage_category']))
-        {
+        if (!empty($dataRecord['usage_category'])) {
             $option = $listService->getListOption(self::LIST_OPTION_MEDICATION_USAGE_CATEGORY, $dataRecord['usage_category']);
             $dataRecord['usage_category_title'] = $option['title'] ?? null;
         }
@@ -86,8 +79,7 @@ class MedicationPatientIssueService extends BaseService
     public function getRecordByIssueListId($list_id)
     {
         $records = $this->search(['list_id' => new TokenSearchField('list_id', [$list_id])]);
-        if (!empty($records->getData()))
-        {
+        if (!empty($records->getData())) {
             return array_pop($records->getData());
         }
         return null;

@@ -131,11 +131,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // status required
         $validStatii = [self::MEDICATION_REQUEST_STATUS_STOPPED,
             self::MEDICATION_REQUEST_STATUS_ACTIVE, self::MEDICATION_REQUEST_STATUS_COMPLETED];
-        if (!empty($dataRecord['status'])
-            && array_search($dataRecord['status'], $validStatii) !== false) {
+        if (
+            !empty($dataRecord['status'])
+            && array_search($dataRecord['status'], $validStatii) !== false
+        ) {
             $medRequestResource->setStatus($dataRecord['status']);
-        }
-        else {
+        } else {
             $medRequestResource->setStatus(self::MEDICATION_REQUEST_STATUS_UNKNOWN);
         }
 
@@ -150,15 +151,16 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // category must support
         if (isset($dataRecord['category'])) {
-            $medRequestResource->addCategory(UtilsService::createCodeableConcept([$dataRecord['category'] => xlt($dataRecord['category_title'])]
-                , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
-        }
-        else
-        {
+            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
+                [$dataRecord['category'] => xlt($dataRecord['category_title'])],
+                FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+            ));
+        } else {
             // if no category has been sent then the default is home usage
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
-                [self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE)]
-                , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
+                [self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE)],
+                FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+            ));
         }
 
         // reported must support
@@ -176,9 +178,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 $rxnormCode->addCoding($rxnormCoding);
             }
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
-        }
-        else
-        {
+        } else {
             $textOnlyCode = new FHIRCodeableConcept();
             $textOnlyCode->setText($dataRecord['drug']);
             $medRequestResource->setMedicationCodeableConcept($textOnlyCode);
@@ -209,7 +209,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         } else {
             $medRequestResource->setRequester(UtilsService::createDataMissingExtension());
         }
-        
+
         // dosageInstructions must support
         // we ignore unit,interval,and route for now as WENO does not populate it and NewCrop does not either inside OpenEMR
         // instead we will populate the dosageInstructions if we have it in order to meet ONC certification
@@ -222,16 +222,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             // to recognize resourceType even though Dosage is a BackboneElement subtype, so this is one of the few times
             // we will use an array dataset instead of the actual class
             $dosageArray = [];
-            if (!empty($dataRecord['route']))
-            {
+            if (!empty($dataRecord['route'])) {
                 $this->populateRouteOptions($dataRecord, $dosage);
                 if (!empty($dosage->getRoute())) {
                     $dosageArray['route'] = $dosage->getRoute()->jsonSerialize();
                 }
             }
 
-            if (!empty($dataRecord['drug_dosage_instructions']))
-            {
+            if (!empty($dataRecord['drug_dosage_instructions'])) {
 //                $dosage->setText($dataRecord['drug_dosage_instructions']);
                 $dosageArray['text'] = $dataRecord['drug_dosage_instructions'];
             }
@@ -342,7 +340,6 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 //                $route->addCoding($routeCoding);
 //                $dosage->setRoute($route);
 //            }
-
     }
 
     /**

@@ -181,8 +181,7 @@ class BaseService
             }
             // make it consistent with our update columns... I really don't like this magic string constant, if someone
             // intends to actually store the value NULL as a string this will break....
-            else if ($value === "NULL")
-            {
+            else if ($value === "NULL") {
                 $value = $null_value;
             }
             if ($value === null || $value === false) {
@@ -400,8 +399,7 @@ class BaseService
     public function filterData($data, $whitelistedFields = null)
     {
         // use the current service fields for our whitelist if its empty
-        if (empty($whitelistedFields))
-        {
+        if (empty($whitelistedFields)) {
             $whitelistedFields = $this->getFields();
         }
 

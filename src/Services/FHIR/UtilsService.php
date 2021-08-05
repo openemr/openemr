@@ -207,7 +207,7 @@ class UtilsService
         ];
     }
 
-    public static function createNarrative($message, $status = "generated") : FHIRNarrative
+    public static function createNarrative($message, $status = "generated"): FHIRNarrative
     {
         $div = "<div xmlns='http://www.w3.org/1999/xhtml'>" . $message . "</div>";
         $narrative = new FHIRNarrative();

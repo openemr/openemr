@@ -1,4 +1,5 @@
 <?php
+
 /**
  * add_edit_issue_medication_fragment.php  Represents the medication fields used for the medication type issue list
  * @package openemr
@@ -11,8 +12,7 @@
 /**
  * @global $irow The issues list record row we are working with
  */
-if (empty($irow))
-{
+if (empty($irow)) {
     return;
 }
 $medication = $irow['medication'] ?? [];

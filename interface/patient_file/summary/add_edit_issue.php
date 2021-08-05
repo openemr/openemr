@@ -254,17 +254,14 @@ if (!empty($_POST['form_save'])) {
         , 'reinjury_id' => 'form_reinjury_id', 'referredby' => 'form_referredby', 'injury_grade' => 'form_injury_grade'
         , 'outcome' => 'form_outcome', 'destination' => 'form_destination', 'reaction' => 'form_reaction'
         , 'verification' => 'form_verification', 'severity_al' => 'form_severity_id', 'list_option_id' => 'form_title_id'];
-    foreach ($issue_form_fields as $field => $form_field)
-    {
-        if (isset($_POST[$form_field]))
-        {
+    foreach ($issue_form_fields as $field => $form_field) {
+        if (isset($_POST[$form_field])) {
             $issueRecord[$field] = $_POST[$form_field];
         }
     }
 
     // now populate medication
-    if (isset($_POST['form_medication']))
-    {
+    if (isset($_POST['form_medication'])) {
         $issueRecord['medication'] = $_POST['form_medication'];
     }
 
@@ -272,7 +269,6 @@ if (!empty($_POST['form_save'])) {
     if ($issue) {
         $patientIssuesService->updateIssue($issueRecord);
     } else {
-
         $issueRecord["date"] = date("Y-m-d H:m:s");
         $issueRecord['activity'] = 1;
         $issueRecord['user'] = $_SESSION['authUser'];
@@ -326,7 +322,6 @@ if ($issue) {
     if (!AclMain::aclCheckIssue($irow['type'], '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
-
 } elseif ($thistype) {
     $irow['type'] = $thistype;
 }
