@@ -178,10 +178,9 @@ class BaseService
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
-            }
-            // make it consistent with our update columns... I really don't like this magic string constant, if someone
-            // intends to actually store the value NULL as a string this will break....
-            else if ($value === "NULL") {
+            } else if ($value === "NULL") {
+                // make it consistent with our update columns... I really don't like this magic string constant, if someone
+                // intends to actually store the value NULL as a string this will break....
                 $value = $null_value;
             }
             if ($value === null || $value === false) {

@@ -35,10 +35,10 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
-    private $medicationRequestIdCounter = 1;
-
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
+
+    private $medicationRequestIdCounter = 1;
 
     const MEDICATION_REQUEST_STATUS_COMPLETED = "completed";
     const MEDICATION_REQUEST_STATUS_STOPPED = "stopped";
