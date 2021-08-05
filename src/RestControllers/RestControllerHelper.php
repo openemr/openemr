@@ -38,6 +38,8 @@ class RestControllerHelper
 
     /**
      * The default FHIR services class namespace
+     * TODO: should we build a fhir service locator class?  There are two places this is now used, in this class and
+     * in the FhirProvenanceService...
      */
     const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
 
