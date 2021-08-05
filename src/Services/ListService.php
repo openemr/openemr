@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
+// TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
 {
 

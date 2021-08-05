@@ -1987,6 +1987,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $data['lists3-enddate-con'][$i] = (null);
                                 }
 
+                                // TODO: Note this is the only way right now to create / update prescriptions is via CCDA...
                                 $q_upd_pres = "UPDATE prescriptions
                                         SET date_added=?,
                                             drug=?,
