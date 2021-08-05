@@ -558,7 +558,9 @@ if (!empty($_POST['form_csvexport'])) {
                         <?php echo xlt('Payor'); ?>:
                         </td>
                         <td>
-                            insuranceSelect();
+                        <?php  //added dropdown for payors (TLH)
+                        insuranceSelect();
+                        ?>
                         </td>
                     </tr>
 
