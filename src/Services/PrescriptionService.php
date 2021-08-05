@@ -89,6 +89,8 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.active
                 ,combined_prescriptions.intent
                 ,combined_prescriptions.category
+                ,combined_prescriptions.intent_title
+                ,combined_prescriptions.category_title
                 ,'Community' AS category_text
                 ,combined_prescriptions.rxnorm_drugcode
                 ,combined_prescriptions.date_added
@@ -123,7 +125,9 @@ class PrescriptionService extends BaseService
                             ,prescriptions.active
                             ,prescriptions.end_date
                             ,'order' AS intent
+                            ,'Order' AS intent_title
                             ,'community' AS category
+                            ,'Home/Community' as category_title
                             ,IF(prescriptions.rxnorm_drugcode!=''
                                 ,prescriptions.rxnorm_drugcode
                                 ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
@@ -137,7 +141,7 @@ class PrescriptionService extends BaseService
                             ,encounter
                             ,provider_id
                             ,drugs.uuid AS drug_uuid
-                            ,'This is dosage instructions' AS drug_dosage_instructions
+                            ,prescriptions.drug_dosage_instructions
                             ,CASE 
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
@@ -156,28 +160,33 @@ class PrescriptionService extends BaseService
                         ,lists.title AS drug
                         ,activity AS active
                         ,lists.enddate AS end_date
-                        ,'order' AS intent
-                        ,'community' AS category
+                        ,lists_medication.request_intent AS intent
+                        ,lists_medication.request_intent_title AS intent_title
+                        ,lists_medication.usage_category AS category
+                        ,lists_medication.usage_category_title AS category_title
                         ,lists.diagnosis AS rxnorm_drugcode
                         ,`date` AS date_added
                         ,NULL as unit
                         ,NULL as 'interval'
                         ,NULL as `route`
-                        ,NULL as 'note'
+                        ,lists.comments as 'note'
                         ,pid AS patient_id
+                         -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1, we will leave off encounter for now
                         ,NULL as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
-                        ,'This is dosage instructions' AS drug_dosage_instructions
+                        ,lists_medication.drug_dosage_instructions
                         ,CASE 
-                                WHEN lists.enddate IS NOT NULL AND lists.activity = '1' THEN 'completed'
-                                WHEN lists.activity = '1' THEN 'active'
+                                WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
+                                WHEN lists.activity = 1 THEN 'active'
                                 ELSE 'stopped'
                         END as 'status'
                     FROM
                         lists
                     LEFT JOIN 
                             users ON users.username = lists.user
+                    LEFT JOIN
+                        lists_medication ON lists_medication.list_id = lists.id
                     WHERE
                         type = 'medication'
                 ) combined_prescriptions
@@ -226,6 +235,7 @@ class PrescriptionService extends BaseService
                            id AS practitioner_id
                            ,uuid AS pruuid
                     FROM users
+                    WHERE users.npi IS NOT NULL AND users.npi != ''
                 ) practitioner
                 ON practitioner.practitioner_id = combined_prescriptions.provider_id";
 
@@ -241,22 +251,6 @@ class PrescriptionService extends BaseService
             $processingResult->addData($record);
         }
         return $processingResult;
-//
-//        $statementResults = sqlStatement($sql, $sqlBindArray);
-//        $processingResult = new ProcessingResult();
-//        while ($row = sqlFetchArray($statementResults)) {
-//            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-//            $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
-//            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-//            $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-//            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
-//            if ($row['rxnorm_drugcode'] != "") {
-//                $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
-//            }
-//            $processingResult->addData($row);
-//        }
-//
-//        return $processingResult;
     }
 
     public function getUuidFields(): array

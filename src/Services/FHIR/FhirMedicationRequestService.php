@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\ListService;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -32,7 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
  * Class FhirMedicationRequestService
  * @package OpenEMR\Services\FHIR
  */
-class FhirMedicationRequestService extends FhirServiceBase
+class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     private $medicationRequestIdCounter = 1;
 
@@ -68,6 +69,8 @@ class FhirMedicationRequestService extends FhirServiceBase
      */
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY = "community";
 
+    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
+
     /**
      * Includes requests for medications created when the patient is being released from a facility
      */
@@ -77,6 +80,8 @@ class FhirMedicationRequestService extends FhirServiceBase
      * Unique reference that is contained inside a MedicationRequest if we have no connected RXNorm drug data.
      */
     const MEDICATION_REQUEST_REFERENCE_ID_PREFIX = "m";
+
+    const PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
 
     /**
      * @var PrescriptionService
@@ -144,8 +149,17 @@ class FhirMedicationRequestService extends FhirServiceBase
         }
 
         // category must support
-        $medRequestResource->addCategory(UtilsService::createCodeableConcept([$dataRecord['category'] => xlt($dataRecord['category_text'])]
-            , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
+        if (isset($dataRecord['category'])) {
+            $medRequestResource->addCategory(UtilsService::createCodeableConcept([$dataRecord['category'] => xlt($dataRecord['category_title'])]
+                , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
+        }
+        else
+        {
+            // if no category has been sent then the default is home usage
+            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
+                [self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE)]
+                , FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY));
+        }
 
         // reported must support
         // we will treat everything as a primary source as OpenEMR has no way of differentiating right now primary versus secondary.
@@ -329,5 +343,17 @@ class FhirMedicationRequestService extends FhirServiceBase
 //                $dosage->setRoute($route);
 //            }
 
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [self::PROFILE_URI];
     }
 }
