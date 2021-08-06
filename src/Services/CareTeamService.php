@@ -29,16 +29,16 @@ class CareTeamService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
-    private const CARE_TEAM_HISTORY_TABLE = "patient_careteam_history";
+    private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
-        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE, self::CARE_TEAM_HISTORY_TABLE]);
+        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE, self::PATIENT_HISTORY_TABLE]);
         UuidMapping::createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
-        parent::__construct(self::CARE_TEAM_HISTORY_TABLE);
+        parent::__construct(self::PATIENT_HISTORY_TABLE);
     }
 
     public function search($search, $isAndCondition = true)
@@ -234,11 +234,11 @@ class CareTeamService extends BaseService
     {
         $insertData = [
             'pid' => $pid, 'care_team_provider' => $oldProviders, 'care_team_facility' => $oldFacilities,
-            'uuid' => UuidRegistry::getRegistryForTable(self::CARE_TEAM_HISTORY_TABLE)->createUuid()
+            'uuid' => UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid()
         ];
         $insert = $this->buildInsertColumns($insertData);
 
-        $sql = "INSERT INTO " . self::CARE_TEAM_HISTORY_TABLE . " SET " . $insert['set'];
+        $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
         return QueryUtils::sqlInsert($sql, $insert['bind']);
     }
 }

@@ -856,13 +856,13 @@ UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_i
 ALTER TABLE patient_data ADD COLUMN care_team_status VARCHAR(100) NULL DEFAULT NULL;
 #EndIf
 
-#IfNotTable patient_careteam_history
-CREATE TABLE `patient_careteam_history` (
+#IfNotTable patient_history
+CREATE TABLE `patient_history` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT
     , `uuid` BINARY(16) NULL
+    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     , `care_team_provider` TEXT NULL
     , `care_team_facility` TEXT NULL
-    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     , `pid` BIGINT(20) NOT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
