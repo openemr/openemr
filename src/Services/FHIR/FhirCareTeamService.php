@@ -15,7 +15,6 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
@@ -61,7 +60,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['careteam_status']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['care_team_status']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -86,8 +85,8 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $id->setValue($dataRecord['uuid']);
         $careTeamResource->setId($id);
 
-        if (array_search($dataRecord['status'], self::CARE_TEAM_STATII) !== false) {
-            $careTeamResource->setStatus($dataRecord['status']);
+        if (array_search($dataRecord['care_team_status'], self::CARE_TEAM_STATII) !== false) {
+            $careTeamResource->setStatus($dataRecord['care_team_status']);
         } else {
             // default is active
             $careTeamResource->setStatus(self::CARE_TEAM_STATUS_ACTIVE);

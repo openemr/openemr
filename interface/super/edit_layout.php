@@ -247,6 +247,7 @@ function isColumnReserved($tablename, $field_id)
             'dupscore',
             'cmsportal_login',
             'care_team_provider',
+            'care_team_status',
             'billing_note',
             'uuid',
             'care_team_facility',

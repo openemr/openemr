@@ -7242,6 +7242,18 @@ CREATE TABLE `patient_data` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `patient_careteam_history` that is a dependent table on `patient_data`
+CREATE TABLE `patient_careteam_history` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `uuid` BINARY(16) NULL
+    , `care_team_provider` TEXT NULL
+    , `care_team_facility` TEXT NULL
+    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , `pid` BIGINT(20) NOT NULL
+    , PRIMARY KEY (`id`)
+    , UNIQUE `uuid` (`uuid`)
+) ENGINE = InnoDB;
+--
 -- Table structure for table `patient_portal_menu`
 --
 

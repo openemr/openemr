@@ -585,12 +585,13 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id Care_Team_Status
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','active','Active',10,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','Care_Team_Status','Care Team Status',0, 1, 0, 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','proposed','Proposed',10,0,1, 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','active','Active',20,1,1, 'The care team is currently participating in the coordination and delivery of care.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','suspended','Suspended',30,0,1, 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','inactive','Inactive',40,0,1, 'The care team was, but is no longer, participating in the coordination and delivery of care.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','entered-in-error','Entered in Error',50,0,1, 'The care team should have never existed.');
+
 #EndIf
 
 #IfMissingColumn patient_data birth_fname
@@ -850,3 +851,29 @@ ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT 
 #EndIf
 
 UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_id` = 'Clinical_Note_Type' AND `list_options`.`option_id` = 'laboratory_report_narrative';
+
+#IfMissingColumn patient_data care_team_status
+ALTER TABLE patient_data ADD COLUMN care_team_status VARCHAR(100) NULL DEFAULT NULL;
+#EndIf
+
+#IfNotTable patient_careteam_history
+CREATE TABLE `patient_careteam_history` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `uuid` BINARY(16) NULL
+    , `care_team_provider` TEXT NULL
+    , `care_team_facility` TEXT NULL
+    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , `pid` BIGINT(20) NOT NULL
+    , PRIMARY KEY (`id`)
+    , UNIQUE `uuid` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id care_team_status
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team_provider' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group_id,@backup_group_id) AND form_id='DEM');
+-- strange that the list is
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+        VALUES ('DEM', 'care_team_status', COALESCE(@group_id,@backup_group_id), 'Care Team Status', @seq+1, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
+#EndIf
