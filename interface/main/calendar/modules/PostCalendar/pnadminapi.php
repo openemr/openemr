@@ -17,7 +17,7 @@
 //=========================================================================
 
 if (!defined('__POSTCALENDAR__')) {
-    @define('__POSTCALENDAR__', 'PostCalendar');
+    define('__POSTCALENDAR__', 'PostCalendar');
 }
 
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));

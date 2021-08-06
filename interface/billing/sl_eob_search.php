@@ -149,7 +149,7 @@ function era_callback(&$out)
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['payer_id'] ? $out['payer_id'] : $out['isa_sender_id'], '0');
 
-    if ($out['our_claim_id'] ?? '') {
+    if (!empty($out['our_claim_id'])) {
         list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
         if ($pid && $encounter) {
             if ($where) {
