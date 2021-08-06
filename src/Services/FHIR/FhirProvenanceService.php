@@ -47,19 +47,57 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     public function createProvenanceForDomainResource(FHIRDomainResource $resource, FHIRReference $userWHO = null)
     {
 
-        $targetReference = new FHIRReference();
-        $targetReference->setType($resource->get_fhirElementName());
-        $targetReference->setReference($resource->get_fhirElementName() . "/" . $resource->getId());
-
         $fhirProvenance = new FHIRProvenance();
         $fhirProvenance->setId($resource->get_fhirElementName() . ":" . $resource->getId());
-        $fhirProvenance->addTarget($targetReference);
+        /**
+         * Attributes required/must support for US.Core
+         */
 
-        // we are only going to provide the meta if we have it
+        // target.reference (1.*) required
+        $fhirProvenance->addTarget(UtilsService::createRelativeReference($resource->get_fhirElementName(), $resource->getId()));
+
+        // recorded - required
         if (!empty($resource->getMeta())) {
             $fhirProvenance->setRecorded($resource->getMeta()->getLastUpdated());
         }
+        else
+        {
+            // we should ALWAYS have a last updated date... but we will log this if we don't
+            $fhirProvenance->setRecorded(UtilsService::createDataMissingExtension());
+            (new SystemLogger())->error("Meta element was missing to populate recorded date in " . self::class . "->createProvenanceForDomainResource()", [
+                "resource" => $resource->get_fhirElementName() . "/" . $resource->getId()
+            ]);
+        }
 
+        $fhirOrganizationService = new FhirOrganizationService();
+        // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
+        $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
+        if (empty($primaryBusinessEntity))
+        {
+            (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
+            return null;
+        }
+
+        // agent - required
+        // agent.type - must support
+        // agent.who - required
+        // agent.onBehalfOf - must support
+
+        // agent:provenanceAuthor - must support
+        // agent:provenanceAuthor.type.coding.system - required
+        // agent:provenanceAuthor.type.coding.code - required
+        $author = $this->createAgentAuthorForResource($resource, $primaryBusinessEntity, $userWHO);
+        $fhirProvenance->addAgent($author);
+
+
+        $transmitter = $this->createAgentTransmitterForResource($resource, $primaryBusinessEntity);
+        $fhirProvenance->addAgent($transmitter);
+
+        return $fhirProvenance;
+    }
+
+    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, FHIRReference $who = null)
+    {
         $agent = new FHIRProvenanceAgent();
         $agentConcept = new FHIRCodeableConcept();
         $agentConceptCoding = new FHIRCoding();
@@ -69,35 +107,33 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $agentConcept->addCoding($agentConceptCoding);
         $agent->setType($agentConcept);
 
-        $orgReference = null;
-        $whoReference = null;
-
-        if (!empty($userWHO)) {
-            $whoReference = $userWHO;
-
-            // attempt to get the org for our agent
-            $searchValue = ReferenceSearchValue::createFromRelativeUri($userWHO->getReference());
-            $fhirOrganizationService = new FhirOrganizationService();
-            $orgReference = $fhirOrganizationService->getOrganizationReferenceForUser($searchValue->getId());
+        if (empty($who))
+        {
+            $who = $primaryBusinessEntity;
         }
+        $agent->setWho($who);
+        $agent->setOnBehalfOf($primaryBusinessEntity);
 
-        if (empty($orgReference)) {
-            // easiest provenance is to make the primary business entity organization be the author of the provenance
-            // resource.
-            $fhirOrganizationService = new FhirOrganizationService();
-            // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
-            $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-            $whoReference = $orgReference; // if we didn't get an org reference from our WHO we will overwrite our WHO
-        }
-        if (!empty($orgReference)) {
-            $agent->setWho($whoReference);
-            $agent->setOnBehalfOf($orgReference);
-        } else {
-            (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
-            return null;
-        }
-        $fhirProvenance->addAgent($agent);
-        return $fhirProvenance;
+        return $agent;
+    }
+
+    protected function createAgentTransmitterForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity)
+    {
+        // agent:ProvenanceTransmitter - must support
+        // agent:provenanceAuthor.type.coding.system=http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type - required
+        // agent:provenanceAuthor.type.coding.code=transmitter - required
+
+        $agent = new FHIRProvenanceAgent();
+        $agentConcept = new FHIRCodeableConcept();
+        $agentConceptCoding = new FHIRCoding();
+        $agentConceptCoding->setSystem("http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type");
+        $agentConceptCoding->setCode("transmitter");
+        $agentConceptCoding->setDisplay(xlt("Transmitter"));
+        $agentConcept->addCoding($agentConceptCoding);
+        $agent->setType($agentConcept);
+        $agent->setWho($primaryBusinessEntity);
+        $agent->setOnBehalfOf($primaryBusinessEntity);
+        return $agent;
     }
 
     /**
