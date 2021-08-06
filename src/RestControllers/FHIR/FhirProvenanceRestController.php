@@ -62,13 +62,12 @@ class FhirProvenanceRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        if (empty($searchParams['_id']))
-        {
+        if (empty($searchParams['_id'])) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages(['_id' => "search requires '_id' parameter to be specified"]);
             return $processingResult;
         }
-        
+
         $processingResult = $this->provenanceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {

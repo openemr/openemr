@@ -28,12 +28,12 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use \Exception;
+use Exception;
 
 class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
-    
+
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
     /**
@@ -59,9 +59,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         // recorded - required
         if (!empty($resource->getMeta())) {
             $fhirProvenance->setRecorded($resource->getMeta()->getLastUpdated());
-        }
-        else
-        {
+        } else {
             // we should ALWAYS have a last updated date... but we will log this if we don't
             $fhirProvenance->setRecorded(UtilsService::createDataMissingExtension());
             (new SystemLogger())->error("Meta element was missing to populate recorded date in " . self::class . "->createProvenanceForDomainResource()", [
@@ -72,8 +70,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $fhirOrganizationService = new FhirOrganizationService();
         // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
         $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-        if (empty($primaryBusinessEntity))
-        {
+        if (empty($primaryBusinessEntity)) {
             (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
@@ -107,8 +104,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $agentConcept->addCoding($agentConceptCoding);
         $agent->setType($agentConcept);
 
-        if (empty($who))
-        {
+        if (empty($who)) {
             $who = $primaryBusinessEntity;
         }
         $agent->setWho($who);
@@ -162,12 +158,10 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     {
         $fhirSearchResult = new ProcessingResult();
         try {
-            if (empty($fhirSearchParameters['_id']))
-            {
+            if (empty($fhirSearchParameters['_id'])) {
                 throw new SearchFieldException('_id', '_id parameter is required to retrieve provenance records');
             }
             $fhirSearchResult = $this->getProvenanceRecordsForId($fhirSearchParameters['_id'], $puuidBind);
-
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
             $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -204,12 +198,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     ,'_revinclude' => 'Provenance:target'
                 ];
                 $results = $newServiceClass->getAll($searchParams, $puuidBind);
-                if ($results->hasData())
-                {
-                    foreach ($results->getData() as $datum)
-                    {
-                        if ($datum instanceof  FHIRProvenance)
-                        {
+                if ($results->hasData()) {
+                    foreach ($results->getData() as $datum) {
+                        if ($datum instanceof  FHIRProvenance) {
                             $processingResult->addData($datum);
                         }
                     }
@@ -217,9 +208,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     $processingResult->addProcessingResult($results);
                 }
             }
-        }
-        catch (Exception $exception)
-        {
+        } catch (Exception $exception) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
         }
         return $processingResult;
@@ -240,8 +229,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
          */
         $id = $openEMRSearchParameters['_id'] ?? new TokenSearchField('_id', []);
         $processingResult = new ProcessingResult();
-        foreach ($id->getValues() as $value)
-        {
+        foreach ($id->getValues() as $value) {
             // should be in format of ResourceType/uuid
             $code = $value->getCode() ?? "";
             try {
@@ -258,12 +246,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                             ,'_revinclude' => 'Provenance:target'
                         ];
                         $results = $newServiceClass->getAll($searchParams, $patientBinding);
-                        if ($results->hasData())
-                        {
-                            foreach ($results->getData() as $datum)
-                            {
-                                if ($datum instanceof  FHIRProvenance)
-                                {
+                        if ($results->hasData()) {
+                            foreach ($results->getData() as $datum) {
+                                if ($datum instanceof  FHIRProvenance) {
                                     $processingResult->addData($datum);
                                 }
                             }
@@ -272,9 +257,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                         }
                     }
                 }
-            }
-            catch (\Exception $exception)
-            {
+            } catch (\Exception $exception) {
                 // TODO: @adunsulag log the exception
                 $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $code);
             }
