@@ -233,6 +233,7 @@ function popup_close() {
                 row_delete("employer_data", "pid = '" . add_escape_custom($patient) . "'");
                 row_delete("history_data", "pid = '" . add_escape_custom($patient) . "'");
                 row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
+                row_delete("patient_careteam_history", "pid ='" . add_escape_custom($patient) . "'");
 
                 $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
                 while ($row = sqlFetchArray($res)) {

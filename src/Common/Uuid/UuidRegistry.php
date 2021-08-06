@@ -52,6 +52,7 @@ class UuidRegistry
         'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
         'patient_data' => ['table_name' => 'patient_data'],
+        'patient_history' => ['table_name' => 'patient_history'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
