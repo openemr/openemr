@@ -585,13 +585,12 @@ INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sec
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id Care_Team_Status
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','Care_Team_Status','Care Team Status',0, 1, 0, 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','proposed','Proposed',10,0,1, 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','active','Active',20,1,1, 'The care team is currently participating in the coordination and delivery of care.');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','suspended','Suspended',30,0,1, 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','inactive','Inactive',40,0,1, 'The care team was, but is no longer, participating in the coordination and delivery of care.');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity,notes) VALUES ('Care_Team_Status','entered-in-error','Entered in Error',50,0,1, 'The care team should have never existed.');
-
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status', 'active', 'Active', 10, 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status', 'inactive', 'Inactive', 20, 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status', 'suspended', 'Suspended', 30, 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status', 'proposed', 'Proposed', 40, 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status', 'entered-in-error', 'Entered In Error', 50, 0, 0);
 #EndIf
 
 #IfMissingColumn patient_data birth_fname
@@ -853,7 +852,7 @@ ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT 
 UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_id` = 'Clinical_Note_Type' AND `list_options`.`option_id` = 'laboratory_report_narrative';
 
 #IfMissingColumn patient_data care_team_status
-ALTER TABLE patient_data ADD COLUMN care_team_status VARCHAR(100) NULL DEFAULT NULL;
+ALTER TABLE patient_data ADD COLUMN care_team_status TEXT;
 #EndIf
 
 #IfNotTable patient_history
@@ -861,8 +860,8 @@ CREATE TABLE `patient_history` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT
     , `uuid` BINARY(16) NULL
     , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    , `care_team_provider` TEXT NULL
-    , `care_team_facility` TEXT NULL
+    , `care_team_provider` TEXT
+    , `care_team_facility` TEXT
     , `pid` BIGINT(20) NOT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
@@ -876,4 +875,13 @@ SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group
 -- strange that the list is
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
         VALUES ('DEM', 'care_team_status', COALESCE(@group_id,@backup_group_id), 'Care Team Status', @seq+1, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
+#EndIf
+
+#IfNotRow3D list_options list_id Care_Team_Status option_id entered-in-error notes The care team should have never existed.
+UPDATE `list_options` SET `notes` = 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html' WHERE `list_id` = 'lists' AND `option_id` = 'Care_Team_Status';
+UPDATE `list_options` SET `seq` = 10, `notes` = 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'proposed';
+UPDATE `list_options` SET `seq` = 20, `notes` = 'The care team is currently participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'active';
+UPDATE `list_options` SET `seq` = 30, `notes` = 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'suspended';
+UPDATE `list_options` SET `seq` = 40, `notes` = 'The care team was, but is no longer, participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'inactive';
+UPDATE `list_options` SET `seq` = 50, `notes` = 'The care team should have never existed.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'entered-in-error';
 #EndIf
