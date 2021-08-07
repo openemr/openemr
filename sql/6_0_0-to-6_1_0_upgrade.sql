@@ -853,7 +853,7 @@ ALTER TABLE `form_vitals` ADD `inhaled_oxygen_concentration` float(4,1) DEFAULT 
 UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_id` = 'Clinical_Note_Type' AND `list_options`.`option_id` = 'laboratory_report_narrative';
 
 #IfMissingColumn patient_data care_team_status
-ALTER TABLE patient_data ADD COLUMN care_team_status VARCHAR(100) NULL DEFAULT NULL;
+ALTER TABLE patient_data ADD COLUMN care_team_status TEXT;
 #EndIf
 
 #IfNotTable patient_history
@@ -861,8 +861,8 @@ CREATE TABLE `patient_history` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT
     , `uuid` BINARY(16) NULL
     , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    , `care_team_provider` TEXT NULL
-    , `care_team_facility` TEXT NULL
+    , `care_team_provider` TEXT
+    , `care_team_facility` TEXT
     , `pid` BIGINT(20) NOT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
