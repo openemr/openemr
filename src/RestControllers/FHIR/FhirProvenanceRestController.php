@@ -20,7 +20,9 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -30,9 +32,15 @@ class FhirProvenanceRestController
 {
     private $fhirService;
 
+    /**
+     * @var FhirProvenanceService
+     */
+    private $provenanceService;
+
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
+        $this->provenanceService = new FhirProvenanceService();
     }
 
     /**
@@ -43,7 +51,7 @@ class FhirProvenanceRestController
      */
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        $processingResult = $this->provenanceService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -54,7 +62,13 @@ class FhirProvenanceRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = new ProcessingResult(); // return nothing for now
+        if (empty($searchParams['_id'])) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['_id' => "search requires '_id' parameter to be specified"]);
+            return $processingResult;
+        }
+
+        $processingResult = $this->provenanceService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [

@@ -1128,6 +1128,32 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+    "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirProvenanceRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            // TODO: it seems like regular users should be able to grab authorship / provenance information
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirProvenanceRestController())->getOne($uuid);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
+    // property to support which is why this endpoint exists.
+    "GET /fhir/Provenance" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirProvenanceRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            // TODO: it seems like regular users should be able to grab authorship / provenance information
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirProvenanceRestController())->getOne($request->getQueryParams());
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
     // other endpoints
     "GET /fhir/metadata" => function () {
         $return = (new FhirMetaDataRestController())->getMetaData();

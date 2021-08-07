@@ -580,32 +580,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if (!($dataRecord instanceof FHIRPatient)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $targetReference = new FHIRReference();
-        $targetReference->setType("Patient");
-        $targetReference->setReference("Patient/" . $dataRecord->getId());
-
-        $fhirProvenance = new FHIRProvenance();
-        $fhirProvenance->addTarget($targetReference);
-        $fhirProvenance->setRecorded($dataRecord->getMeta()->getLastUpdated());
-
-        $agent = new FHIRProvenanceAgent();
-        $agentConcept = new FHIRCodeableConcept();
-        $agentConceptCoding = new FHIRCoding();
-        $agentConceptCoding->setSystem("http://terminology.hl7.org/CodeSystem/provenance-participant-type");
-        $agentConceptCoding->setCode("author");
-        $agentConceptCoding->setDisplay(xlt("Author"));
-        $agentConcept->addCoding($agentConceptCoding);
-        $agent->setType($agentConcept);
-
-        // easiest provenance is to make the primary business entity organization be the author of the provenance
-        // resource.
-        $fhirOrganizationService = new FhirOrganizationService();
-        // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
-        $organizationReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
-
-        $agent->setWho($organizationReference);
-        $fhirProvenance->addAgent($agent);
-        return $fhirProvenance;
+        $provenanceService = new FhirProvenanceService();
+        return $provenanceService->createProvenanceForDomainResource($dataRecord);
     }
 
     /**
