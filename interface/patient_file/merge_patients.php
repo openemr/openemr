@@ -4,6 +4,7 @@
  * This script merges two patient charts into a single patient chart.
  * It is to correct the error of creating a duplicate patient.
  *
+ * @category  Patient_Data
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -21,11 +22,13 @@ require_once("$srcdir/patient.inc");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 
-// Set this to true for production use. If false you will get a "dry run" with no updates.
+// Set this to true for production use.
+// If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -69,84 +72,227 @@ function sel_patient(ename, epid) {
 
 <?php
 
-function deleteRows($tblname, $colname, $source_pid)
+/**
+ * Deletes rows from the given table that are no longer needed due to the merge.
+ *
+ * @param [type] $tblname    the name of the table to operate on.
+ * @param [type] $colname    the column used for the query.
+ * @param [type] $source_pid the source patient id.
+ * @param [type] $target_pid the target patient id.
+ *
+ * @return void
+ */
+function deleteRows($tblname, $colname, $source_pid, $target_pid)
 {
     global $PRODUCTION;
-    $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+    $crow = sqlQuery(
+        "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname)
+        . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
+        array($source_pid)
+    );
     $count = $crow['count'];
     if ($count) {
-        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE "
+        . escape_sql_column_name($colname, array($tblname)) . " = ?";
         echo "<br />$sql ($count)";
         if ($PRODUCTION) {
             sqlStatement($sql, array($source_pid));
+            logMergeEvent(
+                $target_pid,
+                "delete",
+                "Deleted rows with " . $colname . " = " . $source_pid . " in table "
+                . $tblname
+            );
         }
     }
 }
 
+/**
+ * Updates rows in the given table, where the given column's value
+ * is the source_pid to the given target_pid value.
+ *
+ * @param [type] $tblname    the name of the table to operate on.
+ * @param [type] $colname    the column used for the query.
+ * @param [type] $source_pid the source patient id.
+ * @param [type] $target_pid the target patient id.
+ *
+ * @return voidd
+ */
 function updateRows($tblname, $colname, $source_pid, $target_pid)
 {
     global $PRODUCTION;
-    $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+    $crow = sqlQuery(
+        "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname)
+        . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
+        array($source_pid)
+    );
     $count = $crow['count'];
     if ($count) {
-        $sql = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+        $sql = "UPDATE " . escape_table_name($tblname) . " SET " .
+        escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " .
+        escape_sql_column_name($colname, array($tblname)) . " = ?";
         echo "<br />$sql ($count)";
         if ($PRODUCTION) {
             sqlStatement($sql, array($target_pid, $source_pid));
+            logMergeEvent(
+                $target_pid,
+                "update",
+                "Updated rows with " . $colname . " = " . $source_pid . " to " .
+                $target_pid . " in table " . $tblname
+            );
         }
     }
 }
 
+/**
+ * Merge rows by changing the given colum of the given table
+ * from source_pid to target_pid.
+ *
+ * @param [type] $tblname    the table to operate on.
+ * @param [type] $colname    the column name of the data to change.
+ * @param [type] $source_pid the data to be changed from.
+ * @param [type] $target_pid the data to be changed to.
+ *
+ * @return void
+ */
 function mergeRows($tblname, $colname, $source_pid, $target_pid)
 {
     global $PRODUCTION;
-    $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+    $crow = sqlQuery(
+        "SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) .
+        " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?",
+        array($source_pid)
+    );
     $count = $crow['count'];
     if ($count) {
         echo "<br />lists_touch count is ($count)";
-        $source_array = array();
-        $source_sel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE `pid` = ?";
+        $source_sel = "SELECT * FROM " . escape_table_name($tblname) .
+        " WHERE `pid` = ?";
         $source_res = sqlStatement($source_sel, array($source_pid));
 
-        $target_array = array();
-        $target_sel = "SELECT * FROM " . escape_table_name($tblname) . " WHERE `pid` = ?";
+        $target_sel = "SELECT * FROM " . escape_table_name($tblname) .
+        " WHERE `pid` = ?";
         $target_res = sqlStatement($target_sel, array($target_pid));
 
         while ($source_row = sqlFetchArray($source_res)) {
             while ($target_row = sqlFetchArray($target_res)) {
                 if ($source_row['type'] == $target_row['type']) {
                     if (strcmp($source_row['date'], $target_row['date']) < 0) {
-                        // we delete the entry from the target since the source has an older date
-                        $sql1 = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
-                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) .
-                            " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?  AND `type` = ?";
+                        // we delete the entry from the target since the source has
+                        //an older date, then update source to target.
+                        $sql1 = "DELETE FROM " . escape_table_name($tblname) .
+                        " WHERE " . escape_sql_column_name($colname, array($tblname))
+                        . " = ? AND `type` = ?";
+                        $sql2 = "UPDATE " . escape_table_name($tblname) . " SET " .
+                            escape_sql_column_name($colname, array($tblname)) .
+                            " = ? WHERE " . escape_sql_column_name(
+                                $colname,
+                                array($tblname)
+                            ) . " = ?  AND `type` = ?";
                         echo "<br />$sql1";
                         echo "<br />$sql2";
                         if ($PRODUCTION) {
-                            sqlStatement($sql1, array($target_pid, $source_row['type']));
-                            sqlStatement($sql2, array($target_pid, $source_pid, $source_row['type']));
+                            sqlStatement(
+                                $sql1,
+                                array($target_pid, $source_row['type'])
+                            );
+                            sqlStatement(
+                                $sql2,
+                                array($target_pid, $source_pid,
+                                $source_row['type'])
+                            );
+                            logMergeEvent(
+                                $target_pid,
+                                "delete",
+                                "Deleted rows with " . $colname . " = " . $target_pid
+                                . " and type = " . $source_row['type'] .
+                                " in table " . $tblname
+                            );
+                            logMergeEvent(
+                                $target_pid,
+                                "update",
+                                "Updated rows with " . $colname . " = " . $source_pid
+                                 . " to " . $target_pid .
+                                " in table " . $tblname
+                            );
                         }
                     } else {
-                        $sql = "DELETE FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ? AND `type` = ?";
+                        // we just delete the entry from the source.
+                        $sql = "DELETE FROM " . escape_table_name($tblname) .
+                        " WHERE " . escape_sql_column_name($colname, array($tblname))
+                        . " = ? AND `type` = ?";
                         echo "<br />$sql";
                         if ($PRODUCTION) {
-                            sqlStatement($sql, array($source_pid, $source_row['type']));
+                            sqlStatement(
+                                $sql,
+                                array($source_pid, $source_row['type'])
+                            );
+                            logMergeEvent(
+                                $target_pid,
+                                "delete",
+                                "Deleted rows with " . $colname . " = " . $source_pid
+                                . " and type = " . $source_row['type'] .
+                                " in table " . $tblname
+                            );
                         }
                     }
                 }
             }
         }
         // if there was no target but a source then check count again
-        $crow = sqlQuery("SELECT COUNT(*) AS count FROM " . escape_table_name($tblname) . " WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?", array($source_pid));
+        // ^^ should read : Check count again for the case of no target_rows.
+        $crow = sqlQuery(
+            "SELECT COUNT(*) AS count FROM " .
+            escape_table_name($tblname) . " WHERE " . escape_sql_column_name(
+                $colname,
+                array($tblname)
+            ) . " = ?",
+            array($source_pid)
+        );
         $count = $crow['count'];
         if ($count) {
-            $sql = "UPDATE " . escape_table_name($tblname) . " SET " . escape_sql_column_name($colname, array($tblname)) . " = ? WHERE " . escape_sql_column_name($colname, array($tblname)) . " = ?";
+            $sql = "UPDATE " . escape_table_name($tblname) . " SET " .
+            escape_sql_column_name(
+                $colname,
+                array($tblname)
+            ) . " = ? WHERE " . escape_sql_column_name(
+                $colname,
+                array($tblname)
+            ) . " = ?";
             echo "<br />$sql ($count)";
             if ($PRODUCTION) {
                 sqlStatement($sql, array($target_pid, $source_pid));
+                logMergeEvent(
+                    $target_pid,
+                    "update",
+                    "Updated rows with " . $colname . " = " . $source_pid
+                    . " and type = " . $source_row['type'] .
+                    " to " . $target_pid . " in table " . $tblname
+                );
             }
         }
     }
+}
+
+/**
+ * Add a line into the audit log for a merge event.
+ *
+ * @param [type] $target_pid  the target patient id.
+ * @param [type] $event_type  the type of db change (update,delete,etc.)
+ * @param [type] $log_message the message to log
+ *
+ * @return void
+ */
+function logMergeEvent($target_pid, $event_type, $log_message)
+{
+    EventAuditLogger::instance()->newEvent(
+        "patient-merge-" . $event_type,
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        $log_message,
+        $target_pid
+    );
 }
 
 if (!empty($_POST['form_submit'])) {
@@ -161,8 +307,14 @@ if (!empty($_POST['form_submit'])) {
         die(xlt('Target and source pid may not be the same!'));
     }
 
-    $tprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($target_pid));
-    $sprow = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", array($source_pid));
+    $tprow = sqlQuery(
+        "SELECT * FROM patient_data WHERE pid = ?",
+        array($target_pid)
+    );
+    $sprow = sqlQuery(
+        "SELECT * FROM patient_data WHERE pid = ?",
+        array($source_pid)
+    );
 
     // Do some checking to make sure source and target exist and are the same person.
     if (empty($tprow['pid'])) {
@@ -194,11 +346,15 @@ if (!empty($_POST['form_submit'])) {
     $sencdir = "$sdocdir/encounters";
     $tencdir = "$tdocdir/encounters";
 
-  // Change normal documents first as that could fail if CouchDB connection fails.
-    $dres = sqlStatement("SELECT * FROM `documents` WHERE `foreign_id` = ?", array($source_pid));
+    // Change normal documents first as that could fail if CouchDB connection fails.
+    $dres = sqlStatement(
+        "SELECT * FROM `documents` WHERE `foreign_id` = ?",
+        array($source_pid)
+    );
     while ($drow = sqlFetchArray($dres)) {
         $d = new Document($drow['id']);
-        echo "<br />" . xlt('Changing patient ID for document') . ' ' . text($d->get_url_file());
+        echo "<br />" . xlt('Changing patient ID for document') . ' '
+        . text($d->get_url_file());
         if ($PRODUCTION) {
             if (!$d->change_patient($target_pid)) {
                 die("<br />" . xlt('Change failed! CouchDB connect error?'));
@@ -206,7 +362,7 @@ if (!empty($_POST['form_submit'])) {
         }
     }
 
-  // Move scanned encounter documents and delete their container.
+    // Move scanned encounter documents and delete their container.
     if (is_dir($sencdir)) {
         if ($PRODUCTION && !file_exists($tdocdir)) {
             mkdir($tdocdir);
@@ -227,7 +383,8 @@ if (!empty($_POST['form_submit'])) {
             }
 
             if ($sfname == 'index.html') {
-                echo "<br />" . xlt('Deleting') . " " . text($sencdir) . "/" . text($sfname);
+                echo "<br />" . xlt('Deleting') . " " . text($sencdir) . "/"
+                . text($sfname);
                 if ($PRODUCTION) {
                     if (!unlink("$sencdir/$sfname")) {
                         die("<br />" . xlt('Delete failed!'));
@@ -237,7 +394,9 @@ if (!empty($_POST['form_submit'])) {
                 continue;
             }
 
-            echo "<br />" . xlt('Moving') . " " . text($sencdir) . "/" . text($sfname) . " " . xlt('to{{Destination}}') . " " . text($tencdir) . "/" . text($sfname);
+            echo "<br />" . xlt('Moving') . " " . text($sencdir) . "/"
+            . text($sfname) . " " . xlt('to{{Destination}}') . " "
+            . text($tencdir) . "/" . text($sfname);
             if ($PRODUCTION) {
                 if (!rename("$sencdir/$sfname", "$tencdir/$sfname")) {
                     die("<br />" . xlt('Move failed!'));
@@ -257,8 +416,12 @@ if (!empty($_POST['form_submit'])) {
     $tres = sqlStatement("SHOW TABLES");
     while ($trow = sqlFetchArray($tres)) {
         $tblname = array_shift($trow);
-        if ($tblname == 'patient_data' || $tblname == 'history_data' || $tblname == 'insurance_data') {
-            deleteRows($tblname, 'pid', $source_pid);
+        if (
+            $tblname == 'patient_data'
+            || $tblname == 'history_data'
+            || $tblname == 'insurance_data'
+        ) {
+            deleteRows($tblname, 'pid', $source_pid, $target_pid);
         } elseif ($tblname == 'chart_tracker') {
             updateRows($tblname, 'ct_pid', $source_pid, $target_pid);
         } elseif ($tblname == 'documents') {
@@ -270,8 +433,10 @@ if (!empty($_POST['form_submit'])) {
         } elseif ($tblname == 'log') {
             // Don't mess with log data.
         } else {
-            $crow = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
-            "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'");
+            $crow = sqlQuery(
+                "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
+            );
             if (!empty($crow['Field'])) {
                 $colname = $crow['Field'];
                 updateRows($tblname, $colname, $source_pid, $target_pid);
@@ -319,9 +484,7 @@ if ($form_pid2) {
 ?>
 
 <p>
-
 </p>
-
 <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
@@ -357,12 +520,12 @@ if ($form_pid2) {
   </td>
  </tr>
 </table>
-<p><input type='submit' class="btn btn-primary" name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
+<p><input type='submit' class="btn btn-primary" name='form_submit'
+    value='<?php echo xla('Merge'); ?>' /></p>
 </div>
 </form>
 <div class="jumbotron">
     <p class="font-weight-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
-
 <?php if (!$PRODUCTION) { ?>
 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
 <?php } ?>
