@@ -6,6 +6,7 @@
  *
  * @category  Patient_Data
  * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
@@ -515,14 +516,11 @@ if ($form_pid2) {
    <input type='hidden' name='form_source_pid' value='<?php echo attr($source_pid); ?>' />
   </td>
   <td>
-    <?php echo xlt(
-        'This is the chart that is to be merged into the main chart 
-        and then deleted.'
-    ); ?>
+    <?php echo xlt('This is the chart that is to be merged into the main chart and then deleted.'); ?>
   </td>
  </tr>
 </table>
-<p><input type='submit' class="btn btn-primary" name='form_submit' 
+<p><input type='submit' class="btn btn-primary" name='form_submit'
     value='<?php echo xla('Merge'); ?>' /></p>
 </div>
 </form>
@@ -533,7 +531,7 @@ if ($form_pid2) {
 <?php } ?>
 
 <p><?php echo xlt('This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!'); ?></p>
-  
+
 <p><?php echo xlt('The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.'); ?></p>
 
 <p><?php echo xlt('The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'); ?></p>
