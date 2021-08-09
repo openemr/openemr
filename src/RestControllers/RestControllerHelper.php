@@ -222,22 +222,18 @@ class RestControllerHelper
     {
         $operation = end($items);
         // we want to skip over anything that's not a resource $operation
-        if ($operation === '$export') {
-            $operationName = strtolower($resource) . '-export';
+        if ($operation == '$export') {
+            if ($resource != '$export') {
+                $operationName = strtolower($resource) . '-export';
+            } else {
+                $operationName = 'export';
+            }
             // define export operation
             $resource = new FHIRPatient();
-            $operation = new FHIRCapabilityStatementOperation();
-            $operation->setName($operationName);
-            $operation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
-
-            // TODO: adunsulag so the Single Patient API fails on this expectation being here yet the Multi-Patient API failed when it wasn't here
-            // need to investigate what, if anything we are missing, perhaps another extension definition that tells the inferno server
-            // that this should be parsed in a single patient context??
-//            $extension = new FHIRExtension();
-//            $extension->setValueCode(new FHIRCode('SHOULD'));
-//            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
-//            $operation->addExtension($extension);
-//            $capResource->addOperation($operation);
+            $fhirOperation = new FHIRCapabilityStatementOperation();
+            $fhirOperation->setName($operation);
+            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
+            $capResource->addOperation($fhirOperation);
         }
     }
 
