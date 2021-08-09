@@ -22,11 +22,6 @@ if ($oauthLogin !== true) {
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$scopeString = $_SESSION['scopes'] ?? '';
-$scopes = explode(' ', $scopeString);
-
-$claims = $_SESSION['claims'] ?? [];
-
 ?>
 <html>
 <head>
