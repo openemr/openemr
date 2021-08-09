@@ -887,7 +887,7 @@ UPDATE `list_options` SET `seq` = 50, `notes` = 'The care team should have never
 #EndIf
 
 #IfMissingColumn prescriptions drug_dosage_instructions
-ALTER TABLE `prescriptions` ADD COLUMN drug_dosage_instructions longtext NULL DEFAULT NULL COMMENT 'Medication dosage instructions';
+ALTER TABLE `prescriptions` ADD COLUMN drug_dosage_instructions longtext COMMENT 'Medication dosage instructions';
 #EndIf
 
 #IfMissingColumn prescriptions usage_category
@@ -923,11 +923,11 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes
 
 #IfNotRow2D list_options list_id lists option_id medication-request-intent
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-request-intent','Medication Request Intent',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','proposal','Proposal',10,0,1, 'The request is a suggestion made by someone/something that doesn''t have an intention to ensure it occurs and without providing an authorization to act ');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','proposal','Proposal',10,0,1, 'The request is a suggestion made by someone/something that doesn''t have an intention to ensure it occurs and without providing an authorization to act.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','plan','Plan',20,0,1, 'The request represents an intention to ensure something occurs without providing an authorization for others to act.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','order','Order',30,1,1, 'The request represents a request/demand and authorization for action');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','original-order','Original Order',40,0,1, 'The request represents the original authorization for the medication request.');
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','reflex-order','Reflex Order',50,0,1, 'The request represents an automatically generated supplemental authorization for action based on a parent authorization together with initial results of the action taken against that parent authorization..');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','reflex-order','Reflex Order',50,0,1, 'The request represents an automatically generated supplemental authorization for action based on a parent authorization together with initial results of the action taken against that parent authorization.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','filler-order','Filler Order',60,0,1, 'The request represents the view of an authorization instantiated by a fulfilling system representing the details of the fulfiller''s intention to act upon a submitted order.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
