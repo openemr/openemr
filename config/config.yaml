@@ -174,11 +174,13 @@ assets:
         autoload: true
         allowNoLoad: true
     select2:
-        basePath: '%assets_static_relative%/select2/dist/'
-        script: js/select2.full.min.js
+        basePath: '%assets_static_relative%/'
+        script: 'select2/dist/js/select2.full.min.js'
         link:
-            - css/select2.min.css
+            - 'select2/dist/css/select2.min.css'
+            - '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css'
             # BS4 theme moved to main theme assets to allow fluidity
+            # Imported scss doesn't work on light theme. Left import for overrides.
     jscolor:
         basePath: '%assets_static_relative%/@eastdesire/jscolor/'
         script: jscolor.min.js

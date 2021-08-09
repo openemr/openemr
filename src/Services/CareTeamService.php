@@ -69,13 +69,13 @@ class CareTeamService extends BaseService
                     UNION
                     SELECT
                         patient_data.uuid AS puuid
-                        ,patient_careteam_history.uuid
-                        ,patient_careteam_history.care_team_provider
-                        ,patient_careteam_history.care_team_facility
+                        ,patient_history.uuid
+                        ,patient_history.care_team_provider
+                        ,patient_history.care_team_facility
                         ,'inactive' AS care_team_status
                     FROM
-                        patient_careteam_history
-                    JOIN patient_data ON patient_careteam_history.pid = patient_data.pid
+                        patient_history
+                    JOIN patient_data ON patient_history.pid = patient_data.pid
                 ) careteam_mapping
                 LEFT JOIN
                     (
