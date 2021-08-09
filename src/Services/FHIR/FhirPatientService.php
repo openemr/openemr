@@ -26,6 +26,8 @@ use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
@@ -54,6 +56,9 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var PatientService
      */
@@ -272,30 +277,30 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         $code = 'UNK';
         $display = xlt("Unknown");
+        $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
-        $raceExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
+        $raceExtension->setUrl(FhirCodeSystemConstants::HL7_US_CORE_RACE);
 
         $ombCategory = new FHIRExtension();
         $ombCategory->setUrl("ombCategory");
         $ombCategoryCoding = new FHIRCoding();
-        $ombCategoryCoding->setSystem(new FHIRUri("urn:oid:2.16.840.1.113883.6.238"));
-        if (isset($race)) {
+
+        if (!empty($race)) {
             $record = $this->listService->getListOption('race', $race);
-            if (empty($record)) {
-                // TODO: adunsulag need to handle a data missing exception here
-            } else if ($race === 'declne_to_specfy') {
+            if ($race === 'declne_to_specfy') { // TODO: we should rename this mispelled value in the database
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
-            } else {
+            } else if (!empty($record)) {
                 $code = $record['notes'];
                 $display = $record['title'];
+                $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
             }
-
-            $ombCategoryCoding->setCode($code);
-            $ombCategoryCoding->setDisplay(xlt($display));
         }
+        $ombCategoryCoding->setSystem(new FHIRUri($system));
+        $ombCategoryCoding->setCode($code);
+        $ombCategoryCoding->setDisplay(xlt($display));
         $ombCategory->setValueCoding($ombCategoryCoding);
         $raceExtension->addExtension($ombCategory);
 
@@ -380,7 +385,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     private function parseOpenEMRCommunicationRecord(FHIRPatient $patientResource, $language)
     {
         $record = $this->listService->getListOption('language', $language);
-        if (!empty($record)) {
+        if (empty($language) || empty($record)) {
+            $communication = new FHIRPatientCommunication();
+            $communication->setLanguage(UtilsService::createDataAbsentUnknownCodeableConcept());
+            $patientResource->addCommunication($communication);
+        }
+        else {
             $communication = new FHIRPatientCommunication();
             $languageConcept = new FHIRCodeableConcept();
             $language = new FHIRCoding();
@@ -556,7 +566,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // do any conversions on the data that we need here
 
         // we need to process our gender values here.
-//        var_dump($openEMRSearchParameters);
         if (isset($openEMRSearchParameters[self::FIELD_NAME_GENDER])) {
             /**
              * @var $field ISearchField

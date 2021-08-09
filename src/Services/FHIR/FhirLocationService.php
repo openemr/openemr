@@ -17,6 +17,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\LocationService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -28,8 +30,11 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirLocationService extends FhirServiceBase
+class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var LocationService
      */

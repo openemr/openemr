@@ -21,15 +21,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var CarePlanService

@@ -18,13 +18,18 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirPersonService extends FhirServiceBase
+class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     const RESOURCE_NAME = 'Person';
 
     /**

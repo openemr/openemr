@@ -8,6 +8,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -27,8 +29,10 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirOrganizationService implements IResourceSearchableService, IResourceReadableService, IResourceUpdateableService, IResourceCreatableService
+class FhirOrganizationService implements IResourceSearchableService, IResourceReadableService, IResourceUpdateableService, IResourceCreatableService, IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
     use MappedServiceTrait;
 
     const ORGANIZATION_TYPE_INSURANCE = "Ins";

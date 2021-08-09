@@ -4,6 +4,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
@@ -31,9 +33,11 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var ImmunizationService

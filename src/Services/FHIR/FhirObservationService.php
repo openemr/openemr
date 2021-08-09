@@ -10,6 +10,8 @@ use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -30,11 +32,13 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirObservationService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService, IPatientCompartmentResourceService
+class FhirObservationService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService, IPatientCompartmentResourceService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use MappedServiceCodeTrait;
     use PatientSearchTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var ObservationLabService

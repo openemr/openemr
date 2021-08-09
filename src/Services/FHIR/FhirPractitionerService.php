@@ -6,6 +6,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -28,8 +30,11 @@ use OpenEMR\Validators\ProcessingResult;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPractitionerService extends FhirServiceBase
+class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var PractitionerService
      */
