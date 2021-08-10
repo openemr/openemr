@@ -191,6 +191,12 @@ function InsertEventFull()
         $pc_eid = InsertEvent($args);
         return $pc_eid;
     }
+
+    if (stristr($_POST['form_title'], 'telehealth')) {
+        //Tell subscribers that a new telehealth appointment has been set
+        $patientAppointmentSetEvent = new AppoinmentSetEvent($_POST['form_pid'], $_POST['form_date']);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppoinmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+    }
 }
 
 function DOBandEncounter($pc_eid)
