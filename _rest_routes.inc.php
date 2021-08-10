@@ -634,7 +634,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             $return = (new FhirCarePlanRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirCareTeamRestController())->getAll($getParams);
+            $return = (new FhirCarePlanRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
         return $return;
