@@ -901,7 +901,7 @@ ALTER TABLE `prescriptions` ADD COLUMN `request_intent_title` VARCHAR(255) NOT N
 CREATE TABLE `lists_medication` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT
     , `list_id` BIGINT(20) NULL COMMENT 'FK Reference to lists.id'
-    , `drug_dosage_instructions` LONGTEXT NULL COMMENT 'Free text dosage instructions for taking the drug'
+    , `drug_dosage_instructions` LONGTEXT COMMENT 'Free text dosage instructions for taking the drug'
     , `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category'
     , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
     , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
