@@ -32,21 +32,11 @@ class AppoinmentSetEvent extends Event
     /**
      * @var
      */
-    private $pid;
+    private $post;
 
-    /**
-     * @var
-     */
-    private $date;
-
-    /**
-     * @param $pid
-     * @param $date
-     */
-    public function __construct($pid, $date)
+    public function __construct($post)
     {
-        $this->pid = $pid;
-        $this->date = $date;
+        $this->pid = $post;
     }
 
     /**
@@ -54,9 +44,6 @@ class AppoinmentSetEvent extends Event
      */
     public function givenAppointmentData(): array
     {
-        $dataArray = [];
-        $dataArray[] = $this->pid;
-        $dataArray[] = $this->date;
-        return $dataArray;
+        return $this->post;
     }
 }
