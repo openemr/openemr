@@ -13,6 +13,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class TrustedUserService
 {
     public function isTrustedUser($clientId, $userId)
@@ -20,6 +22,12 @@ class TrustedUserService
             $trusted = $this->getTrustedUser($clientId, $userId);
             $isTrusted = !empty($trusted['session_cache']);
             return $isTrusted;
+    }
+
+    public function getTrustedUsersForClient($clientId)
+    {
+        $records = QueryUtils::fetchRecords("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ?", array($clientId));
+        return $records;
     }
 
     public function getTrustedUser($clientId, $userId)

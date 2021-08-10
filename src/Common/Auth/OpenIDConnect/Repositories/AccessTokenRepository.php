@@ -17,6 +17,8 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -53,6 +55,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function revokeAccessToken($tokenId)
     {
+        (new SystemLogger())->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
     }
 
     public function isAccessTokenRevoked($tokenId)
@@ -70,5 +73,12 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $accessToken->setUserIdentifier($userIdentifier);
 
         return $accessToken;
+    }
+
+    public function getActiveTokensForUser($clientId, $userUuid)
+    {
+        // note user_id is the STRING representation of the uuid, not the binary representation
+        $sql = "SELECT * FROM api_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() ";
+        return QueryUtils::fetchRecords($sql, [$userUuid, $clientId]);
     }
 }

@@ -14,14 +14,22 @@ namespace OpenEMR\FHIR\SMART;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\TrustedUserService;
+use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
 
 class ClientAdminController
 {
+    const REVOKE_TRUSTED_USER = 'revoke-trusted-user';
+
     private $actionURL;
 
     /**
@@ -99,6 +107,9 @@ class ClientAdminController
                 return $this->enableAction($clientId, $request);
             } else if ($parts[2] == 'disable') { // route /edit/:clientId/disable
                 return $this->disableAction($clientId, $request);
+            } else if ($parts[2] == self::REVOKE_TRUSTED_USER)
+            {
+                return $this->revokeTrustedUserAction($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
             }
@@ -130,6 +141,47 @@ class ClientAdminController
             $this->notFoundAction($request);
             return;
         }
+        $trustedUserService = new TrustedUserService();
+        $trustedUsers = $trustedUserService->getTrustedUsersForClient($clientId);
+        $accessTokenRepository = new AccessTokenRepository();
+        $usersWithAccessTokens = [];
+        $userService = new UserService();
+        $patientService = new PatientService();
+        foreach ($trustedUsers as $user) {
+            // TODO: do we need to optimize this query?
+            if (UuidRegistry::isValidStringUUID($user['user_id'])) {
+                $registryRecord = UuidRegistry::getRegistryRecordForUuid($user['user_id']);
+                if ($registryRecord['table_name'] == 'patient_data')
+                {
+                    $user['user_type'] = 'patient';
+                    $result = $patientService->getOne($user['user_id']);
+                    $patient = $result->hasData() ? $result->getData()[0] : null;
+                    $user['patient'] = $patient;
+                    $user['display_name'] = isset($patient) ? $patient['fname'] . ' ' . $patient['lname'] : "Patient record not found";
+                }
+                else
+                {
+                   $user['user_type'] = 'user';
+                   $user['user'] = $userService->getUserByUUID($user['user_id']);
+                   $user['display_name'] = !empty($user['user']) ? $user['user']['username'] : "Record not found";
+                }
+            }
+            $user['accessTokens'] = [];
+            $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user['user_id']) ?? [];
+            foreach ($accessTokens as $token) {
+                try {
+                    $token['scope'] = json_decode($token['scope'], true);
+                    $user['accessTokens'][] = $token;
+                }
+                catch (\JsonException $exception)
+                {
+                    (new SystemLogger())->error("Failed to json_decode api_token scope column. "
+                        . $exception->getMessage(), ['id' => $token['id'], 'clientId' => $clientId, 'user_id' => $user['user_id']]);
+                }
+            }
+            $usersWithAccessTokens[] = $user;
+        }
+        $client->setTrustedUsers($usersWithAccessTokens);
 
         $this->renderHeader();
         $this->renderEdit($client, $request);
@@ -278,6 +330,7 @@ class ClientAdminController
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
+
         $isEnabled = $client->isEnabled();
         $scopes = $client->getScopes();
 
@@ -291,6 +344,16 @@ class ClientAdminController
                 'type' => 'text'
                 ,'label' => xl("Name")
                 ,'value' => $client->getName()
+            ],
+            'contacts' => [
+                'type' => 'text'
+                ,'label' => xl("Contacts")
+                ,'value' => $client->getContacts()
+            ],
+            'registrationDate' => [
+                'type' => 'text'
+                ,'label' => xl("Date Registered")
+                ,'value' => $client->getRegistrationDate()
             ],
             'confidential' => [
                 'type' => 'checkbox'
@@ -317,6 +380,16 @@ class ClientAdminController
                 'type' => 'text'
                 ,'label' => xl("Launch URI")
                 ,'value' => $client->getLaunchUri()
+            ],
+            'jwksUri' => [
+                'type' => 'text'
+                ,'label' => xl("JSON Web Key Set URI")
+                ,'value' => $client->getJwksUri()
+            ],
+            'jwks' => [
+                'type' => 'text'
+                ,'label' => xl("JSON Web Key Set")
+                ,'value' => $client->getJwks()
             ],
         ];
 
@@ -368,6 +441,126 @@ class ClientAdminController
                     <div class="col-6">
                             <label><?php echo xlt("Scopes"); ?></label>
                             <?php $this->renderScopeList($client); ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 ">
+                        <h3 class="text-center"><?php echo xlt("Authenticated API Users"); ?></h3>
+                        <hr class="w-50" />
+                        <?php if (empty($client->getTrustedUsers())) : ?>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="alert alert-info text-center">
+                                        <?php echo xlt("No authorized users found for this client"); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($client->getTrustedUsers())) : ?>
+                            <?php foreach ($client->getTrustedUsers() as $trustedUser) : ?>
+                                <div class="card m-3">
+                                    <div class="card-header">
+                                        <h4 class="text-center"><?php echo text($trustedUser['display_name']); ?>
+                                            <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()
+                                                , self::REVOKE_TRUSTED_USER, $trustedUser['user_id']])); ?>"
+                                               class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php
+                                                echo xlt('Revoke User');
+                                                ?></a></h4>
+                                    </div>
+                                    <div class="card-body p-5">
+                                        <div class="row font-weight-bold bg-secondary rounded text-dark">
+                                            <div class="col-1">
+                                                <?php echo xlt("Type"); ?>
+                                            </div>
+                                            <div class="col-4">
+                                                <?php echo xlt("UUID"); ?>
+                                            </div>
+                                            <div class="col-3">
+                                                <?php echo xlt("Name/Username"); ?>
+                                            </div>
+                                            <div class="col-1">
+                                                <?php echo xlt("Date"); ?>
+                                            </div>
+                                            <div class="col-1">
+                                                <?php echo xlt("Persist Login"); ?>
+                                            </div>
+                                            <div class="col-2">
+                                                <?php echo xlt("Grant Type"); ?>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-1">
+                                                <?php echo text($trustedUser['user_type']); ?>
+                                            </div>
+                                            <div class="col-4">
+                                                <?php echo text($trustedUser['user_id']); ?>
+                                            </div>
+                                            <div class="col-3">
+                                                <?php echo text($trustedUser['display_name']); ?>
+                                            </div>
+                                            <div class="col-1">
+                                                <?php echo text($trustedUser['time']); ?>
+                                            </div>
+                                            <div class="col-1">
+                                                <?php echo text($trustedUser['persist_login']); ?>
+                                            </div>
+                                            <div class="col-2">
+                                                <?php echo text($trustedUser['grant_type']); ?>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col">
+                                                <h4><?php echo xlt("Authorization Tokens") ?></h4>
+                                                <hr class="w-100 mt-3 mb-3"/>
+                                                <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
+                                                    <div class="col-3">
+                                                        <?php echo xlt("Token"); ?>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <?php echo xlt("Expiry"); ?>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <?php echo xlt("Scopes"); ?>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <?php echo xlt("Action"); ?>
+                                                    </div>
+                                                </div>
+                                                <?php if (empty($trustedUser['accessTokens'])) : ?>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="alert alert-info text-center">
+                                                            <?php echo xlt("No active access tokens found"); ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($trustedUser['accessTokens'])) : ?>
+                                                    <?php foreach($trustedUser['accessTokens'] as $token) : ?>
+                                                        <div class="row">
+                                                            <div class="col-3">
+                                                                <?php echo text($token['token']); ?>
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <?php echo text($token['expiry']); ?>
+                                                            </div>
+                                                            <div class="col-4">
+                                                                <?php $this->renderScopeListArray($token['scope']); ?>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), 'revoke-token', $token['id']])); ?>"
+                                                                   class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -492,6 +685,11 @@ class ClientAdminController
             echo xlt("No scopes");
         }
 
+        $this->renderScopeListArray($scopeList, $preview);
+    }
+
+    private function renderScopeListArray(array $scopeList, $preview = false)
+    {
         $count = count($scopeList);
         if ($preview && $count > self::SCOPE_PREVIEW_DISPLAY) {
             $scopeList = array_splice($scopeList, 0, self::SCOPE_PREVIEW_DISPLAY);
@@ -557,5 +755,35 @@ class ClientAdminController
     </body> <!-- end body.body_top -->
 </html>
         <?php
+    }
+
+
+    /**
+     * @param $clientId
+     * @param array $request
+     * @throws AccessDeniedException
+     */
+    private function revokeTrustedUserAction($clientId, array $request)
+    {
+        $action = $request['action'] ?? '';
+        $parts = explode("/", $action);
+        $trustedUserId = $parts[3] ?? null;
+        if (empty($trustedUserId)) {
+            return $this->notFoundAction($request);
+        }
+        // need to delete the trusted user action
+        $trustedUserService = new TrustedUserService();
+        $originalUser = $trustedUserService->getTrustedUser($clientId, $trustedUserId);
+        // make sure the client is the same
+        if (empty($originalUser))
+        {
+            throw new AccessDeniedException('admin', 'super', "Attempted to delete trusted user for different client");
+        }
+
+        $trustedUserService->deleteTrustedUserById($originalUser['id']);
+
+        $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked Trusted User")]]);
+        header("Location: " . $url);
+        exit;
     }
 }

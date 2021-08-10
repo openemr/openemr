@@ -35,7 +35,7 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function listClientEntities(): array
     {
-        $clients = sqlStatementNoLog("Select * From oauth_clients");
+        $clients = sqlStatementNoLog("Select * From oauth_clients ORDER BY is_enabled DESC, register_date DESC");
         $list = [];
         if (!empty($clients)) {
             while ($client = $clients->FetchRow()) {
@@ -153,6 +153,9 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setIsEnabled($client_record['is_enabled'] === "1");
         $client->setJwks($client_record['jwks']);
         $client->setJwksUri($client_record['jwks_uri']);
+        $client->setLogoutRedirectUris($client_record['logout_redirect_uris']);
+        $client->setContacts($client_record['contacts']);
+        $client->setRegistrationDate($client_record['register_date']);
         return $client;
     }
 }

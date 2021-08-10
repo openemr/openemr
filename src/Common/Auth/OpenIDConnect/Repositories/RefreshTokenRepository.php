@@ -15,6 +15,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\RefreshTokenEntity;
+use OpenEMR\Common\Logging\SystemLogger;
 
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
@@ -26,6 +27,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function revokeRefreshToken($tokenId)
     {
         // Some logic to revoke the refresh token in a database
+        (new SystemLogger())->debug(self::class . "->revokeRefreshToken() attempting to revoke refresh token ", ['tokenId' => $tokenId]);
     }
 
     public function isRefreshTokenRevoked($tokenId)
