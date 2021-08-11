@@ -1603,7 +1603,7 @@ function generate_form_field($frow, $currvalue)
         }
 
         if (!$got_selected && $currvalue) {
-            echo "<option value='" . attr($currvalue) . "' selected> " . text($currvalue) . " </option>";
+            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
@@ -1644,17 +1644,7 @@ function generate_form_field($frow, $currvalue)
         echo "<div class='input-group w-75'>";
         echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-previous-names' multiple='multiple'>";
         foreach ($res as $row) {
-            $row['previous_name_enddate'] = oeFormatShortDate($row['previous_name_enddate']);
-            if ($row['previous_name_enddate'] == '0000-00-00' || $row['previous_name_enddate'] == '00/00/0000') {
-                $row['previous_name_enddate'] = '';
-            }
-            $pname = ($row['previous_name_prefix'] ? $row['previous_name_prefix'] . " " : "") .
-                $row['previous_name_first'] .
-                ($row['previous_name_middle'] ? " " . $row['previous_name_middle'] . " " : "") .
-                $row['previous_name_last'] .
-                ($row['previous_name_suffix'] ? " " . $row['previous_name_suffix'] : "") .
-                ($row['previous_name_enddate'] ? " " . $row['previous_name_enddate'] : "");
-            $pname = text($pname);
+            $pname = $row['formatted_name']; // esc'ed in fetch.
             $optionId = attr($row['id']);
             // all names always selected
             echo "<option value='$optionId'" . " selected>$pname</option>";
@@ -2834,9 +2824,23 @@ function generate_display_field($frow, $currvalue)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $s .= text(getPatientDescription($currvalue));
+        }
+    } elseif ($data_type == 52) {
+        global $pid;
+        $patientService = new PatientService();
+        $rows = $patientService->getPatientNameHistory($pid);
+        $i = 0;
+        foreach ($rows as $row) {
+            // name escaped in fetch
+            if ($i > 0) {
+                $s .= ", " . $row['formatted_name'];
+            } else {
+                $s = $row['formatted_name'] ?? '';
+            }
+            $i++;
         }
     }
 

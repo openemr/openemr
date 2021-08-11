@@ -419,6 +419,7 @@ class PatientService extends BaseService
         $results =  QueryUtils::sqlStatementThrowException($sql, array($pid, 'name_history'));
         $rows = [];
         while ($row = sqlFetchArray($results)) {
+            $row['formatted_name'] = $this->formatPreviousName($row);
             $rows[] = $row;
         }
 
@@ -428,8 +429,7 @@ class PatientService extends BaseService
     public function deletePatientNameHistoryById($id)
     {
         $sql = "DELETE FROM patient_history WHERE id = ?";
-        $check = sqlQuery($sql, array($id));
-        return $check;
+        return sqlQuery($sql, array($id));
     }
 
     public function getPatientNameHistoryById($pid, $id)
@@ -445,6 +445,7 @@ class PatientService extends BaseService
             FROM patient_history
             WHERE pid = ? AND id = ? AND history_type_key = ?";
         $result =  sqlQuery($sql, array($pid, $id, 'name_history'));
+        $result['formatted_name'] = $this->formatPreviousName($result);
 
         return $result;
     }
@@ -490,5 +491,24 @@ class PatientService extends BaseService
         $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
 
         return QueryUtils::sqlInsert($sql, $insert['bind']);
+    }
+
+    public function formatPreviousName($item)
+    {
+        if (
+            $item['previous_name_enddate'] === '0000-00-00'
+            || $item['previous_name_enddate'] === '00/00/0000'
+        ) {
+            $item['previous_name_enddate'] = '';
+        }
+        $item['previous_name_enddate'] = oeFormatShortDate($item['previous_name_enddate']);
+        $name = ($item['previous_name_prefix'] ? $item['previous_name_prefix'] . " " : "") .
+            $item['previous_name_first'] .
+            ($item['previous_name_middle'] ? " " . $item['previous_name_middle'] . " " : " ") .
+            $item['previous_name_last'] .
+            ($item['previous_name_suffix'] ? " " . $item['previous_name_suffix'] : "") .
+            ($item['previous_name_enddate'] ? " " . $item['previous_name_enddate'] : "");
+
+        return text($name);
     }
 }

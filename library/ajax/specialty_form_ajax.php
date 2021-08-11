@@ -46,19 +46,7 @@ function nameHistorySave($post_items)
     }
     $patientService = new PatientService('patient_history');
     $is_new = $patientService->createPatientNameHistory($post_items['pid'], $post_items);
-    if (
-        $post_items['previous_name_enddate'] === '0000-00-00'
-        || $post_items['previous_name_enddate'] === '00/00/0000'
-    ) {
-        $post_items['previous_name_enddate'] = '';
-    }
-    $post_items['previous_name_enddate'] = oeFormatShortDate($post_items['previous_name_enddate']);
-    $name = ($post_items['previous_name_prefix'] ? $post_items['previous_name_prefix'] . " " : "") .
-        $post_items['previous_name_first'] .
-        ($post_items['previous_name_middle'] ? " " . $post_items['previous_name_middle'] . " " : "") .
-        $post_items['previous_name_last'] .
-        ($post_items['previous_name_suffix'] ? " " . $post_items['previous_name_suffix'] : "") .
-        ($post_items['previous_name_enddate'] ? " " . $post_items['previous_name_enddate'] : "");
+    $name = $patientService->formatPreviousName($post_items);
 
     $ret = array();
     if (!empty($is_new)) {
