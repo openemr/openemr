@@ -85,4 +85,12 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         $result = QueryUtils::fetchArrayFromResultSet($resource);
         return $result ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
     }
+
+    public function getTokenByToken($token)
+    {
+        $sql = " SELECT * FROM api_refresh_token WHERE token = ?";
+        $resource = QueryUtils::sqlStatementThrowException($sql, [$token], true);
+        $result = QueryUtils::fetchArrayFromResultSet($resource);
+        return $result ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
+    }
 }

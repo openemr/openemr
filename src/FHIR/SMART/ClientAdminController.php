@@ -11,10 +11,10 @@
 
 namespace OpenEMR\FHIR\SMART;
 
-use OpenEMR\Common\Acl\AccessDeniedException;
+use Lcobucci\JWT\Parser;use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OAuth2KeyConfig;use OpenEMR\Common\Auth\OAuth2KeyException;use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
@@ -32,6 +32,8 @@ class ClientAdminController
     const REVOKE_TRUSTED_USER = 'revoke-trusted-user';
     const REVOKE_ACCESS_TOKEN = 'revoke-access-token';
     const REVOKE_REFRESH_TOKEN = 'revoke-refresh-token';
+    const TOKEN_TOOLS_ACTION = 'token-tools';
+    CONST PARSE_TOKEN_ACTION = "parse-token";
 
     private $actionURL;
 
@@ -98,23 +100,37 @@ class ClientAdminController
 
         $parts = explode("/", $action);
 
-        // route /list
-        if ($parts[0] == 'list') {
-            $this->listAction($request);
-        } else if ($parts[0] == 'edit' && count($parts) > 1) {
-            $clientId = $parts[1];
+        $mainAction = $parts[0] ?? null;
+        $mainActionChild = $parts[1] ?? null;
+        $subAction = $parts[2] ?? null;
 
-            if (count($parts) < 3) { // route /edit/:clientId
+        // route /list
+        if ($mainAction == 'list') {
+            $this->listAction($request);
+        } else if ($mainAction == self::TOKEN_TOOLS_ACTION) {
+            if (empty($mainActionChild)) {
+                $this->tokenToolsAction($request);
+            } else if ($mainActionChild == self::PARSE_TOKEN_ACTION) {
+                return $this->parseTokenAction($request);
+            }  else {
+                return $this->notFoundAction($request);
+            }
+        } else if ($mainAction == 'edit' && !empty($mainActionChild)) {
+            $clientId = $mainActionChild;
+
+            $this->editAction($clientId, $request);
+
+            if (empty($subAction)) { // route /edit/:clientId
                 return $this->editAction($clientId, $request);
-            } else if ($parts[2] == 'enable') { // route /edit/:clientId/enable
+            } else if ($subAction == 'enable') { // route /edit/:clientId/enable
                 return $this->enableAction($clientId, $request);
-            } else if ($parts[2] == 'disable') { // route /edit/:clientId/disable
+            } else if ($subAction == 'disable') { // route /edit/:clientId/disable
                 return $this->disableAction($clientId, $request);
-            } else if ($parts[2] == self::REVOKE_TRUSTED_USER) {
+            } else if ($subAction == self::REVOKE_TRUSTED_USER) {
                 return $this->revokeTrustedUserAction($clientId, $request);
-            } else if ($parts[2] == self::REVOKE_ACCESS_TOKEN) {
+            } else if ($subAction == self::REVOKE_ACCESS_TOKEN) {
                 return $this->revokeAccessToken($clientId, $request);
-            } else if ($parts[2] == self::REVOKE_REFRESH_TOKEN) {
+            } else if ($subAction == self::REVOKE_REFRESH_TOKEN) {
                 return $this->revokeRefreshToken($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
@@ -321,7 +337,7 @@ class ClientAdminController
                 <?php foreach ($clients as $client) : ?>
                     <tr>
                         <td>
-                            <a class="btn btn-primary btn-sm" href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()])); ?>" onclick="top.restoreSession()">Edit</a>
+                            <a class="btn btn-primary btn-sm" href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()])); ?>" onclick="top.restoreSession()"><?php echo xlt("Edit"); ?></a>
                         </td>
                         <td>
                             <?php echo text($client->getName()); ?>
@@ -648,11 +664,12 @@ class ClientAdminController
 
     private function renderTextarea($key, $setting)
     {
+        $disabled = $setting['enabled'] !== true ? "disabled readonly" : "";
         ?>
         <div class="form-group">
             <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
-            <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>" readonly
-                      class="form-control" rows="10" disabled><?php echo attr($setting['value']); ?></textarea>
+            <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
+                      class="form-control" rows="10" <?php echo $disabled; ?>><?php echo attr($setting['value']); ?></textarea>
         </div>
         <?php
     }
@@ -790,7 +807,10 @@ class ClientAdminController
             <div class="row">
                 <div class="col-12">
                     <div class="page-title">
-                        <h2><?php echo text($title); ?></h2>
+                        <h2>
+                            <?php echo text($title); ?>
+                            <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                        </h2>
                     </div>
                 </div>
             </div>
@@ -894,5 +914,166 @@ class ClientAdminController
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked access token")]]);
         header("Location: " . $url);
         exit;
+    }
+
+    private function tokenToolsAction(array $request)
+    {
+        $this->renderTokenToolsHeader();
+        $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
+        $textSetting = [
+                'value' => ''
+                ,'label' => 'Token to parse'
+                ,'type' => 'textarea'
+                ,'enabled' => true
+        ];
+        ?>
+        <form method="POST" action="<?php echo $actionUrl; ?>">
+        <?php
+            $this->renderTextarea("token", $textSetting);
+        ?>
+        <input type="submit" class="btn btn-sm btn-primary" value="<?php echo xla("Parse Token"); ?>" />
+        <?php
+        $this->renderTokenToolsFooter();
+    }
+
+    private function parseTokenAction(array $request)
+    {
+        $parts = null;
+        $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
+        $textSetting = [
+                'value' => $request['token'] ?? null
+                ,'label' => 'Token to parse'
+                ,'type' => 'textarea'
+                ,'enabled' => true
+        ];
+        if (!empty($request['token']))
+        {
+            $parts = $this->parseTokenIntoParts($request['token']);
+            $databaseRecord = $this->getDatabaseRecordForToken($parts['jti'], $parts['token_type']);
+            if (!empty($databaseRecord)){
+                $parts['client_id'] = $databaseRecord['client_id'];
+                $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
+            }
+
+            if ($parts['token_type'] == 'refresh_token')
+            {
+                $parts['revoke_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id'], self::REVOKE_REFRESH_TOKEN, $databaseRecord['id']]);
+            }
+            else {
+                $parts['revoke_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id'], self::REVOKE_ACCESS_TOKEN, $databaseRecord['id']]);
+
+            }
+            $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
+        }
+
+        // now let's grab our parser and see what we can do with all of this.
+        $this->renderTokenToolsHeader();
+        if (empty($databaseRecord)) {
+        ?>
+        <div class="alert alert-info">
+        <?php echo xlt("JWT not found in system"); ?>
+        </div>
+        <?php
+        }
+        ?>
+        <form method="POST" action="<?php echo $actionUrl; ?>">
+        <?php
+            $this->renderTextarea("token", $textSetting);
+        ?>
+        <input type="submit" class="btn btn-sm btn-primary" value="<?php echo xla("Parse Token"); ?>" />
+
+        <?php if (!empty($databaseRecord)) { ?>
+
+        <hr />
+        <h3><?php echo xlt("Token details"); ?>
+            <?php if ($databaseRecord['revoked'] == 0) : ?>
+              <a href="<?php echo attr($parts['revoke_link']); ?>"
+                       class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
+            <?php endif; ?>
+        </h3>
+        <ul>
+        <li><?php echo xlt("Token JTI(DB token value)"); ?>: <?php echo $parts['jti']; ?></li>
+        <li><?php echo xlt("Token DB Id"); ?>: <?php echo $databaseRecord['id']; ?></li>
+        <li><?php echo xlt("Token Status"); ?>: <?php echo $parts['status']; ?></li>
+        <li><?php echo xlt("Token Type"); ?>: <?php echo $parts['token_type']; ?></li>
+        <li><?php echo xlt("Token Expiration"); ?>: <?php echo $databaseRecord['expiry']; ?></li>
+        <li><?php echo xlt("User UUID"); ?>:
+        <a href="<?php echo attr($parts['user_link']); ?>">
+            <?php echo $databaseRecord['user_id']; ?>
+        </a>
+        </li>
+        </ul>
+        <pre><?php echo json_encode($parts, JSON_PRETTY_PRINT); ?></pre>
+        <?php
+        }
+
+        $this->renderTokenToolsFooter();
+    }
+
+    private function getDatabaseRecordForToken($tokenId, $tokenType)
+    {
+        if ($tokenType == 'refresh_token')
+        {
+            $repo = new RefreshTokenRepository();
+        } else {
+            $repo = new AccessTokenRepository();
+        }
+        return $repo->getTokenByToken($tokenId);
+    }
+
+    private function parseTokenIntoParts($rawToken)
+    {
+        $tokenParts = [];
+        try {
+            $keyConfig = new OAuth2KeyConfig();
+            $keyConfig->configKeyPairs();
+            $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $keyConfig->getPublicKeyLocation());
+
+            $tokenType = $webKeyParser->getTokenHintFromToken($rawToken);
+            if ($tokenType == 'refresh_token')
+            {
+                $tokenParts = $webKeyParser->parseRefreshToken($rawToken);
+            } else {
+                $tokenParts = $webKeyParser->parseAccessToken($rawToken);
+            }
+            $tokenParts['token_type'] = $tokenType;
+        }
+        catch (OAuth2KeyException $exception)
+        {
+
+            var_dump($exception->getMessage());
+            // TODO: @adunsulag handle how we will work with our key exceptions
+        }
+        return $tokenParts;
+    }
+
+    private function renderTokenToolsHeader()
+    {
+        $listAction = $this->getActionUrl(['list']);
+
+        $this->renderHeader();
+        ?>
+        <div class="card mt-3">
+        <div class="card-header">
+            <h2>
+                <?php echo xlt('Token Tools'); ?>
+            </h2>
+            <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+        <?php
+    }
+
+    private function renderTokenToolsFooter()
+    {
+        ?>
+        </div>
+                </div>
+            </div>
+        </div>
+        <?php
+        $this->renderFooter();
     }
 }
