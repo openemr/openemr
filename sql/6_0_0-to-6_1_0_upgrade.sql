@@ -940,10 +940,10 @@ ALTER TABLE `api_token` ADD COLUMN `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMME
 #IfNotTable api_refresh_token
 CREATE TABLE `api_refresh_token` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `user_id` VARCHAR(40),
-    `client_id` VARCHAR(80),
+    `user_id` VARCHAR(40) DEFAULT NULL,
+    `client_id` VARCHAR(80) DEFAULT NULL,
     `token` VARCHAR(128) NOT NULL,
-    `expiry` DATETIME,
+    `expiry` DATETIME DEFAULT NULL,
     `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
     PRIMARY KEY (`id`),
     UNIQUE KEY (`token`),

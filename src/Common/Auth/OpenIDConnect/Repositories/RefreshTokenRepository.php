@@ -23,7 +23,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
-        $token = $this->getRefreshTokenByToken($refreshTokenEntity->getIdentifier());
+        $token = $this->getTokenByToken($refreshTokenEntity->getIdentifier());
         if (!empty($token)) {
             throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
         }
@@ -67,14 +67,6 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         // note user_id is the STRING representation of the uuid, not the binary representation
         $sql = "SELECT * FROM api_refresh_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() AND revoked = 0 ";
         return QueryUtils::fetchRecords($sql, [$userUuid, $clientId]);
-    }
-
-    public function getRefreshTokenByToken($token)
-    {
-        $sql = " SELECT * FROM api_refresh_token WHERE token = ?";
-        $resource = QueryUtils::sqlStatementThrowException($sql, [$token], true);
-        $result = QueryUtils::fetchArrayFromResultSet($resource);
-        return $result ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
     }
 
     public function getTokenById($id)
