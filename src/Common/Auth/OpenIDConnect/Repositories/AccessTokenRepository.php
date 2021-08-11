@@ -104,7 +104,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function getActiveTokensForUser($clientId, $userUuid)
     {
         // note user_id is the STRING representation of the uuid, not the binary representation
-        $sql = "SELECT * FROM api_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() ";
+        $sql = "SELECT * FROM api_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() AND revoked = 0 ";
         return QueryUtils::fetchRecords($sql, [$userUuid, $clientId]);
     }
 

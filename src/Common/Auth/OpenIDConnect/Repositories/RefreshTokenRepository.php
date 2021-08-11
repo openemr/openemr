@@ -66,7 +66,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function getActiveTokensForUser($clientId, $userUuid)
     {
         // note user_id is the STRING representation of the uuid, not the binary representation
-        $sql = "SELECT * FROM api_refresh_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() ";
+        $sql = "SELECT * FROM api_refresh_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() AND revoked = 0 ";
         return QueryUtils::fetchRecords($sql, [$userUuid, $clientId]);
     }
 
@@ -75,6 +75,14 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         $sql = " SELECT * FROM api_refresh_token WHERE token = ?";
         $resource = QueryUtils::sqlStatementThrowException($sql, [$token], true);
         $result = QueryUtils::fetchArrayFromResultSet($resource);
-        return $result[0] ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
+        return $result ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
+    }
+
+    public function getTokenById($id)
+    {
+        $sql = " SELECT * FROM api_refresh_token WHERE id = ?";
+        $resource = QueryUtils::sqlStatementThrowException($sql, [$id], true);
+        $result = QueryUtils::fetchArrayFromResultSet($resource);
+        return $result ?? null; // if the result set is not empty then its been revoked, otherwise its a good token
     }
 }

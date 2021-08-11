@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -30,6 +31,7 @@ class ClientAdminController
 {
     const REVOKE_TRUSTED_USER = 'revoke-trusted-user';
     const REVOKE_ACCESS_TOKEN = 'revoke-access-token';
+    const REVOKE_REFRESH_TOKEN = 'revoke-refresh-token';
 
     private $actionURL;
 
@@ -112,6 +114,8 @@ class ClientAdminController
                 return $this->revokeTrustedUserAction($clientId, $request);
             } else if ($parts[2] == self::REVOKE_ACCESS_TOKEN) {
                 return $this->revokeAccessToken($clientId, $request);
+            } else if ($parts[2] == self::REVOKE_REFRESH_TOKEN) {
+                return $this->revokeRefreshToken($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
             }
@@ -145,7 +149,7 @@ class ClientAdminController
         }
         $trustedUserService = new TrustedUserService();
         $trustedUsers = $trustedUserService->getTrustedUsersForClient($clientId);
-        $accessTokenRepository = new AccessTokenRepository();
+
         $usersWithAccessTokens = [];
         $userService = new UserService();
         $patientService = new PatientService();
@@ -168,19 +172,8 @@ class ClientAdminController
                    $user['display_name'] = !empty($user['user']) ? $user['user']['username'] : "Record not found";
                 }
             }
-            $user['accessTokens'] = [];
-            $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user['user_id']) ?? [];
-            foreach ($accessTokens as $token) {
-                try {
-                    $token['scope'] = json_decode($token['scope'], true);
-                    $user['accessTokens'][] = $token;
-                }
-                catch (\JsonException $exception)
-                {
-                    (new SystemLogger())->error("Failed to json_decode api_token scope column. "
-                        . $exception->getMessage(), ['id' => $token['id'], 'clientId' => $clientId, 'user_id' => $user['user_id']]);
-                }
-            }
+            $user['accessTokens'] = $this->getAccessTokensForClientUser($clientId, $user['user_id']);
+            $user['refreshTokens'] = $this->getRefreshTokensForClientUser($clientId, $user['user_id']);
             $usersWithAccessTokens[] = $user;
         }
         $client->setTrustedUsers($usersWithAccessTokens);
@@ -188,6 +181,32 @@ class ClientAdminController
         $this->renderHeader();
         $this->renderEdit($client, $request);
         $this->renderFooter();
+    }
+
+    private function getAccessTokensForClientUser($clientId, $user_id)
+    {
+        $accessTokenRepository = new AccessTokenRepository();
+        $result = [];
+        $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
+        foreach ($accessTokens as $token) {
+            try {
+                $token['scope'] = json_decode($token['scope'], true);
+                $result[] = $token;
+            }
+            catch (\JsonException $exception)
+            {
+                (new SystemLogger())->error("Failed to json_decode api_token scope column. "
+                    . $exception->getMessage(), ['id' => $token['id'], 'clientId' => $clientId, 'user_id' => $user_id]);
+            }
+        }
+        return $result;
+    }
+
+    private function getRefreshTokensForClientUser($clientId, $user_id)
+    {
+        $tokenRepository = new RefreshTokenRepository();
+        $result = $tokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
+        return $result;
     }
 
     /**
@@ -513,7 +532,7 @@ class ClientAdminController
                                         </div>
                                         <div class="row mt-3">
                                             <div class="col">
-                                                <h4><?php echo xlt("Authorization Tokens") ?></h4>
+                                                <h4><?php echo xlt("Access Tokens") ?></h4>
                                                 <hr class="w-100 mt-3 mb-3"/>
                                                 <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
                                                     <div class="col-3">
@@ -552,6 +571,48 @@ class ClientAdminController
                                                             </div>
                                                             <div class="col-3">
                                                                 <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $token['id']])); ?>"
+                                                                   class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col">
+                                                <h4><?php echo xlt("Refresh Tokens") ?></h4>
+                                                <hr class="w-100 mt-3 mb-3"/>
+                                                <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
+                                                    <div class="col-7">
+                                                        <?php echo xlt("Token"); ?>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <?php echo xlt("Expiry"); ?>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <?php echo xlt("Action"); ?>
+                                                    </div>
+                                                </div>
+                                                <?php if (empty($trustedUser['refreshTokens'])) : ?>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="alert alert-info text-center">
+                                                                <?php echo xlt("No active refresh tokens found"); ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($trustedUser['refreshTokens'])) : ?>
+                                                    <?php foreach($trustedUser['refreshTokens'] as $token) : ?>
+                                                        <div class="row">
+                                                            <div class="col-7">
+                                                                <?php echo text($token['token']); ?>
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <?php echo text($token['expiry']); ?>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_REFRESH_TOKEN, $token['id']])); ?>"
                                                                    class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
                                                             </div>
                                                         </div>
@@ -785,6 +846,29 @@ class ClientAdminController
         $trustedUserService->deleteTrustedUserById($originalUser['id']);
 
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked Trusted User")]]);
+        header("Location: " . $url);
+        exit;
+    }
+
+    private function revokeRefreshToken($clientId, array $request)
+    {
+        $action = $request['action'] ?? '';
+        $parts = explode("/", $action);
+        $tokenId = $parts[3] ?? null;
+        if (empty($tokenId)) {
+            return $this->notFoundAction($request);
+        }
+        // need to delete the trusted user action
+        $service = new RefreshTokenRepository();
+        $token = $service->getTokenById($tokenId);
+        // make sure the client is the same
+        if (empty($token) || $token['client_id'] != $clientId)
+        {
+            throw new AccessDeniedException('admin', 'super', "Attempted to refresh access token for different client");
+        }
+        $service->revokeRefreshToken($token['token']);
+
+        $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked refresh token")]]);
         header("Location: " . $url);
         exit;
     }
