@@ -105,6 +105,7 @@ class ClientAdminController
         $subAction = $parts[2] ?? null;
 
         // route /list
+        // TODO: @adunsulag this router has gotten way too big and unwieldy... we need to refactor it into something simpler
         if ($mainAction == 'list') {
             $this->listAction($request);
         } else if ($mainAction == self::TOKEN_TOOLS_ACTION) {
@@ -112,7 +113,12 @@ class ClientAdminController
                 $this->tokenToolsAction($request);
             } else if ($mainActionChild == self::PARSE_TOKEN_ACTION) {
                 return $this->parseTokenAction($request);
-            }  else {
+            } else if ($mainActionChild == self::REVOKE_ACCESS_TOKEN) {
+                return $this->toolsRevokeAccessTokenAction($request);
+
+            } else if ($mainActionChild == self::REVOKE_REFRESH_TOKEN) {
+                return $this->toolsRevokeRefreshToken($request);
+            } else {
                 return $this->notFoundAction($request);
             }
         } else if ($mainAction == 'edit' && !empty($mainActionChild)) {
@@ -893,6 +899,42 @@ class ClientAdminController
         exit;
     }
 
+    private function toolsRevokeAccessTokenAction(array $request)
+    {
+        $clientId = $request['clientId'] ?? null;
+        $token = $request['token'] ?? null;
+        $service = new AccessTokenRepository();
+        $accessToken = $service->getTokenById($token);
+        // make sure the client is the same
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
+        {
+            throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
+        }
+        $service->revokeAccessToken($accessToken['token']);
+
+        $url = $this->getActionUrl([self::TOKEN_TOOLS_ACTION], ["queryParams" => ['message' => xlt("Successfully revoked access token")]]);
+        header("Location: " . $url);
+        exit;
+    }
+
+    private function toolsRevokeRefreshToken(array $request)
+    {
+        $clientId = $request['clientId'] ?? null;
+        $token = $request['token'] ?? null;
+        $service = new RefreshTokenRepository();
+        $accessToken = $service->getTokenById($token);
+        // make sure the client is the same
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
+        {
+            throw new AccessDeniedException('admin', 'super', "Attempted to delete refresh token for different client");
+        }
+        $service->revokeRefreshToken($accessToken['token']);
+
+        $url = $this->getActionUrl([self::TOKEN_TOOLS_ACTION], ["queryParams" => ['message' => xlt("Successfully revoked refresh token")]]);
+        header("Location: " . $url);
+        exit;
+    }
+
     private function revokeAccessToken($clientId, array $request)
     {
         $action = $request['action'] ?? '';
@@ -918,7 +960,7 @@ class ClientAdminController
 
     private function tokenToolsAction(array $request)
     {
-        $this->renderTokenToolsHeader();
+        $this->renderTokenToolsHeader($request);
         $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
         $textSetting = [
                 'value' => ''
@@ -955,19 +997,20 @@ class ClientAdminController
                 $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
             }
 
+            $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
             if ($parts['token_type'] == 'refresh_token')
             {
-                $parts['revoke_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id'], self::REVOKE_REFRESH_TOKEN, $databaseRecord['id']]);
+                $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
             }
             else {
-                $parts['revoke_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id'], self::REVOKE_ACCESS_TOKEN, $databaseRecord['id']]);
+                $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
 
             }
             $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
         }
 
         // now let's grab our parser and see what we can do with all of this.
-        $this->renderTokenToolsHeader();
+        $this->renderTokenToolsHeader($request);
         if (empty($databaseRecord)) {
         ?>
         <div class="alert alert-info">
@@ -1047,9 +1090,10 @@ class ClientAdminController
         return $tokenParts;
     }
 
-    private function renderTokenToolsHeader()
+    private function renderTokenToolsHeader(array $request)
     {
         $listAction = $this->getActionUrl(['list']);
+        $message = $request['message'] ?? null;
 
         $this->renderHeader();
         ?>
@@ -1061,6 +1105,15 @@ class ClientAdminController
             <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
         </div>
         <div class="card-body">
+            <?php if (!empty($message)) : ?>
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-success">
+                        <?php echo text($message); ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="row">
                 <div class="col-12">
         <?php
