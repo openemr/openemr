@@ -122,7 +122,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function getTokenByToken($token)
     {
-        $sql = "SELECT * FROM api_token WHERE id = ? ";
+        $sql = "SELECT * FROM api_token WHERE token = ? ";
         $records = QueryUtils::fetchRecords($sql, [$token], true);
         return $records[0] ?? null;
     }

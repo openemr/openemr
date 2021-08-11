@@ -946,7 +946,7 @@ CREATE TABLE `api_refresh_token` (
     `expiry` DATETIME,
     `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
     PRIMARY KEY (`id`),
-    INDEX `api_refresh_token_token_idx` (`token`),
+    UNIQUE KEY (`token`),
     INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
 ) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
 #EndIf
