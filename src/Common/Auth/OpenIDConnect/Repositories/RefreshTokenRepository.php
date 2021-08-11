@@ -24,8 +24,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
         $token = $this->getRefreshTokenByToken($refreshTokenEntity->getIdentifier());
-        if (!empty($token))
-        {
+        if (!empty($token)) {
             throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
         }
 

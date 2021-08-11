@@ -222,8 +222,7 @@ class RestConfig
     public static function validateAccessTokenRevoked($tokenId)
     {
         $repository = new AccessTokenRepository();
-        if ($repository->isAccessTokenRevokedInDatabase($tokenId))
-        {
+        if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
             $response = self::createServerResponse();
             return OAuthServerException::accessDenied('Access token has been revoked')->generateHttpResponse($response);
         }

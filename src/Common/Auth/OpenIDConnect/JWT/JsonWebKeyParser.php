@@ -1,4 +1,5 @@
 <?php
+
 /**
  * JsonWebKeyParser.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
-
 
 use Exception;
 use Lcobucci\JWT\Parser;
@@ -32,8 +32,7 @@ class JsonWebKeyParser
 
     public function parseRefreshToken($rawToken)
     {
-        if (empty($rawToken))
-        {
+        if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
         $refreshTokenData = null;
@@ -56,8 +55,7 @@ class JsonWebKeyParser
 
     public function parseAccessToken($rawToken)
     {
-        if (empty($rawToken))
-        {
+        if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
         // Attempt to parse and validate the JWT
@@ -93,8 +91,7 @@ class JsonWebKeyParser
 
     public function getTokenHintFromToken($rawToken)
     {
-        if (empty($rawToken))
-        {
+        if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
         // determine if access or refresh.

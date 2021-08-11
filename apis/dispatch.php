@@ -133,8 +133,7 @@ $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
 // we now can check the database to see if the token is revoked
-if (!empty($tokenId))
-{
+if (!empty($tokenId)) {
     $result = $gbl::validateAccessTokenRevoked($tokenId);
     if ($result instanceof ResponseInterface) {
         $logger->error("dispatch.php access token was revoked", ["resource" => $resource]);

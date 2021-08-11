@@ -236,5 +236,4 @@ class ClientEntity implements ClientEntityInterface
     {
         $this->logoutRedirectUris = $logoutRedirectUris;
     }
-
 }

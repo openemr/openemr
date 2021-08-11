@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Oauth2KeyConfig is responsible for configuring, generating, and returning oauth2 keys that are used by the OpenEMR system.
  * @package openemr
@@ -13,7 +14,6 @@
  */
 
 namespace OpenEMR\Common\Auth;
-
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -42,8 +42,7 @@ class OAuth2KeyConfig
 
     public function __construct($siteDir = null)
     {
-        if (empty($siteDir))
-        {
+        if (empty($siteDir)) {
             // default to our global location
             $siteDir = $GLOBALS['OE_SITE_DIR'];
         }

@@ -41,8 +41,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
         $token = $this->getTokenByToken($accessTokenEntity->getIdentifier());
-        if (!empty($token))
-        {
+        if (!empty($token)) {
             throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
         }
 

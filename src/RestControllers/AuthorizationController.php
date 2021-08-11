@@ -148,8 +148,7 @@ class AuthorizationController
             $this->publicKey = $oauth2KeyConfig->getPublicKeyLocation();
             $this->oaEncryptionKey = $oauth2KeyConfig->getEncryptionKey();
             $this->passphrase = $oauth2KeyConfig->getPassPhrase();
-        }
-        catch (OAuth2KeyException $exception) {
+        } catch (OAuth2KeyException $exception) {
             $this->logger->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
             $serverException = OAuthServerException::serverError("Security error - problem with authorization server keys.", $exception);
             SessionUtil::oauthSessionCookieDestroy();
@@ -1140,14 +1139,12 @@ class AuthorizationController
                         $result['status'] = 'revoked';
                     }
                     $tokenRepository = new AccessTokenRepository();
-                    if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti']))
-                    {
+                    if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti'])) {
                         $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
                     $audience = $result['aud'];
-                    if (!empty($audience))
-                    {
+                    if (!empty($audience)) {
                         // audience is an array... we will only validate against the first item
                         $audience = current($audience);
                     }
@@ -1181,8 +1178,7 @@ class AuthorizationController
                     $result['status'] = 'revoked';
                 }
                 $tokenRepository = new RefreshTokenRepository();
-                if ($tokenRepository->isRefreshTokenRevoked($result['jti']))
-                {
+                if ($tokenRepository->isRefreshTokenRevoked($result['jti'])) {
                     $result['active'] = false;
                     $result['status'] = 'revoked';
                 }

@@ -11,10 +11,14 @@
 
 namespace OpenEMR\FHIR\SMART;
 
-use Lcobucci\JWT\Parser;use OpenEMR\Common\Acl\AccessDeniedException;
+use Lcobucci\JWT\Parser;
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OAuth2KeyConfig;use OpenEMR\Common\Auth\OAuth2KeyException;use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
@@ -33,7 +37,7 @@ class ClientAdminController
     const REVOKE_ACCESS_TOKEN = 'revoke-access-token';
     const REVOKE_REFRESH_TOKEN = 'revoke-refresh-token';
     const TOKEN_TOOLS_ACTION = 'token-tools';
-    CONST PARSE_TOKEN_ACTION = "parse-token";
+    const PARSE_TOKEN_ACTION = "parse-token";
 
     private $actionURL;
 
@@ -115,7 +119,6 @@ class ClientAdminController
                 return $this->parseTokenAction($request);
             } else if ($mainActionChild == self::REVOKE_ACCESS_TOKEN) {
                 return $this->toolsRevokeAccessTokenAction($request);
-
             } else if ($mainActionChild == self::REVOKE_REFRESH_TOKEN) {
                 return $this->toolsRevokeRefreshToken($request);
             } else {
@@ -179,19 +182,16 @@ class ClientAdminController
             // TODO: do we need to optimize this query?
             if (UuidRegistry::isValidStringUUID($user['user_id'])) {
                 $registryRecord = UuidRegistry::getRegistryRecordForUuid($user['user_id']);
-                if ($registryRecord['table_name'] == 'patient_data')
-                {
+                if ($registryRecord['table_name'] == 'patient_data') {
                     $user['user_type'] = 'patient';
                     $result = $patientService->getOne($user['user_id']);
                     $patient = $result->hasData() ? $result->getData()[0] : null;
                     $user['patient'] = $patient;
                     $user['display_name'] = isset($patient) ? $patient['fname'] . ' ' . $patient['lname'] : "Patient record not found";
-                }
-                else
-                {
-                   $user['user_type'] = 'user';
-                   $user['user'] = $userService->getUserByUUID($user['user_id']);
-                   $user['display_name'] = !empty($user['user']) ? $user['user']['username'] : "Record not found";
+                } else {
+                    $user['user_type'] = 'user';
+                    $user['user'] = $userService->getUserByUUID($user['user_id']);
+                    $user['display_name'] = !empty($user['user']) ? $user['user']['username'] : "Record not found";
                 }
             }
             $user['accessTokens'] = $this->getAccessTokensForClientUser($clientId, $user['user_id']);
@@ -214,9 +214,7 @@ class ClientAdminController
             try {
                 $token['scope'] = json_decode($token['scope'], true);
                 $result[] = $token;
-            }
-            catch (\JsonException $exception)
-            {
+            } catch (\JsonException $exception) {
                 (new SystemLogger())->error("Failed to json_decode api_token scope column. "
                     . $exception->getMessage(), ['id' => $token['id'], 'clientId' => $clientId, 'user_id' => $user_id]);
             }
@@ -580,7 +578,7 @@ class ClientAdminController
                                                 </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($trustedUser['accessTokens'])) : ?>
-                                                    <?php foreach($trustedUser['accessTokens'] as $token) : ?>
+                                                    <?php foreach ($trustedUser['accessTokens'] as $token) : ?>
                                                         <div class="row">
                                                             <div class="col-3">
                                                                 <?php echo text($token['token']); ?>
@@ -625,7 +623,7 @@ class ClientAdminController
                                                     </div>
                                                 <?php endif; ?>
                                                 <?php if (!empty($trustedUser['refreshTokens'])) : ?>
-                                                    <?php foreach($trustedUser['refreshTokens'] as $token) : ?>
+                                                    <?php foreach ($trustedUser['refreshTokens'] as $token) : ?>
                                                         <div class="row">
                                                             <div class="col-7">
                                                                 <?php echo text($token['token']); ?>
@@ -864,8 +862,7 @@ class ClientAdminController
         $trustedUserService = new TrustedUserService();
         $originalUser = $trustedUserService->getTrustedUser($clientId, $trustedUserId);
         // make sure the client is the same
-        if (empty($originalUser))
-        {
+        if (empty($originalUser)) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete trusted user for different client");
         }
 
@@ -888,8 +885,7 @@ class ClientAdminController
         $service = new RefreshTokenRepository();
         $token = $service->getTokenById($tokenId);
         // make sure the client is the same
-        if (empty($token) || $token['client_id'] != $clientId)
-        {
+        if (empty($token) || $token['client_id'] != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to refresh access token for different client");
         }
         $service->revokeRefreshToken($token['token']);
@@ -906,8 +902,7 @@ class ClientAdminController
         $service = new AccessTokenRepository();
         $accessToken = $service->getTokenById($token);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
-        {
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
         }
         $service->revokeAccessToken($accessToken['token']);
@@ -924,8 +919,7 @@ class ClientAdminController
         $service = new RefreshTokenRepository();
         $accessToken = $service->getTokenById($token);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
-        {
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete refresh token for different client");
         }
         $service->revokeRefreshToken($accessToken['token']);
@@ -947,8 +941,7 @@ class ClientAdminController
         $service = new AccessTokenRepository();
         $accessToken = $service->getTokenById($accessToken);
         // make sure the client is the same
-        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
-        {
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId) {
             throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
         }
         $service->revokeAccessToken($accessToken['token']);
@@ -988,23 +981,19 @@ class ClientAdminController
                 ,'type' => 'textarea'
                 ,'enabled' => true
         ];
-        if (!empty($request['token']))
-        {
+        if (!empty($request['token'])) {
             $parts = $this->parseTokenIntoParts($request['token']);
             $databaseRecord = $this->getDatabaseRecordForToken($parts['jti'], $parts['token_type']);
-            if (!empty($databaseRecord)){
+            if (!empty($databaseRecord)) {
                 $parts['client_id'] = $databaseRecord['client_id'];
                 $parts['status'] = $databaseRecord['revoked'] != 0 ? 'revoked' : $parts['status'];
             }
 
             $queryParams = ['token' => $databaseRecord['id'], 'clientId' => $databaseRecord['client_id']];
-            if ($parts['token_type'] == 'refresh_token')
-            {
+            if ($parts['token_type'] == 'refresh_token') {
                 $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_REFRESH_TOKEN], ['queryParams' => $queryParams]);
-            }
-            else {
+            } else {
                 $parts['revoke_link'] = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::REVOKE_ACCESS_TOKEN], ['queryParams' => $queryParams]);
-
             }
             $parts['user_link'] = $this->getActionUrl(['edit', $databaseRecord['client_id']], ['fragment' => $databaseRecord['user_id']]);
         }
@@ -1012,11 +1001,11 @@ class ClientAdminController
         // now let's grab our parser and see what we can do with all of this.
         $this->renderTokenToolsHeader($request);
         if (empty($databaseRecord)) {
-        ?>
+            ?>
         <div class="alert alert-info">
-        <?php echo xlt("JWT not found in system"); ?>
+            <?php echo xlt("JWT not found in system"); ?>
         </div>
-        <?php
+            <?php
         }
         ?>
         <form method="POST" action="<?php echo $actionUrl; ?>">
@@ -1026,7 +1015,6 @@ class ClientAdminController
         <input type="submit" class="btn btn-sm btn-primary" value="<?php echo xla("Parse Token"); ?>" />
 
         <?php if (!empty($databaseRecord)) { ?>
-
         <hr />
         <h3><?php echo xlt("Token details"); ?>
             <?php if ($databaseRecord['revoked'] == 0) : ?>
@@ -1047,7 +1035,7 @@ class ClientAdminController
         </li>
         </ul>
         <pre><?php echo json_encode($parts, JSON_PRETTY_PRINT); ?></pre>
-        <?php
+            <?php
         }
 
         $this->renderTokenToolsFooter();
@@ -1055,8 +1043,7 @@ class ClientAdminController
 
     private function getDatabaseRecordForToken($tokenId, $tokenType)
     {
-        if ($tokenType == 'refresh_token')
-        {
+        if ($tokenType == 'refresh_token') {
             $repo = new RefreshTokenRepository();
         } else {
             $repo = new AccessTokenRepository();
@@ -1073,17 +1060,13 @@ class ClientAdminController
             $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $keyConfig->getPublicKeyLocation());
 
             $tokenType = $webKeyParser->getTokenHintFromToken($rawToken);
-            if ($tokenType == 'refresh_token')
-            {
+            if ($tokenType == 'refresh_token') {
                 $tokenParts = $webKeyParser->parseRefreshToken($rawToken);
             } else {
                 $tokenParts = $webKeyParser->parseAccessToken($rawToken);
             }
             $tokenParts['token_type'] = $tokenType;
-        }
-        catch (OAuth2KeyException $exception)
-        {
-
+        } catch (OAuth2KeyException $exception) {
             var_dump($exception->getMessage());
             // TODO: @adunsulag handle how we will work with our key exceptions
         }
