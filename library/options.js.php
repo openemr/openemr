@@ -9,10 +9,14 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2014-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
 <script>
@@ -378,4 +382,21 @@ function sel_patient(ename, epid) {
   dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/find_patient_popup.php', '_blank', 500, 400);
 }
 
+// This is a wrapper for specialty forms dialog
+// ajax mode allows calling script to be in the same scope as options.inc.php.
+function specialtyFormDialog(mode = 'iframe', size = 'modal-sm', formHandler = 'name_history') {
+    event.preventDefault();
+    let url = '<?php echo $GLOBALS['webroot']; ?>/library/specialty_forms.php?';
+    url += "form_handler=" + encodeURIComponent(formHandler);
+    url += "&csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    let title = xl("Add to History");
+    dlgopen('', '', size, 500, '', '', {
+        allowResize: true,
+        allowDrag: true,
+        sizeHeight: 'auto',
+        dialogId: '',
+        type: mode,
+        url: url
+    });
+};
 </script>

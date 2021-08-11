@@ -1,5 +1,5 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -504,7 +504,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // Initial responsive height.
     let vpht = where.innerHeight;
-    if (height <= 300) {
+    if (height <= 300 && opts.type === 'iframe') {
         height = 300;
     }
     mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
@@ -524,7 +524,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var frameHtml =
         ('<iframe id="modalframe" class="modalIframe w-100 h-100 border-0" name="%winname%" %url%></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '85vh');
+    var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '90vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
@@ -808,9 +808,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         try {
             idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
             jQuery(e.currentTarget).parents('div.modal-content').css({'height': 0});
-            frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 40;
-        } catch(err){
-            frameContentHt = minSize + 40;
+            frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight) + 60;
+        } catch (err) {
+            frameContentHt = minSize + 60;
         }
         frameContentHt = frameContentHt <= minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt >= viewPortHt ? viewPortHt : frameContentHt;

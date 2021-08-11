@@ -932,3 +932,14 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 #EndIf
+
+#IfMissingColumn patient_history history_type_key
+ALTER TABLE `patient_history` ADD `history_type_key` VARCHAR(36) NULL, ADD `previous_name_prefix` TEXT, ADD `previous_name_first` TEXT, ADD `previous_name_middle` TEXT, ADD `previous_name_last` TEXT, ADD `previous_name_suffix` TEXT, ADD `previous_name_enddate` DATE DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id name_history
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='billing_note' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group_id,@backup_group_id) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history', COALESCE(@group_id,@backup_group_id),'Previous Names',@seq+1,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
+#EndIf

@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
@@ -31,7 +32,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
-    const TABLE_NAME = 'patient_data';
+    private const TABLE_NAME = 'patient_data';
+    private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
      * In the case where a patient doesn't have a picture uploaded,
@@ -45,9 +47,9 @@ class PatientService extends BaseService
     /**
      * Default constructor.
      */
-    public function __construct()
+    public function __construct($base_table = null)
     {
-        parent::__construct(self::TABLE_NAME);
+        parent::__construct($base_table ?? self::TABLE_NAME);
         $this->patientValidator = new PatientValidator();
     }
 
@@ -400,5 +402,93 @@ class PatientService extends BaseService
     {
         $careTeamService = new CareTeamService();
         $careTeamService->createCareTeamHistory($patientData['pid'], $oldProviders, $oldFacilities);
+    }
+
+    public function getPatientNameHistory($pid)
+    {
+        $sql = "SELECT pid,
+            id,
+            previous_name_prefix,
+            previous_name_first,
+            previous_name_middle,
+            previous_name_last,
+            previous_name_suffix,
+            previous_name_enddate
+            FROM patient_history
+            WHERE pid = ? AND history_type_key = ?";
+        $results =  QueryUtils::sqlStatementThrowException($sql, array($pid, 'name_history'));
+        $rows = [];
+        while ($row = sqlFetchArray($results)) {
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    public function deletePatientNameHistoryById($id)
+    {
+        $sql = "DELETE FROM patient_history WHERE id = ?";
+        $check = sqlQuery($sql, array($id));
+        return $check;
+    }
+
+    public function getPatientNameHistoryById($pid, $id)
+    {
+        $sql = "SELECT pid,
+            id,
+            previous_name_prefix,
+            previous_name_first,
+            previous_name_middle,
+            previous_name_last,
+            previous_name_suffix,
+            previous_name_enddate
+            FROM patient_history
+            WHERE pid = ? AND id = ? AND history_type_key = ?";
+        $result =  sqlQuery($sql, array($pid, $id, 'name_history'));
+
+        return $result;
+    }
+
+    /**
+     * Create a previous patient name history
+     * Updates not allowed for this history feature.
+     *
+     * @param string $pid patient internal id
+     * @param array $record array values to insert
+     * @return int | false new id or false if name already exist
+     */
+    public function createPatientNameHistory($pid, $record)
+    {
+        $insertData = [
+            'pid' => $pid,
+            'history_type_key' => 'name_history',
+            'previous_name_prefix' => $record['previous_name_prefix'],
+            'previous_name_first' => $record['previous_name_first'],
+            'previous_name_middle' => $record['previous_name_middle'],
+            'previous_name_last' => $record['previous_name_last'],
+            'previous_name_suffix' => $record['previous_name_suffix'],
+            'previous_name_enddate' => $record['previous_name_enddate']
+        ];
+        $sql = "SELECT pid FROM " . self::PATIENT_HISTORY_TABLE . " WHERE
+            pid = ? AND
+            history_type_key = ? AND
+            previous_name_prefix = ? AND
+            previous_name_first = ? AND
+            previous_name_middle = ? AND
+            previous_name_last = ? AND
+            previous_name_suffix = ? AND
+            previous_name_enddate = ?
+        ";
+        $go_flag = QueryUtils::fetchSingleValue($sql, 'pid', $insertData);
+        // return false which calling routine should understand as existing name record
+        if (!empty($go_flag)) {
+            return false;
+        }
+        // finish up the insert
+        $insertData['uuid'] = UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid();
+        $insert = $this->buildInsertColumns($insertData);
+        $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
+
+        return QueryUtils::sqlInsert($sql, $insert['bind']);
     }
 }

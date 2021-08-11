@@ -3405,6 +3405,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 20, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 21, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 22, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history','1','Previous Names',23,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
@@ -7262,6 +7263,7 @@ CREATE TABLE `patient_data` (
 
 --
 -- Table structure for table `patient_history` that is a dependent table on `patient_data`
+DROP TABLE IF EXISTS `patient_history`;
 CREATE TABLE `patient_history` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT
     , `uuid` BINARY(16) NULL
@@ -7269,6 +7271,13 @@ CREATE TABLE `patient_history` (
     , `care_team_provider` TEXT
     , `care_team_facility` TEXT
     , `pid` BIGINT(20) NOT NULL
+    , `history_type_key` varchar(36) DEFAULT NULL
+    , `previous_name_prefix` TEXT
+    , `previous_name_first` TEXT
+    , `previous_name_middle` TEXT
+    , `previous_name_last` TEXT
+    , `previous_name_suffix` TEXT
+    , `previous_name_enddate` date DEFAULT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
 ) ENGINE = InnoDB;
