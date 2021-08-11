@@ -285,6 +285,7 @@ function popup_close() {
                 $ids = explode(",", $issue);
                 foreach ($ids as $id) {
                     row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
+                    row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
                     row_delete("lists", "id = '" . add_escape_custom($id) . "'");
                 }
             } elseif ($document) {

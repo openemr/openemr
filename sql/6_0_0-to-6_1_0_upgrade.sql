@@ -853,6 +853,7 @@ UPDATE `list_options` SET `notes` = 'LOINC:11502-2' WHERE `list_options`.`list_i
 
 #IfMissingColumn patient_data care_team_status
 ALTER TABLE patient_data ADD COLUMN care_team_status TEXT;
+UPDATE `patient_data` SET `care_team_status` = 'active' WHERE `care_team_status` = '' OR `care_team_status` IS NULL;
 #EndIf
 
 #IfNotTable patient_history
@@ -872,7 +873,6 @@ CREATE TABLE `patient_history` (
 SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team_provider' AND form_id='DEM');
 SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
 SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group_id,@backup_group_id) AND form_id='DEM');
--- strange that the list is
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
         VALUES ('DEM', 'care_team_status', COALESCE(@group_id,@backup_group_id), 'Care Team Status', @seq+1, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
 #EndIf
@@ -880,8 +880,55 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 #IfNotRow3D list_options list_id Care_Team_Status option_id entered-in-error notes The care team should have never existed.
 UPDATE `list_options` SET `notes` = 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html' WHERE `list_id` = 'lists' AND `option_id` = 'Care_Team_Status';
 UPDATE `list_options` SET `seq` = 10, `notes` = 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'proposed';
-UPDATE `list_options` SET `seq` = 20, `notes` = 'The care team is currently participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'active';
+UPDATE `list_options` SET `is_default` = 1, `seq` = 20, `notes` = 'The care team is currently participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'active';
 UPDATE `list_options` SET `seq` = 30, `notes` = 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'suspended';
 UPDATE `list_options` SET `seq` = 40, `notes` = 'The care team was, but is no longer, participating in the coordination and delivery of care.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'inactive';
 UPDATE `list_options` SET `seq` = 50, `notes` = 'The care team should have never existed.' WHERE `list_id` = 'Care_Team_Status' AND `option_id` = 'entered-in-error';
+#EndIf
+
+#IfMissingColumn prescriptions drug_dosage_instructions
+ALTER TABLE `prescriptions` ADD COLUMN drug_dosage_instructions longtext COMMENT 'Medication dosage instructions';
+#EndIf
+
+#IfMissingColumn prescriptions usage_category
+ALTER TABLE `prescriptions` ADD COLUMN `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category';
+ALTER TABLE `prescriptions` ADD COLUMN `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category';
+ALTER TABLE `prescriptions` ADD COLUMN `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent';
+ALTER TABLE `prescriptions` ADD COLUMN `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent';
+#EndIf
+
+#IfNotTable lists_medication
+CREATE TABLE `lists_medication` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `list_id` BIGINT(20) NULL COMMENT 'FK Reference to lists.id'
+    , `drug_dosage_instructions` LONGTEXT COMMENT 'Free text dosage instructions for taking the drug'
+    , `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category'
+    , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
+    , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
+    , `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent'
+    , PRIMARY KEY (`id`)
+    , INDEX `lists_med_usage_category_idx`(`usage_category`)
+    , INDEX `lists_med_request_intent_idx`(`request_intent`)
+    , INDEX `lists_medication_list_idx` (`list_id`)
+) ENGINE = InnoDB COMMENT = 'Holds additional data about patient medications.';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id medication-usage-category
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-usage-category','Medication Usage Category',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-category.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','inpatient','Inpatient',10,0,1, 'Includes requests for medications to be administered or consumed in an inpatient or acute care setting');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','outpatient','Outpatient',20,0,1, 'Includes requests for medications to be administered or consumed in an outpatient setting (for example, Emergency Department, Outpatient Clinic, Outpatient Surgery, Doctor''s office)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','community','Home/Community',30,1,1, 'Includes requests for medications to be administered or consumed by the patient in their home (this would include long term care or nursing homes, hospices, etc.)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','discharge','Discharge',40,0,1, 'Includes requests for medications created when the patient is being released from a facility');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id medication-request-intent
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-request-intent','Medication Request Intent',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','proposal','Proposal',10,0,1, 'The request is a suggestion made by someone/something that doesn''t have an intention to ensure it occurs and without providing an authorization to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','plan','Plan',20,0,1, 'The request represents an intention to ensure something occurs without providing an authorization for others to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','order','Order',30,1,1, 'The request represents a request/demand and authorization for action');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','original-order','Original Order',40,0,1, 'The request represents the original authorization for the medication request.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','reflex-order','Reflex Order',50,0,1, 'The request represents an automatically generated supplemental authorization for action based on a parent authorization together with initial results of the action taken against that parent authorization.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','filler-order','Filler Order',60,0,1, 'The request represents the view of an authorization instantiated by a fulfilling system representing the details of the fulfiller''s intention to act upon a submitted order.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 #EndIf

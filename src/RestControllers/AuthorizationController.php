@@ -846,10 +846,15 @@ class AuthorizationController
 
     public function scopeAuthorizeConfirm()
     {
+        // TODO: @adunsulag if there are no scopes or claims here we probably want to show an error...
 
+        // TODO: @adunsulag this is also where we want to show a special message if the offline scope is present.
         // show our scope auth piece
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
+        $scopeString = $_SESSION['scopes'] ?? '';
+        $scopes = explode(' ', $scopeString);
+        $claims = $_SESSION['claims'] ?? [];
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
 

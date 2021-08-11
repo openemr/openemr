@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\PatientValidator;
@@ -78,68 +80,193 @@ class PrescriptionService extends BaseService
             }
         }
 
-        $sql = "SELECT prescriptions.*,
-                patient.uuid AS puuid,
-                encounter.uuid AS euuid,
-                practitioner.uuid AS pruuid,
-                drug.uuid AS drug_uuid
-                FROM prescriptions
-                LEFT JOIN patient_data AS patient
-                ON patient.pid = prescriptions.patient_id
-                LEFT JOIN form_encounter AS encounter
-                ON encounter.encounter = prescriptions.encounter
-                LEFT JOIN users AS practitioner
-                ON practitioner.id = prescriptions.provider_id
-                LEFT JOIN drugs AS drug
-                ON drug.drug_id = prescriptions.drug_id";
+        // order comes from our MedicationRequest intent value set, since we are only reporting on completed prescriptions
+        // we will put the intent down as 'order' @see http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html
+        $sql = "SELECT 
+                combined_prescriptions.uuid
+                ,combined_prescriptions.source_table
+                ,combined_prescriptions.drug
+                ,combined_prescriptions.active
+                ,combined_prescriptions.intent
+                ,combined_prescriptions.category
+                ,combined_prescriptions.intent_title
+                ,combined_prescriptions.category_title
+                ,'Community' AS category_text
+                ,combined_prescriptions.rxnorm_drugcode
+                ,combined_prescriptions.date_added
+                ,combined_prescriptions.unit
+                ,combined_prescriptions.`interval`
+                ,combined_prescriptions.route
+                ,combined_prescriptions.note
+                ,combined_prescriptions.status
+                ,combined_prescriptions.drug_dosage_instructions
+                ,patient.puuid
+                ,encounter.euuid
+                ,practitioner.pruuid
+                ,drug_uuid
 
-        if (!empty($search)) {
-            $sql .= " WHERE ";
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= '(';
-            }
-            $whereClauses = array();
-            $wildcardFields = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                // support wildcard match on specific fields
-                if (in_array($fieldName, $wildcardFields)) {
-                    array_push($whereClauses, $fieldName . ' LIKE ?');
-                    array_push($sqlBindArray, '%' . $fieldValue . '%');
-                } else {
-                    // equality match
-                    array_push($whereClauses, $fieldName . ' = ?');
-                    array_push($sqlBindArray, $fieldValue);
-                }
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-            if (!empty($puuidBind)) {
-                // code to support patient binding
-                $sql .= ") AND `patient`.`uuid` = ?";
-                $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-            }
-        } elseif (!empty($puuidBind)) {
-            // code to support patient binding
-            $sql .= " WHERE `patient`.`uuid` = ?";
-            $sqlBindArray[] = UuidRegistry::uuidToBytes($puuidBind);
-        }
+                ,routes_list.route_id
+                ,routes_list.route_title
+                ,routes_list.route_codes
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
+                ,units_list.unit_id
+                ,units_list.unit_title
+                ,units_list.unit_codes
+
+                ,intervals_list.interval_id
+                ,intervals_list.interval_title
+                ,intervals_list.interval_codes
+
+                FROM (
+                      SELECT
+                             prescriptions.uuid
+                            ,'prescriptions' AS 'source_table'
+                            ,prescriptions.drug
+                            ,prescriptions.active
+                            ,prescriptions.end_date
+                            ,'order' AS intent
+                            ,'Order' AS intent_title
+                            ,'community' AS category
+                            ,'Home/Community' as category_title
+                            ,IF(prescriptions.rxnorm_drugcode!=''
+                                ,prescriptions.rxnorm_drugcode
+                                ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
+                            ) AS 'rxnorm_drugcode'
+                            ,date_added
+                            ,COALESCE(prescriptions.unit,drugs.unit) AS unit
+                            ,prescriptions.`interval`
+                            ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
+                            ,prescriptions.`note`
+                            ,patient_id
+                            ,encounter
+                            ,provider_id
+                            ,drugs.uuid AS drug_uuid
+                            ,prescriptions.drug_dosage_instructions
+                            ,CASE 
+                                WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
+                                WHEN prescriptions.active = '1' THEN 'active'
+                                ELSE 'stopped'
+                            END as 'status'
+                            
+                    FROM
+                        prescriptions
+                    LEFT JOIN
+                        -- @brady.miller so drug_id in my databases appears to always be 0 so I'm not sure I can grab anything here.. I know WENO doesn't populate this value...
+                        drugs ON prescriptions.drug_id = drugs.drug_id
+                    UNION
+                    SELECT
+                        lists.uuid
+                        ,'lists' AS 'source_table'
+                        ,lists.title AS drug
+                        ,activity AS active
+                        ,lists.enddate AS end_date
+                        ,lists_medication.request_intent AS intent
+                        ,lists_medication.request_intent_title AS intent_title
+                        ,lists_medication.usage_category AS category
+                        ,lists_medication.usage_category_title AS category_title
+                        ,lists.diagnosis AS rxnorm_drugcode
+                        ,`date` AS date_added
+                        ,NULL as unit
+                        ,NULL as 'interval'
+                        ,NULL as `route`
+                        ,lists.comments as 'note'
+                        ,pid AS patient_id
+                         -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1, we will leave off encounter for now
+                        ,NULL as encounter
+                        ,users.id AS provider_id
+                        ,NULL as drug_uuid
+                        ,lists_medication.drug_dosage_instructions
+                        ,CASE 
+                                WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
+                                WHEN lists.activity = 1 THEN 'active'
+                                ELSE 'stopped'
+                        END as 'status'
+                    FROM
+                        lists
+                    LEFT JOIN 
+                            users ON users.username = lists.user
+                    LEFT JOIN
+                        lists_medication ON lists_medication.list_id = lists.id
+                    WHERE
+                        type = 'medication'
+                ) combined_prescriptions
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS route_id
+                    ,title AS route_title
+                    ,codes AS route_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'
+                ) routes_list ON routes_list.route_id = combined_prescriptions.route
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS interval_id
+                    ,title AS interval_title
+                    ,codes AS interval_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'      
+                ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS unit_id
+                    ,title AS unit_title
+                    ,codes AS unit_codes
+                  FROM list_options
+                  WHERE list_id='drug_route'
+                ) units_list ON units_list.unit_id = combined_prescriptions.unit
+                LEFT JOIN (
+                    select uuid AS puuid
+                    ,pid
+                    FROM patient_data
+                ) patient
+                ON patient.pid = combined_prescriptions.patient_id
+                LEFT JOIN (
+                    SELECT
+                        encounter,
+                        uuid AS euuid
+                    FROM form_encounter
+                ) encounter
+                ON encounter.encounter = combined_prescriptions.encounter
+                LEFT JOIN (
+                    SELECT 
+                           id AS practitioner_id
+                           ,uuid AS pruuid
+                    FROM users
+                    WHERE users.npi IS NOT NULL AND users.npi != ''
+                ) practitioner
+                ON practitioner.practitioner_id = combined_prescriptions.provider_id";
+
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $row['euuid'] = $row['euuid'] != null ? UuidRegistry::uuidToString($row['euuid']) : $row['euuid'];
-            $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
-            $row['pruuid'] = UuidRegistry::uuidToString($row['pruuid']);
-            $row['drug_uuid'] = UuidRegistry::uuidToString($row['drug_uuid']);
-            if ($row['rxnorm_drugcode'] != "") {
-                $row['rxnorm_drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
-            }
-            $processingResult->addData($row);
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($record);
+        }
+        return $processingResult;
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $record = parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
+
+        if ($record['rxnorm_drugcode'] != "") {
+            $record['drugcode'] = $this->addCoding($row['rxnorm_drugcode']);
         }
 
-        return $processingResult;
+        return $record;
     }
 
     /**

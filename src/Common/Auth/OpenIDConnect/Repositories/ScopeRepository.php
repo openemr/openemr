@@ -136,7 +136,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
-        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to retrieve scope", ["identifier" => $identifier]);
         if (empty($this->validationScopes)) {
             $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
@@ -148,6 +147,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                 , 'validationScopes' => $this->validationScopes]);
             return null;
         }
+        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
 
         $scope = new ScopeEntity();
         $scope->setIdentifier($identifier);
@@ -471,7 +471,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/RelatedPerson.read",
             "system/RelatedPerson.write",
             "system/Schedule.read",
-            "system/ServiceRequest.read",
+            "system/ServiceRequest.read"
         ];
     }
 
@@ -761,6 +761,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupported[$key] = $scope;
         }
         asort($scopesSupported);
+
+        // TODO: @adunsulag we need to fire off an event here so that people can extend the scopes and add additional scopes / endpoints here via modules.s
 
         return array_keys($scopesSupported);
     }

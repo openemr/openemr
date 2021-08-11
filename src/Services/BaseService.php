@@ -157,13 +157,15 @@ class BaseService
      * Build an insert set and bindings
      *
      * @param array $passed_in
+     * @param array $options configuration options for building.  null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildInsertColumns($passed_in = array())
+    protected function buildInsertColumns($passed_in = array(), $options = array())
     {
         $keyset = '';
         $bind = array();
         $result = array();
+        $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
         foreach ($passed_in as $key => $value) {
             // Ensure auto's not passed in.
@@ -176,12 +178,16 @@ class BaseService
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
+            } else if ($value === "NULL") {
+                // make it consistent with our update columns... I really don't like this magic string constant, if someone
+                // intends to actually store the value NULL as a string this will break....
+                $value = $null_value;
             }
             if ($value === null || $value === false) {
-                $value = "";
+                $value = $null_value;
             }
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value === null || $value === false) ? '' : $value;
+            $bind[] = ($value === null || $value === false) ? $null_value : $value;
         }
 
         $result['set'] = $keyset;
@@ -195,13 +201,16 @@ class BaseService
      * Build an update set and bindings
      *
      * @param array $passed_in
+     * @param array $options configuration options for building.  null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildUpdateColumns($passed_in = array())
+    protected function buildUpdateColumns($passed_in = array(), $options = array())
     {
         $keyset = '';
         $bind = array();
         $result = array();
+        // can't use ??,empty, or isset as null_value could be NULL.  We have to deal with legacy which defaults to ''
+        $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
         foreach ($passed_in as $key => $value) {
             if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
@@ -217,7 +226,7 @@ class BaseService
             }
             if (!in_array($key, $this->fields)) {
                 // placeholder. could be for where clauses
-                $bind[] = ($value == 'NULL') ? "" : $value;
+                $bind[] = ($value == 'NULL') ? $null_value : $value;
                 continue;
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
@@ -227,8 +236,9 @@ class BaseService
                 // in case unwanted values passed in.
                 continue;
             }
+
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value == 'NULL') ? "" : $value;
+            $bind[] = ($value == 'NULL') ? $null_value : $value;
         }
 
         $result['set'] = $keyset;
@@ -382,11 +392,16 @@ class BaseService
      * Filter all the Whitelisted Fields from the given Fields Array
      *
      * @param array $data                       - Fields passed by user
-     * @param array $whitelistedFields          - Whitelisted Fields
+     * @param array $whitelistedFields          - Whitelisted Fields, if empty defaults to service table fields
      * @return array Filtered Data
      */
-    public function filterData($data, $whitelistedFields)
+    public function filterData($data, $whitelistedFields = null)
     {
+        // use the current service fields for our whitelist if its empty
+        if (empty($whitelistedFields)) {
+            $whitelistedFields = $this->getFields();
+        }
+
         return array_filter(
             $data,
             function ($key) use ($whitelistedFields) {
