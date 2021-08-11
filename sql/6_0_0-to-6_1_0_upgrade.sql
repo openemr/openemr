@@ -962,6 +962,11 @@ SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history', COALESCE(@group_id,@backup_group_id),'Previous Names',@seq+1,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
 #EndIf
 
+#IfNotColumnType modules mod_ui_name varchar(64)
+ALTER TABLE `modules` MODIFY `mod_ui_name` VARCHAR(64) NOT NULL DEFAULT '';
+UPDATE `modules` SET `mod_ui_name` = 'Syndromicsurveillance' WHERE `mod_ui_name` = 'Syndromicsurveillanc';
+#EndIf
+
 #IfNotRow modules mod_name Immunization
 INSERT INTO `modules` (`mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES ('Immunization', 'Immunization', '', '', 1, 'Immunization', 'public/immunization/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
 SET @module_id = (SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Immunization' LIMIT 1);
@@ -970,7 +975,7 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 #EndIf
 
 #IfNotRow modules mod_name Syndromicsurveillance
-INSERT INTO `modules` (`mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES ('Syndromicsurveillance', 'Syndromicsurveillance', '', '', 1, 'Syndromicsurveillanc', 'public/syndromicsurveillance/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES ('Syndromicsurveillance', 'Syndromicsurveillance', '', '', 1, 'Syndromicsurveillance', 'public/syndromicsurveillance/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
 SET @module_id = (SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Syndromicsurveillance' LIMIT 1);
 SET @section_id = (SELECT MAX(section_id) FROM module_acl_sections);
 INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (IFNULL(@section_id,0)+1, 'Syndromicsurveillance', 0, 'syndromicsurveillance', @module_id);
