@@ -596,7 +596,7 @@
       {
         "label": "Providers",
         "menu_id": "orl0",
-        "target": "pat",
+        "target": "lbp",
         "url": "/interface/orders/procedure_provider_list.php",
         "children": [],
         "requirement": 0,
@@ -608,7 +608,7 @@
       {
         "label": "Configuration",
         "menu_id": "ort0",
-        "target": "pat",
+        "target": "lbc",
         "url": "/interface/orders/types.php",
         "children": [],
         "requirement": 0,
@@ -620,7 +620,7 @@
       {
         "label": "Load Compendium",
         "menu_id": "orc0",
-        "target": "pat",
+        "target": "lbl",
         "url": "/interface/orders/load_compendium.php",
         "children": [],
         "requirement": 0,
@@ -632,7 +632,7 @@
       {
         "label": "Pending Review",
         "menu_id": "orp1",
-        "target": "enc",
+        "target": "lbp",
         "url": "/interface/orders/orders_results.php?review=1",
         "children": [],
         "requirement": 1,
@@ -644,7 +644,7 @@
       {
         "label": "Patient Results",
         "menu_id": "orr1",
-        "target": "enc",
+        "target": "lbr",
         "url": "/interface/orders/orders_results.php",
         "children": [],
         "requirement": 1,
@@ -656,7 +656,7 @@
       {
         "label": "Lab Overview",
         "menu_id": "lda1",
-        "target": "enc",
+        "target": "lbo",
         "url": "/interface/patient_file/summary/labdata.php",
         "children": [],
         "requirement": 1,
@@ -668,7 +668,7 @@
       {
         "label": "Batch Results",
         "menu_id": "orb0",
-        "target": "pat",
+        "target": "lbb",
         "url": "/interface/orders/orders_results.php?batch=1",
         "children": [],
         "requirement": 0,
@@ -680,7 +680,7 @@
       {
         "label": "Electronic Reports",
         "menu_id": "ore0",
-        "target": "pat",
+        "target": "lbe",
         "url": "/interface/orders/list_reports.php",
         "children": [],
         "requirement": 0,
@@ -692,7 +692,7 @@
       {
         "label": "Lab Documents",
         "menu_id": "dld0",
-        "target": "pat",
+        "target": "lbd",
         "url": "/interface/main/display_documents.php",
         "children": [],
         "requirement": 0,
