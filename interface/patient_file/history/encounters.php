@@ -770,19 +770,19 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                                 $responsible = InvoiceSummary::arResponsibleParty($pid, $result4['encounter']);
                         }
                         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-                        if ($subresult5 && $subresult5["provider_name"]) {
+                        if (!empty($subresult5["provider_name"])) {
                             $style = $responsible == 1 ? " style='color: var(--danger)'" : "";
                             $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
                             text($subresult5["provider_name"]) . "</span><br />\n";
                         }
                         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-                        if ($subresult6 && $subresult6["provider_name"]) {
+                        if (!empty($subresult6["provider_name"])) {
                             $style = $responsible == 2 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
                             text($subresult6["provider_name"]) . "</span><br />\n";
                         }
                         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-                        if ($subresult6 && $subresult7["provider_name"]) {
+                        if ($subresult6 && !empty($subresult7["provider_name"])) {
                             $style = $responsible == 3 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
                             text($subresult7["provider_name"]) . "</span><br />\n";

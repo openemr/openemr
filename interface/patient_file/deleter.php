@@ -31,13 +31,13 @@ if (!empty($_GET)) {
 }
 
 $patient     = $_REQUEST['patient'];
-$encounterid = $_REQUEST['encounterid'];
-$formid      = $_REQUEST['formid'];
-$issue       = $_REQUEST['issue'];
-$document    = $_REQUEST['document'];
-$payment     = $_REQUEST['payment'];
-$billing     = $_REQUEST['billing'];
-$transaction = $_REQUEST['transaction'];
+$encounterid = $_REQUEST['encounterid'] ?? '';
+$formid      = $_REQUEST['formid'] ?? '';
+$issue       = $_REQUEST['issue'] ?? '';
+$document    = $_REQUEST['document'] ?? '';
+$payment     = $_REQUEST['payment'] ?? '';
+$billing     = $_REQUEST['billing'] ?? '';
+$transaction = $_REQUEST['transaction'] ?? '';
 
 $info_msg = "";
 
@@ -208,7 +208,7 @@ function popup_close() {
         <?php
         // If the delete is confirmed...
         //
-        if ($_POST['form_submit']) {
+        if (!empty($_POST['form_submit'])) {
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
                 CsrfUtils::csrfNotVerified();
             }

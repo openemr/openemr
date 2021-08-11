@@ -134,7 +134,7 @@ function create_HTML_statement($stmt)
     }
 
 #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion'] && ($_POST['form_category'] !== "All")) {
         return "";
     }
 

@@ -307,23 +307,20 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $i = 0;
         $wrlen = strlen($web_root);
         $wsrlen = strlen($webserver_root);
-        while (true) {
+        if (!empty($content)) {
             $i = stripos($content, " src='/", $i + 1);
-            if ($i === false) {
-                break;
+            if ($i != false) {
+                if (
+                    substr($content, $i + 6, $wrlen) === $web_root &&
+                    substr($content, $i + 6, $wsrlen) !== $webserver_root
+                ) {
+                    $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+                }
             }
-
-            if (
-                substr($content, $i + 6, $wrlen) === $web_root &&
-                substr($content, $i + 6, $wsrlen) !== $webserver_root
-            ) {
-                $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-            }
+            $pdf2->WriteHTML($content);
+            $temp_filename = $STMT_TEMP_FILE_PDF;
+            $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
         }
-
-        $pdf2->WriteHTML($content);
-        $temp_filename = $STMT_TEMP_FILE_PDF;
-        $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
         $pdf->ezSetMargins(45, 9, 36, 10);
@@ -594,7 +591,7 @@ if (
                 } else {
                     $tmp = make_statement($stmt);
                     if (empty($tmp)) {
-                        $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
+                        $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, $tmp);
