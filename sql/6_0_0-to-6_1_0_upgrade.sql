@@ -932,3 +932,21 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 #EndIf
+
+#IfMissingColumn api_token revoked
+ALTER TABLE `api_token` ADD COLUMN `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked';
+#EndIf
+
+#IfNotTable api_refresh_token
+CREATE TABLE `api_refresh_token` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `user_id` VARCHAR(40),
+    `client_id` VARCHAR(80),
+    `token` VARCHAR(128) NOT NULL,
+    `expiry` DATETIME,
+    `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+    PRIMARY KEY (`id`),
+    INDEX `api_refresh_token_token_idx` (`token`),
+    INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
+) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
+#EndIf

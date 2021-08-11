@@ -143,9 +143,9 @@ class QueryUtils
     public static function sqlStatementThrowException($statement, $binds, $noLog = false)
     {
         if ($noLog) {
-            return sqlStatementNoLog($statement, $binds, true);
+            return \sqlStatementNoLog($statement, $binds, true);
         } else {
-            return sqlStatementThrowException($statement, $binds);
+            return \sqlStatementThrowException($statement, $binds);
         }
     }
 

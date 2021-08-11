@@ -1214,8 +1214,9 @@ class AuthorizationController
                         'status' => 'active',
                         'scope' => implode(" ", $token->getClaim('scopes')),
                         'client_id' => $clientId,
-                        'exp' => $token->getClaim('exp'),
-                        'sub' => $token->getClaim('sub'), // user_id
+                        'exp' => $token->claims()->get('exp'),
+                        'sub' => $token->claims()->get('sub'), // user_id
+                        'jti' => $token->claims()->get('jti')
                     );
                     try {
                         if ($token->verify(new Sha256(), 'file://' . $this->publicKey) === false) {
@@ -1238,7 +1239,19 @@ class AuthorizationController
                         $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
-                    if ($token->getClaim('aud') !== $clientId) {
+                    $tokenRepository = new AccessTokenRepository();
+                    if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti']))
+                    {
+                        $result['active'] = false;
+                        $result['status'] = 'revoked';
+                    }
+                    $audience = $token->claims()->get('aud');
+                    if (!empty($audience))
+                    {
+                        // audience is an array... we will only validate against the first item
+                        $audience = current($audience);
+                    }
+                    if ($audience !== $clientId) {
                         // return no info in this case. possible Phishing
                         $result = array('active' => false);
                     }
@@ -1271,6 +1284,7 @@ class AuthorizationController
                     'client_id' => $clientId,
                     'exp' => $refreshTokenData['expire_time'],
                     'sub' => $refreshTokenData['user_id'],
+                    'jti' => $refreshTokenData['refresh_token_id']
                 );
                 if ($refreshTokenData['expire_time'] < \time()) {
                     $result['active'] = false;
@@ -1278,6 +1292,12 @@ class AuthorizationController
                 }
                 $trusted = $this->trustedUser($refreshTokenData['client_id'], $result['sub']);
                 if (empty($trusted['id'])) {
+                    $result['active'] = false;
+                    $result['status'] = 'revoked';
+                }
+                $tokenRepository = new RefreshTokenRepository();
+                if ($tokenRepository->isRefreshTokenRevoked($result['jti']))
+                {
                     $result['active'] = false;
                     $result['status'] = 'revoked';
                 }

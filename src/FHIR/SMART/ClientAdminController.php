@@ -29,6 +29,7 @@ use Psr\Log\LoggerInterface;
 class ClientAdminController
 {
     const REVOKE_TRUSTED_USER = 'revoke-trusted-user';
+    const REVOKE_ACCESS_TOKEN = 'revoke-access-token';
 
     private $actionURL;
 
@@ -107,9 +108,10 @@ class ClientAdminController
                 return $this->enableAction($clientId, $request);
             } else if ($parts[2] == 'disable') { // route /edit/:clientId/disable
                 return $this->disableAction($clientId, $request);
-            } else if ($parts[2] == self::REVOKE_TRUSTED_USER)
-            {
+            } else if ($parts[2] == self::REVOKE_TRUSTED_USER) {
                 return $this->revokeTrustedUserAction($clientId, $request);
+            } else if ($parts[2] == self::REVOKE_ACCESS_TOKEN) {
+                return $this->revokeAccessToken($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
             }
@@ -549,7 +551,7 @@ class ClientAdminController
                                                                 <?php $this->renderScopeListArray($token['scope']); ?>
                                                             </div>
                                                             <div class="col-3">
-                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), 'revoke-token', $token['id']])); ?>"
+                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $token['id']])); ?>"
                                                                    class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
                                                             </div>
                                                         </div>
@@ -783,6 +785,29 @@ class ClientAdminController
         $trustedUserService->deleteTrustedUserById($originalUser['id']);
 
         $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked Trusted User")]]);
+        header("Location: " . $url);
+        exit;
+    }
+
+    private function revokeAccessToken($clientId, array $request)
+    {
+        $action = $request['action'] ?? '';
+        $parts = explode("/", $action);
+        $accessToken = $parts[3] ?? null;
+        if (empty($accessToken)) {
+            return $this->notFoundAction($request);
+        }
+        // need to delete the trusted user action
+        $service = new AccessTokenRepository();
+        $accessToken = $service->getTokenById($accessToken);
+        // make sure the client is the same
+        if (empty($accessToken) || $accessToken['client_id'] != $clientId)
+        {
+            throw new AccessDeniedException('admin', 'super', "Attempted to delete access token for different client");
+        }
+        $service->revokeAccessToken($accessToken['token']);
+
+        $url = $this->getActionUrl(['edit', $clientId], ["queryParams" => ['message' => xlt("Successfully revoked access token")]]);
         header("Location: " . $url);
         exit;
     }

@@ -132,6 +132,20 @@ $restRequest->setIsLocalApi($isLocalApi);
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
+// we now can check the database to see if the token is revoked
+if (!empty($tokenId))
+{
+    $result = $gbl::validateAccessTokenRevoked($tokenId);
+    if ($result instanceof ResponseInterface) {
+        $logger->error("dispatch.php access token was revoked", ["resource" => $resource]);
+        // failed token verify
+        // not a request object so send the error as response obj
+        $gbl::emitResponse($result);
+        exit;
+    }
+}
+
+
 // recollect this so the DEBUG global can be used if set
 $logger = new SystemLogger();
 
