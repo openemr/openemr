@@ -400,6 +400,40 @@ class Installer
         return true;
     }
 
+    public function on_care_coordination()
+    {
+        $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $modId = $resource_array['mod_id'];
+        if (empty($modId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $sectionId = $resource_array['section_id'];
+        if (empty($sectionId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $groupId = $resource_array['id'];
+        if (empty($groupId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section\n";
+            return false;
+        }
+
+        if ($this->execute_sql("INSERT INTO `module_acl_group_settings` SET `module_id` = '" . $this->escapeSql($modId) . "', `group_id` = '" . $this->escapeSql($groupId) . "', `section_id` = '" . $this->escapeSql($sectionId) . "', `allowed` = 1") == false) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to add the module_acl_group_settings acl entry\n";
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Generates the initial user's 2FA QR Code
      * @return bool|string|void
@@ -1196,6 +1230,10 @@ $config = 1; /////////////
             }
 
             if (! $this->install_additional_users()) {
+                return false;
+            }
+
+            if (! $this->on_care_coordination()) {
                 return false;
             }
         }
