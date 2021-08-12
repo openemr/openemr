@@ -98,6 +98,7 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                 appRegister.contacts.push(document.querySelector("#contactEmail").value);
                 appRegister.jwks_uri = document.querySelector("#jwksUri").value;
                 appRegister.jwks = document.querySelector("#jwks").value;
+                appRegister.application_type = document.querySelector("input[name='appType']:checked").value || "private";
 
                 if (appRegister.jwks.trim() != "") {
                     try {
@@ -113,6 +114,15 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                 let scopes = [];
                 let scopeInputs =  document.querySelectorAll('input.app-scope:checked');
                 for (let scope of scopeInputs) {
+                    if (appRegister.application_type != 'private')
+                    {
+                        // if we are not a private app don't let offline_access or system scopes be granted
+                        // NOTE: this is just a convenience as the server prevents it too.
+                        if (scope.value == 'offline_access'
+                            || scope.value.match(/^system\//)) {
+                            continue;
+                        }
+                    }
                     scopes.push(scope.value);
                 }
                 appRegister.scope = scopes.join(" "); // combine the scopes selected.
@@ -172,11 +182,56 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                     scope.checked = isChecked;
                 }
             }
+            function hideNodeFunction(node)
+            {
+                if (node.checked !== undefined)
+                {
+                    node.checked = false;
+                }
+                node.parentNode.classList.add("d-none");
+            }
+            function showNodeFunction(node)
+            {
+                if (node.parentNode.classList.contains('d-none')) {
+                    node.parentNode.classList.remove("d-none");
+                }
+            }
+            function toggleAppTypeFields(event)
+            {
+                if (!event.target)
+                {
+                    return;
+                }
+                let val = event.target.value;
+
+                if (val === 'private')
+                {
+                    document.querySelectorAll("input[value^='system/']").forEach(showNodeFunction);
+                    document.querySelectorAll("input[value^='user/']").forEach(showNodeFunction);
+                    document.querySelectorAll("input[value='offline_access']").forEach(showNodeFunction);
+                    document.querySelectorAll("#clientSecretID").forEach(showNodeFunction);
+                    document.getElementById('systemSetup').classList.remove("d-none");
+                }
+                else if (val == 'public')
+                {
+                    document.querySelectorAll("input[value^='system/']").forEach(hideNodeFunction);
+                    document.querySelectorAll("input[value^='user/']").forEach(hideNodeFunction);
+                    document.querySelectorAll("input[value='offline_access']").forEach(hideNodeFunction);
+                    document.querySelectorAll("#clientSecretID").forEach(hideNodeFunction);
+                    document.getElementById('systemSetup').classList.add("d-none");
+                }
+            }
 
             window.addEventListener('load', function() {
                 var scopeSelectAll = document.querySelectorAll('.select-all-toggle');
                 for (var element of scopeSelectAll) {
                     element.addEventListener('click', toggleSelectAll);
+                }
+
+                var appTypes = document.querySelectorAll("input[name='appType']");
+                for (var element of appTypes)
+                {
+                    element.addEventListener('click', toggleAppTypeFields);
                 }
 
                 document.querySelector('#submit').addEventListener('click', registerApp);
@@ -225,6 +280,18 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
         <div class="<?php echo $formarea; ?>">
             <h3 class="card-title text-center"><?php echo xlt("App Registration Form"); ?></h3>
             <div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="appTypeConfidential" name="appType" value="private" checked="checked"/>
+                    <label for="appTypeConfidential" class="form-check-label pr-2"><?php echo xlt('Confidential'); ?></label>
+                    <input type="radio" class="form-check-input" id="appTypePublic" name="appType" value="public"/>
+                    <label for="appTypePublic" class="form-check-label"><?php echo xlt('Public'); ?></label>
+                </div>
+                <div class="row">
+                    <div class="col alert alert-info">
+                        <p><?php echo xlt("system, user, and offline_access scopes require confidential app permissions."); ?></p>
+                        <p><?php echo xlt("Confidential apps are applications that are able to safely and securely store a secret.  Browser based and many mobile applications do not satisfy this security constraint"); ?></p>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="appName" class="text-right"><?php echo xlt('App Name'); ?>:</label>
                     <input type="text" class="form-control" id="appName" name="appName" placeholder="<?php echo xla('App Name'); ?>" />
@@ -260,20 +327,25 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                     <?php endforeach; ?>
                     </div>
                 </div>
-                <h3 class="text-center"><?php echo xlt("The following items are required for System Scopes"); ?></h3>
-                <hr />
-                <div class="form-group">
-                    <label for="jwksUri" class="text-right"><?php echo xlt('JSON Web Key Set URI'); ?>:</label>
-                    <input type="text" class="form-control" id="jwksUri" name="jwksUri" placeholder="<?php echo xla('URI'); ?>" />
-                </div>
-                <div class="form-group">
-                    <label for="jwks" class="text-right"><?php echo xlt('JSON Web Key Set (Note a hosted web URI is preferred and this feature may be removed in future SMART versions)'); ?>:</label>
-                    <textarea class="form-control" id="jwks" name="jwks" rows="5"></textarea>
+                <div class="row" id="systemSetup">
+                    <div class="col">
+                        <h3 class="text-center"><?php echo xlt("The following items are required for System Scopes"); ?></h3>
+                        <hr />
+                        <div class="form-group">
+                            <label for="jwksUri" class="text-right"><?php echo xlt('JSON Web Key Set URI'); ?>:</label>
+                            <input type="text" class="form-control" id="jwksUri" name="jwksUri" placeholder="<?php echo xla('URI'); ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="jwks" class="text-right"><?php echo xlt('JSON Web Key Set (Note a hosted web URI is preferred and this feature may be removed in future SMART versions)'); ?>:</label>
+                            <textarea class="form-control" id="jwks" name="jwks" rows="5"></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="<?php echo xla('Submit'); ?>" (onClick)="registerApp();" />
                 </div>
+
                 <div class="apiResponse hidden">
                     <div class="form-group">
                         <label for="clientID" class="text-right"><?php echo xlt('Client APP ID:'); ?></label>

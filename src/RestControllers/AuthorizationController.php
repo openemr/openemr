@@ -17,6 +17,7 @@ namespace OpenEMR\RestControllers;
 require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 
 use DateInterval;
+use DateTimeImmutable;
 use Exception;
 use GuzzleHttp\Client;
 use Lcobucci\JWT\Parser;
@@ -229,12 +230,13 @@ class AuthorizationController
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
-            // don't allow user & system scopes for public apps
+            // don't allow user, system scopes, and offline_access for public apps
             } else if (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
+                || strpos($data['scope'], 'offline_access') !== false
             ) {
-                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
+                throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             $this->validateScopesAgainstServerApprovedScopes($data['scope']);
 
@@ -772,11 +774,26 @@ class AuthorizationController
         // TODO: @adunsulag if there are no scopes or claims here we probably want to show an error...
 
         // TODO: @adunsulag this is also where we want to show a special message if the offline scope is present.
+
         // show our scope auth piece
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
         $scopeString = $_SESSION['scopes'] ?? '';
-        $scopes = explode(' ', $scopeString);
+        // check for offline_access
+
+        $scopesList = explode(' ', $scopeString);
+        $offline_requested = false;
+        $scopes = [];
+        foreach ($scopesList as $scope) {
+            if ($scope !== "offline_access") {
+                $scopes[] = $scope;
+            } else {
+                $offline_requested = true;
+            }
+        }
+        $offline_access_date = (new DateTimeImmutable())->add(new \DateInterval("P3M"))->format("Y-m-d");
+
+
         $claims = $_SESSION['claims'] ?? [];
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
@@ -844,6 +861,9 @@ class AuthorizationController
         return UuidRegistry::uuidToString($id);
     }
 
+    /**
+     * Note this corresponds with the /auth/code endpoint
+     */
     public function authorizeUser(): void
     {
         $this->logger->debug("AuthorizationController->authorizeUser() starting authorization");
@@ -955,6 +975,9 @@ class AuthorizationController
         return $authRequest;
     }
 
+    /**
+     * Note this corresponds with the /token endpoint
+     */
     public function oauthAuthorizeToken(): void
     {
         $this->logger->debug("AuthorizationController->oauthAuthorizeToken() starting request");

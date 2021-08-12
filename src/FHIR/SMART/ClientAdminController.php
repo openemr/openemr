@@ -127,8 +127,6 @@ class ClientAdminController
         } else if ($mainAction == 'edit' && !empty($mainActionChild)) {
             $clientId = $mainActionChild;
 
-            $this->editAction($clientId, $request);
-
             if (empty($subAction)) { // route /edit/:clientId
                 return $this->editAction($clientId, $request);
             } else if ($subAction == 'enable') { // route /edit/:clientId/enable
