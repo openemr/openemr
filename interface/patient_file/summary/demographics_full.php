@@ -97,7 +97,7 @@ $(function () {
     }).on("select2:unselecting", function (e) {
         $(this).data('state', 'unselected');
         var data = e.params.args.data;
-        const message = xl("Are You Sure you want to delete this name?");
+        const message = "<span>" + xl("Are You Sure you want to delete this name?") + "</span>";
         const ele = opener.document.getElementById('form_name_history');
         dialog.confirm(message).then(returned => {
             if (returned !== true) {
@@ -135,6 +135,7 @@ $(function () {
         $search.prop('disabled', true);
     });
 
+    // careteam select2
     $(".select-dropdown").select2({
         theme: "bootstrap4",
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>

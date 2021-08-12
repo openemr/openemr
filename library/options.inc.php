@@ -1650,7 +1650,7 @@ function generate_form_field($frow, $currvalue)
             echo "<option value='$optionId'" . " selected>$pname</option>";
         }
         echo "</select>";
-        echo "<button type='button' class='btn btn-primary' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
+        echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
     }
 }
 
