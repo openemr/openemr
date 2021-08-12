@@ -88,7 +88,7 @@
     "jquery-validation": "1.19.3",
     "@eastdesire/jscolor": "2.4.5",
     "jspdf": "2.3.1",
-    "jszip": "3.6.0",
+    "jszip": "3.7.0",
     "knockout": "3.5.1",
     "konva": "7.2.5",
     "magic-wand-js": "1.0.0",
