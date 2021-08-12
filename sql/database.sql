@@ -113,10 +113,26 @@ CREATE TABLE `api_token` (
   `expiry` datetime DEFAULT NULL,
   `client_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
+  `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
 
+--
+-- Table structure for table `api_refresh_token`
+--
+DROP TABLE IF EXISTS `api_refresh_token`;
+CREATE TABLE `api_refresh_token` (
+ `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+ `user_id` VARCHAR(40) DEFAULT NULL,
+ `client_id` VARCHAR(80) DEFAULT NULL,
+ `token` VARCHAR(128) NOT NULL,
+ `expiry` DATETIME DEFAULT NULL,
+ `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY (`token`),
+ INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
+) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
 -- --------------------------------------------------------
 
 --

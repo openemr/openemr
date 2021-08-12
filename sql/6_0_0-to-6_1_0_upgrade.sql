@@ -933,6 +933,24 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 #EndIf
 
+#IfMissingColumn api_token revoked
+ALTER TABLE `api_token` ADD COLUMN `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked';
+#EndIf
+
+#IfNotTable api_refresh_token
+CREATE TABLE `api_refresh_token` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `user_id` VARCHAR(40) DEFAULT NULL,
+    `client_id` VARCHAR(80) DEFAULT NULL,
+    `token` VARCHAR(128) NOT NULL,
+    `expiry` DATETIME DEFAULT NULL,
+    `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`token`),
+    INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
+) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
+#EndIf
+
 #IfMissingColumn patient_history history_type_key
 ALTER TABLE `patient_history` ADD `history_type_key` VARCHAR(36) NULL, ADD `previous_name_prefix` TEXT, ADD `previous_name_first` TEXT, ADD `previous_name_middle` TEXT, ADD `previous_name_last` TEXT, ADD `previous_name_suffix` TEXT, ADD `previous_name_enddate` DATE DEFAULT NULL;
 #EndIf
