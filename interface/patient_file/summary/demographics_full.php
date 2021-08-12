@@ -24,7 +24,7 @@ use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //
-$set_pid = isset($_GET["set_pid"]) ? $_GET["set_pid"] : ($_GET["pid"] ?? null);
+$set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
 if ($set_pid && $set_pid != $_SESSION["pid"]) {
     setpid($set_pid);
 }
@@ -91,6 +91,51 @@ var somethingChanged = false;
 $(function () {
     tabbify();
 
+    $(".select-previous-names").select2({
+        theme: "bootstrap4",
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    }).on("select2:unselecting", function (e) {
+        $(this).data('state', 'unselected');
+        var data = e.params.args.data;
+        const message = "<span>" + xl("Are You Sure you want to delete this name?") + "</span>";
+        const ele = opener.document.getElementById('form_name_history');
+        dialog.confirm(message).then(returned => {
+            if (returned !== true) {
+                if (data !== false) {
+                    $(".select-previous-names > option").prop("selected", "selected").trigger("change");
+                }
+                return false;
+            }
+            // delete from table.
+            const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
+            let doData = new FormData();
+            doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+            doData.append('id', data.id);
+            doData.append('task_name_history', 'delete');
+            fetch(url, {
+                method: 'POST',
+                body: doData
+            }).then(rtn => rtn.json()).then((rtn) => {
+                dialog.alert(xl("Returned: " + rtn));
+                if (rtn === 'Success') {
+                    $(".select-previous-names option[value=" + data.id + "]").remove();
+                }
+            });
+        });
+    }).on("select2:open", function (e) {
+        if ($(this).data('state') === 'unselected') {
+            $(this).removeData('state');
+            let self = $(this);
+            setTimeout(function () {
+                self.select2('close');
+            }, 1);
+        }
+    }).on('select2:opening select2:closing', function (event) {
+        let $search = $(this).parent().find('.select2-search__field');
+        $search.prop('disabled', true);
+    });
+
+    // careteam select2
     $(".select-dropdown").select2({
         theme: "bootstrap4",
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -561,8 +606,9 @@ if (! $GLOBALS['simplified_demographics']) {
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
-            ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
-echo xlt($CapInstype); ?></a></li><?php } ?>
+            ?>
+            <li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
+            echo xlt($CapInstype); ?></a></li><?php } ?>
         </ul>
 
     <div class="tabContainer">

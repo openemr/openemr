@@ -9,7 +9,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014-2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -251,6 +251,7 @@ function isColumnReserved($tablename, $field_id)
             'billing_note',
             'uuid',
             'care_team_facility',
+            'name_history',
             ))
         ) {
             return true;
@@ -784,7 +785,7 @@ function writeFieldLine($linedata)
     if (
         in_array(
             $linedata['data_type'],
-            array(1, 2, 3, 15, 21, 22, 23, 25, 26, 27, 28, 32, 33, 37, 40, 51)
+            array(1, 2, 3, 15, 21, 22, 23, 25, 26, 27, 28, 32, 33, 37, 40, 51, 52)
         )
     ) {
         // Show the width field
@@ -882,8 +883,8 @@ function writeFieldLine($linedata)
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][datacols]' value='" .
          attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control optin' />";
     echo "</td>\n";
-    /* Below for compatabilty with existing string modifiers. */
-    if (strpos($linedata['edit_options'], ',') === false && isset($linedata['edit_options'])) {
+    /* Below for compatibility with existing string modifiers. */
+    if (!str_contains($linedata['edit_options'], ',') && isset($linedata['edit_options'])) {
         $t = json_decode($linedata['edit_options']);
         if (json_last_error() !== JSON_ERROR_NONE || $t === 0) { // hopefully string of characters and 0 handled.
             $t = str_split(trim($linedata['edit_options']));

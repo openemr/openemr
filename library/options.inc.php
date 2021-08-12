@@ -3,6 +3,7 @@
 // Copyright (C) 2007-2021 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
+// Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,6 +42,8 @@
 // 1 = Write Once (not editable when not empty) (text fields)
 // 2 = Show descriptions instead of codes for billing code input
 
+// note: isOption() returns true/false
+
 require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
@@ -49,6 +52,7 @@ require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
 
 $facilityService = new FacilityService();
 
@@ -83,7 +87,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         return '';
     }
 
-    if (isOption($frow['form_id'], 'LBF') === 0) {
+    if (isOption($frow['form_id'], 'LBF') === false) {
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
@@ -1632,6 +1636,21 @@ function generate_form_field($frow, $currvalue)
         }
         echo " readonly $disabled />";
         echo "</div>";
+    // Previous Patient Names with add. Somewhat mirrors data types 44,45.
+    } elseif ($data_type == 52) {
+        global $pid;
+        $patientService = new PatientService();
+        $res = $patientService->getPatientNameHistory($pid);
+        echo "<div class='input-group w-75'>";
+        echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-previous-names' multiple='multiple'>";
+        foreach ($res as $row) {
+            $pname = $row['formatted_name']; // esc'ed in fetch.
+            $optionId = attr($row['id']);
+            // all names always selected
+            echo "<option value='$optionId'" . " selected>$pname</option>";
+        }
+        echo "</select>";
+        echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
     }
 }
 
@@ -2805,9 +2824,23 @@ function generate_display_field($frow, $currvalue)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $s .= text(getPatientDescription($currvalue));
+        }
+    } elseif ($data_type == 52) {
+        global $pid;
+        $patientService = new PatientService();
+        $rows = $patientService->getPatientNameHistory($pid);
+        $i = 0;
+        foreach ($rows as $row) {
+            // name escaped in fetch
+            if ($i > 0) {
+                $s .= ", " . $row['formatted_name'];
+            } else {
+                $s = $row['formatted_name'] ?? '';
+            }
+            $i++;
         }
     }
 
@@ -3743,7 +3776,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     $tmp = xl_layout_label($group_fields['title']);
                     echo text($tmp);
                     // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                    if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
                         echo ':';
                     }
                 } else {
@@ -4183,6 +4216,18 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 $value = $reslist . "|" . $res_comment;
             } else {
                 $value = $_POST["$prefix$field_id"];
+            }
+        } elseif ($data_type == 52) {
+            $value_array = $_POST["form_$field_id"];
+            $i = 0;
+            foreach ($value_array as $key => $valueofkey) {
+                if ($i == 0) {
+                    $value = $valueofkey;
+                } else {
+                    $value =  $value . "|" . $valueofkey;
+                }
+
+                $i++;
             }
         } else {
             $value = $_POST["$prefix$field_id"];
