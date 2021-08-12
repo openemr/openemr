@@ -26,6 +26,7 @@ use Lcobucci\JWT\ValidationData;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -75,6 +76,7 @@ class AuthorizationController
 
     const GRANT_TYPE_PASSWORD = 'password';
     const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
+    const OFFLINE_ACCESS_SCOPE = 'offline_access';
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -234,7 +236,7 @@ class AuthorizationController
             } else if (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
-                || strpos($data['scope'], 'offline_access') !== false
+                || strpos($data['scope'], self::OFFLINE_ACCESS_SCOPE) !== false
             ) {
                 throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
@@ -549,7 +551,16 @@ class AuthorizationController
         }
     }
 
-    public function getAuthorizationServer(): AuthorizationServer
+    /**
+     * Retrieve the authorization server with all of the grants configured
+     * TODO: @adunsulag is there a better way to handle skipping the refresh token on the authorization grant?
+     * Due to the way the server is created and the fact we have to skip the refresh token when an offline_scope is passed
+     * for authorization_grant/password_grant.  We ignore offline_scope for custom_credentials
+     * @param bool $includeAuthGrantRefreshToken Whether the authorization server should issue a refresh token for an authorization grant.
+     * @return AuthorizationServer
+     * @throws Exception
+     */
+    public function getAuthorizationServer($includeAuthGrantRefreshToken = true): AuthorizationServer
     {
         $protectedClaims = ['profile', 'email', 'address', 'phone'];
         $scopeRepository = new ScopeRepository($this->restConfig);
@@ -593,7 +604,7 @@ class AuthorizationController
         if ($this->grantType === 'authorization_code') {
             $grant = new AuthCodeGrant(
                 new AuthCodeRepository(),
-                new RefreshTokenRepository(),
+                new RefreshTokenRepository($includeAuthGrantRefreshToken),
                 new \DateInterval('PT1M') // auth code. should be short turn around.
             );
 
@@ -609,7 +620,7 @@ class AuthorizationController
             );
         }
         if ($this->grantType === 'refresh_token') {
-            $grant = new CustomRefreshTokenGrant(new refreshTokenRepository());
+            $grant = new CustomRefreshTokenGrant(new RefreshTokenRepository());
             $grant->setRefreshTokenTTL(new \DateInterval('P3M'));
             $authServer->enableGrantType(
                 $grant,
@@ -620,7 +631,7 @@ class AuthorizationController
         if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
             $grant = new CustomPasswordGrant(
                 new UserRepository(),
-                new RefreshTokenRepository()
+                new RefreshTokenRepository($includeAuthGrantRefreshToken)
             );
             $grant->setRefreshTokenTTL(new DateInterval('P3M'));
             $authServer->enableGrantType(
@@ -785,7 +796,7 @@ class AuthorizationController
         $offline_requested = false;
         $scopes = [];
         foreach ($scopesList as $scope) {
-            if ($scope !== "offline_access") {
+            if ($scope !== self::OFFLINE_ACCESS_SCOPE) {
                 $scopes[] = $scope;
             } else {
                 $offline_requested = true;
@@ -871,7 +882,8 @@ class AuthorizationController
         $authRequest = $this->deserializeUserSession();
         try {
             $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $_POST['scope']);
-            $server = $this->getAuthorizationServer();
+            $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
+            $server = $this->getAuthorizationServer($include_refresh_token);
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
             $authRequest->setUser($user);
@@ -915,6 +927,19 @@ class AuthorizationController
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
         }
+    }
+
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     */
+    private function shouldIncludeRefreshTokenForScopes(array $scopes)
+    {
+        foreach ($scopes as $scope) {
+            if ($scope->getIdentifier() == self::OFFLINE_ACCESS_SCOPE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes)

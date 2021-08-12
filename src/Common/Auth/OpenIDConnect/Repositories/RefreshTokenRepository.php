@@ -21,6 +21,20 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
+    /**
+     * @var boolean
+     */
+    private $issueNewRefreshToken;
+
+    /**
+     * RefreshTokenRepository constructor
+     * @param bool $issueNewRefreshToken Whether a new refresh token should be issued when called.
+     */
+    public function __construct($issueNewRefreshToken = true)
+    {
+        $this->issueNewRefreshToken = $issueNewRefreshToken === true;
+    }
+
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
         $token = $this->getTokenByToken($refreshTokenEntity->getIdentifier());
@@ -57,9 +71,19 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         return !empty($result); // if the result set is not empty then its been revoked, otherwise its a good token
     }
 
+    /**
+     * Returns a RefreshToken if the repository's issueNewRefreshToken property is set to true.  Certain scopes like
+     * offline_access determines whether a refresh token is issued to the requesting client.  If the scope is not
+     * authorized we do not issue a refresh token for the app to have offline access.
+     * @return RefreshTokenEntityInterface|RefreshTokenEntity|null
+     */
     public function getNewRefreshToken()
     {
-        return new RefreshTokenEntity();
+        if ($this->issueNewRefreshToken) {
+            return new RefreshTokenEntity();
+        } else {
+            return null;
+        }
     }
 
     public function getActiveTokensForUser($clientId, $userUuid)
