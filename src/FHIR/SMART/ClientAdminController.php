@@ -1023,18 +1023,18 @@ class ClientAdminController
             <?php endif; ?>
         </h3>
         <ul>
-        <li><?php echo xlt("Token JTI(DB token value)"); ?>: <?php echo $parts['jti']; ?></li>
-        <li><?php echo xlt("Token DB Id"); ?>: <?php echo $databaseRecord['id']; ?></li>
-        <li><?php echo xlt("Token Status"); ?>: <?php echo $parts['status']; ?></li>
-        <li><?php echo xlt("Token Type"); ?>: <?php echo $parts['token_type']; ?></li>
-        <li><?php echo xlt("Token Expiration"); ?>: <?php echo $databaseRecord['expiry']; ?></li>
+        <li><?php echo xlt("Token JTI(DB token value)"); ?>: <?php echo text($parts['jti']); ?></li>
+        <li><?php echo xlt("Token DB Id"); ?>: <?php echo text($databaseRecord['id']); ?></li>
+        <li><?php echo xlt("Token Status"); ?>: <?php echo text($parts['status']); ?></li>
+        <li><?php echo xlt("Token Type"); ?>: <?php echo text($parts['token_type']); ?></li>
+        <li><?php echo xlt("Token Expiration"); ?>: <?php echo text($databaseRecord['expiry']); ?></li>
         <li><?php echo xlt("User UUID"); ?>:
         <a href="<?php echo attr($parts['user_link']); ?>">
-            <?php echo $databaseRecord['user_id']; ?>
+            <?php echo text($databaseRecord['user_id']); ?>
         </a>
         </li>
         </ul>
-        <pre><?php echo json_encode($parts, JSON_PRETTY_PRINT); ?></pre>
+        <pre><?php echo text(json_encode($parts, JSON_PRETTY_PRINT)); ?></pre>
             <?php
         }
 

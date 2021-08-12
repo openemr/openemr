@@ -153,6 +153,7 @@ class AuthorizationController
             $serverException = OAuthServerException::serverError("Security error - problem with authorization server keys.", $exception);
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($serverException->generateHttpResponse($response));
+            exit;
         }
     }
 
@@ -577,7 +578,6 @@ class AuthorizationController
             $responseType->markIsAuthorizationGrant(); // we have specific SMART responses for an authorization grant.
         }
 
-        $this->logger->debug("key log ", ['privateKey' => $this->privateKey, 'passphrase' => $this->passphrase, 'encryptionKey' => $this->oaEncryptionKey]);
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
@@ -1117,13 +1117,6 @@ class AuthorizationController
             // will try hard to go on if missing token hint. this is to help with universal conformance.
             if (empty($token_hint)) {
                 $token_hint = $jsonWebKeyParser->getTokenHintFromToken($rawToken);
-//                // determine if access or refresh.
-//                $access_parts = explode(".", $rawToken);
-//                if (count($access_parts) === 3) {
-//                    $token_hint = 'access_token';
-//                } else {
-//                    $token_hint = 'refresh_token';
-//                }
             } elseif (($token_hint !== 'access_token' && $token_hint !== 'refresh_token') || empty($rawToken)) {
                 throw new OAuthServerException('Missing token or unsupported hint.', 0, 'invalid_request', 400);
             }
