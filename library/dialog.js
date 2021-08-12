@@ -45,7 +45,7 @@
                 ],
                 type: 'Alert',
                 sizeHeight: 'auto',
-                html: '<p>' + data + '</p>'
+                html: '<p class="text-center">' + data + '</p>'
             });
         }
 
@@ -61,7 +61,7 @@
                 type: 'Confirm',
                 resolvePromiseOn: 'confirm',
                 sizeHeight: 'auto',
-                html: '<p>' + data + '</p>'
+                html: '<p class="text-center">' + data + '</p>'
             });
         }
 
