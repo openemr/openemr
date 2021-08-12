@@ -15,8 +15,11 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -37,6 +40,11 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
+        $token = $this->getTokenByToken($accessTokenEntity->getIdentifier());
+        if (!empty($token)) {
+            throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
+        }
+
         $access_token = (string) $accessTokenEntity;
         $exp_date = $accessTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s');
         $user_id = $accessTokenEntity->getUserIdentifier();
@@ -53,11 +61,31 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function revokeAccessToken($tokenId)
     {
+        (new SystemLogger())->debug(self::class . "->revokeAccessToken() attempting to revoke access token ", ['tokenId' => $tokenId]);
+        // Some logic to revoke the refresh token in a database
+        $sql = "UPDATE api_token SET revoked = 1 WHERE token = ?";
+        QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
     }
 
+    /**
+     * Because of the way our access tokens contain the multi-tenant site-id in them we have to return false on this statement
+     * as we currently don't have any database functionality loaded and can't check the database to see if the token is revoked
+     * Since this logic is embedded inside the League OAUTH server we have it return false and check the token revokation
+     * later on in our api dispatch logic.
+     * @param string $tokenId
+     * @return bool
+     */
     public function isAccessTokenRevoked($tokenId)
     {
-        return false; // Access token hasn't been revoked
+        return false;
+    }
+
+    public function isAccessTokenRevokedInDatabase($tokenId)
+    {
+        $sql = " SELECT * FROM api_token WHERE token = ? AND revoked = 1 ";
+        $resource = QueryUtils::sqlStatementThrowException($sql, [$tokenId], true);
+        $result = QueryUtils::fetchArrayFromResultSet($resource);
+        return !empty($result); // if the result set is not empty then its been revoked, otherwise its a good token
     }
 
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
@@ -70,5 +98,31 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $accessToken->setUserIdentifier($userIdentifier);
 
         return $accessToken;
+    }
+
+    public function getActiveTokensForUser($clientId, $userUuid)
+    {
+        // note user_id is the STRING representation of the uuid, not the binary representation
+        $sql = "SELECT * FROM api_token WHERE user_id = ? AND client_id = ? AND expiry > NOW() AND revoked = 0 ";
+        return QueryUtils::fetchRecords($sql, [$userUuid, $clientId]);
+    }
+
+    /**
+     * Retrieves a token record for given database token id.
+     * @param $id The database identifier for the token (see table api_token.id
+     * @return array|null
+     */
+    public function getTokenById($id)
+    {
+        $sql = "SELECT * FROM api_token WHERE id = ? ";
+        $records = QueryUtils::fetchRecords($sql, [$id]);
+        return $records[0] ?? null;
+    }
+
+    public function getTokenByToken($token)
+    {
+        $sql = "SELECT * FROM api_token WHERE token = ? ";
+        $records = QueryUtils::fetchRecords($sql, [$token], true);
+        return $records[0] ?? null;
     }
 }
