@@ -49,12 +49,14 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     //block non-administrator user from create administrator
-    foreach ($_POST['access_group'] as $aro_group) {
-        if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
-            die(xlt('Saving denied'));
-        };
+    if (!empty($_POST['access_group'])) {
+        foreach ($_POST['access_group'] as $aro_group) {
+            if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
+                die(xlt('Saving denied'));
+            };
+        }
     }
-    if ($_POST['mode'] === 'update') {
+    if (($_POST['mode'] ?? '') === 'update') {
         //block non-administrator user from update administrator
         $user_service = new UserService();
         $user = $user_service->getUser($_POST['id']);
@@ -184,9 +186,12 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     );
                 }
                 $olduf["$facid/$whid"] = false;
+                /******************************************************
+                // What's the intent here? $deffacid does not appear anywhere else in the code.
                 if ($facid == $deffacid) {
                     $deffacid = 0;
                 }
+                ******************************************************/
             }
             // Now delete whatever is left over for this user.
             foreach ($olduf as $key => $value) {
@@ -599,6 +604,12 @@ function authorized_clicked() {
                         }
 
                         foreach ($result4 as $iter) {
+                            // Skip this user if logged-in user does not have all of its permissions.
+                            // Note that a superuser now has all permissions.
+                            if (!AclExtended::iHavePermissionsOf($iter['username'])) {
+                                continue;
+                            }
+
                             if ($iter["authorized"]) {
                                 $iter["authorized"] = xl('yes');
                             } else {
