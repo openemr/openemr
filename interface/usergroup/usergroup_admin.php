@@ -186,12 +186,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     );
                 }
                 $olduf["$facid/$whid"] = false;
-                /******************************************************
-                // What's the intent here? $deffacid does not appear anywhere else in the code.
-                if ($facid == $deffacid) {
-                    $deffacid = 0;
-                }
-                ******************************************************/
             }
             // Now delete whatever is left over for this user.
             foreach ($olduf as $key => $value) {
