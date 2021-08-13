@@ -86,9 +86,9 @@ if ($oauthLogin !== true) {
                     <div class="col-12">
                         <div class="alert alert-warning">
                             <p>
-                                <?php echo xlt("This application has requested offline access to your data.  This permission will allow the data you authorize below to be accessed for an extended period of time"); ?>
+                                <?php echo xlt("This application has requested offline access to your data. This permission will allow the data you authorize below to be accessed for an extended period of time"); ?>
                             </p>
-                            <p><?php echo xlt("Offline access end date"); ?>: <?php echo $offline_access_date; ?></p>
+                            <p><?php echo xlt("Offline access end date"); ?>: <?php echo text($offline_access_date); ?></p>
                             <p><?php echo xlt("If you do not want to allow this application to have offline access to your data, uncheck the offline_permission scope"); ?></p>
                             <label class="list-group-item m-0">
                                 <input type="checkbox" class='app-scope' name="scope[offline_access]" value="offline_access" checked>

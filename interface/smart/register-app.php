@@ -289,7 +289,7 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                 <div class="row">
                     <div class="col alert alert-info">
                         <p><?php echo xlt("system, user, and offline_access scopes require confidential app permissions."); ?></p>
-                        <p><?php echo xlt("Confidential apps are applications that are able to safely and securely store a secret.  Browser based and many mobile applications do not satisfy this security constraint"); ?></p>
+                        <p><?php echo xlt("Confidential apps are applications that are able to safely and securely store a secret. Browser based and many mobile applications do not satisfy this security constraint"); ?></p>
                     </div>
                 </div>
                 <div class="form-group">
