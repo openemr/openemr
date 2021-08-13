@@ -32,11 +32,19 @@ class AppoinmentSetEvent extends Event
     /**
      * @var
      */
-    private $post;
+    public $post;
 
+    /**
+     * @var
+     */
+    public $eid;
+
+    /**
+     * @param $post
+     */
     public function __construct($post)
     {
-        $this->pid = $post;
+        $this->post = $post;
     }
 
     /**
