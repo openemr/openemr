@@ -615,8 +615,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
             $group = $job->getGroupId();
             // we would need to grab all of the patient ids that belong to this group
-            // TODO: if we fully implement groups of patient populations we would set our patient ids into $searchParams
-            // or filter the results here
+            // TODO: @adunsulag if we fully implement groups of patient populations we would set our patient ids into $searchParams
+            // or filter the results here.  Right now we treat all patients as belonging to the same '1' group.
         }
 
         $processingResult = $this->getAll($searchParams);
