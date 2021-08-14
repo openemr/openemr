@@ -17,6 +17,9 @@ use OpenEMR\Tests\Api\ApiTestClient;
  */
 class IntrospectionTest extends TestCase
 {
+    /**
+     * @var ApiTestClient
+     */
     private $client;
 
     protected function setUp(): void
@@ -40,10 +43,12 @@ class IntrospectionTest extends TestCase
             // set up public client
             $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [], "public");
         }
-        $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertEquals(200, $actualValue->getStatusCode(), "Client authorization returned the wrong status code");
+        $this->assertGreaterThan(10, strlen($this->client->getIdToken()), "ID token was not sent via client authorization");
+        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()), "Acccess token was not sent via client authorization");
+        if ($type == 'private') {
+            $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()), "Refresh token was not sent via client authorization for private client");
+        }
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
         $authHeaderValue = substr($actualHeaders["Authorization"], 7);
@@ -594,136 +599,6 @@ class IntrospectionTest extends TestCase
         $introspectBody = [
             "client_id" => ApiTestClient::BOGUS_CLIENTID,
             "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(401, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals('invalid_request', $responseBody->error);
-        $this->assertEquals('Not a registered client', $responseBody->error_description);
-    }
-
-    public function testPublicClientWithRefreshTokenWithHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "token_type_hint" => "refresh_token",
-            "client_id" => $this->client->getClientId(),
-            "token" => $this->client->getRefreshToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPublicClientWithRefreshTokenWithHintWithRevoke()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "token_type_hint" => "refresh_token",
-            "client_id" => $this->client->getClientId(),
-            "token" => $this->client->getRefreshToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-
-        $this->client->cleanupRevokeAuth();
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(false, $responseBody->active);
-        $this->assertEquals('revoked', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPublicClientWithBadRefreshTokenWithHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "token_type_hint" => "refresh_token",
-            "client_id" => $this->client->getClientId(),
-            "token" => ApiTestClient::BOGUS_REFRESH_TOKEN
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(400, $authResponse->getStatusCode());
-    }
-
-    public function testPublicBadClientIdWithRefreshTokenWithHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "token_type_hint" => "refresh_token",
-            "client_id" => ApiTestClient::BOGUS_CLIENTID,
-            "token" => $this->client->getRefreshToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(401, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals('invalid_request', $responseBody->error);
-        $this->assertEquals('Not a registered client', $responseBody->error_description);
-    }
-
-    public function testPublicClientWithRefreshTokenWithoutHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "client_id" => $this->client->getClientId(),
-            "token" => $this->client->getRefreshToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPublicClientWithRefreshTokenWithoutHintWithRevoke()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "client_id" => $this->client->getClientId(),
-            "token" => $this->client->getRefreshToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-
-        $this->client->cleanupRevokeAuth();
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(false, $responseBody->active);
-        $this->assertEquals('revoked', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPublicClientWithBadRefreshTokenWithoutHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "client_id" => $this->client->getClientId(),
-            "token" => ApiTestClient::BOGUS_REFRESH_TOKEN
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(400, $authResponse->getStatusCode());
-    }
-
-    public function testPublicBadClientIdWithRefreshTokenWithoutHint()
-    {
-        $this->setUpClient('public');
-        $introspectBody = [
-            "client_id" => ApiTestClient::BOGUS_CLIENTID,
-            "token" => $this->client->getRefreshToken()
         ];
         $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
         $this->assertEquals(401, $authResponse->getStatusCode());

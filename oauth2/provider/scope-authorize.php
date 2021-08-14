@@ -11,6 +11,14 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
+$oauthLogin = $oauthLogin ?? null;
+$offline_requested = $offline_requested ?? false;
+$scopes = $scopes ?? [];
+$scopeString = $scopeString ?? "";
+$offline_access_date = $offline_access_date ?? "";
 
 if ($oauthLogin !== true) {
     $message = xlt("Error. Not authorized");
@@ -18,9 +26,6 @@ if ($oauthLogin !== true) {
     echo $message;
     exit();
 }
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 
 ?>
 <html>
@@ -32,7 +37,7 @@ use OpenEMR\Core\Header;
 <body class="container-fluid bg-dark">
 <form method="post" name="userLogin" id="userLogin" action="<?php echo $redirect ?>">
     <div class="row h-100 w-100 justify-content-center align-items-center">
-        <div class="col-sm-6 bg-light text-dark">
+        <div class="col-10 col-lg-6 bg-light text-dark">
             <div class="text-md-center mt-2">
                 <h4 class="mb-4 mt-1"><?php echo xlt("Authorizing"); ?></h4>
             </div>
@@ -76,6 +81,23 @@ use OpenEMR\Core\Header;
                     </div>
                 </div>
             </div>
+            <?php if (true == $offline_requested) : ?>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <p>
+                                <?php echo xlt("This application has requested offline access to your data. This permission will allow the data you authorize below to be accessed for an extended period of time"); ?>
+                            </p>
+                            <p><?php echo xlt("Offline access end date"); ?>: <?php echo text($offline_access_date); ?></p>
+                            <p><?php echo xlt("If you do not want to allow this application to have offline access to your data, uncheck the offline_permission scope"); ?></p>
+                            <label class="list-group-item m-0">
+                                <input type="checkbox" class='app-scope' name="scope[offline_access]" value="offline_access" checked>
+                                <?php echo xlt("offline_access"); ?>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
             <hr />
