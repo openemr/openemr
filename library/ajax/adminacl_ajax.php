@@ -10,7 +10,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2007-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -259,6 +261,12 @@ function username_listings_xml($err)
     }
 
     foreach ($result4 as $iter) {
+        // Skip this user if logged-in user does not have all of its permissions.
+        // Note that a superuser now has all permissions.
+        if (!AclExtended::iHavePermissionsOf($result4['username'])) {
+            continue;
+        }
+
         $message .= "\t<user>\n" .
           "\t\t<username>" . $iter["username"] . "</username>\n";
         $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);

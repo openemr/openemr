@@ -12,6 +12,7 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -549,13 +550,12 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 $list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user || $selected_user_is_superuser);
 $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
 foreach ($list_acl_groups as $value) {
-    if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
-        // Modified 6-2009 by BM - Translate group name if applicable
-        echo " <option value='" . attr($value) . "' selected>" . text(xl_gacl_group($value)) . "</option>\n";
-    } else {
-        // Modified 6-2009 by BM - Translate group name if applicable
-        echo " <option value='" . attr($value) . "'>" . text(xl_gacl_group($value)) . "</option>\n";
+    // Disable groups that have any permissions that the logged-in user does not have.
+    $tmp = AclExtended::iHaveGroupPermissions($value) ? '' : 'disabled ';
+    if ($username_acl_groups && in_array($value, $username_acl_groups)) {
+        $tmp .= 'selected ';
     }
+    echo " <option value='" . attr($value) . "' $tmp>" . text(xl_gacl_group($value)) . "</option>\n";
 }
 ?>
   </select></td>
