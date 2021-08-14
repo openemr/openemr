@@ -664,6 +664,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord)
     {
+            // Based on conversations with Jerry Padget and Brady Miller on August 14th 2021 we decided that if the values
+            // were both 0 for bpd and bps we would treat this as a data absent reason.  In this case an attempt was made
+            // to record the data but no value was recorded (such as the blood pressure cuff becoming loose).
+            if ($dataRecord['bpd'] == 0 && $dataRecord['bps'] == 0)
+            {
+                $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+            }
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,

@@ -202,7 +202,7 @@ class FormVitals extends ORDataObject
     }
     public function set_bps($bps)
     {
-        if (!empty($bps)) {
+        if (is_numeric($bps)) {
             $this->bps = $bps;
         }
     }
@@ -212,7 +212,7 @@ class FormVitals extends ORDataObject
     }
     public function set_bpd($bpd)
     {
-        if (!empty($bpd)) {
+        if (is_numeric($bpd)) {
             $this->bpd = $bpd;
         }
     }
@@ -501,7 +501,20 @@ class FormVitals extends ORDataObject
 
     public function populate_array($results)
     {
-        parent::populate_array($results);
+        // because our vitals form can actually have data values of 0 we can't use the parent populate_array as it does
+        // an empty check
+        if (is_array($results)) {
+            foreach ($results as $field_name => $field) {
+                $func = "set_" . $field_name;
+                if (is_callable(array($this,$func))) {
+                    // if we have a number 0 we want to let it through.  Originally this failed due to the empty check.
+                    if (is_numeric($field) || !empty($field)) {
+                        //echo "s: $field_name to: $field <br />";
+                        call_user_func(array(&$this,$func), $field);
+                    }
+                }
+            }
+        }
         $encounter = $results['eid'] ?? $results['encounter'] ?? null;
         $this->set_encounter($encounter);
 
