@@ -83,14 +83,11 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
             unset($openEMRSearchParameters['category']);
         }
-        if (isset($openEMRSearchParameters['patient']))
-        {
+        if (isset($openEMRSearchParameters['patient'])) {
             // make sure that no other modifier such as NOT_EQUALS, OR missing=true is sent which would let system file names be
             // leaked out in the API
             $openEMRSearchParameters['patient']->setModifier(SearchModifier::EXACT);
-        }
-        else
-        {
+        } else {
             // make sure we only return documents that are tied to patients
             $openEMRSearchParameters['patient'] = new TokenSearchField('puuid', [new TokenSearchValue(false, null)]);
             $openEMRSearchParameters['patient']->setModifier(SearchModifier::MISSING);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirBulkExportDomainResourceTrait implements a simple export method that can be incorporated into classes to quickly
  * allow FHIR bulk export of resources.  Advanced searching or filtering on the exported resources is not supported and
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Traits;
-
 
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
@@ -37,8 +37,7 @@ trait FhirBulkExportDomainResourceTrait
      */
     public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
     {
-        if (!($this instanceof IResourceReadableService))
-        {
+        if (!($this instanceof IResourceReadableService)) {
             // we need to ensure we only get called in a method that implements the getAll method.
             throw new \BadMethodCallException("Trait can only be used in classes that implement the " . IResourceReadableService::class . " interface");
         }

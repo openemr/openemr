@@ -573,8 +573,7 @@ class FhirExportRestController
         $serviceLocator = new FhirExportServiceLocator($restConfig);
         $this->resourceRegistry = $serviceLocator->findExportServices();
         // TODO: @adunsulag is there a better way to handle this... because Provenance uses its own service locator and we need the rest config...
-        if (isset($this->resourceRegistry['Provenance']))
-        {
+        if (isset($this->resourceRegistry['Provenance'])) {
             $this->resourceRegistry['Provenance']->setServiceLocator(new FhirServiceLocator($restConfig));
         }
         return $this->resourceRegistry;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * BulkExportSupportAllOperationsTrait simple trait to declare support for patient, system, and group export operations
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Traits;
-
 
 trait BulkExportSupportAllOperationsTrait
 {

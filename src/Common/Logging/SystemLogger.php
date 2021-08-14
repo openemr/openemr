@@ -118,14 +118,13 @@ class SystemLogger implements LoggerInterface
     public function errorLogCaller($message, array $context = array())
     {
         // we skip over arguments and go 2 stack traces to get the current call and the caller function into this one.
-        $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2);
+        $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $callerContext = $dbt[1] ?? [];
         $callerClass = $callerContext['class'] ?? "";
         $callerType = $callerContext['type'] ?? "";
         $callerFunction = $callerContext['function'] ?? "";
         $caller = $callerClass . $callerType . $callerFunction;
-        if ($caller != "")
-        {
+        if ($caller != "") {
             // make it look like a method signature
             $caller .= "() ";
         }

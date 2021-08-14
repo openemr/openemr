@@ -199,8 +199,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         try {
             if (!empty($fhirSearchParameters['_id'])) {
                 $fhirSearchResult = $this->getProvenanceRecordsForId($fhirSearchParameters['_id'], $puuidBind);
-            }
-            else {
+            } else {
                 $fhirSearchResult = $this->getAllProvenanceRecordsFromServices($puuidBind);
             }
         } catch (SearchFieldException $exception) {
@@ -216,8 +215,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     private function getAllProvenanceRecordsFromServices($puuidBind = null)
     {
         $processingResult = new ProcessingResult();
-        if (empty($this->serviceLocator))
-        {
+        if (empty($this->serviceLocator)) {
             (new SystemLogger())->errorLogCaller("class was not properly configured with the service locator");
         }
 
@@ -225,38 +223,29 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
 
         $searchParams = ['_revinclude' => 'Provenance:target'];
-        foreach ($servicesByResource as $resource => $service)
-        {
+        foreach ($servicesByResource as $resource => $service) {
             // if it doesn't support the readable service we've got issues
-            if ($resource == 'Provenance' || !($service instanceof IResourceReadableService))
-            {
+            if ($resource == 'Provenance' || !($service instanceof IResourceReadableService)) {
                 continue;
             }
             try {
                 $serviceResult = $service->getAll($searchParams, $puuidBind);
                 // now loop through and grab all of our provenance resources
-                if ($serviceResult->hasData())
-                {
-                    foreach($serviceResult->getData() as $record)
-                    {
-                        if ($record instanceof FHIRProvenance)
-                        {
+                if ($serviceResult->hasData()) {
+                    foreach ($serviceResult->getData() as $record) {
+                        if ($record instanceof FHIRProvenance) {
                             $processingResult->addData($record);
                         }
                     }
                 }
-            }
-            catch (SearchFieldException $ex)
-            {
+            } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
                 $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                     'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
                 // put our exception information here
                 $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
                 return $processingResult;
-            }
-            catch (Exception $ex)
-            {
+            } catch (Exception $ex) {
                 $systemLogger = new SystemLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
                 $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),

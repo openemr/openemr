@@ -269,5 +269,4 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     {
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
-
 }

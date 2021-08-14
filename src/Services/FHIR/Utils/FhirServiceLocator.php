@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirServiceLocator.php  This class locates fhir service classes for the fhir resources.  Note that because it leverages
  * the Capability statement this can take 500-900ms to execute and should be used with caution.
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Utils;
-
 
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
@@ -40,8 +40,7 @@ class FhirServiceLocator
      */
     public function findServices($type)
     {
-        if (empty($type) || !(class_exists($type) || interface_exists($type)))
-        {
+        if (empty($type) || !(class_exists($type) || interface_exists($type))) {
             throw new \InvalidArgumentException('$type must be a valid class or instance');
         }
 

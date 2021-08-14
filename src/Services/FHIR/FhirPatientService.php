@@ -389,8 +389,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $communication = new FHIRPatientCommunication();
             $communication->setLanguage(UtilsService::createDataAbsentUnknownCodeableConcept());
             $patientResource->addCommunication($communication);
-        }
-        else {
+        } else {
             $communication = new FHIRPatientCommunication();
             $languageConcept = new FHIRCodeableConcept();
             $language = new FHIRCoding();
