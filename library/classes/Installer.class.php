@@ -426,7 +426,7 @@ class Installer
             return false;
         }
 
-        if ($this->execute_sql("INSERT INTO `module_acl_group_settings` SET `module_id` = '" . $this->escapeSql($modId) . "', `group_id` = '" . $this->escapeSql($groupId) . "', `section_id` = '" . $this->escapeSql($sectionId) . "', `allowed` = 1") == false) {
+        if ($this->execute_sql("INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES ('" . $this->escapeSql($modId) . "', '" . $this->escapeSql($groupId) . "', '" . $this->escapeSql($sectionId) . "', 1)") == false) {
             $this->error_message = "ERROR configuring Care Coordination module. Unable to add the module_acl_group_settings acl entry\n";
             return false;
         }

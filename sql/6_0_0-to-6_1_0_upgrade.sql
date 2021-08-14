@@ -1001,6 +1001,5 @@ SET @module_id = (SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordin
 SET @section_id = (SELECT MAX(section_id) FROM module_acl_sections);
 INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (IFNULL(@section_id,0)+1, 'Carecoordination', 0, 'carecoordination', @module_id);
 SET @group_id = (SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1);
-INSERT INTO `module_acl_group_settings` SET `module_id` = @module_id, `group_id` = @group_id, `section_id` = @section_id+1, `allowed` = 1;
+INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES (@module_id, @group_id, @section_id+1, 1);
 #EndIf
-
