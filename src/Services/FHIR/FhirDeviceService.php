@@ -27,13 +27,13 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
-
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+    
     /**
      * @var DeviceService
      */
     private $deviceService;
-    use BulkExportSupportAllOperationsTrait;
-    use FhirBulkExportDomainResourceTrait;
 
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-device';
