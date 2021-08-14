@@ -6659,7 +6659,7 @@ CREATE TABLE `modules` (
   `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  `mod_ui_name` VARCHAR(20) NOT NULL DEFAULT '''',
+  `mod_ui_name` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
   `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
@@ -6675,6 +6675,16 @@ CREATE TABLE `modules` (
   `acl_version` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `modules`
+--
+
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (1, 'Immunization', 'Immunization', '', '', 1, 'Immunization', 'public/immunization/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (2, 'Syndromicsurveillance', 'Syndromicsurveillance', '', '', 1, 'Syndromicsurveillance', 'public/syndromicsurveillance/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (3, 'Documents', 'Documents', '', '', 1, 'Documents', 'public/documents/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (4, 'Ccr', 'Ccr', '', '', 1, 'Ccr', 'public/ccr/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (5, 'Carecoordination', 'Carecoordination', '', '', 1, 'Carecoordination', 'public/carecoordination/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
 
 -- --------------------------------------------------------
 
@@ -6705,6 +6715,16 @@ CREATE TABLE `module_acl_sections` (
   `section_identifier` varchar(50) DEFAULT NULL,
   `module_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `module_acl_sections`
+--
+
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (1, 'Immunization', 0, 'immunization', 1);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (2, 'Syndromicsurveillance', 0, 'syndromicsurveillance', 2);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (3, 'Documents', 0, 'documents', 3);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (4, 'Ccr', 0, 'ccr', 4);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (5, 'Carecoordination', 0, 'carecoordination', 5);
 
 -- --------------------------------------------------------
 
