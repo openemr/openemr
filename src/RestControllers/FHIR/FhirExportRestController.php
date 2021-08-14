@@ -36,6 +36,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
+use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
@@ -568,8 +569,14 @@ class FhirExportRestController
         if (!empty($this->resourceRegistry)) {
             return $this->resourceRegistry;
         }
-        $serviceLocator = new FhirExportServiceLocator($this->request->getRestConfig());
+        $restConfig = $this->request->getRestConfig();
+        $serviceLocator = new FhirExportServiceLocator($restConfig);
         $this->resourceRegistry = $serviceLocator->findExportServices();
+        // TODO: @adunsulag is there a better way to handle this... because Provenance uses its own service locator and we need the rest config...
+        if (isset($this->resourceRegistry['Provenance']))
+        {
+            $this->resourceRegistry['Provenance']->setServiceLocator(new FhirServiceLocator($restConfig));
+        }
         return $this->resourceRegistry;
     }
 
