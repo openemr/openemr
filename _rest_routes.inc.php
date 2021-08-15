@@ -1122,17 +1122,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             // only allow access to data of binded patient
             $return = (new FhirProvenanceRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
-            $return = (new FhirProvenanceRestController())->getOne($uuid);
-        }
-        RestConfig::apiLog($return);
-        return $return;
-    },
-    "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirProvenanceRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
             // TODO: it seems like regular users should be able to grab authorship / provenance information
             RestConfig::authorization_check("admin", "super");
             $return = (new FhirProvenanceRestController())->getOne($uuid);
@@ -1149,7 +1138,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         } else {
             // TODO: it seems like regular users should be able to grab authorship / provenance information
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirProvenanceRestController())->getOne($request->getQueryParams());
+            $return = (new FhirProvenanceRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
         return $return;
