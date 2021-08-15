@@ -166,7 +166,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function getSmartStyleURL()
     {
-        return $GLOBALS['site_addr_oath'] . "/public/smart-styles/smart-light.json";
+        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/public/smart-styles/smart-light.json";
     }
 
     /**
