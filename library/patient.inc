@@ -296,6 +296,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     $command = "=";
     if ($providerID == "%") {
         $command = "like";
+    }    
     
     // removing active from query since is checked above with $providers_only argument above
     $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
