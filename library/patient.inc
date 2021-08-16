@@ -296,10 +296,10 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     $command = "=";
     if ($providerID == "%") {
         $command = "like";
-    }
-
+    
+    // removing active from query since is checked above with $providers_only argument above
     $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
-        "from users where username != '' and active = 1 and id $command '" .
+        "from users where username != '' and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
