@@ -29,7 +29,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
-    
+
     /**
      * @var DeviceService
      */

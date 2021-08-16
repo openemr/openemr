@@ -1137,7 +1137,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         } else {
             // TODO: it seems like regular users should be able to grab authorship / provenance information
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirProvenanceRestController($request))->getOne($request->getQueryParams());
+            $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
         return $return;
