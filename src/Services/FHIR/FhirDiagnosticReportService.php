@@ -24,6 +24,8 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportLaboratoryService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -34,11 +36,13 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
     use MappedServiceCodeTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     public function __construct($fhirApiURL = null)
     {

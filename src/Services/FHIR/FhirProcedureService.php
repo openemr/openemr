@@ -17,6 +17,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureSurgeryService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -26,11 +28,13 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use MappedServiceTrait;
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     const FHIR_PROCEDURE_STATUS_COMPLETED = "completed";
     const FHIR_PROCEDURE_STATUS_IN_PROGRESS = "in-progress";

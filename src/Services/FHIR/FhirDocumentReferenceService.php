@@ -14,6 +14,8 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\DocumentReference\FhirClinicalNotesService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -24,11 +26,13 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
     use MappedServiceCodeTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     const US_CORE_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference";
 

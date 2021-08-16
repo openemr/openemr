@@ -21,6 +21,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -32,6 +34,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     const ENCOUNTER_STATUS_FINISHED = "finished";
 
@@ -214,54 +218,20 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
      * @throws ExportException  If there is an error in processing the export
      * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
      */
-    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
-    {
-        // TODO: encounter search should support multiple date parameter searches for interval period search
-//        $date = [
-//            'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED)
-//            ,'ge' . $job->getResourceIncludeTime()->format(\DateTime::RFC3339_EXTENDED)
-//        ];
-        $date = 'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED);
-        $result = $this->getAll(['date' => $date]);
-        $encounters = $result->getData();
-        if (!empty($encounters)) {
-            foreach ($encounters as $encounter) {
-                $writer->append($encounter);
-            }
-        }
-    }
-
-    /**
-     * Returns whether the service supports the system export operation
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---system-level-export
-     * @return bool true if this resource service should be called for a system export operation, false otherwise
-     */
-    public function supportsSystemExport()
-    {
-        return true;
-    }
-
-    /**
-     * Returns whether the service supports the group export operation.
-     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
-     * patient data (such as Organization or Practitioner)
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients
-     * @return bool true if this resource service should be called for a group export operation, false otherwise
-     */
-    public function supportsGroupExport()
-    {
-        return true;
-    }
-
-    /**
-     * Returns whether the service supports the all patient export operation
-     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
-     * patient data (such as Organization or Practitioner)
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---all-patients
-     * @return bool true if this resource service should be called for a patient export operation, false otherwise
-     */
-    public function supportsPatientExport()
-    {
-        return true;
-    }
+//    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+//    {
+//        // TODO: encounter search should support multiple date parameter searches for interval period search
+////        $date = [
+////            'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED)
+////            ,'ge' . $job->getResourceIncludeTime()->format(\DateTime::RFC3339_EXTENDED)
+////        ];
+//        $date = 'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED);
+//        $result = $this->getAll(['date' => $date]);
+//        $encounters = $result->getData();
+//        if (!empty($encounters)) {
+//            foreach ($encounters as $encounter) {
+//                $writer->append($encounter);
+//            }
+//        }
+//    }
 }

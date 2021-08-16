@@ -220,6 +220,11 @@ class DocumentService extends BaseService
 
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
             while ($row = sqlFetchArray($statementResults)) {
+                // if the current user cannot access the document we do not allow it be passed back as a reference.
+                $document = new \Document($row['id']);
+                if (!$document->can_access()) {
+                    continue;
+                }
                 $resultRecord = $this->createResultRecordFromDatabaseResult($row);
                 $processingResult->addData($resultRecord);
             }

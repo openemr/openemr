@@ -312,7 +312,9 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             $constraints = $configuration->validationConstraints();
 
             try {
-                $configuration->validator()->assert($token, ...$constraints);
+                // phpseclib's RSA validation triggers a NOTICE that gets printed to the screen which messes up the JSON result returned
+                // TODO: if phpseclib fixes this error remove the @ ignore sign, note this does not disable the exceptions.
+                @$configuration->validator()->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
                 $this->logger->error(
                     "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",

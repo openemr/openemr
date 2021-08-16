@@ -17,6 +17,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ListService;
@@ -33,10 +35,12 @@ use OpenEMR\Validators\ProcessingResult;
  * Class FhirMedicationRequestService
  * @package OpenEMR\Services\FHIR
  */
-class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     private $medicationRequestIdCounter = 1;
 

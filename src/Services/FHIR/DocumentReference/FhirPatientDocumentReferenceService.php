@@ -31,7 +31,10 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirPatientDocumentReferenceService extends FhirServiceBase
@@ -79,6 +82,15 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             // we have nothing with this category so we are going to return nothing as we never should have gotten here
 
             unset($openEMRSearchParameters['category']);
+        }
+        if (isset($openEMRSearchParameters['patient'])) {
+            // make sure that no other modifier such as NOT_EQUALS, OR missing=true is sent which would let system file names be
+            // leaked out in the API
+            $openEMRSearchParameters['patient']->setModifier(SearchModifier::EXACT);
+        } else {
+            // make sure we only return documents that are tied to patients
+            $openEMRSearchParameters['patient'] = new TokenSearchField('puuid', [new TokenSearchValue(false, null)]);
+            $openEMRSearchParameters['patient']->setModifier(SearchModifier::MISSING);
         }
         return $this->service->search($openEMRSearchParameters);
     }
