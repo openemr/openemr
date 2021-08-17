@@ -694,7 +694,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $coding = UtilsService::createCodeableConcept(
             [
                 $code => ['code' => $code, 'description' => xlt($description), 'system' => FhirCodeSystemConstants::LOINC]
-        ]);
+            ]
+        );
         $component->setCode($coding);
         $quantity = $this->getFHIRQuantityForColumn($column, $dataRecord);
         if ($quantity != null) {

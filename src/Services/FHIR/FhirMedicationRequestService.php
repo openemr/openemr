@@ -160,7 +160,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                     $dataRecord['category'] =>
                         ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
                         ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
-                ]));
+                ]
+            ));
         } else {
             // if no category has been sent then the default is home usage
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(

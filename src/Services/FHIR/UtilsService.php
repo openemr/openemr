@@ -180,7 +180,7 @@ class UtilsService
                 'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
                 ,'description' => 'unknown'
                 ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
-        ]]);
+            ]]);
     }
 
     public static function createDataAbsentUnknownCodeableConcept()
@@ -190,7 +190,8 @@ class UtilsService
                 'code' => self::UNKNOWNABLE_CODE_DATA_ABSENT
                 , 'description' => 'Unknown'
                 , 'system' => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM
-            ]]);
+            ]]
+        );
     }
 
     /**

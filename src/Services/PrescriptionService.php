@@ -265,10 +265,8 @@ class PrescriptionService extends BaseService
         if ($record['rxnorm_drugcode'] != "") {
             $codes = $this->addCoding($row['rxnorm_drugcode']);
             $updatedCodes = [];
-            foreach ($codes as $code => $codeValues)
-            {
-                if (empty($codeValues['description']))
-                {
+            foreach ($codes as $code => $codeValues) {
+                if (empty($codeValues['description'])) {
                     // use the drug name if for some reason we have no rxnorm description from the lookup
                     $codeValues['description'] = $row['drug'];
                 }

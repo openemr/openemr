@@ -68,7 +68,7 @@ class CodeTypesService
     public function getSystemForCode($code, $useOid = false)
     {
         $codeType = $this->getCodeTypeForCode($code);
-        if (!empty($codeType))  {
+        if (!empty($codeType)) {
             return $this->getSystemForCodeType($codeType);
         }
         return null;

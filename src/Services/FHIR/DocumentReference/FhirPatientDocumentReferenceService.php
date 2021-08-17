@@ -167,8 +167,9 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
         $docCategoryValueSetSystem = $this->getFhirApiURL() . "/fhir/ValueSet/openemr-document-types";
         $docReference->addCategory(UtilsService::createCodeableConcept(
-            ['openemr-document' => ['code' => 'openemr-document', 'description' => 'OpenEMR Document', 'system'=> $docCategoryValueSetSystem]
-        ]));
+            ['openemr-document' => ['code' => 'openemr-document', 'description' => 'OpenEMR Document', 'system' => $docCategoryValueSetSystem]
+            ]
+        ));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
