@@ -1171,6 +1171,13 @@ $GLOBALS_METADATA = array(
             xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
         ),
 
+        'include_inactive_providers' => array(
+            xl('Include inactive providers in the fee sheet'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Include inactive providers in the fee sheet.')
+        ),
+
         'replicate_justification' => array(
             xl('Automatically replicate justification codes in Fee Sheet'),
             'bool',                           // data type
