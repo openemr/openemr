@@ -1150,6 +1150,13 @@ $GLOBALS_METADATA = array(
             xl('Turn off auto calculations of adjustments in EOB')
         ),
 
+        'force_claim_balancing' => array(
+            xl('Force claim balancing in EOB Posting'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Force claim balancing in EOB Posting')
+        ),
+
         'show_payment_history' => array(
             xl('Show all payment history in Patient Ledger'),
             'bool',                           // data type

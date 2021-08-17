@@ -145,16 +145,19 @@ function era_callback(&$out)
     // print_r($out); // debugging
     ++$eracount;
     // $eraname = $out['isa_control_number'];
+    // since it's always sent we use isa_sender_id if payer_id is not provided
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-        '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        '_' . ltrim($out['payer_id'] ? $out['payer_id'] : $out['isa_sender_id'], '0');
 
-    if ($pid && $encounter) {
-        if ($where) {
-            $where .= ' OR ';
+    if (!empty($out['our_claim_id'])) {
+        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+        if ($pid && $encounter) {
+            if ($where) {
+                $where .= ' OR ';
+            }
+
+            $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
         }
-
-        $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
 
@@ -293,8 +296,9 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
             $pdf2->SetDirectionality('rtl');
         }
         ob_start();
-        readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
-        //echo $file;
+        // this file contains the HTML to be converted to pdf.
+        readfile($file_to_send, "r");
+
         $content = ob_get_clean();
 
         // Fix a nasty html2pdf bug - it ignores document root!
@@ -303,23 +307,20 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $i = 0;
         $wrlen = strlen($web_root);
         $wsrlen = strlen($webserver_root);
-        while (true) {
+        if (!empty($content)) {
             $i = stripos($content, " src='/", $i + 1);
-            if ($i === false) {
-                break;
+            if ($i != false) {
+                if (
+                    substr($content, $i + 6, $wrlen) === $web_root &&
+                    substr($content, $i + 6, $wsrlen) !== $webserver_root
+                ) {
+                    $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+                }
             }
-
-            if (
-                substr($content, $i + 6, $wrlen) === $web_root &&
-                substr($content, $i + 6, $wsrlen) !== $webserver_root
-            ) {
-                $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-            }
+            $pdf2->WriteHTML($content);
+            $temp_filename = $STMT_TEMP_FILE_PDF;
+            $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
         }
-
-        $pdf2->WriteHTML($content);
-        $temp_filename = $STMT_TEMP_FILE_PDF;
-        $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
         $pdf->ezSetMargins(45, 9, 36, 10);
@@ -451,8 +452,7 @@ if (
     }
     // This loops once for each invoice/encounter.
     //
-    $rcnt = 0;
-    while ($row = $rows[$rcnt++]) {
+    for ($rcnt = 0; $row = $rows[$rcnt] ?? null; $rcnt++) {
         $svcdate = substr($row['date'], 0, 10);
         $duedate = $svcdate; // TBD?
         $duncount = $row['stmt_count'];
@@ -584,12 +584,18 @@ if (
             }
         } else {
             if ($inv_pid[$inv_count] != ($inv_pid[$inv_count + 1] ?? null)) {
-                $tmp = make_statement($stmt);
-                if (empty($tmp)) {
-                    $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
-                    $tmp .= "<br />\n\014<br /><br />";
+                if ($_REQUEST['form_category'] == 'Due Pt' && (get_patient_balance($stmt['pid']) < 0)) {
+                    // not printing statement if patient balance is less than zero even though
+                    // a single encounter may have a balance
+                    unset($stmt);
+                } else {
+                    $tmp = make_statement($stmt);
+                    if (empty($tmp)) {
+                        $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
+                        $tmp .= "<br />\n\014<br /><br />";
+                    }
+                    fwrite($fhprint, $tmp);
                 }
-                fwrite($fhprint, $tmp);
             }
         }
     } // end while
@@ -651,10 +657,15 @@ if (
         function editInvoice(e, id) {
             e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
-            dlgopen(url,'','modal-full',700,false,'', {
+            <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
+                dlgopen(url,'','modal-full',700,false,'', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
-            });
+            }); <?php } else { // keep era page up so can check on other remits ?>
+                dlgopen(url,'','modal-full',700,false,'', {
+                sizeHeight: 'full',
+                onClosed: ''
+            }); <?php } ?>
         }
 
         function checkAll(checked) {
@@ -1025,10 +1036,10 @@ if (
                             // will require MySQL 4.1 or greater.
 
                             $num_invoices = 0;
-                            if (!$alertmsg) {
-                                $t_res = sqlStatement($query);
-                                $num_invoices = sqlNumRows($t_res);
-                            }
+
+                            // removed if condition on alert message so biller can see what's in the era
+                            $t_res = sqlStatement($query);
+                            $num_invoices = sqlNumRows($t_res);
 
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .

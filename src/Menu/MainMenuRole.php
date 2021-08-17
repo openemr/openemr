@@ -162,7 +162,7 @@ class MainMenuRole extends MenuRole
                     $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
                 }
             }
-            if ($catEntry->children) {
+            if (!empty($catEntry->children)) {
                 array_push($catEntry->children, $formEntry);
             }
         }

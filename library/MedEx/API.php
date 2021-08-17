@@ -1862,7 +1862,7 @@ class Display extends base
         global $rcb_provider;
 
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
         if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
@@ -1878,11 +1878,11 @@ class Display extends base
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 
         $recalls = $this->get_recalls($from_date, $to_date);
 
-        $processed = $this->recall_board_process($logged_in, $recalls, $events);
+        $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
 
         ?>
@@ -1909,6 +1909,8 @@ class Display extends base
                                     <select class="form-control form-control-sm" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
+                                        $select_facs = '';
+                                        $count_facs = 0;
                                         while ($fac = sqlFetchArray($fac_sql)) {
                                             $true = ($fac['id'] == $rcb_facility) ? "selected=true" : '';
                                             $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
@@ -1923,7 +1925,7 @@ class Display extends base
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
@@ -1949,7 +1951,7 @@ class Display extends base
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
                                             echo "    <option value='" . attr($provid) . "'";
-                                            if (isset($rcb_provider) && $provid == $_POST['form_provider']) {
+                                            if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
                                             } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
                                                 echo " selected";
@@ -1960,7 +1962,7 @@ class Display extends base
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
@@ -2001,7 +2003,7 @@ class Display extends base
             <div class="showRecalls mx-auto" id="show_recalls">
                 <div name="message" id="message" class="warning">
                 </div>
-                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
+                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
                     <i class="far fa-square fa-stack-2x"></i>
                     <i id="print_caret" class='fas fa-caret-<?php echo $caret = ($rcb_selectors === 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
@@ -2017,7 +2019,7 @@ class Display extends base
                    <div class="tab-pane active" id="tab-all">
                         <?php
                             $this->recall_board_top();
-                            echo $processed['ALL'];
+                            echo $processed['ALL'] ?? '';
                             $this->recall_board_bot();
                         ?>
                     </div>
@@ -2090,7 +2092,7 @@ class Display extends base
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        return $recalls;
+        return $recalls ?? null;
     }
     private function recall_board_process($logged_in, $recalls, $events = '')
     {

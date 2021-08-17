@@ -53,14 +53,14 @@ function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "fals
 {
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
-    "  <td class='" . attr($class) . "' colspan='4'>&nbsp;</td>\n";
+    "  <td class='" . attr($class) . "' colspan='4'></td>\n";
     if ($nl2br_process) {
         $dline .= "  <td class='" . attr($class) . "'>" . nl2br(text($description)) . "</td>\n";
     } else {
         $dline .= "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n";
     }
     $dline .=
-    "  <td class='" . attr($class) . "' colspan='2'>&nbsp;</td>\n" .
+    "  <td class='" . attr($class) . "' colspan='2'></td>\n" .
     " </tr>\n";
     echo $dline;
 }
@@ -79,19 +79,19 @@ function writeDetailLine(
 
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) {
-        $ptname = '&nbsp;';
+        $ptname = '';
     } else {
         $last_ptname = $ptname;
     }
 
     if ($invnumber == $last_invnumber) {
-        $invnumber = '&nbsp;';
+        $invnumber = '';
     } else {
         $last_invnumber = $invnumber;
     }
 
     if ($code == $last_code) {
-        $code = '&nbsp;';
+        $code = '';
     } else {
         $last_code = $code;
     }
@@ -127,13 +127,13 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     ksort($prev['dtl']);
     foreach ($prev['dtl'] as $dkey => $ddata) {
         $ddate = substr($dkey, 0, 10);
-        $description = $ddata['src'] . $ddata['rsn'];
+        $description = ($ddata['src'] ?? '') . ($ddata['rsn'] ?? '');
         if ($ddate == '          ') { // this is the service item
             $ddate = $dos;
             $description = 'Service Item';
         }
 
-        $amount = sprintf("%.2f", $ddata['chg'] - $ddata['pmt']);
+        $amount = sprintf("%.2f", (int)($ddata['chg'] ?? '') - (int)($ddata['pmt'] ?? ''));
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
         writeDetailLine(
             $bgcolor,
@@ -159,10 +159,10 @@ function era_callback_check(&$out)
     global $InsertionId;
     global $StringToEcho,$debug;
 
-    if ($_GET['original'] == 'original') {
+    if (!empty($_GET['original']) && $_GET['original'] == 'original') {
         $StringToEcho .= "<table class='table'>";
         $StringToEcho .= "<thead>";
-        $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
+        $StringToEcho .= "<tr>";
         $StringToEcho .= "<th scope='col'>" . xlt('Check Number') . "</th>";
         $StringToEcho .= "<th scope='col'>" . xlt('Payee Name') . "</th>";
         $StringToEcho .= "<th scope='col'>" . xlt('Payer Name') . "</th>";
@@ -187,7 +187,7 @@ function era_callback_check(&$out)
 
             $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
             $StringToEcho .= "<th scope='row'>";
-            $StringToEcho .= "<input type='checkbox' value='' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
+            $StringToEcho .= "<input type='checkbox' name='chk" . attr($out['check_number' . $check_count]) . "' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
             $StringToEcho .= "<label for='chk" . attr($out['check_number' . $check_count]) . "'>";
             $StringToEcho .= "&nbsp" . text($out['check_number' . $check_count]) . "</label>";
             $StringToEcho .= "</th>";
@@ -346,7 +346,7 @@ function era_callback(&$out)
         }
 
     // Simplify some claim attributes for cleaner code.
-        $service_date = parse_date($out['dos']);
+        $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
@@ -368,7 +368,7 @@ function era_callback(&$out)
                 $codekey .= ':' . $svc['mod'];
             }
 
-            $prev = $codes[$codekey];
+            $prev = $codes[$codekey] ?? '';
             $codetype = ''; //will hold code type, if exists
 
             // This reports detail lines already on file for this service item.
@@ -417,7 +417,7 @@ function era_callback(&$out)
                         $description,
                         $debug,
                         '',
-                        $codetype
+                        $codetype ?? ''
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -572,7 +572,7 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype
+                            $codetype ?? ''
                         );
                         $invoice_total -= $adj['amount'];
                     }
@@ -724,7 +724,7 @@ if (!$debug) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
-if ($_GET['original'] == 'original') {
+if (!empty($_GET['original']) && $_GET['original'] == 'original') {
     $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
@@ -764,20 +764,22 @@ if ($_GET['original'] == 'original') {
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
-        foreach ($InsertionId as $key => $value) {
-            $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
-            $row = sqlFetchArray($rs);
-            $pay_total = $row['pay_total'];
-            $rs = sqlQ(
-                "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
-                array($value)
-            );
-            $row = sqlFetchArray($rs);
-            $pay_amount = $row['sum_pay_amount'];
+        if (is_countable($InsertionId)) {
+            foreach ($InsertionId as $key => $value) {
+                $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+                $row = sqlFetchArray($rs);
+                $pay_total = $row['pay_total'];
+                $rs = sqlQ(
+                    "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
+                    array($value)
+                );
+                $row = sqlFetchArray($rs);
+                $pay_amount = $row['sum_pay_amount'];
 
-            if (($pay_total - $pay_amount) <> 0) {
-                $StringIssue .= $key . ' ';
-                $StringPrint = 'Yes';
+                if (($pay_total - $pay_amount) <> 0) {
+                    $StringIssue .= $key . ' ';
+                    $StringPrint = 'Yes';
+                }
             }
         }
 

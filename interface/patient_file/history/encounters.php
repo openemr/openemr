@@ -53,7 +53,7 @@ $auth_demo = AclMain::aclCheckCore('patients', 'demo');
 $glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'));
 
 $tmp = getPatientData($pid, "squad");
-if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
+if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
 }
 
@@ -646,7 +646,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                         $arlinkend = "";
                         if ($billing_view) {
                                 $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                            "pid = ? AND encounter = ?", array($pid,$result4['encounter']));
+                                            "pid = ? AND encounter = ?", array($pid, $result4['encounter']));
                                 $arid = 0 + $tmp['id'];
                             if ($arid) {
                                 $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);
@@ -770,19 +770,19 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                                 $responsible = InvoiceSummary::arResponsibleParty($pid, $result4['encounter']);
                         }
                         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-                        if ($subresult5 && $subresult5["provider_name"]) {
+                        if (!empty($subresult5["provider_name"])) {
                             $style = $responsible == 1 ? " style='color: var(--danger)'" : "";
                             $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
                             text($subresult5["provider_name"]) . "</span><br />\n";
                         }
                         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-                        if ($subresult6 && $subresult6["provider_name"]) {
+                        if (!empty($subresult6["provider_name"])) {
                             $style = $responsible == 2 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
                             text($subresult6["provider_name"]) . "</span><br />\n";
                         }
                         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-                        if ($subresult6 && $subresult7["provider_name"]) {
+                        if ($subresult6 && !empty($subresult7["provider_name"])) {
                             $style = $responsible == 3 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
                             text($subresult7["provider_name"]) . "</span><br />\n";

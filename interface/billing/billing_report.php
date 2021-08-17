@@ -679,10 +679,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
                         $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
-                            $_REQUEST['final_this_page_criteria'][0] = "form_encounter.date|between|" . date("Y-m-d 00:00:00") . "|" . date("Y-m-d 23:59:59");
-                            $_REQUEST['final_this_page_criteria'][1] = "billing.billed|=|0";
-                            $_REQUEST['final_this_page_criteria_text'][0] = xl("Date of Service = Today");
-                            $_REQUEST['final_this_page_criteria_text'][1] = xl("Billing Status = Unbilled");
+                            $_REQUEST['final_this_page_criteria'][0] = "billing.billed|=|0";
+                            $_REQUEST['final_this_page_criteria_text'][0] = xl("Billing Status = Unbilled");
                             $_REQUEST['date_master_criteria_form_encounter_date'] = "today";
                             $_REQUEST['master_from_date_form_encounter_date'] = date("Y-m-d");
                             $_REQUEST['master_to_date_form_encounter_date'] = date("Y-m-d");

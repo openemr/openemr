@@ -68,7 +68,7 @@ function postcalendar_user_view()
         $viewtype = $_SESSION['viewtype'];
     }
 
-    if ($_SESSION['pc_username']) {
+    if (!empty($_SESSION['pc_username'])) {
         $pc_username = $_SESSION['pc_username'];
     }
 
