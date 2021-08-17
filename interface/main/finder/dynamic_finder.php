@@ -218,6 +218,10 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         color: var(--dark) !important;
     }
 
+    div.dataTables_length select {
+        width: 50px !important;
+    }
+
     .dataTables_wrapper.no-footer .dataTables_scrollBody {
         border-bottom: 1px solid var(--gray900) !important;
     }
