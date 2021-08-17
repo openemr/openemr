@@ -483,19 +483,28 @@ class BaseService
      * Convert Diagnosis Codes String to Code:Description Array
      *
      * @param string $diagnosis                 - All Diagnosis Codes
-     * @return array Array of Code as Key and Description as Value
+     * @return array Array of Code as Key mapped to an array containing the code, code_type, description, and system (URI or OID if found)
      */
     protected function addCoding($diagnosis)
     {
         if (empty($diagnosis)) {
             return [];
         }
+        $codesService = new CodeTypesService();
         $diags = explode(";", $diagnosis);
         $diagnosis = array();
         foreach ($diags as $diag) {
-            $codedesc = lookup_code_descriptions($diag);
-            $code = explode(':', $diag)[1];
-            $diagnosis[$code] = $codedesc;
+            $parsedCode = $codesService->parseCode($diag);
+            $codeType = $parsedCode['code_type'];
+            $code = $parsedCode['code'];
+            $system = $codesService->getSystemForCodeType($codeType);
+            $codedesc = $codesService->lookup_code_description($diag);
+            $diagnosis[$code] = [
+                'code' => $code
+                , 'description' => $codedesc
+                , 'code_type' => $codeType
+                , 'system' => $system
+            ];
         }
         return $diagnosis;
     }

@@ -144,7 +144,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
             }
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => "Insurance Company"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => [
+            'code' => 'ins', 'description' => "Insurance Company"
+            , 'system' => FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE]
+        ]));
 
         if ($encode) {
             return json_encode($organizationResource);

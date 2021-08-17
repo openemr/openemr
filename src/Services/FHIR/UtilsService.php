@@ -59,12 +59,13 @@ class UtilsService
         return $coding;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem, $defaultDisplay = ""): FHIRCodeableConcept
+    public static function createCodeableConcept(array $diagnosisCodes, $defaultCodeSystem = "", $defaultDisplay = ""): FHIRCodeableConcept
     {
         $diagnosisCode = new FHIRCodeableConcept();
-        foreach ($diagnosisCodes as $code => $display) {
-            if (!empty($display)) {
-                $diagnosisCode->addCoding(self::createCoding($code, $display, $codeSystem));
+        foreach ($diagnosisCodes as $code => $codeValues) {
+            $codeSystem = $codeValues['system'] ?? $defaultCodeSystem;
+            if (!empty($codeValues['description'])) {
+                $diagnosisCode->addCoding(self::createCoding($code, $codeValues['description'], $codeSystem));
             } else {
                 $diagnosisCode->addCoding(self::createCoding($code, $defaultDisplay, $codeSystem));
             }
@@ -174,12 +175,22 @@ class UtilsService
 
     public static function createNullFlavorUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemConstants::HL7_NULL_FLAVOR);
+        return self::createCodeableConcept([
+            self::UNKNOWNABLE_CODE_NULL_FLAVOR => [
+                'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
+                ,'description' => 'unknown'
+                ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
+        ]]);
     }
 
     public static function createDataAbsentUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM);
+        return self::createCodeableConcept(
+            [self::UNKNOWNABLE_CODE_DATA_ABSENT => [
+                'code' => self::UNKNOWNABLE_CODE_DATA_ABSENT
+                , 'description' => 'Unknown'
+                , 'system' => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM
+            ]]);
     }
 
     /**

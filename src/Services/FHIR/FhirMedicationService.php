@@ -72,10 +72,10 @@ class FhirMedicationService extends FhirServiceBase
         if (!empty($dataRecord['drug_code'])) {
             $medicationCoding = new FHIRCoding();
             $medicationCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['drug_code'] as $code => $display) {
-                $medicationCoding->setSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
+            foreach ($dataRecord['drug_code'] as $code => $codeValues) {
+                $medicationCoding->setSystem($codeValues['system']);
                 $medicationCoding->setCode($code);
-                $medicationCoding->setDisplay($display);
+                $medicationCoding->setDisplay($codeValues['description']);
                 $medicationCode->addCoding($medicationCoding);
             }
             $medicationResource->setCode($medicationCode);

@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
@@ -117,54 +118,13 @@ class SocialHistoryService extends BaseService
     protected function createResultRecordFromDatabaseResult($row)
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
-
-
-        // add in all the measurement fields
-
-        $kgToLb = function ($val) {
-            return number_format($val *  0.45359237, 2);
-        };
-        $cmToInches = function ($val) {
-            return round(number_format($val * 2.54, 2), 1);
-        };
-        $fhToCelsius = function ($val) {
-            return round(number_format(($val - 32) * (5 / 9), 1));
-        };
-        $identity = function ($val) {
-            return $val;
-        };
-
-        $convertArrayValue = function ($index, $converter, $unit, &$array) {
-            $array[$index] = $converter($array[$index]);
-            $array[$index . "_unit"] = $unit;
-        };
-
-        if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
-            $convertArrayValue('weight', $kgToLb, 'kg', $record);
-            $convertArrayValue('height', $cmToInches, 'cm', $record);
-            $convertArrayValue('head_circ', $cmToInches, 'cm', $record);
-            $convertArrayValue('waist_circ', $cmToInches, 'cm', $record);
-            $convertArrayValue('temperature', $fhToCelsius, 'Cel', $record);
-        } else {
-            $convertArrayValue('weight', $identity, 'lb', $record);
-            $convertArrayValue('height', $identity, 'in', $record);
-            $convertArrayValue('head_circ', $identity, 'in', $record);
-            $convertArrayValue('waist_circ', $identity, 'in', $record);
-            $convertArrayValue('temperature', $identity, 'degF', $record);
+        $listService = new ListService();
+        $tobaccoColumn = $record['tobacco'] ?? "";
+        $tobacco = explode('|', $tobaccoColumn);
+        if (!empty($tobacco[3])) {
+            $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
+            $record['smoking_status_codes'] = $this->addCoding($listOption['codes']);
         }
-
-        $convertArrayValue('pulse', $identity, '/min', $record);
-        $convertArrayValue('respiration', $identity, '/min', $record);
-        $convertArrayValue('BMI', $identity, 'kg/m2', $record);
-        $convertArrayValue('bps', $identity, 'mm[Hg]', $record);
-        $convertArrayValue('bpd', $identity, 'mm[Hg]', $record);
-
-        $convertArrayValue('oxygen_saturation', $identity, '%', $record);
-        $convertArrayValue('oxygen_flow_rate', $identity, 'L/min', $record);
-        $convertArrayValue('ped_weight_height', $identity, '%', $record);
-        $convertArrayValue('ped_bmi', $identity, '%', $record);
-        $convertArrayValue('ped_head_circ', $identity, '%', $record);
-
 
         return $record;
     }

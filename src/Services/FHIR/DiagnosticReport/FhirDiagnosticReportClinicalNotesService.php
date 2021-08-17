@@ -18,6 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -133,9 +134,19 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
             $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
         }
 
-        $codeParts = explode(":", $dataRecord['category_code']);
+        $codeTypesService = new CodeTypesService();
+        $codeParts = $codeTypesService->parseCode($dataRecord['category_code']);
+        $code = $codeParts['code'];
 
-        $report->addCategory(UtilsService::createCodeableConcept([end($codeParts) => $dataRecord['category_title']], FhirCodeSystemConstants::LOINC));
+        $category = UtilsService::createCodeableConcept([
+            $code => [
+                'code' => $code
+                ,'description' => $dataRecord['category_title']
+                ,'system' => $codeTypesService->getSystemForCodeType($codeParts['code_type'])
+            ]
+        ], FhirCodeSystemConstants::LOINC); // we default to LOINC if we don't have a valid type
+
+        $report->addCategory($category);
 
         if (!empty($dataRecord['status'])) {
             $report->setStatus($dataRecord['status']);
