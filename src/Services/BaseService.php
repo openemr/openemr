@@ -12,17 +12,18 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 use Psr\Log\LoggerInterface;
 
-require_once(__DIR__ . '/../../custom/code_types.inc.php');
+require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
 class BaseService
 {
@@ -84,7 +85,6 @@ class BaseService
 
     /**
      * Return the fields that should be used in a standard select clause.  Can be overwritten by inheriting classes
-     *
      * @return array
      */
     public function getSelectFields(): array
@@ -178,7 +178,7 @@ class BaseService
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
-            } elseif ($value === "NULL") {
+            } else if ($value === "NULL") {
                 // make it consistent with our update columns... I really don't like this magic string constant, if someone
                 // intends to actually store the value NULL as a string this will break....
                 $value = $null_value;
@@ -284,8 +284,8 @@ class BaseService
     /**
      * Build and Throw Invalid Value Exception
      *
-     * @param $message - The error message which will be displayed
-     * @param $type    - Type of Exception
+     * @param $message              - The error message which will be displayed
+     * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
     public static function throwException($message, $type = "Error")
@@ -294,36 +294,35 @@ class BaseService
     }
 
     // Taken from -> https://stackoverflow.com/a/24401462
-
     /**
      * Validate Date and Time
      *
-     * @param $dateString - The Date string which is to be verified
+     * @param $dateString              - The Date string which is to be verified
      * @return bool
      */
     public static function isValidDate($dateString)
     {
-        return (bool)strtotime($dateString);
+        return (bool) strtotime($dateString);
     }
 
     /**
      * Check and Return SQl (AND | OR) Operators
      *
-     * @param $condition - Boolean to check AND | OR
+     * @param $condition              - Boolean to check AND | OR
      * @return string of (AND | OR) Operator
      */
     public static function sqlCondition($condition)
     {
-        return (string)$condition ? ' AND ' : ' OR ';
+        return (string) $condition ? ' AND ' : ' OR ';
     }
 
 
     /**
      * Fetch ID by UUID of Resource
      *
-     * @param string $uuid  - UUID of Resource
-     * @param string $table - Table reffering to the ID field
-     * @param string $field - Identifier field
+     * @param string $uuid              - UUID of Resource
+     * @param string $table             - Table reffering to the ID field
+     * @param string $field             - Identifier field
      * @return false if nothing found otherwise return ID
      */
     public static function getIdByUuid($uuid, $table, $field)
@@ -336,9 +335,9 @@ class BaseService
     /**
      * Fetch UUID by ID of Resource
      *
-     * @param string $id    - ID of Resource
-     * @param string $table - Table reffering to the UUID field
-     * @param string $field - Identifier field
+     * @param string $id                - ID of Resource
+     * @param string $table             - Table reffering to the UUID field
+     * @param string $field             - Identifier field
      * @return false if nothing found otherwise return UUID
      */
     public static function getUuidById($id, $table, $field)
@@ -352,7 +351,7 @@ class BaseService
     /**
      * Process DateTime as per FHIR Standard
      *
-     * @param string $date - DateTime String
+     * @param string $date             - DateTime String
      * @return array processed prefix with value
      */
     public static function processDateTime($date)
@@ -379,8 +378,8 @@ class BaseService
     /**
      * Generates New Primary Id
      *
-     * @param string $idField - Name of Primary Id Field
-     * @param string $table   - Name of Table
+     * @param string $idField                   - Name of Primary Id Field
+     * @param string $table                     - Name of Table
      * @return string Generated Id
      */
     public function getFreshId($idField, $table)
@@ -392,8 +391,8 @@ class BaseService
     /**
      * Filter all the Whitelisted Fields from the given Fields Array
      *
-     * @param array $data              - Fields passed by user
-     * @param array $whitelistedFields - Whitelisted Fields, if empty defaults to service table fields
+     * @param array $data                       - Fields passed by user
+     * @param array $whitelistedFields          - Whitelisted Fields, if empty defaults to service table fields
      * @return array Filtered Data
      */
     public function filterData($data, $whitelistedFields = null)
@@ -423,8 +422,8 @@ class BaseService
      * More complicated searches with various sub unions / intersections can be accomplished through a CompositeSearchField
      * that allows you to combine multiple search clauses on a single search field.
      *
-     * @param ISearchField[] $search         Hashmap of string => ISearchField where the key is the field name of the search field
-     * @param bool           $isAndCondition Whether to join each search field with a logical OR or a logical AND.
+     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
      * @return ProcessingResult The results of the search.
      */
     public function search($search, $isAndCondition = true)
@@ -462,7 +461,6 @@ class BaseService
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     *
      * @param $row The record returned from the database
      */
     protected function createResultRecordFromDatabaseResult($row)
@@ -484,7 +482,7 @@ class BaseService
     /**
      * Convert Diagnosis Codes String to Code:Description Array
      *
-     * @param string $diagnosis - All Diagnosis Codes
+     * @param string $diagnosis                 - All Diagnosis Codes
      * @return array Array of Code as Key and Description as Value
      */
     protected function addCoding($diagnosis)
@@ -498,18 +496,6 @@ class BaseService
             $codedesc = lookup_code_descriptions($diag);
             $code = explode(':', $diag)[1];
             $diagnosis[$code] = $codedesc;
-            // @todo check with Stephen N. why are $diagnosis keys the code instead of an array of
-            // code description i.e $diagnosis[0] = array('code'=>value, 'system'=>value etc...)?
-            // hopefully your pattern is carried throughout.
-            /* Should be this!
-            $diag_parts = explode(':', $diag);
-            $system = $diag_parts[0];
-            $code = $diag_parts[1];
-            $diagnosis[] = [
-                'code' => $code,
-                'system' => $system, // with system(code type) no guessing needed later. Should add OID too.
-                'description' => $codedesc
-            ];*/
         }
         return $diagnosis;
     }
@@ -517,9 +503,9 @@ class BaseService
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields    - All IDs sperated with | sign
-     * @param string $table     - Name of the table of targeted ID
-     * @param string $primaryId - Name of Primary ID field
+     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $table                     - Name of the table of targeted ID
+     * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs
      */
     protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
@@ -551,7 +537,7 @@ class BaseService
             } else {
                 $table = $tableDefinition['join_table'] ?? $this->getTable();
                 $clause .= $table . '`.`' . $tableDefinition['column']
-                    . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
+                . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
             }
         }
         return $clause;

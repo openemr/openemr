@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -54,10 +55,10 @@ class EncounterService extends BaseService
     /**
      * Returns a list of encounters matching the encounter indentifier.
      *
-     * @param  $euuid     The encounter identifier of particular encounter
-     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $euuid The encounter identifier of particular encounter
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *                    payload.
+     * payload.
      */
     public function getEncounter($euuid, $puuidBind = null)
     {
@@ -77,14 +78,13 @@ class EncounterService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      * TODO: @adunsulag rename this to be search() to be consistent with other services.
-     *
-     * @param array  $search         search array parameters
-     * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
-     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
-     *                               payload.
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '')
+    public function search($search = array(), $isAndCondition = true, $puuidBind = true)
     {
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();
@@ -97,25 +97,24 @@ class EncounterService extends BaseService
                 $search['uuid'],
                 true
             );
-            if ($isValidEncounter !== true) {
+            if ($isValidEncounter != true) {
                 return $isValidEncounter;
             }
             $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
         }
-        // passed in uuid string to bind patient via their uuid.
-        // confusing ...
-        if (!empty($puuidBindValue)) {
+
+        if (!empty($puuidBind)) {
             // code to support patient binding
-            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBindValue, true);
+            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBind, true);
             if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
-            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBindValue), self::PATIENT_TABLE, "pid");
+            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBind), self::PATIENT_TABLE, "pid");
             if (empty($pid)) {
                 $processingResult->setValidationMessages("Invalid pid");
                 return $processingResult;
             }
-            $search['puuid'] = new TokenSearchField('puuid', [new TokenSearchValue($puuidBindValue, null, true)]);
+            $search['puuid'] = new TokenSearchField('puuid', [new TokenSearchValue($puuidBind, null, true)]);
         }
 
         $sql = "SELECT fe.eid,
@@ -260,9 +259,9 @@ class EncounterService extends BaseService
      * Inserts a new Encounter record.
      *
      * @param $puuid The patient identifier of particular encounter
-     * @param $data  The encounter fields (array) to insert.
+     * @param $data The encounter fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *               payload.
+     * payload.
      */
     public function insertEncounter($puuid, $data)
     {
@@ -318,9 +317,9 @@ class EncounterService extends BaseService
      *
      * @param $puuid The patient identifier of particular encounter.
      * @param $euuid - The Encounter identifier used for update.
-     * @param $data  - The updated Encounter data fields
+     * @param $data - The updated Encounter data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *               payload.
+     * payload.
      */
     public function updateEncounter($puuid, $euuid, $data)
     {
@@ -378,7 +377,7 @@ class EncounterService extends BaseService
 
     public function insertSoapNote($pid, $eid, $data)
     {
-        $soapSql = " INSERT INTO form_soap SET";
+        $soapSql  = " INSERT INTO form_soap SET";
         $soapSql .= "     date=NOW(),";
         $soapSql .= "     activity=1,";
         $soapSql .= "     pid=?,";
@@ -425,7 +424,7 @@ class EncounterService extends BaseService
 
     public function updateSoapNote($pid, $eid, $sid, $data)
     {
-        $sql = " UPDATE form_soap SET";
+        $sql  = " UPDATE form_soap SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
         $sql .= "     pid=?,";
@@ -495,7 +494,7 @@ class EncounterService extends BaseService
 
     public function getSoapNotes($pid, $eid)
     {
-        $sql = "  SELECT fs.*";
+        $sql  = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
         $sql .= "  JOIN form_soap fs on fs.id = fo.form_id";
         $sql .= "  WHERE fo.encounter = ?";
@@ -513,7 +512,7 @@ class EncounterService extends BaseService
 
     public function getSoapNote($pid, $eid, $sid)
     {
-        $sql = "  SELECT fs.*";
+        $sql  = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
         $sql .= "  JOIN form_soap fs on fs.id = fo.form_id";
         $sql .= "  WHERE fo.encounter = ?";
