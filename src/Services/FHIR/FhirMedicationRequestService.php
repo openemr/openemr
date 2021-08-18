@@ -219,7 +219,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dataRecord['pruuid'])) {
             $medRequestResource->setRequester(UtilsService::createRelativeReference('Practitioner', $dataRecord['pruuid']));
         } else {
-            $medRequestResource->setRequester(UtilsService::createDataMissingExtension());
+            // if we have no practitioner we need to default it to the organization
+            $fhirOrgService = new FhirOrganizationService();
+            $medRequestResource->setRequester($fhirOrgService->getPrimaryBusinessEntityReference());
         }
 
         // dosageInstructions must support
