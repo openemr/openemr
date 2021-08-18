@@ -114,8 +114,11 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
 
         // TODO: @adunsulag check with @brady.miller and find out if this really is the only possible encounter type...  it was here originally
         $type = UtilsService::createCodeableConcept(
-            [self::ENCOUNTER_TYPE_CHECK_UP => self::ENCOUNTER_TYPE_CHECK_UP_DESCRIPTION],
-            FhirCodeSystemConstants::SNOMED_CT
+            [self::ENCOUNTER_TYPE_CHECK_UP => [
+                'code' => self::ENCOUNTER_TYPE_CHECK_UP
+                , "description" => self::ENCOUNTER_TYPE_CHECK_UP_DESCRIPTION
+                , "system" => FhirCodeSystemConstants::SNOMED_CT
+            ]]
         );
         $encounterResource->addType($type);
 
@@ -134,8 +137,14 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
             $participant->setPeriod($period);
 
-            $participantType = UtilsService::createCodeableConcept([self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER =>
-                self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER_TEXT], FhirCodeSystemConstants::HL7_PARTICIPATION_TYPE);
+            $participantType = UtilsService::createCodeableConcept([
+                self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER =>
+                [
+                    'code' => self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER
+                    ,'description' => self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER_TEXT
+                    ,'system' => FhirCodeSystemConstants::HL7_PARTICIPATION_TYPE
+                ]
+            ]);
             $participant->addType($participantType);
             $encounterResource->addParticipant($participant);
         }
@@ -166,8 +175,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
 
             $hospitalization = new FHIREncounterHospitalization();
             $hospitalization->setDischargeDisposition(UtilsService::createCodeableConcept(
-                [$code => $text],
-                FhirCodeSystemConstants::HL7_DISCHARGE_DISPOSITION
+                [$code => ['code' => $text, 'description' => $text, 'system' => FhirCodeSystemConstants::HL7_DISCHARGE_DISPOSITION]]
             ));
             $encounterResource->setHospitalization($hospitalization);
         }

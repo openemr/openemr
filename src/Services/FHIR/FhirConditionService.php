@@ -122,12 +122,13 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         if (!empty($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $display) {
+            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
                 }
                 $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($display);
+                $diagnosisCoding->setDisplay($codeValues['description']);
+                $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
             $conditionResource->setCode($diagnosisCode);

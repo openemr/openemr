@@ -151,7 +151,9 @@ class FhirClinicalNotesService extends FhirServiceBase
             $docReference->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $docReference->addCategory(UtilsService::createCodeableConcept(['clinical-note' => 'Clinical Note'], FhirCodeSystemConstants::DOCUMENT_REFERENCE_CATEGORY));
+        $docReference->addCategory(UtilsService::createCodeableConcept([
+            'clinical-note' => ['code' => 'clinical-note', 'description' => 'Clinical Note', 'system' => FhirCodeSystemConstants::DOCUMENT_REFERENCE_CATEGORY]
+        ]));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();

@@ -627,7 +627,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         if (isset($record['details'][$column])) {
             $code = $record['details'][$column]['interpretation_codes'];
             $text = $record['details'][$column]['interpretation_title'];
-            return UtilsService::createCodeableConcept([$code => $text], FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION);
+            return UtilsService::createCodeableConcept([$code =>
+                ['code' => $code, 'description' => $text, 'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION]
+            ]);
         }
         return null;
     }
@@ -689,7 +691,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
     {
         $component = new FHIRObservationComponent();
-        $coding = UtilsService::createCodeableConcept([$code => xlt($description)], FhirCodeSystemConstants::LOINC);
+        $coding = UtilsService::createCodeableConcept(
+            [
+                $code => ['code' => $code, 'description' => xlt($description), 'system' => FhirCodeSystemConstants::LOINC]
+            ]
+        );
         $component->setCode($coding);
         $quantity = $this->getFHIRQuantityForColumn($column, $dataRecord);
         if ($quantity != null) {

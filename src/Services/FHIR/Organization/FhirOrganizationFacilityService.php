@@ -214,7 +214,12 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             }
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept([
+            'prov' => [
+                'code' => 'prov'
+                , 'description' => "Healthcare Provider"
+                , 'system' => FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE]
+        ]));
 
         if ($encode) {
             return json_encode($organizationResource);

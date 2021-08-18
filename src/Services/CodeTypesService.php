@@ -22,6 +22,8 @@ class CodeTypesService
     const CODE_TYPE_CPT4 = "CPT4";
     const CODE_TYPE_LOINC = "LOINC";
     const CODE_TYPE_NUCC = "NUCC";
+    const CODE_TYPE_RXNORM = "RXNORM";
+    const CODE_TYPE_RXCUI = "RXCUI";
 
     public function __construct()
     {
@@ -65,11 +67,29 @@ class CodeTypesService
 
     public function getSystemForCode($code, $useOid = false)
     {
-        if (strpos($code, ":") !== false) {
-            $parts = explode(":", $code);
-            return $this->getSystemForCodeType($parts[0]);
+        $codeType = $this->getCodeTypeForCode($code);
+        if (!empty($codeType)) {
+            return $this->getSystemForCodeType($codeType);
         }
         return null;
+    }
+
+    public function parseCode($code)
+    {
+        $parsedCode = $code;
+        $parsedType = null;
+        if (strpos($code, ":") !== false) {
+            $parts = explode(":", $code);
+            $parsedCode  = $parts[1];
+            $parsedType = $parts[0];
+        }
+        return ['code' => $parsedCode, 'code_type' => $parsedType];
+    }
+
+    public function getCodeTypeForCode($code)
+    {
+        $parsedCode = $this->parseCode($code);
+        return $parsedCode['code_type'];
     }
 
     public function getSystemForCodeType($codeType, $useOid = false)
@@ -92,6 +112,8 @@ class CodeTypesService
                 $system = FhirCodeSystemConstants::NUCC_PROVIDER;
             } else if (self::CODE_TYPE_LOINC == $codeType) {
                 $system = FhirCodeSystemConstants::LOINC;
+            } else if (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
+                $system = FhirCodeSystemConstants::RXNORM;
             }
         }
         return $system;
