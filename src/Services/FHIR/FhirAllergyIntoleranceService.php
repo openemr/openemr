@@ -195,6 +195,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             }
             $reaction->addManifestation($reactionConcept);
             $allergyIntoleranceResource->addReaction($reaction);
+        } else {
+            $reaction = new FHIRAllergyIntoleranceReaction();
+            $reaction->addManifestation(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
         if (!empty($dataRecord['diagnosis'])) {
@@ -215,13 +218,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             }
             $allergyIntoleranceResource->setCode($diagnosisCode);
         } else {
-            $diagnosisCode = new FHIRCodeableConcept();
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCoding->setCode("unknown");
-            $diagnosisCoding->setDisplay(xlt("Unknown"));
-            $diagnosisCode->addCoding($diagnosisCoding);
-            $allergyIntoleranceResource->setCode($diagnosisCode);
+            $allergyIntoleranceResource->setCode(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
+        // we don't have title anywhere else so we mark it as an additional narrative.  If we don't have an actual code
+        // this becomes very helpful.
+        $allergyIntoleranceResource->setText(UtilsService::createNarrative($dataRecord['title'], "additional"));
 
         $verificationStatus = new FHIRCodeableConcept();
         $verificationCoding = array(
