@@ -141,12 +141,16 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 if (empty($dataRecordFacility['facility_taxonomy'])) {
                     $role = UtilsService::createDataAbsentUnknownCodeableConcept();
                 } else {
-                    $codes = $codeTypesService->parseCode($dataRecordFacility['facility_taxonomy']);
-                    $codes['description'] = $codeTypesService->lookup_code_description($dataRecordFacility['facility_taxonomy']);
+                    $codes = [
+                        'code' => $dataRecordFacility['facility_taxonomy']
+                        ,'system' => FhirCodeSystemConstants::NUCC_PROVIDER
+                        ,'description' => null
+                    ];
+                    $fullCode = $codeTypesService->getCodeWithType($codes['code'], CodeTypesService::CODE_TYPE_NUCC);
+                    $codes['description'] = $codeTypesService->lookup_code_description($fullCode);
                     if (empty($codes['description'])) {
                         $codes['description'] = xlt('Healthcare facility');
                     }
-                    $codes['system'] = $codeTypesService->getSystemForCodeType($codes['code_type']) ?? FhirCodeSystemConstants::NUCC_PROVIDER;
                     $role = UtilsService::createCodeableConcept([$codes['code'] => $codes]);
                 }
                 $organization->addRole($role);

@@ -86,6 +86,17 @@ class CodeTypesService
         return ['code' => $parsedCode, 'code_type' => $parsedType];
     }
 
+    /**
+     * Returns a code with the code type prefixed
+     * @param $code The value for the code that exists in the given code_type datadatabse
+     * @param $type The code_type that the code belongs to (SNOMED, RXCUI, ICD10, etc).
+     * @return string  The fully typed code (TYPE:CODE)
+     */
+    public function getCodeWithType($code, $type)
+    {
+        return ($type ?? "") . ":" . ($code ?? "");
+    }
+
     public function getCodeTypeForCode($code)
     {
         $parsedCode = $this->parseCode($code);
