@@ -137,7 +137,9 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         if (!empty($dataRecord['patient']['uuid'])) {
             $report->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['patient']['uuid']));
         }
-        $report->addCategory(UtilsService::createCodeableConcept([self::LAB_CATEGORY => "Laboratory"], FhirCodeSystemConstants::DIAGNOSTIC_SERVICE_SECTION_ID));
+        $report->addCategory(UtilsService::createCodeableConcept([
+            self::LAB_CATEGORY => ['code' => self::LAB_CATEGORY, 'description' => "Laboratory", 'system' => FhirCodeSystemConstants::DIAGNOSTIC_SERVICE_SECTION_ID]
+        ]));
 
         if (!empty($dataRecord['encounter']['uuid'])) {
             $report->setEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['encounter']['uuid']));
@@ -153,7 +155,9 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         // codes in the system.  @see procedure_type table if you are confused by the difference between procedure_code
         // and standard_code
         if (!empty($dataRecord['standard_code'])) {
-            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] => $dataRecord['name']], FhirCodeSystemConstants::LOINC);
+            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] =>
+                ['code' => $dataRecord['standard_code'], 'description' => $dataRecord['name'], 'system' => FhirCodeSystemConstants::LOINC]
+            ]);
             $report->setCode($code);
         } else {
             $report->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());

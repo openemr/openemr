@@ -177,7 +177,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             $conceptText = $dataRecord['reaction_title'] ?? "";
             $reactionConcept->setText($conceptText);
 
-            foreach ($dataRecord['reaction'] as $code => $display) {
+            foreach ($dataRecord['reaction'] as $code => $codeValues) {
                 $reactionCoding = new FHIRCoding();
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
@@ -186,13 +186,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 }
 
                 $reactionCoding->setCode($code);
-                $display = !empty($display) ? $display : $dataRecord['reaction_title'];
+                $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $reactionCoding->setDisplay(trim($display));
                 // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
-                // TODO: @adunsulag check with @brady.miller if we can hard code these to SNOMED as that appears to be
-                // the values in our reaction list... will we have allergy reactions that are NOT SNOMED?
-                $reactionCoding->setSystem('http://snomed.info/sct');
+                $reactionCoding->setSystem($codeValues['system']);
                 $reactionConcept->addCoding($reactionCoding);
             }
             $reaction->addManifestation($reactionConcept);
@@ -202,7 +200,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         if (!empty($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $display) {
+            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
                 if (is_numeric($code)) {
@@ -210,7 +208,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 }
                 $diagnosisCoding->setCode($code);
                 // if we have no display value we will just show the code value here
-                $display = !empty($display) ? $display : $dataRecord['title'];
+                $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $diagnosisCoding->setDisplay(trim($display));
                 $diagnosisCode->addCoding($diagnosisCoding);

@@ -166,7 +166,10 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         // TODO: @adunsulag check with @brady.miller is there anyway to translate our document categories into LOINC codes?
 
         $docCategoryValueSetSystem = $this->getFhirApiURL() . "/fhir/ValueSet/openemr-document-types";
-        $docReference->addCategory(UtilsService::createCodeableConcept(['openemr-document' => 'OpenEMR Document'], $docCategoryValueSetSystem));
+        $docReference->addCategory(UtilsService::createCodeableConcept(
+            ['openemr-document' => ['code' => 'openemr-document', 'description' => 'OpenEMR Document', 'system' => $docCategoryValueSetSystem]
+            ]
+        ));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();

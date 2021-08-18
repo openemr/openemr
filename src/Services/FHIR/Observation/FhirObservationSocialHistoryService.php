@@ -18,6 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -54,7 +55,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             'fullcode' => 'LOINC:' . self::SMOKING_CESSATION_CODE
             ,'code' => self::SMOKING_CESSATION_CODE
             ,'description' => 'Tobacco smoking status NHIS'
-            ,'column' => ['tobacco']
+            ,'column' => ['smoking_status_codes', 'tobacco']
         ]
     ];
 
@@ -312,23 +313,12 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
 
     private function populateSmokingCessation(FHIRObservation $observation, $dataRecord)
     {
-        $listService = new ListService();
-        $tobaccoColumn = $dataRecord['tobacco'] ?? "";
-        $tobacco = explode('|', $tobaccoColumn);
-        if (empty($tobacco[3])) {
+        if (empty($dataRecord['smoking_status_codes'])) {
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-            return;
+        } else {
+            $concept = UtilsService::createCodeableConcept($dataRecord['smoking_status_codes'], FhirCodeSystemConstants::SNOMED_CT);
+            $observation->setValueCodeableConcept($concept);
         }
-        $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
-        if (empty($listOption)) {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-            return;
-        }
-        $description = lookup_code_descriptions($listOption['codes']);
-        $statusCode = str_replace("SNOMED-CT:", "", $listOption['codes']);
-
-        $concept = UtilsService::createCodeableConcept([$statusCode => $description], FhirCodeSystemConstants::SNOMED_CT);
-        $observation->setValueCodeableConcept($concept);
     }
 
     private function getColumnsForCode($code)

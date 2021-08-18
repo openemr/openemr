@@ -156,14 +156,22 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // category must support
         if (isset($dataRecord['category'])) {
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
-                [$dataRecord['category'] => xlt($dataRecord['category_title'])],
-                FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                [
+                    $dataRecord['category'] =>
+                        ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
+                        ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                ]
             ));
         } else {
             // if no category has been sent then the default is home usage
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
-                [self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE)],
-                FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                [
+                    self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => [
+                        'code' => self::MEDICATION_REQUEST_CATEGORY_COMMUNITY,
+                        'description' => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    ]
+                ],
             ));
         }
 
@@ -173,14 +181,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // medication[x] required
         if (!empty($dataRecord['drugcode'])) {
-            $rxnormCoding = new FHIRCoding();
-            $rxnormCode = new FHIRCodeableConcept();
-            $rxnormCoding->setSystem(FhirCodeSystemConstants::RXNORM);
-            foreach ($dataRecord['drugcode'] as $code => $display) {
-                $rxnormCoding->setCode($code . "");// value must be a string
-                $rxnormCoding->setDisplay($display);
-                $rxnormCode->addCoding($rxnormCoding);
-            }
+//            $rxnormCoding = new FHIRCoding();
+            $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
+//            $rxnormCoding->addCoding($rxNormConcept);
+//            $rxnormCode = new FHIRCodeableConcept();
+//            $rxnormCoding->setSystem(FhirCodeSystemConstants::RXNORM);
+//            foreach ($dataRecord['drugcode'] as $code => $codeValues) {
+//
+//            }
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
         } else {
             $textOnlyCode = new FHIRCodeableConcept();
