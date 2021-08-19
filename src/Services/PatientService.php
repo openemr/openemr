@@ -46,6 +46,12 @@ class PatientService extends BaseService
     private $patientValidator;
 
     /**
+     * Key of translated suffix values that can be in a patient's name.
+     * @var array|null
+     */
+    private $patientSuffixKeys = null;
+
+    /**
      * Default constructor.
      */
     public function __construct($base_table = null)
@@ -377,6 +383,7 @@ class PatientService extends BaseService
             $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
                 $patient = array_intersect_key($record, $patientFields);
+                $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
                 $patient['previous_names'] = [];
                 $patientOrderedList[] = $patientUuid;
             } else {
@@ -585,5 +592,28 @@ class PatientService extends BaseService
             ($item['previous_name_enddate'] ? " " . $item['previous_name_enddate'] : "");
 
         return text($name);
+    }
+
+    private function parseSuffixForPatientRecord($patientRecord)
+    {
+        // parse suffix from last name. saves messing with LBF
+        $suffixes = $this->getPatientSuffixKeys();
+        $suffix = null;
+        foreach ($suffixes as $s) {
+            if (stripos($patientRecord['lname'], $s) !== false) {
+                $suffix = $s;
+                $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
+                break;
+            }
+        }
+        return $suffix;
+    }
+
+    private function getPatientSuffixKeys()
+    {
+        if (!isset($this->patientSuffixKeys)) {
+            $this->patientSuffixKeys = array(xl('Jr.'), xl(' Jr'), xl('Sr.'), xl(' Sr'), xl('II'), xl('III'), xl('IV'));
+        }
+        return $this->patientSuffixKeys;
     }
 }
