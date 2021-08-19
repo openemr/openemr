@@ -19,6 +19,8 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -106,6 +108,17 @@ class ProcedureService extends BaseService
                     ,provider.provider_lname
                     ,provider.provider_npi
                 FROM (
+                    SELECT
+                        date_report AS report_date
+                        ,procedure_report_id
+                        ,procedure_order_id
+                        ,procedure_order_seq
+                        ,uuid AS report_uuid
+                        ,report_notes
+                    FROM
+                    procedure_report
+                ) preport
+                LEFT JOIN (
                     SELECT 
                         procedure_result_id
                          ,procedure_report_id
@@ -125,18 +138,6 @@ class ProcedureService extends BaseService
                     FROM
                         `procedure_result`
                 ) presult
-                JOIN 
-                    (
-                        SELECT
-                            date_report AS report_date
-                            ,procedure_report_id
-                            ,procedure_order_id
-                            ,procedure_order_seq
-                            ,uuid AS report_uuid
-                            ,report_notes
-                        FROM
-                        procedure_report
-                    ) preport
                 ON 
                     preport.procedure_report_id = presult.procedure_report_id
                 LEFT JOIN (
@@ -234,7 +235,13 @@ class ProcedureService extends BaseService
             $compoundColumn->addChild($excludeDNR_TNP);
             $search['result_string'] = $compoundColumn;
         } else {
-            $search['result_string'] = $excludeDNR_TNP;
+            $compoundColumn = new CompositeSearchField('result_string', [], false);
+            // we have to have an optional is null due to the way the joins are setup.
+            $resultIsNull = new TokenSearchField('result_string', [new TokenSearchValue(true)]);
+            $resultIsNull->setModifier(SearchModifier::MISSING);
+            $compoundColumn->addChild($resultIsNull);
+            $compoundColumn->addChild($excludeDNR_TNP);
+            $search['result_string'] = $compoundColumn;
         }
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -349,20 +356,22 @@ class ProcedureService extends BaseService
              * ,presult.document_id
              * ,presult.result_status
              */
-            $result = [
-                'id' => $record['procedure_result_id']
-                , 'uuid' => $record['result_uuid']
-                , 'code' => $record['result_code']
-                , 'text' => $record['result_text']
-                , 'units' => $record['result_units']
-                , 'result' => $record['result_result']
-                , 'range' => $record['result_range']
-                , 'abnormal' => $record['result_abnormal']
-                , 'comments' => $record['result_comments']
-                , 'document_id' => $record['result_document_id']
-                , 'status' => $record['result_status']
-            ];
-            $report['results'][] = $result;
+            if (!empty($record['procedure_result_id'])) {
+                $result = [
+                    'id' => $record['procedure_result_id']
+                    , 'uuid' => $record['result_uuid']
+                    , 'code' => $record['result_code']
+                    , 'text' => $record['result_text']
+                    , 'units' => $record['result_units']
+                    , 'result' => $record['result_result']
+                    , 'range' => $record['result_range']
+                    , 'abnormal' => $record['result_abnormal']
+                    , 'comments' => $record['result_comments']
+                    , 'document_id' => $record['result_document_id']
+                    , 'status' => $record['result_status']
+                ];
+                $report['results'][] = $result;
+            }
             // need to copy back in since we don't have a copy by reference here
             $reportsByUuid[$reportUuid] = $report;
             $procedureByUuid[$procedureUuid] = $procedure;
