@@ -228,34 +228,26 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $patientResource->addName($name);
 
-        if (!empty($dataRecord['previous_names']))
-        {
-            foreach ($dataRecord['previous_names'] as $prevName)
-            {
+        if (!empty($dataRecord['previous_names'])) {
+            foreach ($dataRecord['previous_names'] as $prevName) {
                 $previousHumanName = new FHIRHumanName();
                 $previousHumanName->setUse("old");
-                if (!empty($prevName['previous_name_first']))
-                {
+                if (!empty($prevName['previous_name_first'])) {
                     $previousHumanName->addGiven($prevName['previous_name_first']);
                 }
-                if (!empty($prevName['previous_name_last']))
-                {
+                if (!empty($prevName['previous_name_last'])) {
                     $previousHumanName->setFamily($prevName['previous_name_last']);
                 }
-                if (!empty($prevName['previous_name_middle']))
-                {
+                if (!empty($prevName['previous_name_middle'])) {
                     $previousHumanName->addGiven($prevName['previous_name_middle']);
                 }
-                if (!empty($prevName['previous_name_title']))
-                {
+                if (!empty($prevName['previous_name_title'])) {
                     $previousHumanName->addPrefix($prevName['previous_name_title']);
                 }
-                if (!empty($prevName['previous_name_suffix']))
-                {
+                if (!empty($prevName['previous_name_suffix'])) {
                     $previousHumanName->addSuffix($prevName['previous_name_suffix']);
                 }
-                if (!empty($prevName['previous_name_enddate']))
-                {
+                if (!empty($prevName['previous_name_enddate'])) {
                     $fhirPeriod = new FHIRPeriod();
                     $fhirPeriod->setEnd(gmdate('c', strtotime($prevName['previous_name_enddate'])));
                     $previousHumanName->setPeriod($fhirPeriod);
@@ -370,8 +362,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if (!empty($record)) {
                 $textExtension->setValueString($record['title']);
                 // the only possible options for ombCategory are hispanic or not hispanic
-                if ($record['option_id'] != 'declne_to_specfy')
-                {
+                if ($record['option_id'] != 'declne_to_specfy') {
                     $coding = new FHIRCoding();
                     $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
                     $coding->setCode($record['notes']);

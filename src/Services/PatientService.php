@@ -374,19 +374,16 @@ class PatientService extends BaseService
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
             $record = $this->createResultRecordFromDatabaseResult($row);
-            $patientUuid = $record['patient_uuid'];
+            $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
                 $patient = array_intersect_key($record, $patientFields);
                 $patient['previous_names'] = [];
                 $patientOrderedList[] = $patientUuid;
-            }
-            else {
+            } else {
                 $patient = $patientsByUuid[$patientUuid];
             }
-            if (!empty($record['patient_history_type_key']))
-            {
-                if ($record['patient_history_type_key'] == 'name_history')
-                {
+            if (!empty($record['patient_history_type_key'])) {
+                if ($record['patient_history_type_key'] == 'name_history') {
                     $previousName = array_intersect_key($record, $previousNamesFields);
                     $previousName['formatted_name'] = $this->formatPreviousName($previousName);
                     $patient['previous_names'][] = $previousName;
@@ -396,8 +393,7 @@ class PatientService extends BaseService
             // now let's grab our history
             $patientsByUuid[$patientUuid] = $patient;
         }
-        foreach ($patientOrderedList as $uuid)
-        {
+        foreach ($patientOrderedList as $uuid) {
             $patient = $patientsByUuid[$uuid];
             $processingResult->addData($patient);
         }
