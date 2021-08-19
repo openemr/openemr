@@ -144,8 +144,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             foreach ($codes as $code) {
                 $codeParts = $codesService->parseCode($code);
                 $codeParts['description'] = $codesService->lookup_code_description($code) ?? '';
-                if (empty($codeParts['description']))
-                {
+                if (empty($codeParts['description'])) {
                     $codeParts['description'] = null;
                 }
                 $codeParts['system'] = $codesService->getSystemForCodeType($codeParts['code_type']);
@@ -165,12 +164,12 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             $description = $codesService->lookup_code_description($code);
             $description = !empty($description) ? $description : null; // we can get an "" string back from lookup
             $system = $codesService->getSystemForCodeType($codeParts['code_type']) ?? null;
-            if (!empty($system))
-            {
+            if (!empty($system)) {
                 $fhirCodeableConcept = UtilsService::createCodeableConcept(
                     [
                         $code => ['code' => $code, 'system' => $system, 'description' => $description]
-                    ]);
+                    ]
+                );
             }
         }
 
