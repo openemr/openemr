@@ -23,6 +23,7 @@ ccdaservice/node_modules
 .buildpath
 .project
 .settings
+*.code-workspace
 
 # testing
 .phpunit.result.cache
