@@ -314,7 +314,9 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     private function populateSmokingCessation(FHIRObservation $observation, $dataRecord)
     {
         if (empty($dataRecord['smoking_status_codes'])) {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+            // we are going to create our null flavor code here
+            $concept = UtilsService::createDataAbsentUnknownCodeableConcept();
+            $observation->setValueCodeableConcept($concept);
         } else {
             $concept = UtilsService::createCodeableConcept($dataRecord['smoking_status_codes'], FhirCodeSystemConstants::SNOMED_CT);
             $observation->setValueCodeableConcept($concept);
