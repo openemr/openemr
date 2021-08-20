@@ -167,15 +167,14 @@ class FhirOrganizationFacilityService extends FhirServiceBase
         // facilities have no active / inactive state
         $organizationResource->setActive(true);
 
-        $narrativeText = '';
-        if (isset($dataRecord['name'])) {
-            $narrativeText = $dataRecord['name'];
+        $narrativeText = trim($dataRecord['name'] ?? "");
+        if (!empty($narrativeText)) {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $organizationResource->setText($text);
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $organizationResource->setText($text);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

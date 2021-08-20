@@ -68,7 +68,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
             $name->setModifier(SearchModifier::MISSING);
             $npi = new TokenSearchField('npi', [new TokenSearchValue(false)]);
             $npi->setModifier(SearchModifier::MISSING);
-            $openEMRSearchParameters['identifier-name'] = new CompositeSearchField('identifier-name', [], false);
+            $openEMRSearchParameters['identifier-name'] = new CompositeSearchField('identifier-name', [], true);
             $openEMRSearchParameters['identifier-name']->setChildren([$name, $npi]);
         }
         return $this->service->search($openEMRSearchParameters);
@@ -91,15 +91,14 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
         $organizationResource->setMeta($fhirMeta);
         $organizationResource->setActive($dataRecord['active'] == '1');
 
-        $narrativeText = '';
-        if (isset($dataRecord['name'])) {
-            $narrativeText = $dataRecord['name'];
+        $narrativeText = trim($dataRecord['name'] ?? "");
+        if (!empty($narrativeText)) {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $organizationResource->setText($text);
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $organizationResource->setText($text);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

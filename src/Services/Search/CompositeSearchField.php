@@ -50,7 +50,7 @@ class CompositeSearchField implements ISearchField
         $this->field = $name; // we will give the field the same name as our name.
         $this->values = $values;
         $this->children = [];
-        $this->isAnd === true;
+        $this->isAnd = $isAnd === true;
     }
 
     /**
