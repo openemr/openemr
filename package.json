@@ -57,6 +57,7 @@
     "stylelint-scss": "^3.18.0"
   },
   "dependencies": {
+    "@eastdesire/jscolor": "2.4.5",
     "@fortawesome/fontawesome-free": "5.15.1",
     "@ttskch/select2-bootstrap4-theme": "1.4.0",
     "angular": "1.8.0",
@@ -87,7 +88,6 @@
     "jquery": "3.5.1",
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.19.2",
-    "@eastdesire/jscolor": "2.4.5",
     "jspdf": "2.1.1",
     "jszip": "3.5.0",
     "knockout": "3.5.1",
