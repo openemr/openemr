@@ -28,6 +28,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
@@ -35,8 +36,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
+use OpenEMR\Services\FHIR\FhirGroupService;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
+use OpenEMR\Services\FHIR\UtilsService;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
@@ -159,6 +162,15 @@ class FhirExportRestController
             $job->setApiBaseUrl($this->request->getApiBaseFullUrl());
 
             $job = $this->fhirExportJobService->createJobRequest($job);
+
+            // TODO: make sure the patient ids are returned
+            // need to add patient ids to the export job
+            // need to modify fhir bulk export domain resource trait to use the patient ids and verify that is all working.
+            if ($exportType == ExportJob::EXPORT_OPERATION_GROUP)
+            {
+                $job->setPatientUuidsToExport($this->getPatientUuidsForGroup($groupId));
+            }
+
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
         } catch (AccessDeniedException $exception) {
@@ -517,6 +529,7 @@ class FhirExportRestController
      */
     private function getResourcesForRequest($resources = array())
     {
+        // TODO: if we start adding a bunch more FHIR resources and need to filter for just the patient compartment we could do that here
         $approvedResources = [];
         $registry = $this->getExportServiceRegistry();
         $validResources = array_keys($registry);
@@ -615,5 +628,33 @@ class FhirExportRestController
         $operationOutcome->setId(Uuid::uuid4()); // not sure we care about storing these
         $operationOutcome->addIssue($issue);
         return $operationOutcome;
+    }
+
+    private function getPatientUuidsForGroup($groupId)
+    {
+        $patientUuids = [];
+        $fhirGroupService = new FhirGroupService();
+        $result = $fhirGroupService->getAll(['_id' => $groupId]);
+        if ($result->hasData())
+        {
+            foreach ($result->getData() as $group)
+            {
+                if ($group instanceof FHIRGroup && !empty($group->getMember()))
+                {
+                    foreach ($group->getMember() as $member)
+                    {
+                        if (!empty($member->getEntity()) && !empty($member->getEntity()->getReference()))
+                        {
+                            $uuid = UtilsService::getUuidFromReference($member->getEntity());
+                            if (!empty($uuid))
+                            {
+                                $patientUuids[] = $uuid;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $patientUuids;
     }
 }

@@ -2,36 +2,25 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\Export\ExportCannotEncodeException;
-use OpenEMR\FHIR\Export\ExportException;
-use OpenEMR\FHIR\Export\ExportStreamWriter;
-use OpenEMR\FHIR\Export\ExportWillShutdownException;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
-use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -54,7 +43,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
+class FhirPatientService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
@@ -115,7 +104,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // @see https://www.hl7.org/fhir/patient.html#search
         return  [
             // core FHIR required fields for now
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => $this->getPatientContextSearchField(),
             'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['ss', 'pubpid']),
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname']),
             'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB']),
@@ -626,82 +615,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
-     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
-     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
-     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
-     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
-     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
-     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
-     * @return void
-     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
-     * @throws ExportException  If there is an error in processing the export
-     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
-     */
-    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
-    {
-        // we have no concept of date created & date modified in the system for patients, so we just return everything
-
-        $type = $job->getExportType();
-
-        $searchParams = [];
-        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
-            $group = $job->getGroupId();
-            // we would need to grab all of the patient ids that belong to this group
-            // TODO: @adunsulag if we fully implement groups of patient populations we would set our patient ids into $searchParams
-            // or filter the results here.  Right now we treat all patients as belonging to the same '1' group.
-        }
-
-        $processingResult = $this->getAll($searchParams);
-        $patientData = $processingResult->getData();
-        foreach ($patientData as $patient) {
-            if (!($patient instanceof FHIRPatient)) {
-                throw new ExportException("Patient Service return records that are not a valid patient resource", 0, $lastResourceIdExported);
-            }
-            $writer->append($patient);
-            $lastResourceIdExported = $patient->getId();
-        }
-    }
-
-    /**
-     * Returns whether the service supports the system export operation
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---system-level-export
-     * @return bool true if this resource service should be called for a system export operation, false otherwise
-     */
-    public function supportsSystemExport()
-    {
-        return true;
-    }
-
-    /**
-     * Returns whether the service supports the group export operation.
-     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
-     * patient data (such as Organization or Practitioner)
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients
-     * @return bool true if this resource service should be called for a group export operation, false otherwise
-     */
-    public function supportsGroupExport()
-    {
-        return true;
-    }
-
-    /**
-     * Returns whether the service supports the all patient export operation
-     * Note only resources in the Patient compartment SHOULD be returned unless the resource assists in interpreting
-     * patient data (such as Organization or Practitioner)
-     * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---all-patients
-     * @return bool true if this resource service should be called for a patient export operation, false otherwise
-     */
-    public function supportsPatientExport()
-    {
-        return true;
-    }
-
-    /**
      * We only have one profile URI we need to return here
      * @return array
      */
     public function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]);
     }
 }

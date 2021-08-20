@@ -30,12 +30,27 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid)
+    public static function createRelativeReference($type, $uuid, $displayName = null)
     {
         $reference = new FHIRReference();
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
+        if (!empty($displayName) && is_string($displayName))
+        {
+            $reference->setDisplay($displayName);
+        }
         return $reference;
+    }
+
+    public static function getUuidFromReference(FHIRReference $reference)
+    {
+        $uuid = null;
+        if (!empty($reference->getReference()))
+        {
+            $parts = explode("/", $reference->getReference());
+            $uuid = $parts[1] ?? null;
+        }
+        return $uuid;
     }
 
     public static function createQuantity($value, $unit, $code)

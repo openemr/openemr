@@ -1039,3 +1039,11 @@ CREATE TABLE `jwt_grant_history` (
     , KEY `jti` (`jti`)
 ) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 #EndIf
+
+#IfNotIndex sct_description idx_concept_id
+ALTER TABLE sct_description ADD INDEX `idx_concept_id` (`ConceptId`);
+#EndIf
+
+#IfNotIndex sct2_description idx_concept_id
+ALTER TABLE sct2_description ADD INDEX `idx_concept_id` (`conceptId`);
+#EndIf
