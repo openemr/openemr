@@ -175,10 +175,8 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         $docReference->setCustodian($orgReference);
 
-        // TODO: @adunsulag check with @sjpadgett and @brady.miller how are patient documents setup?  Do they populate the owner column?
-        // how do you determine if a patient uploaded a document vs a regular user?
         if (!empty($dataRecord['user_uuid'])) {
-            if (!empty($dataRecord['npi'])) {
+            if (!empty($dataRecord['user_npi'])) {
                 $docReference->addAuthor(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
             } else {
                 // if we don't have a practitioner reference then it is the business owner that will be the author on
