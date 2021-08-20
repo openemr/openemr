@@ -1008,7 +1008,7 @@ SET @group_id = (SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMI
 INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES (@module_id, @group_id, @section_id+1, 1);
 #EndIf
 
-#IfRowIsNull patient_history history_type_key NULL
+#IfRowIsNull patient_history history_type_key
 UPDATE patient_history SET history_type_key = "care_team_history"
 WHERE history_type_key IS NULL
         AND (care_team_provider IS NOT NULL OR care_team_facility IS NOT NULL);
