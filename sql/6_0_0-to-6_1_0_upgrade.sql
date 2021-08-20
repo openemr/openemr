@@ -1003,3 +1003,19 @@ INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section
 SET @group_id = (SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1);
 INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES (@module_id, @group_id, @section_id+1, 1);
 #EndIf
+
+#IfMissingColumn patient_data name_history
+ALTER TABLE `patient_data` ADD COLUMN `name_history` TINYTEXT;
+#EndIf
+
+#IfMissingColumn patient_data suffix
+ALTER TABLE `patient_data` ADD COLUMN `suffix` TINYTEXT;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id suffix
+UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = 1 AND form_id='DEM';
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='fname' AND form_id='DEM');
+SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='birth_lname' AND form_id='DEM');
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = IFNULL(@group_id,@backup_group_id) AND field_id='lname' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', IFNULL(@group_id,@backup_group_id), '', @seq_add_to+5, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
+#EndIf
