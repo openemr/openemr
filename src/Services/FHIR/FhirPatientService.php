@@ -222,7 +222,39 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $name->addGiven($dataRecord['mname']);
         }
 
+        if (!empty($dataRecord['suffix'])) {
+            $name->addSuffix($dataRecord['suffix']);
+        }
+
         $patientResource->addName($name);
+
+        if (!empty($dataRecord['previous_names'])) {
+            foreach ($dataRecord['previous_names'] as $prevName) {
+                $previousHumanName = new FHIRHumanName();
+                $previousHumanName->setUse("old");
+                if (!empty($prevName['previous_name_first'])) {
+                    $previousHumanName->addGiven($prevName['previous_name_first']);
+                }
+                if (!empty($prevName['previous_name_last'])) {
+                    $previousHumanName->setFamily($prevName['previous_name_last']);
+                }
+                if (!empty($prevName['previous_name_middle'])) {
+                    $previousHumanName->addGiven($prevName['previous_name_middle']);
+                }
+                if (!empty($prevName['previous_name_title'])) {
+                    $previousHumanName->addPrefix($prevName['previous_name_title']);
+                }
+                if (!empty($prevName['previous_name_suffix'])) {
+                    $previousHumanName->addSuffix($prevName['previous_name_suffix']);
+                }
+                if (!empty($prevName['previous_name_enddate'])) {
+                    $fhirPeriod = new FHIRPeriod();
+                    $fhirPeriod->setEnd(gmdate('c', strtotime($prevName['previous_name_enddate'])));
+                    $previousHumanName->setPeriod($fhirPeriod);
+                }
+                $patientResource->addName($previousHumanName);
+            }
+        }
     }
 
     private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord)
@@ -324,23 +356,24 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $textExtension = new FHIRExtension();
             $textExtension->setUrl("text");
 
-            $coding = new FHIRCoding();
-            $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
+
 
             $record = $this->listService->getListOption('ethnicity', $ethnicity);
-            if (empty($record)) {
-                // TODO: stephen put a data missing reason where the coding could not be found for some reason
-            } else {
-                $coding->setCode($record['notes']);
-                $coding->setDisplay($record['title']);
-                $coding->setSystem("urn:oid:2.16.840.1.113883.6.238");
+            if (!empty($record)) {
                 $textExtension->setValueString($record['title']);
+                // the only possible options for ombCategory are hispanic or not hispanic
+                if ($record['option_id'] != 'declne_to_specfy') {
+                    $coding = new FHIRCoding();
+                    $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
+                    $coding->setCode($record['notes']);
+                    $coding->setDisplay($record['title']);
+                    $coding->setSystem("urn:oid:2.16.840.1.113883.6.238");
+                    $ombCategoryExtension->setValueCoding($coding);
+                    $ethnicityExtension->addExtension($ombCategoryExtension);
+                }
             }
 
-            $ombCategoryExtension->setValueCoding($coding);
-            $ethnicityExtension->addExtension($ombCategoryExtension);
             $ethnicityExtension->addExtension($textExtension);
-
             $patientResource->addExtension($ethnicityExtension);
         }
     }

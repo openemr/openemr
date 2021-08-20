@@ -852,7 +852,7 @@ class Events extends Base
 
                 $target_dates = '';
                 if ($event['E_timing'] == '5') {
-                    $target_dates = " cal.pc_eventDate > curdate()  ";
+                    $target_dates = " cal.pc_eventDate >= curdate()  ";
                 } else {
                     if (!is_numeric($event['E_fire_time'])) { //this would be an error in building the event
                         $event['E_fire_time'] = '0';
@@ -1534,10 +1534,10 @@ class Display extends base
         } else {
             echo 'up';
         } ?> menu_arrow" style="position:fixed;left:5px;top:10px;z-index:1200;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-          
+
         <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
-                
+
             <nav id="navbar_oe" class="navbar navbar-expand-sm p-0 pl-1" name="kiosk_hide" data-role="page banner navigation">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -1765,7 +1765,7 @@ class Display extends base
                                                                         <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
                                                                             echo "selected";} ?>>3422</option>
                                                                     </select>
-    
+
                                                     </div>
                                                 </div>
                                                 <div class="divTableRow">
@@ -1841,7 +1841,7 @@ class Display extends base
                                             </div>
                                             <?php
                                         } ?>
-                                        
+
                                         </div>
                                 </div>
                             </div>
@@ -2523,7 +2523,7 @@ class Display extends base
     {
         global $result_pat;
         ?>
-       
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 text-center" id="add_recall">
@@ -2583,7 +2583,7 @@ class Display extends base
                             <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
-                        
+
                     </div>
                     <div class="row divTableBody prefs">
                         <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
@@ -2654,7 +2654,7 @@ class Display extends base
                                     ?>
                                 </select>
                             </div>
-                        
+
                     </div>
                 </div>
                 <div class="col-4 divTable m-2 mr-auto">
@@ -2666,15 +2666,15 @@ class Display extends base
                             <div class="col-12 mb-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
                             </div>

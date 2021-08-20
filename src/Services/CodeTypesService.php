@@ -78,12 +78,23 @@ class CodeTypesService
     {
         $parsedCode = $code;
         $parsedType = null;
-        if (strpos($code, ":") !== false) {
+        if (is_string($code) && strpos($code, ":") !== false) {
             $parts = explode(":", $code);
             $parsedCode  = $parts[1];
             $parsedType = $parts[0];
         }
         return ['code' => $parsedCode, 'code_type' => $parsedType];
+    }
+
+    /**
+     * Returns a code with the code type prefixed
+     * @param $code string The value for the code that exists in the given code_type datadatabse
+     * @param $type string The code_type that the code belongs to (SNOMED, RXCUI, ICD10, etc).
+     * @return string  The fully typed code (TYPE:CODE)
+     */
+    public function getCodeWithType($code, $type)
+    {
+        return ($type ?? "") . ":" . ($code ?? "");
     }
 
     public function getCodeTypeForCode($code)
