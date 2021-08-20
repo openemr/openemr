@@ -474,7 +474,8 @@ function rtl_style_misc() {
 }
 
 // compile themes
-const styles = gulp.parallel(styles_style_color, styles_style_color_compact, styles_style_uni, styles_style_uni_compact, styles_style_portal, styles_style_tabs, styles_style_misc, rtl_style_color, rtl_style_color_compact, rtl_style_uni, rtl_style_uni_compact, rtl_style_portal, rtl_style_tabs, rtl_style_misc);
+// const styles = gulp.parallel(styles_style_color, styles_style_color_compact, styles_style_uni, styles_style_uni_compact, styles_style_portal, styles_style_tabs, styles_style_misc, rtl_style_color, rtl_style_color_compact, rtl_style_uni, rtl_style_uni_compact, rtl_style_portal, rtl_style_tabs, rtl_style_misc);
+const styles = gulp.parallel(styles_style_uni, styles_style_portal, styles_style_tabs, styles_style_misc);
 
 // Copies (and distills, if possible) assets from node_modules to public/assets
 function install(done) {
