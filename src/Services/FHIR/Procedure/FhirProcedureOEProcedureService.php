@@ -93,7 +93,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         // we only want records where a report is created as we go off the individual report_uuid
         if (!isset($openEMRSearchParameters['report_uuid'])) {
             // make sure we only return results with a matching report.
-            $openEMRSearchParameters['report_uuid'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)], SearchModifier::MISSING);
+            $openEMRSearchParameters['report_uuid'] = new TokenSearchField('report_uuid', [new TokenSearchValue(false)], false);
+            $openEMRSearchParameters['report_uuid']->setModifier(SearchModifier::MISSING);
         }
         return $this->service->search($openEMRSearchParameters);
     }
@@ -141,31 +142,54 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         if (!empty($dataRecord['diagnosis'])) {
             $codes = explode(";", $dataRecord['diagnosis']);
             foreach ($codes as $code) {
-                $description = $codesService->lookup_code_description($code) ?? '';
-                $system = $codesService->getSystemForCodeType($code);
-                $procedureResource->addReasonCode(UtilsService::createCodeableConcept([$code => $description], $system));
+                $codeParts = $codesService->parseCode($code);
+                $codeParts['description'] = $codesService->lookup_code_description($code) ?? '';
+                if (empty($codeParts['description'])) {
+                    $codeParts['description'] = null;
+                }
+                $codeParts['system'] = $codesService->getSystemForCodeType($codeParts['code_type']);
+                // if we don't have a system we need to just not return these values
+                if (!empty($codeParts['system'])) {
+                    $procedureResource->addReasonCode(UtilsService::createCodeableConcept([$codeParts['code'] => $codeParts]));
+                }
             }
         }
 
         // code can be whatever the user provides but should usually be CPT4 or SNOMED.  If we can't detect the system
         // then we HAVE to go with standard code or report back nothing...
-        if (!empty($dataRecord['code']) || !empty($dataRecord['standard_code'])) {
-            $description = $codesService->lookup_code_description($dataRecord['code']);
+        $codeParts = $codesService->parseCode($dataRecord['code']);
+        $fhirCodeableConcept = new FHIRCodeableConcept();
+        if (!empty($codeParts['code'])) {
+            $code = $codeParts['code'];
+            $description = $codesService->lookup_code_description($code);
             $description = !empty($description) ? $description : null; // we can get an "" string back from lookup
-            $system = $codesService->getSystemForCode($dataRecord['code']) ?? null;
-
-            // if we can't go with our system we HAVE to use a LOINC code
+            $system = $codesService->getSystemForCodeType($codeParts['code_type']) ?? null;
             if (!empty($system)) {
-                $procedureResource->setCode(UtilsService::createCodeableConcept([$dataRecord['code'] => $description], $system));
-            } else {
-                $procedureResource->setCode(UtilsService::createCodeableConcept(
-                    [$dataRecord['standard_code'] => $dataRecord['name']],
-                    FhirCodeSystemConstants::LOINC
-                ));
+                $fhirCodeableConcept = UtilsService::createCodeableConcept(
+                    [
+                        $code => ['code' => $code, 'system' => $system, 'description' => $description]
+                    ]
+                );
             }
-        } else {
-            $procedureResource->setCode(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
+
+        if (!empty($dataRecord['standard_code'])) {
+            $code = $dataRecord['standard_code'];
+            $system = FhirCodeSystemConstants::LOINC;
+            $fullStandardCode = $codesService->getCodeWithType($dataRecord['standard_code'], CodeTypesService::CODE_TYPE_LOINC);
+            $description = $codesService->lookup_code_description($fullStandardCode);
+            $description = !empty($description) ? $description : $dataRecord['name']; // we can get an "" string back from lookup
+            $fhirCodeableConcept->addCoding(UtilsService::createCoding($code, $description, $system));
+        }
+
+        if (empty($fhirCodeableConcept->getCoding())) {
+            if (!empty($dataRecord['name'])) {
+                $fhirCodeableConcept->setText($dataRecord['name']);
+            } else {
+                $fhirCodeableConcept = UtilsService::createDataAbsentUnknownCodeableConcept();
+            }
+        }
+        $procedureResource->setCode($fhirCodeableConcept);
 
         $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
         if (!empty($report['results'])) {

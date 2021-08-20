@@ -171,8 +171,7 @@ class PrescriptionService extends BaseService
                         ,NULL as `route`
                         ,lists.comments as 'note'
                         ,pid AS patient_id
-                         -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1, we will leave off encounter for now
-                        ,NULL as encounter
+                        ,issues_encounter.issues_encounter_encounter as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
                         ,lists_medication.drug_dosage_instructions
@@ -187,6 +186,15 @@ class PrescriptionService extends BaseService
                             users ON users.username = lists.user
                     LEFT JOIN
                         lists_medication ON lists_medication.list_id = lists.id
+                    LEFT JOIN
+                    (
+                       select 
+                              pid AS issues_encounter_pid
+                            , list_id AS issues_encounter_list_id
+                            -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1
+                            -- we take the very first encounter that the issue was tied to.
+                            , min(encounter) AS issues_encounter_encounter FROM issue_encounter GROUP BY pid,list_id
+                    ) issues_encounter ON lists.pid = issues_encounter.issues_encounter_pid AND lists.id = issues_encounter.issues_encounter_list_id
                     WHERE
                         type = 'medication'
                 ) combined_prescriptions

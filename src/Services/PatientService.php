@@ -22,6 +22,7 @@ use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -43,6 +44,12 @@ class PatientService extends BaseService
     private $patient_picture_fallback_id = -1;
 
     private $patientValidator;
+
+    /**
+     * Key of translated suffix values that can be in a patient's name.
+     * @var array|null
+     */
+    private $patientSuffixKeys = null;
 
     /**
      * Default constructor.
@@ -325,6 +332,81 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition);
     }
 
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT 
+                    patient_data.*
+                    ,patient_history_type_key
+                    ,previous_name_first
+                    ,previous_name_prefix
+                    ,previous_name_first
+                    ,previous_name_middle
+                    ,previous_name_last
+                    ,previous_name_suffix
+                    ,previous_name_enddate
+                FROM patient_data
+                LEFT JOIN (
+                    SELECT 
+                    pid AS patient_history_pid
+                    ,history_type_key AS patient_history_type_key
+                    ,previous_name_prefix
+                    ,previous_name_first
+                    ,previous_name_middle
+                    ,previous_name_last
+                    ,previous_name_suffix
+                    ,previous_name_enddate
+                    ,`date` AS previous_creation_date
+                    ,uuid AS patient_history_uuid
+                    FROM patient_history
+                ) patient_history ON patient_data.pid = patient_history.patient_history_pid";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+        return $processingResult;
+    }
+
+    private function hydrateSearchResultsFromQueryResource($queryResource)
+    {
+        $processingResult = new ProcessingResult();
+        $patientsByUuid = [];
+        $patientFields = array_combine($this->getFields(), $this->getFields());
+        $previousNameColumns = ['previous_name_prefix', 'previous_name_first', 'previous_name_middle'
+            , 'previous_name_last', 'previous_name_suffix', 'previous_name_enddate'];
+        $previousNamesFields = array_combine($previousNameColumns, $previousNameColumns);
+        $patientOrderedList = [];
+        while ($row = sqlFetchArray($queryResource)) {
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $patientUuid = $record['uuid'];
+            if (!isset($patientsByUuid[$patientUuid])) {
+                $patient = array_intersect_key($record, $patientFields);
+                $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
+                $patient['previous_names'] = [];
+                $patientOrderedList[] = $patientUuid;
+            } else {
+                $patient = $patientsByUuid[$patientUuid];
+            }
+            if (!empty($record['patient_history_type_key'])) {
+                if ($record['patient_history_type_key'] == 'name_history') {
+                    $previousName = array_intersect_key($record, $previousNamesFields);
+                    $previousName['formatted_name'] = $this->formatPreviousName($previousName);
+                    $patient['previous_names'][] = $previousName;
+                }
+            }
+
+            // now let's grab our history
+            $patientsByUuid[$patientUuid] = $patient;
+        }
+        foreach ($patientOrderedList as $uuid) {
+            $patient = $patientsByUuid[$uuid];
+            $processingResult->addData($patient);
+        }
+        return $processingResult;
+    }
+
     /**
      * Returns a single patient record by patient id.
      * @param $puuidString - The patient uuid identifier in string format.
@@ -510,5 +592,28 @@ class PatientService extends BaseService
             ($item['previous_name_enddate'] ? " " . $item['previous_name_enddate'] : "");
 
         return text($name);
+    }
+
+    private function parseSuffixForPatientRecord($patientRecord)
+    {
+        // parse suffix from last name. saves messing with LBF
+        $suffixes = $this->getPatientSuffixKeys();
+        $suffix = null;
+        foreach ($suffixes as $s) {
+            if (stripos($patientRecord['lname'], $s) !== false) {
+                $suffix = $s;
+                $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
+                break;
+            }
+        }
+        return $suffix;
+    }
+
+    private function getPatientSuffixKeys()
+    {
+        if (!isset($this->patientSuffixKeys)) {
+            $this->patientSuffixKeys = array(xl('Jr.'), xl(' Jr'), xl('Sr.'), xl(' Sr'), xl('II'), xl('III'), xl('IV'));
+        }
+        return $this->patientSuffixKeys;
     }
 }

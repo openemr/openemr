@@ -60,6 +60,10 @@
 --        arguments: table_name colname value colname2 value2 colname3 value3
 --        behavior:  If the table table_name does have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
 
+--  #IfRowIsNull
+--    arguments: table_name colname
+--    behavior:  If the table table_name does have a row where colname is null, the block will be executed.
+
 --  #IfIndex
 --    desc:      This function is most often used for dropping of indexes/keys.
 --    arguments: table_name colname
@@ -1002,4 +1006,10 @@ SET @section_id = (SELECT MAX(section_id) FROM module_acl_sections);
 INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (IFNULL(@section_id,0)+1, 'Carecoordination', 0, 'carecoordination', @module_id);
 SET @group_id = (SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1);
 INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES (@module_id, @group_id, @section_id+1, 1);
+#EndIf
+
+#IfRowIsNull patient_history history_type_key NULL
+UPDATE patient_history SET history_type_key = "care_team_history"
+WHERE history_type_key IS NULL
+        AND (care_team_provider IS NOT NULL OR care_team_facility IS NOT NULL);
 #EndIf

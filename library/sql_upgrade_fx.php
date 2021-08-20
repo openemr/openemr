@@ -126,6 +126,20 @@ function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
 }
 
 /**
+ * Check if a Sql row exists (with one null value)
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @return boolean           returns true if the sql row does exist
+ */
+function tableHasRowNull($tblname, $colname)
+{
+    $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+        "$colname IS NULL");
+    return $row['count'] ? true : false;
+}
+
+/**
  * Check if a Sql row exists. (with one value)
  *
  * @param string $tblname Sql Table Name
@@ -886,6 +900,17 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]));
+            } else {
+                // If no such table then should skip.
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
+            }
+        } elseif (preg_match('/^#IfRowIsNull\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = !(tableHasRowNull($matches[1], $matches[2]));
             } else {
                 // If no such table then should skip.
                 $skipping = true;

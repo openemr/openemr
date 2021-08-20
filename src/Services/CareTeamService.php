@@ -76,6 +76,7 @@ class CareTeamService extends BaseService
                     FROM
                         patient_history
                     JOIN patient_data ON patient_history.pid = patient_data.pid
+                    WHERE patient_history.history_type_key = 'care_team_history'
                 ) careteam_mapping
                 LEFT JOIN
                     (
@@ -234,6 +235,7 @@ class CareTeamService extends BaseService
     {
         $insertData = [
             'pid' => $pid, 'care_team_provider' => $oldProviders, 'care_team_facility' => $oldFacilities,
+            'history_type_key' => 'care_team_history',
             'uuid' => UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid()
         ];
         $insert = $this->buildInsertColumns($insertData);
