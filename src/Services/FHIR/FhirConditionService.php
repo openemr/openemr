@@ -28,7 +28,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
+class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -56,7 +56,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('condition_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -210,7 +210,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
+        $result = $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
+        return $result;
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
@@ -237,5 +238,10 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }
