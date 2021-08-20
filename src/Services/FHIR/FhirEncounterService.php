@@ -163,7 +163,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             // do it this way
             // @see https://chat.fhir.org/#narrow/stream/179175-argonaut/topic/Encounter.20Reason.20For.20Visit (beware of link rot)
             $reason = new FHIRCodeableConcept();
-            $reason->setText($dataRecord['reason']);
+            $reasonText = $dataRecord['reason'] ?? "";
+            $reason->setText(trim($reasonText));
             $encounterResource->addReasonCode($reason);
         }
         // hospitalization - must support
