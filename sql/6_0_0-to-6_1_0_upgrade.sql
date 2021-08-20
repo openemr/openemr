@@ -1027,4 +1027,15 @@ SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='lname' AND 
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='lname' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', @group_id, '', @seq_add_to+5, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
+
+#IfNotTable jwt_grant_history
+CREATE TABLE `jwt_grant_history` (
+     `id` INT NOT NULL AUTO_INCREMENT
+    , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
+    , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
+    , `jti_exp` TIMESTAMP NOT NULL COMMENT 'jwt exp claim when the jwt expires'
+    , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
+    , PRIMARY KEY (`id`)
+    , KEY `jti` (`jti`)
+) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 #EndIf
