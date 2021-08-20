@@ -246,11 +246,11 @@ if ($GLOBALS['login_page_layout'] == 'left') {
             <?php } // End login failure block ?>
             <div id="standard-auth-username" class="form-group">
                 <label for="authUser" class="text-right"><?php echo xlt('Username:'); ?></label>
-                <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>" />
+                <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username'); ?>" />
             </div>
             <div id="standard-auth-password" class="form-group">
                 <label for="clearPass" class="text-right"><?php echo xlt('Password:'); ?></label>
-                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>" />
+                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password'); ?>" />
             </div>
             <?php echo $div_app; ?>
             <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) : // Begin language menu block ?>
@@ -317,17 +317,17 @@ if ($GLOBALS['login_page_layout'] == 'left') {
           </div>
           <div class="<?php echo $logoarea; ?>">
             <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
-            <?php if ($extraLogo) { ?>
-            <div class="text-center">
-              <span class="d-inline-block w-40"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?></span>
-              <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
-              <span class="d-inline-block w-40"><?php echo $logocode; ?></span>
-            </div>
-            <?php } else { ?>
-              <div class="mx-auto m-4 w-75">
-                  <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
-              </div>
-            <?php } ?>
+            <?php if ($extraLogo): ?>
+                <div class="text-center">
+                <span class="d-inline-block w-40"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?></span>
+                <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
+                <span class="d-inline-block w-40"><?php echo $logocode; ?></span>
+                </div>
+            <?php else: ?>
+                <div class="mx-auto m-4 w-75">
+                    <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                </div>
+            <?php endif; ?>
             <div class="text-center login-title-label">
                 <?php if ($GLOBALS['show_label_login']) { ?>
                     <?php echo text($openemr_name); ?>
@@ -347,8 +347,6 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                     <div class="col-sm-6"><?php echo $tinylogocode2;?></div>
                   </div>
                 <?php } ?>
-            <p class="text-center lead font-weight-normal login-bg-text-color"><?php echo xlt('The most popular open-source Electronic Health Record and Medical Practice Management solution.'); ?></p>
-            <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="login-bg-text-color" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a></p>
           </div>
       </div>
       <div class="product-registration-modal modal fade">

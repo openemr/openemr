@@ -17,6 +17,11 @@
 * @link    http://www.open-emr.org
 */
 
+:root {
+  --masthead_bg: #212D79;
+  --masthead_color: #ffffff;
+}
+
 $login-color-1: #fff !default;
 $login-color-2: #00d4ff !default;
 $login-color-3: #2c9cd4 !default;
@@ -65,7 +70,8 @@ $login-button-primary: false !default;
   .login-bg-left,
   .login-bg-right,
   .login-bg-center {
-    background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
+    background: var(--masthead_bg);
+    color: var(--masthead_color);
   }
 
   @media (max-width: map-get($grid-breakpoints, "md")) {
