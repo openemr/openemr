@@ -18,20 +18,25 @@
 */
 
 :root {
+  // Tread lightly with light and dark colors, this may be the start of inversion themes
+  --light: #fff;
+  --dark: #333;
+
   --masthead_bg: #212D79;
   --masthead_color: #ffffff;
+  --login-color: var(--dark);
+  --login-bg: var(--light);
+
+  --radius: 0.625rem;
 }
 
-$login-color-1: #fff !default;
-$login-color-2: #00d4ff !default;
-$login-color-3: #2c9cd4 !default;
-$login-text-color: #fff !default;
-$login-form-bg-color: $white !default;
-$login-button-primary: false !default;
+$login-form-bg-color: var(--login-bg);
+
+$login-button-primary: true !default;
 
 @if $compact-theme == false {
   .login {
-    background: $light;
+    background: var(--login-bg);
     display: flex;
     height: 100%;
     justify-content: center;
@@ -51,20 +56,14 @@ $login-button-primary: false !default;
   }
 
   .login .login-row {
-    background: $login-form-bg-color;
-    border-radius: 0.625rem;
-    box-shadow: 0 30px 60px 0 rgba($black, 0.3);
+    background: var(--login-bg);
+    border-radius: 0.3em;
+    box-shadow: 0 15px 30px 0 rgba($black, 0.3);
     resize: both;
   }
 
   .login-row-center {
     @extend .m-5;
-  }
-
-  .login-area-left,
-  .login-area-right,
-  .login-area-center {
-    background: $login-form-bg-color;
   }
 
   .login-bg-left,
@@ -75,34 +74,14 @@ $login-button-primary: false !default;
   }
 
   @media (max-width: map-get($grid-breakpoints, "md")) {
-    .login-area-left {
-      border-bottom-left-radius: 0.625rem;
-      border-bottom-right-radius: 0.625rem;
-    }
-
-    .login-area-right {
-      border-bottom-left-radius: 0.625rem;
-      border-bottom-right-radius: 0.625rem;
-    }
-
-    .login-area-center {
-      border-bottom-left-radius: 0.625rem;
-      border-bottom-right-radius: 0.625rem;
-    }
-
-    .login-bg-left {
-      border-top-left-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
-    }
-
-    .login-bg-right {
-      border-top-left-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
-    }
-
+    .login-area-left,
+    .Login-area-right,
+    .Login-area-center,
+    .login-bg-left,
+    .login-bg-right
     .login-bg-center {
-      border-top-left-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
     }
 
     .login-row-center {
@@ -111,34 +90,14 @@ $login-button-primary: false !default;
   }
 
   @media (min-width: map-get($grid-breakpoints, "md")) {
-    .login-area-left {
-      border-bottom-left-radius: 0.625rem;
-      border-top-left-radius: 0.625rem;
-    }
-
-    .login-area-right {
-      border-bottom-right-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
-    }
-
-    .login-area-center {
-      border-bottom-left-radius: 0.625rem;
-      border-bottom-right-radius: 0.625rem;
-    }
-
-    .login-bg-left {
-      border-bottom-right-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
-    }
-
-    .login-bg-right {
-      border-bottom-left-radius: 0.625rem;
-      border-top-left-radius: 0.625rem;
-    }
-
+    .login-area-left,
+    .Login-area-right,
+    .Login-area-center,
+    .login-bg-left,
+    .login-bg-right
     .login-bg-center {
-      border-top-left-radius: 0.625rem;
-      border-top-right-radius: 0.625rem;
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
     }
 
     .login-row-center {
@@ -174,7 +133,7 @@ $login-button-primary: false !default;
   }
 
   .login-bg-text-color {
-    color: $login-text-color !important;
+    color: var(--login-color) !important;
   }
 
   .login-title-label {

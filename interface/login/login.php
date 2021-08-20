@@ -159,7 +159,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText(<?php echo xlj("Authenticating"); ?>);
+            element.innerHTML = '<i class="fa fa-sync fa-sm fa-spin"></i> ' + jsText(<?php echo xlj("Logging In"); ?>);
             <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
                 // Delete the session cookie by setting its expiration date in the past.
                 // This forces the server to create a new session ID.
@@ -245,11 +245,11 @@ if ($GLOBALS['login_page_layout'] == 'left') {
               </div>
             <?php } // End login failure block ?>
             <div id="standard-auth-username" class="form-group">
-                <label for="authUser" class="text-right"><?php echo xlt('Username:'); ?></label>
+                <label for="authUser" class="text-right sr-only"><?php echo xlt('Username'); ?></label>
                 <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username'); ?>" />
             </div>
             <div id="standard-auth-password" class="form-group">
-                <label for="clearPass" class="text-right"><?php echo xlt('Password:'); ?></label>
+                <label for="clearPass" class="text-right sr-only"><?php echo xlt('Password'); ?></label>
                 <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password'); ?>" />
             </div>
             <?php echo $div_app; ?>
@@ -299,7 +299,7 @@ if ($GLOBALS['login_page_layout'] == 'left') {
                 </div>
             <?php } // End facilities menu block ?>
             <div class="form-group oe-pull-away">
-                <button id="login-button" type="submit" class="btn btn-login btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                <button id="login-button" type="submit" class="btn btn-login" onClick="transmit_form(this)"><?php echo xlt('Login');?></button>
             </div>
             <div class="form-group">
                   <?php if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) { ?>
