@@ -97,7 +97,10 @@ class CareTeamService extends BaseService
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-            $processingResult->addData($resultRecord);
+            // if we couldn't retrieve any providers / facilities we will ignore the care team.
+            if (!empty($resultRecord['providers']) || !empty($resultRecord['facilities'])) {
+                $processingResult->addData($resultRecord);
+            }
         }
         return $processingResult;
     }
