@@ -1023,7 +1023,7 @@ ALTER TABLE `patient_data` ADD COLUMN `suffix` TINYTEXT;
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id suffix
-SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='fname' AND form_id='DEM');
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='lname' AND form_id='DEM');
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='lname' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', @group_id, '', @seq_add_to+5, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
