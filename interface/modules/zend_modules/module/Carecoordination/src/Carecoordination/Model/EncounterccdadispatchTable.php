@@ -50,25 +50,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $row = $appTable->zQuery($query, array('race', 'ethnicity', 'religious_affiliation', 'language', $pid));
 
-        // parse suffix from last name. saves messing with LBF
-        $suffixes = array('Jr.', ' Jr', 'Sr.', ' Sr',  'II', 'III', 'IV');
         foreach ($row as $result) {
-            $has_suffix = '';
-            foreach ($suffixes as $s) {
-                if (stripos($result['lname'], $s) !== false) {
-                    $has_suffix = "<suffix>" . xmlEscape($s) . "</suffix>";
-                    $result['lname'] = trim(str_replace($s, '', $result['lname']));
-                }
-            }
             $patient_data = "<patient>
             <id>" . xmlEscape($result['pid']) . "</id>
             <encounter>" . xmlEscape($encounter) . "</encounter>
             <prefix>" . xmlEscape($result['title']) . "</prefix>
             <fname>" . xmlEscape($result['fname']) . "</fname>
             <mname>" . xmlEscape($result['mname']) . "</mname>
-            <lname>" . xmlEscape($result['lname']) . "</lname>" . "\n" .
-            $has_suffix . "\n" .
-            "<birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
+            <lname>" . xmlEscape($result['lname']) . "</lname>
+            <suffix>" . xmlEscape($result['suffix']) . "</suffix>
+            <birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
             <birth_mname>" . xmlEscape($result['birth_mname']) . "</birth_mname>
             <birth_lname>" . xmlEscape($result['birth_lname']) . "</birth_lname>
             <street>" . xmlEscape($result['street']) . "</street>
