@@ -398,11 +398,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             }
             $jti = $token->claims()->get("jti");
             $jwtRepository->saveJwtHistory($jti, $clientId, $exp);
-        }
-        catch (SqlQueryException $exception)
-        {
-            (new SystemLogger())->error("Failed to save jti to database Exception: " . $exception->getMessage()
-                , ['clientId' => $clientId, 'exp' => $exp, 'jti' => $jti]);
+        } catch (SqlQueryException $exception) {
+            (new SystemLogger())->error(
+                "Failed to save jti to database Exception: " . $exception->getMessage(),
+                ['clientId' => $clientId, 'exp' => $exp, 'jti' => $jti]
+            );
             throw OAuthServerException::serverError("Server error occurred in parsing JWT", $exception);
         }
     }

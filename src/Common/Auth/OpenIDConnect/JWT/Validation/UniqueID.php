@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UniqueID.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation;
-
 
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
@@ -36,20 +36,19 @@ class UniqueID implements Constraint
         $exp = $token->claims()->get('exp');
         $iss = $token->claims()->get('iss');
 
-        if (empty($jti))
-        {
+        if (empty($jti)) {
             throw new ConstraintViolation("jti claim is required for JWT");
         }
         $expCheck = null;
-        if ($exp instanceof \DateTimeInterface)
-        {
+        if ($exp instanceof \DateTimeInterface) {
             $expCheck = $exp->getTimestamp();
         }
         $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $expCheck);
-        if (!empty($existingJWT))
-        {
-            (new SystemLogger())->emergency(get_class($this) . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
-                ['clientId' => $iss, 'exp' => $exp, 'jti' => $jti]);
+        if (!empty($existingJWT)) {
+            (new SystemLogger())->emergency(
+                get_class($this) . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
+                ['clientId' => $iss, 'exp' => $exp, 'jti' => $jti]
+            );
             throw new ConstraintViolation("jti claim has already been used");
         }
     }

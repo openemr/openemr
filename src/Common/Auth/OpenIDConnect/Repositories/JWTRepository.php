@@ -1,4 +1,5 @@
 <?php
+
 /**
  * JWTRepository.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
-
 
 use OpenEMR\Common\Database\QueryUtils;
 
@@ -26,8 +26,7 @@ class JWTRepository
     {
         $sql = "select * FROM jwt_grant_history WHERE jti = ?";
         $params = [$jti];
-        if (!empty($expiration))
-        {
+        if (!empty($expiration)) {
             $sql .= " AND jti_exp > ?";
             $params[] = $expiration;
         }
