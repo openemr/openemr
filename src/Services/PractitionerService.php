@@ -78,7 +78,7 @@ class PractitionerService extends BaseService
         // we only retrieve from our database when our practitioners are not null
         if (!empty($search['npi'])) {
             if (!$search['npi'] instanceof ISearchField) {
-                throw new \BadMethodCallException("npi search must be instance of " . ISearchField::class);
+                throw new SearchFieldException("npi", "field must be instance of " . ISearchField::class);
             }
             if ($search['npi']->getModifier() === SearchModifier::MISSING) {
                 // force our value to be false as the only thing that differentiates users as practitioners is our npi number
@@ -87,6 +87,18 @@ class PractitionerService extends BaseService
         } else {
             $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
             $search['npi']->setModifier(SearchModifier::MISSING);
+        }
+        if (!empty($search['username'])) {
+            if (!$search['username'] instanceof ISearchField) {
+                throw new SearchFieldException("username", "field must be instance of " . ISearchField::class);
+            }
+            if ($search['username']->getModifier() === SearchModifier::MISSING) {
+                // force our value to be false as we don't count users as practitioners if there is no username
+                $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
+            }
+        } else {
+            $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
+            $search['username']->setModifier(SearchModifier::MISSING);
         }
         return parent::search($search, $isAndCondition);
     }
