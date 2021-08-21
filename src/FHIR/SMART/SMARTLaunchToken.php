@@ -12,6 +12,7 @@
 
 namespace OpenEMR\FHIR\SMART;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class SMARTLaunchToken
@@ -98,13 +99,14 @@ class SMARTLaunchToken
         if (!empty($intent)) {
             $context['i'] = $intent;
         }
+        $cryptoGen = new CryptoGen();
+        $jsonEncoded = json_encode($context);
+        $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
 
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
         // return to system
-        // TODO: adunsulag do we want a nonce here? don't think it will matter as user has to pass through oauth2 grant
-        // in order to get back the launch code.
-        $serialized = base64_encode(json_encode($context));
+        $serialized = base64_encode($launchParams);
         return $serialized;
     }
 
@@ -118,8 +120,15 @@ class SMARTLaunchToken
     public function deserialize($serialized)
     {
         $decoded = base64_decode($serialized);
+        $cryptoGen = new CryptoGen();
+        $jsonEncoded = $cryptoGen->decryptStandard($decoded);
+        if ($jsonEncoded === false)
+        {
+            throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
+        }
+
         // invalid json let it throw here
-        $context = json_decode($decoded, true);
+        $context = json_decode($jsonEncoded, true, 512, JSON_THROW_ON_ERROR);
         if (!empty($context['p'])) {
             $this->setPatient($context['p']);
         }

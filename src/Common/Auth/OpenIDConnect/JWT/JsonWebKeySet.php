@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
@@ -101,7 +102,12 @@ class JsonWebKeySet extends Key
             $body = $this->httpClient->sendRequest($request)->getBody();
             $json = $body->getContents();
             return $json;
-        } catch (RequestException $exception) {
+        } catch (RequestException|ConnectException $exception) {
+            throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
+        }
+        catch (\Exception $exception)
+        {
+            (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }
     }
