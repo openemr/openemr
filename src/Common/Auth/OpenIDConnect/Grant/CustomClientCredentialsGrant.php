@@ -73,6 +73,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     private $userService;
 
     /**
+     * @var JWTRepository
+     */
+    private $jwtRepository;
+
+    /**
      * The required value for the jwt assertion type
      */
     const OAUTH_JWT_CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
@@ -87,6 +92,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         $this->authTokenUrl = $authTokenUrl;
         $this->trustedUserService = new TrustedUserService();
         $this->userService = new UserService();
+        $this->jwtRepository = new JWTRepository();
     }
 
     /**
@@ -137,6 +143,22 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     public function setUserService(UserService $userService): void
     {
         $this->userService = $userService;
+    }
+
+    /**
+     * @return JWTRepository
+     */
+    public function getJwtRepository(): JWTRepository
+    {
+        return $this->jwtRepository;
+    }
+
+    /**
+     * @param JWTRepository $jwtRepository
+     */
+    public function setJwtRepository(JWTRepository $jwtRepository): void
+    {
+        $this->jwtRepository = $jwtRepository;
     }
 
     /**
@@ -292,7 +314,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         // @see https://tools.ietf.org/html/rfc7523#section-3.2
         // IF ERROR set "error" parameter to "invalid_client" use "error_description" or "error_uri" to provide error
         // information
-        $jwtRepository = new JWTRepository();
+        $jwtRepository = $this->getJwtRepository();
         $token = null;
         try {
             // http client required for fetching jwks from the jwks uri and makes unit testing easier

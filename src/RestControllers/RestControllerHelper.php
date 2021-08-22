@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -112,15 +113,19 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
+            $recordsCount = count($dataResult);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
-                $dataResult = (count($dataResult) === 0) ? [] : $dataResult[0];
+                $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
             }
 
             $httpResponseBody["data"] = $dataResult;
@@ -145,15 +150,18 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif (count($processingResult->getData()) <= 0) {
             http_response_code(404);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
         } else {
             http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
-
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
             $httpResponseBody = $dataResult[0];
         }
 

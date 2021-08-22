@@ -88,6 +88,10 @@ class PractitionerService extends BaseService
             $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
             $search['npi']->setModifier(SearchModifier::MISSING);
         }
+        // TODO: @adunsulag check with @brady.miller or @sjpadgett and find out if all practitioners will have usernames.
+        //  I noticed that in the test database that adding entries to the addressbook appears to create users... which
+        // seems bizarre and that those users don't have usernames.  I noticed that all of the users displayed in the OpenEMR
+        // user selector will exclude anything w/o a username so I add the same logic here.
         if (!empty($search['username'])) {
             if (!$search['username'] instanceof ISearchField) {
                 throw new SearchFieldException("username", "field must be instance of " . ISearchField::class);
@@ -161,7 +165,7 @@ class PractitionerService extends BaseService
         }
 
         // there should not be a single duplicate id so we will grab that
-        $search = ['uuid' => new TokenSearchField('uuid', new TokenSearchValue(UuidRegistry::uuidToBytes($uuid)))];
+        $search = ['uuid' => new TokenSearchField('uuid', new TokenSearchValue($uuid, null, true))];
         $results = $this->search($search);
         $data = $results->getData();
         if (count($data) > 1) {
@@ -191,7 +195,7 @@ class PractitionerService extends BaseService
             return $processingResult;
         }
 
-        $data['uuid'] = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRACTITIONER_TABLE)->createUuid();
 
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO users SET ";
