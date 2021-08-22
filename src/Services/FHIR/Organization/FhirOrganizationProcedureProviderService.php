@@ -66,10 +66,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
 
             $name = new TokenSearchField('name', [new TokenSearchValue(false)]);
             $name->setModifier(SearchModifier::MISSING);
-            $npi = new TokenSearchField('npi', [new TokenSearchValue(false)]);
-            $npi->setModifier(SearchModifier::MISSING);
-            $openEMRSearchParameters['identifier-name'] = new CompositeSearchField('identifier-name', [], true);
-            $openEMRSearchParameters['identifier-name']->setChildren([$name, $npi]);
+            $openEMRSearchParameters['name'] = $name;
         }
         return $this->service->search($openEMRSearchParameters);
     }
