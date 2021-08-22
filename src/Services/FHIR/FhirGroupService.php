@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirGroupService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR;
-
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\Group\FhirPatientProviderGroupService;

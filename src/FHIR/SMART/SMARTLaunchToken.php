@@ -122,8 +122,7 @@ class SMARTLaunchToken
         $decoded = base64_decode($serialized);
         $cryptoGen = new CryptoGen();
         $jsonEncoded = $cryptoGen->decryptStandard($decoded);
-        if ($jsonEncoded === false)
-        {
+        if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
         }
 

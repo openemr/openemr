@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirPatientProviderGroupService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services\FHIR\Group;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -62,10 +62,8 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         $fhirGroup->setId($dataRecord['uuid']);
         $fhirGroup->setName($dataRecord['name']);
 
-        if (!empty($dataRecord['patients']))
-        {
-            foreach ($dataRecord['patients'] as $patient)
-            {
+        if (!empty($dataRecord['patients'])) {
+            foreach ($dataRecord['patients'] as $patient) {
                 $fhirGroupMember = new FHIRGroupMember();
                 // we could display the name of the patient here in the group list... but I think for information leakage we will leave just the reference
                 $fhirGroupMember->setEntity(UtilsService::createRelativeReference("Patient", $patient['uuid']));

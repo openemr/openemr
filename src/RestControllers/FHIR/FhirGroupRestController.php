@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FhirGroupRestController.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\RestControllers\FHIR;
-
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;

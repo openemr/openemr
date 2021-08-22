@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CustomAuthCodeGrant.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
-
 
 use DateInterval;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -40,28 +40,23 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             'aud',
             $request
         );
-        if ($audience != $this->expectedAudience)
-        {
+        if ($audience != $this->expectedAudience) {
             (new SystemLogger())->errorLogCaller("Aud parameter did not match authorized server", ['audience' => $audience, 'expected' => $this->expectedAudience]);
             throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
         }
 
         // let's validate the launch param
         $launch = $this->getQueryStringParameter(
-            'launch'
-            ,$request
+            'launch',
+            $request
         );
-        if (!empty($launch))
-        {
+        if (!empty($launch)) {
             try {
                 $launchToken = SMARTLaunchToken::deserializeToken($launch);
-                if (empty($launchToken))
-                {
+                if (empty($launchToken)) {
                     throw OAuthServerException::invalidRequest("launch", "launch parameter was incorrectly formatted or did not originate from this server");
                 }
-            }
-            catch (\Exception $exception)
-            {
+            } catch (\Exception $exception) {
                 (new SystemLogger())->errorLogCaller("Failed to deserialize launch token", ['launch' => $launch, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
                 throw OAuthServerException::invalidRequest('launch', "launch parameter was incorrectly formatted or did not originate from this server");
             }

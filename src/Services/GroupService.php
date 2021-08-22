@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GroupService.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Services;
-
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
@@ -103,10 +103,9 @@ class GroupService extends BaseService
             if (!isset($recordsByUuid[$recordUuid])) {
                 $providerName = $dbRecord['provider_fname'] ?? "";
                 $providerName .= !empty($dbRecord['provider_mname']) ? " " . $dbRecord['provider_mname'] : "";
-                $providerName .= !empty($dbRecord['provider_lname']) ? " " . $dbRecord['provider_lname' ]: "";
+                $providerName .= !empty($dbRecord['provider_lname']) ? " " . $dbRecord['provider_lname' ] : "";
 
-                if (empty($providerName))
-                {
+                if (empty($providerName)) {
                     $providerName = "(Provider Name Unknown)";
                 }
                 $groupName = $providerName . " " . xl("Patients");

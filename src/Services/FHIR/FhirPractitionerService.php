@@ -99,8 +99,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
         // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
-        if (empty(trim($narrativeText)))
-        {
+        if (empty(trim($narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
             $text = array(

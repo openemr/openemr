@@ -59,8 +59,7 @@ trait FhirBulkExportDomainResourceTrait
             $group = $job->getGroupId();
 
             $patientUuids = $job->getPatientUuidsToExport();
-            if ($this instanceof IPatientCompartmentResourceService)
-            {
+            if ($this instanceof IPatientCompartmentResourceService) {
                 $searchField = $this->getPatientContextSearchField();
                 $searchParams[$searchField->getName()] = implode(",", $patientUuids);
             }

@@ -166,8 +166,7 @@ class FhirExportRestController
             // TODO: make sure the patient ids are returned
             // need to add patient ids to the export job
             // need to modify fhir bulk export domain resource trait to use the patient ids and verify that is all working.
-            if ($exportType == ExportJob::EXPORT_OPERATION_GROUP)
-            {
+            if ($exportType == ExportJob::EXPORT_OPERATION_GROUP) {
                 $job->setPatientUuidsToExport($this->getPatientUuidsForGroup($groupId));
             }
 
@@ -635,19 +634,13 @@ class FhirExportRestController
         $patientUuids = [];
         $fhirGroupService = new FhirGroupService();
         $result = $fhirGroupService->getAll(['_id' => $groupId]);
-        if ($result->hasData())
-        {
-            foreach ($result->getData() as $group)
-            {
-                if ($group instanceof FHIRGroup && !empty($group->getMember()))
-                {
-                    foreach ($group->getMember() as $member)
-                    {
-                        if (!empty($member->getEntity()) && !empty($member->getEntity()->getReference()))
-                        {
+        if ($result->hasData()) {
+            foreach ($result->getData() as $group) {
+                if ($group instanceof FHIRGroup && !empty($group->getMember())) {
+                    foreach ($group->getMember() as $member) {
+                        if (!empty($member->getEntity()) && !empty($member->getEntity()->getReference())) {
                             $uuid = UtilsService::getUuidFromReference($member->getEntity());
-                            if (!empty($uuid))
-                            {
+                            if (!empty($uuid)) {
                                 $patientUuids[] = $uuid;
                             }
                         }

@@ -35,8 +35,7 @@ class UtilsService
         $reference = new FHIRReference();
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
-        if (!empty($displayName) && is_string($displayName))
-        {
+        if (!empty($displayName) && is_string($displayName)) {
             $reference->setDisplay($displayName);
         }
         return $reference;
@@ -45,8 +44,7 @@ class UtilsService
     public static function getUuidFromReference(FHIRReference $reference)
     {
         $uuid = null;
-        if (!empty($reference->getReference()))
-        {
+        if (!empty($reference->getReference())) {
             $parts = explode("/", $reference->getReference());
             $uuid = $parts[1] ?? null;
         }
