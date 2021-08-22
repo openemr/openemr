@@ -261,8 +261,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     public function insertOpenEMRRecord($openEmrRecord)
     {
         // practitioners HAVE to have a username
-        if (!isset($openEmrRecord['username']))
-        {
+        if (!isset($openEmrRecord['username'])) {
             $username = $openEmrRecord['lname'] ?? '';
             $username .= $openEmrRecord['fname'] ?? '';
             $openEmrRecord['username'] = uniqid($username);
