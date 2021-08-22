@@ -27,6 +27,9 @@ class PractitionerService extends BaseService
 {
 
     private const PRACTITIONER_TABLE = "users";
+    /**
+     * @var PractitionerValidator
+     */
     private $practitionerValidator;
 
     /**
