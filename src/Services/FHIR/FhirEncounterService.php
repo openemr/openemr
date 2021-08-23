@@ -163,7 +163,8 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             // do it this way
             // @see https://chat.fhir.org/#narrow/stream/179175-argonaut/topic/Encounter.20Reason.20For.20Visit (beware of link rot)
             $reason = new FHIRCodeableConcept();
-            $reason->setText($dataRecord['reason']);
+            $reasonText = $dataRecord['reason'] ?? "";
+            $reason->setText(trim($reasonText));
             $encounterResource->addReasonCode($reason);
         }
         // hospitalization - must support
@@ -213,33 +214,4 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     {
         return $this->encounterService->search($searchParam, true, $puuidBind);
     }
-
-    /**
-     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
-     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
-     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
-     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
-     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
-     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
-     * @return void
-     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
-     * @throws ExportException  If there is an error in processing the export
-     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
-     */
-//    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
-//    {
-//        // TODO: encounter search should support multiple date parameter searches for interval period search
-////        $date = [
-////            'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED)
-////            ,'ge' . $job->getResourceIncludeTime()->format(\DateTime::RFC3339_EXTENDED)
-////        ];
-//        $date = 'le' . $job->getStartTime()->format(\DateTime::RFC3339_EXTENDED);
-//        $result = $this->getAll(['date' => $date]);
-//        $encounters = $result->getData();
-//        if (!empty($encounters)) {
-//            foreach ($encounters as $encounter) {
-//                $writer->append($encounter);
-//            }
-//        }
-//    }
 }

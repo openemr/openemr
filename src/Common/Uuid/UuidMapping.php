@@ -30,7 +30,8 @@ class UuidMapping
         ['resource' => 'Location', 'table' => 'users'],
         ['resource' => 'Location', 'table' => 'facility'],
         ['resource' => 'Observation', 'table' => 'form_vitals', 'codes' => FhirObservationVitalsService::COLUMN_MAPPINGS, 'category' => FhirObservationVitalsService::CATEGORY],
-        ['resource' => 'Observation', 'table' => 'history_data', 'codes' => FhirObservationSocialHistoryService::COLUMN_MAPPINGS, 'category' => FhirObservationSocialHistoryService::CATEGORY]
+        ['resource' => 'Observation', 'table' => 'history_data', 'codes' => FhirObservationSocialHistoryService::COLUMN_MAPPINGS, 'category' => FhirObservationSocialHistoryService::CATEGORY],
+        ['resource' => 'Group', 'table' => 'users']
     ];
 
     public static function getMappedRecordsForTableUUID($table_uuid)

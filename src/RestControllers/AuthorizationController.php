@@ -39,6 +39,7 @@ use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
@@ -602,10 +603,16 @@ class AuthorizationController
 
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
-            $grant = new AuthCodeGrant(
+            (new SystemLogger())->errorLogCaller(
+                "logging global params",
+                ['site_addr_oath' => $GLOBALS['site_addr_oath'], 'web_root' => $GLOBALS['web_root'], 'site_id' => $_SESSION['site_id']]
+            );
+            $expectedAudience = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
+            $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
                 new RefreshTokenRepository($includeAuthGrantRefreshToken),
-                new \DateInterval('PT1M') // auth code. should be short turn around.
+                new \DateInterval('PT1M'), // auth code. should be short turn around.
+                $expectedAudience
             );
 
             // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.

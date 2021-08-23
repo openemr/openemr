@@ -589,6 +589,7 @@ use OpenEMR\RestControllers\FHIR\FhirExportRestController;
 use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
+use OpenEMR\RestControllers\FHIR\FhirGroupRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
@@ -834,7 +835,29 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-
+    'GET /fhir/Group' => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirGroupRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            $return = (new FhirGroupRestController())->getAll($getParams);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+    "GET /fhir/Group/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "users");
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirGroupRestController())->getOne($id, $request->getPatientUUIDString());
+        } else {
+            $return = (new FhirGroupRestController())->getOne($id);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);

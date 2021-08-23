@@ -87,6 +87,10 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
 
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $practitionerResource->setId($id);
+
         $narrativeText = '';
         if (isset($dataRecord['fname'])) {
             $narrativeText = $dataRecord['fname'];
@@ -94,17 +98,18 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         if (isset($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $practitionerResource->setText($text);
+        // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
+        if (empty(trim($narrativeText))) {
+            $practitionerResource->addName(UtilsService::createDataMissingExtension());
+        } else {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $practitionerResource->setText($text);
 
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $practitionerResource->setId($id);
-
-        $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+            $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        }
         $address = UtilsService::createAddressFromRecord($dataRecord);
         if (isset($address)) {
             $practitionerResource->addAddress($address);
@@ -255,6 +260,12 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      */
     public function insertOpenEMRRecord($openEmrRecord)
     {
+        // practitioners HAVE to have a username
+        if (!isset($openEmrRecord['username'])) {
+            $username = $openEmrRecord['lname'] ?? '';
+            $username .= $openEmrRecord['fname'] ?? '';
+            $openEmrRecord['username'] = uniqid($username);
+        }
         return $this->practitionerService->insert($openEmrRecord);
     }
 

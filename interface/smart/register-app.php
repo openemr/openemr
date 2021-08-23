@@ -58,7 +58,7 @@ $scopeRepo = new ScopeRepository(RestConfig::GetInstance());
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
 $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
-$fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getTokenPath();
+$audienceUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
 ?>
 <html>
 <head>
@@ -357,7 +357,7 @@ $fhirTokenUrl = AuthorizationController::getAuthBaseFullURL() . AuthorizationCon
                     </div>
                     <div class="form-group">
                         <label for="audURL" class="text-right"><?php echo xlt('Aud URI (use this in the "aud" claim of your JWT)'); ?></label>
-                        <input type="text" disabled class="form-control" id="audURL" name="audURL" value="<?php echo attr($fhirTokenUrl); ?>" />
+                        <input type="text" disabled class="form-control" id="audURL" name="audURL" value="<?php echo attr($audienceUrl); ?>" />
                     </div>
                 </div>
                 <div class="form-group errorResponse hidden">

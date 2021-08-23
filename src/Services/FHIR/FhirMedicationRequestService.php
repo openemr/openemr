@@ -35,7 +35,7 @@ use OpenEMR\Validators\ProcessingResult;
  * Class FhirMedicationRequestService
  * @package OpenEMR\Services\FHIR
  */
-class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
+class FhirMedicationRequestService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;

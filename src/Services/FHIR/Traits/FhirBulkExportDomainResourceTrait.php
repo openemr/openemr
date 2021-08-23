@@ -19,7 +19,9 @@ use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
+use OpenEMR\Services\Search\TokenSearchField;
 
 trait FhirBulkExportDomainResourceTrait
 {
@@ -42,6 +44,28 @@ trait FhirBulkExportDomainResourceTrait
             throw new \BadMethodCallException("Trait can only be used in classes that implement the " . IResourceReadableService::class . " interface");
         }
         $searchParams = [];
+
+        // TODO: in order to handle bulk export for the group... we will need to grab our patient context resource and filter everything against
+        // the patients from the export
+
+        $type = $job->getExportType();
+
+
+        // we would need to grab all of the patient ids that belong to this group
+        // TODO: @adunsulag if we fully implement groups of patient populations we would set our patient ids into $searchParams
+        // or filter the results here.  Right now we treat all patients as belonging to the same '1' group.
+        $searchParams = [];
+        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+            $group = $job->getGroupId();
+
+            $patientUuids = $job->getPatientUuidsToExport();
+            if ($this instanceof IPatientCompartmentResourceService) {
+                $searchField = $this->getPatientContextSearchField();
+                $searchParams[$searchField->getName()] = implode(",", $patientUuids);
+            }
+        }
+        // if we can grab our list of patient ids from the export job...
+
         $processingResult = $this->getAll($searchParams);
         $records = $processingResult->getData();
         foreach ($records as $record) {

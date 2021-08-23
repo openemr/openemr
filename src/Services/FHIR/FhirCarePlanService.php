@@ -155,7 +155,8 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             // use description or fallback on codetext if needed
             $descriptions[] = $detail['description'] ?? $detail['codetext'] ?? "";
         }
-        $carePlanText = ['text' => implode("\n", $descriptions), "xhtml" => ""];
+        // make sure we clear any white space out that blows up FHIR validation
+        $carePlanText = ['text' => trim(implode("\n", $descriptions)), "xhtml" => ""];
         if (!empty($descriptions)) {
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }

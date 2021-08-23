@@ -29,7 +29,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
+class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -96,7 +96,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
         // activity element if they so choose, for now we just return the combined description of the care plan.
         if (!empty($dataRecord['details'])) {
-            $text = $this->getCarePlanTextFromDetails($dataRecord['details']);
+            $text = $this->getGoalTextFromDetails($dataRecord['details']);
             $codeableConcept = new FHIRCodeableConcept();
             $codeableConcept->setText($text['text']);
             $goal->setDescription($codeableConcept);
@@ -111,10 +111,10 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                 } else {
                     $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());
                 }
-
-                if (!empty($detail['description'])) {
+                $detailDescription = trim($detail['description'] ?? "");
+                if (!empty($detailDescription)) {
                     // if description is populated we also have to populate the measure with the correct code
-                    $fhirGoalTarget->setDetailString($detail['description']);
+                    $fhirGoalTarget->setDetailString($detailDescription);
 
                     if (!empty($detail['code'])) {
                         $codeText = $codeTypeService->lookup_code_description($detail['code']);
@@ -176,14 +176,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    private function getCarePlanTextFromDetails($details)
+    private function getGoalTextFromDetails($details)
     {
         $descriptions = [];
         foreach ($details as $detail) {
             // use description or fallback on codetext if needed
             $descriptions[] = $detail['description'] ?? $detail['codetext'] ?? "";
         }
-        $carePlanText = ['text' => implode("\n", $descriptions), "xhtml" => ""];
+        $carePlanText = ['text' => trim(implode("\n", $descriptions)), "xhtml" => ""];
         if (!empty($descriptions)) {
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }
