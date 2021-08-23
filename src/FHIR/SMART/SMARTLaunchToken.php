@@ -99,15 +99,14 @@ class SMARTLaunchToken
         if (!empty($intent)) {
             $context['i'] = $intent;
         }
-        $cryptoGen = new CryptoGen();
-        $jsonEncoded = json_encode($context);
-        $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
 
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
         // return to system
-        $serialized = base64_encode($launchParams);
-        return $serialized;
+        $cryptoGen = new CryptoGen();
+        $jsonEncoded = json_encode($context);
+        $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
+        return $launchParams;
     }
 
     public static function deserializeToken($serialized)
@@ -119,9 +118,8 @@ class SMARTLaunchToken
 
     public function deserialize($serialized)
     {
-        $decoded = base64_decode($serialized);
         $cryptoGen = new CryptoGen();
-        $jsonEncoded = $cryptoGen->decryptStandard($decoded);
+        $jsonEncoded = $cryptoGen->decryptStandard($serialized);
         if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
         }
