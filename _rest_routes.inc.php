@@ -17,6 +17,31 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * @OA\Info(title="OpenEMR API", version="6.0.0")
+ * @OA\SecurityScheme(
+ *   securityScheme="openemr_auth",
+ *   type="oauth2",
+ *   @OA\Flow(
+ *      authorizationUrl="/oauth2/default/token",
+ *      flow="implicit",
+ *      scopes={
+ *         "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient",
+ *         "user/AllergyIntolerance.read": "Read all allergy intolerance the user has access to",
+ *         "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system",
+ *      }
+ *   )
+ * )
+ * @OA\Tag(
+ *   name="fhir",
+ *   description="FHIR R4 API"
+ * )
+ * @OA\Tag(
+ *   name="standard",
+ *   description="Standard OpenEMR API"
+ * )
+ */
+
 // Lets keep our controller classes with the routes.
 //
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -47,6 +72,16 @@ use OpenEMR\RestControllers\ProcedureRestController;
 // Note that the api route is only for users role
 //  (there is a mechanism in place to ensure only user role can access the api route)
 RestConfig::$ROUTE_MAP = array(
+    /**
+     * @OA\Get(
+     *     path="/api/facility",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of facilities"
+     *     )
+     * )
+     */
     "GET /api/facility" => function () {
         RestConfig::authorization_check("admin", "users");
         $return = (new FacilityRestController())->getAll($_GET);
@@ -59,6 +94,16 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+    /**
+     * @OA\Post(
+     *     path="/api/facility",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Creates a facility in the system"
+     *     )
+     * )
+     */
     "POST /api/facility" => function () {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -66,6 +111,16 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+    /**
+     * @OA\Put(
+     *     path="/api/facility",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Updates a facility in the system"
+     *     )
+     * )
+     */
     "PUT /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -73,12 +128,34 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/api/patient",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Retrieves a list of patients"
+     *     )
+     * )
+     */
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
         $return = (new PatientRestController())->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Post(
+     *     path="/api/patient",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Creates a new patient"
+     *     )
+     * )
+     */
     "POST /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -86,6 +163,16 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+    /**
+     * @OA\Put(
+     *     path="/api/patient",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Updates a new patient"
+     *     )
+     * )
+     */
     "PUT /api/patient/:puuid" => function ($puuid) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -93,12 +180,34 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/api/patient/:puuid",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Retrieves a single patient by their uuid"
+     *     )
+     * )
+     */
     "GET /api/patient/:puuid" => function ($puuid) {
         RestConfig::authorization_check("patients", "demo");
         $return = (new PatientRestController())->getOne($puuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/api/patient/:puuid/encounter",
+     *     tags={"standard"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Retrieves a list of encounters for a single patient"
+     *     )
+     * )
+     */
     "GET /api/patient/:puuid/encounter" => function ($puuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $return = (new EncounterRestController())->getAll($puuid);
@@ -609,11 +718,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      * @OA\Get(
      *     path="/fhir/AllergyIntolerance",
+     *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of AllergyIntolerances."
-     *      , summary="Returns a list of AllergyIntolerances"
-     *     )
+     *     ),
+     *     security={"openemr_auth"}
      * )
      */
     "GET /fhir/AllergyIntolerance" => function (HttpRestRequest $request) {
@@ -628,6 +738,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/AllergyIntolerance/:id",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single AllergyIntolerances resource"
+     *     ),
+     *     @OA\Parameter(
+     *      name="id"
+     *      ,in="query"
+     *      ,description="The resource _id for the AllergyIntolerance"
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/AllergyIntolerance/:id" => function ($id, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -638,7 +765,19 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         }
         RestConfig::apiLog($return);
         return $return;
-    },"GET /fhir/CarePlan" => function (HttpRestRequest $request) {
+    },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/CarePlan",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of CarePlan resources"
+     *     )
+     * )
+     */
+    "GET /fhir/CarePlan" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -650,6 +789,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/CarePlan/:uuid",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of CarePlan resources"
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="query"
+     *      ,description="The resource _id for the AllergyIntolerance"
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/CarePlan/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
