@@ -104,8 +104,6 @@ class FhirClinicalNotesService extends FhirServiceBase
         $identifier->setValue(new FHIRString($dataRecord['uuid']));
         $docReference->addIdentifier($identifier);
 
-        // TODO: @adunsulag need to support content.attachment.url
-
         if (!empty($dataRecord['date'])) {
             $docReference->setDate(gmdate('c', strtotime($dataRecord['date'])));
         } else {
@@ -232,7 +230,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

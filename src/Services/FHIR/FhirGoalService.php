@@ -92,6 +92,11 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $lifecycleStatus->setValue("active");
         $goal->setLifecycleStatus($lifecycleStatus);
 
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi']))
+        {
+            $goal->setExpressedBy(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+        }
+
 
         // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
         // activity element if they so choose, for now we just return the combined description of the care plan.
@@ -161,8 +166,11 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
     public function createProvenanceResource($dataRecord, $encode = false)
     {
+        if (!($dataRecord instanceof FHIRGoal)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
         $provenanceService = new FhirProvenanceService();
-        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord);
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getExpressedBy());
         return $provenance;
     }
 

@@ -282,7 +282,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

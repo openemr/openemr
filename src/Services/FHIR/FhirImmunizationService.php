@@ -164,6 +164,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
 
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi']))
+        {
+            $immunizationResource->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+        }
+
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
 //        if (!empty($dataRecord['education_date'])) {
 //            $education = new FHIRImmunizationEducation();
@@ -197,7 +202,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $performer = null;
+        if (!empty($dataRecord->getPerformer()))
+        {
+            $performer = current($dataRecord->getPerformer());
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

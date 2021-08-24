@@ -212,7 +212,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

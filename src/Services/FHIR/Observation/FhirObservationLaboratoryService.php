@@ -235,6 +235,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         }
 
 
+        if (!empty($dataRecord['provider']['uuid']) && !empty($dataRecord['provider']['npi'])) {
+            $observation->addPerformer(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid']));
+        }
+
         if (!empty($dataRecord['comments'])) {
             $observation->addNote(['text' => $dataRecord['comments']]);
         }
@@ -276,7 +280,13 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $performer = null;
+        if (!empty($dataRecord->getPerformer()))
+        {
+            // grab the first one
+            $performer = current($dataRecord->getPerformer());
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

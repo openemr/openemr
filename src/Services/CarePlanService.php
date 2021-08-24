@@ -141,6 +141,9 @@ class CarePlanService extends BaseService
                 ,fcp.date
                 ,l.`notes` AS moodCode
                 ,category.careplan_category
+                ,provider.provider_uuid
+                ,provider.provider_npi
+                ,provider.provider_username
                  FROM
                  (
                     select
@@ -152,6 +155,7 @@ class CarePlanService extends BaseService
                         ,`encounter`
                         ,`pid`
                         ,`care_plan_type`
+                        ,`user` AS `care_plan_user`
                     FROM
                         form_care_plan
                     WHERE
@@ -174,6 +178,15 @@ class CarePlanService extends BaseService
                     FROM
                         patient_data
                  ) patients ON fcp.pid = patients.pid
+                 LEFT JOIN (
+                     select 
+                        id AS provider_id
+                        ,uuid AS provider_uuid
+                        ,npi AS provider_npi
+                        ,username AS provider_username
+                     FROM
+                        users
+                 ) provider ON fcp.user = provider.provider_username
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`='Plan_of_Care_Type'";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
