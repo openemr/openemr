@@ -466,8 +466,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
         $observation->setStatus(self::VITALS_DEFAULT_OBSERVATION_STATUS);
 
-        if (!empty($dataRecord['user_uuid']) && !empty($dataRecord['user_npi']))
-        {
+        if (!empty($dataRecord['user_uuid']) && !empty($dataRecord['user_npi'])) {
             $observation->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['user_uuid']));
         }
 
@@ -731,8 +730,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
-        if (!empty($dataRecord->getPerformer()))
-        {
+        if (!empty($dataRecord->getPerformer())) {
             // grab the first one
             $performer = current($dataRecord->getPerformer());
         }

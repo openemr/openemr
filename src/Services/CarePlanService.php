@@ -186,7 +186,7 @@ class CarePlanService extends BaseService
                         ,username AS provider_username
                      FROM
                         users
-                 ) provider ON fcp.user = provider.provider_username
+                 ) provider ON fcp.care_plan_user = provider.provider_username
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`='Plan_of_Care_Type'";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

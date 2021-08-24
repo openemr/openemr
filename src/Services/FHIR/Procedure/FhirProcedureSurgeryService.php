@@ -132,8 +132,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $procedureResource->addNote(['text' => $dataRecord['comments']]);
         }
 
-        if (!empty($dataRecord['recorder_npi']) && !empty($dataRecord['recorder_uuid']))
-        {
+        if (!empty($dataRecord['recorder_npi']) && !empty($dataRecord['recorder_uuid'])) {
             $procedureResource->setRecorder(UtilsService::createRelativeReference('Practitioner', $dataRecord['recorder_uuid']));
         }
 

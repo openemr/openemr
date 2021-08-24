@@ -92,8 +92,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $lifecycleStatus->setValue("active");
         $goal->setLifecycleStatus($lifecycleStatus);
 
-        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi']))
-        {
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
             $goal->setExpressedBy(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 

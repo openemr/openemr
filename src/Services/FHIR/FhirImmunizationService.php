@@ -164,8 +164,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $immunizationResource->setDoseQuantity($doseQuantity);
         }
 
-        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi']))
-        {
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
             $immunizationResource->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
@@ -203,8 +202,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
-        if (!empty($dataRecord->getPerformer()))
-        {
+        if (!empty($dataRecord->getPerformer())) {
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);

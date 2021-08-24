@@ -208,8 +208,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
-        if (!empty($dataRecord->getPerformer()))
-        {
+        if (!empty($dataRecord->getPerformer())) {
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
