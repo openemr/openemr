@@ -31,6 +31,9 @@ if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
 
 $CPR = 4; // cells per row
 
+$searchcolor = empty($GLOBALS['layout_search_color']) ?
+  'var(--yellow)' : $GLOBALS['layout_search_color'];
+
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
 
@@ -311,6 +314,11 @@ function toggleSearch(elem) {
  var f = document.forms[0];
 <?php if ($WITH_SEARCH) { ?>
  // Toggle background color.
+ if (elem.style.backgroundColor == '')
+  elem.style.backgroundColor = <?php echo js_escape($searchcolor); ?>;
+ else
+  elem.style.backgroundColor = '';
+
  if (!elem.classList.contains("is-invalid") && $.trim($(elem).val()) == '') {
   elem.classList.add("is-invalid");
 } else {
