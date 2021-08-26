@@ -563,7 +563,7 @@ $(function () {
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     // $(".event").dblclick(function() { EditEvent(this); });
-    <?php if ($print_patients) { ?>
+    <?php if (isset($print_patients)) { ?>
       var win = top.printLogPrint ? top : opener.top;
       win.printLogPrint(window);
     <?php } ?>
