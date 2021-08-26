@@ -1,0 +1,384 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "OpenEMR API",
+        "version": "6.0.0"
+    },
+    "paths": {
+        "/api/facility": {
+            "get": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of facilities"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updates a facility in the system"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creates a facility in the system"
+                    }
+                }
+            }
+        },
+        "/api/patient": {
+            "get": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieves a list of patients"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updates a new patient"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creates a new patient"
+                    }
+                }
+            }
+        },
+        "/api/patient/:puuid": {
+            "get": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieves a single patient by their uuid"
+                    }
+                }
+            }
+        },
+        "/api/patient/:puuid/encounter": {
+            "get": {
+                "tags": [
+                    "standard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieves a list of encounters for a single patient"
+                    }
+                }
+            }
+        },
+        "/fhir/AllergyIntolerance": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of AllergyIntolerance resources."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/fhir/AllergyIntolerance/:uuid": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The uuid for the AllergyIntolerance resource.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a single AllergyIntolerance resource."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/fhir/CarePlan": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of CarePlan resources."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/fhir/CarePlan/:uuid": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The uuid for the CarePlan resource.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a single CarePlan resource."
+                    }
+                }
+            }
+        },
+        "/fhir/CareTeam": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of CareTeam resources."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/fhir/CareTeam/:uuid": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The uuid for the CareTeam resource.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a single CareTeam resource."
+                    }
+                }
+            }
+        },
+        "/fhir/Condition": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of Condition resources."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/fhir/Condition/:uuid": {
+            "get": {
+                "tags": [
+                    "fhir"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The uuid for the Condition resource.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a single Condition resource."
+                    }
+                }
+            }
+        },
+        "/portal/patient": {
+            "get": {
+                "tags": [
+                    "standard-patient"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the patient."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/portal/patient/encounter": {
+            "get": {
+                "tags": [
+                    "standard-patient"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns encounters for the patient."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        },
+        "/portal/patient/encounter/:euuid": {
+            "get": {
+                "tags": [
+                    "standard-patient"
+                ],
+                "parameters": [
+                    {
+                        "name": "euuid",
+                        "in": "path",
+                        "description": "The uuid for the encounter.",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a selected encounter by its uuid."
+                    }
+                },
+                "security": [
+                    {
+                        "scalar": "openemr_auth"
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "openemr_auth": {
+                "type": "oauth2",
+                "flows": {
+                    "implicit": {
+                        "authorizationUrl": "/oauth2/default/token",
+                        "scopes": {
+                            "openid": "Generic mandatory scope",
+                            "offline_access": "Will signal server to provide a refresh token",
+                            "api:fhir": "FHIR R4 API",
+                            "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
+                            "user/AllergyIntolerance.read": "Read all allergy intolerance the user has access to (api:fhir)",
+                            "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system (api:fhir)",
+                            "api:oemr": "Standard OpenEMR API",
+                            "user/allergy.read": "Read allergies the user has access to (api:oemr)",
+                            "user/allergy.write": "Write allergies the user has access to for (api:oemr)",
+                            "user/appointment.read": "Read appointments the user has access to (api:oemr)",
+                            "user/appointment.write": "Write appointments the user has access to for (api:oemr)",
+                            "user/dental_issue.read": "Read dental issues the user has access to (api:oemr)",
+                            "user/dental_issue.write": "Write dental issues the user has access to (api:oemr)",
+                            "user/document.read": "Read documents the user has access to (api:oemr)",
+                            "user/document.write": "Write documents the user has access to (api:oemr)",
+                            "user/drug.read": "Read drugs the user has access to (api:oemr)",
+                            "user/encounter.read": "Read encounters the user has access to (api:oemr)",
+                            "user/encounter.write": "Write encounters the user has access to (api:oemr)",
+                            "user/facility.read": "Read facilities the user has access to (api:oemr)",
+                            "user/facility.write": "Write facilities the user has access to (api:oemr)",
+                            "user/immunization.read": "Read immunizations the user has access to (api:oemr)",
+                            "user/insurance.read": "Read insurances the user has access to (api:oemr)",
+                            "user/insurance.write": "Write insurances the user has access to (api:oemr)",
+                            "user/insurance_company.read": "Read insurance companies the user has access to (api:oemr)",
+                            "user/insurance_company.write": "Write insurance companies the user has access to (api:oemr)",
+                            "user/insurance_type.read": "Read insurance types the user has access to (api:oemr)",
+                            "user/list.read": "Read lists the user has access to (api:oemr)",
+                            "user/medical_problem.read": "Read medical problems the user has access to (api:oemr)",
+                            "user/medical_problem.write": "Write medical problems the user has access to (api:oemr)",
+                            "user/medication.read": "Read medications the user has access to (api:oemr)",
+                            "user/medication.write": "Write medications the user has access to (api:oemr)",
+                            "user/message.write": "Read messages the user has access to (api:oemr)",
+                            "user/patient.read": "Read patients the user has access to (api:oemr)",
+                            "user/patient.write": "Write patients the user has access to (api:oemr)",
+                            "user/practitioner.read": "Read practitioners the user has access to (api:oemr)",
+                            "user/practitioner.write": "Write practitioners the user has access to (api:oemr)",
+                            "user/prescription.read": "Read prescriptions the user has access to (api:oemr)",
+                            "user/procedure.read": "Read procedures the user has access to (api:oemr)",
+                            "user/soap_note.read": "Read soap notes the user has access to (api:oemr)",
+                            "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
+                            "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
+                            "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
+                            "user/vital.read": "Read vitals the user has access to (api:oemr)",
+                            "user/vital.write": "Write vitals the user has access to (api:oemr)",
+                            "api:port": "Standard Patient Portal OpenEMR API",
+                            "patient/encounter.read": "Read encounters the patient has access to (api:port)",
+                            "patient/patient.read": "Write encounters the patient has access to (api:port)"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "fhir",
+            "description": "FHIR R4 API"
+        },
+        {
+            "name": "standard",
+            "description": "Standard OpenEMR API"
+        },
+        {
+            "name": "standard-patient",
+            "description": "Standard Patient Portal OpenEMR API"
+        }
+    ]
+}
