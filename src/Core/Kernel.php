@@ -39,6 +39,10 @@ class Kernel
         $this->prepareContainer();
     }
 
+    public function isDev() {
+        return ($_ENV['OPENEMR__ENVIRONMENT'] === 'dev') ? true : false;
+    }
+
     /**
      * Setup the initial container
      */

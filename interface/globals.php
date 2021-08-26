@@ -277,12 +277,6 @@ require_once(__DIR__ . "/../version.php");
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
 
-// Load twig support
-$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
-$twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
-$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
-$GLOBALS['twig'] = $twigEnv;
-
 try {
     /** @var Kernel */
     $GLOBALS["kernel"] = new Kernel();
@@ -290,6 +284,23 @@ try {
     error_log(errorLogEscape($e->getMessage()));
     die();
 }
+
+// Load twig support
+$twigEnvOpts = ['autoescape' => false];
+$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
+$twigEnv = new Twig\Environment($twigLoader, $twigEnvOpts);
+$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
+
+if ($GLOBALS['kernel']->isDev()) {
+    // If .env is in Dev, automatically turn on Twig Debugging
+    $twigEnv->addExtension(new Twig\Extension\DebugExtension());
+    $twigEnv->enableDebug();
+}
+
+/**
+ * @var Twig\Environment
+ */
+$GLOBALS['twig'] = $twigEnv;
 
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
