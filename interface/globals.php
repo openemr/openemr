@@ -317,6 +317,23 @@ try {
     die();
 }
 
+// Load twig support
+$twigEnvOpts = ['autoescape' => false];
+$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
+$twigEnv = new Twig\Environment($twigLoader, $twigEnvOpts);
+$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
+
+if ($GLOBALS['kernel']->isDev()) {
+    // If .env is in Dev, automatically turn on Twig Debugging
+    $twigEnv->addExtension(new Twig\Extension\DebugExtension());
+    $twigEnv->enableDebug();
+}
+
+/**
+ * @var Twig\Environment
+ */
+$GLOBALS['twig'] = $twigEnv;
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
