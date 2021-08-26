@@ -14,15 +14,22 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Core\Kernel;
 use OpenEMR\Common\Twig\TwigExtension;
 use Twig\Environment;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
 class TwigContainer
 {
     private $path;  // path in /templates
 
-    public function __construct($path = null)
+    /**
+     * Instance of Kernel
+     */
+    private $kernel;
+
+    public function __construct($path = null, $kernel)
     {
         $this->path = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {
@@ -35,6 +42,12 @@ class TwigContainer
         $twigLoader = new FilesystemLoader($this->path);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $twigEnv->addExtension(new TwigExtension());
+
+        if($this->kernel->isDev()) {
+            $twigEnv->addExtension(new Twig\Extension\DebugExtension());
+            $twigEnv->enableDebug();
+        }
+        
         return $twigEnv;
     }
 }
