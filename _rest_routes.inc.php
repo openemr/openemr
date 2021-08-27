@@ -12,19 +12,21 @@
  * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /**
- * @OA\Info(title="OpenEMR API", version="6.0.0")
+ * @OA\Info(title="OpenEMR API", version="6.1.0")
+ * @OA\Server(url="/apis/default/")
  * @OA\SecurityScheme(
  *   securityScheme="openemr_auth",
  *   type="oauth2",
  *   @OA\Flow(
- *      authorizationUrl="/oauth2/default/token",
- *      flow="implicit",
+ *      authorizationUrl="/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=123456",
+ *      tokenUrl="/oauth2/default/token",
+ *      flow="authorizationCode",
  *      scopes={
  *         "openid": "Generic mandatory scope",
  *         "offline_access": "Will signal server to provide a refresh token",
@@ -789,7 +791,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      * @OA\Get(
-     *     path="/fhir/AllergyIntolerance/:uuid",
+     *     path="/fhir/AllergyIntolerance/{uuid}",
      *     tags={"fhir"},
      *     @OA\Parameter(
      *      name="uuid",
@@ -842,7 +844,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      * @OA\Get(
-     *     path="/fhir/CarePlan/:uuid",
+     *     path="/fhir/CarePlan/{uuid}",
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -894,7 +896,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      * @OA\Get(
-     *     path="/fhir/CareTeam/:uuid",
+     *     path="/fhir/CareTeam/{uuid}",
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -946,7 +948,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      * @OA\Get(
-     *     path="/fhir/Condition/:uuid",
+     *     path="/fhir/Condition/{uuid}",
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -971,18 +973,59 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Coverage",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Coverage resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Coverage/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Coverage resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Coverage resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $return = (new FhirCoverageRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Device",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Device resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Device" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -994,6 +1037,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Device/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Device resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Device resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Device/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1005,6 +1065,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/DiagnosticReport",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of DiagnosticReport resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1017,6 +1089,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/DiagnosticReport/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single DiagnosticReport resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the DiagnosticReport resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1029,6 +1118,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/DocumentReference",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of DocumentReference resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     'GET /fhir/DocumentReference' => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1041,6 +1142,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/DocumentReference/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single DocumentReference resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the DocumentReference resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1053,6 +1171,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
         // currently only allow users with the same permissions as export to take a file out
         // this could be relaxed to allow other types of files ie such as patient access etc.
@@ -1063,6 +1185,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $response = $docController->downloadDocument($documentId, $request->getRequestUserId());
         return $response;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Encounter",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Encounter resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Encounter" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1075,17 +1209,46 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Encounter/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Encounter/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Encounter resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Encounter resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Encounter/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirEncounterRestController())->getOne($id, $request->getPatientUUIDString());
+            $return = (new FhirEncounterRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirEncounterRestController())->getOne($id);
+            $return = (new FhirEncounterRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Goal",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Condition resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Goal" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1098,17 +1261,46 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Goal/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Goal/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Goal resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Goal resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Goal/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirGoalRestController())->getOne($id, $request->getPatientUUIDString());
+            $return = (new FhirGoalRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("admin", "super");
-            $return = (new FhirGoalRestController())->getOne($id);
+            $return = (new FhirGoalRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Group",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Group resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     'GET /fhir/Group' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $getParams = $request->getQueryParams();
@@ -1121,17 +1313,38 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Group/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Group/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Group resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Group resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirGroupRestController())->getOne($id, $request->getPatientUUIDString());
+            $return = (new FhirGroupRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            $return = (new FhirGroupRestController())->getOne($id);
+            $return = (new FhirGroupRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
@@ -1146,6 +1359,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Immunization",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Immunization resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1158,39 +1383,126 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Immunization/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Immunization/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Immunization resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Immunization resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirImmunizationRestController())->getOne($id, $request->getPatientUUIDString());
+            $return = (new FhirImmunizationRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::authorization_check("patients", "med");
-            $return = (new FhirImmunizationRestController())->getOne($id);
+            $return = (new FhirImmunizationRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Location",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Location resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
         $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Location/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Location resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Location resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
         $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Medication",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Medication resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Medication/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Medication resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Medication resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "med");
         $return = (new FhirMedicationRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/MedicationRequest",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of MedicationRequest resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/MedicationRequest" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1203,6 +1515,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/MedicationRequest/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single MedicationRequest resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the MedicationRequest resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/MedicationRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1214,6 +1543,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Observation",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Observation resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1226,6 +1567,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Observation/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Observation resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Observation resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1237,6 +1595,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Organization",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Organization resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
         if (!$request->isPatientRequest()) {
             RestConfig::authorization_check("admin", "users");
@@ -1245,18 +1615,39 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Organization/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Organization/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Organization resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Organization resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         $patientUUID = null;
         if (!$request->isPatientRequest()) {
             RestConfig::authorization_check("admin", "users");
         } else {
             $patientUUID = $request->getPatientUUIDString();
         }
-        $return = (new FhirOrganizationRestController())->getOne($id, $patientUUID);
+        $return = (new FhirOrganizationRestController())->getOne($uuid, $patientUUID);
 
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1264,6 +1655,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "PUT /fhir/Organization/:id" => function ($id, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1271,6 +1666,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "POST /fhir/Patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1278,6 +1677,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "PUT /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1285,6 +1688,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Patient",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Patient resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
         $params = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1300,6 +1715,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
     'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -1313,7 +1732,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Patient/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Patient resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Patient resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             if (empty($id) || ($id != $request->getPatientUUIDString())) {
@@ -1323,22 +1759,63 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         } else {
             RestConfig::authorization_check("patients", "demo");
         }
-        $return = (new FhirPatientRestController())->getOne($id);
+        $return = (new FhirPatientRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Person",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Person resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Person" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Person/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Person resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Person resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPersonRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Practitioner",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Practitioner resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
 
         // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
@@ -1353,7 +1830,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/Practitioner/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Practitioner/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Practitioner resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Practitioner resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
         // that is referenced in connected patient resources -- such as AllergyIntollerance.
         // I don't believe patients are assigned to a particular practitioner
@@ -1362,10 +1856,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         if (!$request->isPatientRequest()) {
             RestConfig::authorization_check("admin", "users");
         }
-        $return = (new FhirPractitionerRestController())->getOne($id);
+        $return = (new FhirPractitionerRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1373,6 +1871,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "PUT /fhir/Practitioner/:id" => function ($id, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -1380,18 +1882,59 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/PractitionerRole",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of PractitionerRole resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
     },
-    "GET /fhir/PractitionerRole/:id" => function ($id, HttpRestRequest $request) {
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/PractitionerRole/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single PractitionerRole resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the PractitionerRole resource."
+     *      ,required=true
+     *     )
+     * )
+     */
+    "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPractitionerRoleRestController())->getOne($id);
+        $return = (new FhirPractitionerRoleRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Procedure",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Procedure resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1403,6 +1946,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Procedure/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Procedure resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Procedure resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1414,6 +1974,23 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Provenance/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Provenance resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Provenance resource."
+     *      ,required=true
+     *     )
+     * )
+     */
     "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -1425,6 +2002,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/fhir/Provenance",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a list of Provenance resources."
+     *     ),
+     *     security={"openemr_auth"}
+     * )
+     */
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
     // property to support which is why this endpoint exists.
     "GET /fhir/Provenance" => function (HttpRestRequest $request) {
@@ -1439,12 +2028,21 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
     // other endpoints
+
+    /**
+     * TODO
+     */
     "GET /fhir/metadata" => function () {
         $return = (new FhirMetaDataRestController())->getMetaData();
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     "GET /fhir/.well-known/smart-configuration" => function () {
         $authController = new \OpenEMR\RestControllers\AuthorizationController();
         $return = (new \OpenEMR\RestControllers\SMART\SMARTConfigurationController($authController))->getConfig();
@@ -1453,6 +2051,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     // FHIR root level operations
+
+    /**
+     * TODO
+     */
     'GET /fhir/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
@@ -1465,9 +2067,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
     // these two operations are adopted based on the documentation used in the IBM FHIR Server
     // we'd reference cerner or epic but we couldn't find any documentation about those (Jan 30th 2021)
     // @see https://ibm.github.io/FHIR/guides/FHIRBulkOperations/
+
+    /**
+     * TODO
+     */
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $jobUuidString = $request->getQueryParam('job');
@@ -1478,6 +2085,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * TODO
+     */
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $job = $request->getQueryParam('job');
@@ -1507,6 +2118,7 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
     /**
      * @OA\Get(
      *     path="/portal/patient/encounter",
@@ -1523,9 +2135,10 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
     /**
      * @OA\Get(
-     *     path="/portal/patient/encounter/:euuid",
+     *     path="/portal/patient/encounter/{euuid}",
      *     tags={"standard-patient"},
      *     @OA\Parameter(
      *      name="euuid"
