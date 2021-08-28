@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CreateAPIDocumentation.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Common\Command;
-
 
 use OpenEMR\Common\Command\Runner\CommandContext;
 
@@ -41,7 +41,7 @@ class CreateAPIDocumentationCommand implements IOpenEMRCommand
     public function execute(CommandContext $context)
     {
         $routesLocation = $context->getRootPath() . "_rest_routes.inc.php";
-        $fileDestinationFolder = $context->getRootPath(). "swagger" . DIRECTORY_SEPARATOR;
+        $fileDestinationFolder = $context->getRootPath() . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationJson =  $fileDestinationFolder . "openemr-api.json";
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
 
@@ -50,9 +50,8 @@ class CreateAPIDocumentationCommand implements IOpenEMRCommand
         $resultJson = file_put_contents($fileDestinationJson, $openapi->toJson());
         $resultYaml = file_put_contents($fileDestinationYaml, $openapi->toYaml());
 
-        if ($resultJson === false || $resultYaml === false)
-        {
-            echo "No write access to " . $fileDestinationJson ." and/or " . $fileDestinationYaml . "\n";
+        if ($resultJson === false || $resultYaml === false) {
+            echo "No write access to " . $fileDestinationJson . " and/or " . $fileDestinationYaml . "\n";
             $this->printUsage($context);
             return;
         } else {
