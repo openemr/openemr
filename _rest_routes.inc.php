@@ -24,7 +24,7 @@
  *   securityScheme="openemr_auth",
  *   type="oauth2",
  *   @OA\Flow(
- *      authorizationUrl="/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=123456",
+ *      authorizationUrl="/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=f7564cb386978a30bef46a68df95eb7e",
  *      tokenUrl="/oauth2/default/token",
  *      flow="authorizationCode",
  *      scopes={

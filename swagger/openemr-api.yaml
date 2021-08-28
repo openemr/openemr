@@ -1,7 +1,10 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 6.0.0
+  version: 6.1.0
+servers:
+  -
+    url: /apis/default/
 paths:
   /api/facility:
     get:
@@ -65,7 +68,7 @@ paths:
       security:
         -
           scalar: openemr_auth
-  '/fhir/AllergyIntolerance/:uuid':
+  '/fhir/AllergyIntolerance/{uuid}':
     get:
       tags:
         - fhir
@@ -91,7 +94,7 @@ paths:
       security:
         -
           scalar: openemr_auth
-  '/fhir/CarePlan/:uuid':
+  '/fhir/CarePlan/{uuid}':
     get:
       tags:
         - fhir
@@ -114,7 +117,7 @@ paths:
       security:
         -
           scalar: openemr_auth
-  '/fhir/CareTeam/:uuid':
+  '/fhir/CareTeam/{uuid}':
     get:
       tags:
         - fhir
@@ -137,7 +140,7 @@ paths:
       security:
         -
           scalar: openemr_auth
-  '/fhir/Condition/:uuid':
+  '/fhir/Condition/{uuid}':
     get:
       tags:
         - fhir
@@ -150,6 +153,443 @@ paths:
       responses:
         '200':
           description: 'Returns a single Condition resource.'
+  /fhir/Coverage:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Coverage resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Coverage/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Coverage resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Coverage resource.'
+  /fhir/Device:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Device resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Device/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Device resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Device resource.'
+  /fhir/DiagnosticReport:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of DiagnosticReport resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/DiagnosticReport/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the DiagnosticReport resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single DiagnosticReport resource.'
+  /fhir/DocumentReference:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of DocumentReference resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/DocumentReference/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the DocumentReference resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single DocumentReference resource.'
+  /fhir/Encounter:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Encounter resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Encounter/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Encounter resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Encounter resource.'
+  /fhir/Goal:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Condition resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Goal/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Goal resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Goal resource.'
+  /fhir/Group:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Group resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Group/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Group resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Group resource.'
+  /fhir/Immunization:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Immunization resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Immunization/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Immunization resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Immunization resource.'
+  /fhir/Location:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Location resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Location/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Location resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Location resource.'
+  /fhir/Medication:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Medication resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Medication/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Medication resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Medication resource.'
+  /fhir/MedicationRequest:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of MedicationRequest resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/MedicationRequest/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the MedicationRequest resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single MedicationRequest resource.'
+  /fhir/Observation:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Observation resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Observation/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Observation resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Observation resource.'
+  /fhir/Organization:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Organization resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Organization/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Organization resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Organization resource.'
+  /fhir/Patient:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Patient resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Patient/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Patient resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Patient resource.'
+  /fhir/Person:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Person resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Person/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Person resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Person resource.'
+  /fhir/Practitioner:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Practitioner resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Practitioner/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Practitioner resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Practitioner resource.'
+  /fhir/PractitionerRole:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of PractitionerRole resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/PractitionerRole/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the PractitionerRole resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single PractitionerRole resource.'
+  /fhir/Procedure:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Procedure resources.'
+      security:
+        -
+          scalar: openemr_auth
+  '/fhir/Procedure/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Procedure resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Procedure resource.'
+  '/fhir/Provenance/{uuid}':
+    get:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Provenance resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Provenance resource.'
+  /fhir/Provenance:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns a list of Provenance resources.'
+      security:
+        -
+          scalar: openemr_auth
   /portal/patient:
     get:
       tags:
@@ -170,7 +610,7 @@ paths:
       security:
         -
           scalar: openemr_auth
-  '/portal/patient/encounter/:euuid':
+  '/portal/patient/encounter/{euuid}':
     get:
       tags:
         - standard-patient
@@ -191,8 +631,9 @@ components:
     openemr_auth:
       type: oauth2
       flows:
-        implicit:
-          authorizationUrl: /oauth2/default/token
+        authorizationCode:
+          authorizationUrl: '/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=f7564cb386978a30bef46a68df95eb7e'
+          tokenUrl: /oauth2/default/token
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
