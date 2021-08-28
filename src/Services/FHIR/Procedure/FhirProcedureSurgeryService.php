@@ -132,6 +132,10 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $procedureResource->addNote(['text' => $dataRecord['comments']]);
         }
 
+        if (!empty($dataRecord['recorder_npi']) && !empty($dataRecord['recorder_uuid'])) {
+            $procedureResource->setRecorder(UtilsService::createRelativeReference('Practitioner', $dataRecord['recorder_uuid']));
+        }
+
         if ($encode) {
             return json_encode($procedureResource);
         } else {
@@ -152,7 +156,8 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $user = $dataRecord->getRecorder() ?? null;
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $user);
 
         if ($encode) {
             return json_encode($fhirProvenance);

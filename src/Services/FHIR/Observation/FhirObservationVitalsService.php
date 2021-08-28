@@ -166,7 +166,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         // pediatric profiles are different...
         // need pediatric BMI
         // need pediatric head-occipetal
-        // TODO: @adunsulag figure out where these values come from...
 
         // Birth - 36 months @see https://www.cdc.gov/growthcharts/html_charts/hcageinf.htm
         // @see
@@ -467,7 +466,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
         $observation->setStatus(self::VITALS_DEFAULT_OBSERVATION_STATUS);
 
-        // TODO: @adunsulag if our provenance needs to be more detailed we can use performer to set the user
+        if (!empty($dataRecord['user_uuid']) && !empty($dataRecord['user_npi'])) {
+            $observation->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['user_uuid']));
+        }
 
         $obsConcept = new FHIRCodeableConcept();
         $obsCategoryCoding = new FhirCoding();
@@ -728,7 +729,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $performer = null;
+        if (!empty($dataRecord->getPerformer())) {
+            // grab the first one
+            $performer = current($dataRecord->getPerformer());
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

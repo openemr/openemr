@@ -112,6 +112,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $carePlanResource->setText(UtilsService::createDataMissingExtension());
         }
 
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
+            $carePlanResource->getAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+        }
+
         if ($encode) {
             return json_encode($carePlanResource);
         } else {
@@ -133,8 +137,11 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function createProvenanceResource($dataRecord, $encode = false)
     {
+        if (!($dataRecord instanceof FHIRCarePlan)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
         $provenanceService = new FhirProvenanceService();
-        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord);
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
         return $provenance;
     }
 

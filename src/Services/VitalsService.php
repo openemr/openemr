@@ -89,6 +89,7 @@ class VitalsService extends BaseService
                     ,encounters.eid
                     ,encounters.euuid
                     ,users.user_uuid
+                    ,users.user_npi
                     ,vitals.id
                     ,forms.form_id
                     ,vitals.uuid
@@ -161,6 +162,7 @@ class VitalsService extends BaseService
                     SELECT
                         uuid AS user_uuid
                         ,username
+                        ,npi AS user_npi
                         ,id AS uid
                         FROM users
                 ) users ON vitals.`user` = users.username

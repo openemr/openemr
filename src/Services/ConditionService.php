@@ -49,6 +49,10 @@ class ConditionService extends BaseService
         patient.patient_uuid,
         condition_ids.condition_uuid,
         verification.title as verification_title
+        ,provider.provider_id
+        ,provider.provider_npi
+        ,provider.provider_uuid
+        ,provider.provider_username
     FROM lists
         INNER JOIN (
             SELECT lists.uuid AS condition_uuid FROM lists
@@ -62,7 +66,15 @@ class ConditionService extends BaseService
             FROM patient_data
         ) patient ON patient.pid = lists.pid
         LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id
-        LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter";
+        LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter
+        LEFT JOIN (
+                select 
+                   id AS provider_id
+                   ,uuid AS provider_uuid
+                   ,npi AS provider_npi
+                    ,username as provider_username
+                FROM users
+            ) provider ON lists.user = provider.provider_username";
 
         $search['type'] = new StringSearchField('type', ['medical_problem'], SearchModifier::EXACT);
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
