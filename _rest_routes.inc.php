@@ -19,7 +19,6 @@
 
 /**
  * @OA\Info(title="OpenEMR API", version="6.1.0")
- * @OA\Server(url="/apis/default/")
  * @OA\SecurityScheme(
  *   securityScheme="openemr_auth",
  *   type="oauth2",
@@ -843,6 +842,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/AllergyIntolerance",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the AllergyIntolerance resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200",
      *      description="Returns a list of AllergyIntolerance resources."
@@ -896,6 +907,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/CarePlan",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the CarePlan resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="category",
+     *      in="query",
+     *      description="The category of the CarePlan resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of CarePlan resources."
@@ -949,6 +978,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/CareTeam",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the CareTeam resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="status",
+     *      in="query",
+     *      description="The status of the CarePlan resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of CareTeam resources."
@@ -1002,6 +1049,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Condition",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Condition resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Condition resources."
@@ -1055,6 +1114,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Coverage",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Coverage resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="payor",
+     *      in="query",
+     *      description="The payor of the Coverage resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Coverage resources."
@@ -1097,6 +1174,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Device",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Device resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Device resources."
@@ -1149,6 +1238,36 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/DiagnosticReport",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the DiagnosticReport resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="code",
+     *      in="query",
+     *      description="The code of the DiagnosticReport resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="category",
+     *      in="query",
+     *      description="The category of the DiagnosticReport resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="date",
+     *      in="query",
+     *      description="The datetime of the DiagnosticReport resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of DiagnosticReport resources."
@@ -1203,6 +1322,36 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/DocumentReference",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the DocumentReference resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="type",
+     *      in="query",
+     *      description="The type of the DocumentReference resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="category",
+     *      in="query",
+     *      description="The category of the DocumentReference resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="date",
+     *      in="query",
+     *      description="The datetime of the DocumentReference resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of DocumentReference resources."
@@ -1271,6 +1420,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Encounter",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Encounter resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="date",
+     *      in="query",
+     *      description="The datetime of the Encounter resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Encounter resources."
@@ -1324,6 +1491,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Goal",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Goal resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Condition resources."
@@ -1377,6 +1556,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Group",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Group resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Group resources."
@@ -1448,6 +1639,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Immunization",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Immunization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Immunization resources."
@@ -1501,6 +1704,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Location",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Location resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Location resources."
@@ -1583,6 +1792,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/MedicationRequest",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the MedicationRequest resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="intent",
+     *      in="query",
+     *      description="The intent of the MedicationRequest resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="status",
+     *      in="query",
+     *      description="The status of the MedicationRequest resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of MedicationRequest resources."
@@ -1636,6 +1869,36 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Observation",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Observation resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="code",
+     *      in="query",
+     *      description="The code of the Observation resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="category",
+     *      in="query",
+     *      description="The category of the Observation resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="date",
+     *      in="query",
+     *      description="The datetime of the Observation resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Observation resources."
@@ -1688,6 +1951,60 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      * @OA\Get(
      *     path="/fhir/Organization",
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      description="The name of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      description="The email of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      description="The phone of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="telecom",
+     *      in="query",
+     *      description="The telecom of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address",
+     *      in="query",
+     *      description="The address of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-city",
+     *      in="query",
+     *      description="The address-city of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-postalcode",
+     *      in="query",
+     *      description="The address-postalcode of the Organization resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-state",
+     *      in="query",
+     *      description="The address-state of the Organization resource.",
+     *      required=false
+     *     ),
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -1826,6 +2143,90 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      * @OA\Get(
      *     path="/fhir/Patient",
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="identifier",
+     *      in="query",
+     *      description="The identifier of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      description="The name of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="birthdate",
+     *      in="query",
+     *      description="The birthdate of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="gender",
+     *      in="query",
+     *      description="The gender of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address",
+     *      in="query",
+     *      description="The address of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-city",
+     *      in="query",
+     *      description="The address-city of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-postalcode",
+     *      in="query",
+     *      description="The address-postalcode of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-state",
+     *      in="query",
+     *      description="The address-state of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      description="The email of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="family",
+     *      in="query",
+     *      description="The family name of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="given",
+     *      in="query",
+     *      description="The given name of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      description="The phone number of the Patient resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="telecom",
+     *      in="query",
+     *      description="The fax number of the Patient resource.",
+     *      required=false
+     *     ),
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -1902,6 +2303,72 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      * @OA\Get(
      *     path="/fhir/Person",
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      description="The name of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="active",
+     *      in="query",
+     *      description="The active status of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address",
+     *      in="query",
+     *      description="The address of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-city",
+     *      in="query",
+     *      description="The address-city of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-postalcode",
+     *      in="query",
+     *      description="The address-postalcode of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-state",
+     *      in="query",
+     *      description="The address-state of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      description="The email of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="family",
+     *      in="query",
+     *      description="The family name of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="given",
+     *      in="query",
+     *      description="The given name of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      description="The phone number of the Person resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="telecom",
+     *      in="query",
+     *      description="The fax number of the Person resource.",
+     *      required=false
+     *     ),
      *     tags={"fhir"},
      *     @OA\Response(
      *      response="200"
@@ -1945,6 +2412,78 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Practitioner",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      description="The name of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="active",
+     *      in="query",
+     *      description="The active status of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address",
+     *      in="query",
+     *      description="The address of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-city",
+     *      in="query",
+     *      description="The address-city of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-postalcode",
+     *      in="query",
+     *      description="The address-postalcode of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="address-state",
+     *      in="query",
+     *      description="The address-state of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      description="The email of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="family",
+     *      in="query",
+     *      description="The family name of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="given",
+     *      in="query",
+     *      description="The given name of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      description="The phone number of the Practitioner resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="telecom",
+     *      in="query",
+     *      description="The fax number of the Practitioner resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Practitioner resources."
@@ -2046,6 +2585,18 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/PractitionerRole",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="specialty",
+     *      in="query",
+     *      description="The specialty of the PractitionerRole resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="practitioner",
+     *      in="query",
+     *      description="The practitioner of the PractitionerRole resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of PractitionerRole resources."
@@ -2088,6 +2639,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Procedure",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Procedure resource.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="patient",
+     *      in="query",
+     *      description="The uuid for the patient.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="date",
+     *      in="query",
+     *      description="The datetime of the Procedure resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Procedure resources."
@@ -2169,6 +2738,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      * @OA\Get(
      *     path="/fhir/Provenance",
      *     tags={"fhir"},
+     *     @OA\Parameter(
+     *      name="_id",
+     *      in="query",
+     *      description="The uuid for the Provenance resource.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200"
      *      , description="Returns a list of Provenance resources."

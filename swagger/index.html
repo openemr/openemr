@@ -45,7 +45,25 @@
         deepLinking: true,
         presets: [
           SwaggerUIBundle.presets.apis
-        ]
+        ],
+        plugins: [
+          // add a plugin to alter spec before it rendered
+          {
+            statePlugins: {
+              spec: {
+                wrapActions: {
+                  updateJsonSpec: function(oriAction, system) {
+                    return (spec) => {
+                      // change spec.servers here to add new entry, use concat to put it as the first & default one
+                      spec.servers = [{url: `${window.location.pathname.replace(/[^/]*$/, '').replace(/swagger\//, '')}apis/default/`}].concat(spec.servers || [])
+                      return oriAction(spec)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
       });
       // End Swagger UI call region
 
