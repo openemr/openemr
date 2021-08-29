@@ -13,18 +13,27 @@ paths:
       responses:
         '200':
           description: 'Returns a list of facilities'
+      security:
+        -
+          openemr_auth: []
     put:
       tags:
         - standard
       responses:
         '200':
           description: 'Updates a facility in the system'
+      security:
+        -
+          openemr_auth: []
     post:
       tags:
         - standard
       responses:
         '200':
           description: 'Creates a facility in the system'
+      security:
+        -
+          openemr_auth: []
   /api/patient:
     get:
       tags:
@@ -32,18 +41,27 @@ paths:
       responses:
         '200':
           description: 'Retrieves a list of patients'
+      security:
+        -
+          openemr_auth: []
     put:
       tags:
         - standard
       responses:
         '200':
           description: 'Updates a new patient'
+      security:
+        -
+          openemr_auth: []
     post:
       tags:
         - standard
       responses:
         '200':
           description: 'Creates a new patient'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/:puuid':
     get:
       tags:
@@ -51,6 +69,9 @@ paths:
       responses:
         '200':
           description: 'Retrieves a single patient by their uuid'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/:puuid/encounter':
     get:
       tags:
@@ -58,6 +79,9 @@ paths:
       responses:
         '200':
           description: 'Retrieves a list of encounters for a single patient'
+      security:
+        -
+          openemr_auth: []
   /fhir/AllergyIntolerance:
     get:
       tags:
@@ -67,7 +91,7 @@ paths:
           description: 'Returns a list of AllergyIntolerance resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/AllergyIntolerance/{uuid}':
     get:
       tags:
@@ -83,7 +107,7 @@ paths:
           description: 'Returns a single AllergyIntolerance resource.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   /fhir/CarePlan:
     get:
       tags:
@@ -93,7 +117,7 @@ paths:
           description: 'Returns a list of CarePlan resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/CarePlan/{uuid}':
     get:
       tags:
@@ -107,6 +131,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single CarePlan resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/CareTeam:
     get:
       tags:
@@ -116,7 +143,7 @@ paths:
           description: 'Returns a list of CareTeam resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/CareTeam/{uuid}':
     get:
       tags:
@@ -130,6 +157,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single CareTeam resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Condition:
     get:
       tags:
@@ -139,7 +169,7 @@ paths:
           description: 'Returns a list of Condition resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Condition/{uuid}':
     get:
       tags:
@@ -153,6 +183,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Condition resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Coverage:
     get:
       tags:
@@ -162,7 +195,7 @@ paths:
           description: 'Returns a list of Coverage resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Coverage/{uuid}':
     get:
       tags:
@@ -176,6 +209,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Coverage resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Device:
     get:
       tags:
@@ -185,7 +221,7 @@ paths:
           description: 'Returns a list of Device resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Device/{uuid}':
     get:
       tags:
@@ -199,6 +235,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Device resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/DiagnosticReport:
     get:
       tags:
@@ -208,7 +247,7 @@ paths:
           description: 'Returns a list of DiagnosticReport resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/DiagnosticReport/{uuid}':
     get:
       tags:
@@ -222,6 +261,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single DiagnosticReport resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/DocumentReference:
     get:
       tags:
@@ -231,7 +273,7 @@ paths:
           description: 'Returns a list of DocumentReference resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/DocumentReference/{uuid}':
     get:
       tags:
@@ -245,6 +287,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single DocumentReference resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Encounter:
     get:
       tags:
@@ -254,7 +299,7 @@ paths:
           description: 'Returns a list of Encounter resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Encounter/{uuid}':
     get:
       tags:
@@ -268,6 +313,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Encounter resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Goal:
     get:
       tags:
@@ -277,7 +325,7 @@ paths:
           description: 'Returns a list of Condition resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Goal/{uuid}':
     get:
       tags:
@@ -291,6 +339,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Goal resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Group:
     get:
       tags:
@@ -300,7 +351,7 @@ paths:
           description: 'Returns a list of Group resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Group/{uuid}':
     get:
       tags:
@@ -314,6 +365,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Group resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Immunization:
     get:
       tags:
@@ -323,7 +377,7 @@ paths:
           description: 'Returns a list of Immunization resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Immunization/{uuid}':
     get:
       tags:
@@ -337,6 +391,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Immunization resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Location:
     get:
       tags:
@@ -346,7 +403,7 @@ paths:
           description: 'Returns a list of Location resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Location/{uuid}':
     get:
       tags:
@@ -360,6 +417,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Location resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Medication:
     get:
       tags:
@@ -369,7 +429,7 @@ paths:
           description: 'Returns a list of Medication resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Medication/{uuid}':
     get:
       tags:
@@ -383,6 +443,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Medication resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/MedicationRequest:
     get:
       tags:
@@ -392,7 +455,7 @@ paths:
           description: 'Returns a list of MedicationRequest resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/MedicationRequest/{uuid}':
     get:
       tags:
@@ -406,6 +469,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single MedicationRequest resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Observation:
     get:
       tags:
@@ -415,7 +481,7 @@ paths:
           description: 'Returns a list of Observation resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Observation/{uuid}':
     get:
       tags:
@@ -429,6 +495,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Observation resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Organization:
     get:
       tags:
@@ -438,7 +507,16 @@ paths:
           description: 'Returns a list of Organization resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
+    post:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Adds a Organization resource.'
+      security:
+        -
+          openemr_auth: []
   '/fhir/Organization/{uuid}':
     get:
       tags:
@@ -452,6 +530,24 @@ paths:
       responses:
         '200':
           description: 'Returns a single Organization resource.'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'Modifies a organization resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single Organization resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Patient:
     get:
       tags:
@@ -461,7 +557,16 @@ paths:
           description: 'Returns a list of Patient resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
+    post:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Adds a Patient resource.'
+      security:
+        -
+          openemr_auth: []
   '/fhir/Patient/{uuid}':
     get:
       tags:
@@ -475,6 +580,24 @@ paths:
       responses:
         '200':
           description: 'Returns a single Patient resource.'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Patient resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Modifies a Patient resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Person:
     get:
       tags:
@@ -484,7 +607,7 @@ paths:
           description: 'Returns a list of Person resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Person/{uuid}':
     get:
       tags:
@@ -498,6 +621,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Person resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Practitioner:
     get:
       tags:
@@ -507,7 +633,16 @@ paths:
           description: 'Returns a list of Practitioner resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
+    post:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Adds a Practitioner resources.'
+      security:
+        -
+          openemr_auth: []
   '/fhir/Practitioner/{uuid}':
     get:
       tags:
@@ -521,6 +656,24 @@ paths:
       responses:
         '200':
           description: 'Returns a single Practitioner resource.'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - fhir
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Practitioner resource.'
+          required: true
+      responses:
+        '200':
+          description: 'Modify a Practitioner resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/PractitionerRole:
     get:
       tags:
@@ -530,7 +683,7 @@ paths:
           description: 'Returns a list of PractitionerRole resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/PractitionerRole/{uuid}':
     get:
       tags:
@@ -544,6 +697,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single PractitionerRole resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Procedure:
     get:
       tags:
@@ -553,7 +709,7 @@ paths:
           description: 'Returns a list of Procedure resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/fhir/Procedure/{uuid}':
     get:
       tags:
@@ -567,6 +723,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Procedure resource.'
+      security:
+        -
+          openemr_auth: []
   '/fhir/Provenance/{uuid}':
     get:
       tags:
@@ -580,6 +739,9 @@ paths:
       responses:
         '200':
           description: 'Returns a single Provenance resource.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Provenance:
     get:
       tags:
@@ -589,7 +751,14 @@ paths:
           description: 'Returns a list of Provenance resources.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
+  /fhir/metadata:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'Returns metadata of the fhir server.'
   /portal/patient:
     get:
       tags:
@@ -599,7 +768,7 @@ paths:
           description: 'Returns the patient.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   /portal/patient/encounter:
     get:
       tags:
@@ -609,7 +778,7 @@ paths:
           description: 'Returns encounters for the patient.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
   '/portal/patient/encounter/{euuid}':
     get:
       tags:
@@ -625,22 +794,88 @@ paths:
           description: 'Returns a selected encounter by its uuid.'
       security:
         -
-          scalar: openemr_auth
+          openemr_auth: []
 components:
   securitySchemes:
     openemr_auth:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: '/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=f7564cb386978a30bef46a68df95eb7e'
+          authorizationUrl: /oauth2/default/authorize
           tokenUrl: /oauth2/default/token
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
-            user/AllergyIntolerance.read: 'Read all allergy intolerance the user has access to (api:fhir)'
+            patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'
+            patient/CareTeam.read: 'Read care team resources for the current patient (api:fhir)'
+            patient/Condition.read: 'Read condition resources for the current patient (api:fhir)'
+            patient/Device.read: 'Read device resources for the current patient (api:fhir)'
+            patient/DiagnosticReport.read: 'Read diagnostic report resources for the current patient (api:fhir)'
+            patient/DocumentReference.read: 'Read document reference resources for the current patient (api:fhir)'
+            patient/Encounter.read: 'Read encounter resources for the current patient (api:fhir)'
+            patient/Goal.read: 'Read goal resources for the current patient (api:fhir)'
+            patient/Immunization.read: 'Read immunization resources for the current patient (api:fhir)'
+            patient/Location.read: 'Read location resources for the current patient (api:fhir)'
+            patient/Medication.read: 'Read medication resources for the current patient (api:fhir)'
+            patient/MedicationRequest.read: 'Read medication request resources for the current patient (api:fhir)'
+            patient/Observation.read: 'Read observation resources for the current patient (api:fhir)'
+            patient/Organization.read: 'Read organization resources for the current patient (api:fhir)'
+            patient/Patient.read: 'Read patient resource for the current patient (api:fhir)'
+            patient/Person.read: 'Read person resources for the current patient (api:fhir)'
+            patient/Practitioner.read: 'Read practitioner resources for the current patient (api:fhir)'
+            patient/Procedure.read: 'Read procedure resources for the current patient (api:fhir)'
+            patient/Provenance.read: 'Read provenance resources for the current patient (api:fhir)'
             system/AllergyIntolerance.read: 'Read all allergy intolerance resources in the system (api:fhir)'
+            system/CarePlan.read: 'Read all care plan resources in the system (api:fhir)'
+            system/CareTeam.read: 'Read all care team resources in the system (api:fhir)'
+            system/Condition.read: 'Read all condition resources in the system (api:fhir)'
+            system/Coverage.read: 'Read all coverage resources in the system (api:fhir)'
+            system/Device.read: 'Read all device resources in the system (api:fhir)'
+            system/DiagnosticReport.read: 'Read all diagnostic report resources in the system (api:fhir)'
+            system/Document.read: 'Read all document resources in the system (api:fhir)'
+            system/DocumentReference.read: 'Read all document reference resources in the system (api:fhir)'
+            system/Encounter.read: 'Read all encounter resources in the system (api:fhir)'
+            system/Goal.read: 'Read all goal resources in the system (api:fhir)'
+            system/Group.read: 'Read all group resources in the system (api:fhir)'
+            system/Immunization.read: 'Read all immunization resources in the system (api:fhir)'
+            system/Location.read: 'Read all location resources in the system (api:fhir)'
+            system/Medication.read: 'Read all medication resources in the system (api:fhir)'
+            system/MedicationRequest.read: 'Read all medication request resources in the system (api:fhir)'
+            system/Observation.read: 'Read all observation resources in the system (api:fhir)'
+            system/Organization.read: 'Read all organization resources in the system (api:fhir)'
+            system/Patient.read: 'Read all patient resources in the system (api:fhir)'
+            system/Person.read: 'Read all person resources in the system (api:fhir)'
+            system/Practitioner.read: 'Read all practitioner resources in the system (api:fhir)'
+            system/PractitionerRole.read: 'Read all practitioner role resources in the system (api:fhir)'
+            system/Procedure.read: 'Read all procedure resources in the system (api:fhir)'
+            system/Provenance.read: 'Read all provenance resources in the system (api:fhir)'
+            user/AllergyIntolerance.read: 'Read all allergy intolerance resources the user has access to (api:fhir)'
+            user/CarePlan.read: 'Read all care plan resources the user has access to (api:fhir)'
+            user/CareTeam.read: 'Read all care team resources the user has access to (api:fhir)'
+            user/Condition.read: 'Read all condition resources the user has access to (api:fhir)'
+            user/Coverage.read: 'Read all coverage resources the user has access to (api:fhir)'
+            user/Device.read: 'Read all device resources the user has access to (api:fhir)'
+            user/DiagnosticReport.read: 'Read all diagnostic report resources the user has access to (api:fhir)'
+            user/DocumentReference.read: 'Read all document reference resources the user has access to (api:fhir)'
+            user/Encounter.read: 'Read all encounter resources the user has access to (api:fhir)'
+            user/Goal.read: 'Read all goal resources the user has access to (api:fhir)'
+            user/Immunization.read: 'Read all immunization resources the user has access to (api:fhir)'
+            user/Location.read: 'Read all location resources the user has access to (api:fhir)'
+            user/Medication.read: 'Read all medication resources the user has access to (api:fhir)'
+            user/MedicationRequest.read: 'Read all medication request resources the user has access to (api:fhir)'
+            user/Observation.read: 'Read all observation resources the user has access to (api:fhir)'
+            user/Organization.read: 'Read all organization resources the user has access to (api:fhir)'
+            user/Organization.write: 'Write all organization resources the user has access to (api:fhir)'
+            user/Patient.read: 'Read all patient resources the user has access to (api:fhir)'
+            user/Patient.write: 'Write all patient resources the user has access to (api:fhir)'
+            user/Person.read: 'Read all person resources the user has access to (api:fhir)'
+            user/Practitioner.read: 'Read all practitioner resources the user has access to (api:fhir)'
+            user/Practitioner.write: 'Write all practitioner resources the user has access to (api:fhir)'
+            user/PractitionerRole.read: 'Read all practitioner role resources the user has access to (api:fhir)'
+            user/Procedure.read: 'Read all procedure resources the user has access to (api:fhir)'
+            user/Provenance.read: 'Read all provenance resources the user has access to (api:fhir)'
             'api:oemr': 'Standard OpenEMR API'
             user/allergy.read: 'Read allergies the user has access to (api:oemr)'
             user/allergy.write: 'Write allergies the user has access to for (api:oemr)'

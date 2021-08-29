@@ -24,7 +24,7 @@
  *   securityScheme="openemr_auth",
  *   type="oauth2",
  *   @OA\Flow(
- *      authorizationUrl="/oauth2/default/authorize?aud=https%3A%2F%2Flocalhost%3A9300%2Fapis%2Fdefault%2Ffhir&nonce=f7564cb386978a30bef46a68df95eb7e",
+ *      authorizationUrl="/oauth2/default/authorize",
  *      tokenUrl="/oauth2/default/token",
  *      flow="authorizationCode",
  *      scopes={
@@ -32,8 +32,74 @@
  *         "offline_access": "Will signal server to provide a refresh token",
  *         "api:fhir": "FHIR R4 API",
  *         "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
- *         "user/AllergyIntolerance.read": "Read all allergy intolerance the user has access to (api:fhir)",
+ *         "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
+ *         "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
+ *         "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
+ *         "patient/Device.read": "Read device resources for the current patient (api:fhir)",
+ *         "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
+ *         "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
+ *         "patient/Encounter.read": "Read encounter resources for the current patient (api:fhir)",
+ *         "patient/Goal.read": "Read goal resources for the current patient (api:fhir)",
+ *         "patient/Immunization.read": "Read immunization resources for the current patient (api:fhir)",
+ *         "patient/Location.read": "Read location resources for the current patient (api:fhir)",
+ *         "patient/Medication.read": "Read medication resources for the current patient (api:fhir)",
+ *         "patient/MedicationRequest.read": "Read medication request resources for the current patient (api:fhir)",
+ *         "patient/Observation.read": "Read observation resources for the current patient (api:fhir)",
+ *         "patient/Organization.read": "Read organization resources for the current patient (api:fhir)",
+ *         "patient/Patient.read": "Read patient resource for the current patient (api:fhir)",
+ *         "patient/Person.read": "Read person resources for the current patient (api:fhir)",
+ *         "patient/Practitioner.read": "Read practitioner resources for the current patient (api:fhir)",
+ *         "patient/Procedure.read": "Read procedure resources for the current patient (api:fhir)",
+ *         "patient/Provenance.read": "Read provenance resources for the current patient (api:fhir)",
  *         "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system (api:fhir)",
+ *         "system/CarePlan.read": "Read all care plan resources in the system (api:fhir)",
+ *         "system/CareTeam.read": "Read all care team resources in the system (api:fhir)",
+ *         "system/Condition.read": "Read all condition resources in the system (api:fhir)",
+ *         "system/Coverage.read": "Read all coverage resources in the system (api:fhir)",
+ *         "system/Device.read": "Read all device resources in the system (api:fhir)",
+ *         "system/DiagnosticReport.read": "Read all diagnostic report resources in the system (api:fhir)",
+ *         "system/Document.read": "Read all document resources in the system (api:fhir)",
+ *         "system/DocumentReference.read": "Read all document reference resources in the system (api:fhir)",
+ *         "system/Encounter.read": "Read all encounter resources in the system (api:fhir)",
+ *         "system/Goal.read": "Read all goal resources in the system (api:fhir)",
+ *         "system/Group.read": "Read all group resources in the system (api:fhir)",
+ *         "system/Immunization.read": "Read all immunization resources in the system (api:fhir)",
+ *         "system/Location.read": "Read all location resources in the system (api:fhir)",
+ *         "system/Medication.read": "Read all medication resources in the system (api:fhir)",
+ *         "system/MedicationRequest.read": "Read all medication request resources in the system (api:fhir)",
+ *         "system/Observation.read": "Read all observation resources in the system (api:fhir)",
+ *         "system/Organization.read": "Read all organization resources in the system (api:fhir)",
+ *         "system/Patient.read": "Read all patient resources in the system (api:fhir)",
+ *         "system/Person.read": "Read all person resources in the system (api:fhir)",
+ *         "system/Practitioner.read": "Read all practitioner resources in the system (api:fhir)",
+ *         "system/PractitionerRole.read": "Read all practitioner role resources in the system (api:fhir)",
+ *         "system/Procedure.read": "Read all procedure resources in the system (api:fhir)",
+ *         "system/Provenance.read": "Read all provenance resources in the system (api:fhir)",
+ *         "user/AllergyIntolerance.read": "Read all allergy intolerance resources the user has access to (api:fhir)",
+ *         "user/CarePlan.read": "Read all care plan resources the user has access to (api:fhir)",
+ *         "user/CareTeam.read": "Read all care team resources the user has access to (api:fhir)",
+ *         "user/Condition.read": "Read all condition resources the user has access to (api:fhir)",
+ *         "user/Coverage.read": "Read all coverage resources the user has access to (api:fhir)",
+ *         "user/Device.read": "Read all device resources the user has access to (api:fhir)",
+ *         "user/DiagnosticReport.read": "Read all diagnostic report resources the user has access to (api:fhir)",
+ *         "user/DocumentReference.read": "Read all document reference resources the user has access to (api:fhir)",
+ *         "user/Encounter.read": "Read all encounter resources the user has access to (api:fhir)",
+ *         "user/Goal.read": "Read all goal resources the user has access to (api:fhir)",
+ *         "user/Immunization.read": "Read all immunization resources the user has access to (api:fhir)",
+ *         "user/Location.read": "Read all location resources the user has access to (api:fhir)",
+ *         "user/Medication.read": "Read all medication resources the user has access to (api:fhir)",
+ *         "user/MedicationRequest.read": "Read all medication request resources the user has access to (api:fhir)",
+ *         "user/Observation.read": "Read all observation resources the user has access to (api:fhir)",
+ *         "user/Organization.read": "Read all organization resources the user has access to (api:fhir)",
+ *         "user/Organization.write": "Write all organization resources the user has access to (api:fhir)",
+ *         "user/Patient.read": "Read all patient resources the user has access to (api:fhir)",
+ *         "user/Patient.write": "Write all patient resources the user has access to (api:fhir)",
+ *         "user/Person.read": "Read all person resources the user has access to (api:fhir)",
+ *         "user/Practitioner.read": "Read all practitioner resources the user has access to (api:fhir)",
+ *         "user/Practitioner.write": "Write all practitioner resources the user has access to (api:fhir)",
+ *         "user/PractitionerRole.read": "Read all practitioner role resources the user has access to (api:fhir)",
+ *         "user/Procedure.read": "Read all procedure resources the user has access to (api:fhir)",
+ *         "user/Provenance.read": "Read all provenance resources the user has access to (api:fhir)",
  *         "api:oemr": "Standard OpenEMR API",
  *         "user/allergy.read": "Read allergies the user has access to (api:oemr)",
  *         "user/allergy.write": "Write allergies the user has access to for (api:oemr)",
@@ -129,7 +195,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Returns a list of facilities"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /api/facility" => function () {
@@ -151,7 +218,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Creates a facility in the system"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "POST /api/facility" => function () {
@@ -168,7 +236,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Updates a facility in the system"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "PUT /api/facility/:fuuid" => function ($fuuid) {
@@ -186,7 +255,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Retrieves a list of patients"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /api/patient" => function () {
@@ -203,7 +273,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Creates a new patient"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "POST /api/patient" => function () {
@@ -220,7 +291,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Updates a new patient"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "PUT /api/patient/:puuid" => function ($puuid) {
@@ -238,7 +310,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Retrieves a single patient by their uuid"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /api/patient/:puuid" => function ($puuid) {
@@ -255,7 +328,8 @@ RestConfig::$ROUTE_MAP = array(
      *     @OA\Response(
      *      response="200",
      *      description="Retrieves a list of encounters for a single patient"
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /api/patient/:puuid/encounter" => function ($puuid) {
@@ -773,7 +847,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200",
      *      description="Returns a list of AllergyIntolerance resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/AllergyIntolerance" => function (HttpRestRequest $request) {
@@ -803,7 +877,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200",
      *      description="Returns a single AllergyIntolerance resource."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/AllergyIntolerance/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -826,7 +900,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of CarePlan resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/CarePlan" => function (HttpRestRequest $request) {
@@ -855,7 +929,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the CarePlan resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/CarePlan/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -878,7 +953,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of CareTeam resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
@@ -907,7 +982,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the CareTeam resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -930,7 +1006,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Condition resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Condition" => function (HttpRestRequest $request) {
@@ -959,7 +1035,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Condition resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -982,7 +1059,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Coverage resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
@@ -1005,7 +1082,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Coverage resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1023,7 +1101,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Device resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Device" => function (HttpRestRequest $request) {
@@ -1051,7 +1129,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Device resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Device/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1074,7 +1153,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of DiagnosticReport resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
@@ -1103,7 +1182,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the DiagnosticReport resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1127,7 +1207,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of DocumentReference resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     'GET /fhir/DocumentReference' => function (HttpRestRequest $request) {
@@ -1156,7 +1236,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the DocumentReference resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1194,7 +1275,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Encounter resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Encounter" => function (HttpRestRequest $request) {
@@ -1223,7 +1304,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Encounter resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Encounter/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1246,7 +1328,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Condition resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Goal" => function (HttpRestRequest $request) {
@@ -1275,7 +1357,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Goal resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Goal/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1298,7 +1381,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Group resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     'GET /fhir/Group' => function (HttpRestRequest $request) {
@@ -1327,7 +1410,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Group resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1368,7 +1452,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Immunization resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
@@ -1397,7 +1481,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Immunization resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1420,7 +1505,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Location resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
@@ -1442,7 +1527,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Location resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1459,7 +1545,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Medication resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
@@ -1482,7 +1568,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Medication resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1500,7 +1587,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of MedicationRequest resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/MedicationRequest" => function (HttpRestRequest $request) {
@@ -1529,7 +1616,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the MedicationRequest resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/MedicationRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1552,7 +1640,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Observation resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Observation" => function (HttpRestRequest $request) {
@@ -1581,7 +1669,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Observation resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1604,7 +1693,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Organization resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
@@ -1629,7 +1718,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Organization resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1646,7 +1736,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     * TODO
+     * @OA\Post(
+     *     path="/fhir/Organization",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Adds a Organization resource."
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
@@ -1657,18 +1755,40 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     * TODO
+     * @OA\Put(
+     *     path="/fhir/Organization/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns a single Organization resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="Modifies a organization resource."
+     *      ,required=true
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
-    "PUT /fhir/Organization/:id" => function ($id, HttpRestRequest $request) {
+    "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirOrganizationRestController())->patch($id, $data);
+        $return = (new FhirOrganizationRestController())->patch($uuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
 
     /**
-     * TODO
+     * @OA\Post(
+     *     path="/fhir/Patient",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Adds a Patient resource."
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
     "POST /fhir/Patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
@@ -1679,12 +1799,26 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     * TODO
+     * @OA\Put(
+     *     path="/fhir/Patient/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Modifies a Patient resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Patient resource."
+     *      ,required=true
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
-    "PUT /fhir/Patient/:id" => function ($id, HttpRestRequest $request) {
+    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->put($id, $data);
+        $return = (new FhirPatientRestController())->put($uuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -1697,7 +1831,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Patient resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Patient" => function (HttpRestRequest $request) {
@@ -1746,7 +1880,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Patient resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1772,7 +1907,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Person resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Person" => function (HttpRestRequest $request) {
@@ -1795,7 +1930,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Person resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1813,7 +1949,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Practitioner resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
@@ -1844,7 +1980,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Practitioner resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1862,7 +1999,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     * TODO
+     * @OA\Post(
+     *     path="/fhir/Practitioner",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Adds a Practitioner resources."
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -1873,12 +2018,26 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     * TODO
+     * @OA\Put(
+     *     path="/fhir/Practitioner/{uuid}",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Modify a Practitioner resource."
+     *     ),
+     *     @OA\Parameter(
+     *      name="uuid"
+     *      ,in="path"
+     *      ,description="The uuid for the Practitioner resource."
+     *      ,required=true
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
      */
-    "PUT /fhir/Practitioner/:id" => function ($id, HttpRestRequest $request) {
+    "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPractitionerRestController())->patch($id, $data);
+        $return = (new FhirPractitionerRestController())->patch($uuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -1891,7 +2050,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of PractitionerRole resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
@@ -1914,7 +2073,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the PractitionerRole resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1932,7 +2092,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Procedure resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
@@ -1960,7 +2120,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Procedure resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -1988,7 +2149,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ,in="path"
      *      ,description="The uuid for the Provenance resource."
      *      ,required=true
-     *     )
+     *     ),
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
@@ -2011,7 +2173,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a list of Provenance resources."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
@@ -2032,7 +2194,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     // other endpoints
 
     /**
-     * TODO
+     * @OA\Get(
+     *     path="/fhir/metadata",
+     *     tags={"fhir"},
+     *     @OA\Response(
+     *      response="200"
+     *      , description="Returns metadata of the fhir server."
+     *     )
+     * )
      */
     "GET /fhir/metadata" => function () {
         $return = (new FhirMetaDataRestController())->getMetaData();
@@ -2110,7 +2279,7 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns the patient."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /portal/patient" => function (HttpRestRequest $request) {
@@ -2127,7 +2296,7 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns encounters for the patient."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /portal/patient/encounter" => function (HttpRestRequest $request) {
@@ -2150,7 +2319,7 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      *      response="200"
      *      , description="Returns a selected encounter by its uuid."
      *     ),
-     *     security={"openemr_auth"}
+     *     security={{"openemr_auth":{}}}
      * )
      */
     "GET /portal/patient/encounter/:euuid" => function ($euuid, HttpRestRequest $request) {
