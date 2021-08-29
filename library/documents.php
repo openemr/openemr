@@ -36,9 +36,11 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
  * @param  int            $category_id                     Document category id
  * @param  string         $higher_level_path               Can set a higher level path here (and then place the path depth in $path_depth)
  * @param  int            $path_depth                      Path depth when using the $higher_level_path feature
- * @return array/boolean                                   Array(doc_id,url) of the file as stored in documents table, false = failure
+ * @param  boolean        $incl_errors                     Return errors from document creation
+ * @return array/boolean                                   Array(doc_id,url) of the file as stored in documents table, false/error = details about failure
  */
-function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $patient_id_or_simple_directory = "00", $category_id = '1', $higher_level_path = '', $path_depth = '1')
+function addNewDocument($name, $type, $tmp_name, $error, $size,
+    $owner = '', $patient_id_or_simple_directory = "00", $category_id = '1', $higher_level_path = '', $path_depth = '1', $incl_errors = false)
 {
 
     if (empty($owner)) {
@@ -68,12 +70,23 @@ function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $pa
     $cd = new C_Document();
     $cd->manual_set_owner = $owner;
     $cd->upload_action_process();
-    $v = $cd->get_template_vars("file");
-    if (!isset($v) || !$v) {
-        return false;
+
+    // Controller set variable 'File' to Document object for each $_FILE
+    // Since this fn supplied a single file, use [0]
+    $v = $cd->get_template_vars("file")[0];
+    $aaReturn = false;
+    if ($v instanceof \Document) {
+        $aaReturn = [
+            "doc_id" => $v->id,
+            "url" => $v->url,
+        ];
+    } elseif ($incl_errors) {
+        $aaReturn = [
+            'error' => $cd->get_template_vars("error"),
+        ];
     }
 
-    return array ("doc_id" => $v[0]->id, "url" => $v[0]->url);
+    return $aaReturn;
 }
 
 /**
