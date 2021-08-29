@@ -2,6 +2,9 @@ openapi: 3.0.0
 info:
   title: 'OpenEMR API'
   version: 6.1.0
+servers:
+  -
+    url: /apis/default/
 paths:
   /api/facility:
     get:

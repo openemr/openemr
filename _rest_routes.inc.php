@@ -19,6 +19,7 @@
 
 /**
  * @OA\Info(title="OpenEMR API", version="6.1.0")
+ * @OA\Server(url="/apis/default/")
  * @OA\SecurityScheme(
  *   securityScheme="openemr_auth",
  *   type="oauth2",

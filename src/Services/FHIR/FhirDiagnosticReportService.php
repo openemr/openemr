@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportLaboratoryService;
