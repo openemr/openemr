@@ -192,6 +192,120 @@ RestConfig::$ROUTE_MAP = array(
      * @OA\Get(
      *     path="/api/facility",
      *     tags={"standard"},
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      description="The name for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="facility_npi",
+     *      in="query",
+     *      description="The facility_npi for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      description="The phone for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="fax",
+     *      in="query",
+     *      description="The fax for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="street",
+     *      in="query",
+     *      description="The street for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="city",
+     *      in="query",
+     *      description="The city for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="state",
+     *      in="query",
+     *      description="The state for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="postal_code",
+     *      in="query",
+     *      description="The postal_code for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="country_code",
+     *      in="query",
+     *      description="The country_code for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="federal_ein",
+     *      in="query",
+     *      description="The federal_ein for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="website",
+     *      in="query",
+     *      description="The website for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      description="The email for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="domain_identifier",
+     *      in="query",
+     *      description="The domain_identifier for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="facility_taxonomy",
+     *      in="query",
+     *      description="The facility_taxonomy for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="facility_code",
+     *      in="query",
+     *      description="The facility_code for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="billing_location",
+     *      in="query",
+     *      description="The billing_location setting for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="accepts_assignment",
+     *      in="query",
+     *      description="The accepts_assignment setting for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="oid",
+     *      in="query",
+     *      description="The oid for the facility.",
+     *      required=false
+     *     ),
+     *     @OA\Parameter(
+     *      name="service_location",
+     *      in="query",
+     *      description="The service_location setting for the facility.",
+     *      required=false
+     *     ),
      *     @OA\Response(
      *      response="200",
      *      description="Returns a list of facilities"
@@ -205,16 +319,139 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return);
         return $return;
     },
+
+    /**
+     * @OA\Get(
+     *     path="/api/facility/{fuuid}",
+     *     tags={"standard"},
+     *     @OA\Parameter(
+     *      name="fuuid",
+     *      in="path",
+     *      description="The uuid for the facility.",
+     *      required=true
+     *     ),
+     *     @OA\Response(
+     *      response="200",
+     *      description="Returns a single facility."
+     *     ),
+     *     security={{"openemr_auth":{}}}
+     * )
+     */
     "GET /api/facility/:fuuid" => function ($fuuid) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FacilityRestController())->getOne($fuuid);
         RestConfig::apiLog($return);
         return $return;
     },
+
     /**
      * @OA\Post(
      *     path="/api/facility",
      *     tags={"standard"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="name",
+     *                     description="The name for the facility.",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_npi",
+     *                     description="The facility_npi for the facility.",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phone",
+     *                     description="The phone for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fax",
+     *                     description="The fax for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="street",
+     *                     description="The street for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="city",
+     *                     description="The city for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state",
+     *                     description="The state for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="postal_code",
+     *                     description="The postal_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="country_code",
+     *                     description="The country_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federal_ein",
+     *                     description="The federal_ein for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="website",
+     *                     description="The website for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The email for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="domain_identifier",
+     *                     description="The domain_identifier for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_taxonomy",
+     *                     description="The facility_taxonomy for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_code",
+     *                     description="The facility_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="billing_location",
+     *                     description="The billing_location setting for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="accepts_assignment",
+     *                     description="The accepts_assignment setting for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="oid",
+     *                     description="The oid for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="service_location",
+     *                     description="The service_location setting for the facility."
+     *                 ),
+     *                 required={"name", "facility_npi"},
+     *                 example={"name": "Aquaria",
+     *                          "facility_npi": "123456789123",
+     *                          "phone": "808-606-3030",
+     *                          "fax": "808-606-3031",
+     *                          "street": "1337 Bit Shifter Ln",
+     *                          "city": "San Lorenzo",
+     *                          "state": "ZZ",
+     *                          "postal_code": "54321",
+     *                          "country_code": "US",
+     *                          "federal_ein": "4343434",
+     *                          "website": "https://example.com",
+     *                          "email": "foo@bar.com",
+     *                          "domain_identifier": "",
+     *                          "facility_taxonomy": "",
+     *                          "facility_code": "",
+     *                          "billing_location": "1",
+     *                          "accepts_assignment": "1",
+     *                          "oid": "",
+     *                          "service_location": "1"}
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *      response="200",
      *      description="Creates a facility in the system"
@@ -229,10 +466,120 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
     /**
      * @OA\Put(
-     *     path="/api/facility",
+     *     path="/api/facility/{fuuid}",
      *     tags={"standard"},
+     *     @OA\Parameter(
+     *      name="fuuid",
+     *      in="path",
+     *      description="The uuid for the facility.",
+     *      required=true
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="name",
+     *                     description="The name for the facility.",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_npi",
+     *                     description="The facility_npi for the facility.",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phone",
+     *                     description="The phone for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fax",
+     *                     description="The fax for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="street",
+     *                     description="The street for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="city",
+     *                     description="The city for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state",
+     *                     description="The state for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="postal_code",
+     *                     description="The postal_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="country_code",
+     *                     description="The country_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federal_ein",
+     *                     description="The federal_ein for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="website",
+     *                     description="The website for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The email for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="domain_identifier",
+     *                     description="The domain_identifier for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_taxonomy",
+     *                     description="The facility_taxonomy for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_code",
+     *                     description="The facility_code for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="billing_location",
+     *                     description="The billing_location setting for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="accepts_assignment",
+     *                     description="The accepts_assignment setting for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="oid",
+     *                     description="The oid for the facility."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="service_location",
+     *                     description="The service_location setting for the facility."
+     *                 ),
+     *                 example={"name": "Aquaria",
+     *                          "facility_npi": "123456789123",
+     *                          "phone": "808-606-3030",
+     *                          "fax": "808-606-3031",
+     *                          "street": "1337 Bit Shifter Ln",
+     *                          "city": "San Lorenzo",
+     *                          "state": "ZZ",
+     *                          "postal_code": "54321",
+     *                          "country_code": "US",
+     *                          "federal_ein": "4343434",
+     *                          "website": "https://example.com",
+     *                          "email": "foo@bar.com",
+     *                          "domain_identifier": "",
+     *                          "facility_taxonomy": "",
+     *                          "facility_code": "",
+     *                          "billing_location": "1",
+     *                          "accepts_assignment": "1",
+     *                          "oid": "",
+     *                          "service_location": "1"}
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *      response="200",
      *      description="Updates a facility in the system"

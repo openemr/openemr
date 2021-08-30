@@ -10,27 +10,278 @@ paths:
     get:
       tags:
         - standard
+      parameters:
+        -
+          name: name
+          in: query
+          description: 'The name for the facility.'
+          required: false
+        -
+          name: facility_npi
+          in: query
+          description: 'The facility_npi for the facility.'
+          required: false
+        -
+          name: phone
+          in: query
+          description: 'The phone for the facility.'
+          required: false
+        -
+          name: fax
+          in: query
+          description: 'The fax for the facility.'
+          required: false
+        -
+          name: street
+          in: query
+          description: 'The street for the facility.'
+          required: false
+        -
+          name: city
+          in: query
+          description: 'The city for the facility.'
+          required: false
+        -
+          name: state
+          in: query
+          description: 'The state for the facility.'
+          required: false
+        -
+          name: postal_code
+          in: query
+          description: 'The postal_code for the facility.'
+          required: false
+        -
+          name: country_code
+          in: query
+          description: 'The country_code for the facility.'
+          required: false
+        -
+          name: federal_ein
+          in: query
+          description: 'The federal_ein for the facility.'
+          required: false
+        -
+          name: website
+          in: query
+          description: 'The website for the facility.'
+          required: false
+        -
+          name: email
+          in: query
+          description: 'The email for the facility.'
+          required: false
+        -
+          name: domain_identifier
+          in: query
+          description: 'The domain_identifier for the facility.'
+          required: false
+        -
+          name: facility_taxonomy
+          in: query
+          description: 'The facility_taxonomy for the facility.'
+          required: false
+        -
+          name: facility_code
+          in: query
+          description: 'The facility_code for the facility.'
+          required: false
+        -
+          name: billing_location
+          in: query
+          description: 'The billing_location setting for the facility.'
+          required: false
+        -
+          name: accepts_assignment
+          in: query
+          description: 'The accepts_assignment setting for the facility.'
+          required: false
+        -
+          name: oid
+          in: query
+          description: 'The oid for the facility.'
+          required: false
+        -
+          name: service_location
+          in: query
+          description: 'The service_location setting for the facility.'
+          required: false
       responses:
         '200':
           description: 'Returns a list of facilities'
       security:
         -
           openemr_auth: []
-    put:
-      tags:
-        - standard
-      responses:
-        '200':
-          description: 'Updates a facility in the system'
-      security:
-        -
-          openemr_auth: []
     post:
       tags:
         - standard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - facility_npi
+              properties:
+                name:
+                  description: 'The name for the facility.'
+                facility_npi:
+                  description: 'The facility_npi for the facility.'
+                phone:
+                  description: 'The phone for the facility.'
+                fax:
+                  description: 'The fax for the facility.'
+                street:
+                  description: 'The street for the facility.'
+                city:
+                  description: 'The city for the facility.'
+                state:
+                  description: 'The state for the facility.'
+                postal_code:
+                  description: 'The postal_code for the facility.'
+                country_code:
+                  description: 'The country_code for the facility.'
+                federal_ein:
+                  description: 'The federal_ein for the facility.'
+                website:
+                  description: 'The website for the facility.'
+                email:
+                  description: 'The email for the facility.'
+                domain_identifier:
+                  description: 'The domain_identifier for the facility.'
+                facility_taxonomy:
+                  description: 'The facility_taxonomy for the facility.'
+                facility_code:
+                  description: 'The facility_code for the facility.'
+                billing_location:
+                  description: 'The billing_location setting for the facility.'
+                accepts_assignment:
+                  description: 'The accepts_assignment setting for the facility.'
+                oid:
+                  description: 'The oid for the facility.'
+                service_location:
+                  description: 'The service_location setting for the facility.'
+              type: object
+              example:
+                name: Aquaria
+                facility_npi: '123456789123'
+                phone: 808-606-3030
+                fax: 808-606-3031
+                street: '1337 Bit Shifter Ln'
+                city: 'San Lorenzo'
+                state: ZZ
+                postal_code: '54321'
+                country_code: US
+                federal_ein: '4343434'
+                website: 'https://example.com'
+                email: foo@bar.com
+                domain_identifier: ''
+                facility_taxonomy: ''
+                facility_code: ''
+                billing_location: '1'
+                accepts_assignment: '1'
+                oid: ''
+                service_location: '1'
       responses:
         '200':
           description: 'Creates a facility in the system'
+      security:
+        -
+          openemr_auth: []
+  '/api/facility/{fuuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: fuuid
+          in: path
+          description: 'The uuid for the facility.'
+          required: true
+      responses:
+        '200':
+          description: 'Returns a single facility.'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      parameters:
+        -
+          name: fuuid
+          in: path
+          description: 'The uuid for the facility.'
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  description: 'The name for the facility.'
+                facility_npi:
+                  description: 'The facility_npi for the facility.'
+                phone:
+                  description: 'The phone for the facility.'
+                fax:
+                  description: 'The fax for the facility.'
+                street:
+                  description: 'The street for the facility.'
+                city:
+                  description: 'The city for the facility.'
+                state:
+                  description: 'The state for the facility.'
+                postal_code:
+                  description: 'The postal_code for the facility.'
+                country_code:
+                  description: 'The country_code for the facility.'
+                federal_ein:
+                  description: 'The federal_ein for the facility.'
+                website:
+                  description: 'The website for the facility.'
+                email:
+                  description: 'The email for the facility.'
+                domain_identifier:
+                  description: 'The domain_identifier for the facility.'
+                facility_taxonomy:
+                  description: 'The facility_taxonomy for the facility.'
+                facility_code:
+                  description: 'The facility_code for the facility.'
+                billing_location:
+                  description: 'The billing_location setting for the facility.'
+                accepts_assignment:
+                  description: 'The accepts_assignment setting for the facility.'
+                oid:
+                  description: 'The oid for the facility.'
+                service_location:
+                  description: 'The service_location setting for the facility.'
+              type: object
+              example:
+                name: Aquaria
+                facility_npi: '123456789123'
+                phone: 808-606-3030
+                fax: 808-606-3031
+                street: '1337 Bit Shifter Ln'
+                city: 'San Lorenzo'
+                state: ZZ
+                postal_code: '54321'
+                country_code: US
+                federal_ein: '4343434'
+                website: 'https://example.com'
+                email: foo@bar.com
+                domain_identifier: ''
+                facility_taxonomy: ''
+                facility_code: ''
+                billing_location: '1'
+                accepts_assignment: '1'
+                oid: ''
+                service_location: '1'
+      responses:
+        '200':
+          description: 'Updates a facility in the system'
       security:
         -
           openemr_auth: []
