@@ -1,9 +1,9 @@
 /* Bootstrap Code */
-@import "../default-variables";
-
+// @import "../default-variables";
+$black: #222;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
-
+$gray: #cdcdcd;
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
 // bs4import
@@ -22,13 +22,83 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
 @import "../navigation-slide/future-bootstrap";
 
+:root {
+    --tabTopBorderWidth: .2em;
+    --gray300: #cdcdcd;
+}
+
 /* Overrides go here */
 @if $compact-theme == false {
-  .btn-secondary {
-    background-color: rgba($black, 0.05) !important;
-    border-color: $gray-500 !important;
-    color: rgba($black, 0.87) !important;
-  }
+    .btn-secondary {
+        background-color: rgba($black, 0.05) !important;
+        border-color: $gray-500 !important;
+        color: rgba($black, 0.87) !important;
+    }
+
+    .tabSpan {
+        border-top: var(--tabTopBorderWidth) solid var(--primary) !important;
+        padding: .25em .40em !important;
+        font-weight: 600 !important;
+
+        .fa {
+            color: $gray-500 !important;
+
+            &:hover {
+            color: $gray-700 !important;
+            }
+        }
+    }
+
+    .tabsNoHover {
+        border-top: var(--tabTopBorderWidth) solid transparent !important;
+        font-weight: normal !important;
+    }
+
+    .menuLabel,
+    .menuSection {
+        border-left: .25em solid transparent !important;
+        transition: none;
+    }
+
+    .menuSection:hover {
+        background-color: transparent !important;
+    }
+
+    .menuLabel:hover,
+    .menuLab {
+        background-color: lighten(theme-color('primary'), 40) !important;
+        border-left: .25em solid theme-color('primary') !important;
+    }
+
+    .menuSection {
+        .menuEntries {
+            top: inherit !important;
+
+            .menuSection .menuEntries {
+                left: 175px !important;
+                top: -3px !important;
+            }
+        }
+    }
+
+    .menuDisabled {
+        color: $gray-500 !important;
+    }
+
+    .menuLabel {
+        font-weight: 400 !important;
+        font-size: .8rem !important;
+
+        padding: .25em !important;
+
+        transition: none !important;
+    }
+
+    .oe-expandable-search input {
+        border: inherit;
+        border-radius: 0;
+        transition: none;
+    }
 }
 
 /* search any */
