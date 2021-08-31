@@ -289,18 +289,85 @@ paths:
     get:
       tags:
         - standard
+      parameters:
+        -
+          name: fname
+          in: query
+          description: 'The first name for the patient.'
+          required: false
+        -
+          name: lname
+          in: query
+          description: 'The last name for the patient.'
+          required: false
+        -
+          name: ss
+          in: query
+          description: 'The social security number for the patient.'
+          required: false
+        -
+          name: street
+          in: query
+          description: 'The street for the patient.'
+          required: false
+        -
+          name: postal_code
+          in: query
+          description: 'The postal code for the patient.'
+          required: false
+        -
+          name: city
+          in: query
+          description: 'The city for the patient.'
+          required: false
+        -
+          name: state
+          in: query
+          description: 'The state for the patient.'
+          required: false
+        -
+          name: phone_home
+          in: query
+          description: 'The home phone for the patient.'
+          required: false
+        -
+          name: phone_biz
+          in: query
+          description: 'The business phone for the patient.'
+          required: false
+        -
+          name: phone_cell
+          in: query
+          description: 'The cell phone for the patient.'
+          required: false
+        -
+          name: postal_contact
+          in: query
+          description: 'The postal_contact for the patient.'
+          required: false
+        -
+          name: sex
+          in: query
+          description: 'The gender for the patient.'
+          required: false
+        -
+          name: country_code
+          in: query
+          description: 'The country code for the patient.'
+          required: false
+        -
+          name: email
+          in: query
+          description: 'The email for the patient.'
+          required: false
+        -
+          name: DOB
+          in: query
+          description: 'The DOB for the patient.'
+          required: false
       responses:
         '200':
           description: 'Retrieves a list of patients'
-      security:
-        -
-          openemr_auth: []
-    put:
-      tags:
-        - standard
-      responses:
-        '200':
-          description: 'Updates a new patient'
       security:
         -
           openemr_auth: []
@@ -309,27 +376,1470 @@ paths:
         - standard
       responses:
         '200':
-          description: 'Creates a new patient'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new patient'
       security:
         -
           openemr_auth: []
-  '/api/patient/:puuid':
+  '/api/patient/{puuid}':
     get:
       tags:
         - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
       responses:
         '200':
           description: 'Retrieves a single patient by their uuid'
       security:
         -
           openemr_auth: []
-  '/api/patient/:puuid/encounter':
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Updates a patient'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/encounter':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a list of encounters for a single patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new encounter'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/encounter/{euuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+        -
+          name: euuid
+          in: path
+          description: 'The uuid for the encounter.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a single encounter for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modify a encounter'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/encounter/{eid}/soap_note':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves soap notes from an encounter for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new soap note'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/encounter/{eid}/vital':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all vitals from an encounter for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new vitals form'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/encounter/{eid}/vital/:vid':
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a vitals form'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/encounter/{eid}/vital/{vid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+        -
+          name: vid
+          in: path
+          description: 'The id for the vitals form.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a vitals form from an encounter for a patient'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/encounter/{eid}/soap_note/{sid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+        -
+          name: sid
+          in: path
+          description: 'The id for the soap note.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a soap note from an encounter for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a soap note'
+      security:
+        -
+          openemr_auth: []
+  /api/practitioner:
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: title
+          in: query
+          description: 'The title for the practitioner.'
+          required: false
+        -
+          name: fname
+          in: query
+          description: 'The first name for the practitioner.'
+          required: false
+        -
+          name: lname
+          in: query
+          description: 'The last name for the practitioner.'
+          required: false
+        -
+          name: mname
+          in: query
+          description: 'The middle name for the practitioner.'
+          required: false
+        -
+          name: federaltaxid
+          in: query
+          description: 'The federal tax id for the practitioner.'
+          required: false
+        -
+          name: federaldrugid
+          in: query
+          description: 'The federal drug id for the practitioner.'
+          required: false
+        -
+          name: upin
+          in: query
+          description: 'The upin for the practitioner.'
+          required: false
+        -
+          name: facility_id
+          in: query
+          description: 'The facility id for the practitioner.'
+          required: false
+        -
+          name: facility
+          in: query
+          description: 'The facility for the practitioner.'
+          required: false
+        -
+          name: npi
+          in: query
+          description: 'The npi for the practitioner.'
+          required: false
+        -
+          name: email
+          in: query
+          description: 'The email for the practitioner.'
+          required: false
+        -
+          name: specialty
+          in: query
+          description: 'The specialty for the practitioner.'
+          required: false
+        -
+          name: billname
+          in: query
+          description: 'The billname for the practitioner.'
+          required: false
+        -
+          name: url
+          in: query
+          description: 'The url for the practitioner.'
+          required: false
+        -
+          name: assistant
+          in: query
+          description: 'The assistant for the practitioner.'
+          required: false
+        -
+          name: organization
+          in: query
+          description: 'The organization for the practitioner.'
+          required: false
+        -
+          name: valedictory
+          in: query
+          description: 'The valedictory for the practitioner.'
+          required: false
+        -
+          name: street
+          in: query
+          description: 'The street for the practitioner.'
+          required: false
+        -
+          name: streetb
+          in: query
+          description: 'The street (line 2) for the practitioner.'
+          required: false
+        -
+          name: city
+          in: query
+          description: 'The city for the practitioner.'
+          required: false
+        -
+          name: state
+          in: query
+          description: 'The state for the practitioner.'
+          required: false
+        -
+          name: zip
+          in: query
+          description: 'The zip for the practitioner.'
+          required: false
+        -
+          name: phone
+          in: query
+          description: 'The phone for the practitioner.'
+          required: false
+        -
+          name: fax
+          in: query
+          description: 'The fax for the practitioner.'
+          required: false
+        -
+          name: phonew1
+          in: query
+          description: 'The phonew1 for the practitioner.'
+          required: false
+        -
+          name: phonecell
+          in: query
+          description: 'The phonecell for the practitioner.'
+          required: false
+        -
+          name: notes
+          in: query
+          description: 'The notes for the practitioner.'
+          required: false
+        -
+          name: state_license_number2
+          in: query
+          description: 'The state license number for the practitioner.'
+          required: false
+        -
+          name: username
+          in: query
+          description: 'The username for the practitioner.'
+          required: false
+      responses:
+        '200':
+          description: 'Retrieves a list of practitioners'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new practitioner'
+      security:
+        -
+          openemr_auth: []
+  '/api/practitioner/{pruuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pruuid
+          in: path
+          description: 'The uuid for the practitioner.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a single practitioner by their uuid'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a practitioner'
+      security:
+        -
+          openemr_auth: []
+  /api/medical_problem:
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+        -
+          name: condition_uuid
+          in: query
+          description: 'The uuid for the medical problem.'
+          required: false
+        -
+          name: title
+          in: query
+          description: 'The title for the medical problem.'
+          required: false
+        -
+          name: begdate
+          in: query
+          description: 'The start date for the medical problem.'
+          required: false
+        -
+          name: enddate
+          in: query
+          description: 'The end date for the medical problem.'
+          required: false
+        -
+          name: diagnosis
+          in: query
+          description: 'The diagnosis for the medical problem.'
+          required: false
+      responses:
+        '200':
+          description: 'Retrieves a list of medical problems'
+      security:
+        -
+          openemr_auth: []
+  '/api/medical_problem/{muuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: muuid
+          in: path
+          description: 'The uuid for the medical problem.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a single medical problem by their uuid'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/medical_problem':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all medical problems for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medical problem'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/medical_problem/{muuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+        -
+          name: muuid
+          in: path
+          description: 'The uuid for the medical problem.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a medical problem for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medical problem'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+        -
+          name: muuid
+          in: path
+          description: 'The uuid for the medical problem.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a medical problem'
+      security:
+        -
+          openemr_auth: []
+  /api/allergy:
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: lists.pid
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+        -
+          name: lists.id
+          in: query
+          description: 'The uuid for the allergy.'
+          required: false
+        -
+          name: title
+          in: query
+          description: 'The title for the allergy.'
+          required: false
+        -
+          name: begdate
+          in: query
+          description: 'The start date for the allergy.'
+          required: false
+        -
+          name: enddate
+          in: query
+          description: 'The end date for the allergy.'
+          required: false
+        -
+          name: diagnosis
+          in: query
+          description: 'The diagnosis for the allergy.'
+          required: false
+      responses:
+        '200':
+          description: 'Retrieves a list of allergies'
+      security:
+        -
+          openemr_auth: []
+  '/api/allergy/{auuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a single allergy by their uuid'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/allergy':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all allergies for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new allergy'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/allergy/{auuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a allergy for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a allergy'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a medical problem'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/medication':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all medications for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medication'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/medication/{mid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: mid
+          in: path
+          description: 'The id for the medication.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a medication for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medication'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: mid
+          in: path
+          description: 'The id for the medication.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a medication'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/surgery':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all surgeries for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new surgery'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/surgery/{sid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: sid
+          in: path
+          description: 'The id for the surgery.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a surgery for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a surgery'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: sid
+          in: path
+          description: 'The id for the surgery.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a surgery'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/dental_issue':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all dental issues for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new dental issue'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/dental_issue/{did}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: did
+          in: path
+          description: 'The id for the dental issue.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a dental issue for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a dental issue'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: did
+          in: path
+          description: 'The id for the dental issue.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a dental issue'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/appointment':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all appointments for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new appointment'
+      security:
+        -
+          openemr_auth: []
+  /api/appointment:
     get:
       tags:
         - standard
       responses:
         '200':
-          description: 'Retrieves a list of encounters for a single patient'
+          description: 'Retrieves all appointments'
+      security:
+        -
+          openemr_auth: []
+  '/api/appointment/{eid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: eid
+          in: path
+          description: 'The eid for the appointment.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves an appointment'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/appointment/{eid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The eid for the appointment.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a appointment for a patient'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The eid for the appointment.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a appointment'
+      security:
+        -
+          openemr_auth: []
+  '/api/list/{list_name}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: list_name
+          in: path
+          description: 'The list_id of the list.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a list'
+      security:
+        -
+          openemr_auth: []
+  /api/version:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves the OpenEMR version information'
+      security:
+        -
+          openemr_auth: []
+  /api/product:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves the OpenEMR product registration information'
+      security:
+        -
+          openemr_auth: []
+  /api/insurance_company:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves all insurance companies'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new insurance company'
+      security:
+        -
+          openemr_auth: []
+  '/api/insurance_company/{iid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: iid
+          in: path
+          description: 'The id of the insurance company.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves insurance company'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a insurance company'
+      security:
+        -
+          openemr_auth: []
+  /api/insurance_type:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves all insurance types'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/document':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: path
+          in: query
+          description: 'The category of the documents.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all file information of documents from a category for a patient'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient document'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/document/{did}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: did
+          in: path
+          description: 'The id for the patient document.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a document for a patient'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/insurance':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves all insurances for a patient'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/insurance/{type}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+        -
+          name: type
+          in: path
+          description: 'The insurance type for the patient.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a insurance (by type) for a patient'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a patient insurance (by type)'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient insurance (with type)'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/message':
+    post:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a pnote message'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/message/{mid}':
+    put:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a pnote message'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+        -
+          name: eid
+          in: path
+          description: 'The id for the pnote message.'
+          required: true
+      responses:
+        '200':
+          description: 'Delete a pnote message'
+      security:
+        -
+          openemr_auth: []
+  /api/immunization:
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: patient_id
+          in: query
+          description: 'The pid for the patient.'
+          required: false
+        -
+          name: id
+          in: query
+          description: 'The id for the immunization.'
+          required: false
+        -
+          name: uuid
+          in: query
+          description: 'The uuid for the immunization.'
+          required: false
+        -
+          name: administered_date
+          in: query
+          description: 'The administered date for the immunization.'
+          required: false
+        -
+          name: immunization_id
+          in: query
+          description: 'The immunization list_id for the immunization.'
+          required: false
+        -
+          name: cvx_code
+          in: query
+          description: 'The cvx code for the immunization.'
+          required: false
+        -
+          name: manufacturer
+          in: query
+          description: 'The manufacturer for the immunization.'
+          required: false
+        -
+          name: lot_number
+          in: query
+          description: 'The lot number for the immunization.'
+          required: false
+        -
+          name: administered_by_id
+          in: query
+          description: 'The administered by id for the immunization.'
+          required: false
+        -
+          name: administered_by
+          in: query
+          description: 'The administered by for the immunization.'
+          required: false
+        -
+          name: education_date
+          in: query
+          description: 'The education date for the immunization.'
+          required: false
+        -
+          name: vis_date
+          in: query
+          description: 'The vis date for the immunization.'
+          required: false
+        -
+          name: note
+          in: query
+          description: 'The note for the immunization.'
+          required: false
+        -
+          name: create_date
+          in: query
+          description: 'The create date for the immunization.'
+          required: false
+        -
+          name: update_date
+          in: query
+          description: 'The update date for the immunization.'
+          required: false
+        -
+          name: created_by
+          in: query
+          description: 'The created_by for the immunization.'
+          required: false
+        -
+          name: updated_by
+          in: query
+          description: 'The updated_by for the immunization.'
+          required: false
+        -
+          name: amount_administered
+          in: query
+          description: 'The amount administered for the immunization.'
+          required: false
+        -
+          name: amount_administered_unit
+          in: query
+          description: 'The amount administered unit for the immunization.'
+          required: false
+        -
+          name: expiration_date
+          in: query
+          description: 'The expiration date for the immunization.'
+          required: false
+        -
+          name: route
+          in: query
+          description: 'The route for the immunization.'
+          required: false
+        -
+          name: administration_site
+          in: query
+          description: 'The administration site for the immunization.'
+          required: false
+        -
+          name: added_erroneously
+          in: query
+          description: 'The added_erroneously for the immunization.'
+          required: false
+        -
+          name: external_id
+          in: query
+          description: 'The external_id for the immunization.'
+          required: false
+        -
+          name: completion_status
+          in: query
+          description: 'The completion status for the immunization.'
+          required: false
+        -
+          name: information_source
+          in: query
+          description: 'The information source for the immunization.'
+          required: false
+        -
+          name: refusal_reason
+          in: query
+          description: 'The refusal reason for the immunization.'
+          required: false
+        -
+          name: ordering_provider
+          in: query
+          description: 'The ordering provider for the immunization.'
+          required: false
+      responses:
+        '200':
+          description: 'Retrieves a list of immunizations'
+      security:
+        -
+          openemr_auth: []
+  '/api/immunization/{uuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the immunization.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a immunization'
+      security:
+        -
+          openemr_auth: []
+  /api/procedure:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves a list of all procedures'
+      security:
+        -
+          openemr_auth: []
+  '/api/procedure/{uuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the procedure.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a procedure'
+      security:
+        -
+          openemr_auth: []
+  /api/drug:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves a list of all drugs'
+      security:
+        -
+          openemr_auth: []
+  '/api/drug/{uuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the drug.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a drug'
+      security:
+        -
+          openemr_auth: []
+  /api/prescription:
+    get:
+      tags:
+        - standard
+      responses:
+        '200':
+          description: 'Retrieves a list of all prescriptions'
+      security:
+        -
+          openemr_auth: []
+  '/api/prescription/{uuid}':
+    get:
+      tags:
+        - standard
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the prescription.'
+          required: true
+      responses:
+        '200':
+          description: 'Retrieves a prescription'
       security:
         -
           openemr_auth: []
@@ -674,6 +2184,16 @@ paths:
       security:
         -
           openemr_auth: []
+  '/fhir/Document/{id}/Binary':
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      security:
+        -
+          openemr_auth: []
   /fhir/Encounter:
     get:
       tags:
@@ -787,6 +2307,16 @@ paths:
       responses:
         '200':
           description: 'Returns a single Group resource.'
+      security:
+        -
+          openemr_auth: []
+  '/fhir/Group/{id}/$export':
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       security:
         -
           openemr_auth: []
@@ -1045,7 +2575,7 @@ paths:
         - fhir
       responses:
         '200':
-          description: 'Adds a Organization resource.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Organization resource.'
       security:
         -
           openemr_auth: []
@@ -1072,11 +2602,11 @@ paths:
         -
           name: uuid
           in: path
-          description: 'Modifies a organization resource.'
+          description: 'The uuid for the organization.'
           required: true
       responses:
         '200':
-          description: 'Returns a single Organization resource.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modifies a Organization resource.'
       security:
         -
           openemr_auth: []
@@ -1166,7 +2696,7 @@ paths:
         - fhir
       responses:
         '200':
-          description: 'Adds a Patient resource.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Patient resource.'
       security:
         -
           openemr_auth: []
@@ -1197,7 +2727,17 @@ paths:
           required: true
       responses:
         '200':
-          description: 'Modifies a Patient resource.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modifies a Patient resource.'
+      security:
+        -
+          openemr_auth: []
+  /fhir/Patient/$export:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       security:
         -
           openemr_auth: []
@@ -1359,7 +2899,7 @@ paths:
         - fhir
       responses:
         '200':
-          description: 'Adds a Practitioner resources.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Practitioner resources.'
       security:
         -
           openemr_auth: []
@@ -1390,7 +2930,7 @@ paths:
           required: true
       responses:
         '200':
-          description: 'Modify a Practitioner resource.'
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modify a Practitioner resource.'
       security:
         -
           openemr_auth: []
@@ -1512,6 +3052,45 @@ paths:
       responses:
         '200':
           description: 'Returns metadata of the fhir server.'
+  /fhir/.well-known/smart-configuration:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      security:
+        -
+          openemr_auth: []
+  /fhir/$export:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      security:
+        -
+          openemr_auth: []
+  /fhir/$bulkdata-status:
+    get:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - fhir
+      responses:
+        '200':
+          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      security:
+        -
+          openemr_auth: []
   /portal/patient:
     get:
       tags:
