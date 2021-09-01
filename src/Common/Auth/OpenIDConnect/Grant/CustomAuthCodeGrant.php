@@ -36,21 +36,34 @@ class CustomAuthCodeGrant extends AuthCodeGrant
 
     public function validateAuthorizationRequest(ServerRequestInterface $request)
     {
+        // This function will force audience check if using launch scenario (ie. SMART).
+        //  In non-launch scenario, it will only check audience if it has been provided in the request.
         $audience = $this->getQueryStringParameter(
             'aud',
             $request
         );
-        if ($audience != $this->expectedAudience) {
-            (new SystemLogger())->errorLogCaller("Aud parameter did not match authorized server", ['audience' => $audience, 'expected' => $this->expectedAudience]);
-            throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
-        }
-
-        // let's validate the launch param
         $launch = $this->getQueryStringParameter(
             'launch',
             $request
         );
+
+        // let's validate the aud param (if it exists)
+        //  (note that this check is forced below if using launch scenario; so it is skipped here in the launch scenario)
+        if (!empty($audience) && empty($launch)) {
+            if (!in_array($audience, $this->expectedAudience)) {
+                (new SystemLogger())->errorLogCaller("Aud parameter did not match authorized server in non-launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
+                throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
+            }
+        } else if (empty($audience) && empty($launch)) {
+            (new SystemLogger())->debug("Aud parameter not provided (and non-launch scenario), so not validating aud (audience)");
+        }
+
+        // let's validate the launch param
         if (!empty($launch)) {
+            if (!in_array($audience, $this->expectedAudience)) {
+                (new SystemLogger())->errorLogCaller("Aud parameter did not match authorized server in launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
+                throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
+            }
             try {
                 $launchToken = SMARTLaunchToken::deserializeToken($launch);
                 if (empty($launchToken)) {

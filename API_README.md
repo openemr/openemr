@@ -120,6 +120,86 @@ OpenEMR uses OIDC compliant authorization for API. SSL is required and setting b
 #### Scopes
 
 This is a listing of scopes:
+- `openid` (Generic mandatory scope)
+- `fhirUser`
+- `online_access`
+- `offline_access` (Will signal server to provide a refresh token)
+- `launch`
+- `launch/patient`
+- `api:fhir` (fhir which are the /fhir/ endpoints)
+  - `patient/AllergyIntolerance.read`
+  - `patient/CarePlan.read`
+  - `patient/CareTeam.read`
+  - `patient/Condition.read`
+  - `patient/Device.read`
+  - `patient/DiagnosticReport.read`
+  - `patient/DocumentReference.read`
+  - `patient/Encounter.read`
+  - `patient/Goal.read`
+  - `patient/Immunization.read`
+  - `patient/Location.read`
+  - `patient/Medication.read`
+  - `patient/MedicationRequest.read`
+  - `patient/Observation.read`
+  - `patient/Organization.read`
+  - `patient/Patient.read`
+  - `patient/Person.read`
+  - `patient/Practitioner.read`
+  - `patient/Procedure.read`
+  - `patient/Provenance.read`
+  - `system/AllergyIntolerance.read`
+  - `system/CarePlan.read`
+  - `system/CareTeam.read`
+  - `system/Condition.read`
+  - `system/Coverage.read`
+  - `system/Device.read`
+  - `system/DiagnosticReport.read`
+  - `system/Document.read` (used for Bulk FHIR export downloads)
+  - `system/DocumentReference.read`
+  - `system/Encounter.read`
+  - `system/Goal.read`
+  - `system/Group.read`
+  - `system/Group.$export` (???)
+  - `system/Immunization.read`
+  - `system/Location.read`
+  - `system/Medication.read`
+  - `system/MedicationRequest.read`
+  - `system/Observation.read`
+  - `system/Organization.read`
+  - `system/Patient.read`
+  - `system/Patient.$export` (???)
+  - `system/Person.read`
+  - `system/Practitioner.read`
+  - `system/PractitionerRole.read`
+  - `system/Procedure.read`
+  - `system/Provenance.read`
+  - `system/*.$bulkdata-status` (???)
+  - `system/*.$export` (???)
+  - `user/AllergyIntolerance.read`
+  - `user/CarePlan.read`
+  - `user/CareTeam.read`
+  - `user/Condition.read`
+  - `user/Coverage.read`
+  - `user/Device.read`
+  - `user/DiagnosticReport.read`
+  - `user/DocumentReference.read`
+  - `user/Encounter.read`
+  - `user/Goal.read`
+  - `user/Immunization.read`
+  - `user/Location.read`
+  - `user/Medication.read`
+  - `user/MedicationRequest.read`
+  - `user/Observation.read`
+  - `user/Organization.read`
+  - `user/Organization.write`
+  - `user/Patient.read`
+  - `user/Patient.write`
+  - `user/Person.read`
+  - `user/Practitioner.read`
+  - `user/Practitioner.write`
+  - `user/PractitionerRole.read`
+  - `user/Procedure.read`
+  - `user/Provenance.read`
 - `api:oemr` (user api which are the /api/ endpoints)
   - `user/allergy.read`
   - `user/allergy.write`
@@ -158,34 +238,6 @@ This is a listing of scopes:
   - `user/surgery.write`
   - `user/vital.read`
   - `user/vital.write`
-- `api:fhir` (fhir which are the /fhir/ endpoints)
-  - `patient/AllergyIntolerance.read`
-  - `patient/CareTeam.read`
-  - `patient/Condition.read`
-  - `patient/Encounter.read`
-  - `patient/Immunization.read`
-  - `patient/MedicationRequest.read`
-  - `patient/Observation.read`
-  - `patient/Patient.read`
-  - `patient/Procedure.read`
-  - `user/AllergyIntolerance.read`
-  - `user/CareTeam.read`
-  - `user/Condition.read`
-  - `user/Coverage.read`
-  - `user/Encounter.read`
-  - `user/Immunization.read`
-  - `user/Location.read`
-  - `user/Medication.read`
-  - `user/MedicationRequest.read`
-  - `user/Observation.read`
-  - `user/Organization.read`
-  - `user/Organization.write`
-  - `user/Patient.read`
-  - `user/Patient.write`
-  - `user/Practitioner.read`
-  - `user/Practitioner.write`
-  - `user/PractitionerRole.read`
-  - `user/Procedure.read`
 - `api:port` (patient api which are the /portal/ endpoints) (EXPERIMENTAL)
   - `patient/encounter.read`
   - `patient/patient.read`
