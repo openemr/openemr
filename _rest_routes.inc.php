@@ -355,11 +355,11 @@ RestConfig::$ROUTE_MAP = array(
      *             @OA\Schema(
      *                 @OA\Property(
      *                     property="name",
-     *                     description="The name for the facility.",
+     *                     description="The name for the facility."
      *                 ),
      *                 @OA\Property(
      *                     property="facility_npi",
-     *                     description="The facility_npi for the facility.",
+     *                     description="The facility_npi for the facility."
      *                 ),
      *                 @OA\Property(
      *                     property="phone",
@@ -484,11 +484,11 @@ RestConfig::$ROUTE_MAP = array(
      *             @OA\Schema(
      *                 @OA\Property(
      *                     property="name",
-     *                     description="The name for the facility.",
+     *                     description="The name for the facility."
      *                 ),
      *                 @OA\Property(
      *                     property="facility_npi",
-     *                     description="The facility_npi for the facility.",
+     *                     description="The facility_npi for the facility."
      *                 ),
      *                 @OA\Property(
      *                     property="phone",
@@ -1309,15 +1309,162 @@ RestConfig::$ROUTE_MAP = array(
      * @OA\Post(
      *     path="/api/practitioner",
      *     tags={"standard"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="title",
+     *                     description="The title for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fname",
+     *                     description="The first name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="mname",
+     *                     description="The middle name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="lname",
+     *                     description="The last name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federaltaxid",
+     *                     description="The federal tax id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federaldrugid",
+     *                     description="The federal drug id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="upin",
+     *                     description="The upin for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_id",
+     *                     description="The facility_id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility",
+     *                     description="The facility name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="npi",
+     *                     description="The npi for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The email for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="specialty",
+     *                     description="The specialty for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="billname",
+     *                     description="The billname for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="url",
+     *                     description="The url for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="assistant",
+     *                     description="The assistant for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="valedictory",
+     *                     description="The valedictory for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="street",
+     *                     description="The street address for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="streetb",
+     *                     description="The streetb address for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="city",
+     *                     description="The city for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state",
+     *                     description="The state for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="zip",
+     *                     description="The zip for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phone",
+     *                     description="The phone for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fax",
+     *                     description="The fax for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phonew1",
+     *                     description="The phonew1 for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phonecell",
+     *                     description="The phonecell for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="notes",
+     *                     description="The notes for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state_license_number",
+     *                     description="The state license number for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="username",
+     *                     description="The username for the practitioner."
+     *                 ),
+     *                 required={"fname", "lname", "npi"},
+     *                 example={"title": "Mrs.",
+     *                          "fname": "Eduardo",
+     *                          "mname": "Kathy",
+     *                          "lname": "Perez",
+     *                          "federaltaxid": "",
+     *                          "federaldrugid": "",
+     *                          "upin": "",
+     *                          "facility_id": "3",
+     *                          "facility": "Your Clinic Name Here",
+     *                          "npi": "12345678901",
+     *                          "email": "info@pennfirm.com",
+     *                          "specialty": "",
+     *                          "billname": null,
+     *                          "url": null,
+     *                          "assistant": null,
+     *                          "organization": null,
+     *                          "valedictory": null,
+     *                          "street": "789 Third Avenue",
+     *                          "streetb": "123 Cannaut Street",
+     *                          "city": "San Diego",
+     *                          "state": "CA",
+     *                          "zip": "90210",
+     *                          "phone": "(619) 555-9827",
+     *                          "fax": null,
+     *                          "phonew1": "(619) 555-7822",
+     *                          "phonecell": "(619) 555-7821",
+     *                          "notes": null,
+     *                          "state_license_number": "123456",
+     *                          "username": "eduardoperez"}
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *      response="200",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new practitioner"
+     *      description="Submits a new practitioner"
      *     ),
      *     security={{"openemr_auth":{}}}
      * )
-     */
-    /**
-     * TODO
      */
     "POST /api/practitioner" => function () {
         RestConfig::authorization_check("admin", "users");
@@ -1331,15 +1478,147 @@ RestConfig::$ROUTE_MAP = array(
      * @OA\Put(
      *     path="/api/practitioner/{pruuid}",
      *     tags={"standard"},
+     *     @OA\Parameter(
+     *      name="pruuid",
+     *      in="path",
+     *      description="The uuid for the practitioner.",
+     *      required=true
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="title",
+     *                     description="The title for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fname",
+     *                     description="The first name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="mname",
+     *                     description="The middle name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="lname",
+     *                     description="The last name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federaltaxid",
+     *                     description="The federal tax id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="federaldrugid",
+     *                     description="The federal drug id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="upin",
+     *                     description="The upin for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility_id",
+     *                     description="The facility_id for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="facility",
+     *                     description="The facility name for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="npi",
+     *                     description="The npi for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The email for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="specialty",
+     *                     description="The specialty for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="billname",
+     *                     description="The billname for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="url",
+     *                     description="The url for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="assistant",
+     *                     description="The assistant for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="valedictory",
+     *                     description="The valedictory for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="street",
+     *                     description="The street address for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="streetb",
+     *                     description="The streetb address for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="city",
+     *                     description="The city for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state",
+     *                     description="The state for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="zip",
+     *                     description="The zip for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phone",
+     *                     description="The phone for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="fax",
+     *                     description="The fax for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phonew1",
+     *                     description="The phonew1 for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phonecell",
+     *                     description="The phonecell for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="notes",
+     *                     description="The notes for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state_license_number",
+     *                     description="The state license number for the practitioner."
+     *                 ),
+     *                 @OA\Property(
+     *                     property="username",
+     *                     description="The username for the practitioner."
+     *                 ),
+     *                 example={"title": "Mr",
+     *                          "fname": "Baz",
+     *                          "mname": "",
+     *                          "lname": "Bop",
+     *                          "street": "456 Tree Lane",
+     *                          "zip": "08642",
+     *                          "city": "FooTown",
+     *                          "state": "FL",
+     *                          "phone": "123-456-7890"}
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
      *      response="200",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a practitioner"
+     *      description="Edit a practitioner"
      *     ),
      *     security={{"openemr_auth":{}}}
      * )
-     */
-    /**
-     * TODO
      */
     "PUT /api/practitioner/:pruuid" => function ($pruuid) {
         RestConfig::authorization_check("admin", "users");
