@@ -118,7 +118,7 @@ function getPatientReport($pid)
     $sql = "select * from patient_data where pid=? order by date ASC";
     $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
-        while (list($key, $value) = each($list)) {
+        foreach ($list as $key => $value) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['title'] = $key;
                 $ret[$key]['content'] = $value;
@@ -135,7 +135,7 @@ function getHistoryReport($pid)
     $sql = "select * from history_data where pid=? order by date ASC";
     $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
-        while (list($key, $value) = each($list)) {
+        foreach ($list as $key => $value) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
@@ -151,7 +151,7 @@ function getInsuranceReport($pid, $type = "primary")
     $sql = "select * from insurance_data where pid=? and type=? order by date ASC";
     $res = sqlStatement($sql, array($pid, $type));
     while ($list = sqlFetchArray($res)) {
-        while (list($key, $value) = each($list)) {
+        foreach ($list as $key => $value) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
@@ -167,7 +167,7 @@ function getEmployerReport($pid)
     $sql = "select * from employer_data where pid=? order by date ASC";
     $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
-        while (list($key, $value) = each($list)) {
+        foreach ($list as $key => $value) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];
@@ -183,7 +183,7 @@ function getListsReport($id)
     $sql = "select * from lists where id=? order by date ASC";
     $res = sqlStatement($sql, array($id));
     while ($list = sqlFetchArray($res)) {
-        while (list($key, $value) = each($list)) {
+        foreach ($list as $key => $value) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
                 $ret[$key]['content'] = $value;
                 $ret[$key]['date'] = $list['date'];

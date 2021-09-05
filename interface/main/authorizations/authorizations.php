@@ -178,7 +178,7 @@ if ($imauthorized && $see_auth > 1) {
     if ($authorize) {
         $count = 0;
 
-        while (list($ppid,$patient) = each($authorize)) {
+        foreach ($authorize as $ppid => $patient) {
             $name = getPatientData($ppid);
 
             // If I want to see mine only and this patient is not mine, skip it.
