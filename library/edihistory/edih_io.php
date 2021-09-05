@@ -3,27 +3,13 @@
 /*
  * edih_io.php
  *
- * Copyright 2016 Kevin McCormick Longview, Texas
- *
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have
- * received a copy of the GNU General Public License along with this program;
- * if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
- *
- *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
- * @subpackage ediHistory
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /**
@@ -197,8 +183,6 @@ function edih_disp_archive()
  */
 function edih_disp_file_process()
 {
-    //file "fileUplMulti "submit" "uplsubmit" "button""uplreset"
-    //
     // debug
     if (isset($_GET)) {
         $dbg_str = 'GET vars ';
@@ -230,7 +214,6 @@ function edih_disp_file_process()
     }
 
     $str_html = "";
-    //
     $p = csv_parameters();
     $ftype = array_keys($p);
     $fct = 0;
@@ -243,7 +226,7 @@ function edih_disp_file_process()
             $dh = opendir($fdir);
             if ($dh) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..') {
+                    if ($file != '.' && $file != '..' && $file != "process_bills.log") {
                         $checkdir = true;
                         break;
                     }
@@ -522,7 +505,7 @@ function edih_disp_x12trans()
 }
 
 /**
- * display fule uploaded from x12 File tab
+ * display file uploaded from x12 File tab
  * wrap individual transactions in accordian jquery ui widget
  *
  * @uses csv_check_x12_obj()
@@ -768,7 +751,7 @@ function edih_disp_era_processed()
         $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval));
         if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
-            if ($row['global_amount'] === '0') {
+            if ($row['global_amount'] === '0' || $row['global_amount'] === '0.00') {
                 $str_html .= " fully allocated";
             } else {
                 $str_html .= " (" . text($row['global_amount']) . " not allocated)";

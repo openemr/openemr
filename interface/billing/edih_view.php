@@ -165,7 +165,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                             </td>
                                             <td class='text-left'>
                                                 <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable" />
-                                                <button type="button" class="btn btn-primary btn-add" id="csvshow" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>">
+                                                <button type="submit" class="btn btn-primary btn-add" id="csvshow" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>">
                                                     <?php echo xlt("Submit"); ?>
                                                 </button>
                                             </td>
@@ -487,61 +487,25 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         });
     };
 
-/*
-jquery-UI dialog
-    control visibility by designating to which div the dialog is appended
-*/
-    function dialogOptions(appendElem) {
-        var tblDialogOpts = {
-            appendTo: appendElem,
-            draggable: true,
-            resizable: true,
-            height: 512,
-            width: 768,
-            // no need for maxWidth: 768, since some files are pretty wide
-            title: 'Transaction Detail',
-            close: function(event, ui)
-            {
-                $(this).dialog("close");
-                $(this).remove();
-            }
-        };
-        return tblDialogOpts;
-    }
-
-
     $('#tbcsvhist').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var options = dialogOptions('#tbcsvhist');
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
-    });
+            .load($(this).attr('href')).appendTo('#tbcsvhist');
 /* #csvTable  ****  */
     $('#tblshow').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var ttl = $(this).attr('title');
-        var options = dialogOptions('#tblshow');
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
+            .load($(this).attr('href')).appendTo('#tblshow');
     });
-/*
-    $('#tbrpt').on('click', 'a', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var options = dialogOptions('#tblshow');
-        $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
-    });
-*/
+
 /* **** links in dialog in uploads - processed div  ****    */
     $('#processed').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var options = dialogOptions('#processed');
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#processed').dialog(options);
+            .load($(this).attr('href')).appendTo('#processed');
     });
 /* ****************************
  *
@@ -625,6 +589,7 @@ jquery-UI dialog
                 contentType: false,
                 success: function(data) {
                     rspElem.html(data);
+                    rspElem.toggle();
                     rspElem.removeClass('d-none');
                     $('#fuplprocess').prop('disabled', false );
                     $('#fuplupload').prop('disabled', true);
