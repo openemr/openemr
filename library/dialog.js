@@ -74,12 +74,38 @@
         }
     });
 
+    if (typeof includeScript !== 'function') {
+        // Obviously utility.js has not been included for an unknown reason!
+        // Will include below.
+        function includeScript(srcUrl, type) {
+            return new Promise(function (resolve, reject) {
+                if (type == 'script') {
+                    let newScriptElement = document.createElement('script');
+                    newScriptElement.src = srcUrl;
+                    newScriptElement.onload = () => resolve(newScriptElement);
+                    newScriptElement.onerror = () => reject(new Error(`Script load error for ${srcUrl}`));
+
+                    document.head.append(newScriptElement);
+                    console.log('Needed to load:[' + srcUrl + '] For: [' + location + ']');
+                }
+                if (type === "link") {
+                    let newScriptElement = document.createElement("link")
+                    newScriptElement.type = "text/css";
+                    newScriptElement.rel = "stylesheet";
+                    newScriptElement.href = srcUrl;
+                    newScriptElement.onload = () => resolve(newScriptElement);
+                    newScriptElement.onerror = () => reject(new Error(`Link load error for ${srcUrl}`));
+
+                    document.head.append(newScriptElement);
+                    console.log('Needed to load:[' + srcUrl + '] For: [' + location + ']');
+                }
+            });
+        }
+    }
     if (typeof window.xl !== 'function') {
         (async (utilfn) => {
             await includeScript(utilfn, 'script');
-        })(top.webroot_url + '/library/js/utility.js').then(() => {
-            console.log('Utilities Unavailable! loading:[ ' + utilfn + ' ] For: [ ' + location + ' ]');
-        });
+        })(top.webroot_url + '/library/js/utility.js')
     }
 }(typeof define == 'function' && define.amd ?
     define :
