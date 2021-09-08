@@ -10,111 +10,153 @@ paths:
     get:
       tags:
         - standard
+      description: 'Returns a single facility.'
       parameters:
         -
           name: name
           in: query
           description: 'The name for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: facility_npi
           in: query
           description: 'The facility_npi for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: fax
           in: query
           description: 'The fax for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: street
           in: query
           description: 'The street for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: city
           in: query
           description: 'The city for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: state
           in: query
           description: 'The state for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: postal_code
           in: query
           description: 'The postal_code for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: country_code
           in: query
           description: 'The country_code for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: federal_ein
           in: query
           description: 'The federal_ein for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: website
           in: query
           description: 'The website for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: domain_identifier
           in: query
           description: 'The domain_identifier for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: facility_taxonomy
           in: query
           description: 'The facility_taxonomy for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: facility_code
           in: query
           description: 'The facility_code for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: billing_location
           in: query
           description: 'The billing_location setting for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: accepts_assignment
           in: query
           description: 'The accepts_assignment setting for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: oid
           in: query
           description: 'The oid for the facility.'
           required: false
+          schema:
+            type: string
         -
           name: service_location
           in: query
           description: 'The service_location setting for the facility.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of facilities'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Creates a facility in the system'
       requestBody:
         required: true
         content:
@@ -126,42 +168,61 @@ paths:
               properties:
                 name:
                   description: 'The name for the facility.'
+                  type: string
                 facility_npi:
                   description: 'The facility_npi for the facility.'
+                  type: string
                 phone:
                   description: 'The phone for the facility.'
+                  type: string
                 fax:
                   description: 'The fax for the facility.'
+                  type: string
                 street:
                   description: 'The street for the facility.'
+                  type: string
                 city:
                   description: 'The city for the facility.'
+                  type: string
                 state:
                   description: 'The state for the facility.'
+                  type: string
                 postal_code:
                   description: 'The postal_code for the facility.'
+                  type: string
                 country_code:
                   description: 'The country_code for the facility.'
+                  type: string
                 federal_ein:
                   description: 'The federal_ein for the facility.'
+                  type: string
                 website:
                   description: 'The website for the facility.'
+                  type: string
                 email:
                   description: 'The email for the facility.'
+                  type: string
                 domain_identifier:
                   description: 'The domain_identifier for the facility.'
+                  type: string
                 facility_taxonomy:
                   description: 'The facility_taxonomy for the facility.'
+                  type: string
                 facility_code:
                   description: 'The facility_code for the facility.'
+                  type: string
                 billing_location:
                   description: 'The billing_location setting for the facility.'
+                  type: string
                 accepts_assignment:
                   description: 'The accepts_assignment setting for the facility.'
+                  type: string
                 oid:
                   description: 'The oid for the facility.'
+                  type: string
                 service_location:
                   description: 'The service_location setting for the facility.'
+                  type: string
               type: object
               example:
                 name: Aquaria
@@ -185,7 +246,9 @@ paths:
                 service_location: '1'
       responses:
         '200':
-          description: 'Creates a facility in the system'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -193,27 +256,35 @@ paths:
     get:
       tags:
         - standard
+      description: 'Returns a single facility.'
       parameters:
         -
           name: fuuid
           in: path
           description: 'The uuid for the facility.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single facility.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Updates a facility in the system'
       parameters:
         -
           name: fuuid
           in: path
           description: 'The uuid for the facility.'
           required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -222,42 +293,61 @@ paths:
               properties:
                 name:
                   description: 'The name for the facility.'
+                  type: string
                 facility_npi:
                   description: 'The facility_npi for the facility.'
+                  type: string
                 phone:
                   description: 'The phone for the facility.'
+                  type: string
                 fax:
                   description: 'The fax for the facility.'
+                  type: string
                 street:
                   description: 'The street for the facility.'
+                  type: string
                 city:
                   description: 'The city for the facility.'
+                  type: string
                 state:
                   description: 'The state for the facility.'
+                  type: string
                 postal_code:
                   description: 'The postal_code for the facility.'
+                  type: string
                 country_code:
                   description: 'The country_code for the facility.'
+                  type: string
                 federal_ein:
                   description: 'The federal_ein for the facility.'
+                  type: string
                 website:
                   description: 'The website for the facility.'
+                  type: string
                 email:
                   description: 'The email for the facility.'
+                  type: string
                 domain_identifier:
                   description: 'The domain_identifier for the facility.'
+                  type: string
                 facility_taxonomy:
                   description: 'The facility_taxonomy for the facility.'
+                  type: string
                 facility_code:
                   description: 'The facility_code for the facility.'
+                  type: string
                 billing_location:
                   description: 'The billing_location setting for the facility.'
+                  type: string
                 accepts_assignment:
                   description: 'The accepts_assignment setting for the facility.'
+                  type: string
                 oid:
                   description: 'The oid for the facility.'
+                  type: string
                 service_location:
                   description: 'The service_location setting for the facility.'
+                  type: string
               type: object
               example:
                 name: Aquaria
@@ -281,7 +371,9 @@ paths:
                 service_location: '1'
       responses:
         '200':
-          description: 'Updates a facility in the system'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -289,94 +381,148 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of patients'
       parameters:
         -
           name: fname
           in: query
           description: 'The first name for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: lname
           in: query
           description: 'The last name for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: ss
           in: query
           description: 'The social security number for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: street
           in: query
           description: 'The street for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: postal_code
           in: query
           description: 'The postal code for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: city
           in: query
           description: 'The city for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: state
           in: query
           description: 'The state for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: phone_home
           in: query
           description: 'The home phone for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: phone_biz
           in: query
           description: 'The business phone for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: phone_cell
           in: query
           description: 'The cell phone for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: postal_contact
           in: query
           description: 'The postal_contact for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: sex
           in: query
           description: 'The gender for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: country_code
           in: query
           description: 'The country code for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: DOB
           in: query
           description: 'The DOB for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of patients'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Creates a new patient'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_patient_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new patient'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { pid: { description: 'patient pid', type: integer } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { pid: 1 }
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -384,24 +530,54 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a single patient by their uuid'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a single patient by their uuid'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Updates a patient'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_patient_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Updates a patient'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -409,24 +585,58 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of encounters for a single patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of encounters for a single patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Creates a new encounter'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_encounter_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new encounter'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { encounter: { description: 'encounter id', type: integer }, uuid: { description: 'encounter uuid', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { encounter: 1, uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef }
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -434,29 +644,68 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a single encounter for a patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: euuid
           in: path
           description: 'The uuid for the encounter.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a single encounter for a patient'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_encounter_response'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Modify a encounter'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: euuid
+          in: path
+          description: 'The uuid for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_encounter_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modify a encounter'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_encounter_response'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -464,29 +713,60 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves soap notes from an encounter for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The id for the encounter.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves soap notes from an encounter for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new soap note'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new soap note'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -494,39 +774,60 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all vitals from an encounter for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The id for the encounter.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all vitals from an encounter for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
-      responses:
-        '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new vitals form'
-      security:
+      description: 'Submits a new vitals form'
+      parameters:
         -
-          openemr_auth: []
-  '/api/patient/{pid}/encounter/{eid}/vital/:vid':
-    put:
-      tags:
-        - standard
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_vital_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a vitals form'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -534,25 +835,74 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a vitals form from an encounter for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The id for the encounter.'
           required: true
+          schema:
+            type: string
         -
           name: vid
           in: path
           description: 'The id for the vitals form.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a vitals form from an encounter for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      description: 'Edit a vitals form'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+        -
+          name: vid
+          in: path
+          description: 'The id for the vitalss form.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_vital_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -560,34 +910,74 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a soap note from an encounter for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The id for the encounter.'
           required: true
+          schema:
+            type: string
         -
           name: sid
           in: path
           description: 'The id for the soap note.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a soap note from an encounter for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a soap note'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+        -
+          name: sid
+          in: path
+          description: 'The id for the soap noted.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a soap note'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -595,164 +985,365 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of practitioners'
       parameters:
         -
           name: title
           in: query
           description: 'The title for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: fname
           in: query
           description: 'The first name for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: lname
           in: query
           description: 'The last name for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: mname
           in: query
           description: 'The middle name for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: federaltaxid
           in: query
           description: 'The federal tax id for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: federaldrugid
           in: query
           description: 'The federal drug id for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: upin
           in: query
           description: 'The upin for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: facility_id
           in: query
           description: 'The facility id for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: facility
           in: query
           description: 'The facility for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: npi
           in: query
           description: 'The npi for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: specialty
           in: query
           description: 'The specialty for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: billname
           in: query
           description: 'The billname for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: url
           in: query
           description: 'The url for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: assistant
           in: query
           description: 'The assistant for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: organization
           in: query
           description: 'The organization for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: valedictory
           in: query
           description: 'The valedictory for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: street
           in: query
           description: 'The street for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: streetb
           in: query
           description: 'The street (line 2) for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: city
           in: query
           description: 'The city for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: state
           in: query
           description: 'The state for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: zip
           in: query
           description: 'The zip for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: fax
           in: query
           description: 'The fax for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: phonew1
           in: query
           description: 'The phonew1 for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: phonecell
           in: query
           description: 'The phonecell for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: notes
           in: query
           description: 'The notes for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: state_license_number2
           in: query
           description: 'The state license number for the practitioner.'
           required: false
+          schema:
+            type: string
         -
           name: username
           in: query
           description: 'The username for the practitioner.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of practitioners'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new practitioner'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - fname
+                - lname
+                - npi
+              properties:
+                title:
+                  description: 'The title for the practitioner.'
+                  type: string
+                fname:
+                  description: 'The first name for the practitioner.'
+                  type: string
+                mname:
+                  description: 'The middle name for the practitioner.'
+                  type: string
+                lname:
+                  description: 'The last name for the practitioner.'
+                  type: string
+                federaltaxid:
+                  description: 'The federal tax id for the practitioner.'
+                  type: string
+                federaldrugid:
+                  description: 'The federal drug id for the practitioner.'
+                  type: string
+                upin:
+                  description: 'The upin for the practitioner.'
+                  type: string
+                facility_id:
+                  description: 'The facility_id for the practitioner.'
+                  type: string
+                facility:
+                  description: 'The facility name for the practitioner.'
+                  type: string
+                npi:
+                  description: 'The npi for the practitioner.'
+                  type: string
+                email:
+                  description: 'The email for the practitioner.'
+                  type: string
+                specialty:
+                  description: 'The specialty for the practitioner.'
+                  type: string
+                billname:
+                  description: 'The billname for the practitioner.'
+                  type: string
+                url:
+                  description: 'The url for the practitioner.'
+                  type: string
+                assistant:
+                  description: 'The assistant for the practitioner.'
+                  type: string
+                valedictory:
+                  description: 'The valedictory for the practitioner.'
+                  type: string
+                street:
+                  description: 'The street address for the practitioner.'
+                  type: string
+                streetb:
+                  description: 'The streetb address for the practitioner.'
+                  type: string
+                city:
+                  description: 'The city for the practitioner.'
+                  type: string
+                state:
+                  description: 'The state for the practitioner.'
+                  type: string
+                zip:
+                  description: 'The zip for the practitioner.'
+                  type: string
+                phone:
+                  description: 'The phone for the practitioner.'
+                  type: string
+                fax:
+                  description: 'The fax for the practitioner.'
+                  type: string
+                phonew1:
+                  description: 'The phonew1 for the practitioner.'
+                  type: string
+                phonecell:
+                  description: 'The phonecell for the practitioner.'
+                  type: string
+                notes:
+                  description: 'The notes for the practitioner.'
+                  type: string
+                state_license_number:
+                  description: 'The state license number for the practitioner.'
+                  type: string
+                username:
+                  description: 'The username for the practitioner.'
+                  type: string
+              type: object
+              example:
+                title: Mrs.
+                fname: Eduardo
+                mname: Kathy
+                lname: Perez
+                federaltaxid: ''
+                federaldrugid: ''
+                upin: ''
+                facility_id: '3'
+                facility: 'Your Clinic Name Here'
+                npi: '12345678901'
+                email: info@pennfirm.com
+                specialty: ''
+                billname: null
+                url: null
+                assistant: null
+                organization: null
+                valedictory: null
+                street: '789 Third Avenue'
+                streetb: '123 Cannaut Street'
+                city: 'San Diego'
+                state: CA
+                zip: '90210'
+                phone: '(619) 555-9827'
+                fax: null
+                phonew1: '(619) 555-7822'
+                phonecell: '(619) 555-7821'
+                notes: null
+                state_license_number: '123456'
+                username: eduardoperez
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new practitioner'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { id: { description: 'practitioner id', type: integer }, uuid: { description: 'practitioner uuid', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { id: 7, uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5 }
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -760,24 +1351,153 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a single practitioner by their uuid'
       parameters:
         -
           name: pruuid
           in: path
           description: 'The uuid for the practitioner.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a single practitioner by their uuid'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a practitioner'
+      parameters:
+        -
+          name: pruuid
+          in: path
+          description: 'The uuid for the practitioner.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                title:
+                  description: 'The title for the practitioner.'
+                  type: string
+                fname:
+                  description: 'The first name for the practitioner.'
+                  type: string
+                mname:
+                  description: 'The middle name for the practitioner.'
+                  type: string
+                lname:
+                  description: 'The last name for the practitioner.'
+                  type: string
+                federaltaxid:
+                  description: 'The federal tax id for the practitioner.'
+                  type: string
+                federaldrugid:
+                  description: 'The federal drug id for the practitioner.'
+                  type: string
+                upin:
+                  description: 'The upin for the practitioner.'
+                  type: string
+                facility_id:
+                  description: 'The facility_id for the practitioner.'
+                  type: string
+                facility:
+                  description: 'The facility name for the practitioner.'
+                  type: string
+                npi:
+                  description: 'The npi for the practitioner.'
+                  type: string
+                email:
+                  description: 'The email for the practitioner.'
+                  type: string
+                specialty:
+                  description: 'The specialty for the practitioner.'
+                  type: string
+                billname:
+                  description: 'The billname for the practitioner.'
+                  type: string
+                url:
+                  description: 'The url for the practitioner.'
+                  type: string
+                assistant:
+                  description: 'The assistant for the practitioner.'
+                  type: string
+                valedictory:
+                  description: 'The valedictory for the practitioner.'
+                  type: string
+                street:
+                  description: 'The street address for the practitioner.'
+                  type: string
+                streetb:
+                  description: 'The streetb address for the practitioner.'
+                  type: string
+                city:
+                  description: 'The city for the practitioner.'
+                  type: string
+                state:
+                  description: 'The state for the practitioner.'
+                  type: string
+                zip:
+                  description: 'The zip for the practitioner.'
+                  type: string
+                phone:
+                  description: 'The phone for the practitioner.'
+                  type: string
+                fax:
+                  description: 'The fax for the practitioner.'
+                  type: string
+                phonew1:
+                  description: 'The phonew1 for the practitioner.'
+                  type: string
+                phonecell:
+                  description: 'The phonecell for the practitioner.'
+                  type: string
+                notes:
+                  description: 'The notes for the practitioner.'
+                  type: string
+                state_license_number:
+                  description: 'The state license number for the practitioner.'
+                  type: string
+                username:
+                  description: 'The username for the practitioner.'
+                  type: string
+              type: object
+              example:
+                title: Mr
+                fname: Baz
+                mname: ''
+                lname: Bop
+                street: '456 Tree Lane'
+                zip: '08642'
+                city: FooTown
+                state: FL
+                phone: 123-456-7890
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a practitioner'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { id: { description: 'practitioner id', type: string }, uuid: { description: 'practitioner uuid', type: string }, title: { description: 'practitioner title', type: string }, fname: { description: 'practitioner fname', type: string }, lname: { description: 'practitioner lname', type: string }, mname: { description: 'practitioner mname', type: string }, federaltaxid: { description: 'practitioner federaltaxid', type: string }, federaldrugid: { description: 'practitioner federaldrugid', type: string }, upin: { description: 'practitioner upin', type: string }, facility_id: { description: 'practitioner facility_id', type: string }, facility: { description: 'practitioner facility', type: string }, npi: { description: 'practitioner npi', type: string }, email: { description: 'practitioner email', type: string }, active: { description: 'practitioner active setting', type: string }, specialty: { description: 'practitioner specialty', type: string }, billname: { description: 'practitioner billname', type: string }, url: { description: 'practitioner url', type: string }, assistant: { description: 'practitioner assistant', type: string }, organization: { description: 'practitioner organization', type: string }, valedictory: { description: 'practitioner valedictory', type: string }, street: { description: 'practitioner street', type: string }, streetb: { description: 'practitioner streetb', type: string }, city: { description: 'practitioner city', type: string }, state: { description: 'practitioner state', type: string }, zip: { description: 'practitioner zip', type: string }, phone: { description: 'practitioner phone', type: string }, fax: { description: fax, type: string }, phonew1: { description: 'practitioner phonew1', type: string }, phonecell: { description: 'practitioner phonecell', type: string }, notes: { description: 'practitioner notes', type: string }, state_license_number: { description: 'practitioner state license number', type: string }, abook_title: { description: 'practitioner abook title', type: string }, physician_title: { description: 'practitioner physician title', type: string }, physician_code: { description: 'practitioner physician code', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { id: 7, uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5, title: Mr, fname: Baz, lname: Bop, mname: '', federaltaxid: '', federaldrugid: '', upin: '', facility_id: '3', facility: 'Your Clinic Name Here', npi: '0123456789', email: info@pennfirm.com, active: '1', specialty: '', billname: '', url: '', assistant: '', organization: '', valedictory: '', street: '456 Tree Lane', streetb: '123 Cannaut Street', city: FooTown, state: FL, zip: '08642', phone: 123-456-7890, fax: '', phonew1: '(619) 555-7822', phonecell: '(619) 555-7821', notes: '', state_license_number: '123456', abook_title: null, physician_title: null, physician_code: null }
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -785,40 +1505,55 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of medical problems'
       parameters:
         -
           name: puuid
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: condition_uuid
           in: query
           description: 'The uuid for the medical problem.'
           required: false
+          schema:
+            type: string
         -
           name: title
           in: query
           description: 'The title for the medical problem.'
           required: false
+          schema:
+            type: string
         -
           name: begdate
           in: query
           description: 'The start date for the medical problem.'
           required: false
+          schema:
+            type: string
         -
           name: enddate
           in: query
           description: 'The end date for the medical problem.'
           required: false
+          schema:
+            type: string
         -
           name: diagnosis
           in: query
           description: 'The diagnosis for the medical problem.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of medical problems'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -826,15 +1561,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a single medical problem by their uuid'
       parameters:
         -
           name: muuid
           in: path
           description: 'The uuid for the medical problem.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a single medical problem by their uuid'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -842,24 +1582,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all medical problems for a patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all medical problems for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new medical problem'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medical problem'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -867,49 +1629,87 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a medical problem for a patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: muuid
           in: path
           description: 'The uuid for the medical problem.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a medical problem for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
-      responses:
-        '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medical problem'
-      security:
-        -
-          openemr_auth: []
-    delete:
-      tags:
-        - standard
+      description: 'Edit a medical problem'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: muuid
           in: path
           description: 'The uuid for the medical problem.'
           required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
-          description: 'Delete a medical problem'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      description: 'Delete a medical problem'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: muuid
+          in: path
+          description: 'The uuid for the medical problem.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -917,40 +1717,55 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of allergies'
       parameters:
         -
           name: lists.pid
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: lists.id
           in: query
           description: 'The uuid for the allergy.'
           required: false
+          schema:
+            type: string
         -
           name: title
           in: query
           description: 'The title for the allergy.'
           required: false
+          schema:
+            type: string
         -
           name: begdate
           in: query
           description: 'The start date for the allergy.'
           required: false
+          schema:
+            type: string
         -
           name: enddate
           in: query
           description: 'The end date for the allergy.'
           required: false
+          schema:
+            type: string
         -
           name: diagnosis
           in: query
           description: 'The diagnosis for the allergy.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of allergies'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -958,15 +1773,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a single allergy by their uuid'
       parameters:
         -
           name: auuid
           in: path
           description: 'The uuid for the allergy.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a single allergy by their uuid'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -974,24 +1794,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all allergies for a patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all allergies for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new allergy'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new allergy'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -999,49 +1841,87 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a allergy for a patient'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: auuid
           in: path
           description: 'The uuid for the allergy.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a allergy for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
-      responses:
-        '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a allergy'
-      security:
-        -
-          openemr_auth: []
-    delete:
-      tags:
-        - standard
+      description: 'Edit a allergy'
       parameters:
         -
           name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: auuid
           in: path
           description: 'The uuid for the allergy.'
           required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
-          description: 'Delete a medical problem'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      description: 'Delete a medical problem'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1049,24 +1929,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all medications for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all medications for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new medication'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medication'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1074,49 +1976,87 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a medication for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: mid
           in: path
           description: 'The id for the medication.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a medication for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a medication'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: mid
+          in: path
+          description: 'The id for the medication.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medication'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     delete:
       tags:
         - standard
+      description: 'Delete a medication'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: mid
           in: path
           description: 'The id for the medication.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Delete a medication'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1124,24 +2064,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all surgeries for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all surgeries for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new surgery'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new surgery'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1149,49 +2111,87 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a surgery for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: sid
           in: path
           description: 'The id for the surgery.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a surgery for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a surgery'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: sid
+          in: path
+          description: 'The id for the surgery.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a surgery'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     delete:
       tags:
         - standard
+      description: 'Delete a surgery'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: sid
           in: path
           description: 'The id for the surgery.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Delete a surgery'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1199,24 +2199,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all dental issues for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all dental issues for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new dental issue'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new dental issue'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1224,49 +2246,87 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a dental issue for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: did
           in: path
           description: 'The id for the dental issue.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a dental issue for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a dental issue'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: did
+          in: path
+          description: 'The id for the dental issue.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a dental issue'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     delete:
       tags:
         - standard
+      description: 'Delete a dental issue'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: did
           in: path
           description: 'The id for the dental issue.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Delete a dental issue'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1274,24 +2334,94 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all appointments for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all appointments for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new appointment'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - pc_catid
+                - pc_title
+                - pc_duration
+                - pc_hometext
+                - pc_apptstatus
+                - pc_eventDate
+                - pc_startTime
+                - pc_facility
+                - pc_billing_location
+              properties:
+                pc_catid:
+                  description: 'The category of the appointment.'
+                  type: string
+                pc_title:
+                  description: 'The title of the appointment.'
+                  type: string
+                pc_duration:
+                  description: 'The duration of the appointment.'
+                  type: string
+                pc_hometext:
+                  description: 'Comments for the appointment.'
+                  type: string
+                pc_apptstatus:
+                  description: 'use an option from resource=/api/list/apptstat'
+                  type: string
+                pc_eventDate:
+                  description: 'The date of the appointment.'
+                  type: string
+                pc_startTime:
+                  description: 'The time of the appointment.'
+                  type: string
+                pc_facility:
+                  description: 'The facility id of the appointment.'
+                  type: string
+                pc_billing_location:
+                  description: 'The billinag location id of the appointment.'
+                  type: string
+              type: object
+              example:
+                pc_catid: '5'
+                pc_title: 'Office Visit'
+                pc_duration: '900'
+                pc_hometext: Test
+                pc_apptstatus: '-'
+                pc_eventDate: '2018-10-19'
+                pc_startTime: '09:00'
+                pc_facility: '9'
+                pc_billing_location: '10'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new appointment'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1299,9 +2429,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all appointments'
       responses:
         '200':
-          description: 'Retrieves all appointments'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1309,15 +2442,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves an appointment'
       parameters:
         -
           name: eid
           in: path
           description: 'The eid for the appointment.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves an appointment'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1325,40 +2463,54 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a appointment for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The eid for the appointment.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a appointment for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     delete:
       tags:
         - standard
+      description: 'Delete a appointment'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The eid for the appointment.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Delete a appointment'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1366,15 +2518,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list'
       parameters:
         -
           name: list_name
           in: path
           description: 'The list_id of the list.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1382,9 +2539,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves the OpenEMR version information'
       responses:
         '200':
-          description: 'Retrieves the OpenEMR version information'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1392,9 +2552,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves the OpenEMR product registration information'
       responses:
         '200':
-          description: 'Retrieves the OpenEMR product registration information'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1402,18 +2565,30 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all insurance companies'
       responses:
         '200':
-          description: 'Retrieves all insurance companies'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new insurance company'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new insurance company'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1421,24 +2596,46 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves insurance company'
       parameters:
         -
           name: iid
           in: path
           description: 'The id of the insurance company.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves insurance company'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a insurance company'
+      parameters:
+        -
+          name: iid
+          in: path
+          description: 'The id for the insurance company.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a insurance company'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1446,9 +2643,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all insurance types'
       responses:
         '200':
-          description: 'Retrieves all insurance types'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1456,29 +2656,58 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all file information of documents from a category for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: path
           in: query
           description: 'The category of the documents.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all file information of documents from a category for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new patient document'
+      parameters:
+        -
+          name: path
+          in: query
+          description: 'The category of the document.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                document:
+                  description: document
+                  type: string
+                  format: binary
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient document'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1486,20 +2715,27 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a document for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: did
           in: path
           description: 'The id for the patient document.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a document for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1507,15 +2743,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves all insurances for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves all insurances for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1523,38 +2764,93 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a insurance (by type) for a patient'
       parameters:
         -
           name: pid
           in: path
           description: 'The pid for the patient.'
           required: true
+          schema:
+            type: string
         -
           name: type
           in: path
-          description: 'The insurance type for the patient.'
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a insurance (by type) for a patient'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - standard
+      description: 'Edit a patient insurance (by type)'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: path
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a patient insurance (by type)'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - standard
+      description: 'Submits a new patient insurance (with type)'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: path
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient insurance (with type)'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1562,9 +2858,26 @@ paths:
     post:
       tags:
         - standard
+      description: 'Submits a pnote message'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_message_request'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a pnote message'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1572,29 +2885,60 @@ paths:
     put:
       tags:
         - standard
-      responses:
-        '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a pnote message'
-      security:
-        -
-          openemr_auth: []
-    delete:
-      tags:
-        - standard
+      description: 'Edit a pnote message'
       parameters:
         -
           name: pid
           in: path
           description: 'The id for the patient.'
           required: true
+          schema:
+            type: string
+        -
+          name: mid
+          in: path
+          description: 'The id for the pnote message.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_message_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      description: 'Delete a pnote message'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
         -
           name: eid
           in: path
           description: 'The id for the pnote message.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Delete a pnote message'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1602,150 +2946,209 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of immunizations'
       parameters:
         -
           name: patient_id
           in: query
           description: 'The pid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: id
           in: query
           description: 'The id for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: uuid
           in: query
           description: 'The uuid for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: administered_date
           in: query
           description: 'The administered date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: immunization_id
           in: query
           description: 'The immunization list_id for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: cvx_code
           in: query
           description: 'The cvx code for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: manufacturer
           in: query
           description: 'The manufacturer for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: lot_number
           in: query
           description: 'The lot number for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: administered_by_id
           in: query
           description: 'The administered by id for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: administered_by
           in: query
           description: 'The administered by for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: education_date
           in: query
           description: 'The education date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: vis_date
           in: query
           description: 'The vis date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: note
           in: query
           description: 'The note for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: create_date
           in: query
           description: 'The create date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: update_date
           in: query
           description: 'The update date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: created_by
           in: query
           description: 'The created_by for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: updated_by
           in: query
           description: 'The updated_by for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: amount_administered
           in: query
           description: 'The amount administered for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: amount_administered_unit
           in: query
           description: 'The amount administered unit for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: expiration_date
           in: query
           description: 'The expiration date for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: route
           in: query
           description: 'The route for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: administration_site
           in: query
           description: 'The administration site for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: added_erroneously
           in: query
           description: 'The added_erroneously for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: external_id
           in: query
           description: 'The external_id for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: completion_status
           in: query
           description: 'The completion status for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: information_source
           in: query
           description: 'The information source for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: refusal_reason
           in: query
           description: 'The refusal reason for the immunization.'
           required: false
+          schema:
+            type: string
         -
           name: ordering_provider
           in: query
           description: 'The ordering provider for the immunization.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a list of immunizations'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1753,15 +3156,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a immunization'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the immunization.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a immunization'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1769,9 +3177,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of all procedures'
       responses:
         '200':
-          description: 'Retrieves a list of all procedures'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1779,15 +3190,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a procedure'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the procedure.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a procedure'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1795,9 +3211,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of all drugs'
       responses:
         '200':
-          description: 'Retrieves a list of all drugs'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1805,15 +3224,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a drug'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the drug.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a drug'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1821,9 +3245,12 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a list of all prescriptions'
       responses:
         '200':
-          description: 'Retrieves a list of all prescriptions'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1831,15 +3258,20 @@ paths:
     get:
       tags:
         - standard
+      description: 'Retrieves a prescription'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the prescription.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Retrieves a prescription'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1847,20 +3279,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of AllergyIntolerance resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the AllergyIntolerance resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of AllergyIntolerance resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1868,15 +3307,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single AllergyIntolerance resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the AllergyIntolerance resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single AllergyIntolerance resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1884,25 +3328,34 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of CarePlan resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the CarePlan resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: category
           in: query
           description: 'The category of the CarePlan resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of CarePlan resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1910,15 +3363,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single CarePlan resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the CarePlan resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single CarePlan resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1926,25 +3384,34 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of CareTeam resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the CareTeam resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: status
           in: query
           description: 'The status of the CarePlan resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of CareTeam resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1952,15 +3419,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single CareTeam resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the CareTeam resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single CareTeam resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1968,20 +3440,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Condition resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Condition resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Condition resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -1989,15 +3468,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Condition resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Condition resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Condition resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2005,25 +3489,34 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Coverage resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Coverage resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: payor
           in: query
           description: 'The payor of the Coverage resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Coverage resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2031,15 +3524,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Coverage resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Coverage resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Coverage resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2047,20 +3545,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Device resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Device resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Device resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2068,15 +3573,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Device resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Device resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Device resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2084,35 +3594,48 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of DiagnosticReport resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the DiagnosticReport resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: code
           in: query
           description: 'The code of the DiagnosticReport resource.'
           required: false
+          schema:
+            type: string
         -
           name: category
           in: query
           description: 'The category of the DiagnosticReport resource.'
           required: false
+          schema:
+            type: string
         -
           name: date
           in: query
           description: 'The datetime of the DiagnosticReport resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of DiagnosticReport resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2120,15 +3643,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single DiagnosticReport resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the DiagnosticReport resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single DiagnosticReport resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2136,35 +3664,48 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of DocumentReference resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the DocumentReference resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: type
           in: query
           description: 'The type of the DocumentReference resource.'
           required: false
+          schema:
+            type: string
         -
           name: category
           in: query
           description: 'The category of the DocumentReference resource.'
           required: false
+          schema:
+            type: string
         -
           name: date
           in: query
           description: 'The datetime of the DocumentReference resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of DocumentReference resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2172,15 +3713,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single DocumentReference resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the DocumentReference resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single DocumentReference resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2188,9 +3734,12 @@ paths:
     get:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2198,25 +3747,34 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Encounter resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Encounter resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: date
           in: query
           description: 'The datetime of the Encounter resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Encounter resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2224,15 +3782,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Encounter resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Encounter resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Encounter resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2240,20 +3803,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Condition resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Goal resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Condition resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2261,15 +3831,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Goal resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Goal resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Goal resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2277,20 +3852,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Group resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Group resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Group resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2298,15 +3880,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Group resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Group resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Group resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2314,9 +3901,12 @@ paths:
     get:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2324,20 +3914,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Immunization resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Immunization resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Immunization resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2345,15 +3942,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Immunization resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Immunization resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Immunization resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2361,15 +3963,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Location resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Location resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Location resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2377,15 +3984,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Location resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Location resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Location resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2393,9 +4005,12 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Medication resources.'
       responses:
         '200':
-          description: 'Returns a list of Medication resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2403,15 +4018,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Medication resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Medication resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Medication resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2419,30 +4039,41 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of MedicationRequest resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the MedicationRequest resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: intent
           in: query
           description: 'The intent of the MedicationRequest resource.'
           required: false
+          schema:
+            type: string
         -
           name: status
           in: query
           description: 'The status of the MedicationRequest resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of MedicationRequest resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2450,15 +4081,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single MedicationRequest resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the MedicationRequest resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single MedicationRequest resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2466,35 +4102,48 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Observation resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Observation resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: code
           in: query
           description: 'The code of the Observation resource.'
           required: false
+          schema:
+            type: string
         -
           name: category
           in: query
           description: 'The category of the Observation resource.'
           required: false
+          schema:
+            type: string
         -
           name: date
           in: query
           description: 'The datetime of the Observation resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Observation resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2502,15 +4151,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Observation resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Observation resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Observation resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2518,64 +4172,95 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Organization resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: name
           in: query
           description: 'The name of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: telecom
           in: query
           description: 'The telecom of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: address
           in: query
           description: 'The address of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-city
           in: query
           description: 'The address-city of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-postalcode
           in: query
           description: 'The address-postalcode of the Organization resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-state
           in: query
           description: 'The address-state of the Organization resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Organization resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - fhir
+      description: 'Adds a Organization resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Organization resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Organization resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2583,30 +4268,47 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Organization resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Organization resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Organization resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - fhir
+      description: 'Modifies a Organization resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the organization.'
           required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Organization resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modifies a Organization resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2614,89 +4316,130 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Patient resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: identifier
           in: query
           description: 'The identifier of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: name
           in: query
           description: 'The name of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: birthdate
           in: query
           description: 'The birthdate of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: gender
           in: query
           description: 'The gender of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: address
           in: query
           description: 'The address of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-city
           in: query
           description: 'The address-city of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-postalcode
           in: query
           description: 'The address-postalcode of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-state
           in: query
           description: 'The address-state of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: family
           in: query
           description: 'The family name of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: given
           in: query
           description: 'The given name of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone number of the Patient resource.'
           required: false
+          schema:
+            type: string
         -
           name: telecom
           in: query
           description: 'The fax number of the Patient resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Patient resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - fhir
+      description: 'Adds a Patient resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Patient resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Patient resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2704,30 +4447,47 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Patient resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Patient resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Patient resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - fhir
+      description: 'Modifies a Patient resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Patient resource.'
           required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Patient resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modifies a Patient resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2735,9 +4495,12 @@ paths:
     get:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2745,65 +4508,90 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Person resources.'
       parameters:
         -
           name: name
           in: query
           description: 'The name of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: active
           in: query
           description: 'The active status of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: address
           in: query
           description: 'The address of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-city
           in: query
           description: 'The address-city of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-postalcode
           in: query
           description: 'The address-postalcode of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-state
           in: query
           description: 'The address-state of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: family
           in: query
           description: 'The family name of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: given
           in: query
           description: 'The given name of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone number of the Person resource.'
           required: false
+          schema:
+            type: string
         -
           name: telecom
           in: query
           description: 'The fax number of the Person resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Person resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2811,15 +4599,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Person resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Person resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Person resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2827,79 +4620,116 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Practitioner resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: name
           in: query
           description: 'The name of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: active
           in: query
           description: 'The active status of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: address
           in: query
           description: 'The address of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-city
           in: query
           description: 'The address-city of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-postalcode
           in: query
           description: 'The address-postalcode of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: address-state
           in: query
           description: 'The address-state of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: email
           in: query
           description: 'The email of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: family
           in: query
           description: 'The family name of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: given
           in: query
           description: 'The given name of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: phone
           in: query
           description: 'The phone number of the Practitioner resource.'
           required: false
+          schema:
+            type: string
         -
           name: telecom
           in: query
           description: 'The fax number of the Practitioner resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Practitioner resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     post:
       tags:
         - fhir
+      description: 'Adds a Practitioner resources.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Practitioner resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Adds a Practitioner resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2907,30 +4737,47 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Practitioner resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Practitioner resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Practitioner resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     put:
       tags:
         - fhir
+      description: 'Modify a Practitioner resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Practitioner resource.'
           required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Practitioner resource.'
+              type: object
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modify a Practitioner resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2938,20 +4785,27 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of PractitionerRole resources.'
       parameters:
         -
           name: specialty
           in: query
           description: 'The specialty of the PractitionerRole resource.'
           required: false
+          schema:
+            type: string
         -
           name: practitioner
           in: query
           description: 'The practitioner of the PractitionerRole resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of PractitionerRole resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2959,15 +4813,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single PractitionerRole resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the PractitionerRole resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single PractitionerRole resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -2975,25 +4834,34 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Procedure resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Procedure resource.'
           required: false
+          schema:
+            type: string
         -
           name: patient
           in: query
           description: 'The uuid for the patient.'
           required: false
+          schema:
+            type: string
         -
           name: date
           in: query
           description: 'The datetime of the Procedure resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Procedure resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3001,15 +4869,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Procedure resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Procedure resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Procedure resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3017,15 +4890,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a single Provenance resource.'
       parameters:
         -
           name: uuid
           in: path
           description: 'The uuid for the Provenance resource.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a single Provenance resource.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3033,15 +4911,20 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns a list of Provenance resources.'
       parameters:
         -
           name: _id
           in: query
           description: 'The uuid for the Provenance resource.'
           required: false
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a list of Provenance resources.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3049,26 +4932,28 @@ paths:
     get:
       tags:
         - fhir
+      description: 'Returns metadata (ie. CapabilityStatement resource) of the fhir server.'
       responses:
         '200':
-          description: 'Returns metadata of the fhir server.'
+          description: 'Return CapabilityStatement resource of the fhir server'
   /fhir/.well-known/smart-configuration:
     get:
       tags:
         - fhir
+      description: 'Returns smart configuration of the fhir server.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
-      security:
-        -
-          openemr_auth: []
+          description: 'Return smart configuration of the fhir server'
   /fhir/$export:
     get:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3076,18 +4961,24 @@ paths:
     get:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
     delete:
       tags:
         - fhir
+      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
       responses:
         '200':
-          description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3095,9 +4986,16 @@ paths:
     get:
       tags:
         - standard-patient
+      description: 'Returns the patient.'
       responses:
         '200':
-          description: 'Returns the patient.'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3105,9 +5003,12 @@ paths:
     get:
       tags:
         - standard-patient
+      description: 'Returns encounters for the patient.'
       responses:
         '200':
-          description: 'Returns encounters for the patient.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
@@ -3115,19 +5016,876 @@ paths:
     get:
       tags:
         - standard-patient
+      description: 'Returns a selected encounter by its uuid.'
       parameters:
         -
           name: euuid
           in: path
           description: 'The uuid for the encounter.'
           required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 'Returns a selected encounter by its uuid.'
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: []
 components:
+  schemas:
+    api_patient_request:
+      description: 'Schema for the patient request'
+      required:
+        - fname
+        - lname
+        - DOB
+        - sex
+      properties:
+        title:
+          description: 'The title of patient.'
+          type: string
+        fname:
+          description: 'The fname of patient.'
+          type: string
+        mname:
+          description: 'The mname of patient.'
+          type: string
+        lname:
+          description: 'The lname of patient.'
+          type: string
+        street:
+          description: 'The street address of patient.'
+          type: string
+        postal_code:
+          description: 'The postal code of patient.'
+          type: string
+        city:
+          description: 'The city of patient.'
+          type: string
+        state:
+          description: 'The state of patient.'
+          type: string
+        country_code:
+          description: 'The country code of patient.'
+          type: string
+        phone_contact:
+          description: 'The phone contact of patient.'
+          type: string
+        DOB:
+          description: 'The DOB of patient.'
+          type: string
+        sex:
+          description: 'The lname of patient.'
+          type: string
+        race:
+          description: 'The race of patient.'
+          type: string
+        ethnicity:
+          description: 'The ethnicity of patient.'
+          type: string
+      type: object
+      example:
+        title: Mr
+        fname: Foo
+        mname: ''
+        lname: Bar
+        street: '456 Tree Lane'
+        postal_code: '08642'
+        city: FooTown
+        state: FL
+        country_code: US
+        phone_contact: 123-456-7890
+        DOB: '1992-02-02'
+        sex: Male
+        race: ''
+        ethnicity: ''
+    api_patient_response:
+      description: 'Schema for the patient response'
+      properties:
+        validationErrors:
+          description: 'Validation errors.'
+          type: array
+          items:
+            type: object
+        internalErrors:
+          description: 'Internal errors.'
+          type: array
+          items:
+            type: object
+        data:
+          description: 'Returned data.'
+          type: array
+          items:
+            properties:
+              id:
+                description: 'patient id'
+                type: string
+              pid:
+                description: 'patient pid'
+                type: string
+              pubpid:
+                description: 'patient public id'
+                type: string
+              title:
+                description: 'patient title'
+                type: string
+              fname:
+                description: 'patient first name'
+                type: string
+              mname:
+                description: 'patient middle name'
+                type: string
+              lname:
+                description: 'patient last name'
+                type: string
+              ss:
+                description: 'patient social security number'
+                type: string
+              street:
+                description: 'patient street address'
+                type: string
+              postal_code:
+                description: 'patient postal code'
+                type: string
+              city:
+                description: 'patient city'
+                type: string
+              state:
+                description: 'patient state'
+                type: string
+              county:
+                description: 'patient county'
+                type: string
+              country_code:
+                description: 'patient country code'
+                type: string
+              drivers_license:
+                description: 'patient drivers license id'
+                type: string
+              contact_relationship:
+                description: 'patient contact relationship'
+                type: string
+              phone_contact:
+                description: 'patient phone contact'
+                type: string
+              phone_home:
+                description: 'patient home phone'
+                type: string
+              phone_biz:
+                description: 'patient work phone'
+                type: string
+              phone_cell:
+                description: 'patient mobile phone'
+                type: string
+              email:
+                description: 'patient email'
+                type: string
+              DOB:
+                description: 'patient DOB'
+                type: string
+              sex:
+                description: 'patient sex (gender)'
+                type: string
+              race:
+                description: 'patient race'
+                type: string
+              ethnicity:
+                description: 'patient ethnicity'
+                type: string
+              status:
+                description: 'patient status'
+                type: string
+            type: object
+      type: object
+      example:
+        validationErrors: []
+        error_description: []
+        data:
+          id: '193'
+          pid: '1'
+          pubpid: ''
+          title: Mr
+          fname: Baz
+          mname: ''
+          lname: Bop
+          ss: ''
+          street: '456 Tree Lane'
+          postal_code: '08642'
+          city: FooTown
+          state: FL
+          county: ''
+          country_code: US
+          drivers_license: ''
+          contact_relationship: ''
+          phone_contact: 123-456-7890
+          phone_home: ''
+          phone_biz: ''
+          phone_cell: ''
+          email: ''
+          DOB: '1992-02-03'
+          sex: Male
+          race: ''
+          ethnicity: ''
+          status: ''
+    api_encounter_request:
+      description: 'Schema for the encounter request'
+      required:
+        - pc_catid
+        - class_code
+      properties:
+        date:
+          description: 'The date of encounter.'
+          type: string
+        onset_date:
+          description: 'The onset date of encounter.'
+          type: string
+        reason:
+          description: 'The reason of encounter.'
+          type: string
+        facility:
+          description: 'The facility of encounter.'
+          type: string
+        pc_catid:
+          description: 'The pc_catid of encounter.'
+          type: string
+        facility_id:
+          description: 'The facility id of encounter.'
+          type: string
+        billing_facility:
+          description: 'The billing facility id of encounter.'
+          type: string
+        sensitivity:
+          description: 'The sensitivity of encounter.'
+          type: string
+        referral_source:
+          description: 'The referral source of encounter.'
+          type: string
+        pos_code:
+          description: 'The pos_code of encounter.'
+          type: string
+        external_id:
+          description: 'The external id of encounter.'
+          type: string
+        provider_id:
+          description: 'The provider id of encounter.'
+          type: string
+        class_code:
+          description: 'The class_code of encounter.'
+          type: string
+      type: object
+      example:
+        date: '2020-11-10'
+        onset_date: ''
+        reason: 'Pregnancy Test'
+        facility: 'Owerri General Hospital'
+        pc_catid: '5'
+        facility_id: '3'
+        billing_facility: '3'
+        sensitivity: normal
+        referral_source: ''
+        pos_code: '0'
+        external_id: ''
+        provider_id: '1'
+        class_code: AMB
+    api_encounter_response:
+      description: 'Schema for the encounter response'
+      properties:
+        validationErrors:
+          description: 'Validation errors.'
+          type: array
+          items:
+            type: object
+        internalErrors:
+          description: 'Internal errors.'
+          type: array
+          items:
+            type: object
+        data:
+          description: 'Returned data.'
+          type: array
+          items:
+            properties:
+              id:
+                description: 'encounter id'
+                type: string
+              uuid:
+                description: 'encounter uuid'
+                type: string
+              date:
+                description: 'encounter date'
+                type: string
+              reason:
+                description: 'encounter reason'
+                type: string
+              facility:
+                description: 'encounter facility name'
+                type: string
+              facility_id:
+                description: 'encounter facility id name'
+                type: string
+              pid:
+                description: 'encounter for patient pid'
+                type: string
+              onset_date:
+                description: 'encounter onset date'
+                type: string
+              sensitivity:
+                description: 'encounter sensitivity'
+                type: string
+              billing_note:
+                description: 'encounter billing note'
+                type: string
+              pc_catid:
+                description: 'encounter pc_catid'
+                type: string
+              last_level_billed:
+                description: 'encounter last_level_billed'
+                type: string
+              last_level_closed:
+                description: 'encounter last_level_closed'
+                type: string
+              last_stmt_date:
+                description: 'encounter last_stmt_date'
+                type: string
+              stmt_count:
+                description: 'encounter stmt_count'
+                type: string
+              provider_id:
+                description: 'provider id'
+                type: string
+              supervisor_id:
+                description: 'encounter supervisor id'
+                type: string
+              invoice_refno:
+                description: 'encounter invoice_refno'
+                type: string
+              referral_source:
+                description: 'encounter referral source'
+                type: string
+              billing_facility:
+                description: 'encounter billing facility id'
+                type: string
+              external_id:
+                description: 'encounter external id'
+                type: string
+              pos_code:
+                description: 'encounter pos_code'
+                type: string
+              class_code:
+                description: 'encounter class_code'
+                type: string
+              class_title:
+                description: 'encounter class_title'
+                type: string
+              pc_catname:
+                description: 'encounter pc_catname'
+                type: string
+              billing_facility_name:
+                description: 'encounter billing facility name'
+                type: string
+            type: object
+      type: object
+      example:
+        validationErrors: []
+        error_description: []
+        data:
+          id: '1'
+          uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
+          date: '2019-09-14 00:00:00'
+          reason: 'Pregnancy Test'
+          facility: 'Owerri General Hospital'
+          facility_id: '3'
+          pid: '1'
+          onset_date: '2019-04-20 00:00:00'
+          sensitivity: normal
+          billing_note: null
+          pc_catid: '5'
+          last_level_billed: '0'
+          last_level_closed: '0'
+          last_stmt_date: null
+          stmt_count: '0'
+          provider_id: '1'
+          supervisor_id: '0'
+          invoice_refno: ''
+          referral_source: ''
+          billing_facility: '3'
+          external_id: ''
+          pos_code: '0'
+          class_code: AMB
+          class_title: ambulatory
+          pc_catname: 'Office Visit'
+          billing_facility_name: 'Owerri General Hospital'
+    api_vital_request:
+      description: 'Schema for the vital request'
+      properties:
+        bps:
+          description: 'The bps of vitals.'
+          type: string
+        bpd:
+          description: 'The bpd of vitals.'
+          type: string
+        weight:
+          description: 'The weight of vitals. (unit is lb)'
+          type: string
+        height:
+          description: 'The height of vitals. (unit is inches)'
+          type: string
+        temperature:
+          description: 'The temperature of temperature. (unit is F)'
+          type: string
+        temp_method:
+          description: 'The temp_method of vitals.'
+          type: string
+        pulse:
+          description: 'The pulse of vitals.'
+          type: string
+        respiration:
+          description: 'The respiration of vitals.'
+          type: string
+        note:
+          description: 'The note (ie. comments) of vitals.'
+          type: string
+        waist_circ:
+          description: 'The waist circumference of vitals. (unit is inches)'
+          type: string
+        head_circ:
+          description: 'The head circumference of vitals. (unit is inches)'
+          type: string
+        oxygen_saturation:
+          description: 'The oxygen_saturation of vitals.'
+          type: string
+      type: object
+      example:
+        bps: '130'
+        bpd: '80'
+        weight: '220'
+        height: '70'
+        temperature: '98'
+        temp_method: Oral
+        pulse: '60'
+        respiration: '20'
+        note: 'Patient with difficulty standing, which made weight measurement difficult.'
+        waist_circ: '37'
+        head_circ: '22.2'
+        oxygen_saturation: '96'
+    api_soap_note_request:
+      description: 'Schema for the soap_note request'
+      properties:
+        subjective:
+          description: 'The subjective of soap note.'
+          type: string
+        objective:
+          description: 'The objective of soap note.'
+          type: string
+        assessment:
+          description: 'The assessment of soap note.'
+          type: string
+        plan:
+          description: 'The plan of soap note.'
+          type: string
+      type: object
+      example:
+        subjective: 'The patient with mechanical fall and cut finger.'
+        objective: 'The patient with finger laceration on exam.'
+        assessment: 'The patient with finger laceration requiring sutures.'
+        plan: 'Sutured finger laceration.'
+    api_medical_problem_request:
+      description: 'Schema for the medical_problem request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of medical problem.'
+          type: string
+        begdate:
+          description: 'The beginning date of medical problem.'
+          type: string
+        enddate:
+          description: 'The end date of medical problem.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of medical problem. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Dermatochalasis
+        begdate: '2010-10-13'
+        enddate: null
+        diagnosis: 'ICD10:H02.839'
+    api_allergy_request:
+      description: 'Schema for the allergy request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of allergy.'
+          type: string
+        begdate:
+          description: 'The beginning date of allergy.'
+          type: string
+        enddate:
+          description: 'The end date of allergy.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of allergy. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Iodine
+        begdate: '2010-10-13'
+        enddate: null
+    api_medication_request:
+      description: 'Schema for the medication request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of medication.'
+          type: string
+        begdate:
+          description: 'The beginning date of medication.'
+          type: string
+        enddate:
+          description: 'The end date of medication.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of medication. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Norvasc
+        begdate: '2013-04-13'
+        enddate: null
+    api_surgery_request:
+      description: 'Schema for the surgery request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of surgery.'
+          type: string
+        begdate:
+          description: 'The beginning date of surgery.'
+          type: string
+        enddate:
+          description: 'The end date of surgery.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of surgery. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Blepharoplasty
+        begdate: '2013-10-14'
+        enddate: null
+        diagnosis: 'CPT4:15823-50'
+    api_dental_issue_request:
+      description: 'Schema for the dental_issue request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of dental issue.'
+          type: string
+        begdate:
+          description: 'The beginning date of dental issue.'
+          type: string
+        enddate:
+          description: 'The end date of dental issue.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of dental issue. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Halitosis
+        begdate: '2015-03-17'
+        enddate: null
+    api_insurance_company_request:
+      description: 'Schema for the insurance_company request'
+      required:
+        - name
+      properties:
+        name:
+          description: 'The name of insurance company.'
+          type: string
+        attn:
+          description: 'The attn of insurance company.'
+          type: string
+        cms_id:
+          description: 'The cms id of insurance company.'
+          type: string
+        ins_type_code:
+          description: 'The insurance type code of insurance company. The insurance type code can be found by inspecting the route at (/api/insurance_type).'
+          type: string
+        x12_receiver_id:
+          description: 'The x12 receiver id of insurance company.'
+          type: string
+        x12_default_partner_id:
+          description: 'The x12 default partner id of insurance company.'
+          type: string
+        alt_cms_id:
+          description: 'The alternate cms id of insurance company.'
+          type: string
+        line1:
+          description: 'The line1 address of insurance company.'
+          type: string
+        line2:
+          description: 'The line2 address of insurance company.'
+          type: string
+        city:
+          description: 'The city of insurance company.'
+          type: string
+        state:
+          description: 'The state of insurance company.'
+          type: string
+        zip:
+          description: 'The zip of insurance company.'
+          type: string
+        country:
+          description: 'The country of insurance company.'
+          type: string
+      type: object
+      example:
+        name: 'Cool Insurance Company'
+        attn: null
+        cms_id: null
+        ins_type_code: '2'
+        x12_receiver_id: null
+        x12_default_partner_id: null
+        alt_cms_id: ''
+        line1: '123 Cool Lane'
+        line2: 'Suite 123'
+        city: Cooltown
+        state: CA
+        zip: '12245'
+        country: USA
+    api_insurance_request:
+      description: 'Schema for the insurance request'
+      required:
+        - provider
+        - plan_name
+        - policy_number
+        - group_number
+        - subscriber_fname
+        - subscriber_lname
+        - subscriber_relationship
+        - subscriber_ss
+        - subscriber_DOB
+        - subscriber_street
+        - subscriber_postal_code
+        - subscriber_city
+        - subscriber_state
+        - subscriber_country
+        - subscriber_phone
+        - subscriber_sex
+        - accept_assignment
+        - policy_type
+      properties:
+        provider:
+          description: 'The insurance company id.'
+          type: string
+        plan_name:
+          description: 'The plan name of insurance.'
+          type: string
+        policy_number:
+          description: 'The policy number of insurance.'
+          type: string
+        group_number:
+          description: 'The group number of insurance.'
+          type: string
+        subscriber_lname:
+          description: 'The subscriber last name of insurance.'
+          type: string
+        subscriber_mname:
+          description: 'The subscriber middle name of insurance.'
+          type: string
+        subscriber_fname:
+          description: 'The subscriber first name of insurance.'
+          type: string
+        subscriber_relationship:
+          description: 'The subscriber relationship of insurance.'
+          type: string
+        subscriber_ss:
+          description: 'The subscriber ss number of insurance.'
+          type: string
+        subscriber_DOB:
+          description: 'The subscriber DOB of insurance.'
+          type: string
+        subscriber_street:
+          description: 'The subscriber street address of insurance.'
+          type: string
+        subscriber_postal_code:
+          description: 'The subscriber postal code of insurance.'
+          type: string
+        subscriber_city:
+          description: 'The subscriber city of insurance.'
+          type: string
+        subscriber_state:
+          description: 'The subscriber state of insurance. `state` can be found by querying `resource=/api/list/state`'
+          type: string
+        subscriber_country:
+          description: 'The subscriber country of insurance. `country` can be found by querying `resource=/api/list/country`'
+          type: string
+        subscriber_phone:
+          description: 'The subscriber phone of insurance.'
+          type: string
+        subscriber_employer:
+          description: 'The subscriber employer of insurance.'
+          type: string
+        subscriber_employer_street:
+          description: 'The subscriber employer street of insurance.'
+          type: string
+        subscriber_employer_postal_code:
+          description: 'The subscriber employer postal code of insurance.'
+          type: string
+        subscriber_employer_state:
+          description: 'The subscriber employer state of insurance.'
+          type: string
+        subscriber_employer_country:
+          description: 'The subscriber employer country of insurance.'
+          type: string
+        subscriber_employer_city:
+          description: 'The subscriber employer city of insurance.'
+          type: string
+        copay:
+          description: 'The copay of insurance.'
+          type: string
+        date:
+          description: 'The date of insurance.'
+          type: string
+        subscriber_sex:
+          description: 'The subscriber sex of insurance.'
+          type: string
+        accept_assignment:
+          description: 'The accept_assignment of insurance.'
+          type: string
+        policy_type:
+          description: 'The policy_type of insurance.'
+          type: string
+      type: object
+      example:
+        provider: '33'
+        plan_name: 'Some Plan'
+        policy_number: '12345'
+        group_number: '252412'
+        subscriber_lname: Tester
+        subscriber_mname: Xi
+        subscriber_fname: Foo
+        subscriber_relationship: other
+        subscriber_ss: '234231234'
+        subscriber_DOB: '2018-10-03'
+        subscriber_street: '183 Cool St'
+        subscriber_postal_code: '23418'
+        subscriber_city: Cooltown
+        subscriber_state: AZ
+        subscriber_country: USA
+        subscriber_phone: 234-598-2123
+        subscriber_employer: 'Some Employer'
+        subscriber_employer_street: '123 Heather Lane'
+        subscriber_employer_postal_code: '23415'
+        subscriber_employer_state: AZ
+        subscriber_employer_country: USA
+        subscriber_employer_city: Cooltown
+        copay: '35'
+        date: '2018-10-15'
+        subscriber_sex: Female
+        accept_assignment: 'TRUE'
+        policy_type: a
+    api_message_request:
+      description: 'Schema for the message request'
+      required:
+        - body
+        - groupname
+        - from
+        - to
+        - title
+        - message_status
+      properties:
+        body:
+          description: 'The body of message.'
+          type: string
+        groupname:
+          description: 'The group name (usually is ''Default'').'
+          type: string
+        from:
+          description: 'The sender of the message.'
+          type: string
+        to:
+          description: 'The recipient of the message.'
+          type: string
+        title:
+          description: 'use an option from resource=/api/list/note_type'
+          type: string
+        message_status:
+          description: 'use an option from resource=/api/list/message_status'
+          type: string
+      type: object
+      example:
+        body: 'Test 456'
+        groupname: Default
+        from: Matthew
+        to: admin
+        title: Other
+        message_status: New
+  responses:
+    standard:
+      description: 'Standard response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'Returned data.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              validationErrors: []
+              error_description: []
+              data: []
+    unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            properties:
+              error:
+                description: 'The error.'
+                type: string
+              error_description:
+                description: 'The description of the error.'
+                type: string
+              hint:
+                description: 'More specific information on the error.'
+                type: string
+              message:
+                description: 'Message regarding the error.'
+                type: string
+            type: object
+            example:
+              error: access_denied
+              error_description: 'The resource owner or authorization server denied the request.'
+              hint: 'Missing ''Authorization'' header'
+              message: 'The resource owner or authorization server denied the request.'
   securitySchemes:
     openemr_auth:
       type: oauth2
