@@ -4165,7 +4165,7 @@ RestConfig::$ROUTE_MAP = array(
      *              type="string"
      *          )
      *      ),
-     *     	@OA\RequestBody(
+     *      @OA\RequestBody(
      *          required=true,
      *          @OA\MediaType(
      *              mediaType="multipart/form-data",
