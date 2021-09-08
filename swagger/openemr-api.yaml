@@ -499,10 +499,28 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new patient'
+      description: 'Creates a new patient'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_patient_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { pid: { description: 'patient pid', type: integer } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { pid: 1 }
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -523,7 +541,11 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -532,10 +554,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Updates a patient'
+      description: 'Updates a patient'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_patient_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -565,10 +605,36 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Creates a new encounter'
+      description: 'Creates a new encounter'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_encounter_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { encounter: { description: 'encounter id', type: integer }, uuid: { description: 'encounter uuid', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { encounter: 1, uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef }
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -596,7 +662,11 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_encounter_response'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -605,10 +675,35 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Modify a encounter'
+      description: 'Modify a encounter'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: euuid
+          in: path
+          description: 'The uuid for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_encounter_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_encounter_response'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -645,7 +740,28 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new soap note'
+      description: 'Submits a new soap note'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -685,20 +801,28 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new vitals form'
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
+      description: 'Submits a new vitals form'
+      parameters:
         -
-          openemr_auth: []
-  '/api/patient/{pid}/encounter/{eid}/vital/:vid':
-    put:
-      tags:
-        - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a vitals form'
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_vital_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -734,6 +858,46 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      description: 'Edit a vitals form'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+        -
+          name: vid
+          in: path
+          description: 'The id for the vitalss form.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_vital_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -780,7 +944,35 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a soap note'
+      description: 'Edit a soap note'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: eid
+          in: path
+          description: 'The id for the encounter.'
+          required: true
+          schema:
+            type: string
+        -
+          name: sid
+          in: path
+          description: 'The id for the soap noted.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1410,7 +1602,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medical problem'
+      description: 'Submits a new medical problem'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1450,7 +1656,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medical problem'
+      description: 'Edit a medical problem'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: muuid
+          in: path
+          description: 'The uuid for the medical problem.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1587,7 +1814,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new allergy'
+      description: 'Submits a new allergy'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1627,7 +1868,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a allergy'
+      description: 'Edit a allergy'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the allergy.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1687,7 +1949,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new medication'
+      description: 'Submits a new medication'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1727,7 +2003,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a medication'
+      description: 'Edit a medication'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: mid
+          in: path
+          description: 'The id for the medication.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1787,7 +2084,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new surgery'
+      description: 'Submits a new surgery'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1827,7 +2138,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a surgery'
+      description: 'Edit a surgery'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: sid
+          in: path
+          description: 'The id for the surgery.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2444,7 +2776,7 @@ paths:
         -
           name: type
           in: path
-          description: 'The insurance type for the patient.'
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
           required: true
           schema:
             type: string
@@ -2459,7 +2791,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a patient insurance (by type)'
+      description: 'Edit a patient insurance (by type)'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: path
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2471,7 +2824,28 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient insurance (with type)'
+      description: 'Submits a new patient insurance (with type)'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: path
+          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -4615,7 +4989,11 @@ paths:
       description: 'Returns the patient.'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_patient_response'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4657,6 +5035,556 @@ paths:
           openemr_auth: []
 components:
   schemas:
+    api_patient_request:
+      description: 'Schema for the patient request'
+      required:
+        - fname
+        - lname
+        - DOB
+        - sex
+      properties:
+        title:
+          description: 'The title of patient.'
+          type: string
+        fname:
+          description: 'The fname of patient.'
+          type: string
+        mname:
+          description: 'The mname of patient.'
+          type: string
+        lname:
+          description: 'The lname of patient.'
+          type: string
+        street:
+          description: 'The street address of patient.'
+          type: string
+        postal_code:
+          description: 'The postal code of patient.'
+          type: string
+        city:
+          description: 'The city of patient.'
+          type: string
+        state:
+          description: 'The state of patient.'
+          type: string
+        country_code:
+          description: 'The country code of patient.'
+          type: string
+        phone_contact:
+          description: 'The phone contact of patient.'
+          type: string
+        DOB:
+          description: 'The DOB of patient.'
+          type: string
+        sex:
+          description: 'The lname of patient.'
+          type: string
+        race:
+          description: 'The race of patient.'
+          type: string
+        ethnicity:
+          description: 'The ethnicity of patient.'
+          type: string
+      type: object
+      example:
+        title: Mr
+        fname: Foo
+        mname: ''
+        lname: Bar
+        street: '456 Tree Lane'
+        postal_code: '08642'
+        city: FooTown
+        state: FL
+        country_code: US
+        phone_contact: 123-456-7890
+        DOB: '1992-02-02'
+        sex: Male
+        race: ''
+        ethnicity: ''
+    api_patient_response:
+      description: 'Schema for the patient response'
+      properties:
+        validationErrors:
+          description: 'Validation errors.'
+          type: array
+          items:
+            type: object
+        internalErrors:
+          description: 'Internal errors.'
+          type: array
+          items:
+            type: object
+        data:
+          description: 'Returned data.'
+          type: array
+          items:
+            properties:
+              id:
+                description: 'patient id'
+                type: string
+              pid:
+                description: 'patient pid'
+                type: string
+              pubpid:
+                description: 'patient public id'
+                type: string
+              title:
+                description: 'patient title'
+                type: string
+              fname:
+                description: 'patient first name'
+                type: string
+              mname:
+                description: 'patient middle name'
+                type: string
+              lname:
+                description: 'patient last name'
+                type: string
+              ss:
+                description: 'patient social security number'
+                type: string
+              street:
+                description: 'patient street address'
+                type: string
+              postal_code:
+                description: 'patient postal code'
+                type: string
+              city:
+                description: 'patient city'
+                type: string
+              state:
+                description: 'patient state'
+                type: string
+              county:
+                description: 'patient county'
+                type: string
+              country_code:
+                description: 'patient country code'
+                type: string
+              drivers_license:
+                description: 'patient drivers license id'
+                type: string
+              contact_relationship:
+                description: 'patient contact relationship'
+                type: string
+              phone_contact:
+                description: 'patient phone contact'
+                type: string
+              phone_home:
+                description: 'patient home phone'
+                type: string
+              phone_biz:
+                description: 'patient work phone'
+                type: string
+              phone_cell:
+                description: 'patient mobile phone'
+                type: string
+              email:
+                description: 'patient email'
+                type: string
+              DOB:
+                description: 'patient DOB'
+                type: string
+              sex:
+                description: 'patient sex (gender)'
+                type: string
+              race:
+                description: 'patient race'
+                type: string
+              ethnicity:
+                description: 'patient ethnicity'
+                type: string
+              status:
+                description: 'patient status'
+                type: string
+            type: object
+      type: object
+      example:
+        validationErrors: []
+        error_description: []
+        data:
+          id: '193'
+          pid: '1'
+          pubpid: ''
+          title: Mr
+          fname: Baz
+          mname: ''
+          lname: Bop
+          ss: ''
+          street: '456 Tree Lane'
+          postal_code: '08642'
+          city: FooTown
+          state: FL
+          county: ''
+          country_code: US
+          drivers_license: ''
+          contact_relationship: ''
+          phone_contact: 123-456-7890
+          phone_home: ''
+          phone_biz: ''
+          phone_cell: ''
+          email: ''
+          DOB: '1992-02-03'
+          sex: Male
+          race: ''
+          ethnicity: ''
+          status: ''
+    api_encounter_request:
+      description: 'Schema for the encounter request'
+      required:
+        - pc_catid
+        - class_code
+      properties:
+        date:
+          description: 'The date of encounter.'
+          type: string
+        onset_date:
+          description: 'The onset date of encounter.'
+          type: string
+        reason:
+          description: 'The reason of encounter.'
+          type: string
+        facility:
+          description: 'The facility of encounter.'
+          type: string
+        pc_catid:
+          description: 'The pc_catid of encounter.'
+          type: string
+        facility_id:
+          description: 'The facility id of encounter.'
+          type: string
+        billing_facility:
+          description: 'The billing facility id of encounter.'
+          type: string
+        sensitivity:
+          description: 'The sensitivity of encounter.'
+          type: string
+        referral_source:
+          description: 'The referral source of encounter.'
+          type: string
+        pos_code:
+          description: 'The pos_code of encounter.'
+          type: string
+        external_id:
+          description: 'The external id of encounter.'
+          type: string
+        provider_id:
+          description: 'The provider id of encounter.'
+          type: string
+        class_code:
+          description: 'The class_code of encounter.'
+          type: string
+      type: object
+      example:
+        date: '2020-11-10'
+        onset_date: ''
+        reason: 'Pregnancy Test'
+        facility: 'Owerri General Hospital'
+        pc_catid: '5'
+        facility_id: '3'
+        billing_facility: '3'
+        sensitivity: normal
+        referral_source: ''
+        pos_code: '0'
+        external_id: ''
+        provider_id: '1'
+        class_code: AMB
+    api_encounter_response:
+      description: 'Schema for the encounter response'
+      properties:
+        validationErrors:
+          description: 'Validation errors.'
+          type: array
+          items:
+            type: object
+        internalErrors:
+          description: 'Internal errors.'
+          type: array
+          items:
+            type: object
+        data:
+          description: 'Returned data.'
+          type: array
+          items:
+            properties:
+              id:
+                description: 'encounter id'
+                type: string
+              uuid:
+                description: 'encounter uuid'
+                type: string
+              date:
+                description: 'encounter date'
+                type: string
+              reason:
+                description: 'encounter reason'
+                type: string
+              facility:
+                description: 'encounter facility name'
+                type: string
+              facility_id:
+                description: 'encounter facility id name'
+                type: string
+              pid:
+                description: 'encounter for patient pid'
+                type: string
+              onset_date:
+                description: 'encounter onset date'
+                type: string
+              sensitivity:
+                description: 'encounter sensitivity'
+                type: string
+              billing_note:
+                description: 'encounter billing note'
+                type: string
+              pc_catid:
+                description: 'encounter pc_catid'
+                type: string
+              last_level_billed:
+                description: 'encounter last_level_billed'
+                type: string
+              last_level_closed:
+                description: 'encounter last_level_closed'
+                type: string
+              last_stmt_date:
+                description: 'encounter last_stmt_date'
+                type: string
+              stmt_count:
+                description: 'encounter stmt_count'
+                type: string
+              provider_id:
+                description: 'provider id'
+                type: string
+              supervisor_id:
+                description: 'encounter supervisor id'
+                type: string
+              invoice_refno:
+                description: 'encounter invoice_refno'
+                type: string
+              referral_source:
+                description: 'encounter referral source'
+                type: string
+              billing_facility:
+                description: 'encounter billing facility id'
+                type: string
+              external_id:
+                description: 'encounter external id'
+                type: string
+              pos_code:
+                description: 'encounter pos_code'
+                type: string
+              class_code:
+                description: 'encounter class_code'
+                type: string
+              class_title:
+                description: 'encounter class_title'
+                type: string
+              pc_catname:
+                description: 'encounter pc_catname'
+                type: string
+              billing_facility_name:
+                description: 'encounter billing facility name'
+                type: string
+            type: object
+      type: object
+      example:
+        validationErrors: []
+        error_description: []
+        data:
+          id: '1'
+          uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
+          date: '2019-09-14 00:00:00'
+          reason: 'Pregnancy Test'
+          facility: 'Owerri General Hospital'
+          facility_id: '3'
+          pid: '1'
+          onset_date: '2019-04-20 00:00:00'
+          sensitivity: normal
+          billing_note: null
+          pc_catid: '5'
+          last_level_billed: '0'
+          last_level_closed: '0'
+          last_stmt_date: null
+          stmt_count: '0'
+          provider_id: '1'
+          supervisor_id: '0'
+          invoice_refno: ''
+          referral_source: ''
+          billing_facility: '3'
+          external_id: ''
+          pos_code: '0'
+          class_code: AMB
+          class_title: ambulatory
+          pc_catname: 'Office Visit'
+          billing_facility_name: 'Owerri General Hospital'
+    api_vital_request:
+      description: 'Schema for the vital request'
+      properties:
+        bps:
+          description: 'The bps of vitals.'
+          type: string
+        bpd:
+          description: 'The bpd of vitals.'
+          type: string
+        weight:
+          description: 'The weight of vitals. (unit is lb)'
+          type: string
+        height:
+          description: 'The height of vitals. (unit is inches)'
+          type: string
+        temperature:
+          description: 'The temperature of temperature. (unit is F)'
+          type: string
+        temp_method:
+          description: 'The temp_method of vitals.'
+          type: string
+        pulse:
+          description: 'The pulse of vitals.'
+          type: string
+        respiration:
+          description: 'The respiration of vitals.'
+          type: string
+        note:
+          description: 'The note (ie. comments) of vitals.'
+          type: string
+        waist_circ:
+          description: 'The waist circumference of vitals. (unit is inches)'
+          type: string
+        head_circ:
+          description: 'The head circumference of vitals. (unit is inches)'
+          type: string
+        oxygen_saturation:
+          description: 'The oxygen_saturation of vitals.'
+          type: string
+      type: object
+      example:
+        bps: '130'
+        bpd: '80'
+        weight: '220'
+        height: '70'
+        temperature: '98'
+        temp_method: Oral
+        pulse: '60'
+        respiration: '20'
+        note: 'Patient with difficulty standing, which made weight measurement difficult.'
+        waist_circ: '37'
+        head_circ: '22.2'
+        oxygen_saturation: '96'
+    api_soap_note_request:
+      description: 'Schema for the soap_note request'
+      properties:
+        subjective:
+          description: 'The subjective of soap note.'
+          type: string
+        objective:
+          description: 'The objective of soap note.'
+          type: string
+        assessment:
+          description: 'The assessment of soap note.'
+          type: string
+        plan:
+          description: 'The plan of soap note.'
+          type: string
+      type: object
+      example:
+        subjective: 'The patient with mechanical fall and cut finger.'
+        objective: 'The patient with finger laceration on exam.'
+        assessment: 'The patient with finger laceration requiring sutures.'
+        plan: 'Sutured finger laceration.'
+    api_medical_problem_request:
+      description: 'Schema for the medical_problem request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of medical problem.'
+          type: string
+        begdate:
+          description: 'The beginning date of medical problem.'
+          type: string
+        enddate:
+          description: 'The end date of medical problem.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of medical problem. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Dermatochalasis
+        begdate: '2010-10-13'
+        enddate: null
+        diagnosis: 'ICD10:H02.839'
+    api_allergy_request:
+      description: 'Schema for the allergy request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of allergy.'
+          type: string
+        begdate:
+          description: 'The beginning date of allergy.'
+          type: string
+        enddate:
+          description: 'The end date of allergy.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of allergy. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Iodine
+        begdate: '2010-10-13'
+        enddate: null
+    api_medication_request:
+      description: 'Schema for the medication request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of medication.'
+          type: string
+        begdate:
+          description: 'The beginning date of medication.'
+          type: string
+        enddate:
+          description: 'The end date of medication.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of medication. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Norvasc
+        begdate: '2013-04-13'
+        enddate: null
+    api_surgery_request:
+      description: 'Schema for the surgery request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of surgery.'
+          type: string
+        begdate:
+          description: 'The beginning date of surgery.'
+          type: string
+        enddate:
+          description: 'The end date of surgery.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of surgery. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Blepharoplasty
+        begdate: '2013-10-14'
+        enddate: null
+        diagnosis: 'CPT4:15823-50'
     api_dental_issue_request:
       description: 'Schema for the dental_issue request'
       required:
@@ -4739,6 +5667,138 @@ components:
         state: CA
         zip: '12245'
         country: USA
+    api_insurance_request:
+      description: 'Schema for the insurance request'
+      required:
+        - provider
+        - plan_name
+        - policy_number
+        - group_number
+        - subscriber_fname
+        - subscriber_lname
+        - subscriber_relationship
+        - subscriber_ss
+        - subscriber_DOB
+        - subscriber_street
+        - subscriber_postal_code
+        - subscriber_city
+        - subscriber_state
+        - subscriber_country
+        - subscriber_phone
+        - subscriber_sex
+        - accept_assignment
+        - policy_type
+      properties:
+        provider:
+          description: 'The insurance company id.'
+          type: string
+        plan_name:
+          description: 'The plan name of insurance.'
+          type: string
+        policy_number:
+          description: 'The policy number of insurance.'
+          type: string
+        group_number:
+          description: 'The group number of insurance.'
+          type: string
+        subscriber_lname:
+          description: 'The subscriber last name of insurance.'
+          type: string
+        subscriber_mname:
+          description: 'The subscriber middle name of insurance.'
+          type: string
+        subscriber_fname:
+          description: 'The subscriber first name of insurance.'
+          type: string
+        subscriber_relationship:
+          description: 'The subscriber relationship of insurance.'
+          type: string
+        subscriber_ss:
+          description: 'The subscriber ss number of insurance.'
+          type: string
+        subscriber_DOB:
+          description: 'The subscriber DOB of insurance.'
+          type: string
+        subscriber_street:
+          description: 'The subscriber street address of insurance.'
+          type: string
+        subscriber_postal_code:
+          description: 'The subscriber postal code of insurance.'
+          type: string
+        subscriber_city:
+          description: 'The subscriber city of insurance.'
+          type: string
+        subscriber_state:
+          description: 'The subscriber state of insurance. `state` can be found by querying `resource=/api/list/state`'
+          type: string
+        subscriber_country:
+          description: 'The subscriber country of insurance. `country` can be found by querying `resource=/api/list/country`'
+          type: string
+        subscriber_phone:
+          description: 'The subscriber phone of insurance.'
+          type: string
+        subscriber_employer:
+          description: 'The subscriber employer of insurance.'
+          type: string
+        subscriber_employer_street:
+          description: 'The subscriber employer street of insurance.'
+          type: string
+        subscriber_employer_postal_code:
+          description: 'The subscriber employer postal code of insurance.'
+          type: string
+        subscriber_employer_state:
+          description: 'The subscriber employer state of insurance.'
+          type: string
+        subscriber_employer_country:
+          description: 'The subscriber employer country of insurance.'
+          type: string
+        subscriber_employer_city:
+          description: 'The subscriber employer city of insurance.'
+          type: string
+        copay:
+          description: 'The copay of insurance.'
+          type: string
+        date:
+          description: 'The date of insurance.'
+          type: string
+        subscriber_sex:
+          description: 'The subscriber sex of insurance.'
+          type: string
+        accept_assignment:
+          description: 'The accept_assignment of insurance.'
+          type: string
+        policy_type:
+          description: 'The policy_type of insurance.'
+          type: string
+      type: object
+      example:
+        provider: '33'
+        plan_name: 'Some Plan'
+        policy_number: '12345'
+        group_number: '252412'
+        subscriber_lname: Tester
+        subscriber_mname: Xi
+        subscriber_fname: Foo
+        subscriber_relationship: other
+        subscriber_ss: '234231234'
+        subscriber_DOB: '2018-10-03'
+        subscriber_street: '183 Cool St'
+        subscriber_postal_code: '23418'
+        subscriber_city: Cooltown
+        subscriber_state: AZ
+        subscriber_country: USA
+        subscriber_phone: 234-598-2123
+        subscriber_employer: 'Some Employer'
+        subscriber_employer_street: '123 Heather Lane'
+        subscriber_employer_postal_code: '23415'
+        subscriber_employer_state: AZ
+        subscriber_employer_country: USA
+        subscriber_employer_city: Cooltown
+        copay: '35'
+        date: '2018-10-15'
+        subscriber_sex: Female
+        accept_assignment: 'TRUE'
+        policy_type: a
     api_message_request:
       description: 'Schema for the message request'
       required:

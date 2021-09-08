@@ -5,18 +5,17 @@
 - [Prerequisite](FHIR_README.md#prerequisite)
 - [Using FHIR API Internally](FHIR_README.md#using-fhir-api-internally)
 - [Multisite Support](FHIR_README.md#multisite-support)
-- [Authorization](FHIR_README.md#authorization)
-    - [Scopes](API_README.md#scopes)
-    - [Registration](API_README.md#registration)
-        - [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
-    - [Authorization Code Grant](API_README.md#authorization-code-grant)
-    - [Refresh Token Grant](API_README.md#refresh-token-grant)
-    - [Password Grant](API_README.md#password-grant)
-    - [Client Credentials Grant](API_README.md#client-credentials-grant)
-    - [Logout](API_README.md#logout)
-    - [More Details](API_README.md#more-details)
-- [FHIR API Endpoints](FHIR_README.md#fhir-api-endpoints)
-    - [FHIR API Documentation](FHIR_README.md#fhir-api-documentation)
+- [Authorization (in API_README.md)](API_README.md#authorization)
+    - [Scopes (in API_README.md)](API_README.md#scopes)
+    - [Registration (in API_README.md)](API_README.md#registration)
+        - [SMART on FHIR Registration (in API_README.md)](API_README.md#smart-on-fhir-registration)
+    - [Authorization Code Grant (in API_README.md)](API_README.md#authorization-code-grant)
+    - [Refresh Token Grant (in API_README.md)](API_README.md#refresh-token-grant)
+    - [Password Grant (in API_README.md)](API_README.md#password-grant)
+    - [Client Credentials Grant (in API_README.md)](API_README.md#client-credentials-grant)
+    - [Logout (in API_README.md)](API_README.md#logout)
+    - [More Details (in API_README.md)](API_README.md#more-details)
+- [FHIR API Documentation](FHIR_README.md#fhir-api-documentation)
     - [Capability Statement](FHIR_README.md#capability-statement)
     - [Provenance](FHIR_README.md#Provenance-resources)
     - [BULK FHIR Exports](FHIR_README.md#bulk-fhir-exports)
@@ -27,7 +26,7 @@
 
 ## Overview
 
-Easy-to-use JSON-based REST API for OpenEMR FHIR. See standard OpenEMR API docs [here](API_README.md)
+Easy-to-use JSON-based REST API for OpenEMR FHIR. See standard OpenEMR API docs [here](API_README.md).
 
 ## Prerequisite
 
@@ -49,7 +48,9 @@ OpenEMR uses OIDC compliant authorization for API. SSL is required and setting b
 
 See [Authorization](API_README.md#authorization) for more details.
 
-## FHIR API Endpoints
+## FHIR API Documentation
+
+The FHIR API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The FHIR API is documented there in the `fhir` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
 
 Standard FHIR endpoints Use `https://localhost:9300/apis/default/fhir as base URI.`
 
@@ -67,10 +68,6 @@ curl -X GET 'https://localhost:9300/apis/fhir/Patient' \
 ```
 
 ---
-
-### FHIR API Documentation
-
-The FHIR API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The FHIR API is documented there in the `fhir` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
 
 ### Capability Statement
 
