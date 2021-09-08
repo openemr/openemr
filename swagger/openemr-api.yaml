@@ -1137,7 +1137,19 @@ paths:
                 username: eduardoperez
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { id: { description: 'practitioner id', type: integer }, uuid: { description: 'practitioner uuid', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { id: 7, uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5 }
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1279,7 +1291,19 @@ paths:
                 phone: 123-456-7890
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  validationErrors: { description: 'Validation errors.', type: array, items: { type: object } }
+                  internalErrors: { description: 'Internal errors.', type: array, items: { type: object } }
+                  data: { description: 'Returned data.', type: array, items: { properties: { id: { description: 'practitioner id', type: string }, uuid: { description: 'practitioner uuid', type: string }, title: { description: 'practitioner title', type: string }, fname: { description: 'practitioner fname', type: string }, lname: { description: 'practitioner lname', type: string }, mname: { description: 'practitioner mname', type: string }, federaltaxid: { description: 'practitioner federaltaxid', type: string }, federaldrugid: { description: 'practitioner federaldrugid', type: string }, upin: { description: 'practitioner upin', type: string }, facility_id: { description: 'practitioner facility_id', type: string }, facility: { description: 'practitioner facility', type: string }, npi: { description: 'practitioner npi', type: string }, email: { description: 'practitioner email', type: string }, active: { description: 'practitioner active setting', type: string }, specialty: { description: 'practitioner specialty', type: string }, billname: { description: 'practitioner billname', type: string }, url: { description: 'practitioner url', type: string }, assistant: { description: 'practitioner assistant', type: string }, organization: { description: 'practitioner organization', type: string }, valedictory: { description: 'practitioner valedictory', type: string }, street: { description: 'practitioner street', type: string }, streetb: { description: 'practitioner streetb', type: string }, city: { description: 'practitioner city', type: string }, state: { description: 'practitioner state', type: string }, zip: { description: 'practitioner zip', type: string }, phone: { description: 'practitioner phone', type: string }, fax: { description: fax, type: string }, phonew1: { description: 'practitioner phonew1', type: string }, phonecell: { description: 'practitioner phonecell', type: string }, notes: { description: 'practitioner notes', type: string }, state_license_number: { description: 'practitioner state license number', type: string }, abook_title: { description: 'practitioner abook title', type: string }, physician_title: { description: 'practitioner physician title', type: string }, physician_code: { description: 'practitioner physician code', type: string } }, type: object } }
+                type: object
+                example:
+                  validationErrors: []
+                  error_description: []
+                  data: { id: 7, uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5, title: Mr, fname: Baz, lname: Bop, mname: '', federaltaxid: '', federaldrugid: '', upin: '', facility_id: '3', facility: 'Your Clinic Name Here', npi: '0123456789', email: info@pennfirm.com, active: '1', specialty: '', billname: '', url: '', assistant: '', organization: '', valedictory: '', street: '456 Tree Lane', streetb: '123 Cannaut Street', city: FooTown, state: FL, zip: '08642', phone: 123-456-7890, fax: '', phonew1: '(619) 555-7822', phonecell: '(619) 555-7821', notes: '', state_license_number: '123456', abook_title: null, physician_title: null, physician_code: null }
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1863,7 +1887,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new dental issue'
+      description: 'Submits a new dental issue'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1903,7 +1941,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a dental issue'
+      description: 'Edit a dental issue'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: did
+          in: path
+          description: 'The id for the dental issue.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -1963,7 +2022,69 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new appointment'
+      description: 'Submits a new appointment'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - pc_catid
+                - pc_title
+                - pc_duration
+                - pc_hometext
+                - pc_apptstatus
+                - pc_eventDate
+                - pc_startTime
+                - pc_facility
+                - pc_billing_location
+              properties:
+                pc_catid:
+                  description: 'The category of the appointment.'
+                  type: string
+                pc_title:
+                  description: 'The title of the appointment.'
+                  type: string
+                pc_duration:
+                  description: 'The duration of the appointment.'
+                  type: string
+                pc_hometext:
+                  description: 'Comments for the appointment.'
+                  type: string
+                pc_apptstatus:
+                  description: 'use an option from resource=/api/list/apptstat'
+                  type: string
+                pc_eventDate:
+                  description: 'The date of the appointment.'
+                  type: string
+                pc_startTime:
+                  description: 'The time of the appointment.'
+                  type: string
+                pc_facility:
+                  description: 'The facility id of the appointment.'
+                  type: string
+                pc_billing_location:
+                  description: 'The billinag location id of the appointment.'
+                  type: string
+              type: object
+              example:
+                pc_catid: '5'
+                pc_title: 'Office Visit'
+                pc_duration: '900'
+                pc_hometext: Test
+                pc_apptstatus: '-'
+                pc_eventDate: '2018-10-19'
+                pc_startTime: '09:00'
+                pc_facility: '9'
+                pc_billing_location: '10'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2124,7 +2245,13 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new insurance company'
+      description: 'Submits a new insurance company'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2157,7 +2284,21 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a insurance company'
+      description: 'Edit a insurance company'
+      parameters:
+        -
+          name: iid
+          in: path
+          description: 'The id for the insurance company.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2210,7 +2351,26 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient document'
+      description: 'Submits a new patient document'
+      parameters:
+        -
+          name: path
+          in: query
+          description: 'The category of the document.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                document:
+                  description: document
+                  type: string
+                  format: binary
+              type: object
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2324,7 +2484,21 @@ paths:
     post:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a pnote message'
+      description: 'Submits a pnote message'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_message_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -2337,7 +2511,28 @@ paths:
     put:
       tags:
         - standard
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a pnote message'
+      description: 'Edit a pnote message'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: mid
+          in: path
+          description: 'The id for the pnote message.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_message_request'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -4363,10 +4558,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns metadata of the fhir server.'
+      description: 'Returns metadata (ie. CapabilityStatement resource) of the fhir server.'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Return CapabilityStatement resource of the fhir server'
   /fhir/.well-known/smart-configuration:
     get:
       tags:
@@ -4374,7 +4569,7 @@ paths:
       description: 'Returns smart configuration of the fhir server.'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Return smart configuration of the fhir server'
   /fhir/$export:
     get:
       tags:
@@ -4461,6 +4656,125 @@ paths:
         -
           openemr_auth: []
 components:
+  schemas:
+    api_dental_issue_request:
+      description: 'Schema for the dental_issue request'
+      required:
+        - title
+        - begdate
+      properties:
+        title:
+          description: 'The title of dental issue.'
+          type: string
+        begdate:
+          description: 'The beginning date of dental issue.'
+          type: string
+        enddate:
+          description: 'The end date of dental issue.'
+          type: string
+        diagnosis:
+          description: 'The diagnosis of dental issue. In format `<codetype>:<code>`'
+          type: string
+      type: object
+      example:
+        title: Halitosis
+        begdate: '2015-03-17'
+        enddate: null
+    api_insurance_company_request:
+      description: 'Schema for the insurance_company request'
+      required:
+        - name
+      properties:
+        name:
+          description: 'The name of insurance company.'
+          type: string
+        attn:
+          description: 'The attn of insurance company.'
+          type: string
+        cms_id:
+          description: 'The cms id of insurance company.'
+          type: string
+        ins_type_code:
+          description: 'The insurance type code of insurance company. The insurance type code can be found by inspecting the route at (/api/insurance_type).'
+          type: string
+        x12_receiver_id:
+          description: 'The x12 receiver id of insurance company.'
+          type: string
+        x12_default_partner_id:
+          description: 'The x12 default partner id of insurance company.'
+          type: string
+        alt_cms_id:
+          description: 'The alternate cms id of insurance company.'
+          type: string
+        line1:
+          description: 'The line1 address of insurance company.'
+          type: string
+        line2:
+          description: 'The line2 address of insurance company.'
+          type: string
+        city:
+          description: 'The city of insurance company.'
+          type: string
+        state:
+          description: 'The state of insurance company.'
+          type: string
+        zip:
+          description: 'The zip of insurance company.'
+          type: string
+        country:
+          description: 'The country of insurance company.'
+          type: string
+      type: object
+      example:
+        name: 'Cool Insurance Company'
+        attn: null
+        cms_id: null
+        ins_type_code: '2'
+        x12_receiver_id: null
+        x12_default_partner_id: null
+        alt_cms_id: ''
+        line1: '123 Cool Lane'
+        line2: 'Suite 123'
+        city: Cooltown
+        state: CA
+        zip: '12245'
+        country: USA
+    api_message_request:
+      description: 'Schema for the message request'
+      required:
+        - body
+        - groupname
+        - from
+        - to
+        - title
+        - message_status
+      properties:
+        body:
+          description: 'The body of message.'
+          type: string
+        groupname:
+          description: 'The group name (usually is ''Default'').'
+          type: string
+        from:
+          description: 'The sender of the message.'
+          type: string
+        to:
+          description: 'The recipient of the message.'
+          type: string
+        title:
+          description: 'use an option from resource=/api/list/note_type'
+          type: string
+        message_status:
+          description: 'use an option from resource=/api/list/message_status'
+          type: string
+      type: object
+      example:
+        body: 'Test 456'
+        groupname: Default
+        from: Matthew
+        to: admin
+        title: Other
+        message_status: New
   responses:
     standard:
       description: 'Standard response'

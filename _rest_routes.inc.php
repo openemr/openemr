@@ -1957,7 +1957,53 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="validationErrors",
+     *                      description="Validation errors.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="object",
+     *                      ),
+     *                  ),
+     *                  @OA\Property(
+     *                      property="internalErrors",
+     *                      description="Internal errors.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="object",
+     *                      ),
+     *                  ),
+     *                  @OA\Property(
+     *                      property="data",
+     *                      description="Returned data.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(
+     *                              property="id",
+     *                              description="practitioner id",
+     *                              type="integer",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="uuid",
+     *                              description="practitioner uuid",
+     *                              type="string",
+     *                          ),
+     *                      ),
+     *                  ),
+     *                  example={
+     *                      "validationErrors": {},
+     *                      "error_description": {},
+     *                      "data": {
+     *                          "id": 7,
+     *                          "uuid": "90d453fb-0248-4c0d-9575-d99d02b169f5"
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -2149,7 +2195,245 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="validationErrors",
+     *                      description="Validation errors.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="object",
+     *                      ),
+     *                  ),
+     *                  @OA\Property(
+     *                      property="internalErrors",
+     *                      description="Internal errors.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="object",
+     *                      ),
+     *                  ),
+     *                  @OA\Property(
+     *                      property="data",
+     *                      description="Returned data.",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(
+     *                              property="id",
+     *                              description="practitioner id",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="uuid",
+     *                              description="practitioner uuid",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="title",
+     *                              description="practitioner title",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="fname",
+     *                              description="practitioner fname",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="lname",
+     *                              description="practitioner lname",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="mname",
+     *                              description="practitioner mname",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="federaltaxid",
+     *                              description="practitioner federaltaxid",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="federaldrugid",
+     *                              description="practitioner federaldrugid",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="upin",
+     *                              description="practitioner upin",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="facility_id",
+     *                              description="practitioner facility_id",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="facility",
+     *                              description="practitioner facility",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="npi",
+     *                              description="practitioner npi",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="email",
+     *                              description="practitioner email",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="active",
+     *                              description="practitioner active setting",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="specialty",
+     *                              description="practitioner specialty",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="billname",
+     *                              description="practitioner billname",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="url",
+     *                              description="practitioner url",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="assistant",
+     *                              description="practitioner assistant",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="organization",
+     *                              description="practitioner organization",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="valedictory",
+     *                              description="practitioner valedictory",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="street",
+     *                              description="practitioner street",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="streetb",
+     *                              description="practitioner streetb",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="city",
+     *                              description="practitioner city",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="state",
+     *                              description="practitioner state",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="zip",
+     *                              description="practitioner zip",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="phone",
+     *                              description="practitioner phone",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="fax",
+     *                              description="fax",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="phonew1",
+     *                              description="practitioner phonew1",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="phonecell",
+     *                              description="practitioner phonecell",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="notes",
+     *                              description="practitioner notes",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="state_license_number",
+     *                              description="practitioner state license number",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="abook_title",
+     *                              description="practitioner abook title",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="physician_title",
+     *                              description="practitioner physician title",
+     *                              type="string",
+     *                          ),
+     *                          @OA\Property(
+     *                              property="physician_code",
+     *                              description="practitioner physician code",
+     *                              type="string",
+     *                          )
+     *                      ),
+     *                  ),
+     *                  example={
+     *                      "validationErrors": {},
+     *                      "error_description": {},
+     *                      "data": {
+     *                          "id": 7,
+     *                          "uuid": "90d453fb-0248-4c0d-9575-d99d02b169f5",
+     *                          "title": "Mr",
+     *                          "fname": "Baz",
+     *                          "lname": "Bop",
+     *                          "mname": "",
+     *                          "federaltaxid": "",
+     *                          "federaldrugid": "",
+     *                          "upin": "",
+     *                          "facility_id": "3",
+     *                          "facility": "Your Clinic Name Here",
+     *                          "npi": "0123456789",
+     *                          "email": "info@pennfirm.com",
+     *                          "active": "1",
+     *                          "specialty": "",
+     *                          "billname": "",
+     *                          "url": "",
+     *                          "assistant": "",
+     *                          "organization": "",
+     *                          "valedictory": "",
+     *                          "street": "456 Tree Lane",
+     *                          "streetb": "123 Cannaut Street",
+     *                          "city": "FooTown",
+     *                          "state": "FL",
+     *                          "zip": "08642",
+     *                          "phone": "123-456-7890",
+     *                          "fax": "",
+     *                          "phonew1": "(619) 555-7822",
+     *                          "phonecell": "(619) 555-7821",
+     *                          "notes": "",
+     *                          "state_license_number": "123456",
+     *                          "abook_title": null,
+     *                          "physician_title": null,
+     *                          "physician_code": null
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3171,10 +3455,59 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     * Schema for the dental_issue request
+     *
+     *  @OA\Schema(
+     *      schema="api_dental_issue_request",
+     *      @OA\Property(
+     *          property="title",
+     *          description="The title of dental issue.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="begdate",
+     *          description="The beginning date of dental issue.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="enddate",
+     *          description="The end date of dental issue.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="diagnosis",
+     *          description="The diagnosis of dental issue. In format `<codetype>:<code>`",
+     *          type="string"
+     *      ),
+     *      required={"title", "begdate"},
+     *      example={
+     *          "title": "Halitosis",
+     *          "begdate": "2015-03-17",
+     *          "enddate": null,
+     *      }
+     *  )
+     */
+    /**
      *  @OA\Post(
      *      path="/api/patient/{pid}/dental_issue",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new dental issue",
+     *      description="Submits a new dental issue",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_dental_issue_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3185,9 +3518,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /api/patient/:pid/dental_issue" => function ($pid) {
         RestConfig::authorization_check("patients", "med");
@@ -3200,8 +3530,33 @@ RestConfig::$ROUTE_MAP = array(
     /**
      *  @OA\Put(
      *      path="/api/patient/{pid}/dental_issue/{did}",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a dental issue",
+     *      description="Edit a dental issue",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="did",
+     *          in="path",
+     *          description="The id for the dental issue.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_dental_issue_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3212,9 +3567,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /api/patient/:pid/dental_issue/:did" => function ($pid, $did) {
         RestConfig::authorization_check("patients", "med");
@@ -3259,8 +3611,82 @@ RestConfig::$ROUTE_MAP = array(
     /**
      *  @OA\Post(
      *      path="/api/patient/{pid}/appointment",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new appointment",
+     *      description="Submits a new appointment",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The id for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="pc_catid",
+     *                      description="The category of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_title",
+     *                      description="The title of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_duration",
+     *                      description="The duration of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_hometext",
+     *                      description="Comments for the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_apptstatus",
+     *                      description="use an option from resource=/api/list/apptstat",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_eventDate",
+     *                      description="The date of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_startTime",
+     *                      description="The time of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_facility",
+     *                      description="The facility id of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="pc_billing_location",
+     *                      description="The billinag location id of the appointment.",
+     *                      type="string"
+     *                  ),
+     *                  required={"pc_catid", "pc_title", "pc_duration", "pc_hometext", "pc_apptstatus", "pc_eventDate", "pc_startTime", "pc_facility", "pc_billing_location"},
+     *                  example={
+     *                      "pc_catid": "5",
+     *                      "pc_title": "Office Visit",
+     *                      "pc_duration": "900",
+     *                      "pc_hometext": "Test",
+     *                      "pc_apptstatus": "-",
+     *                      "pc_eventDate": "2018-10-19",
+     *                      "pc_startTime": "09:00",
+     *                      "pc_facility": "9",
+     *                      "pc_billing_location": "10"
+     *                  }
+     *              )
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3271,9 +3697,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /api/patient/:pid/appointment" => function ($pid) {
         RestConfig::authorization_check("patients", "appt");
@@ -3572,10 +3995,105 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     * Schema for the insurance_company request
+     *
+     *  @OA\Schema(
+     *      schema="api_insurance_company_request",
+     *      @OA\Property(
+     *          property="name",
+     *          description="The name of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="attn",
+     *          description="The attn of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="cms_id",
+     *          description="The cms id of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="ins_type_code",
+     *          description="The insurance type code of insurance company. The insurance type code can be found by inspecting the route at (/api/insurance_type).",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="x12_receiver_id",
+     *          description="The x12 receiver id of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="x12_default_partner_id",
+     *          description="The x12 default partner id of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="alt_cms_id",
+     *          description="The alternate cms id of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="line1",
+     *          description="The line1 address of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="line2",
+     *          description="The line2 address of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="city",
+     *          description="The city of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="state",
+     *          description="The state of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="zip",
+     *          description="The zip of insurance company.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="country",
+     *          description="The country of insurance company.",
+     *          type="string"
+     *      ),
+     *      required={"name"},
+     *      example={
+     *          "name": "Cool Insurance Company",
+     *          "attn": null,
+     *          "cms_id": null,
+     *          "ins_type_code": "2",
+     *          "x12_receiver_id": null,
+     *          "x12_default_partner_id": null,
+     *          "alt_cms_id": "",
+     *          "line1": "123 Cool Lane",
+     *          "line2": "Suite 123",
+     *          "city": "Cooltown",
+     *          "state": "CA",
+     *          "zip": "12245",
+     *          "country": "USA"
+     *      }
+     *  )
+     */
+    /**
      *  @OA\Post(
      *      path="/api/insurance_company",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new insurance company",
+     *      description="Submits a new insurance company",
      *      tags={"standard"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_insurance_company_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3586,9 +4104,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /api/insurance_company" => function () {
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -3600,8 +4115,24 @@ RestConfig::$ROUTE_MAP = array(
     /**
      *  @OA\Put(
      *      path="/api/insurance_company/{iid}",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a insurance company",
+     *      description="Edit a insurance company",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="iid",
+     *          in="path",
+     *          description="The id for the insurance company.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_insurance_company_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3612,9 +4143,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /api/insurance_company/:iid" => function ($iid) {
         $data = (array) (json_decode(file_get_contents("php://input")));
@@ -3626,8 +4154,31 @@ RestConfig::$ROUTE_MAP = array(
     /**
      *  @OA\Post(
      *      path="/api/patient/{pid}/document",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a new patient document",
+     *      description="Submits a new patient document",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="path",
+     *          in="query",
+     *          description="The category of the document.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     	@OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="document",
+     *                      description="document",
+     *                      type="string",
+     *                      format="binary"
+     *                  ),
+     *              ),
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3638,9 +4189,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /api/patient/:pid/document" => function ($pid) {
         $return = (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
@@ -3852,10 +4400,72 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     * Schema for the message request
+     *
+     *  @OA\Schema(
+     *      schema="api_message_request",
+     *      @OA\Property(
+     *          property="body",
+     *          description="The body of message.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="groupname",
+     *          description="The group name (usually is 'Default').",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="from",
+     *          description="The sender of the message.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="to",
+     *          description="The recipient of the message.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="title",
+     *          description="use an option from resource=/api/list/note_type",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="message_status",
+     *          description="use an option from resource=/api/list/message_status",
+     *          type="string"
+     *      ),
+     *      required={"body", "groupname", "from", "to", "title", "message_status"},
+     *      example={
+     *          "body": "Test 456",
+     *          "groupname": "Default",
+     *          "from": "Matthew",
+     *          "to": "admin",
+     *          "title": "Other",
+     *          "message_status": "New"
+     *      }
+     *  )
+     */
+    /**
      *  @OA\Post(
      *      path="/api/patient/{pid}/message",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Submits a pnote message",
+     *      description="Submits a pnote message",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The id for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_message_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3866,9 +4476,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /api/patient/:pid/message" => function ($pid) {
         RestConfig::authorization_check("patients", "notes");
@@ -3878,11 +4485,37 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
 
+
     /**
      *  @OA\Put(
      *      path="/api/patient/{pid}/message/{mid}",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION. Edit a pnote message",
+     *      description="Edit a pnote message",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The id for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="mid",
+     *          in="path",
+     *          description="The id for the pnote message.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_message_request")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -3893,9 +4526,6 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /api/patient/:pid/message/:mid" => function ($pid, $mid) {
         RestConfig::authorization_check("patients", "notes");
@@ -7118,11 +7748,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/metadata",
-     *      description="Returns metadata of the fhir server.",
+     *      description="Returns metadata (ie. CapabilityStatement resource) of the fhir server.",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Return CapabilityStatement resource of the fhir server"
      *      )
      *  )
      */
@@ -7139,7 +7769,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Return smart configuration of the fhir server"
      *      )
      *  )
      */

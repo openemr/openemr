@@ -1,89 +1,55 @@
 # OpenEMR FHIR API Documentation
 
-## Overview
-
-Easy-to-use JSON-based REST API for OpenEMR FHIR. All code is done in classes and separate from the view to help with codebase modernization efforts. See standard OpenEMR API docs [here](API_README.md)
-
-## Implementation
-
-FHIR endpoints are defined in the [primary routes file](_rest_routes.inc.php). The routes file maps an external, addressable
-endpoint to the OpenEMR FHIR controller which handles the request, and also handles the JSON data conversions.
-
-```php
-"GET /fhir/Patient" => function () {
-    RestConfig::authorization_check("patients", "demo");
-    $return = (new FhirPatientRestController())->getAll($_GET);
-    RestConfig::apiLog($return);
-    return $return;
-}
-```
-
-At a high level, the request processing flow consists of the following steps:
-
-```
-JSON Request -> FHIR Controller Component -> FHIR Validation -> Parsing FHIR Resource -> Standard Service Component -> Validation -> Database
-```
-
-The logical response flow begins with the database result:
-
-```
-Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR Record -> FHIR Controller Component -> RequestControllerHelper -> JSON Response
-```
-
-### Sections
--   [Authorization](API_README.md#authorization)
+## FHIR API Table of Contents
+- [Overview](FHIR_README.md#overview)
+- [Prerequisite](FHIR_README.md#prerequisite)
+- [Using FHIR API Internally](FHIR_README.md#using-fhir-api-internally)
+- [Multisite Support](FHIR_README.md#multisite-support)
+- [Authorization](FHIR_README.md#authorization)
     - [Scopes](API_README.md#scopes)
     - [Registration](API_README.md#registration)
-        -   [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
+        - [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
     - [Authorization Code Grant](API_README.md#authorization-code-grant)
     - [Refresh Token Grant](API_README.md#refresh-token-grant)
     - [Password Grant](API_README.md#password-grant)
     - [Client Credentials Grant](API_README.md#client-credentials-grant)
     - [Logout](API_README.md#logout)
     - [More Details](API_README.md#more-details)
--   [FHIR API Endpoints](FHIR_README.md#fhir-endpoints)
-    -   [Capability Statement](FHIR_README.md#capability-statement)
-    -   [Patient](FHIR_README.md#patient-resource)
-    -   [Coverage](FHIR_README.md#coverage-resource)
-    -   [Encounter](FHIR_README.md#encounter-resource)
-    -   [Practitioner](FHIR_README.md#practitioner-resource)
-    -   [PractitionerRole](FHIR_README.md#practitionerrole-resource)
-    -   [Immunization](FHIR_README.md#immunization-resource)
-    -   [AllergyIntolerance](FHIR_README.md#allergyintolerance-resource)
-    -   [Organization](FHIR_README.md#organization-resource)
-    -   [Observation](FHIR_README.md#observation-resource)
-    -   [Condition](FHIR_README.md#condition-resource)
-    -   [Procedure](FHIR_README.md#procedure-resource)
-    -   [MedicationRequest](FHIR_README.md#medicationrequest-resource)
-    -   [Medication](FHIR_README.md#medication-resource)
-    -   [Location](FHIR_README.md#location-resource)
-    -   [CareTeam](FHIR_README.md#careTeam-resource)
-    -   [Provenance](FHIR_README.md#Provenance-resources)
-    -   [System Export](FHIR_README.md#SystemExport-resource)
-    -   [Patient Export](FHIR_README.md#PatientExport-resource)
-    -   [Group Export](FHIR_README.md#GroupExport-resource)
+- [FHIR API Endpoints](FHIR_README.md#fhir-api-endpoints)
+    - [FHIR API Documentation](FHIR_README.md#fhir-api-documentation)
+    - [Capability Statement](FHIR_README.md#capability-statement)
+    - [Provenance](FHIR_README.md#Provenance-resources)
+    - [BULK FHIR Exports](FHIR_README.md#bulk-fhir-exports)
+        - [System Export](FHIR_README.md#bulk-fhir-exports)
+        - [Patient Export](FHIR_README.md#bulk-fhir-exports)
+        - [Group Export](FHIR_README.md#bulk-fhir-exports)
+- [For Developers](FHIR_README.md#for-developers)
 
-### Prerequisite
+## Overview
+
+Easy-to-use JSON-based REST API for OpenEMR FHIR. See standard OpenEMR API docs [here](API_README.md)
+
+## Prerequisite
 
 Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard FHIR REST API"
 
-### Using FHIR API Internally
+## Using FHIR API Internally
 
 There are several ways to make API calls from an authorized session and maintain security:
 
 -   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-### Multisite Support
+## Multisite Support
 
 Multisite is supported by including the site in the endpoint. When not using multisite or using the `default` multisite site, then a typical path would look like `apis/default/fhir/patient`. If you were using multisite and using a site called `alternate`, then the path would look like `apis/alternate/fhir/patient`.
 
-### Authorization
+## Authorization
 
 OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required.
 
 See [Authorization](API_README.md#authorization) for more details.
 
-### FHIR Endpoints
+## FHIR API Endpoints
 
 Standard FHIR endpoints Use `https://localhost:9300/apis/default/fhir as base URI.`
 
@@ -174,3 +140,30 @@ You can download the exported documents which are formatted in Newline Delimited
     ```sh
           curl -X GET 'https://localhost:9300/apis/default/fhir/Document/105232/Binary'
     ```
+
+## For Developers
+
+FHIR endpoints are defined in the [primary routes file](_rest_routes.inc.php). The routes file maps an external, addressable
+endpoint to the OpenEMR FHIR controller which handles the request, and also handles the JSON data conversions.
+
+```php
+"GET /fhir/Patient" => function () {
+    RestConfig::authorization_check("patients", "demo");
+    $return = (new FhirPatientRestController())->getAll($_GET);
+    RestConfig::apiLog($return);
+    return $return;
+}
+```
+
+At a high level, the request processing flow consists of the following steps:
+
+```
+JSON Request -> FHIR Controller Component -> FHIR Validation -> Parsing FHIR Resource -> Standard Service Component -> Validation -> Database
+```
+
+The logical response flow begins with the database result:
+
+```
+Database Result -> Service Component -> FHIR Service Component -> Parse OpenEMR Record -> FHIR Controller Component -> RequestControllerHelper -> JSON Response
+```
+
