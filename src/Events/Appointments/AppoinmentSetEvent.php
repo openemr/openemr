@@ -32,16 +32,10 @@ class AppoinmentSetEvent extends Event
     /**
      * @var
      */
-    public $post;
+    private $post;
 
-    /**
-     * @var
-     */
     public $eid;
 
-    /**
-     * @param $post
-     */
     public function __construct($post)
     {
         $this->post = $post;
@@ -53,5 +47,10 @@ class AppoinmentSetEvent extends Event
     public function givenAppointmentData(): array
     {
         return $this->post;
+    }
+
+    public function setEventId($eid)
+    {
+        $this->eid = $eid;
     }
 }

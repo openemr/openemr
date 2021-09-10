@@ -100,6 +100,13 @@ $startampm = '';
 $info_msg = "";
 $g_edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');
 $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
+
+
+/**
+ * @var EventDispatcherInterface $eventDispatcher
+ */
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -1080,6 +1087,15 @@ function sel_patient() {
     dlgopen('find_patient_popup.php', 'findPatient', 650, 300, '', title);
 }
 
+// This invokes the cancellation popup.
+<?php
+if (stristr($row['pc_title'], 'telehealth') && ismoduleactive() >= 1) {
+    $sendid = new AppointmentAddEvent();
+    $sendid->setEventid($eid);
+    $eventDispatcher->dispatch(AppointmentAddEvent::ACTION_RENDER_CANCEL_JAVASCRIPT, new GenericEvent());
+}
+?>
+
 // This is for callback by the find-group popup.
 function setgroup(gid, name, end_date) {
     var f = document.forms[0];
@@ -1468,6 +1484,26 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
         ?>
         </span>
             </div>
+            <?php
+            /**
+             * Lifemesh button only show if module is enabled
+             *
+             */
+            if (stristr($row['pc_title'], 'telehealth') && ismoduleactive() >= 1) {
+                ?>
+                <div>
+                    <style>
+                        .gray-background { background-color: darkgray; }
+                        .white {color: #ffffff; }
+                    </style>
+                    <?php
+                    if (!empty(ismoduleactive())) {
+                        $eventDispatcher->dispatch(AppointmentAddEvent::ACTION_RENDER_CANCEL_BUTTON, new GenericEvent());
+                        $eventDispatcher->dispatch(AppointmentAddEvent::ACTION_RENDER_SESSION_BUTTON, new GenericEvent());
+                    }
+                    ?>
+                </div>
+            <?php } ?>
         </div>
     </div> <!-- End Jumbotron !-->
     <?php
