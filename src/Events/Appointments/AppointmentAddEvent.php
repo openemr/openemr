@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -25,6 +26,4 @@ class AppointmentAddEvent extends Event
     const ACTION_RENDER_CANCEL_BUTTON = 'add.edit.render.cancel';
 
     const ACTION_RENDER_CANCEL_JAVASCRIPT = 'render.cancel.javascript';
-
-
 }
