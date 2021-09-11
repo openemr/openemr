@@ -1434,7 +1434,8 @@ $config = 1; /////////////
         " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
-        $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
+        $tmp1 = [];
+        $tmp0 = exec($cmd, $tmp1, $tmp2);
         if ($tmp2) {
             die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
         }
