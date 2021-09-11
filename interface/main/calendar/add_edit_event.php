@@ -1485,10 +1485,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
         </span>
             </div>
             <?php
-            /**
-             * Lifemesh button only show if module is enabled
-             *
-             */
+            // Lifemesh button only show if module is enabled
             if (stristr($row['pc_title'], 'telehealth') && ismoduleactive() >= 1) {
                 ?>
                 <div>
