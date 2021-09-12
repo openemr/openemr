@@ -148,6 +148,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -247,6 +249,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -268,6 +272,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -372,6 +378,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -491,6 +499,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -597,6 +607,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -732,6 +744,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -765,6 +779,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -793,6 +809,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -826,6 +844,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -861,6 +881,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -901,6 +923,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -936,6 +960,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -976,6 +1002,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1193,6 +1221,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1363,6 +1393,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1552,6 +1584,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1573,6 +1607,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1594,6 +1630,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1620,6 +1658,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1648,6 +1688,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1681,6 +1723,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1708,6 +1752,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1764,6 +1810,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1785,6 +1833,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1806,6 +1856,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1832,6 +1884,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1860,6 +1914,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1893,6 +1949,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1920,6 +1978,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1941,6 +2001,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1967,6 +2029,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1995,6 +2059,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2028,6 +2094,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2055,6 +2123,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2076,6 +2146,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2102,6 +2174,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2130,6 +2204,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2163,6 +2239,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2190,6 +2268,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2211,6 +2291,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2237,6 +2319,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2265,6 +2349,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2298,6 +2384,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2325,6 +2413,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2346,6 +2436,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2420,6 +2512,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2433,6 +2527,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2454,6 +2550,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2482,6 +2580,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2509,6 +2609,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2530,6 +2632,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2543,6 +2647,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2556,6 +2662,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2569,6 +2677,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2587,6 +2697,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2608,6 +2720,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2634,6 +2748,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2647,6 +2763,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2675,6 +2793,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2685,6 +2805,13 @@ paths:
         - standard
       description: 'Submits a new patient document'
       parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
         -
           name: path
           in: query
@@ -2706,6 +2833,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2734,6 +2863,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2755,6 +2886,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2783,6 +2916,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2816,6 +2951,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2849,6 +2986,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2876,6 +3015,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2910,6 +3051,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2937,6 +3080,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3147,6 +3292,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3168,6 +3315,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3181,6 +3330,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3202,6 +3353,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3215,6 +3368,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3236,6 +3391,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3249,6 +3406,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3270,6 +3429,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3297,7 +3458,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3319,8 +3494,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3353,7 +3532,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/CarePlan' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3375,8 +3568,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3409,7 +3606,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/CareTeam' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3431,8 +3642,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3458,7 +3673,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Condition' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3480,8 +3709,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3514,7 +3747,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Coverage' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3536,8 +3783,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3563,7 +3814,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Device' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3585,8 +3850,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3633,7 +3902,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/DiagnosticReport' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3655,8 +3938,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3703,7 +3990,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/DocumentReference' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3725,8 +4026,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3735,9 +4040,19 @@ paths:
       tags:
         - fhir
       description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'The id for the Document.'
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3772,7 +4087,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Encounter' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3794,8 +4123,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3821,7 +4154,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Goal' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3843,8 +4190,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3870,7 +4221,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Group' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3892,8 +4257,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3905,6 +4274,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3932,7 +4303,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Immunization' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3954,8 +4339,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -3974,7 +4363,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Location' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3996,8 +4399,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4008,7 +4415,21 @@ paths:
       description: 'Returns a list of Medication resources.'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Medication' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4030,8 +4451,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4071,7 +4496,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/MedicationRequest' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4093,8 +4532,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4141,7 +4584,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Observation' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4163,8 +4620,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4239,7 +4700,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Organization' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4259,6 +4734,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4280,8 +4757,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4307,6 +4788,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4418,7 +4901,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Patient' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4438,6 +4935,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4459,8 +4958,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4486,6 +4989,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4499,6 +5004,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4589,7 +5096,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Person' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4611,8 +5132,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4708,7 +5233,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Practitioner' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4728,6 +5267,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4749,8 +5290,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4776,6 +5321,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4803,7 +5350,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/PractitionerRole' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4825,8 +5386,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4859,7 +5424,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Procedure' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4881,8 +5460,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4902,8 +5485,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -4922,7 +5509,21 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Provenance' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4952,6 +5553,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4965,6 +5568,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -4977,6 +5582,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -5007,6 +5614,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -5028,6 +5637,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -5837,7 +6448,7 @@ components:
         message_status: New
   responses:
     standard:
-      description: 'Standard response'
+      description: 'Standard Response'
       content:
         application/json:
           schema:
@@ -5862,6 +6473,19 @@ components:
               validationErrors: []
               error_description: []
               data: []
+    badrequest:
+      description: 'Bad Request'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: object
+            type: object
+            example:
+              validationErrors:
+                _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
     unauthorized:
       description: Unauthorized
       content:
@@ -5884,8 +6508,19 @@ components:
             example:
               error: access_denied
               error_description: 'The resource owner or authorization server denied the request.'
-              hint: 'Missing ''Authorization'' header'
+              hint: 'Missing "Authorization" header'
               message: 'The resource owner or authorization server denied the request.'
+    uuidnotfound:
+      description: 'Not Found'
+      content:
+        application/json:
+          schema:
+            properties:
+              empty:
+                description: empty
+                type: object
+            type: object
+            example: []
   securitySchemes:
     openemr_auth:
       type: oauth2
@@ -5893,6 +6528,7 @@ components:
         authorizationCode:
           authorizationUrl: /oauth2/default/authorize
           tokenUrl: /oauth2/default/token
+          refreshUrl: /oauth2/default/token
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
