@@ -3,28 +3,16 @@
 /**
  * edih_csv_inc.php
  *
- * Copyright 2012 Kevin McCormick
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have
- * received a copy of the GNU General Public License along with this program;
- * if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
- *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
- * @subpackage ediHistory
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/*
+/**
  * The purpose of this file is to hold functions of general utility for
  * my edi_claim_history project.  It began as a php "class" but I am now
  * thinking that instantiating the class is too much bother and probably
@@ -78,21 +66,6 @@
  * TO_DO functions to zip old files, put them aside, and remove them from csv tables
  */
 
-///**
-// *  a security measure to prevent direct web access to this file
-// */
-// if (!defined('SITE_IN')) die('Direct access not allowed!');
-// $GLOBALS['OE_EDIH_DIR']  $GLOBALS['OE_SITE_DIR']
-
-/* *********** GLOBALS used for testing only **********
- */
-// //$GLOBALS['OE_SITE_DIR'].'/documents/edi/history';
-//$OE_SITES_BASE = $GLOBALS['OE_SITE_DIR'];
-//$OE_SITE_DIR = $OE_SITES_BASE.'/testing';
-//$OE_EDIH_DIR = $OE_SITE_DIR.'/documents/edi/history';
-
-/* ***********
- */
 /**
  * Constant that is checked in included files to prevent direct access.
  * concept taken from Joomla
@@ -894,7 +867,7 @@ function csv_archive_select_list($outtp = 'json')
 /**
  * List files in the directory for the given type
  *
- * Write an entry in the log if an file is in the directory
+ * Write an entry in the log if a file is in the directory
  * that does not match the type
  *
  * @uses csv_parameters()
@@ -923,7 +896,7 @@ function csv_dirfile_list($type)
     if (is_dir($search_dir)) {
         if ($dh = opendir($search_dir)) {
             while (($file = readdir($dh)) !== false) {
-                if ($file == '.' || $file == '..') {
+                if ($file == '.' || $file == '..' || $file == "process_bills.log") {
                     continue;
                 } elseif ($tp == 'f837' && ($file == 'history' || $file == 'README.txt')) {
                     continue;

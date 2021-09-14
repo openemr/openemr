@@ -33,6 +33,7 @@ class DeviceService extends BaseService
         $sql = "
             select l.*
             , patients.*
+            , provider.*
             from
             (
                 SELECT
@@ -43,7 +44,15 @@ class DeviceService extends BaseService
             JOIN (
                 SELECT `pid`,`uuid` AS `puuid`
                 from patient_data
-            ) patients ON l.pid = patients.pid";
+            ) patients ON l.pid = patients.pid
+            LEFT JOIN (
+                select 
+                   id AS provider_id
+                   ,npi AS provider_npi
+                   ,uuid AS provider_uuid
+                   ,username as provider_username
+                FROM users
+            ) provider ON l.user = provider.provider_username";
 
         $search = is_array($search) ? $search : [];
 
