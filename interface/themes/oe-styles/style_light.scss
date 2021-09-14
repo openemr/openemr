@@ -23,7 +23,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 :root {
-    --tabTopBorderWidth: .2em;
+    --tabTopBorderWidth: 0.2em;
     --gray300: #cdcdcd;
 }
 
@@ -37,14 +37,14 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
     .tabSpan {
         border-top: var(--tabTopBorderWidth) solid var(--primary) !important;
-        padding: .25em .40em !important;
+        padding: 0.25em 0.4em !important;
         font-weight: 600 !important;
 
         .fa {
             color: $gray-500 !important;
 
             &:hover {
-            color: $gray-700 !important;
+                color: $gray-700 !important;
             }
         }
     }
@@ -54,50 +54,35 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
         font-weight: normal !important;
     }
 
-    .menuLabel,
-    .menuSection {
-        border-left: .25em solid transparent !important;
-        transition: none;
+    // MAIN NAV
+    // The top level of the menu
+    .menuLabel {
+        font-size: 0.9em !important;
+        font-weight: normal !important;
+        padding: 0.2em 0.6rem !important;
+        transition-duration: 0ms !important;
     }
 
-    .menuSection:hover {
-        background-color: transparent !important;
+    .dropdown .dropdown-menu {
+        top: auto !important;
+    }
+
+    .dropdown ul.dropdown-menu .dropdown ul.dropdown-menu {
+        top: 0px !important;
     }
 
     .menuLabel:hover,
-    .menuLab {
-        background-color: lighten(theme-color('primary'), 40) !important;
-        border-left: .25em solid theme-color('primary') !important;
+    .menuEntries li .menuLabel:hover,
+    .menuSection:hover {
+        background-color: lighten(theme-color("primary"), 40%) !important;
     }
 
-    .menuSection {
-        .menuEntries {
-            top: inherit !important;
-
-            .menuSection .menuEntries {
-                left: 175px !important;
-                top: -3px !important;
-            }
-        }
+    .acck {
+        font-size: .9em !important;
     }
 
-    .menuDisabled {
-        color: $gray-500 !important;
-    }
-
-    .menuLabel {
-        font-weight: 400 !important;
-        font-size: .8rem !important;
-
-        padding: .25em !important;
-
-        transition: none !important;
-    }
-
-    .oe-expandable-search input {
-        border: inherit;
-        border-radius: 0;
-        transition: none;
+    .tabSpan.tabsNoHover:hover {
+        background-color: $gray-300 !important;
     }
 }
 
