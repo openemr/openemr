@@ -445,7 +445,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($GLOBALS['erx_import_status_message']) { ?>
                         if (msg_updation)
                             alert(msg_updation);
-            <?php
+                        <?php
                     }
                 }
             }
@@ -642,7 +642,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 //  3. The notification has not been turned off (or shown depending on global selection) for this year
                 $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authUserID']);
                 if ($birthdayAlert->isDisplayBirthdayAlert()) {
-            ?>
+                    ?>
                     // show the active reminder modal
                     dlgopen('', 'bdayreminder', 300, 170, '', false, {
                         allowResize: false,
@@ -714,14 +714,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if (!empty($date_of_death)) {
                     $date_of_death = $date_of_death['date_deceased'];
                 }
-            ?>
+                ?>
                 parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
                                                 "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
-                                            if (empty($date_of_death)) {
-                                                echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
-                                            } else {
-                                                echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
-                                            } ?>);
+                if (empty($date_of_death)) {
+                    echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
+                } else {
+                    echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
+                } ?>);
                 var EncounterDateArray = new Array;
                 var CalendarCategoryArray = new Array;
                 var EncounterIdArray = new Array;
@@ -736,12 +736,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
                         CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
                         Count++;
-                <?php
+                        <?php
                     }
                 }
                 ?>
                 parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
-            <?php
+                <?php
             } // end setting new pid
             ?>
             parent.left_nav.syncRadios();
@@ -777,7 +777,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         if (!empty($grparr['']['grp_size'])) {
             $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
             $FONTSIZE = round($FONTSIZE * 0.0625, 2);
-        ?>
+            ?>
 
         /* Override font sizes in the theme. */
         #DEM .groupname {
@@ -891,7 +891,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         echo $twig->getTwig()->render('patient/card/billing.html.twig', $viewArgs);
-
                     endif; // End the hide_billing_widget
 
                     // if anyone wants to render anything before the patient demographic list
@@ -899,21 +898,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     if (AclMain::aclCheckCore('patients', 'demo')) :
                         // Render the Demographics box
-                        $label_ps_expand = "";
-
-                        $forceExpandAlways = false; // @todo Make this dynamic
                         $viewArgs = [
                             'title' => "Demographics",
                             'id' => "demographics_ps_expand",
                             'btnText' => "Edit",
                             'btnLink' => "demographics_full.php",
-                            'btnClass' => '',
                             'linkMethod' => "html",
-                            'bodyClass' => "collapse show",
                             'auth' => ACLMain::aclCheckCore('patients', 'demo', '', 'write'),
                             'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
                             'initiallyCollapsed' => getUserSetting("demographics_ps_expand") == true ? true : false,
-                            'forceAlwaysOpen' => ($forceExpandAlways) ? true : false,
                             'tabID' => "DEM",
                             'result' => $result,
                             'result2' => $result2,
@@ -995,7 +988,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if (count($insArr) > 0) {
                             echo $twig->getTwig()->render('patient/card/insurance.html.twig', $viewArgs);
                         }
-
                     endif;  // end if demographics authorized
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
@@ -1028,7 +1020,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'auth' => AclMain::aclCheckCore('patients', 'reminder', '', 'write')
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-
                     endif; //end if prw is activated
 
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
@@ -1322,7 +1313,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             break;
                                         }
                                     }
-
+                                    // Break in the loop to improve performance
                                 case 1:
                                     $firstApptIndx = 0;
                                     for ($i = 1; $i <= $limitApptIndx; ++$i) {
@@ -1331,6 +1322,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             break;
                                         }
                                     }
+                                    // Break in the loop to improve performance
                             }
 
                             if ($extraApptDate) {

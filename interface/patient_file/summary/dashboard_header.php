@@ -24,7 +24,8 @@ $portal_login_href = $url_webroot . "/interface/patient_file/summary/create_port
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
 
-function deceasedDays($days_deceased) {
+function deceasedDays($days_deceased)
+{
     $deceased_days = intval($days_deceased['days_deceased']);
     if ($deceased_days == 0) {
         $num_of_days = xl("Today");
@@ -47,7 +48,8 @@ function deceasedDays($days_deceased) {
     return xlt("Deceased") . " - " . text($deceased_date) . " (" . text($num_of_days) . ")";
 }
 
-function portalAuthorized($pid) {
+function portalAuthorized($pid)
+{
     if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
         return false;
     }
@@ -85,5 +87,3 @@ $viewArgs = [
 ];
 
 echo $t->render('patient/dashboard_header.html.twig', $viewArgs);
-?>
-

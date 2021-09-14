@@ -208,7 +208,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 }
 
 // Render Cards for 2 specific forms
-foreach(['treatment_protocols', 'injury_log'] as $formname) {
+foreach (['treatment_protocols', 'injury_log'] as $formname) {
     if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", ["form_{$formname}"])) > 0) {
         $formEscaped = add_escape_custom($formEscaped);
         $sql = "SELECT tp.id, tp.value
@@ -222,7 +222,6 @@ foreach(['treatment_protocols', 'injury_log'] as $formname) {
             ORDER BY tp.value DESC";
         $dres = sqlStatement($sql, [$pid, $formname]);
         if (sqlNumRows($dres) > 0 && $need_head) {
-
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
                 list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
@@ -245,7 +244,6 @@ foreach(['treatment_protocols', 'injury_log'] as $formname) {
 
 // Render the Immunizations card if turned on
 if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
-
     $sql = "SELECT i1.id AS id, i1.immunization_id AS immunization_id, i1.cvx_code AS cvx_code, c.code_text_short AS cvx_text,
                 IF(i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short),
                 IF(i1.note,substring(i1.note,1,20),c.code_text_short)) AS immunization_data
@@ -286,7 +284,6 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         'linkMethod' => 'html',
         'imx' => $imxList,
     ]);
-
 endif; // End immunizations
 
 // Render the Prescriptions card if turned on
@@ -351,7 +348,6 @@ endif;
 
 // Render Old Medications card
 if ($erx_upload_complete == 1) {
-
     $sql = [
         "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
         dateEmptySql('enddate'),
