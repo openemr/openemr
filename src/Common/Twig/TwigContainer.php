@@ -27,27 +27,42 @@ class TwigContainer
     /**
      * Instance of Kernel
      */
-    private $kernel;
+    private $kernel = null;
 
-    public function __construct($path = null, $kernel)
+    /**
+     * Create a new Twig superclass holding a twig environment
+     *
+     * @var $path string Additional path to add to $fileroot/templates string
+     * @var $kernel Kernel An instance of Kernel to test if the environment is dev vs prod
+     */
+    public function __construct(string $path = null, Kernel $kernel = null)
     {
         $this->path = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {
             $this->path = $this->path . '/' . $path;
         }
+
+        if ($kernel) {
+            $this->kernel = $kernel;
+        }
     }
 
+    /**
+     * Get the Twig Environment.
+     *
+     * @return Twig\Environment The twig environment
+     */
     public function getTwig()
     {
         $twigLoader = new FilesystemLoader($this->path);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $twigEnv->addExtension(new TwigExtension());
 
-        if($this->kernel->isDev()) {
-            $twigEnv->addExtension(new Twig\Extension\DebugExtension());
+        if($this->kernel && $this->kernel->isDev()) {
+            $twigEnv->addExtension(new DebugExtension());
             $twigEnv->enableDebug();
         }
-        
+
         return $twigEnv;
     }
 }
