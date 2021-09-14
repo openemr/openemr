@@ -1,0 +1,28 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="list-group list-group-flush">
+{% if rxList|length > 0 %}
+
+    {% for rx in rxList %}
+
+        {% if rx.size > 0 %}
+            {% set unit = " (" ~ rx.size|text ~ " " ~ rx.unit ~ ") " %}
+        {% else %}
+            {% set unit = " " %}
+        {% endif %}
+
+
+        <div class="list-group-item w-100 p-1 pt-0">
+            {{ rx.drug }}<br>
+            <span class="text-muted">{{ rx.dosage }} {{ rx.form }}{{ unit }}{{ rx.route }} {{ rx.interval }}</span>
+        </div>
+
+    {% endfor %}
+{% else %}
+    <div class="list-group-item w-100 p-1 pt-0">
+        {{ "None{{Prescriptions}}"|xlt }}
+    </div>
+{% endif %}
+</div>
+{% endblock %}

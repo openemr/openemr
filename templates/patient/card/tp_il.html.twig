@@ -1,0 +1,15 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+
+<table id="patient_stats_spreadsheets">
+{% for r in formRows %}
+    <tr>
+        <td>
+            <a href="#" onclick="load_location('../../forms/{{ formName|attr }}/new.php?popup=1&id={{ r.id|attr_url }}')" class="link">{{ r.startDate|text }} {{ r.templateName|text }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+{% endblock %}

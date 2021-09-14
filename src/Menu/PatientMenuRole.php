@@ -196,7 +196,7 @@ class PatientMenuRole extends MenuRole
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="navbar-nav">
-EOT;
+        EOT;
         echo $str_top . "\r\n";
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
@@ -226,7 +226,7 @@ EOT;
                 </ul>
             </div>
         </nav>
-EOB;
+        EOB;
         echo $str_bot . "\r\n";
         return;
     }

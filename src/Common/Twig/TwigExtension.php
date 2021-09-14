@@ -50,6 +50,39 @@ class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
                     return $the_form;
                 }
             ),
+
+            new \Twig\TwigFunction(
+                'tabRow',
+                function ($formType, $result1, $result2) {
+                    ob_start();
+                    display_layout_tabs($formType, $result1, $result2);
+                    $output = ob_get_contents();
+                    ob_end_clean();
+                    return $output;
+                }
+            ),
+
+            new \Twig\TwigFunction(
+                'tabData',
+                function ($formType, $result1, $result2) {
+                    ob_start();
+                    display_layout_tabs_data($formType, $result1, $result2);
+                    $output = ob_get_contents();
+                    ob_end_clean();
+                    return $output;
+                }
+            ),
+
+            new \Twig\TwigFunction(
+                'imageWidget',
+                function ($id, $category) {
+                    ob_start();
+                    image_widget($id, $category);
+                    $output = ob_get_contents();
+                    ob_end_clean();
+                    return $output;
+                }
+            ),
         ];
     }
 
@@ -120,6 +153,24 @@ class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
                 'xls',
                 function ($string) {
                     return xls($string);
+                }
+            ),
+            new \Twig\TwigFilter(
+                'money',
+                function ($amount) {
+                    return oeFormatMoney($amount);
+                }
+            ),
+            new \Twig\TwigFilter(
+                'shortDate',
+                function ($string) {
+                    return oeFormatShortDate($string);
+                }
+            ),
+            new \Twig\TwigFilter(
+                'xlDocCategory',
+                function ($string) {
+                    return xl_document_category($string);
                 }
             )
         ];

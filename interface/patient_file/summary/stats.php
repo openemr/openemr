@@ -10,15 +10,100 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Twig\TwigContainer;
+
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/sql.inc");
 
+$twigContainer = new TwigContainer();
+$t = $twigContainer->getTwig();
+
+use Laminas\Db\Metadata\Source\SqlServerMetadata;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
+}
+
+/**
+ * Return an array of list data for a given issue type and patient
+ *
+ * @var $pid string Patient ID
+ * @var $type string Issue Type
+ * @return
+ */
+function getListData($pid, $type)
+{
+    $sqlArr = [
+        "SELECT * FROM lists WHERE pid = ? AND type = ? AND",
+        dateEmptySql('enddate')
+    ];
+
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $type == 'medication') {
+        $sqlArr[] = "and erx_uploaded != '1'";
+    }
+
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $type == 'allergy') {
+        $sqlArr[] = "and erx_uploaded != '1'";
+    }
+
+    $sqlArr[] = "ORDER BY begdate";
+
+    $sql = implode(" ", $sqlArr);
+    $res = sqlStatement($sql, [$pid, $type]);
+    $list = [];
+
+    while ($row = sqlFetchArray($res)) {
+        if (!$row['enddate'] && !$row['returndate']) {
+            $rowclass = "noend_noreturn";
+        } elseif (!$row['enddate'] && $row['returndate']) {
+            $rowclass = "noend";
+        } elseif ($row['enddate'] && !$row['returndate']) {
+            $rowclass = "noreturn";
+        }
+
+        if ($type == "allergy") {
+            $reaction = "";
+            if (!empty($row['reaction'])) {
+                $reaction = getListItemTitle("reaction", $row['reaction']);
+                $row['reactionTitle'] = $reaction;
+            }
+            if (!empty($row['severity_al'])) {
+                $severity = getListItemTitle("severity_ccda", $row['severity_al']);
+                // Collapse the SNOMED-CT 272141005 List to 3 groups
+                // Not great to hard code this here, this should be abstracted
+                // to a better place to handle more comprehensive, centralized class
+                // @todo Find a better home for this
+                if (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) {
+                    $row['critical'] = true;
+                }
+                $row['severity'] = $severity;
+            }
+        }
+
+        $list[] = $row;
+    }
+
+    return $list;
+}
+
+function getPrescriptions($pid)
+{
+    $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
+    $res = sqlStatement($sql, [$pid]);
+    $rx = [];
+    while ($row = sqlFetchArray($res)) {
+        $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+        $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+        $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+        $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
+
+        $rx[] = $row;
+    }
+    return $rx;
 }
 ?>
 
@@ -31,452 +116,266 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     }
 </script>
 
-<div id="patient_stats_summary">
-
-<table id="patient_stats_issues">
-
 <?php
-$numcols = '1';
 $erx_upload_complete = 0;
 $old_key = "";
 $display_current_medications_below = 1;
 
+// Process Medical Problems, Allergies, and Medications
 foreach ($ISSUE_TYPES as $key => $arr) {
-  // Skip if user has no access to this issue type.
+    // Skip if user has no access to this issue type.
     if (!AclMain::aclCheckIssue($key)) {
         continue;
     }
 
-
-    $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
-    $query .= dateEmptySql('enddate');
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key == 'medication') {
-        $query .= "and erx_uploaded != '1' ";
-    }
-
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key == 'allergy') {
-        $query .= "and erx_uploaded != '1' ";
-    }
-
-    $query .= "ORDER BY begdate";
-    $pres = sqlStatement($query, array($pid, $key));
     if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
-        $display_current_medications_below = 0;
-        ?>
-    <div>
-        <table id="patient_stats_prescriptions">
-        <?php
+        $display_current_medications_below = 1;
+
         if ($GLOBALS['erx_enable']) {
-            ?>
-        <tr><td>
-            <?php
-            if ($_POST['embeddedScreen']) {
-                $widgetTitle = xl('Current Medications');
-                $widgetLabel = "current_prescriptions";
-                $widgetButtonLabel = '';
-                $widgetButtonLink = '';
-                $widgetAuth = false;
-                $widgetButtonClass = '';
-                $bodyClass = "summary_item small";
-                $fixedWidth = false;
-                expand_collapse_widget(
-                    $widgetTitle,
-                    $widgetLabel,
-                    $widgetButtonLabel,
-                    $widgetButtonLink,
-                    $widgetButtonClass,
-                    $linkMethod,
-                    $bodyClass,
-                    $widgetAuth,
-                    $fixedWidth
-                );
+            $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
+            $list = [];
+            while ($row = sqlFetchArray($res)) {
+                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
+                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
+                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
+                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                $unit = ($row['size'] > 0) ? text($row['size']) . " " . $row['unit'] : "";
+                $row['unit'] = $unit;
+                $rxArr[] = $row;
             }
 
-            $res = sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
-            ?>
-        <table>
-            <?php
-            if (sqlNumRows($res) == 0) {
-                ?>
-  <tr class="text">
-<td><?php echo xlt('None{{Prescriptions}}'); ?></td>
-  </tr>
-                <?php
-            }
+            $id = "current_prescriptions";
+            $viewArgs = [
+                'title' => 'Current Medications',
+                'id' => $id,
+                'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                'auth' => false,
+                'rxList' => $rxArr,
+            ];
 
-            while ($row_currentMed = sqlFetchArray($res)) {
-                $runit = generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row_currentMed['unit']);
-                $rin = generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row_currentMed['form']);
-                $rroute = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row_currentMed['route']);
-                $rint = generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row_currentMed['interval']);
-                ?>
-  <tr class=text >
-<td><?php echo text($row_currentMed['drug']);?></td>
-<td><?php
-        $unit = '';
-if ($row_currentMed['size'] > 0) {
-    $unit = text($row_currentMed['size']) . " " . $runit . " ";
-}
+            echo $t->render('patient/card/erx.html.twig', $viewArgs);
 
-        echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint;
-?></td>
-  </tr>
-                <?php
-            } // end while
-            ?>
-        </table>
-        </td></tr>
-            <?php
-        } // end erx_enable
-        $old_key = '';
+            $old_key = '';
+        }
     }
 
-    if (sqlNumRows($pres) > 0 || $arr[4] == 1) {
+    $issues = getListData($pid, $key);
+
+    //
+    if (count($issues) > 0 || $arr[4] == 1) {
         $old_key = $key;
-        if ($_POST['embeddedScreen']) {
-            if ($GLOBALS['erx_enable'] && $key == "medication") {
-                $query_uploaded = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
-                $query_uploaded .= dateEmptySql('enddate');
-                $query_uploaded .= "and erx_uploaded != '1' ";
-                $query_uploaded .= "ORDER BY begdate";
-                $res_uploaded = sqlStatement($query_uploaded, array($pid));
-                if (sqlNumRows($res_uploaded) == 0) {
-                    $erx_upload_complete = 1;
-                    continue;
-                }
-            }
-
-            echo "<tr><td>";
-            // Issues expand collapse widget
-            $widgetTitle = $arr[0];
-            $widgetLabel = $key;
-            if (($key == "allergy" || $key == "medication") && $GLOBALS['erx_enable']) {
-                $widgetButtonLabel = xl("Add");
-                $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/eRx.php?page=medentry\")";
-            } else {
-                $widgetButtonLabel = xl("Edit");
-                $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=" . attr_url($key) . "\")";
-            }
-
-            $widgetButtonClass = "";
-            $linkMethod = "javascript";
-            $bodyClass = "summary_item small";
-            $widgetAuth = AclMain::aclCheckIssue($key, '', array('write', 'addonly'));
-            $fixedWidth = false;
-            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-        } else { // end embeddedScreen
-            ?>
-            <tr class='issuetitle'>
-            <td colspan='$numcols'>
-            <span class="text font-weight-bold"><?php echo text($arr[0]); ?></span>
-            <a href="javascript:;" class="small font-weight-bold" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=" . urlencode($key)); ?>)">(<?php echo xlt('Manage'); ?>)</a>
-            </td>
-            </tr>
-            <?php
-        }
-
-        echo "<table>";
-        if (sqlNumRows($pres) == 0) {
-            if (getListTouch($pid, $key)) {
-                // Data entry has happened to this type, so can display an explicit None.
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None{{Issues}}') . "</td></tr>\n";
-            } else {
-                // Data entry has not happened to this type, so show 'Nothing Recorded"
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('Nothing Recorded') . "</td></tr>\n";
+        if ($GLOBALS['erx_enable'] && $key = "medication") {
+            $sqlUploadedArr = [
+                "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
+                dateEmptySql('enddate'),
+                "AND erx_uploaded != '1' ORDER BY begdate",
+            ];
+            $sqlUploaded = implode(" ", $sqlUploadedArr);
+            $resUploaded = sqlStatement($sqlUploaded, [$pid]);
+            if (sqlNumRows($resUploaded) == 0) {
+                $erx_upload_complete = 1;
+                continue;
             }
         }
 
-        while ($row = sqlFetchArray($pres)) {
-            // output each issue for the $ISSUE_TYPE
-            if (!$row['enddate'] && !$row['returndate']) {
-                $rowclass = "noend_noreturn";
-            } elseif (!$row['enddate'] && $row['returndate']) {
-                $rowclass = "noend";
-            } elseif ($row['enddate'] && !$row['returndate']) {
-                $rowclass = "noreturn";
-            }
+        $listData = getListData($pid, $key);
+        $id = $key . "_ps_expand";
+        $viewArgs = [
+            'title' => $arr[0],
+            'id' => $id,
+            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+            'linkMethod' => "javascript",
+            'list' => $listData,
+            'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
+        ];
 
-            echo " <tr class='text $rowclass;'>\n";
+        $btnLinkBase = "return load_location('{$GLOBALS['webroot']}/interface/__page__')";
+        if (in_array($key, ["allergy", "medication"]) && $GLOBALS["erx_enable"]) {
+            $viewArgs['btnLabel'] = "Add";
+            $btnLinkPage = "eRx.php?page=medentry";
+        } else {
+            $viewArgs['btnLabel'] = "Edit";
+            $btnLinkPage = "patient_file/summary/stats_full.php?active=all&category=" . attr_url($key);
+        }
+        $viewArgs['btnLink'] = str_replace("__page__", $btnLinkPage, $btnLinkBase);
 
-            //turn allergies red and bold and show the reaction (if exist)
-            if ($key == "allergy") {
-                $reaction = "";
-                if (!empty($row['reaction'])) {
-                    $reaction = " (" . getListItemTitle("reaction", $row['reaction']) . ")";
-                }
-
-                echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";
-            } else {
-                echo "  <td colspan='" . attr($numcols) . "'>&nbsp;&nbsp;" . text($row['title']) . "</td>\n";
-            }
-
-            echo " </tr>\n";
+        if (count($listData) == 0) {
+            $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
         }
 
-        echo "</table>";
-        if ($_POST['embeddedScreen']) {
-            echo "</div></td></tr>";
-        }
+        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
     }
 }
-?>
-</table> <!-- end patient_stats_issues -->
 
-<table id="patient_stats_spreadsheets">
-<?php
-
-// Show spreadsheet forms if any are present.
-//
-$need_head = true;
-foreach (array('treatment_protocols','injury_log') as $formname) {
-    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_" . $formname))) > 0) {
-        $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
-                            "form_" . add_escape_custom($formname) .
-                " AS tp WHERE forms.pid = ? AND " .
-                            "forms.formdir = ? AND tp.id = forms.form_id AND " .
-                            "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
-                            "ORDER BY tp.value DESC", array($pid, $formname));
+// Render Cards for 2 specific forms
+foreach(['treatment_protocols', 'injury_log'] as $formname) {
+    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", ["form_{$formname}"])) > 0) {
+        $formEscaped = add_escape_custom($formEscaped);
+        $sql = "SELECT tp.id, tp.value
+            FROM forms, form_{$formEscaped} AS tp
+            WHERE forms.pid = ?
+            AND forms.formdir = ?
+            AND tp.id = forms.form_id
+            AND tp.rownbr = -1
+            AND tp.colnbr = -1
+            AND tp.value LIKE '0%'
+            ORDER BY tp.value DESC";
+        $dres = sqlStatement($sql, [$pid, $formname]);
         if (sqlNumRows($dres) > 0 && $need_head) {
-            $need_head = false;
-            echo " <tr>\n";
-            echo "  <td colspan='" . attr($numcols) . "' valign='top'>\n";
-            echo "   <span class='title'>Injury Log</span>\n";
-            echo "  </td>\n";
-            echo " </tr>\n";
-        }
 
-        while ($row = sqlFetchArray($dres)) {
-            list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
-            echo " <tr>\n";
-            echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
-            echo "<a class='link' href='javascript:;' ";
-            echo "onclick='load_location(\"../../forms/" . attr($formname) . "/new.php?popup=1&id=";
-            echo attr_url($row['id']) . "\")'>" .
-            text($start_date) . " " .
-            text($template_name) . "</a></td>\n";
-            echo " </tr>\n";
+            $formRows = [];
+            while ($row = sqlFetchArray($dres)) {
+                list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
+                $formRows['startDate'] = $start_date;
+                $formRws['templateName'] = $template_name;
+                $formRows['id'] = $row['id'];
+            }
+
+            $id = "injury_log";
+            echo $t->render('patient/card/tp_il.html.twig', [
+                'title' => "Injury Log",
+                'id' => $id,
+                'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                'formName' => $formname,
+                'formRows' => $formRows,
+            ]);
         }
     }
 }
-?>
-</table> <!-- end patient_stats_spreadsheets -->
 
-<?php if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) { ?>
-<div>
-<table id="patient_stats_imm">
-<tr>
-    <?php if ($_POST['embeddedScreen']) {
-        echo "<td>";
-        // Issues expand collapse widget
-        $widgetTitle = xl('Immunizations');
-        $widgetLabel = "immunizations";
-        $widgetButtonLabel = xl("Edit");
-        $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
-        $widgetButtonClass = "";
-        $linkMethod = "javascript";
-        $bodyClass = "summary_item small";
-        $widgetAuth = true;
-        $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-    } else { ?>
-<td colspan='<?php echo $numcols ?>' valign='top'>
-<span class="text font-weight-bold"><?php echo xlt('Immunizations'); ?></span>
-<a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
-    (<b><?php echo xlt('Manage'); ?></b>)
-</a>
-</td></tr>
-<tr><td>
-    <?php } ?>
+// Render the Immunizations card if turned on
+if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
 
-    <?php
-    $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, " .
-         " if (i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short), IF(i1.note,substring(i1.note,1,20),c.code_text_short)) as immunization_data " .
-         " from immunizations i1 " .
-         " left join code_types ct on ct.ct_key = 'CVX' " .
-         " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code " .
-         " where i1.patient_id = ? " .
-         " and i1.added_erroneously = 0" .
-         " order by i1.administered_date desc";
+    $sql = "SELECT i1.id AS id, i1.immunization_id AS immunization_id, i1.cvx_code AS cvx_code, c.code_text_short AS cvx_text,
+                IF(i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short),
+                IF(i1.note,substring(i1.note,1,20),c.code_text_short)) AS immunization_data
+            FROM immunizations i1
+            LEFT JOIN code_types ct ON ct.ct_key = 'CVX'
+            LEFT JOIN codes c ON c.code_type = ct.ct_id AND i1.cvx_code = c.code
+            WHERE i1.patient_id = ?
+                AND i1.added_erroneously = 0
+            ORDER BY i1.administered_date DESC";
+    $result = sqlStatement($sql, [$pid]);
 
-    $result = sqlStatement($sql, array($pid));
-
-    if (sqlNumRows($result) == 0) {
-        echo " <table><tr>\n";
-        echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None{{Immunizations}}') . "</td>\n";
-        echo " </tr></table>\n";
-    }
-
+    $imxList = [];
     while ($row = sqlFetchArray($result)) {
-        echo "&nbsp;&nbsp;";
-        echo "<a class='link'";
-        echo " href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
-        text($row['immunization_data']);
+        $row['immunization_data'] = text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            echo generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+            $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
-                echo htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
+                $row['field'] = htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
-                echo generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
+                $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
             }
         }
 
-        echo "</a><br />\n";
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken()));
+        $row['name'] = $name;
+        $imxList[] = $row;
     }
-    ?>
+    $id = "immunizations_ps_expand";
+    echo $t->render('patient/card/immunizations.html.twig', [
+        'title' => 'Immunizations',
+        'id' => $id,
+        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+        'btnLabel' => 'Edit',
+        'btnLink' => 'immunizations.php',
+        'linkMethod' => 'html',
+        'imx' => $imxList,
+    ]);
 
-    <?php if ($_POST['embeddedScreen']) {
-        echo "</td></tr></div>";
-    } ?>
+endif; // End immunizations
 
-</td>
-</tr>
-</table> <!-- end patient_stats_imm-->
-</div>
-<?php } ?>
+// Render the Prescriptions card if turned on
+if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
+    if (!$GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
+        $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
+        $res = sqlStatement($sql, [$pid]);
 
-<?php if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) { ?>
-<div>
-<table id="patient_stats_prescriptions">
-    <?php if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) { ?>
-<tr><td>
-        <?php if ($_POST['embeddedScreen']) {
-            $widgetTitle = '';
-            $widgetTitle = xl('Current Medications');
-            $widgetLabel = "current_prescriptions";
-            $widgetButtonLabel = '';
-            $widgetButtonLink = '';
-            $widgetAuth = false;
-            $widgetButtonClass = '';
-            $bodyClass = "summary_item small";
-            $fixedWidth = false;
-            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        $rxArr = [];
+        while ($row = sqlFetchArray($res)) {
+            $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
+            $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
+            $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
+            $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+            $rxArr[] = $row;
         }
-        ?>
+        $id = "current_prescriptions_ps_expand";
+        $viewArgs = [
+            'title' => 'Current Medications',
+            'id' => $id,
+            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+            'auth' => false,
+            'rxList' => $rxArr,
+        ];
 
-        <?php
-        $res = sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
-        ?>
-<table>
-        <?php
-        if (sqlNumRows($res) == 0) {
-            ?>
-    <tr class="text">
-        <td><?php echo xlt('None{{Prescriptions}}');?></td>
-    </tr>
-            <?php
-        }
+        echo $t->render('patient/card/erx.html.twig', $viewArgs);
+    }
 
-        while ($row_currentMed = sqlFetchArray($res)) {
-            $runit = generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row_currentMed['unit']);
-            $rin = generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row_currentMed['form']);
-            $rroute = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row_currentMed['route']);
-            $rint = generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row_currentMed['interval']);
-            ?>
-    <tr class="text">
-        <td><?php echo text($row_currentMed['drug']); ?></td>
-        <td><?php $unit = '';
-        if ($row_currentMed['size'] > 0) {
-            $unit = text($row_currentMed['size']) . " " . $runit . " ";
-        }
+    $id = "prescriptions_ps_expand";
+    $viewArgs = [
+        'title' => "Prescriptions",
+        'id' => $id,
+        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+        'linkMethod' => "html",
+        'btnLabel' => "Edit",
+        'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
+    ];
 
-        echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint; ?></td>
-    </tr>
-            <?php
-        }
-        ?>
-</table>
-</td></tr>
-    <?php } ?>
-<tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
+    if ($GLOBALS['erx_enable']) {
+        $viewArgs['title'] = 'Prescription History';
+        $viewArgs['btnLabel'] = 'Add/Edit eRx';
+        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+    } else {
+        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+        $viewArgs['linkMethod'] = "javascript";
+        $viewArgs['btnClass'] = "iframe rx_modal";
+    }
 
-    <?php if ($_POST['embeddedScreen']) {
-        // Issues expand collapse widget
-        $widgetLabel = "prescriptions";
-        $linkMethod = "html";
-        if ($GLOBALS['erx_enable']) {
-            $widgetTitle = xl('Prescription History');
-            $widgetButtonLabel = xl("Add/Edit eRx");
-            $widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
-            $widgetButtonClass = "";
-        } else {
-            $linkMethod = "javascript";
-            $widgetTitle = xl('Prescription');
-            $widgetButtonLabel = xl("Edit");
-            $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr_url($pid);
-            $widgetButtonLink = 'editScripts("' . $oeLink . '")';
-
-            $widgetButtonClass = "iframe rx_modal";
-        }
-
-        $bodyClass = "summary_item small";
-        $widgetAuth = AclMain::aclCheckCore('patients', 'rx', '', array('write','addonly'));
-        $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-        if ($GLOBALS['weno_rx_enable']) {
-            echo "<button onclick='getWeno()'>" . xlt('eRx') . "</button>";
-        }
-    } else { ?>
-    <span class='text font-weight-bold'><?php echo xlt('Prescriptions'); ?></span>
-    </td></tr>
-    </tr><td>
-    <?php } ?>
-
-    <?php
     $cwd = getcwd();
     chdir("../../../");
     $c = new Controller();
-    echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid));
-    ?>
+    // This is a hacky way to get a Smarty template from the controller and injecting it into
+    // a Twig template. This reduces the amount of refactoring that is required but ideally the
+    // Smarty template should be upgraded to Twig
+    ob_start();
+    echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
+    $viewArgs['content'] = ob_get_contents();
+    ob_end_clean();
 
-    <?php if ($_POST['embeddedScreen']) {
-        echo "</div>";
-    } ?>
+    echo $t->render('patient/card/rx.html.twig', $viewArgs);
+endif;
 
-</td></tr>
-
-<?php }
-
+// Render Old Medications card
 if ($erx_upload_complete == 1) {
-    echo "<tr><td>";
-    // Old Medication Widget
-    $widgetTitle = "Old Medication";
-    $widgetLabel = "old_medication";
-    $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")";
-    $widgetButtonClass = "";
-    $linkMethod = "javascript";
-    $bodyClass = "summary_item small";
-    $widgetAuth = true;
-    $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-    $query_uploaded_old = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
-    $query_uploaded_old .= dateEmptySql('enddate');
-    $query_uploaded_old .= "ORDER BY begdate";
-    $res_uploaded_old = sqlStatement($query_uploaded_old, array($pid));
-    echo "<table>";
-    while ($row = sqlFetchArray($res_uploaded_old)) {
-    // output each issue for the $ISSUE_TYPE
-        if (!$row['enddate'] && !$row['returndate']) {
-            $rowclass = "noend_noreturn";
-        } elseif (!$row['enddate'] && $row['returndate']) {
-            $rowclass = "noend";
-        } elseif ($row['enddate'] && !$row['returndate']) {
-            $rowclass = "noreturn";
-        }
 
-        echo " <tr class='text $rowclass;'>\n";
-        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . text($row['title']) . "</td>\n";
-        echo " </tr>\n";
+    $sql = [
+        "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
+        dateEmptySql('enddate'),
+        "ORDER BY begdate"
+    ];
+    $res = sqlStatement(implode(" ", $sql), [$pid]);
+
+    $rxList = [];
+    while ($row = sqlFetchArray($res)) {
+        $rxList[] = $row;
     }
 
-    echo "</table>";
-    echo "</div></td></tr>";
-}
+    $id = "old_medication_ps_expand";
+    $viewArgs = [
+        'title' => 'Old Medication',
+        'label' => $id,
+        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+        'btnLabel' => 'Edit',
+        'btnLink' => "return load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'linkMethod' => 'javascript',
+        'auth' => true,
+        'list' => $rxList,
+    ];
 
+    echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+}
 ?>
-</table> <!-- end patient_stats_prescriptions -->
-</div>
-</div> <!-- end patient_stats_summary -->
