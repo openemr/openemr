@@ -26,6 +26,7 @@
  *      @OA\Flow(
  *          authorizationUrl="/oauth2/default/authorize",
  *          tokenUrl="/oauth2/default/token",
+ *          refreshUrl="/oauth2/default/token",
  *          flow="authorizationCode",
  *          scopes={
  *              "openid": "Generic mandatory scope",
@@ -158,7 +159,7 @@
  *  )
  *  @OA\Response(
  *      response="standard",
- *      description="Standard response",
+ *      description="Standard Response",
  *      @OA\MediaType(
  *          mediaType="application/json",
  *          @OA\Schema(
@@ -195,6 +196,26 @@
  *      )
  *  )
  *  @OA\Response(
+ *      response="badrequest",
+ *      description="Bad Request",
+ *      @OA\MediaType(
+ *          mediaType="application/json",
+ *          @OA\Schema(
+ *              @OA\Property(
+ *                  property="validationErrors",
+ *                  description="Validation errors.",
+ *                  type="object"
+ *              ),
+ *              example={
+ *                  "validationErrors":
+ *                  {
+ *                      "_id": "The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string"
+ *                  }
+ *              }
+ *          )
+ *      )
+ *  )
+ *  @OA\Response(
  *      response="unauthorized",
  *      description="Unauthorized",
  *      @OA\MediaType(
@@ -223,9 +244,24 @@
  *              example={
  *                  "error": "access_denied",
  *                  "error_description": "The resource owner or authorization server denied the request.",
- *                  "hint": "Missing 'Authorization' header",
+ *                  "hint": "Missing ""Authorization"" header",
  *                  "message": "The resource owner or authorization server denied the request."
  *              }
+ *          )
+ *      )
+ *  )
+ *  @OA\Response(
+ *      response="uuidnotfound",
+ *      description="Not Found",
+ *      @OA\MediaType(
+ *          mediaType="application/json",
+ *          @OA\Schema(
+ *              @OA\Property(
+ *                  property="empty",
+ *                  description="empty",
+ *                  type="object"
+ *              ),
+ *              example={}
  *          )
  *      )
  *  )
@@ -442,6 +478,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -472,6 +512,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -620,6 +664,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -779,6 +827,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -936,6 +988,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -1405,6 +1461,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -1912,6 +1972,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2041,6 +2105,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2099,6 +2167,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2139,6 +2211,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -2191,6 +2267,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2239,6 +2319,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -2322,6 +2406,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2378,6 +2466,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -2666,6 +2758,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -2696,6 +2792,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3455,6 +3555,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3487,6 +3591,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3517,6 +3625,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3558,6 +3670,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3633,6 +3749,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3682,6 +3802,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3722,6 +3846,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3801,6 +3929,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3833,6 +3965,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -3863,6 +3999,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3904,6 +4044,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -3978,6 +4122,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4027,6 +4175,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4069,6 +4221,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4099,6 +4255,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4173,6 +4333,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4222,6 +4386,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4262,6 +4430,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4305,6 +4477,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4335,6 +4511,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4378,6 +4558,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4417,6 +4601,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4492,6 +4680,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4541,6 +4733,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4572,6 +4768,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4615,6 +4815,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4654,6 +4858,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4728,6 +4936,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4777,6 +4989,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4808,6 +5024,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4907,6 +5127,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -4929,6 +5153,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -4961,6 +5189,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5004,6 +5236,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5045,6 +5281,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5077,6 +5317,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5098,6 +5342,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5122,6 +5370,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5142,6 +5394,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5175,6 +5431,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5195,6 +5455,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5314,6 +5578,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5353,6 +5621,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5371,6 +5643,15 @@ RestConfig::$ROUTE_MAP = array(
      *      path="/api/patient/{pid}/document",
      *      description="Submits a new patient document",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Parameter(
      *          name="path",
      *          in="query",
@@ -5397,6 +5678,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5439,6 +5724,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5479,6 +5768,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5508,6 +5801,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5548,6 +5845,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5769,6 +6070,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5815,6 +6120,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -5902,6 +6211,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5952,6 +6265,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -5992,6 +6309,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6269,6 +6590,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -6301,6 +6626,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -6322,6 +6651,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6356,6 +6689,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -6377,6 +6714,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6411,6 +6752,10 @@ RestConfig::$ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -6432,6 +6777,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6464,6 +6813,10 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6537,7 +6890,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/AllergyIntolerance"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6578,8 +6959,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -6630,7 +7019,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/CarePlan"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6671,8 +7088,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -6723,7 +7148,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/CareTeam"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6764,8 +7217,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -6807,7 +7268,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Condition"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6848,8 +7337,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -6900,7 +7397,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Coverage"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -6935,8 +7460,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -6973,7 +7506,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Device"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7013,8 +7574,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7083,7 +7652,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/DiagnosticReport"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7124,8 +7721,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7195,7 +7800,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/DocumentReference"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7236,8 +7869,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7260,9 +7901,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      path="/fhir/Document/{id}/Binary",
      *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
      *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The id for the Document.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7319,7 +7973,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Encounter"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7360,8 +8042,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7403,7 +8093,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Goal"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7444,8 +8162,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7487,7 +8213,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Group"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7528,8 +8282,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7554,6 +8316,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7605,7 +8371,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Immunization"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7646,8 +8440,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7680,7 +8482,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Location"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7714,8 +8544,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7733,7 +8571,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Medication"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7768,8 +8634,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7824,7 +8698,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/MedicationRequest"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7865,8 +8767,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -7935,7 +8845,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Observation"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -7976,8 +8914,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -8082,7 +9028,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Organization"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8119,8 +9093,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -8156,6 +9138,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8201,6 +9187,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -8233,6 +9223,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8276,6 +9270,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8425,7 +9423,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Patient"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8458,6 +9484,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8502,8 +9532,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -8629,7 +9667,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Person"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8664,8 +9730,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -8792,7 +9866,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Practitioner"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8835,8 +9937,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -8873,6 +9983,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8918,6 +10032,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -8957,7 +10075,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/PractitionerRole"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -8992,8 +10138,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -9039,7 +10193,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Procedure"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -9079,8 +10261,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -9116,8 +10306,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
@@ -9150,7 +10348,35 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Provenance"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -9223,6 +10449,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -9259,6 +10489,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -9287,6 +10521,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
@@ -9347,6 +10585,10 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      *          ref="#/components/responses/standard"
      *      ),
      *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
@@ -9376,6 +10618,10 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
      *      ),
      *      @OA\Response(
      *          response="401",
