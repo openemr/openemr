@@ -26,4 +26,6 @@ class AppointmentAddEvent extends Event
     const ACTION_RENDER_CANCEL_BUTTON = 'add.edit.render.cancel';
 
     const ACTION_RENDER_CANCEL_JAVASCRIPT = 'render.cancel.javascript';
+
+    const ACTION_RENDER_URI = 'start.telehealth.session';
 }

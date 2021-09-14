@@ -21,6 +21,7 @@
  * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * Copyright (C) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,6 +53,9 @@ require_once($GLOBALS['srcdir'] . '/group.inc');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Appointments\AppointmentAddEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
@@ -1090,9 +1094,8 @@ function sel_patient() {
 // This invokes the cancellation popup.
 <?php
 if (stristr($row['pc_title'], 'telehealth') && ismoduleactive() >= 1) {
-    $sendid = new AppointmentAddEvent();
-    $sendid->setEventid($eid);
     $eventDispatcher->dispatch(AppointmentAddEvent::ACTION_RENDER_CANCEL_JAVASCRIPT, new GenericEvent());
+    $eventDispatcher->dispatch(AppointmentAddEvent::ACTION_RENDER_URI, new GenericEvent());
 }
 ?>
 

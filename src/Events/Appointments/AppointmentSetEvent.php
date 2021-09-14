@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @subpackage Appointments
  *
  */
-class AppoinmentSetEvent extends Event
+class AppointmentSetEvent extends Event
 {
     /**
      * This event is triggered after a new patient appointment has been scheduled
