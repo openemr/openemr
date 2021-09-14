@@ -35,7 +35,21 @@ class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
                 function ($assets = array()) {
                     return Header::setupHeader($assets);
                 }
-            )
+            ),
+
+            new \Twig\TwigFunction(
+                'generateFormField',
+                function ($frow, $currentValue) {
+                    // generate_form_field() echo's the form, here we capture the echo into
+                    // the output buffer, assign it to a variable and return the variable
+                    // this allows twig templates to call generate_form_field().
+                    ob_start();
+                    generate_form_field($frow, $currentValue);
+                    $the_form = ob_get_contents();
+                    ob_end_clean();
+                    return $the_form;
+                }
+            ),
         ];
     }
 
