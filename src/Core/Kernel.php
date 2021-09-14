@@ -57,10 +57,11 @@ class Kernel
 
     /**
      * Return true if the environment variable OPENEMR__ENVIRONMENT is set to dev.
-     * 
+     *
      * @return bool
      */
-    public function isDev() {
+    public function isDev()
+    {
         return ($_ENV['OPENEMR__ENVIRONMENT'] === 'dev') ? true : false;
     }
 

@@ -58,7 +58,7 @@ class TwigContainer
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $twigEnv->addExtension(new TwigExtension());
 
-        if($this->kernel && $this->kernel->isDev()) {
+        if ($this->kernel && $this->kernel->isDev()) {
             $twigEnv->addExtension(new DebugExtension());
             $twigEnv->enableDebug();
         }
