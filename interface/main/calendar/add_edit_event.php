@@ -741,7 +741,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new multi appointment has been set
         $patientAppointmentSetEvent = new AppoinmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $e2f;  //setting the appointment id to an object
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppoinmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->getEventDispatcher()->dispatch(AppoinmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
     } else {
         /* =======================================================
      *                    INSERT NEW EVENT(S)
@@ -751,7 +751,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new single appointment has been set
         $patientAppointmentSetEvent = new AppoinmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $eid;  //setting the appointment id to an object
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppoinmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->getEventDispatcher()->dispatch(AppoinmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
     }
 
         // done with EVENT insert/update statements
