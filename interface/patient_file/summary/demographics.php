@@ -40,7 +40,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Common\Twig\TwigContainer;
 
-$twig = new TwigContainer();
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
@@ -849,7 +849,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
-        $menuPatient = new PatientMenuRole();
+        $menuPatient = new PatientMenuRole($twig);
         $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
@@ -1271,6 +1271,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $colorSet3 = $GLOBALS['appt_display_sets_color_3'];
                         $colorSet4 = $GLOBALS['appt_display_sets_color_4'];
                         $extraAppts = ($mode1) ? 1 : 6;
+                        $extraApptDate = '';
+
+                        $past_appts = [];
+                        $recallArr = [];
 
                         $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + $extraAppts, true);
 
@@ -1393,6 +1397,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if ($resNotNull) {
                             // Show Recall if one exists
                             $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", [$pid]);
+                            $recallArr = [];
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
@@ -1463,7 +1468,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $pres = sqlStatement($query, array($pid));
 
                         $count = 0;
-                        $past_appts = [];
+
                         while ($row = sqlFetchArray($pres)) {
                             $count++;
                             $dayname = date("D", strtotime($row['pc_eventDate']));

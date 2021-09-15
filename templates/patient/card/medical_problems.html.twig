@@ -6,7 +6,7 @@
 {% if list|length == 0 %}
     {% if listTouched == true %}
         <div class="list-group-item p-0 pl-1">
-            {% if id == "allergy" %}
+            {% if id == "allergy_ps_expand" %}
                 {{ "No Known Allergies"|xlt }}
             {% else %}
                 {{ "None{{Issues}}"|xlt }}
@@ -26,11 +26,11 @@
             <div class="d-flex w-100 justify-content-between">
                 <div class="flex-fill">
                     {{ l.title|text }}
-                    {% if id == "allergy" %}
+                    {% if id == "allergy_ps_expand" %}
                         <small class="d-block">{{ l.reactionTitle|text }}</small>
                     {% endif %}
                 </div>
-                {% if id == "allergy" %}
+                {% if id == "allergy_ps_expand" %}
                     <div class="flex-fill text-right">{{ l.severity|text }}</div>
                 {% endif %}
             </div>

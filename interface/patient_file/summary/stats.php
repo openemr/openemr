@@ -17,7 +17,7 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/sql.inc");
 
-$twigContainer = new TwigContainer();
+$twigContainer = new TwigContainer(null, $kernel);
 $t = $twigContainer->getTwig();
 
 use OpenEMR\Common\Acl\AclMain;
@@ -269,7 +269,6 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         }
 
         $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken()));
-        $row['name'] = $name;
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";

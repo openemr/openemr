@@ -5,19 +5,10 @@
 {% if rxList|length > 0 %}
 
     {% for rx in rxList %}
-
-        {% if rx.size > 0 %}
-            {% set unit = " (" ~ rx.size|text ~ " " ~ rx.unit ~ ") " %}
-        {% else %}
-            {% set unit = " " %}
-        {% endif %}
-
-
         <div class="list-group-item w-100 p-1 pt-0">
             {{ rx.drug|text }}<br>
-            <span class="text-muted">{{ rx.dosage|text }} {{ rx.form|text }}{{ unit|text }}{{ rx.route|text }} {{ rx.interval|text }}</span>
+            <span class="text-muted">{{ rx.dosage|text }} {{ rx.form }}{{ rx.unit }}{{ rx.route }} {{ rx.interval }}</span>
         </div>
-
     {% endfor %}
 {% else %}
     <div class="list-group-item w-100 p-1 pt-0">
