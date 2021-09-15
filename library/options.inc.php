@@ -53,10 +53,8 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Common\Twig\TwigContainer;
 
 $facilityService = new FacilityService();
-$twig = new TwigContainer('options');
 
 $date_init = "";
 $membership_group_number = 0;

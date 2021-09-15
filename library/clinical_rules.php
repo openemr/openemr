@@ -70,7 +70,6 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
     $current_targets = array();
     echo "<div class=\"list-group list-group-flush\">";
     foreach ($actions as $action) {
-        echo "<div class=\"list-group-item p-1 d-flex w-100 justify-content-between\">";
         // Deal with plan names first
         if (isset($action['is_plan']) && $action['is_plan']) {
             echo "<br /><b>";
@@ -79,6 +78,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo "</b><br />";
             continue;
         }
+
+        echo "<div class=\"list-group-item p-1 d-flex w-100 justify-content-between\">";
 
         // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         $tooltip = '';
