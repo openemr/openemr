@@ -3,8 +3,8 @@
 {% block content %}
 {% for a in appt %}
     <a href="#" onclick="return oldEvt({{ a.jsEvent }})" title="{{ a.petitle|attr }}">
-        {{ a.dayname|xl|text }} {{ a.pc_eventDate|shortDate }} {{ "Status"|xlt }}
-        ({{ a.category }})
+        {{ a.dayname|xlt }} {{ a.pc_eventDate|shortDate|text }} {{ "Status"|xlt }}
+        ({{ a.category|text }})
     </a>
         echo text("$disphour:$dispmin ") . xlt($displayMeridiem) . " ";
         echo text($row['fname'] . " " . $row['lname']) . "</a><br />\n";

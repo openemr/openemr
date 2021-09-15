@@ -23,7 +23,7 @@
         </div>
         <div class="m-0 d-flex w-100 justify-content-between text-muted">
             <span>{{ a.uname|text }}</span>
-            <span>{{ a.pc_statu|text }}
+            <span>{{ a.pc_status|text }}
                 {% if a.pc_catid in therapyGroupCategories %}
                 {{ "Group name"|xlt }}: {{ a.groupName|text }}
                 {% endif %}
@@ -43,14 +43,14 @@
 {% macro sectionHeader(title, iconClasses) %}
     <div class="list-group-item pl-0 pb-1 border-bottom-0">
         <div class="text-dark font-weight-bolder">
-            <i class="fa fa-fw {{ iconClasses }}"></i>&nbsp;{{ title }}
+            <i class="fa fa-fw {{ iconClasses }}"></i>&nbsp;{{ title|text }}
         </div>
     </div>
 {% endmacro %}
 
 {% macro noItems(text) %}
     <div class="list-group-item text-center">
-        {{ text }}
+        {{ text|text }}
     </div>
 {% endmacro %}
 
@@ -58,7 +58,7 @@
 <div class="list-group list-group-flush appts">
 
 {% if displayAppts %}
-    {{ _self.sectionHeader("Future Appointments", "fa-history fa-flip-horizontal")}}
+    {{ _self.sectionHeader("Future Appointments"|xl, "fa-history fa-flip-horizontal")}}
     {% if appts|length > 0 %}
         {% for a in appts %}
             {{ _self.appointmentDetail(a)}}
@@ -67,12 +67,12 @@
             {{ _self.additionalAppointment(extraApptDate) }}
         {% endif %}
     {% else %}
-        {{ _self.noItems("No Appointments"|xlt)}}
+        {{ _self.noItems("No Appointments"|xl)}}
     {% endif %}
 {% endif %}
 
 {% if displayRecurrAppts %}
-    {{ _self.sectionHeader("Recurring Appointments"|xlt, "fa-retweet")}}
+    {{ _self.sectionHeader("Recurring Appointments"|xl, "fa-retweet")}}
     {% if recurrAppts|length > 0 %}
         {% for r in recurrAppts %}
             <div class="list-group-item p-1">
@@ -81,18 +81,18 @@
             </div>
         {% endfor %}
     {% else %}
-        {{ _self.noItems("No Recurring Appointments{{Appointments}}"|xlt)}}
+        {{ _self.noItems("No Recurring Appointments{{Appointments}}"|xl)}}
     {% endif %}
 {% endif %}
 
 {% if displayPastAppts %}
-    {{ _self.sectionHeader("Past Appointments"|xlt, "fa-history")}}
+    {{ _self.sectionHeader("Past Appointments"|xl, "fa-history")}}
     {% if pastAppts|length > 0 %}
         {% for pa in pastAppts %}
             {{ _self.appointmentDetail(pa) }}
         {% endfor %}
     {% else %}
-        {{ _self.noItems("No Past Appointments{{Appointment}}"|xlt)}}
+        {{ _self.noItems("No Past Appointments{{Appointment}}"|xl)}}
     {% endif %}
 {% endif %}
 

@@ -10,22 +10,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Twig\TwigContainer;
-
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/sql.inc");
 
-$twigContainer = new TwigContainer(null, $kernel);
-$t = $twigContainer->getTwig();
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
+
+$twigContainer = new TwigContainer(null, $kernel);
+$t = $twigContainer->getTwig();
 
 /**
  * Return an array of list data for a given issue type and patient
@@ -279,13 +278,14 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         'btnLabel' => 'Edit',
         'btnLink' => 'immunizations.php',
         'linkMethod' => 'html',
+        'auth' => true,
         'imx' => $imxList,
     ]);
 endif; // End immunizations
 
 // Render the Prescriptions card if turned on
 if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
-    if (!$GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
+    if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
         $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
         $res = sqlStatement($sql, [$pid]);
 

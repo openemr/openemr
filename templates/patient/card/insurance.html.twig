@@ -15,7 +15,7 @@
 {% for c in ins %}
     <div class="tab-pane {{ loop.first ? "active" }}" id="{{ c.type|attr }}" role="tabpanel" aria-labelledby="{{ c.type|attr }}-tab">
         <div class="text-primary pb-2 pt-1">
-            {{ (c.idOld) ? "Old"|xlt ~ " " ~ c.type|capitalize : c.type|capitalize}} {{ "Insurance"|xlt }}
+            {{ (c.idOld) ? "Old"|xlt ~ " " ~ c.type|capitalize|text : c.type|capitalize|text }} {{ "Insurance"|xlt }}
             {% if c.dispFromDate == true %}{{ "from"|xlt}} {{ c.date|shortDate|text }} {% endif %}
             {{ "until"|xlt }} {{ "Present"|xlt }}
         </div>
@@ -24,7 +24,7 @@
                 {% if c.insco is defined %}
                     <em>{{ "Insurer"|xlt }}</em>
                     <address>
-                        <strong>{{ c.insco.name|text|text }}</strong><br>
+                        <strong>{{ c.insco.name|text }}</strong><br>
                         {{ c.insco.address.line1|text }}<br>
                         {{ (c.insco.address.line2 != "") ? c.insco.address.line2|text ~ "<br>"|raw }}
                         {{ c.insco.address.city|text }} {{ c.insco.address.state|text }}, {{ c.insco.address.postal|text }}
@@ -41,7 +41,7 @@
                 <address class="mb-1">
                     <strong>{{ c.subscriber_full_name|text }}{{ c.subscriber_relationship != "" ? " (" ~ c.subscriber_relationship|capitalize|text ~ ")" : "" }}</strong><br>
                     {{ c.subscriber_street|text }}<br>
-                    {{ c.subscriber_city|text }}{{ showState == true ? " " ~ c.subscriber_state|text : ""}}{{ showPostal == true ? ", " ~ c.subscriber_postal_code : "" }}
+                    {{ c.subscriber_city|text }}{{ showState == true ? " " ~ c.subscriber_state|text : ""}}{{ showPostal == true ? ", " ~ c.subscriber_postal_code|text : "" }}
                     {{ showCountry == true ? " " ~ c.subscriber_country|text : ""}}
                 </address>
                 {% if c.subscriber_ss != "" %}

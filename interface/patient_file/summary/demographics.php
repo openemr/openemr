@@ -31,6 +31,7 @@ use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
@@ -38,7 +39,6 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Reminder\BirthdayReminder;
-use OpenEMR\Common\Twig\TwigContainer;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -697,7 +697,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Update the User's visibility setting when the card header is clicked
         function cardTitleButtonClickListener() {
             const buttons = document.querySelectorAll(".card-title button[data-toggle='collapse']");
-            console.debug(buttons);
             buttons.forEach((b) => {
                 b.addEventListener("click", (e) => {
                     updateUserVisibilitySetting(e);
@@ -827,7 +826,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
-        echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xlt("Medical Dashboard")]);
+        echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
         exit();
     }
     ?>
@@ -915,9 +914,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         // Insurance
                         $insArr = [];
-                        $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(?) ORDER BY date DESC";
+                        $insInBinder = '?';
+                        for ($y = 1; count($insurance_array) > $y; $y++) {
+                            $insInBinder .= ',?';
+                        }
+                        $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(" . $insInBinder . ") ORDER BY date DESC";
                         $params[] = $pid;
-                        $params[] = implode(", ", $insurance_array);
+                        $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
                         while ($row = sqlFetchArray($res)) {
                             $insCount = ($row['provider']) ? $insCount++ : $insCount;
@@ -949,7 +952,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($_POST['status_update'] === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
-                                $ok = EDI270::requestEligibility($pid);
+                                $ok = EDI270::requestEligibleTransaction($pid);
                                 if ($ok === true) {
                                     ob_start();
                                     EDI270::showEligibilityInformation($pid, false);
