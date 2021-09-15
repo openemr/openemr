@@ -915,7 +915,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // Insurance
                         $insArr = [];
                         $insInBinder = '?';
-                        for ($y=1; count($insurance_array) > $y; $y++) {
+                        for ($y = 1; count($insurance_array) > $y; $y++) {
                             $insInBinder .= ',?';
                         }
                         $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(" . $insInBinder . ") ORDER BY date DESC";
