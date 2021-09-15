@@ -5,8 +5,8 @@
 {% if recallsAvailable %}
     {% for r in recalls %}
         <div class="d-flex w-100 list-group-item p-1 justify-content-between">
-            <a href="#" onclick="top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall')">{{ r.reason }}</a>
-            {{ r.date|shortDate }}
+            <a href="#" onclick="top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall')">{{ r.reason|text }}</a>
+            {{ r.date|shortDate|text }}
         </div>
     {% endfor %}
 {% else %}

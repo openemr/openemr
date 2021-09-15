@@ -20,7 +20,6 @@ require_once("$srcdir/sql.inc");
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
 
-use Laminas\Db\Metadata\Source\SqlServerMetadata;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -146,7 +145,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
             $id = "current_prescriptions";
             $viewArgs = [
-                'title' => 'Current Medications',
+                'title' => xl('Current Medications'),
                 'id' => $id,
                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                 'auth' => false,
@@ -181,7 +180,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $listData = getListData($pid, $key);
         $id = $key . "_ps_expand";
         $viewArgs = [
-            'title' => $arr[0],
+            'title' => xl($arr[0]),
             'id' => $id,
             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
             'linkMethod' => "javascript",
@@ -210,9 +209,8 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 // Render Cards for 2 specific forms
 foreach (['treatment_protocols', 'injury_log'] as $formname) {
     if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", ["form_{$formname}"])) > 0) {
-        $formEscaped = add_escape_custom($formEscaped);
         $sql = "SELECT tp.id, tp.value
-            FROM forms, form_{$formEscaped} AS tp
+            FROM forms, ? AS tp
             WHERE forms.pid = ?
             AND forms.formdir = ?
             AND tp.id = forms.form_id
@@ -220,7 +218,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
             AND tp.colnbr = -1
             AND tp.value LIKE '0%'
             ORDER BY tp.value DESC";
-        $dres = sqlStatement($sql, [$pid, $formname]);
+        $dres = sqlStatement($sql, ["form_{$formname}", $pid, $formname]);
         if (sqlNumRows($dres) > 0 && $need_head) {
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
@@ -232,7 +230,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
 
             $id = "injury_log";
             echo $t->render('patient/card/tp_il.html.twig', [
-                'title' => "Injury Log",
+                'title' => xl("Injury Log"),
                 'id' => $id,
                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                 'formName' => $formname,
@@ -276,7 +274,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
     }
     $id = "immunizations_ps_expand";
     echo $t->render('patient/card/immunizations.html.twig', [
-        'title' => 'Immunizations',
+        'title' => xl('Immunizations'),
         'id' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
         'btnLabel' => 'Edit',
@@ -302,7 +300,7 @@ if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx'
         }
         $id = "current_prescriptions_ps_expand";
         $viewArgs = [
-            'title' => 'Current Medications',
+            'title' => xl('Current Medications'),
             'id' => $id,
             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
             'auth' => false,
@@ -314,7 +312,7 @@ if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx'
 
     $id = "prescriptions_ps_expand";
     $viewArgs = [
-        'title' => "Prescriptions",
+        'title' => xl("Prescriptions"),
         'id' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
         'linkMethod' => "html",
@@ -362,7 +360,7 @@ if ($erx_upload_complete == 1) {
 
     $id = "old_medication_ps_expand";
     $viewArgs = [
-        'title' => 'Old Medication',
+        'title' => xl('Old Medication'),
         'label' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
         'btnLabel' => 'Edit',

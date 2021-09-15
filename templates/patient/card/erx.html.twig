@@ -14,8 +14,8 @@
 
 
         <div class="list-group-item w-100 p-1 pt-0">
-            {{ rx.drug }}<br>
-            <span class="text-muted">{{ rx.dosage }} {{ rx.form }}{{ unit }}{{ rx.route }} {{ rx.interval }}</span>
+            {{ rx.drug|text }}<br>
+            <span class="text-muted">{{ rx.dosage|text }} {{ rx.form|text }}{{ unit|text }}{{ rx.route|text }} {{ rx.interval|text }}</span>
         </div>
 
     {% endfor %}

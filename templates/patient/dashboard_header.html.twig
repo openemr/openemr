@@ -3,7 +3,7 @@
 {% if isDeceased %}
 <div class="card d-flex w-100 my-3 bg-info text-white p-2">
     <div class="card-body p-0 font-weight-bold">
-        {{ deceasedDays }}
+        {{ deceasedDays|text }}
     </div>
 </div>
 {% endif %}
@@ -35,7 +35,7 @@
                 {% set class = "btn-save" %}
                 {% set text = "Create Portal Credentials"|xlt %}
             {% endif %}
-            <a href="{{ portalLoginHref }}?patient={{ pid }}" class="btn btn-secondary btn-sm small_modal {{ class }}">{{ text }}</a>
+            <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-secondary btn-sm small_modal {{ class|attr }}">{{ text|text }}</a>
         {% endif %}
 
 

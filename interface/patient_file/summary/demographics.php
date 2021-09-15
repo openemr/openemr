@@ -827,7 +827,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
-        echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => "Medical Dashboard"]);
+        echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xlt("Medical Dashboard")]);
         exit();
     }
     ?>
@@ -869,7 +869,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $totalbalance = $patientbalance + $insurancebalance;
                         $id = "billing_ps_expand";
                         $viewArgs = [
-                            'title' => 'Billing',
+                            'title' => xl('Billing'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'hideBtn' => true,
@@ -899,7 +899,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (AclMain::aclCheckCore('patients', 'demo')) :
                         // Render the Demographics box
                         $viewArgs = [
-                            'title' => "Demographics",
+                            'title' => xl("Demographics"),
                             'id' => "demographics_ps_expand",
                             'btnText' => "Edit",
                             'btnLink' => "demographics_full.php",
@@ -973,7 +973,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         $id = "insurance_ps_expand";
                         $viewArgs = [
-                            'title' => "Insurance",
+                            'title' => xl("Insurance"),
                             'id' => $id,
                             'btnText' => "Edit",
                             'btnLink' => "demographics_full.php",
@@ -994,7 +994,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // Notes expand collapse widget
                         $id = "pnotes_ps_expand";
                         $viewArgs = [
-                            'title' => "Messages",
+                            'title' => xl("Messages"),
                             'id' => $id,
                             'btnLabel' => "Edit",
                             'btnLink' => "pnotes_full.php?form_active=1",
@@ -1010,7 +1010,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // patient reminders collapse widget
                         $id = "patient_reminders_ps_expand";
                         $viewArgs = [
-                            'title' => 'Patient Reminders',
+                            'title' => xl('Patient Reminders'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
@@ -1026,7 +1026,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // disclosures expand collapse widget
                         $id = "disclosures_ps_expand";
                         $viewArgs = [
-                            'title' => 'Disclosures',
+                            'title' => xl('Disclosures'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
@@ -1049,7 +1049,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         $id = "amendments_ps_expand";
                         $viewArgs = [
-                            'title' => 'Amendments',
+                            'title' => xl('Amendments'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
@@ -1076,7 +1076,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         $id = "labdata_ps_expand";
                         $viewArgs = [
-                            'title' => 'Labs',
+                            'title' => xl('Labs'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Trend',
@@ -1096,7 +1096,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         $id = "vitals_ps_expand";
                         $viewArgs = [
-                            'title' => 'Vitals',
+                            'title' => xl('Vitals'),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Trend',
@@ -1137,7 +1137,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         $viewArgs = [
-                            'title' => $gfrow['title'],
+                            'title' => xl($gfrow['title']),
                             'id' => $vitals_form_id,
                             'initiallyCollapsed' => getUserSetting($vitals_form_id) == true ? true : false,
                             'btnLabel' => 'Trend',
@@ -1158,7 +1158,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
                         $viewArgs = [
-                            'title' => "ID Card / Photos",
+                            'title' => xl("ID Card / Photos"),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
@@ -1217,7 +1217,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $id = "adv_directives_ps_expand";
                             $viewArgs = [
-                                'title' => "Advance Directives",
+                                'title' => xl("Advance Directives"),
                                 'id' => $id,
                                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                                 'btnLabel' => 'Edit',
@@ -1240,7 +1240,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // clinical summary expand collapse widget
                         $id = "clinical_reminders_ps_expand";
                         $viewArgs = [
-                            'title' => "Clinical Reminders",
+                            'title' => xl("Clinical Reminders"),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => "Edit",
@@ -1404,7 +1404,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $id = "recall_ps_expand";
                             echo $twig->getTwig()->render('patient/card/recall.html.twig', [
-                                'title' => 'Recall',
+                                'title' => xl('Recall'),
                                 'id' => $id,
                                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                                 'recalls' => $recallArr,
@@ -1494,7 +1494,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Display the Appt card
                     $id = "appointments_ps_expand";
                     echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
-                        'title' => "Appointments",
+                        'title' => xl("Appointments"),
                         'id' => $id,
                         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                         'btnLabel' => "Add",
@@ -1523,7 +1523,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
                         $id = "track_anything_ps_expand";
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [
-                            'title' => "Tracks",
+                            'title' => xl("Tracks"),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLink' => "../../forms/track_anything/create.php",

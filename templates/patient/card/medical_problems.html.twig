@@ -22,16 +22,16 @@
         {% if l.critical is defined %}
             {% set classes = "bg-danger text-light font-weight-bold" %}
         {% endif %}
-        <div class="list-group-item p-1 {{ classes }}">
+        <div class="list-group-item p-1 {{ classes|attr }}">
             <div class="d-flex w-100 justify-content-between">
                 <div class="flex-fill">
-                    {{ l.title }}
+                    {{ l.title|text }}
                     {% if id == "allergy" %}
-                        <small class="d-block">{{ l.reactionTitle }}</small>
+                        <small class="d-block">{{ l.reactionTitle|text }}</small>
                     {% endif %}
                 </div>
                 {% if id == "allergy" %}
-                    <div class="flex-fill text-right">{{ l.severity }}</div>
+                    <div class="flex-fill text-right">{{ l.severity|text }}</div>
                 {% endif %}
             </div>
         </div>
