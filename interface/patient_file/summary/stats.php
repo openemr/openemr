@@ -208,7 +208,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
 // Render Cards for 2 specific forms
 foreach (['treatment_protocols', 'injury_log'] as $formname) {
-    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE form_{$formname}")) > 0) {
+    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE 'form_{$formname}'")) > 0) {
         $sql = "SELECT tp.id, tp.value
             FROM forms, form_{$formname} AS tp
             WHERE forms.pid = ?
