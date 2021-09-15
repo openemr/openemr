@@ -39,7 +39,7 @@
                 {% set showPostal = (c.subscriber_postal_code != "") ? true : false %}
                 <em>{{ "Subscriber"|xlt }}</em>
                 <address class="mb-1">
-                    <strong>{{ c.subscriber_full_name|text }}{{ c.subscriber_relationship != "" ? " (" ~ c.subscriber_relationship|text|capitalize ~ ")" : "" }}</strong><br>
+                    <strong>{{ c.subscriber_full_name|text }}{{ c.subscriber_relationship != "" ? " (" ~ c.subscriber_relationship|capitalize|text ~ ")" : "" }}</strong><br>
                     {{ c.subscriber_street|text }}<br>
                     {{ c.subscriber_city|text }}{{ showState == true ? " " ~ c.subscriber_state|text : ""}}{{ showPostal == true ? ", " ~ c.subscriber_postal_code : "" }}
                     {{ showCountry == true ? " " ~ c.subscriber_country|text : ""}}
