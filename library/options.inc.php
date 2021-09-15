@@ -53,8 +53,10 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Common\Twig\TwigContainer;
 
 $facilityService = new FacilityService();
+$twig = new TwigContainer('options');
 
 $date_init = "";
 $membership_group_number = 0;
@@ -4472,22 +4474,24 @@ function dropdown_facility(
     echo "   </select>\n";
 }
 
-// Expand Collapse Widget
-//  This forms the header and functionality component of the widget. The information that is displayed
-//  then follows this function followed by a closing div tag
-//
-// $title is the title of the section (already translated)
-// $label is identifier used in the tag id's and sql columns
-// $buttonLabel is the button label text (already translated)
-// $buttonLink is the button link information
-// $buttonClass is any additional needed class elements for the button tag
-// $linkMethod is the button link method ('javascript' vs 'html')
-// $bodyClass is to set class(es) of the body
-// $auth is a flag to decide whether to show the button
-// $fixedWidth is to flag whether width is fixed
-// $forceExpandAlways is a flag to force the widget to always be expanded
-//
-// TODO: Convert to accordion
+/**
+ * Expand Collapse Widget
+ * This forms the header and functionality component of the widget. The information that is displayed
+ * then follows this function followed by a closing div tag
+ *
+ * @var $title is the title of the section (already translated)
+ * @var $label is identifier used in the tag id's and sql columns
+ * @var $buttonLabel is the button label text (already translated)
+ * @var $buttonLink is the button link information
+ * @var $buttonClass is any additional needed class elements for the button tag
+ * @var $linkMethod is the button link method ('javascript' vs 'html')
+ * @var $bodyClass is to set class(es) of the body
+ * @var $auth is a flag to decide whether to show the button
+ * @var $fixedWidth is to flag whether width is fixed
+ * @var $forceExpandAlways is a flag to force the widget to always be expanded
+ *
+ * @todo Convert to a modern layotu
+ */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
 {
     if ($fixedWidth) {
