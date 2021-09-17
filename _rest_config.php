@@ -322,7 +322,7 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
-                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
+                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => $GLOBALS['oauth_scopes']]);
                 http_response_code(401);
                 exit;
             }
