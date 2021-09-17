@@ -1,15 +1,15 @@
 <?php
 
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This may be run after an upgraded OpenEMR has been installed.
-// Its purpose is to upgrade the MySQL OpenEMR database as needed
-// for the new release.
+/* sql_upgrade.php
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2011-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /* @TODO add language selection. needs RTL testing */
 
@@ -295,7 +295,9 @@ function pausePoll(othis) {
                             --$cnt_versions;
                             echo " <option value='$version'";
                             // Defaulting to most recent version or last version in list.
-                            if ($cnt_versions === 0) {
+                            if ($version == ($_POST['form_old_version'] ?? '')) {
+                                echo " selected";
+                            } elseif ($cnt_versions === 0 && !($_POST['form_old_version'] ?? '')) {
                                 echo " selected";
                             }
                             echo ">$version</option>\n";

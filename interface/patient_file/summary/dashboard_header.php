@@ -26,7 +26,7 @@ $t = $twigContainer->getTwig();
 
 function deceasedDays($days_deceased)
 {
-    $deceased_days = intval($days_deceased['days_deceased']);
+    $deceased_days = intval($days_deceased['days_deceased'] ?? '');
     if ($deceased_days == 0) {
         $num_of_days = xl("Today");
     } elseif ($deceased_days == 1) {
@@ -39,10 +39,10 @@ function deceasedDays($days_deceased)
         $num_of_days =  xl("More than") . " " . round($deceased_days / 365) . " " . xl("years ago");
     }
 
-    if (strlen($days_deceased['date_deceased']) > 10 && $GLOBALS['date_display_format'] < 1) {
+    if (strlen($days_deceased['date_deceased'] ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
         $deceased_date = substr($days_deceased['date_deceased'], 0, 10);
     } else {
-        $deceased_date = oeFormatShortDate($days_deceased['date_deceased']);
+        $deceased_date = oeFormatShortDate($days_deceased['date_deceased'] ?? '');
     }
 
     return xlt("Deceased") . " - " . text($deceased_date) . " (" . text($num_of_days) . ")";
