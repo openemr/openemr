@@ -46,7 +46,7 @@ class ServiceSaveEvent extends Event
         $this->saveData = $saveData;
     }
 
-    public function getService() : BaseService
+    public function getService(): BaseService
     {
         return $this->service;
     }

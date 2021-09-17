@@ -695,8 +695,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
 
-        if ($scopesEvent instanceof RestApiScopeEvent)
-        {
+        if ($scopesEvent instanceof RestApiScopeEvent) {
             $scopesSupportedList = $scopesEvent->getScopes();
         }
 
@@ -784,8 +783,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
 
-        if ($scopesEvent instanceof RestApiScopeEvent)
-        {
+        if ($scopesEvent instanceof RestApiScopeEvent) {
             $scopesSupportedList = $scopesEvent->getScopes();
         }
 

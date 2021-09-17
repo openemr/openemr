@@ -133,8 +133,7 @@ class HttpRestRequest
         }
         $this->setQueryParams($queryParams);
 
-        if ($this->getRequestMethod() == "POST" || $this->getRequestMethod() == "PUT")
-        {
+        if ($this->getRequestMethod() == "POST" || $this->getRequestMethod() == "PUT") {
             $this->requestBody = file_get_contents("php://input") ?? null;
         }
     }
@@ -149,8 +148,7 @@ class HttpRestRequest
 
     public function getRequestBodyJSON()
     {
-        if (!empty($this->requestBody))
-        {
+        if (!empty($this->requestBody)) {
             return (array) (json_decode($this->requestBody));
         }
         return null;

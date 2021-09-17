@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RestApiScopeEvent.php
  * @package openemr
@@ -9,7 +10,6 @@
  */
 
 namespace OpenEMR\Events\RestApiExtend;
-
 
 use Symfony\Contracts\EventDispatcher\Event;
 
