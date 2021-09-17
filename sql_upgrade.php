@@ -2,6 +2,10 @@
 
 /* sql_upgrade.php
  *
+ * This may be run after an upgraded OpenEMR has been installed.
+ * It's purpose is to upgrade the MySQL OpenEMR database as needed
+ * for the new release.
+ * 
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
