@@ -732,3 +732,11 @@ function recurrence_is_current($end_date)
 
     return false;
 }
+
+//added for lifemesh telehealth module
+function ismoduleactive()
+{
+    $sql = "SELECT mod_id FROM modules WHERE mod_name LIKE 'Lifemesh%'";
+    $isactive = sqlQuery($sql);
+    return $isactive['mod_id'];
+}
