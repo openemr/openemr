@@ -5,7 +5,7 @@
  * This may be run after an upgraded OpenEMR has been installed.
  * It's purpose is to upgrade the MySQL OpenEMR database as needed
  * for the new release.
- * 
+ *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
@@ -308,7 +308,8 @@ function pausePoll(othis) {
                         }
                         ?>
                     </select>
-                    <span><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases"); ?>.</span>
+                    <span><?php echo xlt("If you are unsure or were using a development version between two releases, "); ?>
+                    </br> <?php echo xlt("then choose the older of possible releases"); ?>.</span>
                 </div>
                 <span class="alert alert-warning text-danger version-warning d-none">
                     <?php echo xlt("If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data)"); ?>.
