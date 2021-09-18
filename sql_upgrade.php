@@ -290,7 +290,7 @@ function pausePoll(othis) {
     </div>
     <div class="row">
         <div class="col-12">
-            <p><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases"); ?>.</p>
+            <p><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases."); ?></p>
         </div>
     </div>
     <div>
