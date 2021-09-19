@@ -448,6 +448,27 @@ $GLOBALS_METADATA = array(
             xl('What kind of sorting will be in the drop lists.')
         ),
 
+        'show_tagline_on_login' => [
+            xl('Show Tagline on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Hide the tagline from the login screen'),
+        ],
+
+        'login_tagline_text' => [
+            xl('Login Page Tagline') . "*",
+            'text',
+            xl("The most popular open-source Electronic Health Record and Medical Practice Management solution."),
+            xl("Tagline text on the login page")
+        ],
+
+        'show_ack_on_login' => [
+            xl('Show Acknowledgment Link on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Hide the tagline from the login screen'),
+        ],
+
         'show_label_login' => array(
             xl('Show Title on Login'),
             'bool',                           // data type
