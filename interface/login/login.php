@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Login screen.
  *
@@ -104,7 +105,8 @@ if ($GLOBALS['login_page_layout'] == 'left') {
     $loginrow = "row login-row login-row-center align-items-center";
 }
 
-function getDefaultLanguage(): array {
+function getDefaultLanguage(): array
+{
     $sql = "SELECT * FROM lang_languages where lang_description = ?";
     $res = sqlStatement($sql, [$GLOBALS['language_default']]);
     $langs = [];
@@ -124,7 +126,8 @@ function getDefaultLanguage(): array {
     return ["id" => $id, "language" => $desc];
 }
 
-function getLanguagesList(): array {
+function getLanguagesList(): array
+{
     $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
     $sql = "SELECT ll.lang_id, IF(LENGTH(ld.definition), ld.definition, ll.lang_description) AS trans_lang_description, ll.lang_description
         FROM lang_languages AS ll
