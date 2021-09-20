@@ -13,7 +13,7 @@
 
 
 require_once "../../../globals.php";
-require_once dirname(__FILE__)."/controller/Container.php";
+require_once dirname(__FILE__) . "/controller/Container.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\LifeMesh\Container;
@@ -24,7 +24,7 @@ $loadTable = $installdatabasetable->getDatabase();
 $status = $loadTable->doesTableExist();
 
 if ($status == "exist") {
- $accounthaslogin = sqlQuery("SELECT username FROM lifemesh_account");
+    $accounthaslogin = sqlQuery("SELECT username FROM lifemesh_account");
 }
 if (!empty($accounthaslogin['username'])) {
     header('Location: account/accountsummary.php');

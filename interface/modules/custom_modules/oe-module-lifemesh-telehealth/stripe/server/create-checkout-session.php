@@ -20,11 +20,11 @@ require '../../vendor/autoload.php';
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 
-$dotenv = Dotenv\Dotenv::createImmutable( __DIR__);
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 try {
     //ENV array is being loaded into c
     $dotenv->load();
-} catch ( Exception $e ) {
+}catch ( Exception $e ){
     echo $e->getMessage();
 }
 

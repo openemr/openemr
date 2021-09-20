@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -23,7 +24,7 @@ use Stripe\Stripe;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-$app = new App;
+$app = new App();
 
 $app->add(function ($request, $response, $next) {
     // Set your secret key. Remember to switch to your live secret key in production.

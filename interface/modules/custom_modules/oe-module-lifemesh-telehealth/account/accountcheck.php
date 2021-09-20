@@ -39,6 +39,3 @@ if ($accountisvalid) {
 
 header('Location: accountsummary.php');
 
-
-
-

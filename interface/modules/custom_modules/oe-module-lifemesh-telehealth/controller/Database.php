@@ -57,7 +57,6 @@ DB;
              sqlQuery($DBSQL);
              sqlQuery($DBSQL_SESSIONS);
         }
-
     }
 
     /**
@@ -149,16 +148,18 @@ DB;
      * @param $event_status
      * @param $updatedAt
      */
-    public function saveSessionData($eventid,
-                                    $meetingid,
-                                    $patient_code,
-                                    $patient_uri,
-                                    $provider_code,
-                                    $provider_uri,
-                                    $event_date,
-                                    $event_time,
-                                    $event_status,
-                                    $updatedAt)
+    public function saveSessionData(
+        $eventid,
+        $meetingid,
+        $patient_code,
+        $patient_uri,
+        $provider_code,
+        $provider_uri,
+        $event_date,
+        $event_time,
+        $event_status,
+        $updatedAt
+    )
     {
         $sql = "REPLACE INTO lifemesh_chime_sessions SET pc_eid = ?, " .
             "meeting_id = ?, " .

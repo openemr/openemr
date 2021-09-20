@@ -22,9 +22,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use OpenEMR\Modules\LifeMesh\AppointmentSubscriber;
 
-
-
-
 /**
  * @var EventDispatcherInterface $eventDispatcher
  * register subscriber to the appointment event
@@ -44,11 +41,11 @@ function oe_module_lifemesh_telehealth_start_session(Event $event)
     } else {
         error_log('no Session found for this calendar event');
     }
-?>
+    ?>
 function startSession() {
     window.open('<?php echo $uri; ?>', '_blank', 'location=yes');
 }
-<?php
+    <?php
 
 }
 
@@ -56,27 +53,27 @@ function oe_module_lifemesh_telehealth_cancel_javascript(Event $event)
 {
     $retrieveid = new AppointmentAddEvent();
 
-?>
+    ?>
 function cancel_telehealth() {
 let title = '<?php echo xlt('Cancel Telehealth Appt'); ?>';
 let eid = '<?php echo $_GET['eid'] ?>';
 dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid='+eid, '', 650, 300, '', title);
 }
-<?php
+    <?php
 }
 function oe_module_lifemesh_telehealth_cancel_session(Event $event)
 {
-?>
+    ?>
     <span style="padding-right: 150px"><button class="btn btn-primary gray-background white padding" onclick="cancel_telehealth()">Cancel Telehealth</button></span>
-<?php
+    <?php
 }
 
 function oe_module_lifemesh_telehealth_add_session_button(Event $event)
 {
-?>
+    ?>
    <span style="padding-left: 150px"><button type="button" class="btn btn-primary gray-background white" onclick="startSession()">Start Session</button></span>
 
-<?php
+    <?php
 }
 
 

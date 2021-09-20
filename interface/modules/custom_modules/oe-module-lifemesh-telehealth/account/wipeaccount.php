@@ -11,12 +11,11 @@
  *
  */
 
-require_once dirname(__FILE__, 2)."/controller/Container.php";
+require_once dirname(__FILE__, 2) . "/controller/Container.php";
 
 use OpenEMR\Modules\LifeMesh\Database;
 
 $deleteaccountinformation = new Database();
 
 echo $deleteaccountinformation->removeAccountInfo();
-
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -11,7 +12,7 @@
  */
 
 
-require_once dirname(__DIR__, 3) . "/globals.php";;
+require_once dirname(__DIR__, 3) . "/globals.php";
 require_once "controller/Container.php";
 
 /** @var TYPE_NAME $eventid */
@@ -27,6 +28,4 @@ $encryptedaccountinfo = base64_encode($accountinfo[1] . ":" . $accountinfo[0]);
 
 $cancel = $action->getAppDispatch();
 
-echo $cancel->cancelSession($encryptedaccountinfo, $eventid, $GLOBALS['unique_installation_id'],'cancelSession');
-
-
+echo $cancel->cancelSession($encryptedaccountinfo, $eventid, $GLOBALS['unique_installation_id'], 'cancelSession');

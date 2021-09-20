@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -16,7 +17,7 @@ use DateTimeZone;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-require_once dirname(__FILE__)."/Container.php";
+require_once dirname(__FILE__) . "/Container.php";
 
 class AppointmentSubscriber implements EventSubscriberInterface
 {
@@ -46,7 +47,6 @@ class AppointmentSubscriber implements EventSubscriberInterface
         if ($this->retrieve->doesTableExist() == 'exist') {
             $this->credentials = $this->retrieve->getCredentials();
         }
-
     }
 
     /**
@@ -57,7 +57,6 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $appointmentdata = $event->givenAppointmentData();
 
         if (stristr($appointmentdata['form_title'], 'telehealth')) {
-
             $pid = $appointmentdata['form_pid'];
             $comm_data = $this->retrieve->getPatientDetails($pid);
             $patient = explode(", ", $appointmentdata['form_patient']);
@@ -82,8 +81,10 @@ class AppointmentSubscriber implements EventSubscriberInterface
                         $comm_data['email'],
                         $this->patientcell
                     );
-            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['form_date'] ||
-            $checkExistingAppointment['time'] != $hour) {
+            } elseif(
+                $checkExistingAppointment['event_date'] != $appointmentdata['form_date'] ||
+                $checkExistingAppointment['time'] != $hour
+            ) {
                 //update lifemesh if time or date of the appointment has changed
                 $reschedule_session = new AppDispatch();
                 $reschedule_session->rescheduleSession(
@@ -123,6 +124,4 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $newDateTime = date_create($eventdatetime, new DateTimeZone($this->timezone));
         return $newDateTime->format("Y-m-d\TH:i:s");
     }
-
-
 }

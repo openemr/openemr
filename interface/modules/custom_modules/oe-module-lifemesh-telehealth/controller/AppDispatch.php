@@ -87,8 +87,7 @@ class AppDispatch
         $patientlastname,
         $patientemail,
         $patientcell
-    )
-    {
+    ) {
         $data = base64_encode($username . ':' . $password);
         $header = [
             'Authorization: Basic ' . $data,
@@ -152,18 +151,17 @@ class AppDispatch
                     $event_status,
                     $updatedAt
                 );
-
         } elseif ($status === 471) {
             // Display this to the screen so that they will know that a patient can't be scheduled same day telehealth visit
             echo substr($response, 175);
             echo "<br><h4>Close this window and reopen appointment. Set a date in the future. Then save.</h4>";
             die;
         } else {
-            EventAuditLogger::instance()->newEvent("lifemesh_telehealth", $_SESSION['authUser'], 'Default',0, $response);;
+            EventAuditLogger::instance()->newEvent("lifemesh_telehealth", $_SESSION['authUser'], 'Default', 0, $response);
         }
     }
 
-    public function rescheduleSession($username, $password, $callerid, $eventdatetime,$eventlocaltime, $eventid, $url)
+    public function rescheduleSession($username, $password, $callerid, $eventdatetime, $eventlocaltime, $eventid, $url)
     {
         $data = base64_encode($username . ':' . $password);
         $header = [
@@ -183,7 +181,7 @@ class AppDispatch
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>'{
+            CURLOPT_POSTFIELDS => '{
                     "caller_id":"' . $callerid . '",
                     "appointment_id":"' . $eventid . '",
                     "new_appointment_datetime":"' . $eventdatetime . '",
@@ -201,7 +199,6 @@ class AppDispatch
         }
 
         curl_close($curl);
-
     }
 
     public function cancelSession($encryptedaccountinfo, $eventid, $callerid, $url)
@@ -217,7 +214,7 @@ class AppDispatch
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>'{
+            CURLOPT_POSTFIELDS => '{
                 "caller_id":"' . $callerid . '",
                 "appointment_id":"' . $eventid . '"
             }',
@@ -256,7 +253,7 @@ class AppDispatch
                 return 'https://api.telehealth.lifemesh.ai/cancel_session';
 
             default:
-                return NULL;
+                return null;
         }
     }
 }

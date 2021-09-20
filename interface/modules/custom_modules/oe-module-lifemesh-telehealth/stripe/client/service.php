@@ -1,4 +1,6 @@
-<!--
+<?php
+
+/**
   ~
   ~ @package      OpenEMR
   ~ @link               https://www.open-emr.org
@@ -7,8 +9,8 @@
   ~ @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
   ~ @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   ~
-  -->
-<?php
+  */
+
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
