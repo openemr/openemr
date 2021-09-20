@@ -203,6 +203,7 @@ if (session_name()) {
 }
 
 $viewArgs = [
+    'title' => $openemr_name,
     'displayLanguage' => ($GLOBALS["language_menu_login"] && (count($languageList) != 1)) ? true : false,
     'defaultLangID' => $defaultLanguage['id'],
     'defaultLangName' => $defaultLanguage['language'],

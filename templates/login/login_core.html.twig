@@ -4,7 +4,7 @@
     {% if displayGoogleSignin %}
         <meta name="google-signin-client_id" content="{{ googleSigninClientID }}">
     {% endif %}
-    <title>{{ title }}</title>
+    <title>{{ title|text }} {{ "Login"|xl }}</title>
     {% block head %}{% endblock %}
     <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ jsIncludes }}"></script>
     <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ jsIncludes }}"></script>
