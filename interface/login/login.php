@@ -214,6 +214,7 @@ $viewArgs = [
     'facilityList' => $facilities,
     'facilitySelected' => $facilitySelected,
     'displayGoogleSignin' => (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false,
+    'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
     'logoArea' => $logoarea,
     'displayExtraLogo' => $GLOBALS['extra_logo_login'],
     'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.svg"),
