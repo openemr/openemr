@@ -59,6 +59,9 @@ $facilityService = new FacilityService();
 $date_init = "";
 $membership_group_number = 0;
 
+// Our base Bootstrap column class, referenced here and in some other modules.
+$BS_COL_CLASS = 'col-md';
+
 function get_pharmacies()
 {
     return sqlStatement("SELECT d.id, d.name, a.line1, a.city, " .
@@ -507,9 +510,9 @@ function generate_form_field($frow, $currvalue)
     $edit_options = $frow['edit_options'] ?? null;
     $form_id = $frow['form_id'] ?? null;
 
-    // Get if we want a smaller form field
+    // 'smallform' can be 'true' if we want a smaller form field, otherwise
+    // can be used to assign arbitrary CSS classes to data entry fields.
     $smallform = $frow['smallform'] ?? null;
-
     if ($smallform === 'true') {
         $smallform = ' form-control-sm';
     }
@@ -1515,7 +1518,9 @@ function generate_form_field($frow, $currvalue)
             $allow_unspecified = true,
             $allow_allfacilities = false,
             $disabled,
-            $lbfchange
+            $lbfchange,
+            false,
+            $smallform
         );
     } elseif ($data_type == 36 || $data_type == 33) { //multiple select, supports backup list
         echo generate_select_list(
@@ -1580,7 +1585,8 @@ function generate_form_field($frow, $currvalue)
             $allow_allfacilities = false,
             $disabled,
             $lbfchange,
-            true
+            true,
+            $smallform
         );
     } elseif ($data_type == 45) { // Multiple provider list, local providers only
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
@@ -3223,6 +3229,43 @@ function disp_end_group()
     }
 }
 
+// Bootstrapped versions of disp_end_* functions:
+
+function bs_disp_end_cell()
+{
+    global $item_count;
+    if ($item_count > 0) {
+        echo "</div>"; // end BS column
+        $item_count = 0;
+    }
+}
+
+function bs_disp_end_row()
+{
+    global $cell_count, $CPR, $BS_COL_CLASS;
+    bs_disp_end_cell();
+    if ($cell_count > 0 && $cell_count < $CPR) {
+        // Create a cell occupying the remaining bootstrap columns.
+        // BS columns will be less than 12 if $CPR is not 2, 3, 4, 6 or 12.
+        $bs_cols_remaining = ($CPR - $cell_count) * intval(12 / $CPR);
+        echo "<div class='$BS_COL_CLASS-$bs_cols_remaining'></div>";
+    }
+    if ($cell_count > 0) {
+        echo "</div><!-- End BS row -->\n";
+        $cell_count = 0;
+    }
+}
+
+function bs_disp_end_group()
+{
+    global $last_group;
+    if (strlen($last_group) > 0) {
+        bs_disp_end_row();
+    }
+}
+
+//
+
 function getPatientDescription($pid)
 {
     $prow = sqlQuery("SELECT lname, fname FROM patient_data WHERE pid = ?", array($pid));
@@ -3768,6 +3811,11 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
                 ++$item_count;
 
+                if ($datacols == 0) {
+                    // Data will be in the same cell, so prevent wrapping to a new line.
+                    echo "<span class='text-nowrap mr-2'>";
+                }
+
                 $field_id_label = 'label_' . $group_fields['field_id'];
                 echo "<span id='" . attr($field_id_label) . "'>";
                 if ($skip_this_field) {
@@ -3803,7 +3851,14 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
                 ++$item_count;
                 if (!$skip_this_field) {
+                    if ($item_count > 1) {
+                        echo "&nbsp;";
+                    }
                     echo generate_display_field($group_fields, $currvalue);
+                }
+                if ($datacols == 0) {
+                    // End nowrap
+                    echo "</span> "; // space to allow wrap between spans
                 }
             } // end field
 
@@ -3826,7 +3881,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 //
 function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 {
-    global $item_count, $cell_count, $last_group, $CPR,$condition_str;
+    global $item_count, $cell_count, $last_group, $CPR, $condition_str, $BS_COL_CLASS;
 
     if ('HIS' == $formtype) {
         $formtype .= '%'; // TBD: DEM also?
@@ -3955,13 +4010,15 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 }
             }
 
-            // Each group or subgroup has its own separate table.
+            // Each group or subgroup has its own separate container.
             $gs_group_table_active = true;
-            echo " <table border='0' cellspacing='0' cellpadding='0' class='lbfdata'>\n";
+            echo "<div class='container-fluid lbfdata'>\n";
             if ($subtitle) {
                 // There is a group subtitle so show it.
-                echo "<tr><td class='bold' style='color:#0000ff' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-                echo "<tr><td class='bold' style='height:4pt' colspan='$CPR'></td></tr>\n";
+                $bs_cols = $CPR * intval(12 / $CPR);
+                echo "<div class='row mb-2'>";
+                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
+                echo "</div>\n";
             }
 
             // This loops once per field within a given group.
@@ -4014,17 +4071,21 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 // Handle starting of a new row.
                 if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
-                    disp_end_row();
+                    bs_disp_end_row();
+                    $bs_cols = $CPR * intval(12 / $CPR);
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color: var(--gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-                        echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
+                        echo "<div class='form-row mb-2'>";
+                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
+                        echo "</div>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
-                        echo "<tr><td class='label' style='font-size:25%' colspan='$CPR'>&nbsp;</td></tr>\n";
+                        echo "<div class='form-row'>";
+                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols label' style='font-size:25%'>&nbsp;</div>";
+                        echo "</div>\n";
                     }
-                    echo "<tr>";
+                    echo "<div class='form-row'>";
                 }
 
                 if ($item_count == 0 && $titlecols == 0) {
@@ -4033,17 +4094,21 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 // Handle starting of a new label cell.
                 if ($titlecols > 0) {
-                    disp_end_cell();
-                    $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
-                    $field_id_label = 'label_' . $group_fields['field_id'];
-                    echo "<td class='label_custom' colspan='$titlecols_esc'";
-                    // This ID is used by skip conditions.
-                    echo " id='label_id_" . attr($field_id) . "'";
+                    bs_disp_end_cell();
+                    $bs_cols = $titlecols * intval(12 / $CPR);
+                    echo "<div class='$BS_COL_CLASS-$bs_cols pt-1 label_custom' ";
+                    echo "id='label_id_" . attr($field_id) . "'";
                     echo ">";
                     $cell_count += $titlecols;
                 }
 
+                // $item_count is the number of title and data items in the current cell.
                 ++$item_count;
+
+                if ($datacols == 0) {
+                    // Data will be in the same cell, so prevent wrapping to a new line.
+                    echo "<span class='text-nowrap mr-2'>";
+                }
 
                 if ($group_fields['title']) {
                     $tmp = xl_layout_label($group_fields['title']);
@@ -4058,24 +4123,30 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
-                    disp_end_cell();
-                    $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
+                    bs_disp_end_cell();
                     $field_id = 'text_' . $group_fields['field_id'];
-                    echo "<td class='text data' colspan='$datacols_esc'";
-                    // This ID is used by action conditions.
+                    $bs_cols = $datacols * intval(12 / $CPR);
+                    echo "<div class='$BS_COL_CLASS-$bs_cols'";
                     echo " id='value_id_" . attr($field_id) . "'";
                     echo ">";
                     $cell_count += $datacols;
                 }
 
                 ++$item_count;
-
+                if ($item_count > 1) {
+                    echo "&nbsp;";
+                }
+                // 'smallform' can be used to add arbitrary CSS classes. Note the leading space.
+                $group_fields['smallform'] = ' form-control-sm mb-1 mw-100';
                 echo generate_form_field($group_fields, $currvalue);
+                if ($datacols == 0) {
+                    // End nowrap
+                    echo "</span> "; // space to allow wrap between spans
+                }
             } // End of fields for this group.
 
-            disp_end_row(); // TBD: Does this belong here?
-
-            echo "        </table>\n";
+            bs_disp_end_row(); // TBD: Does this belong here?
+            echo "</div>\n"; // end container-fluid
             $first = false;
         } // End this group.
 
@@ -4379,9 +4450,9 @@ function dropdown_facility(
     $allow_allfacilities = true,
     $disabled = '',
     $onchange = '',
-    $multiple = false
+    $multiple = false,
+    $class = ''
 ) {
-
     global $facilityService;
 
     $have_selected = false;
@@ -4391,7 +4462,7 @@ function dropdown_facility(
     if ($multiple) {
         $name = $name . "[]";
     }
-    echo "   <select style='width: 100%;' class='form-control";
+    echo "   <select class='form-control$class";
     if ($multiple) {
         echo " select-dropdown";
     }
