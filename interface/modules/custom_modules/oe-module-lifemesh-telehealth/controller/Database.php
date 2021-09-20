@@ -159,8 +159,7 @@ DB;
         $event_time,
         $event_status,
         $updatedAt
-    )
-    {
+    ){
         $sql = "REPLACE INTO lifemesh_chime_sessions SET pc_eid = ?, " .
             "meeting_id = ?, " .
             "patient_code = ?, " .
@@ -202,7 +201,7 @@ DB;
     public function updateSession($eventid, $eventdatetime)
     {
         $sql = "update lifemesh_chime_sessions set event_date = ?, event_time = ?, updatedAt = NOW(), "
-                                  ." event_status = 'Rescheduled' WHERE pc_eid = ?";
+                                  . " event_status = 'Rescheduled' WHERE pc_eid = ?";
         $time = explode("T", $eventdatetime);
         sqlStatement($sql, [$eventdatetime, $time[1], $eventid]);
     }

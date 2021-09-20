@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -24,7 +25,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 try {
     //ENV array is being loaded into c
     $dotenv->load();
-}catch ( Exception $e ){
+} catch (Exception $e) {
     echo $e->getMessage();
 }
 

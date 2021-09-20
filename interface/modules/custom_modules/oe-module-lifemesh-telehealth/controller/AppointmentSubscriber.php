@@ -29,7 +29,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
     /**
      * @return string[]
      */
-    public static function getSubscribedEvents() : array
+    public static function getSubscribedEvents()
     {
         return [
           AppointmentSetEvent::EVENT_HANDLE  => 'isEventTelehealth'
@@ -81,7 +81,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
                         $comm_data['email'],
                         $this->patientcell
                     );
-            } elseif(
+            } elseif (
                 $checkExistingAppointment['event_date'] != $appointmentdata['form_date'] ||
                 $checkExistingAppointment['time'] != $hour
             ) {

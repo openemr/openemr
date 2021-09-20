@@ -18,4 +18,3 @@ use OpenEMR\Modules\LifeMesh\Database;
 $deleteaccountinformation = new Database();
 
 echo $deleteaccountinformation->removeAccountInfo();
-

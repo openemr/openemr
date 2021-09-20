@@ -46,7 +46,6 @@ function startSession() {
     window.open('<?php echo $uri; ?>', '_blank', 'location=yes');
 }
     <?php
-
 }
 
 function oe_module_lifemesh_telehealth_cancel_javascript(Event $event)
