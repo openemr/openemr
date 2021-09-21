@@ -258,7 +258,9 @@ function pausePoll(othis) {
                             --$cnt_versions;
                             echo " <option value='$version'";
                             // Defaulting to most recent version or last version in list.
-                            if ($cnt_versions === 0) {
+                            if ($version == ($_POST['form_old_version'] ?? '')) {
+                                echo " selected";
+                            } elseif ($cnt_versions === 0 && !($_POST['form_old_version'] ?? '')) {
                                 echo " selected";
                             }
                             echo ">$version</option>\n";
