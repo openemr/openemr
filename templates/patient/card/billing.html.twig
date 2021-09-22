@@ -1,0 +1,41 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-4">{{ "Patient Balance Due"|xlt }}</div>
+        <div class="col">{{ patientBalance|money|text }}</div>
+    </div>
+    <div class="row">
+        <div class="col-4">{{ "Insurance Balance Due"|xlt }}</div>
+        <div class="col">{{ insuranceBalance|money|text }}</div>
+    </div>
+    <div class="row">
+        <div class="col-4 font-weight-bold">{{ "Total Balance Due"|xlt }}</div>
+        <div class="col font-weight-bold">{{ totalBalance|money|text }}</div>
+    </div>
+    {% if billingNote %}
+    <div class="row">
+        <div class="col-4">{{ "Billing Note"|xlt }}</div>
+        <div class="col">{{ billingNote|text }}</div>
+    </div>
+    {% endif %}
+    {% if provider %}
+    <div class="row">
+        <div class="col-4">{{ "Primary Insurance"|xlt }}</div>
+        <div class="col">{{ insName|text }}</div>
+    </div>
+        {% if copay %}
+        <div class="row">
+            <div class="col-4">{{ "Copay"|xlt }}</div>
+            <div class="col">{{ copay|text }}</div>
+        </div>
+        {% endif %}
+    <div class="row">
+        <div class="col-4">{{ "Effective Date"|xlt }}</div>
+        <div class="col">{{ effDate|shortDate|text }}</div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

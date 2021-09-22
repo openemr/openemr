@@ -30,7 +30,6 @@ class AppointmentService
     {
         $validator = new Validator();
 
-        $validator->required('pc_eid')->numeric();
         $validator->required('pc_catid')->numeric();
         $validator->required('pc_title')->lengthBetween(2, 150);
         $validator->required('pc_duration')->numeric();

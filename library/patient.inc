@@ -706,7 +706,7 @@ function getByPatientDemographicsFilter(
 function getPatientPID($args)
 {
     $pid = "%";
-    $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+    $given = "pid, id, lname, fname, mname, suffix, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
     $orderby = "lname ASC, fname ASC";
     $limit = "all";
     $start = "0";
@@ -770,6 +770,40 @@ function getPatientName($pid)
 
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
+}
+
+/**
+ * Get a patient's first name, middle name, last name and suffix if applicable.
+ *
+ * Returns a properly formatted, complete name when applicable. Example name
+ * would be "John B Doe Jr". No additional punctuation is added. Spaces are
+ * correctly omitted if the middle name of suffix does not apply.
+ *
+ * @var $pid int The Patient ID
+ * @returns string The Full Name
+ */
+function getPatientFullNameAsString(int $pid): string
+{
+    $ptData = getPatientPID(["pid" => $pid]);
+    $pt = $ptData[0];
+
+    if (empty($pt['lname'])) {
+        return "";
+    }
+
+    $name = $pt['fname'];
+
+    if ($pt['mname']) {
+        $name .= " {$pt['mname']}";
+    }
+
+    $name .= " {$pt['lname']}";
+
+    if ($pt['suffix']) {
+        $name .= " {$pt['suffix']}";
+    }
+
+    return $name;
 }
 
 /* return a patient's name in the format FIRST LAST */
