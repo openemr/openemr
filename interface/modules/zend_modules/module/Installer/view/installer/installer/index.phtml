@@ -296,6 +296,7 @@ $depObj = $this->dependencyObject;
                     <td><?php echo $this->escapeHtml($slno); ?> </td>
                     <td>
                         <?php
+                        $form_title_file = null;
                         if (is_file($GLOBALS['srcdir'] . "/../{$baseModuleDir}{$zendModDir}/$fname/info.txt")) {
                           $form_title_file = file($GLOBALS['srcdir'] . "/../{$baseModuleDir}{$zendModDir}/module/$fname/info.txt");
                         }
