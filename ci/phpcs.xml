@@ -38,4 +38,5 @@
   <exclude-pattern>*/library/classes/fpdf/*</exclude-pattern>
   <exclude-pattern>*/library/classes/smtp/*</exclude-pattern>
   <exclude-pattern>*/library/classes/PDF_Label.php</exclude-pattern>
+  <exclude-pattern>*/src/Cqm/Qdm/*</exclude-pattern>
 </ruleset>
