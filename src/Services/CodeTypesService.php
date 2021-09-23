@@ -92,8 +92,23 @@ class CodeTypesService
      * @param $type string The code_type that the code belongs to (SNOMED, RXCUI, ICD10, etc).
      * @return string  The fully typed code (TYPE:CODE)
      */
-    public function getCodeWithType($code, $type)
+    public function getCodeWithType($code, $type, $oe_format = false)
     {
+        if ($oe_format) {
+            switch (strtoupper($type)) {
+                case 'ICD10CM':
+                    $type = 'ICD10';
+                    break;
+                case 'SNOMED CT':
+                case 'SNOMEDCT':
+                    $type = 'SNOMED-CT';
+                    break;
+                case 'RXCUI':
+                case 'RXNORM':
+                    $type = 'RXCUI'; // let's use RxCUI for lookups
+                    break;
+            }
+        }
         return ($type ?? "") . ":" . ($code ?? "");
     }
 

@@ -85,6 +85,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/openemr/wkhtmltopdf-openemr"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/openemr/oe-module-cqm"
         }
     ],
     "autoload": {
