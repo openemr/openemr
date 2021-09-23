@@ -54,6 +54,7 @@ require_once($GLOBALS['srcdir'] . '/group.inc');
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Appointments\AppointmentAddEvent;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
