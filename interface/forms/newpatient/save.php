@@ -43,6 +43,7 @@ $encounter_provider = $_POST['provider_id'] ?? null;
 $external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
 $discharge_disposition = $_POST['discharge_disposition'] ?? null;
+$discharge_disposition = $discharge_disposition != '_blank' ? $discharge_disposition : null;
 
 $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
