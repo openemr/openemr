@@ -28,6 +28,7 @@ Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). 
 ### Reporting Security Vulnerabilities
 
 Check out [SECURITY.md](.github/SECURITY.md)
+
 ### API
 
 Check out [API_README.md](API_README.md)
