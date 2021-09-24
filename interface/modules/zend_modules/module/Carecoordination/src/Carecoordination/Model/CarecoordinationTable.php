@@ -26,6 +26,7 @@ use Document;
 use CouchDB;
 use Documents\Model\DocumentsTable;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qrda\QrdaParseService;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
@@ -320,7 +321,8 @@ class CarecoordinationTable extends AbstractTableGateway
             '1.3.6.1.4.1.19376.1.5.3.1.3.1' => 'referral',
             '2.16.840.1.113883.10.20.22.2.11.1' => 'discharge_medications',
             '2.16.840.1.113883.10.20.22.2.41'   => 'discharge_summary',
-            '2.16.840.1.113883.10.20.17.2.4' => 'qrda_patient_data', // all sub templates are entry's
+            //'2.16.840.1.113883.10.20.17.2.4' => 'qrdaParsePatientSection', // all sub templates are entry's
+            '2.16.840.1.113883.10.20.24.2.1' => 'qrdaParsePatientSection', // qrda qdm patient data section oid.
         );
 
         for ($i = 0, $iMax = count($components); $i < $iMax; $i++) {
@@ -434,47 +436,14 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
     }
 
-    public function qrda_patient_data($patient_data)
+    public function qrdaParsePatientSection($patient_data)
     {
         $this->is_qrda_import = true;
-        $qrda_oids = array(
-            //'2.16.840.1.113883.10.20.24.3.90' => '', // cda Substance or Device Allergy - Intolerance Observation (V2)
-            '2.16.840.1.113883.10.20.24.3.147' => 'qrda_allergy_intolerance_observation',
-            '2.16.840.1.113883.10.20.24.3.41' => 'fetch_medication_value', // @todo medication list? active medication
-            //'2.16.840.1.113883.10.20.24.3.139' => 'fetch_medication_value', //Medication Dispensed Act
-            //'2.16.840.1.113883.10.20.24.3.42' => 'fetch_medication_value', // prescribe QDM Datatype: Substance, Administered
-            //'2.16.840.1.113883.10.20.24.3.47' => 'fetch_medication_value', // planned QDM Datatype: Substance, Order i.e prescribed
-            //'2.16.840.1.113883.10.20.22.4.3' => '', //cda concern act
-            '2.16.840.1.113883.10.20.24.3.137' => 'fetch_medical_problem_value', //qrda diagnosis
-            '2.16.840.1.113883.10.20.24.3.140' => 'fetch_immunization_value', // qrda Immunization Administered (V3)
-            '2.16.840.1.113883.10.20.24.3.143' => '', // qrda Immunization Order (V3)
-            //'2.16.840.1.113883.10.20.22.4.14' => '', // C-CDA R2.1 Procedure Activity Procedure (V2)
-            '2.16.840.1.113883.10.20.24.3.64' => 'fetch_procedure_value', // qrda procedure performed
-            '2.16.840.1.113883.10.20.24.3.7' => 'fetch_procedure_value', // qrda procedure Device Applied (V5)
-            //'2.16.840.1.113883.10.20.24.3.38' => 'lab_result', // lab test preformed wip
-            //'2.16.840.1.113883.10.20.24.3.37' => 'lab_result', // lab test ordered wip
-            '2.16.840.1.113883.10.20.24.3.133' => 'qrda_encounter',
-        );
-        foreach ($patient_data['section']['entry'] as $i => $entry) {
-            $key = array_keys($entry)[0]; // need the entry type i.e. observation, activity, substance etc.
-            if (!empty($entry[$key]['templateId']['root'])) {
-                if (!empty($qrda_oids[$entry[$key]['templateId']['root']])) {
-                    $func_name = $qrda_oids[$entry[$key]['templateId']['root']];
-                    $this->$func_name($entry);
-                }
-            } elseif (count($entry[$key]['templateId']) > 1) {
-                foreach ($entry[$key]['templateId'] as $key_1 => $value_1) {
-                    if (!empty($qrda_oids[$entry[$key]['templateId'][$key_1]['root']])) {
-                        $func_name = $qrda_oids[$entry[$key]['templateId'][$key_1]['root']];
-                        if (!empty($func_name)) {
-                            $this->$func_name($entry);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
+        $parse = new QrdaParseService();
+        $dataset = $parse->parsePatientDataSection($patient_data);
+        $this->ccda_data_array = array_merge($this->ccda_data_array, $dataset);
     }
+
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf)
     {
         $appTable = new ApplicationTable();
@@ -531,33 +500,6 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
             unset($allergy_array);
             return;
-        }
-    }
-
-    public function qrda_allergy_intolerance_observation($allergy_array)
-    {
-        if (!empty($allergy_array['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
-            $i = 1;
-            // if there are already items here we want to add to them.
-            if (!empty($this->ccda_data_array['field_name_value_array']['lists2'])) {
-                $i += count($this->ccda_data_array['field_name_value_array']['lists2']);
-            }
-
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $allergy_array['id']['extension'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $allergy_array['effectiveTime']['low']['value'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $allergy_array['effectiveTime']['high']['value'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $allergy_array['observation']['participant']['participantRole']['playingEntity']['code']['code'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $allergy_array['observation']['participant']['participantRole']['playingEntity']['code']['displayName'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $allergy_array['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $allergy_array['observation']['entryRelationship'][1]['observation']['value']['code'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $allergy_array['observation']['entryRelationship'][2]['observation']['value']['code'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $allergy_array['observation']['entryRelationship'][2]['observation']['value']['code'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $allergy_array['observation']['entryRelationship'][0]['observation']['value']['displayName'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $allergy_array['observation']['entryRelationship'][1]['observation']['value']['code'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $allergy_array['observation']['entryRelationship'][1]['observation']['value']['displayName'] ?? null;
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $allergy_array['observation']['performer']['assignedEntity']['time']['value'] ?? null;
-            $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
         }
     }
 
@@ -927,7 +869,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
             $this->ccda_data_array['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
             $this->ccda_data_array['entry_identification_array']['social_history'][$i] = $i;
-            unset($social_history_data);
+            unset($social_history_data); // @todo remove these unsets, don't make sense
             return;
         }
     }
@@ -945,12 +887,6 @@ class CarecoordinationTable extends AbstractTableGateway
 
             unset($component);
             return;
-    }
-
-    public function qrda_encounter($entry)
-    {
-        $this->fetch_encounter_value($entry['act']['entryRelationship']);
-        unset($entry);
     }
 
     public function fetch_encounter_value($encounter_data)
