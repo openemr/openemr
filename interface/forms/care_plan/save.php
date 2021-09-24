@@ -55,10 +55,10 @@ if ($id && $id != 0) {
 $count = array_filter($count);
 if (!empty($count)) {
     foreach ($count as $key => $codeval) :
-        $code_val = $code[$key] ? $code[$key] : 0;
-        $codetext_val = $code_text[$key] ? $code_text[$key] : 'NULL';
-        $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
-        $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
+        $code_val = $code[$key] ?: '';
+        $codetext_val = $code_text[$key] ?: '';
+        $description_val = $code_des[$key] ?: '';
+        $care_plan_type_val = $care_plan_type[$key] ?: '';
         $care_user_val = $care_plan_user[$key] ?: $_SESSION["authUser"];
         $note_relations = parse_note($description_val);
         $sets = "id = ?,

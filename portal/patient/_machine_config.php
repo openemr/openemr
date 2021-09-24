@@ -19,19 +19,19 @@
 /* */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
     GlobalConfig::$PORTAL = 1;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -68,8 +68,9 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
+GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
 if ($GLOBALS['portal_onsite_two_basepath']) {
-    GlobalConfig::$ROOT_URL = RequestUtil::GetServerRootUrl() . preg_replace('/^\//', '', $GLOBALS['web_root']) . '/portal/patient/';
+    GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
     GlobalConfig::$ROOT_URL = $GLOBALS['web_root'] . '/portal/patient/';
 }

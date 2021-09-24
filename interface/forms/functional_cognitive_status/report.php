@@ -20,7 +20,7 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($id,$pid, $encounter));
+    $res = sqlStatement($sql, array($id, $pid, $encounter));
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
@@ -28,29 +28,34 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
 
     if (!empty($data)) {
         ?>
-        <table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
+        <table class="table w-100">
+            <thead>
             <tr>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Code'); ?></span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Code Text'); ?></span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Description'); ?></span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Date'); ?></span></td>
-                <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold><?php echo xlt('Active'); ?></span></td>
+                <th class="border p-1"><?php echo xlt('Code'); ?></th>
+                <th class="border p-1"><?php echo xlt('Code Text'); ?></th>
+                <th class="border p-1"><?php echo xlt('Description'); ?></th>
+                <th class="border p-1"><?php echo xlt('Date'); ?></th>
+                <th class="border p-1"><?php echo xlt('Type'); ?></th>
             </tr>
+            </thead>
+            <tbody>
             <?php
             foreach ($data as $key => $value) {
                 ?>
                 <tr>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['code']); ?></span></td>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['codetext']); ?></span></td>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['description']); ?></span></td>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['date']); ?></span></td>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo ($value['activity'] == 1) ? xlt('Yes') : xlt('No'); ?></span></td>
-            </tr>
+                    <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>
+                    <td class="border p-1"><span class=text><?php echo text($value['codetext']); ?></span></td>
+                    <td class="border p-1"><span class=text><?php echo text($value['description']); ?></span></td>
+                    <td class="border p-1"><span class=text><?php echo text($value['date']); ?></span></td>
+                    <td class="border p-1"><span class=text><?php echo ($value['activity'] == 1) ? xlt('Cognitive') : xlt('Functional'); ?></span></td>
+                </tr>
                 <?php
             }
             ?>
+            </tbody>
         </table>
         <?php
     }
 }
+
 ?>

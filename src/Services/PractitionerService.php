@@ -27,8 +27,10 @@ class PractitionerService extends BaseService
 {
 
     private const PRACTITIONER_TABLE = "users";
+    /**
+     * @var PractitionerValidator
+     */
     private $practitionerValidator;
-    private $uuidRegistry;
 
     /**
      * Default constructor.
@@ -36,8 +38,7 @@ class PractitionerService extends BaseService
     public function __construct()
     {
         parent::__construct('users');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::PRACTITIONER_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PRACTITIONER_TABLE]);
         $this->practitionerValidator = new PractitionerValidator();
     }
 
@@ -69,12 +70,18 @@ class PractitionerService extends BaseService
         return ['uuid'];
     }
 
+    public function isValidPractitionerUuid($uuid)
+    {
+        $result = $this->getOne($uuid);
+        return !empty($result->getData());
+    }
+
     public function search($search, $isAndCondition = true)
     {
         // we only retrieve from our database when our practitioners are not null
         if (!empty($search['npi'])) {
             if (!$search['npi'] instanceof ISearchField) {
-                throw new \BadMethodCallException("npi search must be instance of " . ISearchField::class);
+                throw new SearchFieldException("npi", "field must be instance of " . ISearchField::class);
             }
             if ($search['npi']->getModifier() === SearchModifier::MISSING) {
                 // force our value to be false as the only thing that differentiates users as practitioners is our npi number
@@ -83,6 +90,22 @@ class PractitionerService extends BaseService
         } else {
             $search['npi'] = new TokenSearchField('npi', [new TokenSearchValue(false)]);
             $search['npi']->setModifier(SearchModifier::MISSING);
+        }
+        // TODO: @adunsulag check with @brady.miller or @sjpadgett and find out if all practitioners will have usernames.
+        //  I noticed that in the test database that adding entries to the addressbook appears to create users... which
+        // seems bizarre and that those users don't have usernames.  I noticed that all of the users displayed in the OpenEMR
+        // user selector will exclude anything w/o a username so I add the same logic here.
+        if (!empty($search['username'])) {
+            if (!$search['username'] instanceof ISearchField) {
+                throw new SearchFieldException("username", "field must be instance of " . ISearchField::class);
+            }
+            if ($search['username']->getModifier() === SearchModifier::MISSING) {
+                // force our value to be false as we don't count users as practitioners if there is no username
+                $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
+            }
+        } else {
+            $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
+            $search['username']->setModifier(SearchModifier::MISSING);
         }
         return parent::search($search, $isAndCondition);
     }
@@ -145,7 +168,7 @@ class PractitionerService extends BaseService
         }
 
         // there should not be a single duplicate id so we will grab that
-        $search = ['uuid' => new TokenSearchField('uuid', new TokenSearchValue(UuidRegistry::uuidToBytes($uuid)))];
+        $search = ['uuid' => new TokenSearchField('uuid', new TokenSearchValue($uuid, null, true))];
         $results = $this->search($search);
         $data = $results->getData();
         if (count($data) > 1) {
@@ -175,7 +198,7 @@ class PractitionerService extends BaseService
             return $processingResult;
         }
 
-        $data['uuid'] = (new UuidRegistry(['table_name' => 'users']))->createUuid();
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRACTITIONER_TABLE)->createUuid();
 
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO users SET ";
@@ -224,12 +247,15 @@ class PractitionerService extends BaseService
         }
 
         $query = $this->buildUpdateColumns($data);
+
         $sql = " UPDATE users SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
 
+
         $uuidBinary = UuidRegistry::uuidToBytes($uuid);
         array_push($query['bind'], $uuidBinary);
+
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {

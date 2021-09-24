@@ -68,6 +68,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
   // Display the actions
     $current_targets = array();
+    echo "<div class=\"list-group list-group-flush\">";
     foreach ($actions as $action) {
         // Deal with plan names first
         if (isset($action['is_plan']) && $action['is_plan']) {
@@ -77,6 +78,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo "</b><br />";
             continue;
         }
+
+        echo "<div class=\"list-group-item p-1 d-flex w-100 justify-content-between\">";
 
         // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         $tooltip = '';
@@ -147,24 +150,24 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         if ($action['due_status']) {
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
-                echo "&nbsp;&nbsp;(<span style='color:red'>";
+                echo "<span class='text-danger'>";
             } elseif ($action['due_status'] == "due") {
-                echo "&nbsp;&nbsp;(<span style='color:purple'>";
+                echo "<span class='text-warning'>";
             } elseif ($action['due_status'] == "not_due") {
-                echo "&nbsp;&nbsp;(<span style='color:green'>";
+                echo "<span class='text-success>";
             } else {
-                echo "&nbsp;&nbsp;(<span>";
+                echo "<span>";
             }
 
-            echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
+            echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']);
         }
 
         // Display the tooltip
         if (!empty($tooltip)) {
-            echo "&nbsp;" . $tooltip . "<br />";
-        } else {
-            echo "<br />";
+            echo "&nbsp;{$tooltip}";
         }
+
+        echo "</span>";
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
@@ -172,7 +175,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  array('rule_id' => $action['rule_id'],'due_status' => $action['due_status']);
         }
+        echo "</div>";
     }
+    echo "</div>";
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due

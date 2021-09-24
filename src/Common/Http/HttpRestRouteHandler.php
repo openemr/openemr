@@ -31,8 +31,23 @@ class HttpRestRouteHandler
                 , 'user' => $restRequest->getRequestUserUUID(), 'role' => $restRequest->getRequestUserRole()
                 , 'client' => $restRequest->getClientId(), 'apiType' => $restRequest->getApiType()
                 , 'route' => $restRequest->getRequestPath()
+                , 'queryParams' => $restRequest->getQueryParams()
             ]
         );
+
+        if ($dispatchRestRequest->isFhir() && self::isFhirSearchRequest($dispatchRestRequest)) {
+            (new SystemLogger())->debug("HttpRestRouteHandler::dispatch() FHIR POST _search request needs normalization");
+            $dispatchRestRequest = self::normalizeFhirSearchRequest($dispatchRestRequest);
+            (new SystemLogger())->debug(
+                "HttpRestRouteHandler::dispatch() request normalized",
+                ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getRequestMethod()
+                    , 'user' => $dispatchRestRequest->getRequestUserUUID(), 'role' => $dispatchRestRequest->getRequestUserRole()
+                    , 'client' => $dispatchRestRequest->getClientId(), 'apiType' => $dispatchRestRequest->getApiType()
+                    , 'route' => $dispatchRestRequest->getRequestPath()
+                    , 'queryParams' => $dispatchRestRequest->getQueryParams()
+                ]
+            );
+        }
 
         $route = $dispatchRestRequest->getRequestPath();
         $request_method = $dispatchRestRequest->getRequestMethod();
@@ -76,7 +91,11 @@ class HttpRestRouteHandler
                     if ($return_method === 'standard') {
                         header('Content-Type: application/json');
                         // if we fail to encode we WANT an error thrown
-                        echo json_encode($result, JSON_THROW_ON_ERROR);
+                        // PHP default json_encode will escape forward slash characters '/' so you can embed the JSON
+                        // inside of a <script> tag.  However, since forward slash escaping is optional as part of the
+                        // JSON spec some servers (looking at you ONC FHIR Inferno and your missing data tests) don't
+                        // know how to handle the unescaped slashes so we remove the forward slash escaping.
+                        echo json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
                         break;
                     }
                     if ($return_method === 'direct-json') {
@@ -142,6 +161,47 @@ class HttpRestRouteHandler
             }
         }
         echo $response->getBody()->getContents();
+    }
+
+    private static function isFhirSearchRequest(HttpRestRequest $dispatchRestRequest): bool
+    {
+        return $dispatchRestRequest->isFhirSearchRequest();
+    }
+
+    private static function normalizeFhirSearchRequest(HttpRestRequest $dispatchRestRequest): HttpRestRequest
+    {
+
+        // in FHIR a POST request to a resource/_search is identical to the equivalent GET request with parameters.
+        // POST requests are application/x-www-form-urlencoded and parameters may appear both in the URL and the request
+        // body. The spec says that putting requests into both the body and query string is the same as repeating the
+        // parameter.  In our case we treat the parameter as a union search if it appears in both the query string and
+        // the post body.
+        $normalizedRequest = clone $dispatchRestRequest;
+        // chop off the back
+        $pos = strripos($dispatchRestRequest->getRequestPath(), "/_search");
+        if ($pos === false) {
+            throw new \BadMethodCallException("Attempted to normalize search request on a path that does not contain search");
+        }
+
+        $requestPath = substr($dispatchRestRequest->getRequestPath(), 0, $pos);
+        $normalizedRequest->setRequestPath($requestPath);
+        $queryVars = $normalizedRequest->getQueryParams();
+        $normalizedRequest->setRequestMethod("GET");
+
+        // grab any post vars and stuff them into our query vars
+        // @see https://www.hl7.org/fhir/http.html#search
+        if (!empty($_POST)) {
+            foreach ($_POST as $key => $value) {
+                if (isset($queryVars[$key])) {
+                    $queryVars[$key] = is_array($queryVars[$key]) ? $queryVars[$key] : [$queryVars[$key]];
+                    $queryVars[$key][] = $value;
+                } else {
+                    $queryVars[$key] = $value;
+                }
+            }
+        }
+        $normalizedRequest->setQueryParams($queryVars);
+        return $normalizedRequest;
     }
 
     /**

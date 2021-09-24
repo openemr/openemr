@@ -1,0 +1,17 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="list-group list-group-flush imz">
+{% if imx|length == 0 %}
+    <div class="list-group-item d-flex w-100">
+        {{ "None{{Immunizations}}"|xlt }}
+    </div>
+{% else %}
+    {% for i in imx %}
+        <div class="list-group-item d-flex w-100 p-1">
+            <a href="#" class="link" onclick="javascript:load_location({{ i.url}})">{{ i.immunization_data }}</a>
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+{% endblock %}

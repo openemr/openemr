@@ -71,6 +71,11 @@ class ProcessingResult
         array_push($this->internalErrors, $internalError);
     }
 
+    public function hasData()
+    {
+        return !empty($this->data);
+    }
+
     public function getData()
     {
         return $this->data;
@@ -88,6 +93,25 @@ class ProcessingResult
     public function addData($newData)
     {
         array_push($this->data, $newData);
+    }
+
+    /**
+     * Removes all the data in the processing result
+     */
+    public function clearData()
+    {
+        $this->data = [];
+    }
+
+    /**
+     * Given another processing result, combine all of its properties into this processing result
+     * @param ProcessingResult $other  The result to combine into the current object.
+     */
+    public function addProcessingResult(ProcessingResult $other)
+    {
+        $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
+        $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
+        $this->data = array_merge($this->data, $other->data);
     }
 
     /**

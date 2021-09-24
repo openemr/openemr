@@ -21,14 +21,11 @@ class DeviceService extends BaseService
 {
     private const DEVICE_TABLE = "lists";
     private const PATIENT_TABLE = "patient_data";
-    private $uuidRegistry;
 
     public function __construct()
     {
-        parent::__construct('lists');
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::DEVICE_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
+        parent::__construct(self::DEVICE_TABLE);
+        UuidRegistry::createMissingUuidsForTables([self::DEVICE_TABLE, self::PATIENT_TABLE]);
     }
 
     public function search($search, $isAndCondition = true)
@@ -36,6 +33,7 @@ class DeviceService extends BaseService
         $sql = "
             select l.*
             , patients.*
+            , provider.*
             from
             (
                 SELECT
@@ -46,7 +44,15 @@ class DeviceService extends BaseService
             JOIN (
                 SELECT `pid`,`uuid` AS `puuid`
                 from patient_data
-            ) patients ON l.pid = patients.pid";
+            ) patients ON l.pid = patients.pid
+            LEFT JOIN (
+                select 
+                   id AS provider_id
+                   ,npi AS provider_npi
+                   ,uuid AS provider_uuid
+                   ,username as provider_username
+                FROM users
+            ) provider ON l.user = provider.provider_username";
 
         $search = is_array($search) ? $search : [];
 

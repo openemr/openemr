@@ -396,6 +396,16 @@ fieldset {
   background-color: $white !important;
 }
 
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+  padding: 0.25rem 0.25rem 0.25rem 0;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+  color: $red;
+  font-size: 1.75rem;
+  line-height: 1rem !important;
+}
+
 .login-emr-logo {
   > #red-color {
     // Regular color: #a40c04

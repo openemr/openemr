@@ -15,6 +15,7 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../user.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use Symfony\Component\HttpFoundation\Response;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -36,3 +37,7 @@ if ((isset($_POST['lab'])) && (isset($_POST['val']))) {
 if ((isset($_POST['target'])) && (isset($_POST['setting']))) {
     setUserSetting($_POST['target'], $_POST['setting']);
 }
+
+// @todo This is crude, but if we make it here thre should be a proper response, so for now send a 200 but really we need better Response handling
+$res = new Response();
+$res->send();

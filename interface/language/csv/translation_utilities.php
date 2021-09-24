@@ -82,7 +82,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
             // Too many definitions, delete then recreate.
             if (!$preview) {
                 $sqlDelete = " DELETE FROM lang_definitions WHERE " . $whereClause;
-                $sqlStatement($sqlDelete, array($language, $cons_id));
+                sqlStatement($sqlDelete, array($language, $cons_id));
             }
             $create = true;
         }

@@ -14,7 +14,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\FHIR\FhirCodeSystemUris;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -63,8 +63,7 @@ class CarePlanService extends BaseService
             throw new \InvalidArgumentException("Invalid care plan type of " . $carePlanType);
         }
 
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::ENCOUNTER_TABLE]);
 
         parent::__construct(self::CARE_PLAN_TABLE);
         $this->codeTypesService = new CodeTypesService();
@@ -142,9 +141,12 @@ class CarePlanService extends BaseService
                 ,fcp.date
                 ,l.`notes` AS moodCode
                 ,category.careplan_category
-                 FROM 
+                ,provider.provider_uuid
+                ,provider.provider_npi
+                ,provider.provider_username
+                 FROM
                  (
-                    select 
+                    select
                         id AS form_id
                         ,code
                         ,codetext
@@ -153,7 +155,8 @@ class CarePlanService extends BaseService
                         ,`encounter`
                         ,`pid`
                         ,`care_plan_type`
-                    FROM 
+                        ,`user` AS `care_plan_user`
+                    FROM
                         form_care_plan
                     WHERE
                         `care_plan_type` = '$carePlanType'
@@ -162,19 +165,28 @@ class CarePlanService extends BaseService
                     select '$planCategory' AS careplan_category
                  ) category
                  JOIN (
-                    select 
+                    select
                         encounter AS eid
                         ,uuid AS euuid
                     FROM
                         form_encounter
                  ) encounters ON fcp.encounter = encounters.eid
                  LEFT JOIN (
-                    select 
+                    select
                         pid
                         ,uuid AS puuid
                     FROM
                         patient_data
                  ) patients ON fcp.pid = patients.pid
+                 LEFT JOIN (
+                     select 
+                        id AS provider_id
+                        ,uuid AS provider_uuid
+                        ,npi AS provider_npi
+                        ,username AS provider_username
+                     FROM
+                        users
+                 ) provider ON fcp.care_plan_user = provider.provider_username
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`='Plan_of_Care_Type'";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

@@ -3,6 +3,11 @@
 namespace OpenEMR\Services\FHIR;
 
 use Google\Service;
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
@@ -20,6 +25,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ReferenceSearchValue;
@@ -40,8 +48,12 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirAllergyIntoleranceService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
+class FhirAllergyIntoleranceService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService, IFhirExportableResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var AllergyIntoleranceService
      */
@@ -77,7 +89,6 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      */
     public function createProvenanceResource($dataRecord, $encode = false)
     {
-
         if (!($dataRecord instanceof FHIRAllergyIntolerance)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
@@ -166,7 +177,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             $conceptText = $dataRecord['reaction_title'] ?? "";
             $reactionConcept->setText($conceptText);
 
-            foreach ($dataRecord['reaction'] as $code => $display) {
+            foreach ($dataRecord['reaction'] as $code => $codeValues) {
                 $reactionCoding = new FHIRCoding();
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
@@ -175,23 +186,24 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 }
 
                 $reactionCoding->setCode($code);
-                $display = !empty($display) ? $display : $dataRecord['reaction_title'];
+                $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $reactionCoding->setDisplay(trim($display));
                 // @see http://hl7.org/fhir/R4/valueset-clinical-findings.html
-                // TODO: @adunsulag check with @brady.miller if we can hard code these to SNOMED as that appears to be
-                // the values in our reaction list... will we have allergy reactions that are NOT SNOMED?
-                $reactionCoding->setSystem('http://snomed.info/sct');
+                $reactionCoding->setSystem($codeValues['system']);
                 $reactionConcept->addCoding($reactionCoding);
             }
             $reaction->addManifestation($reactionConcept);
             $allergyIntoleranceResource->addReaction($reaction);
+        } else {
+            $reaction = new FHIRAllergyIntoleranceReaction();
+            $reaction->addManifestation(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
 
         if (!empty($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $display) {
+            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
                 if (is_numeric($code)) {
@@ -199,20 +211,18 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 }
                 $diagnosisCoding->setCode($code);
                 // if we have no display value we will just show the code value here
-                $display = !empty($display) ? $display : $dataRecord['title'];
+                $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $diagnosisCoding->setDisplay(trim($display));
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
             $allergyIntoleranceResource->setCode($diagnosisCode);
         } else {
-            $diagnosisCode = new FHIRCodeableConcept();
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCoding->setCode("unknown");
-            $diagnosisCoding->setDisplay(xlt("Unknown"));
-            $diagnosisCode->addCoding($diagnosisCoding);
-            $allergyIntoleranceResource->setCode($diagnosisCode);
+            $allergyIntoleranceResource->setCode(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
+        // we don't have title anywhere else so we mark it as an additional narrative.  If we don't have an actual code
+        // this becomes very helpful.
+        $allergyIntoleranceResource->setText(UtilsService::createNarrative($dataRecord['title'], "additional"));
 
         $verificationStatus = new FHIRCodeableConcept();
         $verificationCoding = array(
@@ -244,24 +254,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->allergyIntoleranceService->search($openEMRSearchParameters, true, $puuidBind);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
     }
 
     public function getProfileURIs(): array

@@ -12,6 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
@@ -37,6 +39,8 @@ class RestControllerHelper
 
     /**
      * The default FHIR services class namespace
+     * TODO: should we build a fhir service locator class?  There are two places this is now used, in this class and
+     * in the FhirProvenanceService...
      */
     const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
 
@@ -109,15 +113,19 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
+            $recordsCount = count($dataResult);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
-                $dataResult = (count($dataResult) === 0) ? [] : $dataResult[0];
+                $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
             }
 
             $httpResponseBody["data"] = $dataResult;
@@ -142,15 +150,18 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif (count($processingResult->getData()) <= 0) {
             http_response_code(404);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
         } else {
             http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
-
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
             $httpResponseBody = $dataResult[0];
         }
 
@@ -162,6 +173,11 @@ class RestControllerHelper
         if (empty($service)) {
             return; // nothing to do here as the service isn't defined.
         }
+
+        if (!$service instanceof IResourceSearchableService) {
+            return; // nothing to do here as the source is not searchable.
+        }
+
         if (empty($capResource->getSearchInclude())) {
             $capResource->addSearchInclude('*');
         }
@@ -214,22 +230,18 @@ class RestControllerHelper
     {
         $operation = end($items);
         // we want to skip over anything that's not a resource $operation
-        if ($operation === '$export') {
-            $operationName = strtolower($resource) . '-export';
+        if ($operation == '$export') {
+            if ($resource != '$export') {
+                $operationName = strtolower($resource) . '-export';
+            } else {
+                $operationName = 'export';
+            }
             // define export operation
             $resource = new FHIRPatient();
-            $operation = new FHIRCapabilityStatementOperation();
-            $operation->setName($operationName);
-            $operation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
-
-            // TODO: adunsulag so the Single Patient API fails on this expectation being here yet the Multi-Patient API failed when it wasn't here
-            // need to investigate what, if anything we are missing, perhaps another extension definition that tells the inferno server
-            // that this should be parsed in a single patient context??
-//            $extension = new FHIRExtension();
-//            $extension->setValueCode(new FHIRCode('SHOULD'));
-//            $extension->setUrl('http://hl7.org/fhir/StructureDefinition/capabilitystatement-expectation');
-//            $operation->addExtension($extension);
-//            $capResource->addOperation($operation);
+            $fhirOperation = new FHIRCapabilityStatementOperation();
+            $fhirOperation->setName($operation);
+            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
+            $capResource->addOperation($fhirOperation);
         }
     }
 

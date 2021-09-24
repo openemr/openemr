@@ -457,7 +457,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     if (strpos($sar[1], $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
-                        while (list($key, $val) = each($scda)) {
+                        foreach ($scda as $key => $val) {
                             if ($key == 0 && $val) {
                                 $elem01 = $cd27x->get_271_code('EB13', $val);
                             } else {

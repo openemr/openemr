@@ -73,7 +73,7 @@ class OemrUI
     {
         global $v_js_includes;
 
-        $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientNameFirstLast($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
+        $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
         $this->expandable = $arrOeUiSettings['expandable'] ?? null;
         $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
         $this->arrAction = array(($arrOeUiSettings['action'] ?? null), ($arrOeUiSettings['action_title'] ?? null), ($arrOeUiSettings['action_href'] ?? null));

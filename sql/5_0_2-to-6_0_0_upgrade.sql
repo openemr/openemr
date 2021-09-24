@@ -70,18 +70,6 @@
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
 
---  #IfUuidNeedUpdate
---    argument: table_name
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateId
---    argument: table_name primary_id
---    behavior: this will add and populate a uuid column into table
-
---  #IfUuidNeedUpdateVertical
---    argument: table_name table_columns
---    behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
-
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
@@ -561,16 +549,20 @@ CREATE TABLE `uuid_registry` (
 ALTER TABLE `uuid_registry` ADD `table_id` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn uuid_registry table_vertical
+ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfMissingColumn uuid_registry couchdb
 ALTER TABLE `uuid_registry` ADD `couchdb` varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
-#IfMissingColumn uuid_registry mapped
-ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
-#EndIf
-
 #IfMissingColumn uuid_registry document_drive
 ALTER TABLE `uuid_registry` ADD `document_drive` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn uuid_registry mapped
+ALTER TABLE `uuid_registry` ADD `mapped` tinyint(4) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn patient_data uuid
@@ -579,9 +571,6 @@ ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex patient_data uuid
 CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate patient_data
 #EndIf
 
 #IfNotColumnTypeDefault insurance_data subscriber_DOB date NULL
@@ -624,9 +613,6 @@ ALTER TABLE `form_encounter` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex form_encounter uuid
 CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate form_encounter
 #EndIf
 
 #IfMissingColumn form_encounter class_code
@@ -688,13 +674,6 @@ ALTER TABLE `users` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `users` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate users
-#EndIf
-
-#IfMissingColumn uuid_registry table_vertical
-ALTER TABLE `uuid_registry` ADD `table_vertical` varchar(255) NOT NULL DEFAULT '';
-#EndIf
-
 #IfMissingColumn facility_user_ids uuid
 ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -703,18 +682,12 @@ ALTER TABLE `facility_user_ids` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE INDEX `uuid` ON `facility_user_ids` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateVertical facility_user_ids uid:facility_id
-#EndIf
-
 #IfMissingColumn facility uuid
 ALTER TABLE `facility` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfNotIndex facility uuid
 CREATE UNIQUE INDEX `uuid` ON `facility` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate facility
 #EndIf
 
 #IfNotRow codes code_text respiratory syncytial virus monoclonal antibody (motavizumab), intramuscular
@@ -1914,18 +1887,12 @@ ALTER TABLE `immunizations` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `immunizations` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdate immunizations
-#EndIf
-
 #IfMissingColumn lists uuid
 ALTER TABLE `lists` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfNotIndex lists uuid
 CREATE UNIQUE INDEX `uuid` ON `lists` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate lists
 #EndIf
 
 #IfMissingColumn lists verification
@@ -1966,9 +1933,6 @@ ALTER TABLE `procedure_order` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `procedure_order` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId procedure_order procedure_order_id
-#EndIf
-
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#dee2e6' WHERE `pc_constant_id`='no_show' AND `pc_catcolor`='#DDDDDD';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#cce5ff' WHERE `pc_constant_id`='in_office' AND `pc_catcolor`='#99CCFF';
 UPDATE `openemr_postcalendar_categories` SET `pc_catcolor`='#fdb172' WHERE `pc_constant_id`='out_of_office' AND `pc_catcolor`='#99FFFF';
@@ -1993,18 +1957,12 @@ ALTER TABLE `drugs` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `drugs` (`uuid`);
 #EndIf
 
-#IfUuidNeedUpdateId drugs drug_id
-#EndIf
-
 #IfMissingColumn prescriptions uuid
 ALTER TABLE `prescriptions` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfNotIndex prescriptions uuid
 CREATE UNIQUE INDEX `uuid` ON `prescriptions` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate prescriptions
 #EndIf
 
 #IfNotColumnType prescriptions rxnorm_drugcode varchar(25)
@@ -2049,9 +2007,6 @@ ALTER TABLE `procedure_result` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex procedure_result uuid
 CREATE UNIQUE INDEX `uuid` ON `procedure_result` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdateId procedure_result procedure_result_id
 #EndIf
 
 #IfNotColumnType form_bronchitis user varchar(50)
@@ -2237,9 +2192,6 @@ ALTER TABLE `ccda` ADD `uuid` binary(16) DEFAULT NULL;
 
 #IfNotIndex ccda uuid
 CREATE UNIQUE INDEX `uuid` ON `ccda` (`uuid`);
-#EndIf
-
-#IfUuidNeedUpdate ccda
 #EndIf
 
 #IfNotColumnTypeDefault form_prior_auth date datetime NULL

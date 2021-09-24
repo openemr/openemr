@@ -406,7 +406,7 @@ class ApplicationTable extends AbstractTableGateway
 
         $output_date = implode($seperator_output, $output_date_arr);
 
-        $output_date = $temp[1] ? $output_date . " " . $temp[1] : $output_date; //append the time, if exists, with the new formatted date
+        $output_date = (!empty($temp[1])) ? $output_date . " " . $temp[1] : $output_date; //append the time, if exists, with the new formatted date
         return $output_date;
     }
 

@@ -21,12 +21,20 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var CarePlanService
      */
@@ -84,11 +92,15 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $lifecycleStatus->setValue("active");
         $goal->setLifecycleStatus($lifecycleStatus);
 
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
+            $goal->setExpressedBy(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+        }
+
 
         // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
         // activity element if they so choose, for now we just return the combined description of the care plan.
         if (!empty($dataRecord['details'])) {
-            $text = $this->getCarePlanTextFromDetails($dataRecord['details']);
+            $text = $this->getGoalTextFromDetails($dataRecord['details']);
             $codeableConcept = new FHIRCodeableConcept();
             $codeableConcept->setText($text['text']);
             $goal->setDescription($codeableConcept);
@@ -103,10 +115,10 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                 } else {
                     $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());
                 }
-
-                if (!empty($detail['description'])) {
+                $detailDescription = trim($detail['description'] ?? "");
+                if (!empty($detailDescription)) {
                     // if description is populated we also have to populate the measure with the correct code
-                    $fhirGoalTarget->setDetailString($detail['description']);
+                    $fhirGoalTarget->setDetailString($detailDescription);
 
                     if (!empty($detail['code'])) {
                         $codeText = $codeTypeService->lookup_code_description($detail['code']);
@@ -140,52 +152,24 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
-     * Performs a FHIR Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $search = [
-            '_id' => $fhirResourceId
-        ];
-        if (!empty($puuidBind)) {
-            $search['patient'] = 'Patient/' . $puuidBind;
-        }
-        return $this->getAll($search);
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->service->search($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord, $encode = false)
     {
+        if (!($dataRecord instanceof FHIRGoal)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
         $provenanceService = new FhirProvenanceService();
-        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord);
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getExpressedBy());
         return $provenance;
     }
 
@@ -199,14 +183,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    private function getCarePlanTextFromDetails($details)
+    private function getGoalTextFromDetails($details)
     {
         $descriptions = [];
         foreach ($details as $detail) {
             // use description or fallback on codetext if needed
             $descriptions[] = $detail['description'] ?? $detail['codetext'] ?? "";
         }
-        $carePlanText = ['text' => implode("\n", $descriptions), "xhtml" => ""];
+        $carePlanText = ['text' => trim(implode("\n", $descriptions)), "xhtml" => ""];
         if (!empty($descriptions)) {
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }

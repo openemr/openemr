@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
@@ -25,7 +26,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-abstract class FhirServiceBase
+abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
 {
 
     /**
@@ -38,8 +39,15 @@ abstract class FhirServiceBase
      */
     private $searchFieldFactory;
 
+    /**
+     * Url to the base fhir api location
+     * @var string
+     */
+    private $fhirApiURL;
+
     public function __construct($fhirApiURL = null)
     {
+        $this->fhirApiURL = $fhirApiURL;
         $params = $this->loadSearchParameters();
         $this->resourceSearchParameters = is_array($params) ? $params : [];
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
@@ -54,9 +62,38 @@ abstract class FhirServiceBase
     }
 
     /**
+     * @return string
+     */
+    public function getFhirApiURL()
+    {
+        return $this->fhirApiURL;
+    }
+
+    /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
     abstract protected function loadSearchParameters();
+
+    /**
+     * Returns only the supported search parameters that the service supports from the passed in parameters array.  If
+     * the search parameters include any search modifiers they are retained in the return array if the value is supported
+     * @param $paramsToFilter hashmap of search terms to search values
+     * @return array Hashmap of supported search terms to the search values
+     */
+    public function getSupportedSearchParams($paramsToFilter)
+    {
+        $searchParams = $this->getSearchParams();
+        if (empty($searchParams)) {
+            return [];
+        }
+        $filteredParams = [];
+        foreach ($paramsToFilter as $param => $value) {
+            if ($this->getSearchFieldFactory()->hasSearchField($param)) {
+                $filteredParams[$param] = $paramsToFilter[$param];
+            }
+        }
+        return $filteredParams;
+    }
 
 
     /**
@@ -74,14 +111,14 @@ abstract class FhirServiceBase
      * @param $fhirResource The source FHIR resource
      * @return a mapped OpenEMR data record (array)
      */
-    abstract public function parseFhirResource($fhirResource = array());
+    abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
 
     /**
      * Inserts a FHIR resource into the system.
      * @param $fhirResource The FHIR resource
      * @return The OpenEMR Service Result
      */
-    public function insert($fhirResource)
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         return $this->insertOpenEmrRecord($openEmrRecord);
@@ -99,7 +136,7 @@ abstract class FhirServiceBase
      * @param $fhirResource The FHIR resource.
      * @return The OpenEMR Service Result
      */
-    public function update($fhirResourceId, $fhirResource)
+    public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
         $openEmrRecord['uuid'] = $fhirResourceId;
@@ -131,7 +168,7 @@ abstract class FhirServiceBase
      * Performs a FHIR Resource lookup by FHIR Resource ID
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
      */
-    public function getOne($fhirResourceId, $puuidBind = null)
+    public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult
     {
         // every FHIR resource must support the _id search parameter so we will just piggy bag on
         $searchParam = ['_id' => $fhirResourceId];
@@ -190,8 +227,9 @@ abstract class FhirServiceBase
                 }
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
-                'field' => $exception->getField()]);
+            $systemLogger = new SystemLogger();
+            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+                'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
@@ -221,7 +259,6 @@ abstract class FhirServiceBase
     protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind)
     {
         $oeSearchParameters = array();
-        $searchFactory = $this->getSearchFieldFactory();
 
         foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
             try {
@@ -233,20 +270,19 @@ abstract class FhirServiceBase
                 // if the $searchValue is an array then this is treated as an AND condition
                 // if $searchValue is an array and individual fields contains comma separated values the and clause takes
                 // precedence and ALL values will be UNIONED (AND clause).
-                if ($searchFactory->hasSearchField($fhirSearchField)) {
-                    $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
-                    $oeSearchParameters[$searchField->getName()] = $searchField;
-                } else {
-                    throw new SearchFieldException($fhirSearchField, xlt("This search field does not exist or is not supported"));
-                }
+                $searchField = $this->createSearchParameterForField($fhirSearchField, $searchValue);
+                $oeSearchParameters[$searchField->getName()] = $searchField;
             } catch (\InvalidArgumentException $exception) {
-                throw new SearchFieldException($fhirSearchField, "The search field argument was invalid, improperly formatted, or could not be parsed", $exception->getCode(), $exception);
+                $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
+                . " Inner message: " . $exception->getMessage();
+                throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
             }
         }
 
         // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
         // we restrict the data to JUST that patient.
         if (!empty($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
+            $searchFactory = $this->getSearchFieldFactory();
             $patientField = $this->getPatientContextSearchField();
             // TODO: @adunsulag not sure if every service will already have a defined binding for the patient... I'm assuming for Patient compartments we would...
             // yet we may need to extend the factory in the future to handle this.
@@ -256,13 +292,24 @@ abstract class FhirServiceBase
         return $oeSearchParameters;
     }
 
+    protected function createSearchParameterForField($fhirSearchField, $searchValue)
+    {
+        $searchFactory = $this->getSearchFieldFactory();
+        if ($searchFactory->hasSearchField($fhirSearchField)) {
+            $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
+            return $searchField;
+        } else {
+            throw new SearchFieldException($fhirSearchField, xlt("This search field does not exist or is not supported"));
+        }
+    }
+
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
      */
-    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
+    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult;
 
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource

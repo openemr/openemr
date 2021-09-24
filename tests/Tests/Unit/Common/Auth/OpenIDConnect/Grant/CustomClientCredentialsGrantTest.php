@@ -27,6 +27,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -63,6 +64,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $grant->setHttpClient(new Client());
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
+        $grant->setJwtRepository($this->getMockJwtRepository());
 
         $response = $this->createMock(ResponseTypeInterface::class);
 
@@ -113,6 +115,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $grant->setHttpClient($httpClient);
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
+        $grant->setJwtRepository($this->getMockJwtRepository());
 
         $response = $this->createMock(ResponseTypeInterface::class);
 
@@ -207,6 +210,12 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $repo;
     }
 
+    public function getMockJwtRepository()
+    {
+        $repo = $this->createMock(JWTRepository::class);
+        return $repo;
+    }
+
     private function getMockServerRequestForJWT($jwt)
     {
         $request = $this->createMock(ServerRequestInterface::class);
@@ -224,6 +233,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier(self::TEST_CLIENT_ID);
         $clientEntity->setIsConfidential(true);
+        $clientEntity->setIsEnabled(true);
         return $clientEntity;
     }
 

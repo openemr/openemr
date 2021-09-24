@@ -16,6 +16,7 @@ var medicationEntryLevel = require("./medicationEntryLevel");
 var medicalDeviceEntryLevel = require("./medicalDeviceEntryLevel");
 
 exports.allergyProblemAct = allergyEntryLevel.allergyProblemAct;
+exports.allergyProblemActNKA = allergyEntryLevel.allergyProblemActNKA;
 
 exports.medicationActivity = medicationEntryLevel.medicationActivity;
 
@@ -37,6 +38,7 @@ exports.planOfCareActivitySubstanceAdministration = planOfCareEntryLevel.planOfC
 exports.planOfCareActivitySupply = planOfCareEntryLevel.planOfCareActivitySupply;
 exports.planOfCareActivityInstructions = planOfCareEntryLevel.planOfCareActivityInstructions;
 exports.healthConcernActivityAct = planOfCareEntryLevel.healthConcernActivityAct;
+exports.healthConcernObservation = planOfCareEntryLevel.healthConcernObservation;
 
 exports.goalActivityObservation = goalEntryLevel.goalActivityObservation;
 

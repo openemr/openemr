@@ -104,7 +104,7 @@ class CarecoordinationController extends AbstractActionController
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
-            'file_location' => basename($_FILES['file']['name']),
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
         ));
@@ -113,6 +113,9 @@ class CarecoordinationController extends AbstractActionController
 
     public function newpatientImportCommandAction()
     {
+        // get around a large ccda data array
+        ini_set("memory_limit", -1);
+
         $request = $this->getRequest();
         if (!$request instanceof ConsoleRequest) {
             throw new RuntimeException('You can only use this action from a console!');

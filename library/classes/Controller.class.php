@@ -1,5 +1,6 @@
 <?php
 
+// TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
 
@@ -20,7 +21,7 @@ class Controller extends Smarty
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
          $this->assign("CONTROLLER", "controller.php?");
-         $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);
+         $this->assign("CONTROLLER_THIS", "controller.php?" . ($_SERVER['QUERY_STRING'] ?? ''));
          $this->assign('GLOBALS', $GLOBALS);
     }
 
@@ -78,10 +79,10 @@ class Controller extends Smarty
             $_POST['process'] = "true";
         }
 
-            $args = array_reverse(array_keys($qarray));
-            $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
-            $parts = explode("_", $c_name);
-            $name = "";
+        $args = array_reverse(array_keys($qarray));
+        $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
+        $parts = explode("_", $c_name);
+        $name = "";
 
         foreach ($parts as $p) {
             $name .= ucfirst($p);

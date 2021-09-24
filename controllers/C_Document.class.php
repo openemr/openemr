@@ -39,17 +39,20 @@ class C_Document extends Controller
         $this->patientService = new PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "document&");
 
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        if (php_sapi_name() !== 'cli') {
+            // skip when this is being called via command line for the ccda importing
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
 
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
 
-        $this->_args = array("patient_id" => $_GET['patient_id']);
+        $this->_args = array("patient_id" => ($_GET['patient_id'] ?? null));
 
         $this->assign("STYLE", $GLOBALS['style']);
         $t = new CategoryTree(1);
@@ -1330,6 +1333,7 @@ class C_Document extends Controller
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
+        // TODO: This should be moved into a service so we can handle things such as uuid generation....
         if ($encounter != 0) {
             $ep = sqlQuery("select u.username as assigned_to from form_encounter inner join users u on u.id = provider_id where encounter = ?", array($encounter));
         } elseif ($image_procedure_id != 0) {

@@ -8,15 +8,20 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SocialHistoryService;
+
+require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
 $facilityService = new FacilityService();
 
@@ -70,7 +75,7 @@ function getInsuranceProvider($ins_id)
 
     $sql = "select name from insurance_companies where id=?";
     $row = sqlQuery($sql, array($ins_id));
-    return $row['name'];
+    return $row['name'] ?? '';
 }
 
 function getInsuranceProviders()
@@ -109,7 +114,7 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id,
             addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
@@ -202,12 +207,12 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
     $s .= "  <td class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
-        $s .= "<b>" . text($r['name']) . "</b>\n";
-        if ($r['street']) {
+        $s .= "<b>" . text($r['name'] ?? '') . "</b>\n";
+        if (!empty($r['street'])) {
             $s .= "<br />" . text($r['street']) . "\n";
         }
 
-        if ($r['city'] || $r['state'] || $r['postal_code']) {
+        if (!empty($r['city']) || !empty($r['state']) || !empty($r['postal_code'])) {
             $s .= "<br />";
             if ($r['city']) {
                 $s .= text($r['city']);
@@ -228,11 +233,11 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
             $s .= "\n";
         }
 
-        if ($r['country_code']) {
+        if (!empty($r['country_code'])) {
             $s .= "<br />" . text($r['country_code']) . "\n";
         }
 
-        if (preg_match('/[1-9]/', $r['phone'])) {
+        if (preg_match('/[1-9]/', ($r['phone'] ?? ''))) {
             $s .= "<br />" . text($r['phone']) . "\n";
         }
     }
@@ -293,8 +298,9 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         $command = "like";
     }
 
+// removing active from query since is checked above with $providers_only argument
     $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
-        "from users where username != '' and active = 1 and id $command '" .
+        "from users where username != '' and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
@@ -313,14 +319,14 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         }
     }
 
-    return $returnval;
+    return ($returnval ?? null);
 }
 
 function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
-    if (strlen($pi[0]["lname"]) > 0) {
-        if (strlen($pi[0]["suffix"]) > 0) {
+    if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
+        if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
 
@@ -700,7 +706,7 @@ function getByPatientDemographicsFilter(
 function getPatientPID($args)
 {
     $pid = "%";
-    $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+    $given = "pid, id, lname, fname, mname, suffix, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
     $orderby = "lname ASC, fname ASC";
     $limit = "all";
     $start = "0";
@@ -764,6 +770,40 @@ function getPatientName($pid)
 
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
+}
+
+/**
+ * Get a patient's first name, middle name, last name and suffix if applicable.
+ *
+ * Returns a properly formatted, complete name when applicable. Example name
+ * would be "John B Doe Jr". No additional punctuation is added. Spaces are
+ * correctly omitted if the middle name of suffix does not apply.
+ *
+ * @var $pid int The Patient ID
+ * @returns string The Full Name
+ */
+function getPatientFullNameAsString(int $pid): string
+{
+    $ptData = getPatientPID(["pid" => $pid]);
+    $pt = $ptData[0];
+
+    if (empty($pt['lname'])) {
+        return "";
+    }
+
+    $name = $pt['fname'];
+
+    if ($pt['mname']) {
+        $name .= " {$pt['mname']}";
+    }
+
+    $name .= " {$pt['lname']}";
+
+    if ($pt['suffix']) {
+        $name .= " {$pt['suffix']}";
+    }
+
+    return $name;
 }
 
 /* return a patient's name in the format FIRST LAST */
@@ -1073,6 +1113,7 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
+        updateDupScore($result['pid']);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
@@ -1140,7 +1181,7 @@ function updateEmployerData($pid, $new, $create = false)
             return sqlInsert("INSERT INTO employer_data SET $set");
         }
 
-        return $old['id'];
+        return ($old['id'] ?? '');
     }
 }
 
@@ -1370,40 +1411,21 @@ function updateInsuranceData($id, $new)
 
 function newHistoryData($pid, $new = false)
 {
-    $arraySqlBind = array();
-    $sql = "insert into history_data set pid = ?, date = NOW()";
-    array_push($arraySqlBind, $pid);
-    if ($new) {
-        foreach ($new as $key => $value) {
-            array_push($arraySqlBind, $value);
-            $sql .= ", `$key` = ?";
-        }
-    }
+    $socialHistoryService = new SocialHistoryService();
 
-    return sqlInsert($sql, $arraySqlBind);
+    $insertionRecord = $new;
+    if (!is_array(($insertionRecord))) {
+        $insertionRecord = [
+            'pid' => $pid
+        ];
+    }
+    $socialHistoryService->create($insertionRecord);
 }
 
 function updateHistoryData($pid, $new)
 {
-    $real = getHistoryData($pid);
-    foreach ($new as $key => $value) {
-        $real[$key] = $value;
-    }
-
-    $real['id'] = "";
-    // need to unset date, so can reset it below
-    unset($real['date']);
-
-    $arraySqlBind = array();
-    $sql = "insert into history_data set `date` = NOW(), ";
-    foreach ($real as $key => $value) {
-        array_push($arraySqlBind, $value);
-        $sql .= "`$key` = ?, ";
-    }
-
-    $sql = substr($sql, 0, -2);
-
-    return sqlInsert($sql, $arraySqlBind);
+    $socialHistoryService = new SocialHistoryService();
+    return $socialHistoryService->updateHistoryDataForPatientPid($pid, $new);
 }
 
 // Returns Age
@@ -1721,6 +1743,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
             // going to comment this out for now since computing future copays doesn't
             // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
             // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            $copay = 0;
 
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
@@ -1812,4 +1835,22 @@ function is_patient_deceased($pid, $date = '')
 
         return $results;
     }
+}
+
+// This computes, sets and returns the dup score for the given patient.
+//
+function updateDupScore($pid)
+{
+    $row = sqlQuery(
+        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+        "p1.pid = ? AND p2.pid < p1.pid",
+        array($pid)
+    );
+    $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
+    sqlStatement(
+        "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
+        array($dupscore, $pid)
+    );
+    return $dupscore;
 }

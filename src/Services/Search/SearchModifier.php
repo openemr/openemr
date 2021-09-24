@@ -17,4 +17,10 @@ final class SearchModifier
     public const EXACT = "exact";
     public const PREFIX = "prefix"; // default for string
     public const MISSING = "missing";
+
+    /**
+     * ensures the search does not return if the values equal exactly
+     * This is used internally in our services API, and does not conform to FHIR search specifiers.
+     */
+    public const NOT_EQUALS_EXACT = "not-in-exact";
 }

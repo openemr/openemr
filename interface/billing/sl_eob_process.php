@@ -53,14 +53,14 @@ function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "fals
 {
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
-    "  <td class='" . attr($class) . "' colspan='4'>&nbsp;</td>\n";
+    "  <td class='" . attr($class) . "' colspan='4'></td>\n";
     if ($nl2br_process) {
         $dline .= "  <td class='" . attr($class) . "'>" . nl2br(text($description)) . "</td>\n";
     } else {
         $dline .= "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n";
     }
     $dline .=
-    "  <td class='" . attr($class) . "' colspan='2'>&nbsp;</td>\n" .
+    "  <td class='" . attr($class) . "' colspan='2'></td>\n" .
     " </tr>\n";
     echo $dline;
 }
@@ -79,19 +79,19 @@ function writeDetailLine(
 
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) {
-        $ptname = '&nbsp;';
+        $ptname = '';
     } else {
         $last_ptname = $ptname;
     }
 
     if ($invnumber == $last_invnumber) {
-        $invnumber = '&nbsp;';
+        $invnumber = '';
     } else {
         $last_invnumber = $invnumber;
     }
 
     if ($code == $last_code) {
-        $code = '&nbsp;';
+        $code = '';
     } else {
         $last_code = $code;
     }
@@ -127,13 +127,13 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     ksort($prev['dtl']);
     foreach ($prev['dtl'] as $dkey => $ddata) {
         $ddate = substr($dkey, 0, 10);
-        $description = $ddata['src'] . $ddata['rsn'];
+        $description = ($ddata['src'] ?? '') . ($ddata['rsn'] ?? '');
         if ($ddate == '          ') { // this is the service item
             $ddate = $dos;
             $description = 'Service Item';
         }
 
-        $amount = sprintf("%.2f", $ddata['chg'] - $ddata['pmt']);
+        $amount = sprintf("%.2f", (int)($ddata['chg'] ?? '') - (int)($ddata['pmt'] ?? ''));
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
         writeDetailLine(
             $bgcolor,
@@ -155,13 +155,21 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
 // TODO: Sort colors here for Bootstrap themes
 function era_callback_check(&$out)
 {
-    global $InsertionId;//last inserted ID of
+    // last inserted ID of ar_session table
+    global $InsertionId;
     global $StringToEcho,$debug;
 
-    if ($_GET['original'] == 'original') {
-        $StringToEcho = "<br/><br/><br/><br/><br/><br/>";
-        $StringToEcho .= "<table class='table table-bordered' cellpadding='0' cellspacing='0' width='750'>";
-        $StringToEcho .= "<tr class='table-light'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
+    if (!empty($_GET['original']) && $_GET['original'] == 'original') {
+        $StringToEcho .= "<table class='table'>";
+        $StringToEcho .= "<thead>";
+        $StringToEcho .= "<tr>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Check Number') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Payee Name') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Payer Name') . "</th>";
+        $StringToEcho .= "<th scope='col'>" . xlt('Check Amount') . "</th>";
+        $StringToEcho .= "</tr>";
+        $StringToEcho .= "</thead>";
+        $StringToEcho .= "<tbody>";
         $WarningFlag = false;
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
             if ($check_count % 2 == 1) {
@@ -170,25 +178,33 @@ function era_callback_check(&$out)
                 $bgcolor = '#ffdddd';
             }
 
-             $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+            $rs = sqlQ("select reference from ar_session where reference=?", array($out['check_number' . $check_count]));
+
             if (sqlNumRows($rs) > 0) {
                 $bgcolor = '#ff0000';
                 $WarningFlag = true;
             }
 
             $StringToEcho .= "<tr bgcolor='" . attr($bgcolor) . "'>";
-            $StringToEcho .= "<td><input type='checkbox'  name='chk" . attr($out['check_number' . $check_count]) . "' value='" . attr($out['check_number' . $check_count]) . "'/></td>";
-            $StringToEcho .= "<td>" . text($out['check_number' . $check_count]) . "</td>";
+            $StringToEcho .= "<th scope='row'>";
+            $StringToEcho .= "<input type='checkbox' name='chk" . attr($out['check_number' . $check_count]) . "' id='chk" . attr($out['check_number' . $check_count]) . "'/>";
+            $StringToEcho .= "<label for='chk" . attr($out['check_number' . $check_count]) . "'>";
+            $StringToEcho .= "&nbsp" . text($out['check_number' . $check_count]) . "</label>";
+            $StringToEcho .= "</th>";
             $StringToEcho .= "<td>" . text($out['payee_name' . $check_count]) . "</td>";
-            $StringToEcho .= "<td align='right'>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
+            $StringToEcho .= "<td>" . text($out['payer_name' . $check_count]) . "</td>";
+            $StringToEcho .= "<td>" . text(number_format($out['check_amount' . $check_count], 2)) . "</td>";
             $StringToEcho .= "</tr>";
         }
 
-        $StringToEcho .= "<tr class='table-light'><td colspan='4' align='center'><input type='submit' name='CheckSubmit' value='Submit'/></td></tr>";
+        $StringToEcho .= "<tr class='table-light'><td align='left'><button type='button' class='btn btn-secondary btn-save' name='Submit1' onclick='checkAll(true)'>" . xlt('Check All') . "</button></td>";
+        $StringToEcho .= "<td><input type='submit' name='CheckSubmit' value='Submit'/></td>";
+        $StringToEcho .= "</tr>";
+
         if ($WarningFlag == true) {
             $StringToEcho .= "<tr class='table-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
-
+        $StringToEcho .= "</tbody>";
         $StringToEcho .= "</table>";
     } else {
         for ($check_count = 1; $check_count <= $out['check_count']; $check_count++) {
@@ -207,8 +223,8 @@ function era_callback(&$out)
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
-    global $InsertionId;//last inserted ID of
-
+    // last inserted ID of ar_session table
+    global $InsertionId;
 
     // Some heading information.
     $chk_123 = $out['check_number'];
@@ -330,7 +346,7 @@ function era_callback(&$out)
         }
 
     // Simplify some claim attributes for cleaner code.
-        $service_date = parse_date($out['dos']);
+        $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
@@ -352,7 +368,7 @@ function era_callback(&$out)
                 $codekey .= ':' . $svc['mod'];
             }
 
-            $prev = $codes[$codekey];
+            $prev = $codes[$codekey] ?? '';
             $codetype = ''; //will hold code type, if exists
 
             // This reports detail lines already on file for this service item.
@@ -401,7 +417,7 @@ function era_callback(&$out)
                         $description,
                         $debug,
                         '',
-                        $codetype
+                        $codetype ?? ''
                     );
                     $invoice_total += $svc['chg'];
                 }
@@ -556,7 +572,7 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype
+                            $codetype ?? ''
                         );
                         $invoice_total -= $adj['amount'];
                     }
@@ -707,9 +723,8 @@ if (!$debug) {
 <form action="sl_eob_process.php" method="get">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<center>
 <?php
-if ($_GET['original'] == 'original') {
+if (!empty($_GET['original']) && $_GET['original'] == 'original') {
     $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
@@ -749,20 +764,22 @@ if ($_GET['original'] == 'original') {
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';
-        foreach ($InsertionId as $key => $value) {
-            $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
-            $row = sqlFetchArray($rs);
-            $pay_total = $row['pay_total'];
-            $rs = sqlQ(
-                "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
-                array($value)
-            );
-            $row = sqlFetchArray($rs);
-            $pay_amount = $row['sum_pay_amount'];
+        if (is_countable($InsertionId)) {
+            foreach ($InsertionId as $key => $value) {
+                $rs = sqlQ("select pay_total from ar_session where session_id=?", array($value));
+                $row = sqlFetchArray($rs);
+                $pay_total = $row['pay_total'];
+                $rs = sqlQ(
+                    "select sum(pay_amount) sum_pay_amount from ar_activity where deleted IS NULL AND session_id = ?",
+                    array($value)
+                );
+                $row = sqlFetchArray($rs);
+                $pay_amount = $row['sum_pay_amount'];
 
-            if (($pay_total - $pay_amount) <> 0) {
-                $StringIssue .= $key . ' ';
-                $StringPrint = 'Yes';
+                if (($pay_total - $pay_amount) <> 0) {
+                    $StringIssue .= $key . ' ';
+                    $StringPrint = 'Yes';
+                }
             }
         }
 
@@ -777,19 +794,26 @@ if ($_GET['original'] == 'original') {
     <?php
 }
 ?>
-</center>
 <script>
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
+function checkAll(checked) {
+    var f = document.forms[0];
+    for (var i = 0; i < f.elements.length; ++i) {
+        var etype = f.elements[i].type;
+        if (etype === 'checkbox')
+            f.elements[i].checked = checked;
+    }
+}
 </script>
 <input type="hidden" name="paydate" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['paydate'])); ?>" />
-<input type="hidden" name="post_to_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['post_to_date'])); ?>" />
-<input type="hidden" name="deposit_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['deposit_date'])); ?>" />
+<input type="hidden" name="post_to_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['post_to_date'] ?? '')); ?>" />
+<input type="hidden" name="deposit_date" value="<?php echo attr(DateToYYYYMMDD($_REQUEST['deposit_date'] ?? '')); ?>" />
 <input type="hidden" name="debug" value="<?php echo attr($_REQUEST['debug']); ?>" />
-<input type="hidden" name="InsId" value="<?php echo attr($_REQUEST['InsId']); ?>" />
+<input type="hidden" name="InsId" value="<?php echo attr($_REQUEST['InsId'] ?? ''); ?>" />
 <input type="hidden" name="eraname" value="<?php echo attr($eraname); ?>" />
 </form>
 </body>

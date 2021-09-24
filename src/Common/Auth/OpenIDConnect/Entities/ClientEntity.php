@@ -37,6 +37,23 @@ class ClientEntity implements ClientEntityInterface
      */
     protected $isEnabled;
 
+    /**
+     * @var array[] Array of trusted user objects
+     */
+    protected $trustedUsers;
+
+    /**
+     * @var string[] The list of contact email addresses to reach out for questions about the client app
+     */
+    protected $contacts;
+
+    /**
+     * @var string The logout uri to send users to to logout from the application.
+     */
+    protected $logoutRedirectUris;
+
+    protected $registrationDate;
+
     public function __construct()
     {
         $this->scopes = [];
@@ -164,5 +181,59 @@ class ClientEntity implements ClientEntityInterface
     public function setJwksUri($jwksUri): void
     {
         $this->jwksUri = $jwksUri;
+    }
+
+    /**
+     * Array of records from the oauth2_trusted_users table
+     * @return array[]
+     */
+    public function getTrustedUsers(): array
+    {
+        return $this->trustedUsers;
+    }
+
+    /**
+     * Set the trusted user records (these come from the oauth2_trusted_users table
+     * @param array $trustedUsers
+     */
+    public function setTrustedUsers(array $trustedUsers)
+    {
+        $this->trustedUsers = $trustedUsers;
+    }
+
+    public function getContacts()
+    {
+        return $this->contacts;
+    }
+
+    public function setContacts($contacts)
+    {
+        $this->contacts = $contacts;
+    }
+
+    public function setRegistrationDate($registerDate)
+    {
+        $this->registrationDate = $registerDate;
+    }
+
+    public function getRegistrationDate()
+    {
+        return $this->registrationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogoutRedirectUris(): string
+    {
+        return $this->logoutRedirectUris;
+    }
+
+    /**
+     * @param string $logoutRedirectUris
+     */
+    public function setLogoutRedirectUris(?string $logoutRedirectUris): void
+    {
+        $this->logoutRedirectUris = $logoutRedirectUris;
     }
 }

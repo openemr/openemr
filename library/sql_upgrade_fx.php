@@ -27,8 +27,6 @@
  * @link      https://www.open-emr.org
  */
 
-use OpenEMR\Common\Uuid\UuidRegistry;
-
 /**
  * Return the name of the OpenEMR database.
  *
@@ -125,6 +123,20 @@ function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
         // Standard case when checking if default is neither NULL or ""(blank)
         return (strcasecmp($row['Default'], $coldefault) == 0);
     }
+}
+
+/**
+ * Check if a Sql row exists (with one null value)
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @return boolean           returns true if the sql row does exist
+ */
+function tableHasRowNull($tblname, $colname)
+{
+    $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+        "$colname IS NULL");
+    return $row['count'] ? true : false;
 }
 
 /**
@@ -641,18 +653,6 @@ function flush_echo($string = '')
  *   arguments: table_name colname
  *   behavior:  If the index does not exist, it will be created
  *
- * #IfUuidNeedUpdate
- *   argument: table_name
- *   behavior: this will add and populate a uuid column into table
- *
- *  #IfUuidNeedUpdateId
- *   argument: table_name primary_id
- *   behavior: this will add and populate a uuid column into table
- *
- * #IfUuidNeedUpdateVertical
- *   argument: table_name table_columns
- *   behavior: this will add and populate a uuid column into vertical table for combinations of table_columns given
- *
  * #IfNotMigrateClickOptions
  *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
  *
@@ -908,6 +908,17 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
+        } elseif (preg_match('/^#IfRowIsNull\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = !(tableHasRowNull($matches[1], $matches[2]));
+            } else {
+                // If no such table then should skip.
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
+            }
         } elseif (preg_match('/^#IfRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow($matches[1], $matches[2], $matches[3]));
@@ -1053,59 +1064,6 @@ function upgradeFromSqlFile($filename, $path = '')
                 }
             }
 
-            if ($skipping) {
-                echo "<p class='text-success'>$skip_msg $line</p>\n";
-            }
-        } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
-            $uuidRegistry = new UuidRegistry(['table_name' => $matches[1]]);
-            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
-                $skipping = false;
-                echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-                $number = $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-            } else {
-                $skipping = true;
-            }
-            if ($skipping) {
-                echo "<p class='text-success'>$skip_msg $line</p>\n";
-            }
-        } elseif (preg_match('/^#IfUuidNeedUpdateId\s+(\S+)\s+(\S+)/', $line, $matches)) {
-            $uuidRegistry = new UuidRegistry([
-                'table_name' => $matches[1],
-                'table_id' => $matches[2]
-            ]);
-            if (
-                tableExists($matches[1]) &&
-                columnExists($matches[1], $matches[2]) &&
-                $uuidRegistry->tableNeedsUuidCreation()
-            ) {
-                $skipping = false;
-                echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-                $number = $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-            } else {
-                $skipping = true;
-            }
-            if ($skipping) {
-                echo "<p class='text-success'>$skip_msg $line</p>\n";
-            }
-        } elseif (preg_match('/^#IfUuidNeedUpdateVertical\s+(\S+)\s+(\S+)/', $line, $matches)) {
-            $vertical_table_columns = explode(":", $matches[2]);
-            $uuidRegistry = new UuidRegistry(['table_name' => $matches[1], 'table_vertical' => $vertical_table_columns]);
-            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
-                $skipping = false;
-                echo "<p>Going to add UUIDs to " . $matches[1] . " vertical table</p>\n";
-                flush_echo();
-                $number = $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " vertical table</p>\n";
-                flush_echo();
-            } else {
-                $skipping = true;
-            }
             if ($skipping) {
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }

@@ -38,7 +38,7 @@ if ($form_review and !$reviewauth and !$thisauth) {
 }
 
 // Set pid for pending review.
-if ($_GET['set_pid'] && $form_review) {
+if (!empty($_GET['set_pid']) && $form_review) {
     require_once("$srcdir/pid.inc");
     require_once("$srcdir/patient.inc");
     setpid($_GET['set_pid']);
@@ -78,7 +78,7 @@ function QuotedOrNull($fld)
 
 $current_report_id = 0;
 
-if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
+if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
     foreach ($_POST['form_line'] as $lino => $line_value) {
         list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
@@ -341,7 +341,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                         } // end header for batch option
                         ?>
                         <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-                        <!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
+                        <!--   <input type='checkbox' name='form_all' value='1' <?php if (!empty($_POST['form_all'])) {
                             echo " checked";
                                                                                 } ?>><?php echo xlt('Include Completed') ?>&nbsp;-->
                         <button type="submit" class="btn btn-primary btn-refresh" name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
@@ -464,7 +464,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                         continue;
                     }
 
-                    $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
+                    $selects = "pt2.procedure_type, pt2.procedure_code, ll.title AS pt2_units, " .
                         "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
                         "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
                         "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.abnormal, ps.result, " .
@@ -484,10 +484,12 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                     // results that do not have a matching result type.
                     $query = "(SELECT $selects FROM procedure_type AS pt2 " .
                         "LEFT JOIN procedure_result AS ps ON $pscond AND $joincond " .
+                        "LEFT JOIN list_options AS ll ON ll.list_id = 'proc_unit' AND ll.option_id = pt2.units " .
                         "WHERE $pt2cond" .
                         ") UNION (" .
                         "SELECT $selects FROM procedure_result AS ps " .
                         "LEFT JOIN procedure_type AS pt2 ON $pt2cond AND $joincond " .
+                        "LEFT JOIN list_options AS ll ON ll.list_id = 'proc_unit' AND ll.option_id = pt2.units " .
                         "WHERE $pscond) " .
                         "ORDER BY seq, name, procedure_type_id, result_code";
 
@@ -737,7 +739,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
                 <?php } ?>
                 <?php } ?>
             </div>
-            <?php echo $extra_html; ?>
+            <?php echo ($extra_html ?? ''); ?>
         </form>
     </div>
 </body>

@@ -131,6 +131,11 @@ class ExportJob
      */
     private $exportType;
 
+    /**
+     * @var string[] The specific patient uuids to export
+     */
+    private $patientUuidsToExport;
+
     public function __construct()
     {
         $this->setStatus(self::STATUS_PROCESSING);
@@ -431,5 +436,21 @@ class ExportJob
             throw new \InvalidArgumentException("exportType is invalid");
         }
         $this->exportType = $exportType;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPatientUuidsToExport(): array
+    {
+        return $this->patientUuidsToExport;
+    }
+
+    /**
+     * @param string[] $patientUuidsToExport
+     */
+    public function setPatientUuidsToExport(?array $patientUuidsToExport): void
+    {
+        $this->patientUuidsToExport = $patientUuidsToExport;
     }
 }

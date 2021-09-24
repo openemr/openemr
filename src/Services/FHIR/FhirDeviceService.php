@@ -16,12 +16,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier;
 use OpenEMR\Services\DeviceService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var DeviceService
@@ -73,7 +80,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         }
 
         if (!empty($dataRecord['code'])) {
-            $codeableConcept = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemUris::SNOMED_CT);
+            $codeableConcept = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::SNOMED_CT);
             $device->setType($codeableConcept);
         } else {
             $device->setType(UtilsService::createDataMissingExtension());
@@ -115,43 +122,12 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     }
 
     /**
-     * Parses a FHIR Resource, returning the equivalent OpenEMR record.
-     *
-     * @param $dataRecord The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($dataRecord = array())
-    {
-        throw new \BadMethodCallException("Method not implemented");
-    }
-
-    /**
-     * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR processing result.
-     */
-    protected function insertOpenEMRRecord($openEmrRecord)
-    {
-        throw new \BadMethodCallException("Method not implemented");
-    }
-
-    /**
-     * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
-     */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        throw new \BadMethodCallException("Method not implemented");
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return OpenEMR records
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->deviceService->search($openEMRSearchParameters);
     }

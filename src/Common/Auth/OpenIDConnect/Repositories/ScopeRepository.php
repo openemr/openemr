@@ -19,6 +19,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\RestControllers\RestControllerHelper;
 use Psr\Log\LoggerInterface;
 
@@ -136,7 +138,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
-        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to retrieve scope", ["identifier" => $identifier]);
         if (empty($this->validationScopes)) {
             $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
@@ -148,6 +149,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                 , 'validationScopes' => $this->validationScopes]);
             return null;
         }
+        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
 
         $scope = new ScopeEntity();
         $scope->setIdentifier($identifier);
@@ -162,13 +164,18 @@ class ScopeRepository implements ScopeRepositoryInterface
         $userIdentifier = null
     ): array {
         $finalizedScopes = [];
+        $scopeListNames = [];
+        $finalizedScopeNames = [];
+        $clientScopes = [];
         // we only let scopes that the client initially registered with through instead of whatever they request in
         // their grant.
         if ($clientEntity instanceof ClientEntity) {
             $clientScopes = $clientEntity->getScopes();
             foreach ($scopes as $scope) {
+                $scopeListNames[] = $scope->getIdentifier();
                 if (\in_array($scope->getIdentifier(), $clientScopes)) {
                     $finalizedScopes[] = $scope;
+                    $finalizedScopeNames[] = $scope->getIdentifier();
                 }
             }
         } else {
@@ -180,10 +187,20 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $finalizedScopes[] = $scope;
+            $finalizedScopeNames[] = "nonce";
         }
 
         // Need a site id for our apis
-        $finalizedScopes[] = $this->getSiteScope();
+        $siteScope = $this->getSiteScope();
+        $finalizedScopeNames[] = $siteScope->getIdentifier();
+        $finalizedScopes[] = $siteScope;
+
+            $this->logger->debug(
+                "ScopeRepository->finalizeScopes() scopes finalized ",
+                ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
+                ,
+                'initialScopes' => $scopeListNames]
+            );
         return $finalizedScopes;
     }
 
@@ -368,6 +385,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Consent.read",
             "user/Coverage.read",
             "user/Coverage.write",
+            "user/Device.read",
+            "user/DiagnosticReport.read",
             "user/DocumentReference.read",
             "user/DocumentReference.write",
             "user/Encounter.read",
@@ -412,49 +431,51 @@ class ScopeRepository implements ScopeRepositoryInterface
         return [
             "system/Account.read",
             "system/AllergyIntolerance.read",
-            "system/AllergyIntolerance.write",
+//            "system/AllergyIntolerance.write",
             "system/Appointment.read",
-            "system/Appointment.write",
+//            "system/Appointment.write",
             "system/CarePlan.read",
             "system/CareTeam.read",
             "system/Condition.read",
-            "system/Condition.write",
+//            "system/Condition.write",
             "system/Consent.read",
             "system/Coverage.read",
-            "system/Coverage.write",
+//            "system/Coverage.write",
+            "system/Device.read",
             "system/Document.read", // used for Bulk FHIR export downloads
             "system/DocumentReference.read",
-            "system/DocumentReference.write",
+            "system/DiagnosticReport.read",
+//            "system/DocumentReference.write",
             "system/Encounter.read",
-            "system/Encounter.write",
+//            "system/Encounter.write",
             "system/Goal.read",
             "system/Group.read",
             "system/Immunization.read",
-            "system/Immunization.write",
+//            "system/Immunization.write",
             "system/Location.read",
             "system/Medication.read",
             "system/MedicationRequest.read",
-            "system/MedicationRequest.write",
+//            "system/MedicationRequest.write",
             "system/NutritionOrder.read",
             "system/Observation.read",
-            "system/Observation.write",
+//            "system/Observation.write",
             "system/Organization.read",
-            "system/Organization.write",
+//            "system/Organization.write",
             "system/Patient.read",
-            "system/Patient.write",
+//            "system/Patient.write",
             "system/Person.read",
             "system/Practitioner.read",
-            "system/Practitioner.write",
+//            "system/Practitioner.write",
             "system/PractitionerRole.read",
-            "system/PractitionerRole.write",
+//            "system/PractitionerRole.write",
             "system/Procedure.read",
-            "system/Procedure.write",
+//            "system/Procedure.write",
             "system/Provenance.read",
-            "system/Provenance.write",
+//            "system/Provenance.write",
             "system/RelatedPerson.read",
-            "system/RelatedPerson.write",
+//            "system/RelatedPerson.write",
             "system/Schedule.read",
-            "system/ServiceRequest.read",
+            "system/ServiceRequest.read"
         ];
     }
 
@@ -668,7 +689,17 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
         (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
-        return $scopesSupported;
+        $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
+        $scopesEvent->setScopes($scopesSupported);
+
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+
+        if ($scopesEvent instanceof RestApiScopeEvent) {
+            $scopesSupportedList = $scopesEvent->getScopes();
+        }
+
+        return $scopesSupportedList;
     }
 
     public function getCurrentStandardScopes(): array
@@ -745,7 +776,18 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         asort($scopesSupported);
 
-        return array_keys($scopesSupported);
+        $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_STANDARD);
+        $scopesSupportedList = array_keys($scopesSupported);
+        $scopesEvent->setScopes($scopesSupportedList);
+
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+
+        if ($scopesEvent instanceof RestApiScopeEvent) {
+            $scopesSupportedList = $scopesEvent->getScopes();
+        }
+
+        return $scopesSupportedList;
     }
 
     /**

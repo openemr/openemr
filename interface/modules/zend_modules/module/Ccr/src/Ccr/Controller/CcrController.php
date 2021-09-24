@@ -52,7 +52,7 @@ class CcrController extends AbstractActionController
         $uploaded_documents     = array();
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
 
-        if ($uploaded_documents[0]['id'] > 0) {
+        if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
             $_REQUEST["batch_import"]   = 'YES';
             $this->importAction();
@@ -73,7 +73,7 @@ class CcrController extends AbstractActionController
         $view = new ViewModel(array(
             'records'       => $records,
             'category_id'   => $category_details[0]['id'],
-            'file_location' => basename($_FILES['file']['name']),
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id'    => '00',
             'listenerObject' => $this->listenerObject,
             'commonplugin'  => $this->CommonPlugin(),

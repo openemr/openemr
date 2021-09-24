@@ -40,7 +40,7 @@ if (!(function_exists('xl'))) {
             $string = "$constant";
         }
         // remove dangerous characters and remove comments
-        if ($GLOBALS['translate_no_safe_apostrophe']) {
+        if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
             $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
             $replace = array (' ','','');
             $string = preg_replace($patterns, $replace, $string);

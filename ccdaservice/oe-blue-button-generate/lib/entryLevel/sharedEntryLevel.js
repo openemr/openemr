@@ -47,7 +47,8 @@ var reactionObservation = exports.reactionObservation = {
         fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.9", "2014-06-09"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.9"),
         fieldLevel.id,
-        fieldLevel.nullFlavor("code"),
+        //fieldLevel.nullFlavor("code"),
+        fieldLevel.templateCode("AllergyObservation"),
         fieldLevel.text(leafLevel.sameReference("reaction")),
         fieldLevel.statusCodeCompleted,
         fieldLevel.effectiveTime, {
@@ -298,5 +299,41 @@ exports.encDiagnosis = {
             }
             ]
         },
+    ]
+};
+
+exports.notesAct = {
+    key: "act",
+    attributes: {
+        classCode: "ACT",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.202", "2016-11-01"),
+        {
+            key: "code",
+            attributes: {
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                code: "34109-9",
+                displayName: "Note"
+            },
+            content: {
+                key: "translation",
+                attributes: leafLevel.code,
+                dataKey: "translations"
+            }
+        }, {
+            key: "text",
+            content: {
+                key: "reference",
+                attributes: {
+                    "value": leafLevel.nextReference("note")
+                }
+            }
+        },
+        fieldLevel.statusCodeCompleted,
+        fieldLevel.effectiveTime,
+        fieldLevel.actAuthor
     ]
 };

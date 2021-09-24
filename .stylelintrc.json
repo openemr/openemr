@@ -2,6 +2,9 @@
     "plugins": ["stylelint-order", "stylelint-scss"],
     "extends": "stylelint-config-standard",
     "extends": "stylelint-config-sass-guidelines",
+    "ignoreFiles": [
+        "swagger/*.css"
+    ],
     "rules": {
         "selector-no-qualifying-type": [true, {
             "ignore": ["attribute", "class", "id"]

@@ -7,22 +7,34 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class ORDataObject
 {
     protected $_prefix;
     protected $_table;
     public $_db; // Need to be public so can access from C_Document class
 
-    public function __construct()
+    public function __construct($table = null, $prefix = null)
     {
+        // TODO: with testing we could probably remove the isset... but we will leave this here until there are more
+        // unit tests saying this doesn't break subclass constructors
+        if (isset($table)) {
+            $this->_table = $table;
+        }
+        if (isset($prefix)) {
+            $this->_prefix = $prefix;
+        }
+
         $this->_db = $GLOBALS['adodb']['db'];
     }
 
     public function persist()
     {
+        // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
-        $fields = sqlListFields($this->_table);
+        $fields = QueryUtils::listTableFields($this->_table);
         $db = get_db();
         $pkeys = $db->MetaPrimaryKeys($this->_table);
 
@@ -78,7 +90,7 @@ class ORDataObject
         }
     }
 
-    protected function populate_array($results)
+    public function populate_array($results)
     {
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {
@@ -92,6 +104,19 @@ class ORDataObject
                 }
             }
         }
+    }
+
+    public function get_data_for_save()
+    {
+        $fields = QueryUtils::listTableFields($this->_table);
+        foreach ($fields as $field) {
+            $func = "get_" . $field;
+            if (is_callable([$this, $func])) {
+                $val = call_user_func([$this, $func]);
+                $values[$field] = $val;
+            }
+        }
+        return $values;
     }
 
     /**

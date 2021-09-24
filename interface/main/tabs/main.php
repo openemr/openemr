@@ -45,6 +45,7 @@ $esignApi = new Api();
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <title><?php echo text($openemr_name); ?></title>
 
@@ -52,11 +53,11 @@ $esignApi = new Api();
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
         //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
         <?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
-        window.addEventListener('beforeunload', (event) => {
-            if (!timed_out) {
-                event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
-            }
-        });
+            window.addEventListener('beforeunload', (event) => {
+                if (!timed_out) {
+                    event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
+                }
+            });
         <?php } ?>
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -81,6 +82,8 @@ $esignApi = new Api();
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
         var jsGlobals = {};
+        // used in tabs_view_model.js.
+        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -135,22 +138,26 @@ $esignApi = new Api();
             });
 
             // run background-services
-            restoreSession();
-            request = new FormData;
-            request.append("skip_timeout_reset", "1");
-            request.append("ajax", "1");
-            request.append("csrf_token_form", csrf_token_js);
-            fetch(webroot_url + "/library/ajax/execute_background_services.php", {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: request
-            }).then((response) => {
-                if (response.status !== 200) {
-                    console.log('Background Service start failed. Status Code: ' + response.status);
-                }
-            }).catch(function(error) {
-                console.log('HTML Background Service start Request failed: ', error);
-            });
+            // delay 10 seconds to prevent both utility trigger at close to same time.
+            // Both call globals so that is my concern.
+            setTimeout(function() {
+                restoreSession();
+                request = new FormData;
+                request.append("skip_timeout_reset", "1");
+                request.append("ajax", "1");
+                request.append("csrf_token_form", csrf_token_js);
+                fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: request
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Background Service start failed. Status Code: ' + response.status);
+                    }
+                }).catch(function(error) {
+                    console.log('HTML Background Service start Request failed: ', error);
+                });
+            }, 10000);
 
             // auto run this function every 60 seconds
             var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -158,26 +165,28 @@ $esignApi = new Api();
 
         function isEncounterLocked(encounterId) {
             <?php if ($esignApi->lockEncounters()) { ?>
-            // If encounter locking is enabled, make a syncronous call (async=false) to check the
-            // DB to see if the encounter is locked.
-            // Call restore session, just in case
-            // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
-            restoreSession();
-            let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {encounterId: encounterId},
-                success: function (data) {
-                    encounter_locked = data;
-                },
-                dataType: 'json',
-                async: false
-            });
-            return encounter_locked;
+                // If encounter locking is enabled, make a syncronous call (async=false) to check the
+                // DB to see if the encounter is locked.
+                // Call restore session, just in case
+                // @TODO next clean up pass, turn into await promise then modify tabs_view_model.js L-309
+                restoreSession();
+                let url = webroot_url + "/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked";
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        encounterId: encounterId
+                    },
+                    success: function(data) {
+                        encounter_locked = data;
+                    },
+                    dataType: 'json',
+                    async: false
+                });
+                return encounter_locked;
             <?php } else { ?>
-            // If encounter locking isn't enabled then always return false
-            return false;
+                // If encounter locking isn't enabled then always return false
+                return false;
             <?php } ?>
         }
     </script>
@@ -187,7 +196,7 @@ $esignApi = new Api();
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
-            return fetch(<?php echo js_escape($GLOBALS['webroot'])?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+            return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
             }).then(response => response.json())
@@ -248,29 +257,30 @@ $esignApi = new Api();
 
     <script>
         <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
-        // Use session variables and tabStatus object to set up initial/default first tab
-        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> +"...",<?php echo json_encode("../" . $_SESSION['frame1url']); ?>,<?php echo json_encode($_SESSION['frame1target']); ?>,<?php echo xlj("Loading"); ?> +" " + <?php echo json_encode($_SESSION['frame1label']); ?>, true, true, false));
+            // Use session variables and tabStatus object to set up initial/default first tab
+            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame1url']); ?>, <?php echo json_encode($_SESSION['frame1target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame1label']); ?>, true, true, false));
         <?php } ?>
 
         <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
-        // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
-        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> +"...",<?php echo json_encode("../" . $_SESSION['frame2url']); ?>,<?php echo json_encode($_SESSION['frame2target']); ?>,<?php echo xlj("Loading"); ?> +" " + <?php echo json_encode($_SESSION['frame2label']); ?>, true, false, false));
+            // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
+            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame2url']); ?>, <?php echo json_encode($_SESSION['frame2target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame2label']); ?>, true, false, false));
         <?php } ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
-            . ',' . json_encode($userQuery['fname'])
-            . ',' . json_encode($userQuery['lname'])
-            . ',' . json_encode($_SESSION['authProvider']); ?>));
-
+                                                                            . ',' . json_encode($userQuery['fname'])
+                                                                            . ',' . json_encode($userQuery['lname'])
+                                                                            . ',' . json_encode($_SESSION['authProvider']); ?>));
     </script>
-<style>
-    html, body {
-        width: max-content;
-        min-height: 100% !important;
-        height: 100% !important;
-    }
-</style>
+    <style>
+        html,
+        body {
+            width: max-content;
+            min-height: 100% !important;
+            height: 100% !important;
+        }
+    </style>
 </head>
+
 <body class="min-vw-100">
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
@@ -288,7 +298,7 @@ $esignApi = new Api();
         }
     }
     ?>
-    <div id="mainBox" <?php echo $disp_mainBox ?> >
+    <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <a class="navbar-brand mt-2 mt-xl-0 mr-3 mr-xl-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
                 <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
@@ -297,13 +307,18 @@ $esignApi = new Api();
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
+            <form name="frm_search_globals" class="form-inline">
+                <div class="input-group">
+                    <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                    <div class="input-group-append">
+                        <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"><i class="fa fa-search">&nbsp;</i></button>
+                    </div>
+                </div>
+            </form>
             <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data}"></span>
         </nav>
-            <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}">
-            </div>
-
+        <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
         <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
-
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
@@ -311,30 +326,32 @@ $esignApi = new Api();
     <script>
         ko.applyBindings(app_view_model);
 
-        $(function () {
+        $(function() {
             $('.dropdown-toggle').dropdown();
-            goRepeaterServices();
-            $('#patient_caret').click(function () {
+            $('#patient_caret').click(function() {
                 $('#attendantData').slideToggle();
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
             });
-            if($('body').css('direction') == "rtl") {
-              $('.dropdown-menu-right').each(function() {
-                $(this).removeClass('dropdown-menu-right');
-              });
+            if ($('body').css('direction') == "rtl") {
+                $('.dropdown-menu-right').each(function() {
+                    $(this).removeClass('dropdown-menu-right');
+                });
             }
-
         });
-        $(function () {
+        $(function() {
             $('#logo_menu').focus();
         });
-        $('#anySearchBox').keypress(function (event) {
+        $('#anySearchBox').keypress(function(event) {
             if (event.which === 13 || event.keyCode === 13) {
                 event.preventDefault();
                 $('#search_globals').mousedown();
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
+        $(function() {
+            goRepeaterServices();
+        });
     </script>
 </body>
+
 </html>

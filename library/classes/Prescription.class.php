@@ -276,7 +276,7 @@ class Prescription extends ORDataObject
 
     function get_unit_display($display_form = "")
     {
-        return( $this->unit_array[$this->unit] );
+        return( ($this->unit_array[$this->unit] ?? '') );
     }
 
     function get_unit()

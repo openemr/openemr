@@ -19,6 +19,10 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 class PractitionerApiTest extends TestCase
 {
     const PRACTITIONER_API_ENDPOINT = "/apis/default/api/practitioner";
+
+    /**
+     * @var ApiTestClient
+     */
     private $testClient;
     private $fixtureManager;
 
@@ -116,6 +120,7 @@ class PractitionerApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["internalErrors"]));
 
         $updatedResource = $responseBody["data"];
+
         $this->assertEquals($this->practitionerRecord["email"], $updatedResource["email"]);
     }
 
