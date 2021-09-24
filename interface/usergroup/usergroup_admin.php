@@ -1,10 +1,10 @@
 <?php
 
 /**
- * This script Assign acl 'Emergency login'.
+ * This script assigns ACL 'Emergency login'.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
@@ -49,12 +49,14 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     //block non-administrator user from create administrator
-    foreach ($_POST['access_group'] as $aro_group) {
-        if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
-            die(xlt('Saving denied'));
-        };
+    if (!empty($_POST['access_group'])) {
+        foreach ($_POST['access_group'] as $aro_group) {
+            if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
+                die(xlt('Saving denied'));
+            };
+        }
     }
-    if ($_POST['mode'] === 'update') {
+    if (($_POST['mode'] ?? '') === 'update') {
         //block non-administrator user from update administrator
         $user_service = new UserService();
         $user = $user_service->getUser($_POST['id']);
@@ -184,9 +186,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     );
                 }
                 $olduf["$facid/$whid"] = false;
-                if ($facid == $deffacid) {
-                    $deffacid = 0;
-                }
             }
             // Now delete whatever is left over for this user.
             foreach ($olduf as $key => $value) {
@@ -243,17 +242,19 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
-        $bg_count = count($_POST['access_group']);
-        for ($i = 0; $i < $bg_count; $i++) {
-            if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)) {
-                $show_message = 1;
-            }
-        }
-
-        if (($_POST['access_group'])) {
+        if (is_countable($_POST['access_group'])) {
+            $bg_count = count($_POST['access_group']);
             for ($i = 0; $i < $bg_count; $i++) {
-                if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['user_type']) == "" && ($_POST['check_acl'] == 1) && ($_POST['active']) != "") {
-                    $set_active_msg = 1;
+                if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)) {
+                    $show_message = 1;
+                }
+            }
+
+            if (($_POST['access_group'])) {
+                for ($i = 0; $i < $bg_count; $i++) {
+                    if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['user_type']) == "" && ($_POST['check_acl'] == 1) && ($_POST['active']) != "") {
+                        $set_active_msg = 1;
+                    }
                 }
             }
         }
@@ -597,6 +598,12 @@ function authorized_clicked() {
                         }
 
                         foreach ($result4 as $iter) {
+                            // Skip this user if logged-in user does not have all of its permissions.
+                            // Note that a superuser now has all permissions.
+                            if (!AclExtended::iHavePermissionsOf($iter['username'])) {
+                                continue;
+                            }
+
                             if ($iter["authorized"]) {
                                 $iter["authorized"] = xl('yes');
                             } else {

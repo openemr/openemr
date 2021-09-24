@@ -12,7 +12,11 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -22,19 +26,103 @@ class SurgeryService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const SURGERY_LIST_PATIENT = "lists";
-    private $uuidRegistry;
+
     /**
      * Default constructor.
      */
     public function __construct()
     {
         parent::__construct(self::SURGERY_LIST_PATIENT);
-        $this->uuidRegistry = new UuidRegistry([
-            'table_name' => self::SURGERY_LIST_PATIENT
-        ]);
-        $this->uuidRegistry->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::PATIENT_TABLE]))->createMissingUuids();
-        (new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]))->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::SURGERY_LIST_PATIENT, self::PATIENT_TABLE, self::ENCOUNTER_TABLE]);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'euuid', 'puuid'];
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT
+                    surgeries.id,
+                    surgeries.`date`,
+                    surgeries.`begdate`,
+                    surgeries.`enddate`,
+                    surgeries.title,
+                    surgeries.diagnosis,
+                    surgeries.uuid,
+                    surgeries.`comments`,
+                    patient.fname,
+                    patient.lname,
+                    patient.puuid,
+                    encounter.eid,
+                    encounter.euuid,
+                    recorders.recorder_npi,
+                    recorders.recorder_uuid,
+                    recorders.recorder_username
+                FROM (
+                    SELECT
+                        id
+                        ,`date`
+                        ,`begdate`
+                        ,`enddate`
+                        ,`title`
+                        ,`diagnosis`
+                        ,`uuid`
+                        ,`pid`
+                        ,`comments`
+                        ,`username` as surgery_recorder
+                    FROM lists
+                    WHERE
+                        `type` = 'surgery'
+                ) surgeries
+                LEFT JOIN (
+                    SELECT
+                        fname,
+                        lname,
+                        uuid AS puuid,
+                        pid
+                    FROM
+                        patient_data
+                ) patient ON surgeries.pid = patient.pid
+                LEFT JOIN (
+                    select 
+                           uuid AS recorder_uuid
+                            ,username AS recorder_username
+                            ,id AS recorder_id
+                            ,npi AS recorder_npi
+                    FROM users
+                ) recorders ON recorders.recorder_username = surgeries.surgery_recorder
+                LEFT JOIN (
+                    SELECT
+                        pid AS ie_pid
+                        ,list_id AS ie_list_id
+                        ,encounter AS ie_encounter_id
+                    FROM 
+                        issue_encounter
+                ) list_encounters ON list_encounters.ie_list_id = surgeries.id
+                                         AND list_encounters.ie_pid = patient.pid
+                LEFT JOIN (
+                    SELECT 
+                        id AS eid
+                        ,uuid AS euuid
+                        ,pid AS encounter_pid
+                    FROM form_encounter 
+                ) encounter
+                ON list_encounters.ie_encounter_id = encounter.eid";
+
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($record);
+        }
+
+        return $processingResult;
     }
 
     /**
@@ -77,7 +165,7 @@ class SurgeryService extends BaseService
             }
         }
 
-        $sql = "SELECT 
+        $sql = "SELECT
                 slist.id,
                 slist.title,
                 slist.diagnosis,
@@ -87,11 +175,11 @@ class SurgeryService extends BaseService
                 patient.lname,
                 encounter.id,
                 patient.uuid AS puuid,
-                encounter.uuid AS euuid 
-                from lists AS slist 
-                LEFT JOIN patient_data AS patient 
-                ON slist.pid = patient.id 
-                LEFT JOIN form_encounter AS encounter 
+                encounter.uuid AS euuid
+                from lists AS slist
+                LEFT JOIN patient_data AS patient
+                ON slist.pid = patient.id
+                LEFT JOIN form_encounter AS encounter
                 ON slist.pid = encounter.pid
                 WHERE slist.type = 'surgery'";
 
@@ -163,7 +251,7 @@ class SurgeryService extends BaseService
             }
         }
 
-        $sql = "SELECT 
+        $sql = "SELECT
                 slist.id,
                 slist.title,
                 slist.diagnosis,
@@ -198,5 +286,16 @@ class SurgeryService extends BaseService
             $processingResult->addData($sqlResult);
         }
         return $processingResult;
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        $record = parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
+        if (empty($record['enddate'])) {
+            $record['status'] = 'inactive';
+        } else {
+            $record['status'] = 'active';
+        }
+        return $record;
     }
 }

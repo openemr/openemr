@@ -18,8 +18,16 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 class FhirOrganizationRestControllerTest extends TestCase
 {
 
+    /**
+     * @var FhirOrganizationRestController
+     */
     private $fhirOrganizationController;
+
+    /*
+     * FacilityFixtureManager
+     */
     private $fixtureManager;
+
     private $fhirFixture;
 
     protected function setUp(): void
@@ -34,7 +42,7 @@ class FhirOrganizationRestControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFacilityFixtures();
+        $this->fixtureManager->removeFixtures();
     }
 
     /**
@@ -94,6 +102,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $fhirId = $actualResult['uuid'];
 
         $actualResult = $this->fhirOrganizationController->getOne($fhirId);
+        $this->assertNotEmpty($actualResult, "getOne() should have returned a result");
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
@@ -102,7 +111,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $this->fhirOrganizationController->post($this->fhirFixture);
 
         $actualResult = $this->fhirOrganizationController->getOne("not-a-matching-uuid");
-        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
+        $this->assertEquals(1, count($actualResult['validationErrors']));
     }
 
     public function testGetAll()

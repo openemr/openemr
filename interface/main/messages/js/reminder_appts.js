@@ -19,6 +19,7 @@ var show_just;
  * which then populates the form with the select patient data
  */
 function recall_name_click(field) {
+    top.restoreSession();
     dlgopen('../../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
 }
 
@@ -258,14 +259,15 @@ $(function () {
 function newEvt(pid, pc_eid) {
     var f = document.forms[0];
     var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
+    top.restoreSession();
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
 
 function delete_Recall(pid, r_ID) {
     if (confirm('Are you sure you want to delete this Recall?')) {
-        //top.restoreSession();
         var url = 'save.php';
+        top.restoreSession();
         $.ajax({
             type: 'POST',
             url: url,
@@ -283,6 +285,7 @@ function delete_Recall(pid, r_ID) {
 }
 
 function refresh_me() {
+    top.restoreSession();
     location.reload();
 }
 
@@ -309,6 +312,7 @@ function goMessages() {
 }
 
 function goMedEx() {
+    top.restoreSession();
     location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
 }
 
@@ -344,6 +348,7 @@ function tabYourIt(tabNAME, url) {
     if (!top.tab_mode) {
         tabNAME = window.name;
     }
+    top.restoreSession();
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
@@ -413,6 +418,6 @@ $(function () {
             $("#active_sync").show();
         }
     });
-    
+
 });
 

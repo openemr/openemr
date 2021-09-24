@@ -73,11 +73,9 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'problem' => $ctrow['ct_problem'],
     'drug' => $ctrow['ct_drug']
     );
-    if (array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
-        $default_search_type = $GLOBALS['default_search_code_type'];
-    } else {
+    if (!array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
         reset($code_types);
-        $default_search_type = key($code_types);
+        $GLOBALS['default_search_code_type'] = key($code_types);
     }
 }
 
@@ -218,7 +216,7 @@ function fees_are_used()
 }
 
 /**
- * Checks is modifiers are applicable to any of the code types.
+ * Checks if modifiers are applicable to any of the code types.
  * (If a code type is not set to show in the fee sheet, then is ignored)
  *
  * @param  boolean $fee_sheet Will ignore code types that are not shown in the fee sheet
@@ -323,8 +321,10 @@ function check_code_set_filters($key, $filters = array())
     }
 
     foreach ($filters as $filter) {
-        if ($code_types[$key][$filter] != 1) {
-            return false;
+        if (array_key_exists($key, $code_types)) {
+            if ($code_types[$key][$filter] != 1) {
+                return false;
+            }
         }
     }
 
@@ -697,77 +697,94 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            // added $modifier for HCPCS and other internal codesets so can grab exact entry in codes table
+            $code_parts = explode(':', $codestring);
+            $codetype = $code_parts[0] ?? null;
+            $code = $code_parts[1] ?? null;
+            $modifier = $code_parts[2] ?? null;
+            // if we don't have the code types we can't do much here
+            if (!isset($code_types[$codetype])) {
+                // we can't do much so we will just continue here...
+                continue;
+            }
+
             $table_id = $code_types[$codetype]['external'] ?? '';
-            if (isset($code_external_tables[$table_id])) {
-                $table_info = $code_external_tables[$table_id];
-                $table_name = $table_info[EXT_TABLE_NAME];
-                $code_col = $table_info[EXT_COL_CODE];
-                $desc_col = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION] : $table_info[DISPLAY_DESCRIPTION];
-                $desc_col_short = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION_BRIEF] : $table_info[DISPLAY_DESCRIPTION];
-                $sqlArray = array();
-                $sql = "SELECT " . $desc_col . " as code_text," . $desc_col_short . " as code_text_short FROM " . $table_name;
-
-                // include the "JOINS" so that we get the preferred term instead of the FullySpecifiedName when appropriate.
-                foreach ($table_info[EXT_JOINS] as $join_info) {
-                    $join_table = $join_info[JOIN_TABLE];
-                    $check_table = sqlQuery("SHOW TABLES LIKE '" . $join_table . "'");
-                    if ((empty($check_table))) {
-                        HelpfulDie("Missing join table in code set search:" . $join_table);
-                    }
-
-                    $sql .= " INNER JOIN " . $join_table;
-                    $sql .= " ON ";
-                    $not_first = false;
-                    foreach ($join_info[JOIN_FIELDS] as $field) {
-                        if ($not_first) {
-                            $sql .= " AND ";
-                        }
-
-                        $sql .= $field;
-                        $not_first = true;
-                    }
-                }
-
-                $sql .= " WHERE ";
-
-
-                // Start building up the WHERE clause
-
-                // When using the external codes table, we have to filter by the code_type.  (All the other tables only contain one type)
-                if ($table_id == 0) {
-                    $sql .= " code_type = '" . add_escape_custom($code_types[$codetype]['id']) . "' AND ";
-                }
-
-                // Specify the code in the query.
-                $sql .= $table_name . "." . $code_col . "=? ";
-                array_push($sqlArray, $code);
-
-                // We need to include the filter clauses
-                // For SNOMED and SNOMED-CT this ensures that we get the Preferred Term or the Fully Specified Term as appropriate
-                // It also prevents returning "inactive" results
-                foreach ($table_info[EXT_FILTER_CLAUSES] as $filter_clause) {
-                    $sql .= " AND " . $filter_clause;
-                }
-
-                // END building the WHERE CLAUSE
-
-
-                if ($table_info[EXT_VERSION_ORDER]) {
-                    $sql .= " ORDER BY " . $table_info[EXT_VERSION_ORDER];
-                }
-
-                $sql .= " LIMIT 1";
-                $crow = sqlQuery($sql, $sqlArray);
-                if (!empty($crow[$desc_detail])) {
-                    if ($code_text) {
-                        $code_text .= '; ';
-                    }
-
-                    $code_text .= $crow[$desc_detail];
-                }
-            } else {
+            if (!isset($code_external_tables[$table_id])) {
                 //using an external code that is not yet supported, so skip.
+                continue;
+            }
+
+            $table_info = $code_external_tables[$table_id];
+            $table_name = $table_info[EXT_TABLE_NAME];
+            $code_col = $table_info[EXT_COL_CODE];
+            $desc_col = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION] : $table_info[DISPLAY_DESCRIPTION];
+            $desc_col_short = $table_info[DISPLAY_DESCRIPTION] == "" ? $table_info[EXT_COL_DESCRIPTION_BRIEF] : $table_info[DISPLAY_DESCRIPTION];
+            $sqlArray = array();
+            $sql = "SELECT " . $desc_col . " as code_text," . $desc_col_short . " as code_text_short FROM " . $table_name;
+
+            // include the "JOINS" so that we get the preferred term instead of the FullySpecifiedName when appropriate.
+            foreach ($table_info[EXT_JOINS] as $join_info) {
+                $join_table = $join_info[JOIN_TABLE];
+                $check_table = sqlQuery("SHOW TABLES LIKE '" . $join_table . "'");
+                if ((empty($check_table))) {
+                    HelpfulDie("Missing join table in code set search:" . $join_table);
+                }
+
+                $sql .= " INNER JOIN " . $join_table;
+                $sql .= " ON ";
+                $not_first = false;
+                foreach ($join_info[JOIN_FIELDS] as $field) {
+                    if ($not_first) {
+                        $sql .= " AND ";
+                    }
+
+                    $sql .= $field;
+                    $not_first = true;
+                }
+            }
+
+            $sql .= " WHERE ";
+
+
+            // Start building up the WHERE clause
+
+            // When using the external codes table, we have to filter by the code_type.  (All the other tables only contain one type)
+            if ($table_id == 0) {
+                $sql .= " code_type = '" . add_escape_custom($code_types[$codetype]['id']) . "' AND ";
+            }
+
+            // Specify the code in the query.
+            $sql .= $table_name . "." . $code_col . "=? ";
+            array_push($sqlArray, $code);
+
+            // Add the modifier if necessary for CPT and HCPCS which differentiates code
+            if ($modifier) {
+                $sql .= " AND modifier = ? ";
+                array_push($sqlArray, $modifier);
+            }
+
+            // We need to include the filter clauses
+            // For SNOMED and SNOMED-CT this ensures that we get the Preferred Term or the Fully Specified Term as appropriate
+            // It also prevents returning "inactive" results
+            foreach ($table_info[EXT_FILTER_CLAUSES] as $filter_clause) {
+                $sql .= " AND " . $filter_clause;
+            }
+
+            // END building the WHERE CLAUSE
+
+
+            if ($table_info[EXT_VERSION_ORDER]) {
+                $sql .= " ORDER BY " . $table_info[EXT_VERSION_ORDER];
+            }
+
+            $sql .= " LIMIT 1";
+            $crow = sqlQuery($sql, $sqlArray);
+            if (!empty($crow[$desc_detail])) {
+                if ($code_text) {
+                    $code_text .= '; ';
+                }
+
+                $code_text .= $crow[$desc_detail];
             }
         }
     }

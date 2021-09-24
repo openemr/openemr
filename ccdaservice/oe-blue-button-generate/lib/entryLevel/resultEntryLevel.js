@@ -15,6 +15,7 @@ var resultObservation = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.2", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.2"),
         fieldLevel.id, {
             key: "code",
@@ -23,29 +24,44 @@ var resultObservation = {
             required: true
         },
         fieldLevel.text(leafLevel.nextReference("result")),
-        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required],
+        {
             key: "value",
             attributes: {
-                "xsi:type": function (input) {
-                    return input.text ? "ST" : "PQ";
-                },
+                "xsi:type": "PQ",
                 value: leafLevel.inputProperty("value"),
                 unit: leafLevel.inputProperty("unit")
             },
-            text: leafLevel.inputProperty("text"),
-            existsWhen: condition.eitherKeyExists("value", "text"),
-            required: true
+            existsWhen: condition.propertyEquals("type", "PQ"),
+            //required: true
+        }, {
+            key: "value",
+            attributes: {
+                "xsi:type": "ST"
+            },
+            text: leafLevel.inputProperty("value"),
+            existsWhen: condition.propertyEquals("type", "ST"),
+        }, {
+            key: "value",
+            attributes: {
+                "xsi:type": "CO",
+                "code": "260385009",
+                "codeSystemName": "SNOMED-CT",
+                "displayName": "Negative",
+                "codeSystem": "2.16.840.1.113883.6.96"
+            },
+            existsWhen: condition.propertyEquals("type", "CO"),
         }, {
             key: "interpretationCode",
             attributes: {
                 code: function (input) {
-                    if(Object.prototype.toString.call(input) === "[object String]")
+                    if (Object.prototype.toString.call(input) === "[object String]")
                         return input.substring(0, 1);
                     else return input.code.substring(0, 1);
                 },
                 codeSystem: "2.16.840.1.113883.5.83",
                 displayName: leafLevel.input,
-                codeSystemName: "ObservationInterpretation"
+                codeSystemName: "ObservationInterpretation",
             },
             dataKey: "interpretations"
         }, {
@@ -67,17 +83,51 @@ var resultObservation = {
                             value: leafLevel.inputProperty("low"),
                             unit: leafLevel.inputProperty("unit")
                         },
-                        existsWhen: condition.keyExists("low")
+                        existsWhen: condition.propertyNotEmpty("low"),
                     }, {
                         key: "high",
                         attributes: {
                             value: leafLevel.inputProperty("high"),
                             unit: leafLevel.inputProperty("unit")
                         },
-                        existsWhen: condition.keyExists("high")
+                        existsWhen: condition.propertyNotEmpty("high")
                     }],
-                    existsWhen: condition.eitherKeyExists("low", "high")
-                }],
+                    existsWhen: function (input) {
+                        return (input && input['unit'] && (input['range_type'] !== "CO"));
+                    }
+                }, {
+                    key: "value",
+                    attributes: {
+                        "xsi:type": "IVL_PQ"
+                    },
+                    content: [{
+                        key: "low",
+                        attributes: {
+                            value: leafLevel.inputProperty("low"),
+                        },
+                        existsWhen: condition.propertyNotEmpty("low"),
+                    }, {
+                        key: "high",
+                        attributes: {
+                            value: leafLevel.inputProperty("high"),
+                        },
+                        existsWhen: condition.propertyNotEmpty("high")
+                    }],
+                    existsWhen: function (input) {
+                        return (input && !input['unit'] && (input['range_type'] !== "CO"));
+                    }
+                }, {
+                    key: "value",
+                    attributes: {
+                        "xsi:type": "CO",
+                        "code": "260385009",
+                        "codeSystemName": "SNOMED-CT",
+                        "displayName": "Negative",
+                        "codeSystem": "2.16.840.1.113883.6.96"
+                    },
+                    existsWhen: condition.propertyEquals("range_type", "CO"),
+                },
+                ],
                 required: true
             },
             dataKey: "reference_range"
@@ -98,6 +148,7 @@ exports.resultOrganizer = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.1", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.1"),
         fieldLevel.uniqueId,
         fieldLevel.id, {

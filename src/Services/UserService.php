@@ -33,7 +33,7 @@ class UserService
     }
 
     /**
-     * Given a username, heck to ensure user is in a group (and collect the group name)
+     * Given a username, check to ensure user is in a group (and collect the group name)
      * Returns the group name if successful, or false if failure
      *
      * @param $username
@@ -62,7 +62,7 @@ class UserService
      */
     public function getUserByUsername($username)
     {
-        return sqlQuery("SELECT * FROM `users` WHERE `username` = ?", [$username]);
+        return sqlQuery("SELECT * FROM `users` WHERE BINARY `username` = ?", [$username]);
     }
 
     /**
@@ -76,7 +76,7 @@ class UserService
         if (!empty($user)) {
             if (empty($user['uuid'])) {
                 // we should always have this setup, but create them just in case.
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
             }
             // convert to a string value here
             $user['uuid'] = UuidRegistry::uuidToString($user['uuid']);
@@ -190,5 +190,18 @@ class UserService
         }
 
         return $results;
+    }
+
+    /**
+     * @return array id of User
+     */
+    public function getIdByUsername($username)
+    {
+        $id = sqlQuery("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$username]);
+        if (!empty($id['id'])) {
+            return $id['id'];
+        } else {
+            return false;
+        }
     }
 }

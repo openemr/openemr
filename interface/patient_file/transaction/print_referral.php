@@ -167,7 +167,7 @@ fclose($fh);
 
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1, $logo), $s);
 $s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1, $logo), $s);
-$s = str_replace("{fac_name}", text($facrow['name']), $s);
+$s = str_replace("{fac_name}", text($facrow['name'] ?? ''), $s);
 $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
@@ -215,8 +215,10 @@ foreach ($TEMPLATE_LABELS as $key => $value) {
     $s = str_replace("{" . $key . "}", $value, $s);
 }
 
-foreach ($insurancedata as $key => $value) {
-    $s = str_replace("{insurance_$key}", text($value), $s);
+if (!empty($insurancedata)) {
+    foreach ($insurancedata as $key => $value) {
+        $s = str_replace("{insurance_$key}", text($value), $s);
+    }
 }
 
 // A final pass to clear any unmatched variables:

@@ -113,10 +113,26 @@ CREATE TABLE `api_token` (
   `expiry` datetime DEFAULT NULL,
   `client_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
+  `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
 
+--
+-- Table structure for table `api_refresh_token`
+--
+DROP TABLE IF EXISTS `api_refresh_token`;
+CREATE TABLE `api_refresh_token` (
+ `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+ `user_id` VARCHAR(40) DEFAULT NULL,
+ `client_id` VARCHAR(80) DEFAULT NULL,
+ `token` VARCHAR(128) NOT NULL,
+ `expiry` DATETIME DEFAULT NULL,
+ `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY (`token`),
+ INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
+) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
 -- --------------------------------------------------------
 
 --
@@ -151,7 +167,8 @@ CREATE TABLE `audit_details` (
   `field_value` TEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `audit_master_id` (`audit_master_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -1196,6 +1213,7 @@ CREATE TABLE `direct_message_log` (
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16) DEFAULT NULL,
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
@@ -1229,6 +1247,7 @@ CREATE TABLE `documents` (
   `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
@@ -1734,7 +1753,9 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive'
 
 DROP TABLE IF EXISTS `form_clinical_notes`;
 CREATE TABLE `form_clinical_notes` (
-    `id` bigint(20) NOT NULL,
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `form_id` bigint(20) NOT NULL,
+    `uuid` binary(16) DEFAULT NULL,
     `date` DATE DEFAULT NULL,
     `pid` bigint(20) DEFAULT NULL,
     `encounter` varchar(255) DEFAULT NULL,
@@ -1746,7 +1767,11 @@ CREATE TABLE `form_clinical_notes` (
     `codetext` text,
     `description` text,
     `external_id` VARCHAR(30) DEFAULT NULL,
-    `clinical_notes_type` varchar(100) DEFAULT NULL
+    `clinical_notes_type` varchar(100) DEFAULT NULL,
+    `clinical_notes_category` varchar(100) DEFAULT NULL,
+    `note_related_to` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -1804,6 +1829,7 @@ CREATE TABLE `form_encounter` (
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   `shift` varchar(31) NOT NULL DEFAULT '',
   `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
+  `discharge_disposition` varchar(100) NULL DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -2164,6 +2190,7 @@ CREATE TABLE `form_soap` (
 DROP TABLE IF EXISTS `form_vitals`;
 CREATE TABLE `form_vitals` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` BINARY(16) DEFAULT NULL,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
   `user` varchar(255) default NULL,
@@ -2184,9 +2211,15 @@ CREATE TABLE `form_vitals` (
   `waist_circ` float(5,2) default '0.00',
   `head_circ` float(4,2) default '0.00',
   `oxygen_saturation` float(5,2) default '0.00',
+  `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `ped_weight_height` float(4,1) default '0.00',
+  `ped_bmi` float(4,1) default '0.00',
+  `ped_head_circ` float(4,1) default '0.00',
+  `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -2654,6 +2687,7 @@ CREATE TABLE `groups` (
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `coffee` longtext,
   `tobacco` longtext,
   `alcohol` longtext,
@@ -2743,7 +2777,8 @@ CREATE TABLE `history_data` (
   `userarea11` text,
   `userarea12` text,
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3018,7 +3053,7 @@ CREATE TABLE `insurance_companies` (
   `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
-  `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
+  `alt_cms_id` varchar(15) default NULL,
   `inactive` int(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
@@ -3088,6 +3123,51 @@ CREATE TABLE `insurance_numbers` (
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `insurance_type_codes`
+--
+
+DROP TABLE IF EXISTS `insurance_type_codes`;
+CREATE TABLE `insurance_type_codes` (
+  `id` int(2) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `claim_type` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `insurance_type_codes`
+--
+
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
 
 -- --------------------------------------------------------
 
@@ -3319,25 +3399,30 @@ CREATE TABLE `layout_options` (
 -- Inserting data for table `layout_options`
 --
 
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 1, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 5, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 6, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 7, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 8, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 9, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 10, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 11, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 12, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 13, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 14, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 15, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 16, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 17, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 18, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 19, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 10, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 20, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 30, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 40, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', 1, '', 45, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 50, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', '1', 'Birth Name', 60, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', '1', '', 70, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', '1', '', 80, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 90, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 100, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 110, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 120, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 130, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 140, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 150, 1, 1, 0, 0, 'marital', 1, 1, '', '', 'Marital Status', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 160, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 170, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 180, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 190, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 200, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 210, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 220, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history','1','Previous Names',230,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
@@ -3373,7 +3458,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'protect_indicator'  , '3', 'Protection Indicator'  ,19, 1, 1,1,0, 'yesno', 1, 1, '', '', 'Protection Indicator', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,20, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 45, 1, 0, 0, '', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_status', '3', 'Care Team Status', 22, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 23, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 1, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
@@ -3394,7 +3480,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 3, '', '', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '', 'Patient Religion', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'usertext1', '6', 'User Defined Text 1', 3, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined', 0);
@@ -3446,8 +3532,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTphreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTlegal','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTbill' ,'body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','usertext11'       ,'1'       ,'Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','exams'            ,'1'       ,'Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','usertext11'       ,'1'       ,'Risk Factors',1,21,1,0,0,'riskfactors',1,3,'','' ,'Risk Factors', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','exams'            ,'1'       ,'Exams/Tests' ,2,23,1,0,0,'exams'      ,1,3,'','' ,'Exam and test results', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_father'   ,'2','Father'                 , 1, 2,1,20,  0,'',1,1,'','' ,'', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_father'        ,'2','Diagnosis Code'         , 2,15,1, 0,255,'',1,1,'','', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_mother'   ,'2','Mother'                 , 3, 2,1,20,  0,'',1,1,'','' ,'', 0);
@@ -6419,6 +6505,38 @@ INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`,
 INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','comment_OTH','Additional gender category or other, please specify',60,0,0,'HL7:OTH');
 INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','ASKU','Choose not to disclose',70,0,0,'HL7:ASKU');
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1', 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'active', 'Active', 20, 1, 0, 'The care team is currently participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'inactive', 'Inactive', 40, 0, 0, 'The care team was, but is no longer, participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'suspended', 'Suspended', 30, 0, 0, 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'proposed', 'Proposed', 10, 0, 0, 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'entered-in-error', 'Entered In Error', 50, 0, 0, 'The care team should have never existed.');
+
+-- Vitals Interpretation Values
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','vitals-interpretation','Observation Interpretation',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','N','Normal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','H','High',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','L','Low',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','A','Abnormal',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','AA','Critical abnormal',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HH','Critical high',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
+
+-- Discharge Disposition (for encounters and eventually appointments)
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','discharge-disposition','Discharge Disposition',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','home','Home',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','alt-home','Alternative Home',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','other-hcf','Other healthcare facility',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','hosp','Hospice',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','long','Long-term care',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','aadvice','Left against advice',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','exp','Expired',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','psy','Psychiatric hospital',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','rehab','Rehabilitation',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','snf','Skilled nursing facility',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','oth','Other',110,0,1);
 -- --------------------------------------------------------
 
 --
@@ -6468,6 +6586,23 @@ CREATE TABLE `lists` (
   KEY `type` (`type`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `lists_medication`;
+CREATE TABLE `lists_medication` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `list_id` BIGINT(20) NULL COMMENT 'FK Reference to lists.id'
+    , `drug_dosage_instructions` LONGTEXT COMMENT 'Free text dosage instructions for taking the drug'
+    , `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category'
+    , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
+    , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
+    , `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent'
+    , PRIMARY KEY (`id`)
+    , INDEX `lists_med_usage_category_idx`(`usage_category`)
+    , INDEX `lists_med_request_intent_idx`(`request_intent`)
+    , INDEX `lists_medication_list_idx` (`list_id`)
+) ENGINE = InnoDB COMMENT = 'Holds additional data about patient medications.';
 
 -- --------------------------------------------------------
 
@@ -6525,7 +6660,7 @@ CREATE TABLE `modules` (
   `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  `mod_ui_name` VARCHAR(20) NOT NULL DEFAULT '''',
+  `mod_ui_name` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
   `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
@@ -6541,6 +6676,16 @@ CREATE TABLE `modules` (
   `acl_version` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `modules`
+--
+
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (1, 'Immunization', 'Immunization', '', '', 1, 'Immunization', 'public/immunization/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (2, 'Syndromicsurveillance', 'Syndromicsurveillance', '', '', 1, 'Syndromicsurveillance', 'public/syndromicsurveillance/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (3, 'Documents', 'Documents', '', '', 1, 'Documents', 'public/documents/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (4, 'Ccr', 'Ccr', '', '', 1, 'Ccr', 'public/ccr/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (5, 'Carecoordination', 'Carecoordination', '', '', 1, 'Carecoordination', 'public/carecoordination/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
 
 -- --------------------------------------------------------
 
@@ -6571,6 +6716,16 @@ CREATE TABLE `module_acl_sections` (
   `section_identifier` varchar(50) DEFAULT NULL,
   `module_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `module_acl_sections`
+--
+
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (1, 'Immunization', 0, 'immunization', 1);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (2, 'Syndromicsurveillance', 0, 'syndromicsurveillance', 2);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (3, 'Documents', 0, 'documents', 3);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (4, 'Ccr', 0, 'ccr', 4);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (5, 'Carecoordination', 0, 'carecoordination', 5);
 
 -- --------------------------------------------------------
 
@@ -7112,6 +7267,7 @@ CREATE TABLE `patient_data` (
   `cmsportal_login` varchar(60) NOT NULL default '',
   `care_team_provider` TEXT,
   `care_team_facility` TEXT,
+  `care_team_status` TEXT,
   `county` varchar(40) NOT NULL default '',
   `industry` TEXT,
   `imm_reg_status` TEXT,
@@ -7132,12 +7288,38 @@ CREATE TABLE `patient_data` (
   `guardianemail` TEXT,
   `sexual_orientation` TEXT,
   `gender_identity` TEXT,
+  `birth_fname` TEXT,
+  `birth_lname` TEXT,
+  `birth_mname` TEXT,
+  `dupscore` INT NOT NULL default -9,
+  `name_history` TINYTEXT,
+  `suffix` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `patient_history` that is a dependent table on `patient_data`
+DROP TABLE IF EXISTS `patient_history`;
+CREATE TABLE `patient_history` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `uuid` BINARY(16) NULL
+    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , `care_team_provider` TEXT
+    , `care_team_facility` TEXT
+    , `pid` BIGINT(20) NOT NULL
+    , `history_type_key` varchar(36) DEFAULT NULL
+    , `previous_name_prefix` TEXT
+    , `previous_name_first` TEXT
+    , `previous_name_middle` TEXT
+    , `previous_name_last` TEXT
+    , `previous_name_suffix` TEXT
+    , `previous_name_enddate` date DEFAULT NULL
+    , PRIMARY KEY (`id`)
+    , UNIQUE `uuid` (`uuid`)
+) ENGINE = InnoDB;
 --
 -- Table structure for table `patient_portal_menu`
 --
@@ -7381,6 +7563,11 @@ CREATE TABLE `prescriptions` (
   `ntx` INT(2) DEFAULT NULL,
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
+  `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category',
+  `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category',
+  `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
+  `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
+  `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE INDEX `uuid` (`uuid`)
@@ -8419,8 +8606,9 @@ CREATE TABLE `users` (
   `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   `portal_user` tinyint(1) NOT NULL DEFAULT '0',
   `supervisor_id` int(11) NOT NULL DEFAULT '0',
-    UNIQUE KEY `uuid` (`uuid`),
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `abook_type` (`abook_type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 --
@@ -8503,6 +8691,7 @@ CREATE TABLE `uuid_mapping` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `resource` varchar(255) NOT NULL DEFAULT '',
+  `resource_path` VARCHAR(255) DEFAULT NULL,
   `table` varchar(255) NOT NULL DEFAULT '',
   `target_uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,
@@ -8813,6 +9002,7 @@ CREATE TABLE gprelations (
 DROP TABLE IF EXISTS `procedure_providers`;
 CREATE TABLE `procedure_providers` (
   `ppid`         bigint(20)   NOT NULL auto_increment,
+  `uuid`         binary(16)   DEFAULT NULL,
   `name`         varchar(255) NOT NULL DEFAULT '',
   `npi`          varchar(15)  NOT NULL DEFAULT '',
   `send_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
@@ -8831,7 +9021,8 @@ CREATE TABLE `procedure_providers` (
   `lab_director` bigint(20)   NOT NULL DEFAULT '0',
   `active`       tinyint(1)   NOT NULL DEFAULT '1',
   `type`         varchar(31)  DEFAULT NULL,
-  PRIMARY KEY (`ppid`)
+  PRIMARY KEY (`ppid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -8861,8 +9052,10 @@ CREATE TABLE `procedure_type` (
   `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
   `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
   `transport`           varchar(31)  DEFAULT NULL,
+  `procedure_type_name` varchar(64)  NULL,
   PRIMARY KEY (`procedure_type_id`),
-  KEY parent (parent)
+  KEY parent (parent),
+  KEY `ptype_procedure_code` (`procedure_code`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -8978,6 +9171,7 @@ CREATE TABLE `procedure_answers` (
 DROP TABLE IF EXISTS `procedure_report`;
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)     DEFAULT NULL,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
@@ -8990,7 +9184,8 @@ CREATE TABLE `procedure_report` (
   `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',
   `report_notes`        text           COMMENT 'notes from the lab',
   PRIMARY KEY (`procedure_report_id`),
-  KEY procedure_order_id (procedure_order_id)
+  KEY procedure_order_id (procedure_order_id),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -10047,7 +10242,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{"form_group":{"presence": true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}, "note":{"presence": {"message": "Please enter a note"}}}', 1);
 
 -- void reasons list
 
@@ -10691,6 +10886,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','plan_of_care','Plan of Care','1','0','0','','INT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','procedure','Procedure','3','0','0','','RQO','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','test_or_order','Test/Order','2','0','0','','RQO','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
@@ -10711,17 +10909,46 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','Clinical_Note_Type','Clinical Note Type',0,1,0,'',NULL,'',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','progress_note','Progress Note',10,0,0,'','LOINC:11506-3','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','nurse_note','Nurse Note',20,0,0,'','LOINC:34746-8','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','history_physical','History & Physical',30,0,0,'','LOINC:34117-2','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','general_note','General Note',40,0,0,'','LOINC:34109-9','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','discharge_summary','Discharge Summary Note',50,0,0,'','LOINC:18842-5','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','procedure_note','Procedure Note',60,0,0,'','LOINC:28570-0','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:81222-2','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:11488-4','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','LOINC:11502-2','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+                           , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+    ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+
+-- Insert Medication Usage Intent
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-usage-category','Medication Usage Category',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-category.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','inpatient','Inpatient',10,0,1, 'Includes requests for medications to be administered or consumed in an inpatient or acute care setting');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','outpatient','Outpatient',20,0,1, 'Includes requests for medications to be administered or consumed in an outpatient setting (for example, Emergency Department, Outpatient Clinic, Outpatient Surgery, Doctor''s office)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','community','Home/Community',30,1,1, 'Includes requests for medications to be administered or consumed by the patient in their home (this would include long term care or nursing homes, hospices, etc.)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','discharge','Discharge',40,0,1, 'Includes requests for medications created when the patient is being released from a facility');
+
+-- Insert Medication Request Intent
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-request-intent','Medication Request Intent',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','proposal','Proposal',10,0,1, 'The request is a suggestion made by someone/something that doesn''t have an intention to ensure it occurs and without providing an authorization to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','plan','Plan',20,0,1, 'The request represents an intention to ensure something occurs without providing an authorization for others to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','order','Order',30,1,1, 'The request represents a request/demand and authorization for action');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','original-order','Original Order',40,0,1, 'The request represents the original authorization for the medication request.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','reflex-order','Reflex Order',50,0,1, 'The request represents an automatically generated supplemental authorization for action based on a parent authorization together with initial results of the action taken against that parent authorization.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','filler-order','Filler Order',60,0,1, 'The request represents the view of an authorization instantiated by a fulfilling system representing the details of the fulfiller''s intention to act upon a submitted order.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 -- --------------------------------------------------------
 
 --
@@ -10943,7 +11170,9 @@ INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_com
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
 INSERT INTO ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
-
+INSERT INTO `ccda_components` (`ccda_components_id`, `ccda_components_field`, `ccda_components_name`, `ccda_type`) VALUES
+('23', 'medical_devices', 'Medical Devices', 1),
+('24', 'goals', 'Goals', 1);
 -- --------------------------------------------------------
 
 --
@@ -11006,8 +11235,9 @@ INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_f
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('43','8','procedure_description','Procedure Description','0');
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('44','8','procedure_indications','Procedure Indications','0');
 INSERT INTO ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('45','9','unstructured_doc','Document','0');
-
--- --------------------------------------------------------
+INSERT INTO `ccda_sections` (`ccda_sections_id`, `ccda_components_id`, `ccda_sections_field`, `ccda_sections_name`, `ccda_sections_req_mapping`) VALUES
+('46', '3', 'medical_devices', 'Medical Devices', '0'),
+('47', '3', 'goals', 'Goals', '0');-- --------------------------------------------------------
 
 --
 -- Table structure for table `ccda_field_mapping`
@@ -11087,7 +11317,8 @@ CREATE TABLE `external_procedures` (
   `ep_code_text` longtext,
   `ep_facility_id` varchar(255) DEFAULT NULL,
   `ep_external_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ep_id`)
+  PRIMARY KEY (`ep_id`),
+  KEY `ep_pid` (`ep_pid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -11128,7 +11359,8 @@ CREATE TABLE `form_care_plan` (
   `codetext` text,
   `description` text,
   `external_id` varchar(30) DEFAULT NULL,
-  `care_plan_type` varchar(30) DEFAULT NULL
+  `care_plan_type` varchar(30) DEFAULT NULL,
+  `note_related_to` text
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -12470,3 +12702,34 @@ CREATE TABLE `export_job` (
   UNIQUE (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB COMMENT='fhir export jobs';
+
+DROP TABLE IF EXISTS `form_vital_details`;
+CREATE TABLE `form_vital_details` (
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`form_id` bigint(20) NOT NULL COMMENT 'FK to vital_forms.id',
+`vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
+`interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
+`interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
+`interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
+`interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+PRIMARY KEY (`id`),
+KEY `fk_form_id` (`form_id`),
+KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
+) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
+
+DROP TABLE IF EXISTS `jwt`;
+CREATE TABLE `jwt_grant_history` (
+`id` INT NOT NULL AUTO_INCREMENT
+ , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
+ , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
+ , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
+ , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
+ , PRIMARY KEY (`id`)
+ , KEY `jti` (`jti`)
+) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
+
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', '2022-Code Descriptions.zip', '11d1d725c84e55d52ef6633da88aa137');
+
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');

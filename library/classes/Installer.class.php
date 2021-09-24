@@ -400,6 +400,40 @@ class Installer
         return true;
     }
 
+    public function on_care_coordination()
+    {
+        $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $modId = $resource_array['mod_id'];
+        if (empty($modId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $sectionId = $resource_array['section_id'];
+        if (empty($sectionId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $groupId = $resource_array['id'];
+        if (empty($groupId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section\n";
+            return false;
+        }
+
+        if ($this->execute_sql("INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES ('" . $this->escapeSql($modId) . "', '" . $this->escapeSql($groupId) . "', '" . $this->escapeSql($sectionId) . "', 1)") == false) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to add the module_acl_group_settings acl entry\n";
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Generates the initial user's 2FA QR Code
      * @return bool|string|void
@@ -1127,7 +1161,15 @@ $config = 1; /////////////
             $this->disconnect();
             // Using @ in below call to hide the php warning in cases where the
             //  below connection does not work, which is expected behavior.
-            if (! @$this->user_database_connection()) {
+            // Using try in below call to catch the mysqli exception when the
+            //  below connection does not work, which is expected behavior (needed to
+            //  add this try/catch clause for PHP 8.1).
+            try {
+                $checkUserDatabaseConnection = @$this->user_database_connection();
+            } catch (Exception $e) {
+                $checkUserDatabaseConnection = false;
+            }
+            if (! $checkUserDatabaseConnection) {
                 // Re-connect to mysql via root user
                 if (! $this->root_database_connection()) {
                     return false;
@@ -1190,6 +1232,10 @@ $config = 1; /////////////
             if (! $this->install_additional_users()) {
                 return false;
             }
+
+            if (! $this->on_care_coordination()) {
+                return false;
+            }
         }
 
         return true;
@@ -1241,10 +1287,10 @@ $config = 1; /////////////
     private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
         $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $clientFlag = null;
+        $mysqlSsl = false;
         $mysqli = mysqli_init();
         if (defined('MYSQLI_CLIENT_SSL') && file_exists($pathToCerts . "mysql-ca")) {
-            $clientFlag = MYSQLI_CLIENT_SSL;
+            $mysqlSsl = true;
             if (
                 file_exists($pathToCerts . "mysql-key") &&
                 file_exists($pathToCerts . "mysql-cert")
@@ -1270,7 +1316,12 @@ $config = 1; /////////////
                 );
             }
         }
-        if (! mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', $clientFlag)) {
+        if ($mysqlSsl) {
+            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+        } else {
+            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        }
+        if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
             return false;
         }
@@ -1380,10 +1431,11 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
-        $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
+        $tmp1 = [];
+        $tmp0 = exec($cmd, $tmp1, $tmp2);
         if ($tmp2) {
             die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
         }

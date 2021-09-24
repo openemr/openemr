@@ -200,7 +200,7 @@ function echoServiceLines()
             echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox'" .
             ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
 
-            if ($GLOBALS['gbl_auto_create_rx']) {
+            if (!empty($GLOBALS['gbl_auto_create_rx'])) {
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";
             }
 
@@ -217,7 +217,7 @@ function echoServiceLines()
                 }
             }
             if (modifiers_are_used(true)) {
-                if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
+                if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
                        "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
@@ -227,7 +227,7 @@ function echoServiceLines()
             }
 
             if (fees_are_used()) {
-                if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || !empty($fee)) {
+                if ($codetype == 'COPAY' || !empty($code_types[$codetype]['fee']) || !empty($fee)) {
                     if ($price_levels_are_used) {
                         echo "  <td class='billcell text-center'>";
                         echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
@@ -498,8 +498,8 @@ if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
         $_POST['prod'],
         $main_provid,
         $main_supid,
-        $_POST['default_warehouse'],
-        $_POST['bn_save_close']
+        $_POST['default_warehouse'] ?? null,
+        $_POST['bn_save_close'] ?? null
     );
 
     unset($_POST['dx_update']);
@@ -526,7 +526,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
     $main_provid = 0 + ($_POST['ProviderID'] ?? 0);
-    $main_supid  = 0 + ($_POST['SupervisorID'] ?? 0);
+    $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
     $fs->save(
         $_POST['bill'],
@@ -1059,7 +1059,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $default_search_type ?? null;
+                            $search_type = $GLOBALS['default_search_code_type'] ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }

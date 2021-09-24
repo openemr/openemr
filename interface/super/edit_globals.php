@@ -127,7 +127,7 @@ function checkBackgroundServices()
      * this is to sync the prescription logs
      */
     $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
-    updateBackgroundService('WenoExchange', $wenoservices, 240);
+    updateBackgroundService('WenoExchange', $wenoservices, 1);
 }
 ?>
 <!DOCTYPE html>
@@ -776,6 +776,12 @@ $(function () {
         }
     }
     ?>
+    $('#srch_desc').keypress(function (event) {
+        if (event.which === 13 || event.keyCode === 13) {
+            event.preventDefault();
+            $('#globals_form_search').click();
+        }
+    });
 });
 $('.scroll').click(function() {
     if ($(window).scrollTop() == 0) {

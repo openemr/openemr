@@ -20,6 +20,9 @@ class PractitionerRestControllerTest extends TestCase
     const PRACTITIONER_API_URL = "/apis/api/practitioner";
 
     private $practitionerData;
+    /**
+     * @var PractitionerRestController
+     */
     private $practitionerController;
     private $fixtureManager;
 
@@ -58,7 +61,8 @@ class PractitionerRestControllerTest extends TestCase
             "state_license_number" => "123456",
             "abook_title" => "Specialist",
             "physician_title" => "Attending physician",
-            "physician_code" => "SNOMED-CT =>405279007"
+            "physician_code" => "SNOMED-CT =>405279007",
+            "username" => "kperez"
         );
 
         $this->fixtureManager = new PractitionerFixtureManager();

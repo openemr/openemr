@@ -51,7 +51,8 @@ class PractitionerRestController
         "phonew1",
         "phonecell",
         "notes",
-        "state_license_number"
+        "state_license_number",
+        "username"
     );
 
     public function __construct()

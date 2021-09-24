@@ -401,7 +401,7 @@ if (strlen($last_group) > 0) {
 if ($PDF_OUTPUT) {
     $content = getContent();
     $pdf->writeHTML($content);
-    $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
+    $pdf->Output('Demographics_form.pdf', 'I'); // D = Download, I = Inline
 } else {
     ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->

@@ -729,7 +729,7 @@ class InstallerController extends AbstractActionController
         }
 
         if ($moduleId !== null) {
-            echo 'module [' . $moduleName . '] was find' . PHP_EOL;
+            echo 'module [' . $moduleName . '] was found' . PHP_EOL;
 
             $msg = "command completed successfully";
 
@@ -742,9 +742,9 @@ class InstallerController extends AbstractActionController
             } elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
             } elseif ($moduleAction === "enable") {
-                $div = $this->EnableModule($moduleId);
-            } elseif ($moduleAction === "disable") {
                 $div = $this->DisableModule($moduleId);
+            } elseif ($moduleAction === "disable") {
+                $div = $this->EnableModule($moduleId);
             } elseif ($moduleAction === "install") {
                 $div = $this->InstallModule($moduleId);
             } elseif ($moduleAction === "unregister") {

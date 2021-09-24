@@ -18,29 +18,37 @@
 use Laminas\Console\Request as ConsoleRequest;
 
 //fetching controller name and action name from the SOAP request
-$urlArray = explode('/', $_SERVER['REQUEST_URI']);
+$urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
 $countUrlArray = count($urlArray);
-preg_match('/\/(\w*)\?/', $_SERVER['REQUEST_URI'], $matches);
-$actionName = isset($matches[1]) ? $matches[1] : '';
-$controllerName = isset($urlArray[$countUrlArray - 2]) ? $urlArray[$countUrlArray - 2] : '';
+preg_match('/\/(\w*)\?/', ($_SERVER['REQUEST_URI'] ?? ''), $matches);
+$actionName = $matches[1] ?? '';
+$controllerName = $urlArray[$countUrlArray - 2] ?? '';
 
 //skipping OpenEMR authentication if the controller is SOAP and action is INDEX
 //SOAP authentication is done in the controller EncounterccdadispatchController
 if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
-    session_id($_REQUEST['me']);
-    session_start();
-    $ignoreAuth_onsite_portal = false; // eval'ed in globals but why not...
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] == '-patient-' && $_SESSION['portal_init']) {
+    $ignoreAuth_onsite_portal = false;
+    if (!empty($_REQUEST['me'])) {
+        session_id($_REQUEST['me']);
+        session_start();
+    }
+    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
         $ignoreAuth_onsite_portal = true;
     }
+}
+
+if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
+    // pick up already running session from api's
+    session_id($_REQUEST['me']);
+    session_start();
 }
 
 if (php_sapi_name() === 'cli' && count($argv) != 0) {
     $ignoreAuth = true;
     $siteDefault = 'default';
     foreach ($argv as $arg) {
-        if (strpos($arg, "--site=") !== false) {
+        if (str_contains($arg, "--site=")) {
             $siteDefault = explode("=", $arg)[1];
         }
     }
@@ -48,11 +56,12 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
     // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
-require_once(dirname(__FILE__) . "/../../../globals.php");
-require_once(dirname(__FILE__) . "/../../../../library/forms.inc");
-require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");
 
-require_once(dirname(__FILE__) . "/../../../../library/sql_upgrade_fx.php");
+require_once(__DIR__ . "/../../../globals.php");
+require_once(__DIR__ . "/../../../../library/forms.inc");
+require_once(__DIR__ . "/../../../../library/options.inc.php");
+
+require_once(__DIR__ . "/../../../../library/sql_upgrade_fx.php");
 
 chdir(dirname(__DIR__));
 

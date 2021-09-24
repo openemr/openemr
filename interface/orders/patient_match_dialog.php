@@ -98,7 +98,7 @@ if ($form_key) {
 
     $sql = "SELECT $clsql AS closeness, " .
         "pid, pubpid, fname, lname, mname, DOB, ss, postal_code, street, " .
-        "phone_biz, phone_home, phone_cell, phone_contact " .
+        "phone_biz, phone_home, phone_cell, phone_contact, sex " .
         "FROM patient_data " .
         "ORDER BY closeness DESC, lname, fname LIMIT 10";
     $res = sqlStatement($sql, $clarr);
@@ -116,9 +116,10 @@ if ($form_key) {
             </h5>
             <tr>
                 <th><?php echo xlt('Name'); ?></th>
+                <th><?php echo xlt('DOB'); ?></th>
+                <th><?php echo xlt('Sex'); ?></th>
                 <th><?php echo xlt('Phone'); ?></th>
                 <th><?php echo xlt('SS'); ?></th>
-                <th><?php echo xlt('DOB'); ?></th>
                 <th><?php echo xlt('Address'); ?></th>
             </tr>
 
@@ -144,9 +145,10 @@ if ($form_key) {
                 echo "  <tr class='oneresult'";
                 echo " onclick=\"openPatient(" . attr_js($row['pid']) . ")\">\n";
                 echo "   <td>" . text($row['lname'] . ", " . $row['fname']) . "</td>\n";
+                echo "   <td>" . text($row['DOB']) . "</td>\n";
+                echo "   <td>" . text(substr($row['sex'], 0, 1)) . "</td>\n";
                 echo "   <td>" . text($phone) . "</td>\n";
                 echo "   <td>" . text($row['ss']) . "</td>\n";
-                echo "   <td>" . text($row['DOB']) . "</td>\n";
                 echo "   <td>" . text($row['street'] . ' ' . $row['postal_code']) . "</td>\n";
                 echo "  </tr>\n";
             }

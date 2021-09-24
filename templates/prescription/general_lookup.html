@@ -18,7 +18,9 @@
 		function my_process () {
 			// Pass the variable
 {/literal}
-			parent.my_process_lookup(document.lookup.drug.value);
+	let rxText = document.lookup.drug[document.lookup.drug.selectedIndex].text;
+    let rxcode = (rxText.split('(RxCUI:').pop().split(')')[0]).trim();
+	parent.my_process_lookup(document.lookup.drug.value, rxcode);
 {literal}
 		}
 {/literal}

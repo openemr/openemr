@@ -13,17 +13,43 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirCareTeamService extends FhirServiceBase
+class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
+    // @see http://hl7.org/fhir/R4/valueset-care-team-status.html
+    private const CARE_TEAM_STATUS_ACTIVE = "active";
+    private const CARE_TEAM_STATUS_PROPOSED = "proposed";
+    private const CARE_TEAM_STATUS_SUSPENDED = "suspended";
+    private const CARE_TEAM_STATUS_INACTIVE = "inactive";
+    private const CARE_TEAM_STATUS_ENTERED_IN_ERROR = "entered-in-error";
+    private const CARE_TEAM_STATII = [self::CARE_TEAM_STATUS_ACTIVE, self::CARE_TEAM_STATUS_INACTIVE
+        , self::CARE_TEAM_STATUS_PROPOSED, self::CARE_TEAM_STATUS_SUSPENDED, self::CARE_TEAM_STATUS_ENTERED_IN_ERROR];
+
     /**
      * @var CareTeamService
      */
     private $careTeamService;
+
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-careteam';
 
     public function __construct()
     {
@@ -37,7 +63,11 @@ class FhirCareTeamService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [];
+        return  [
+            'patient' => $this->getPatientContextSearchField(),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['care_team_status']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+        ];
     }
 
     /**
@@ -51,27 +81,81 @@ class FhirCareTeamService extends FhirServiceBase
     {
         $careTeamResource = new FHIRCareTeam();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $careTeamResource->setMeta($meta);
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        $fhirMeta->setLastUpdated(gmdate('c'));
+        $careTeamResource->setMeta($fhirMeta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $careTeamResource->setId($id);
 
-        $careTeamResource->setStatus("active");
-
-        $careTeamResource->setSubject("Patient/" . $dataRecord['puuid']);
-
-        foreach ($dataRecord['providers'] as $pruuid) {
-            $provider = new FHIRCareTeamParticipant();
-            $provider->setMember("Practitioner/" . $pruuid);
-            $careTeamResource->addParticipant($provider);
+        if (array_search($dataRecord['care_team_status'], self::CARE_TEAM_STATII) !== false) {
+            $careTeamResource->setStatus($dataRecord['care_team_status']);
+        } else {
+            // default is active
+            $careTeamResource->setStatus(self::CARE_TEAM_STATUS_ACTIVE);
         }
 
-        foreach ($dataRecord['facilities'] as $ouuid) {
-            $organization = new FHIRCareTeamParticipant();
-            $organization->setMember("Organization/" . $ouuid);
-            $careTeamResource->addParticipant($organization);
+
+        $careTeamResource->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
+        $codeTypesService = new CodeTypesService();
+
+        if (!empty($dataRecord['providers'])) {
+            foreach ($dataRecord['providers'] as $dataRecordProviderList) {
+                $provider = new FHIRCareTeamParticipant();
+
+                // provider can have more than facility matching... we are only going to grab the first facility for now
+                $dataRecordProvider = end($dataRecordProviderList);
+
+                if (!empty($dataRecordProvider['role_code'])) {
+                    $codes = $codeTypesService->parseCode($dataRecordProvider['role_code']);
+                    $codes['description'] = $codeTypesService->lookup_code_description($dataRecordProvider['role_code']) ?? xlt($dataRecordProvider['role_title']);
+                    if (empty($codes['description'])) {
+                        $codes['description'] = xlt($dataRecordProvider['role_title']);
+                    }
+                    $codes['system'] = FhirCodeSystemConstants::NUCC_PROVIDER;
+                    $role = UtilsService::createCodeableConcept([$codes['code'] => $codes]);
+                } else {
+                    // need to provide the data absent reason
+                    $role = UtilsService::createDataAbsentUnknownCodeableConcept();
+                }
+
+                // US Core only allows onBehalfOf to be populated if participant is a practitioner
+                if (!empty($dataRecordProvider['facility_uuid'])) {
+                    $provider->setOnBehalfOf(UtilsService::createRelativeReference("Organization", $dataRecordProvider['facility_uuid']));
+                }
+
+                $provider->addRole($role);
+                $provider->setMember(UtilsService::createRelativeReference("Practitioner", $dataRecordProvider['provider_uuid']));
+                $careTeamResource->addParticipant($provider);
+            }
+        }
+
+        if (!empty($dataRecord['facilities'])) {
+            foreach ($dataRecord['facilities'] as $dataRecordFacility) {
+                $organization = new FHIRCareTeamParticipant();
+                $organization->setMember(UtilsService::createRelativeReference("Organization", $dataRecordFacility['uuid']));
+
+                $roleCoding = new FHIRCoding();
+                if (empty($dataRecordFacility['facility_taxonomy'])) {
+                    $role = UtilsService::createDataAbsentUnknownCodeableConcept();
+                } else {
+                    $codes = [
+                        'code' => $dataRecordFacility['facility_taxonomy']
+                        ,'system' => FhirCodeSystemConstants::NUCC_PROVIDER
+                        ,'description' => null
+                    ];
+                    $fullCode = $codeTypesService->getCodeWithType($codes['code'], CodeTypesService::CODE_TYPE_NUCC);
+                    $codes['description'] = $codeTypesService->lookup_code_description($fullCode);
+                    if (empty($codes['description'])) {
+                        $codes['description'] = xlt('Healthcare facility');
+                    }
+                    $role = UtilsService::createCodeableConcept([$codes['code'] => $codes]);
+                }
+                $organization->addRole($role);
+                $careTeamResource->addParticipant($organization);
+            }
         }
 
         if ($encode) {
@@ -82,53 +166,38 @@ class FhirCareTeamService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR CareTeam Resource lookup by FHIR Resource ID
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR CareTeam Resource ID.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $processingResult = $this->careTeamService->getOne($fhirResourceId, $puuidBind);
-        if (!$processingResult->hasErrors()) {
-            if (count($processingResult->getData()) > 0) {
-                $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
-                $processingResult->setData([]);
-                $processingResult->addData($fhirRecord);
-            }
-        }
-        return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->careTeamService->getAll($openEMRSearchParameters, false, $puuidBind);
+        return $this->careTeamService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        // TODO: If Required in Future
+        if (!($dataRecord instanceof FHIRCareTeam)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
+    }
+
+    public function getProfileURIs(): array
+    {
+        return [self::USCGI_PROFILE_URI];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

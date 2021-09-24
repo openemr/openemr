@@ -7,6 +7,11 @@ var css = bbm.code_systems;
 
 exports.codeFromName = function (OID) {
     return function (input) {
+        if (input === 'null_flavor') {
+            return {
+                nullFlavor: "UNK"
+            };
+        }
         var cs = css.find(OID);
         var code = cs ? cs.displayNameCode(input) : undefined;
         var systemInfo = cs.systemId(OID);
@@ -21,6 +26,13 @@ exports.codeFromName = function (OID) {
 
 exports.code = function (input) {
     var result = {};
+
+    if (input.code === 'null_flavor') {
+        return {
+            nullFlavor: "UNK"
+        };
+    }
+
     if (input.code) {
         result.code = input.code;
     }
@@ -29,6 +41,13 @@ exports.code = function (input) {
         result.displayName = input.name;
     }
 
+    if (input.code_system_name === "ICD10") {
+        input.code_system_name = "ICD-10-CM";
+    }
+
+    if (input.code_system_name === "SNOMED" || input.code_system_name === "SNOMED-CT") {
+        input.code_system_name = "SNOMED CT";
+    }
     var code_system = input.code_system || (input.code_system_name && css.findFromName(input.code_system_name));
     if (code_system) {
         result.codeSystem = code_system;
@@ -46,9 +65,9 @@ var precisionToFormat = {
     month: 'YYYYMM',
     day: 'YYYYMMDD',
     hour: 'YYYYMMDDHH',
-    minute: 'YYYYMMDDHHMM',
+    minute: 'YYYYMMDDHHmm',
     second: 'YYYYMMDDHHmmss',
-    subsecond: 'YYYYMMDDHHmmss.SSS'
+    tz: 'YYYYMMDDHHmmZZ'
 };
 
 exports.time = function (input) {
@@ -71,8 +90,14 @@ var acronymize = exports.acronymize = function (string) {
     if (ret === "PH") {
         ret = "HP";
     }
+    if (ret === "PM") {
+        ret = "MC";
+    }
     if (ret === "HA") {
         ret = "H";
+    }
+    if (ret === "CE") {
+        ret = "EM";
     }
     return ret;
 };
@@ -89,6 +114,11 @@ exports.telecom = function (input) {
                     if (phone.type) {
                         attrs.use = acronymize(phone.type);
                     }
+                    r.push(attrs);
+                } else if (phone && phone.email) {
+                    var attrs = {
+                        value: "mailto:" + phone.email
+                    };
                     r.push(attrs);
                 }
                 return r;

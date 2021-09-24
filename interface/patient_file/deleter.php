@@ -31,13 +31,13 @@ if (!empty($_GET)) {
 }
 
 $patient     = $_REQUEST['patient'];
-$encounterid = $_REQUEST['encounterid'];
-$formid      = $_REQUEST['formid'];
-$issue       = $_REQUEST['issue'];
-$document    = $_REQUEST['document'];
-$payment     = $_REQUEST['payment'];
-$billing     = $_REQUEST['billing'];
-$transaction = $_REQUEST['transaction'];
+$encounterid = $_REQUEST['encounterid'] ?? '';
+$formid      = $_REQUEST['formid'] ?? '';
+$issue       = $_REQUEST['issue'] ?? '';
+$document    = $_REQUEST['document'] ?? '';
+$payment     = $_REQUEST['payment'] ?? '';
+$billing     = $_REQUEST['billing'] ?? '';
+$transaction = $_REQUEST['transaction'] ?? '';
 
 $info_msg = "";
 
@@ -208,7 +208,7 @@ function popup_close() {
         <?php
         // If the delete is confirmed...
         //
-        if ($_POST['form_submit']) {
+        if (!empty($_POST['form_submit'])) {
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
                 CsrfUtils::csrfNotVerified();
             }
@@ -233,6 +233,7 @@ function popup_close() {
                 row_delete("employer_data", "pid = '" . add_escape_custom($patient) . "'");
                 row_delete("history_data", "pid = '" . add_escape_custom($patient) . "'");
                 row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
+                row_delete("patient_history", "pid = '" . add_escape_custom($patient) . "'");
 
                 $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
                 while ($row = sqlFetchArray($res)) {
@@ -284,6 +285,7 @@ function popup_close() {
                 $ids = explode(",", $issue);
                 foreach ($ids as $id) {
                     row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
+                    row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
                     row_delete("lists", "id = '" . add_escape_custom($id) . "'");
                 }
             } elseif ($document) {

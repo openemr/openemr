@@ -9,10 +9,14 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2014-2019 Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2014-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
 <script>
@@ -77,13 +81,13 @@ function processCommentField(fieldId) {
 }
 
 function myHideOrShow(elem, hide) {
-  // elem is a td element.
+  // elem is a td or bootstrap column div.
   for (var inp = elem.firstChild; inp; inp = inp.nextSibling) {
     if (inp.style) {
       inp.style.display = hide ? 'none' : '';
     } else {
-      // This must be a text node with no tag, so hide/show the parent TD instead.
-      elem.style.visibility = hide ? 'hidden' : 'visible';
+      // This must be a text node with no tag, so hide/show the parent elem instead.
+      elem.style.display = hide ? 'none' : '';
     }
   }
 }
@@ -109,13 +113,6 @@ function checkSkipConditions() {
     if (itemid) tofind += '[' + itemid + ']';
     // Some different source IDs are possible depending on the data type.
     var srcelem = document.getElementById('check_' + tofind);
-    var radio_id='form_' + tofind + '[' + value + ']';
-    if(typeof document.getElementById(radio_id)!=="undefined"){
-        srcelem = document.getElementById(radio_id);
-        if(srcelem != null){
-            is_radio = true;
-        }
-    }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
@@ -127,6 +124,7 @@ function checkSkipConditions() {
         srcelem = tmp;
         if (operator == 'eq') operator = 'se';
         if (operator == 'ne') operator = 'ns';
+        is_radio = true;
       }
     }
 
@@ -221,7 +219,6 @@ function checkSkipConditions() {
       if (trgelem2 == null) {
         trgelem2 = document.getElementById('value_id_' + target);
       }
-
       if (trgelem1 == null && trgelem2 == null) {
           var trgelem1 = document.getElementById('label_' + target);
           var trgelem2 = document.getElementById('text_' + target);
@@ -234,27 +231,10 @@ function checkSkipConditions() {
               continue;
           }
       }
-
-      // Find the target row and count its cells, accounting for colspans.
-      var trgrow = trgelem1 ? trgelem1.parentNode : trgelem2.parentNode;
-      var rowcells = 0;
-      for (var itmp = 0; itmp < trgrow.cells.length; ++itmp) {
-        rowcells += trgrow.cells[itmp].colSpan;
-      }
-
-      // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
-      var colspan = 0;
-      if (trgelem1) colspan += trgelem1.colSpan;
-      if (trgelem2) colspan += trgelem2.colSpan;
-      if (colspan < rowcells) {
-        if (trgelem1) myHideOrShow(trgelem1, skip);
-        if (trgelem2) myHideOrShow(trgelem2, skip);
-      }
-      else {
-        if (trgelem1) trgelem1.parentNode.style.display = skip ? 'none' : '';
-        else          trgelem2.parentNode.style.display = skip ? 'none' : '';
-      }
+      if (trgelem1) myHideOrShow(trgelem1, skip);
+      if (trgelem2) myHideOrShow(trgelem2, skip);
     }
+
     if (action.substring(0, 5) == 'value') {
       var trgelem = document.forms[0]['form_' + target];
       if (trgelem == null) {
@@ -384,4 +364,21 @@ function sel_patient(ename, epid) {
   dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/find_patient_popup.php', '_blank', 500, 400);
 }
 
+// This is a wrapper for specialty forms dialog
+// ajax mode allows calling script to be in the same scope as options.inc.php.
+function specialtyFormDialog(mode = 'iframe', size = 'modal-sm', formHandler = 'name_history') {
+    event.preventDefault();
+    let url = '<?php echo $GLOBALS['webroot']; ?>/library/specialty_forms.php?';
+    url += "form_handler=" + encodeURIComponent(formHandler);
+    url += "&csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    let title = xl("Add to History");
+    dlgopen('', '', size, 500, '', '', {
+        allowResize: true,
+        allowDrag: true,
+        sizeHeight: 'auto',
+        dialogId: '',
+        type: mode,
+        url: url
+    });
+};
 </script>

@@ -519,8 +519,8 @@ MSG;
         $user =  $_SESSION['authUser'] ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog'])) {
-            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
+        if (empty($GLOBALS['enable_auditlog'])) {
+            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -550,7 +550,7 @@ MSG;
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
         if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
+            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
                 return;
             }
         }

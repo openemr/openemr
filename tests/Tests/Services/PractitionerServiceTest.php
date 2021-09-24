@@ -19,7 +19,11 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  */
 class PractitionerServiceTest extends TestCase
 {
+    /**
+     * @var PractitionerService
+     */
     private $practitionerService;
+
     private $fixtureManager;
 
     protected function setUp(): void

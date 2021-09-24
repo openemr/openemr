@@ -481,7 +481,7 @@ class FeeSheet
         $revenue_code = $revenue_code ? $revenue_code : ($result['revenue_code'] ?? null);
         if (!$code_text) {
             $code_text = $result['code_text'] ?? null;
-            if (empty($units)) {
+            if (empty($units) && !empty($result)) {
                 $units = intval($result['units']);
             }
 
@@ -1127,7 +1127,7 @@ class FeeSheet
                 } elseif (!$del) { // Otherwise it's a new item...
                     $logarr = array($code_type, $code, '', $pricelevel, $fee, $units, $provid, '');
                     $this->logFSMessage(xl('Item added'), '', $logarr);
-                    $code_text = lookup_code_descriptions($code_type . ":" . $code);
+                    $code_text = lookup_code_descriptions($code_type . ":" . $code . ":" . $modifier);
                     BillingUtilities::addBilling(
                         $this->encounter,
                         $code_type,

@@ -10,18 +10,21 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2007-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/user.inc");
-require_once("$srcdir/calendar.inc");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Services\UserService;
+
 
 header("Content-type: text/xml");
 header("Cache-Control: no-cache");
@@ -87,7 +90,7 @@ if ($_POST["control"] == "membership") {
         }
 
         // check if user is protected. If so, then state message unable to remove from admin group.
-        $userNametoID = getIDfromUser($_POST["name"]);
+        $userNametoID = (new $userService())->getIdByUsername($_POST["name"]);
         if (checkUserSetting("gacl_protect", "1", $userNametoID) || ($_POST["name"] == "admin")) {
              $gacl_protect = true;
         } else {
@@ -258,6 +261,12 @@ function username_listings_xml($err)
     }
 
     foreach ($result4 as $iter) {
+        // Skip this user if logged-in user does not have all of its permissions.
+        // Note that a superuser now has all permissions.
+        if (!AclExtended::iHavePermissionsOf($result4['username'])) {
+            continue;
+        }
+
         $message .= "\t<user>\n" .
           "\t\t<username>" . $iter["username"] . "</username>\n";
         $username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);

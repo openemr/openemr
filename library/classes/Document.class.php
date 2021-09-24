@@ -10,13 +10,14 @@
  * @link      http://www.open-emr.org
  * @author    Unknown -- No ownership was listed on this document prior to February 5th 2021
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright OpenEMR contributors (c) 2021
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../pnotes.inc");
-require_once(dirname(__FILE__) . "/../gprelations.inc.php");
+require_once(__DIR__ . "/../pnotes.inc");
+require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -53,162 +54,167 @@ class Document extends ORDataObject
 
     /*
     *   Database unique identifier
-    *   @var id
+    *   @public id
     */
-    var $id;
+    public $id;
+
+    /**
+     * @var Unique User Identifier that is for both external reference to this entity and for future offline use.
+     */
+    public $uuid;
 
     /*
     *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
     *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
     *  documents.
-    *   @var int
+    *   @public int
     */
-    var $foreign_id;
+    public $foreign_id;
 
     /**
      * DB Unique identifier reference to another table record in the database.  This is not unique in the document. The
      * table that this record points to is in the $foreign_reference_table
-     * @var int
+     * @public int
      */
-    var $foreign_reference_id;
+    public $foreign_reference_id;
 
     /**
      * Database table name for the foreign_reference_id.  This value must be populated if $foreign_reference_id is
      * populated.
-     * @var string
+     * @public string
      */
-    var $foreign_reference_table;
+    public $foreign_reference_table;
 
     /*
     *   Enumerated DB field which is met information about how to use the URL
-    *   @var int can also be a the properly enumerated string
+    *   @public int can also be a the properly enumerated string
     */
-    var $type;
+    public $type;
 
     /*
     *   Array mapping of possible for values for the type variable
     *   mapping is array text name to index
-    *   @var array
+    *   @public array
     */
-    var $type_array = array();
+    public $type_array = array();
 
     /*
     *   Size of the document in bytes if that is available
-    *   @var int
+    *   @public int
     */
-    var $size;
+    public $size;
 
     /*
     *   Date the document was first persisted
-    *   @var string
+    *   @public string
     */
-    var $date;
+    public $date;
 
     /**
-     * @var string at which the document can no longer be accessed.
+     * @public string at which the document can no longer be accessed.
      */
-    var $date_expires;
+    public $date_expires;
 
     /*
     *   URL which point to the document, may be a file URL, a web URL, a db BLOB URL, or others
-    *   @var string
+    *   @public string
     */
-    var $url;
+    public $url;
 
     /*
     *   URL which point to the thumbnail document, may be a file URL, a web URL, a db BLOB URL, or others
-    *   @var string
+    *   @public string
     */
-    var $thumb_url;
+    public $thumb_url;
 
     /*
     *   Mimetype of the document if available
-    *   @var string
+    *   @public string
     */
-    var $mimetype;
+    public $mimetype;
 
     /*
     *   If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater, if a non-multi-page format this should be null or empty
-    *   @var int
+    *   @public int
     */
-    var $pages;
+    public $pages;
 
     /*
     *   Foreign key identifier of who initially persisited the document,
     *   potentially ownership could be changed but that would be up to an external non-document object process
-    *   @var int
+    *   @public int
     */
-    var $owner;
+    public $owner;
 
     /*
     *   Timestamp of the last time the document was changed and persisted, auto maintained by DB, manually change at your own peril
-    *   @var int
+    *   @public int
     */
-    var $revision;
+    public $revision;
 
     /*
     * Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken.
-    * @var string
+    * @public string
     */
-    var $docdate;
+    public $docdate;
 
     /*
     * hash key of the document from when it was uploaded.
-    * @var string
+    * @public string
     */
-    var $hash;
+    public $hash;
 
     /*
     * DB identifier reference to the lists table (the related issue), 0 if none.
-    * @var int
+    * @public int
     */
-    var $list_id;
+    public $list_id;
 
     // For name (used in OpenEMR 6.0.0+)
-    var $name = null;
+    public $name = null;
 
     // For label on drive (used in OpenEMR 6.0.0+)
-    var $drive_uuid = null;
+    public $drive_uuid = null;
 
     // For tagging with the encounter
-    var $encounter_id;
-    var $encounter_check;
+    public $encounter_id;
+    public $encounter_check;
 
     /*
     *   Whether the file is already imported
-    *   @var int
+    *   @public int
     */
-    var $imported;
+    public $imported;
 
     /*
     *   Whether the file is encrypted
-    *   @var int
+    *   @public int
     */
-    var $encrypted;
+    public $encrypted;
 
     // Storage method
-    var $storagemethod;
+    public $storagemethod;
 
     // For storing couch docid
-    var $couch_docid;
+    public $couch_docid;
 
     // For storing couch revid
-    var $couch_revid;
+    public $couch_revid;
 
     // For storing path depth
-    var $path_depth;
+    public $path_depth;
 
     /**
      * Flag that marks the document as deleted or not
-     * @var int 1 if deleted, 0 if not
+     * @public int 1 if deleted, 0 if not
      */
-    var $deleted;
+    public $deleted;
 
     /**
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
      */
-    function __construct($id = "")
+    public function __construct($id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
@@ -399,6 +405,17 @@ class Document extends ORDataObject
         }
 
         return $documents;
+    }
+
+    /**
+     * Returns all of the documents for a specific patient
+     * @param int $patient_id
+     * @return array
+     */
+    public static function getDocumentsForPatient(int $patient_id)
+    {
+        $doc = new Document();
+        return $doc->documents_factory($patient_id);
     }
 
     /**
@@ -751,6 +768,8 @@ class Document extends ORDataObject
             $this->foreign_id = $fid;
         }
 
+        // need to populate our uuid if its empty
+
         parent::persist();
     }
 
@@ -782,6 +801,16 @@ class Document extends ORDataObject
     function get_couch_revid()
     {
         return $this->couch_revid;
+    }
+
+    function set_uuid($uuid)
+    {
+        $this->uuid = $uuid;
+    }
+
+    function get_uuid()
+    {
+        return $this->uuid;
     }
 
     // Function added by Rod to change the patient associated with a document.
@@ -983,11 +1012,14 @@ class Document extends ORDataObject
         } else {
             $this->set_encrypted(self::ENCRYPTED_OFF);
         }
+        // we need our external unique reference identifier that can be mapped back to our table.
+        $docUUID = (new UuidRegistry(['table_name' => $this->_table]))->createUuid();
+        $this->set_uuid($docUUID);
         $this->name = $filename;
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ? $owner : $_SESSION['authUserID'];
+        $this->owner = $owner ? $owner : ($_SESSION['authUserID'] ?? null);
         $this->date_expires = $date_expires;
         $this->set_foreign_id($patient_id);
         $this->persist();

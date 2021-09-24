@@ -84,15 +84,15 @@ class CcrTable extends AbstractTableGateway
                 JOIN categories AS cat ON cat.name = 'CCR'
                 JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
                 LEFT JOIN audit_master AS am ON am.type = '11' AND am.approval_status = '1' AND d.audit_master_id = am.id
-                LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname' 
-                LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname' 
-                LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB' 
+                LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
+                LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
+                LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
                 LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
                 LEFT JOIN users AS u ON u.id = d.owner
                 WHERE d.audit_master_approval_status = 1
                 ORDER BY date DESC";
         $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, array($data['cat_title']));
+        $result     = $appTable->zQuery($query);
         $records    = array();
         foreach ($result as $row) {
             $records[] = $row;
@@ -218,11 +218,11 @@ class CcrTable extends AbstractTableGateway
             }
 
             $table_qry  = substr($table_qry, 0, -1);
-            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name IN ($table_qry) 
+            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name IN ($table_qry)
                     WHERE am.id = ? AND am.type = 11 AND am.approval_status = 1 ORDER BY ad.entry_identification,ad.field_name";
             $result     = $appTable->zQuery($query, $arr);
         } else {
-            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = ? 
+            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = ?
                     WHERE am.id = ? AND am.type = 11 AND am.approval_status = 1 ORDER BY ad.entry_identification,ad.field_name";
             $result     = $appTable->zQuery($query, array($table_name, $am_id));
         }

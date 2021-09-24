@@ -337,7 +337,7 @@ if ($layout_id) {
    <select name='form_columns' class='form-control'>
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
-for ($cols = 2; $cols <= 10; ++$cols) {
+for ($cols = 2; $cols <= 12; ++$cols) {
     echo "<option value='" . attr($cols) . "'";
     if ($cols == $row['grp_columns']) {
         echo " selected";

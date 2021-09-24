@@ -14,18 +14,23 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Validators\InsuranceValidator;
+use OpenEMR\Common\Database\QueryUtils;
 
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private const ADDRESS_TABLE = "addresses";
-    private $uuidRegistry;
     private $insuranceValidator;
     private $addressService = null;
+    const TYPE_FAX = 5;
+    const TYPE_WORK = 2;
 
 
     /**
@@ -34,9 +39,82 @@ class InsuranceCompanyService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
-        $this->uuidRegistry = new UuidRegistry(['table_name' => self::INSURANCE_TABLE]);
-        $this->uuidRegistry->createMissingUuids();
+        UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
         $this->insuranceValidator = new InsuranceValidator();
+        parent::__construct(self::INSURANCE_TABLE);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql  = " SELECT i.id,";
+        $sql .= "        i.uuid,";
+        $sql .= "        i.name,";
+        $sql .= "        i.attn,";
+        $sql .= "        i.cms_id,";
+        $sql .= "        i.ins_type_code,";
+        $sql .= "        i.x12_receiver_id,";
+        $sql .= "        i.x12_default_partner_id,";
+        $sql .= "        i.alt_cms_id,";
+        $sql .= "        i.inactive,work_number.id as work_id,fax_number.id AS fax_id,";
+        $sql .= "        CONCAT(
+                            COALESCE(work_number.country_code,'')
+                            ,COALESCE(work_number.area_code,'')
+                            ,COALESCE(work_number.prefix,'')
+                            , work_number.number
+                        ) AS work_number,";
+        $sql .= "        CONCAT(
+                            COALESCE(fax_number.country_code,'')
+                            ,COALESCE(fax_number.area_code,'')
+                            ,COALESCE(fax_number.prefix,'')
+                            , fax_number.number
+                        ) AS fax_number,";
+        $sql .= "        a.line1,";
+        $sql .= "        a.line2,";
+        $sql .= "        a.city,";
+        $sql .= "        a.state,";
+        $sql .= "        a.zip,";
+        $sql .= "        a.country";
+        $sql .= " FROM insurance_companies i ";
+        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        // the foreign_id here is a globally unique sequence so there is no conflict.  I don't like the assumption here as it should be more explicit what table we are pulling
+        // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
+        // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
+        // join here safely...
+        $sql .= " LEFT JOIN (
+                        SELECT id,foreign_id,country_code, area_code, prefix, number
+                        FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_WORK . "
+                    ) work_number ON i.id = work_number.foreign_id";
+        $sql .= " LEFT JOIN (
+                        SELECT id,foreign_id,country_code, area_code, prefix, number
+                        FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_FAX . "
+                    ) fax_number ON i.id = fax_number.foreign_id";
+
+        $processingResult = new ProcessingResult();
+        try {
+            $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+            $sql .= $whereFragment->getFragment();
+            $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
+
+            if (!empty($records)) {
+                foreach ($records as $row) {
+                    $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+                    $processingResult->addData($resultRecord);
+                }
+            }
+        } catch (SqlQueryException $exception) {
+            // we shouldn't hit a query exception
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $processingResult->addInternalError("Error selecting data from database");
+        } catch (SearchFieldException $exception) {
+            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+        }
+        return $processingResult;
     }
 
     public function getAll($search = array(), $isAndCondition = true)
@@ -55,6 +133,7 @@ class InsuranceCompanyService extends BaseService
             $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
             $search['id'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "id");
         }
+
         $sqlBindArray = array();
         $sql  = " SELECT i.id,";
         $sql .= "        i.uuid,";
@@ -90,7 +169,7 @@ class InsuranceCompanyService extends BaseService
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $row = $this->createResultRecordFromDatabaseResult($row);
             $processingResult->addData($row);
         }
         return $processingResult;
@@ -98,81 +177,40 @@ class InsuranceCompanyService extends BaseService
 
     public function getOneById($id)
     {
+        // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
+        // compatibility we will live this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
         return sqlQuery($sql, array($id));
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid): ProcessingResult
     {
-        $processingResult = new ProcessingResult();
-        $isValid = $this->insuranceValidator->validateId('uuid', self::INSURANCE_TABLE, $uuid, true);
-        if ($isValid !== true) {
-            return $isValid;
-        }
-        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        $sql  = " SELECT i.id,";
-        $sql .= "        i.uuid,";
-        $sql .= "        i.name,";
-        $sql .= "        i.attn,";
-        $sql .= "        i.cms_id,";
-        $sql .= "        i.ins_type_code,";
-        $sql .= "        i.x12_receiver_id,";
-        $sql .= "        i.x12_default_partner_id,";
-        $sql .= "        i.alt_cms_id,";
-        $sql .= "        i.inactive,";
-        $sql .= "        a.line1,";
-        $sql .= "        a.line2,";
-        $sql .= "        a.city,";
-        $sql .= "        a.state,";
-        $sql .= "        a.zip,";
-        $sql .= "        a.country";
-        $sql .= " FROM insurance_companies i";
-        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
-        $sql .= " WHERE i.uuid = ?";
-
-        $sqlResult = sqlQuery($sql, array($uuidBytes));
-        if ($sqlResult) {
-            $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
-            $processingResult->addData($sqlResult);
-        } else {
-            $processingResult->addInternalError("error processing SQL");
-        }
-
-        return $processingResult;
+        return $this->getAll(['uuid' => $uuid]);
     }
 
     public function getInsuranceTypes()
     {
-        return array(
-            1 => xl('Other HCFA'),
-            2 => xl('Medicare Part B'),
-            3 => xl('Medicaid'),
-            4 => xl('ChampUSVA'),
-            5 => xl('ChampUS'),
-            6 => xl('Blue Cross Blue Shield'),
-            7 => xl('FECA'),
-            8 => xl('Self Pay'),
-            9 => xl('Central Certification'),
-            10 => xl('Other Non-Federal Programs'),
-            11 => xl('Preferred Provider Organization (PPO)'),
-            12 => xl('Point of Service (POS)'),
-            13 => xl('Exclusive Provider Organization (EPO)'),
-            14 => xl('Indemnity Insurance'),
-            15 => xl('Health Maintenance Organization (HMO) Medicare Risk'),
-            16 => xl('Automobile Medical'),
-            17 => xl('Commercial Insurance Co.'),
-            18 => xl('Disability'),
-            19 => xl('Health Maintenance Organization'),
-            20 => xl('Liability'),
-            21 => xl('Liability Medical'),
-            22 => xl('Other Federal Program'),
-            23 => xl('Title V'),
-            24 => xl('Veterans Administration Plan'),
-            25 => xl('Workers Compensation Health Plan'),
-            26 => xl('Mutually Defined')
-        );
+        $types = [];
+        $type = sqlStatement("SELECT `type` FROM `insurance_type_codes`");
+        $i = 0;
+        while ($row = sqlFetchArray($type)) {
+            $i++;
+            $types[$i] = $row['type'];
+        }
+        return $types;
     }
 
+    public function getInsuranceClaimTypes()
+    {
+        $claim_types = [];
+        $claim_type = sqlStatement("SELECT `claim_type` FROM `insurance_type_codes`");
+        $i = 0;
+        while ($row = sqlFetchArray($claim_type)) {
+            $i++;
+            $claim_types[$i] = $row['claim_type'];
+        }
+        return $claim_types;
+    }
 
     public function insert($data)
     {

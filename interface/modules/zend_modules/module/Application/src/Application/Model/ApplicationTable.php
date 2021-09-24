@@ -373,7 +373,7 @@ class ApplicationTable extends AbstractTableGateway
     * @param String $input_date Date to be converted
     * @param String $date_format Target Date Format
     */
-    public function fixDate($input_date, $output_format = null, $input_format = null)
+    public static function fixDate($input_date, $output_format = null, $input_format = null)
     {
         if (!$input_date) {
             return;
@@ -406,7 +406,7 @@ class ApplicationTable extends AbstractTableGateway
 
         $output_date = implode($seperator_output, $output_date_arr);
 
-        $output_date = $temp[1] ? $output_date . " " . $temp[1] : $output_date; //append the time, if exists, with the new formatted date
+        $output_date = (!empty($temp[1])) ? $output_date . " " . $temp[1] : $output_date; //append the time, if exists, with the new formatted date
         return $output_date;
     }
 

@@ -1,6 +1,7 @@
 var codeSystems = {
     "LOINC": ["2.16.840.1.113883.6.1", "8716-3"],
     "SNOMED CT": ["2.16.840.1.113883.6.96", "46680005"],
+    "SNOMED-CT": ["2.16.840.1.113883.6.96", "46680005"],
     "RXNORM": ["2.16.840.1.113883.6.88"],
     "ActCode": ["2.16.840.1.113883.5.4"],
     "CPT-4": ["2.16.840.1.113883.6.12"],
@@ -126,6 +127,12 @@ var sections_entries_codes = {
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
             "name": "General Status"
+        },
+        "HealthConcernSection": {
+            "code": "75310-3",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Health Concerns Document"
         },
         "HistoryOfPastIllnessSection": {
             "code": "11348-0",
@@ -281,7 +288,19 @@ var sections_entries_codes = {
             "code": "18776-5",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Plan of Care"
+            "name": "Treatment Plan"
+        },
+        "GoalSection": {
+            "code": "61146-7",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Goals"
+        },
+        "MentalStatusSection": {
+            "code": "10190-7",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Mental Status"
         },
         "PlannedProcedureSection": {
             "code": "59772-4",
@@ -389,13 +408,13 @@ var sections_entries_codes = {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ResultsSection": {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ReviewOfSystemsSection": {
             "code": "10187-3",
@@ -741,6 +760,12 @@ var sections_entries_codes = {
             "code_system": "2.16.840.1.113883.5.4",
             "code_system_name": "ActCode",
             "name": "Assertion"
+        },
+        "GenderStatusObservation": {
+            "code": "76689-9",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Sex Assigned At Birth"
         },
         "SocialHistoryObservation": {
             "code": "completed",

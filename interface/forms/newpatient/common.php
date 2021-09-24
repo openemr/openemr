@@ -20,8 +20,9 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\UserService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
 
 $facilityService = new FacilityService();
@@ -421,12 +422,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <div class="col-sm">
                             <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
                         </div>
-                        <div class="col-sm-2" <?php if ($GLOBALS['ippf_specific']) {
-                            echo " style='visibility:hidden;'";
-                                              } ?>>
+                        <div class="col-sm-2" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
                             <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
                             <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                         </div>
                     </div>
@@ -471,7 +470,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                     // but has permissions to create/edit encounter.
                                     $flag_it = "";
                                     if ($activeUser['authorized'] != 1) {
-                                        if ($p_id === (int)$result['provider_id']) {
+                                        if ($p_id === (int)($result['provider_id'] ?? null)) {
                                             $flag_it = " (" . xlt("Non Provider") . ")";
                                         } else {
                                             continue;
@@ -506,7 +505,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 } elseif (!empty($default_fac_override)) {
                                     $def_facility = $default_fac_override;
                                 } else {
-                                    $def_facility = $facilityService->getFacilityForUser($_SESSION['authUserID'])['id'];
+                                    $def_facility = ($facilityService->getFacilityForUser($_SESSION['authUserID'])['id'] ?? null);
                                 }
                                 $posCode = '';
                                 $facilities = $facilityService->getAllServiceLocations();
@@ -543,6 +542,26 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             billing_facility('billing_facility', $default_bill_fac);
                             ?>
                         </div>
+                    </div>
+                    <!-- Discharge Disposition -->
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
+                                <?php
+                                $dischargeListDisposition = new ListService();
+                                $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
+                                foreach ($dischargeDisposiitons as $dispositon) {
+                                    $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
+                                    ?>
+                                <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm"></div>
                     </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row mt-2">

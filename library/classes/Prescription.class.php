@@ -276,7 +276,7 @@ class Prescription extends ORDataObject
 
     function get_unit_display($display_form = "")
     {
-        return( $this->unit_array[$this->unit] );
+        return( ($this->unit_array[$this->unit] ?? '') );
     }
 
     function get_unit()
@@ -598,32 +598,10 @@ class Prescription extends ORDataObject
 
     function set_drug($drug)
     {
-        if ($GLOBALS['weno_rx_enable']) {
-                $drug = explode("-", $drug); //striping the price from the drug name.
-                $drug = trim($drug[0]);
-        }
         $this->drug = $drug;
-
-        if ($GLOBALS['weno_rx_enable']) {
-            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name LIKE ? ";
-            $val = array('%' . $drug . '%');
-            $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['rxcui_drug_coded'];
-            //Save this drug id
-            $this->drug_id = $drug_id;
-        }
     }
     function get_drug()
     {
-        if ($GLOBALS['weno_rx_enable']) {
-            $drug = trim($this->drug);
-            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name  LIKE ? ";
-            $val = array('%' . $drug . '%');
-            $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['rxcui_drug_coded'];
-            //Save this drug id
-            $this->drug_id = $drug_id;
-        }
         return $this->drug;
     }
     function set_ntx($ntx)

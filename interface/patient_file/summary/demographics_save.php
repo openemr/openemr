@@ -52,11 +52,14 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_id, seq");
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
+    if ((int)$data_type === 52) {
+        // patient name history is saved in add.
+        continue;
+    }
     $field_id = $frow['field_id'];
-    // $value  = '';
     $colname = $field_id;
     $table = 'patient_data';
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with($field_id, 'em_')) {
         $colname = substr($field_id, 3);
         $table = 'employer_data';
     }

@@ -2,6 +2,7 @@
 
 /**
  * Returns a count of due messages for current user.
+ *  In 2021, added the timeout mechanism to this script.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -9,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <https://www.tajemo.co.za/>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,10 +19,19 @@ require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionTracker;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
+
+// ensure timeout has not happened
+if (SessionTracker::isSessionExpired()) {
+    echo json_encode(['timeoutMessage' => 'timeout']);
+    exit;
+}
+// keep this below above time out check.
+OpenEMR\Common\Session\SessionUtil::setSession('keepAliveTime', time());
 
 $portal_count = array();
 // if portal is enabled get various alerts

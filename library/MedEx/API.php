@@ -852,7 +852,7 @@ class Events extends Base
 
                 $target_dates = '';
                 if ($event['E_timing'] == '5') {
-                    $target_dates = " cal.pc_eventDate > curdate()  ";
+                    $target_dates = " cal.pc_eventDate >= curdate()  ";
                 } else {
                     if (!is_numeric($event['E_fire_time'])) { //this would be an error in building the event
                         $event['E_fire_time'] = '0';
@@ -1534,10 +1534,10 @@ class Display extends base
         } else {
             echo 'up';
         } ?> menu_arrow" style="position:fixed;left:5px;top:10px;z-index:1200;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-          
+
         <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
-                
+
             <nav id="navbar_oe" class="navbar navbar-expand-sm p-0 pl-1" name="kiosk_hide" data-role="page banner navigation">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -1765,7 +1765,7 @@ class Display extends base
                                                                         <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
                                                                             echo "selected";} ?>>3422</option>
                                                                     </select>
-    
+
                                                     </div>
                                                 </div>
                                                 <div class="divTableRow">
@@ -1841,7 +1841,7 @@ class Display extends base
                                             </div>
                                             <?php
                                         } ?>
-                                        
+
                                         </div>
                                 </div>
                             </div>
@@ -1862,7 +1862,7 @@ class Display extends base
         global $rcb_provider;
 
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = !is_null($_REQUEST['form_from_date']) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
         if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
@@ -1878,11 +1878,11 @@ class Display extends base
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 
         $recalls = $this->get_recalls($from_date, $to_date);
 
-        $processed = $this->recall_board_process($logged_in, $recalls, $events);
+        $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
 
         ?>
@@ -1909,6 +1909,8 @@ class Display extends base
                                     <select class="form-control form-control-sm" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
+                                        $select_facs = '';
+                                        $count_facs = 0;
                                         while ($fac = sqlFetchArray($fac_sql)) {
                                             $true = ($fac['id'] == $rcb_facility) ? "selected=true" : '';
                                             $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
@@ -1923,7 +1925,7 @@ class Display extends base
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
@@ -1949,7 +1951,7 @@ class Display extends base
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
                                             echo "    <option value='" . attr($provid) . "'";
-                                            if (isset($rcb_provider) && $provid == $_POST['form_provider']) {
+                                            if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
                                             } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
                                                 echo " selected";
@@ -1960,7 +1962,7 @@ class Display extends base
                                     </select>
                                 </div>
                                 <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
@@ -2001,7 +2003,7 @@ class Display extends base
             <div class="showRecalls mx-auto" id="show_recalls">
                 <div name="message" id="message" class="warning">
                 </div>
-                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
+                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
                     <i class="far fa-square fa-stack-2x"></i>
                     <i id="print_caret" class='fas fa-caret-<?php echo $caret = ($rcb_selectors === 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
@@ -2017,7 +2019,7 @@ class Display extends base
                    <div class="tab-pane active" id="tab-all">
                         <?php
                             $this->recall_board_top();
-                            echo $processed['ALL'];
+                            echo $processed['ALL'] ?? '';
                             $this->recall_board_bot();
                         ?>
                     </div>
@@ -2090,7 +2092,7 @@ class Display extends base
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        return $recalls;
+        return $recalls ?? null;
     }
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
@@ -2333,45 +2335,47 @@ class Display extends base
         $show['progression'] .= $show['EMAIL']['text'] . $show['SMS']['text'] . $show['AVM']['text'];
 
         $camps = '0';
-        foreach ($events as $event) {
-            if ($event['M_group'] != "RECALL") {
-                continue;
-            }
-               $pat = $this->possibleModalities($recall);
-            if ($pat['ALLOWED'][$event['M_type']] == 'NO') {
-                continue;    //it can't happen
-            }
-            if ($pat['facility']['status'] != 'ok') {
-                continue;    //it can't happen
-            }
-            if ($pat['provider']['status'] != 'ok') {
-                continue;    //it can't happen
-            }
+        if (is_countable($events)) {
+            foreach ($events as $event) {
+                if ($event['M_group'] != "RECALL") {
+                    continue;
+                }
+                $pat = $this->possibleModalities($recall);
+                if ($pat['ALLOWED'][$event['M_type']] == 'NO') {
+                    continue;    //it can't happen
+                }
+                if ($pat['facility']['status'] != 'ok') {
+                    continue;    //it can't happen
+                }
+                if ($pat['provider']['status'] != 'ok') {
+                    continue;    //it can't happen
+                }
 
-            if ($show['campaign'][$event['C_UID']]['status']) {
-                continue; //it is done
-            }
-               $camps++;                                                   //there is still work to be done
-            if ($show['campaign'][$event['C_UID']]['icon']) {
-                continue;   //but something has happened since it was scheduled.
-            }
+                if ($show['campaign'][$event['C_UID']]['status']) {
+                    continue; //it is done
+                }
+                $camps++;                                                   //there is still work to be done
+                if ($show['campaign'][$event['C_UID']]['icon']) {
+                    continue;   //but something has happened since it was scheduled.
+                }
 
-               ($event['E_timing'] < '3') ? ($interval = '-') : ($interval = '+');//this is only scheduled, 3 and 4 are for past appointments...
-               $show['campaign'][$event['C_UID']] = $event;
-               $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
+                ($event['E_timing'] < '3') ? ($interval = '-') : ($interval = '+');//this is only scheduled, 3 and 4 are for past appointments...
+                $show['campaign'][$event['C_UID']] = $event;
+                $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-               $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
-               $date1 = date('Y-m-d');
-               $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
-            if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
-                $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
-                $show['status'] = "whitish";
-            } else {
-                $execute = oeFormatShortDate($recall_date);
-                $show['campaign'][$event['C_UID']]['executed'] = $execute;
+                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($recall['r_eventDate'])));
+                $date1 = date('Y-m-d');
+                $date_diff = strtotime($date1) - strtotime($recall['r_eventDate']);
+                if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
+                    $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
+                    $show['status'] = "whitish";
+                } else {
+                    $execute = oeFormatShortDate($recall_date);
+                    $show['campaign'][$event['C_UID']]['executed'] = $execute;
+                }
+                $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>" .
+                                    $show['campaign'][$event['C_UID']]['icon'] . " " . text($show['campaign'][$event['C_UID']]['executed']) . "</a><br />";
             }
-               $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>" .
-                                   $show['campaign'][$event['C_UID']]['icon'] . " " . text($show['campaign'][$event['C_UID']]['executed']) . "</a><br />";
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
@@ -2519,7 +2523,7 @@ class Display extends base
     {
         global $result_pat;
         ?>
-       
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 text-center" id="add_recall">
@@ -2579,7 +2583,7 @@ class Display extends base
                             <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
-                        
+
                     </div>
                     <div class="row divTableBody prefs">
                         <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
@@ -2601,11 +2605,13 @@ class Display extends base
                                     $defaultProvider = $_SESSION['authUserID'];
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (count($_SESSION['pc_username']) >= 1) {
-                                        // get the numeric ID of the first provider in the array
-                                        $pc_username = $_SESSION['pc_username'];
-                                        $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
-                                        $defaultProvider = $firstProvider['id'];
+                                    if (is_countable($_SESSION['pc_username'])) {
+                                        if (count($_SESSION['pc_username']) >= 1) {
+                                            // get the numeric ID of the first provider in the array
+                                            $pc_username = $_SESSION['pc_username'];
+                                            $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", array($pc_username[0])));
+                                            $defaultProvider = $firstProvider['id'];
+                                        }
                                     }
                                 // if we clicked on a provider's schedule to add the event, use THAT.
                                     if ($userid) {
@@ -2648,7 +2654,7 @@ class Display extends base
                                     ?>
                                 </select>
                             </div>
-                        
+
                     </div>
                 </div>
                 <div class="col-4 divTable m-2 mr-auto">
@@ -2660,15 +2666,15 @@ class Display extends base
                             <div class="col-12 mb-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
                             </div>
-        
+
                             <div class="col-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
                             </div>
