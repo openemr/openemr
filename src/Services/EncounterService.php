@@ -77,15 +77,14 @@ class EncounterService extends BaseService
      * @param $pid The unique public id (pid) for the patient.
      * @return array|null Returns the encounter if found, null otherwise
      */
-    public function getMostRecentEncounterForPatient($pid) : ?array
+    public function getMostRecentEncounterForPatient($pid): ?array
     {
         $pid = new TokenSearchField('pid', [new TokenSearchValue($pid, null)]);
         // we discovered that most queries were ordering by encounter id which may NOT be the most recent encounter as
         // an older historical encounter may be entered after a more recent encounter, so ordering be encounter id screws
         // this up.
         $result = $this->search(['pid' => $pid], true, '', ['limit' => 1, 'order' => '`date` DESC']);
-        if ($result->hasData())
-        {
+        if ($result->hasData()) {
             return array_pop($result->getData());
         }
         return null;
@@ -254,16 +253,14 @@ class EncounterService extends BaseService
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
 
-            if (empty($options['order']))
-            {
+            if (empty($options['order'])) {
                 $sql .= " ORDER BY fe.eid DESC";
             } else {
                 $sql .= " ORDER BY " . $options['order'];
             }
 
 
-            if (is_int($limit) && $limit > 0)
-            {
+            if (is_int($limit) && $limit > 0) {
                 $sql .= " LIMIT " . $limit;
             }
 
