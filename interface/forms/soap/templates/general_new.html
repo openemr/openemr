@@ -13,13 +13,6 @@
                 if (codetype == 'CPT4') {
                     document.getElementById('cpt').value += code + " - " + codedesc + " ,, \r\n";
                 }
-                let xhr = new XMLHttpRequest();
-                xhr.onload = function() {
-                    if (this.status == 200) {
-                        console.log(xhr.responseText);
-                    }
-                }
-
             }
         }
         // This invokes the find-code popup.

@@ -44,7 +44,7 @@ class C_FormSOAP extends Controller
     {
         $sql = "SELECT id FROM billing WHERE encounter = ? AND activity = 1";
         $billingEntered = sqlQuery($sql, [$_SESSION['encounter']]);
-        return $billingEntered['id'];
+        return $billingEntered['id'] ?? null;
     }
 
     function view_action($form_id)
