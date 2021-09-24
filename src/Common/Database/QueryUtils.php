@@ -55,7 +55,7 @@ class QueryUtils
     /**
      * Executes the SQL statement passed in and returns a list of all of the values contained in the column
      * @param $sqlStatement
-     * @param $column The column you want returned
+     * @param $column string column you want returned
      * @param array $binds
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
