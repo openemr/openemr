@@ -22,7 +22,7 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigContainer
 {
-    private $path;  // path in /templates
+    private $paths = [];  // path in /templates
 
     /**
      * Instance of Kernel
@@ -37,9 +37,9 @@ class TwigContainer
      */
     public function __construct(string $path = null, Kernel $kernel = null)
     {
-        $this->path = $GLOBALS['fileroot'] . '/templates';
+        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {
-            $this->path = $this->path . '/' . $path;
+            $this->paths[] = $path;
         }
 
         if ($kernel) {
@@ -54,7 +54,7 @@ class TwigContainer
      */
     public function getTwig()
     {
-        $twigLoader = new FilesystemLoader($this->path);
+        $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $twigEnv->addExtension(new TwigExtension());
 

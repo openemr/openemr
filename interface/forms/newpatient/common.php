@@ -550,6 +550,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         </div>
                         <div class="col-sm">
                             <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
+                                <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                 <?php
                                 $dischargeListDisposition = new ListService();
                                 $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
