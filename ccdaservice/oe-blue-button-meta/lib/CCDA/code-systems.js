@@ -482,6 +482,11 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "Allergies, adverse reactions, alerts"
         },
+        "AllergyConcernAct": {
+            "code": "CONC",
+            "code_system": "2.16.840.1.113883.5.6",
+            "name": "Concerns"
+        },
         "AllergyStatusObservation": {
             "code": "33999-4",
             "code_system": "2.16.840.1.113883.6.1",
