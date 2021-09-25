@@ -14,17 +14,11 @@
 
 namespace Carecoordination\Model;
 
+use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
+use Documents\Model\DocumentsTable;
 use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\XmlRpc\Generator;
-use DOMDocument;
-use DOMXpath;
-use Document;
-use CouchDB;
-use Documents\Model\DocumentsTable;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qrda\QrdaParseService;
 
@@ -34,8 +28,8 @@ class CarecoordinationTable extends AbstractTableGateway
     protected $ccda_data_array;
     protected $is_qrda_import;
     const NPI_SAMPLE = "987654321";
-    const ORGANIZATION_SAMPLE = "Neighborhood Physicians Practice";
-    const ORGANIZATION2_SAMPLE = "Community Health and Hospitals";
+    const ORGANIZATION_SAMPLE = "External Physicians Practice";
+    const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
 
     public function __construct()
     {
@@ -436,7 +430,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
     }
 
-    public function qrdaParsePatientSection($patient_data)
+    public function qrdaParsePatientSection($patient_data): void
     {
         $this->is_qrda_import = true;
         $parse = new QrdaParseService();
@@ -896,18 +890,17 @@ class CarecoordinationTable extends AbstractTableGateway
             if (!empty($this->ccda_data_array['field_name_value_array']['encounter'])) {
                 $i += count($this->ccda_data_array['field_name_value_array']['encounter']);
             }
-            $code_raw = $encounter_data['encounter']['code']['code'];
-            $code_type = $encounter_data['encounter']['code']['codeSystemName'];
+            // encounter type
+            $code_type = $encounter_data['encounter']['code']['codeSystemName'] ?: 'SNOMED-CT';
             $code_text = $encounter_data['encounter']['code']['displayName'] ?? $encounter_data['encounter']['text'];
-            $code = (new CodeTypesService())->getCodeWithType($code_raw, $code_type, true);
-            if (empty($code_text)) {
-                $code_text = (new CodeTypesService())->lookup_code_description($code, 'code_text_short');
-            }
+            $code = (new CodeTypesService())->getCodeWithType($encounter_data['encounter']['code']['code'], $code_type, true);
+            $code_text = $code_text ?: (new CodeTypesService())->lookup_code_description($code, 'code_text_short');
 
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['extension'] = $encounter_data['encounter']['id']['extension'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['root'] = $encounter_data['encounter']['id']['root'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['date'] = $encounter_data['encounter']['effectiveTime']['value'] ?: $encounter_data['encounter']['effectiveTime']['low']['value'];
-            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code'] = $code_raw;
+            // encounter type
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code'] = $code;
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['code_text'] = $code_text;
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_npi'] = $encounter_data['encounter']['performer']['assignedEntity']['id']['extension'];
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['provider_name'] = $encounter_data['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given'];
@@ -925,11 +918,17 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['represented_organization_telecom'] = $encounter_data['encounter']['participant']['participantRole']['telecom'];
 
             $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'];
-            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'];
-            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'];
+            // encounter diagnosis to issues list
+            $code = (new CodeTypesService())->getCodeWithType(
+                $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'],
+                $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystemName'] ?: "SNOMED-CT",
+                true
+            );
+            $code_text = $encounter_data['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'] ?: (new CodeTypesService())->lookup_code_description($code, 'code_text_short');
+
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $code;
+            $this->ccda_data_array['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $code_text;
             $this->ccda_data_array['entry_identification_array']['encounter'][$i] = $i;
-            unset($encounter_data);
-            return;
         }
     }
 
@@ -1663,10 +1662,10 @@ class CarecoordinationTable extends AbstractTableGateway
                             } elseif (substr($key, 0, -4) == 'social_history') {
                                 $tobacco = $data['social_history-tobacco_note'][$i] . "|" .
                                                         $data['social_history-tobacco_status'][$i] . "|" .
-                                                        \Application\Model\ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
+                                                        ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
                                                 $alcohol = $data['social_history-alcohol_note'][$i] . "|" .
                                                         $data['social_history-alcohol_status'][$i] . "|" .
-                                                        \Application\Model\ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                                                        ApplicationTable::fixDate($data['social_history-alcohol_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
                                                 $query = "INSERT INTO history_data
                                             ( pid,
                                               tobacco,
@@ -1799,8 +1798,8 @@ class CarecoordinationTable extends AbstractTableGateway
                         WHERE pid=? AND id=?";
                                 $appTable->zQuery($query, array($data['lists1-title-con'][$i],
                                     'SNOMED-CT:' . $data['lists1-diagnosis-con'][$i],
-                                    \Application\Model\ApplicationTable::fixDate($data['lists1-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
-                                    \Application\Model\ApplicationTable::fixDate($data['lists1-enddate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    ApplicationTable::fixDate($data['lists1-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                    ApplicationTable::fixDate($data['lists1-enddate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                     $o_id,
                                     $data['pid'],
                                     $data['lists1-old-id-con'][$i]));
@@ -1824,7 +1823,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
                             } elseif (substr($key, 0, -4) == 'lists2-con') {
                                 if ($data['lists2-begdate-con'][$i] != 0) {
-                                    $allergy_begdate_value = \Application\Model\ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                                    $allergy_begdate_value = ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
                                 } elseif ($data['lists2-begdate-con'][$i] == 0) {
                                     $allergy_begdate = $data['lists2-begdate-con'][$i];
                                     $allergy_begdate_value = fixDate($allergy_begdate);
@@ -2040,7 +2039,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                             provider_id=?
                                         WHERE id=? AND patient_id=?";
                                  $appTable->zQuery($q_upd_pres, array(
-                                     \Application\Model\ApplicationTable::fixDate($data['lists3-date_added-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
+                                     ApplicationTable::fixDate($data['lists3-date_added-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                      $data['lists3-drug-con'][$i],
                                      $data['lists3-size-con'][$i],
                                      $oidu_unit,
@@ -2224,14 +2223,14 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 //procedure_order
                 $query_insert_po = "INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id) VALUES (?,?,?,?,?,?,?,?,?)";
-                $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, \Application\Model\ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), \Application\Model\ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'normal', 'completed', 1, $pro_id));
+                $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'normal', 'completed', 1, $pro_id));
                 $po_id = $result_po->getGeneratedValue();
                 //procedure_order_code
                 $query_insert_poc = "INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses) VALUES (?,?,?,?,?)";
                 $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $res['result_code'], $res['result_text'], 'LOINC:' . $res['result_code']));
                 //procedure_report
                 $query_insert_pr = "INSERT INTO procedure_report(procedure_order_id,date_collected,report_status,review_status) VALUES (?,?,?,?)";
-                $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, \Application\Model\ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'final', 'reviewed'));
+                $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'final', 'reviewed'));
                 $res_id = $result_pr->getGeneratedValue();
                 //procedure_result
                 $range_unit = explode(' ', $res['result_range']);
@@ -2249,7 +2248,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     }
 
                     $query_insert_prs = "INSERT INTO procedure_result(procedure_report_id,result_code,date,units,result,`range`,result_text,result_status) VALUES (?,?,?,?,?,?,?,?)";
-                    $result_prs = $appTable->zQuery($query_insert_prs, array($res_id, $res['result_code'], \Application\Model\ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), $unit, $res['result_value'], $range, $res['result_text'], 'final'));
+                    $result_prs = $appTable->zQuery($query_insert_prs, array($res_id, $res['result_code'], ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), $unit, $res['result_value'], $range, $res['result_text'], 'final'));
                 }
             }
         }
@@ -2478,6 +2477,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['represented_organization_country'] = $newdata['encounter']['represented_organization_country'];
                 $arr_encounter['encounter'][$k]['represented_organization_telecom'] = $newdata['encounter']['represented_organization_telecom'];
 
+                $arr_encounter['encounter'][$k]['code'] = $newdata['encounter']['code'];
+                $arr_encounter['encounter'][$k]['code_text'] = $newdata['encounter']['code_text'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_date'] = $newdata['encounter']['encounter_diagnosis_date'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_code'] = $newdata['encounter']['encounter_diagnosis_code'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $newdata['encounter']['encounter_diagnosis_issue'];
@@ -2800,7 +2801,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $encounter_date = $this->formatDate($value['date'], 1);
                 $encounter_date_value = fixDate($encounter_date);
             } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $encounter_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $encounter_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $encounter_date = $value['date'];
                 $encounter_date_value = fixDate($encounter_date);
@@ -2812,7 +2813,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                WHERE external_id=? AND pid=?";
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
             }
-            if (empty($value['extension']) || $res_q_sel_encounter->count() == 0) {
+            if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
                 $query_insert1 = "INSERT INTO form_encounter
                            (
                             pid,
@@ -2821,7 +2822,8 @@ class CarecoordinationTable extends AbstractTableGateway
                             facility,
                             facility_id,
                             provider_id,
-                            external_id
+                            external_id,
+                            reason
                            )
                            VALUES
                            (
@@ -2831,15 +2833,22 @@ class CarecoordinationTable extends AbstractTableGateway
                             ?,
                             ?,
                             ?,
+                            ?,
                             ?
                            )";
-                $result = $appTable->zQuery($query_insert1, array($pid,
-                    $encounter_id,
-                    $encounter_date_value,
-                    $value['represented_organization_name'] ?? null,
-                    $facility_id,
-                    $provider_id,
-                    $value['extension'] ?? null));
+                $result = $appTable->zQuery(
+                    $query_insert1,
+                    array(
+                        $pid,
+                        $encounter_id,
+                        $encounter_date_value,
+                        $value['represented_organization_name'] ?? null,
+                        $facility_id,
+                        $provider_id,
+                        $value['extension'] ?? null,
+                        $value['code_text'] ?? null
+                    )
+                );
                 $enc_id = $result->getGeneratedValue();
             } else {
                 $q_upd_encounter = "UPDATE form_encounter
@@ -2884,7 +2893,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 //Linking issue with encounter
                 $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
                 $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, array($pid, $list_id, $encounter_id));
-                if ($res_sel_iss_enc->count() == 0) {
+                if ($res_sel_iss_enc->count() === 0) {
                     $insert = "INSERT INTO issue_encounter(pid,list_id,encounter,resolved) VALUES (?,?,?,?)";
                     $appTable->zQuery($insert, array($pid, $list_id, $encounter_id, 0));
                 }
@@ -2907,7 +2916,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $vitals_date = $this->formatDate($value['date'], 1);
                 $vitals_date_value = fixDate($vitals_date);
             } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $vitals_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $vitals_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $vitals_date = $value['date'];
                 $vitals_date_value = fixDate($vitals_date);
@@ -3059,7 +3068,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertProcedures($proc_array, $pid, $revapprove = 1)
+    public function InsertProcedures($proc_array, $pid, $revapprove = 1): void
     {
         if (empty($proc_array)) {
             return;
@@ -3071,7 +3080,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $procedure_date = $this->formatDate($value['date'], 1);
                 $procedure_date_value = fixDate($procedure_date);
             } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $procedure_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $procedure_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $procedure_date = $value['date'];
                 $procedure_date_value = fixDate($procedure_date);
@@ -3316,7 +3325,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $immunization_date = $this->formatDate($value['administered_date'], 1);
                 $immunization_date_value = fixDate($immunization_date);
             } elseif ($value['administered_date'] != 0 && $revapprove == 1) {
-                $immunization_date_value = \Application\Model\ApplicationTable::fixDate($value['administered_date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $immunization_date_value = ApplicationTable::fixDate($value['administered_date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['administered_date'] != 0) {
                 $immunization_date = $value['administered_date'];
                 $immunization_date_value = fixDate($immunization_date);
@@ -3503,7 +3512,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     }
                 }
 
-                $value['begdate'] = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $value['begdate'] = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             }
 
             //provider
@@ -3755,7 +3764,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $allergy_begdate = $this->formatDate($value['begdate'], 1);
                 $allergy_begdate_value = fixDate($allergy_begdate);
             } elseif ($value['begdate'] != 0 && $revapprove == 1) {
-                $allergy_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $allergy_begdate_value = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['begdate'] == 0) {
                 $allergy_begdate = $value['begdate'];
                 $allergy_begdate_value = fixDate($allergy_begdate);
@@ -3766,7 +3775,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $allergy_enddate = $this->formatDate($value['enddate'], 1);
                 $allergy_enddate_value = fixDate($allergy_enddate);
             } elseif ($value['enddate'] != 0 && $revapprove == 1) {
-                $allergy_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $allergy_enddate_value = ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
                 $allergy_enddate = $value['enddate'];
                 $allergy_enddate_value = fixDate($allergy_enddate);
@@ -3923,7 +3932,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $med_pblm_begdate = $this->formatDate($value['begdate'], 1);
                 $med_pblm_begdate_value = fixDate($med_pblm_begdate);
             } elseif ($value['begdate'] != 0 && $revapprove == 1) {
-                $med_pblm_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $med_pblm_begdate_value = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['begdate'] == 0) {
                 $med_pblm_begdate = $value['begdate'];
                 $med_pblm_begdate_value = fixDate($med_pblm_begdate);
@@ -3934,7 +3943,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $med_pblm_enddate = $this->formatDate($value['enddate'], 1);
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
             } elseif ($value['enddate'] != 0 && $revapprove == 1) {
-                $med_pblm_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
+                $med_pblm_enddate_value = ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
                 $med_pblm_enddate = $value['enddate'];
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
