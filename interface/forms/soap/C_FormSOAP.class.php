@@ -20,13 +20,15 @@ class C_FormSOAP extends Controller
 {
 
     var $template_dir;
+    var $codingDone;
 
     function __construct($template_mod = "general")
     {
         parent::__construct();
+        $codingDone = new AutoBilling();
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
-        $this->assign("BILLING", $this->hasBilling());
+        $this->assign("BILLING", $codingDone->hasBilling());
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
@@ -40,12 +42,7 @@ class C_FormSOAP extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function hasBilling()
-    {
-        $sql = "SELECT id FROM billing WHERE encounter = ? AND activity = 1";
-        $billingEntered = sqlQuery($sql, [$_SESSION['encounter']]);
-        return $billingEntered['id'] ?? null;
-    }
+
 
     function view_action($form_id)
     {

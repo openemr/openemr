@@ -17,6 +17,13 @@ class AutoBilling
     private $pid;
     private $userid;
 
+    public function hasBilling()
+    {
+        $sql = "SELECT id FROM billing WHERE encounter = ? AND activity = 1";
+        $billingEntered = sqlQuery($sql, [$_SESSION['encounter']]);
+        return $billingEntered['id'] ?? null;
+    }
+
     public function __construct()
     {
         $this->pid = $_SESSION['pid'];
