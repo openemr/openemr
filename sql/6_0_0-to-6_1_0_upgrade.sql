@@ -1057,3 +1057,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');
 #EndIf
+
+#IfMissingColumn audit_master is_qrda_document
+ALTER TABLE `audit_master` ADD `is_qrda_document` BOOLEAN NULL DEFAULT FALSE;
+#EndIf

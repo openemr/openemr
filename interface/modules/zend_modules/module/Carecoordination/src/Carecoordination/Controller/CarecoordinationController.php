@@ -121,7 +121,7 @@ class CarecoordinationController extends AbstractActionController
             throw new RuntimeException('You can only use this action from a console!');
         }
         $document = $request->getParam('document');
-        $this->getCarecoordinationTable()->importNewpatient($document);
+        $this->getCarecoordinationTable()->importNewPatient($document);
         exit;
     }
 
@@ -166,7 +166,7 @@ class CarecoordinationController extends AbstractActionController
         $document_id = $_REQUEST["document_id"];
         $this->getCarecoordinationTable()->import($document_id);
 
-        $view = new \Laminas\View\Model\JsonModel();
+        $view = new JsonModel();
         $view->setTerminal(true);
         return $view;
         // $view = new ViewModel(array());

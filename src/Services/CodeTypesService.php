@@ -95,19 +95,7 @@ class CodeTypesService
     public function getCodeWithType($code, $type, $oe_format = false)
     {
         if ($oe_format) {
-            switch (strtoupper($type)) {
-                case 'ICD10CM':
-                    $type = 'ICD10';
-                    break;
-                case 'SNOMED CT':
-                case 'SNOMEDCT':
-                    $type = 'SNOMED-CT';
-                    break;
-                case 'RXCUI':
-                case 'RXNORM':
-                    $type = 'RXCUI'; // let's use RxCUI for lookups
-                    break;
-            }
+            $type = $this->formatCodeType($type);
         }
         return ($type ?? "") . ":" . ($code ?? "");
     }
@@ -132,16 +120,34 @@ class CodeTypesService
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
                 $system = FhirCodeSystemConstants::SNOMED_CT;
-            } else if (self::CODE_TYPE_SNOMED == $codeType) {
+            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
                 $system = FhirCodeSystemConstants::SNOMED_CT;
             } elseif (self::CODE_TYPE_NUCC == $codeType) {
                 $system = FhirCodeSystemConstants::NUCC_PROVIDER;
-            } else if (self::CODE_TYPE_LOINC == $codeType) {
+            } elseif (self::CODE_TYPE_LOINC == $codeType) {
                 $system = FhirCodeSystemConstants::LOINC;
-            } else if (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
+            } elseif (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
                 $system = FhirCodeSystemConstants::RXNORM;
             }
         }
         return $system;
+    }
+
+    public function formatCodeType($type)
+    {
+        switch (strtoupper($type)) {
+            case 'ICD10CM':
+                $type = 'ICD10';
+                break;
+            case 'SNOMED CT':
+            case 'SNOMEDCT':
+                $type = 'SNOMED-CT';
+                break;
+            case 'RXCUI':
+            case 'RXNORM':
+                $type = 'RXCUI'; // let's use RxCUI for lookups
+                break;
+        }
+        return $type;
     }
 }
