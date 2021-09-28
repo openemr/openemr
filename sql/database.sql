@@ -150,6 +150,7 @@ CREATE TABLE `audit_master` (
   `modified_time` datetime NOT NULL,
   `ip_address` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
+  `is_qrda_document` BOOLEAN NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
