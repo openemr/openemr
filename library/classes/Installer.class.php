@@ -1418,12 +1418,10 @@ $config = 1; /////////////
             $theme_file_path = $img_path . $theme_file_name;
             $div_start = "                      <div class='row'>";
             $div_end = "                      </div>";
-            $img_div = <<<FDIV
-                                        <div class="col-sm-2 checkboxgroup">
-                                            <label for="my_radio_button_id{$id}"><img height="160px" src="{$theme_file_path}" width="100%"></label>
-                                            <p class="m-0">{$theme_title}</p><input id="my_radio_button_id{$id}" name="stylesheet" type="radio" value="{$theme_value}">
-                                        </div>
-FDIV;
+            $img_div = "                <div class='col-sm-2 checkboxgroup'>
+                                            <label for='my_radio_button_id" . attr($id) . "'><img height='160px' src='" . attr($theme_file_path) . "' width='100%'></label>
+                                            <p class='m-0'>" . text($theme_title) . "</p><input id='my_radio_button_id" . attr($id) . "' name='stylesheet' type='radio' value='" . attr($theme_value) . "'>
+                                        </div>";
             $theme_img_number = $i % 6; //to ensure that last file in array will always generate 5 and will end the row
             switch ($theme_img_number) {
                 case 0: //start row
