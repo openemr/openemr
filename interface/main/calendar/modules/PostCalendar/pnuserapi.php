@@ -935,7 +935,11 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // get all events for a variety of provider IDs -- JRM
         if ($provider_id[0] != "_ALL_") {
             /**add all the events from the clinic provider id = 0*/
-            $sql .= "AND a.pc_aid in (0," . implode(",", $provider_id) . ") ";
+            $provider_id_esc = [];
+            foreach ($provider_id as $prov_id) {
+                $provider_id_esc[] = "'" . pnVarPrepForStore($prov_id) . "'";
+            }
+            $sql .= "AND a.pc_aid in (0," . implode(",", $provider_id_esc) . ") ";
         }
     } else {
         // get all events for logged in user plus global events
