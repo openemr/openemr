@@ -8520,6 +8520,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2020-10-01', 'Code-Descriptions.zip', 'f22e7201fa662689d85b926a32359701');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('CQM_VALUESET', 'NIH_VSAC', '2020-05-07', 'ep_ec_only_cms_20200507.xml.zip', '02dc0b497da979e336c24b0b5c6e1ccb');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+( 'CQM_VALUESET', 'NIH_VSAC', '2021-05-06', 'ep_ec_eh_cms_20210506.xml.zip', '6455da86e269edb6d33288e72b467373');
 -- --------------------------------------------------------
 
 --
