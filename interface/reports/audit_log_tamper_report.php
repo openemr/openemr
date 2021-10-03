@@ -14,10 +14,17 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+// Control access
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {

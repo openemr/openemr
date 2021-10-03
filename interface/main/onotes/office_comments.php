@@ -12,8 +12,15 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+
+// Control access
+if (!AclMain::aclCheckCore('encounters', 'notes')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
