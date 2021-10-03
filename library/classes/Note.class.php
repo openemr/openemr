@@ -100,7 +100,8 @@ class Note extends ORDataObject
         return $notes;
     }
 
-    public function getOwnerName() {
+    public function getOwnerName()
+    {
         if (!empty($this->owner)) {
             $user_info = sqlQuery("SELECT `fname`, `lname` FROM `users` where `id`=?", [$this->owner]);
             if (!empty($user_info)) {
