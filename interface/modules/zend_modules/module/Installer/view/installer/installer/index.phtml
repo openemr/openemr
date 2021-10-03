@@ -12,6 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
 echo $this->headScript()->appendFile(
     $this->basePath() . '/js/installer/action.js?v=' . $GLOBALS['v_js_includes'],
     'text/javascript'
