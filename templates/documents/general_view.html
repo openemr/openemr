@@ -247,8 +247,8 @@ function tagProcedure() {literal}{{/literal}
                   {xlt t='Note'} #{$note->get_id()|text}
                   {xlt t='Date:'} {$note->get_date()|text}
                   {$note->get_note()|text}
-                  {if $note->get_owner()}
-                    &nbsp;-{user_info id=$note->get_owner()|text}
+                  {if $note->getOwnerName()}
+                    &nbsp;-{$note->getOwnerName()|text}
                   {/if}
                 </div>
                 {/foreach}
