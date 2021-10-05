@@ -776,14 +776,17 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               ?,
                               'external_provider')";
-                $res_query_ins_users = $appTable->zQuery($query_ins_users, array($value['provider_name'],
+                $res_query_ins_users = $appTable->zQuery(
+                    $query_ins_users,
+                    array($value['provider_name'] ?: 'External Provider',
                     $value['provider_npi'],
                     $value['represented_organization'],
                     $value['provider_address'],
                     $value['provider_city'],
                     $value['provider_state'],
                     $value['provider_postalCode'],
-                    $value['provider_telecom']));
+                    $value['provider_telecom'])
+                );
                 $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
@@ -1032,6 +1035,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $query_ins_users = "INSERT INTO users
                                 ( fname,
                                   lname,
+                                  npi,
                                   authorized,
                                   street,
                                   city,
@@ -1044,6 +1048,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 (
                                   ?,
                                   ?,
+                                  ?,
                                   1,
                                   ?,
                                   ?,
@@ -1052,13 +1057,17 @@ class CarecoordinationTable extends AbstractTableGateway
                                   1,
                                   'external_provider'
                                 )";
-                $res_query_ins_users = $appTable->zQuery($query_ins_users, array($value['provider_fname'],
-                    $value['provider_lname'],
+                $res_query_ins_users = $appTable->zQuery(
+                    $query_ins_users,
+                    array($value['provider_fname'] ?: 'External',
+                    $value['provider_lname'] ?: 'Provider',
+                    $value['provider_npi'],
                     $value['provider_address'],
                     $value['provider_city'],
                     $value['provider_state'],
                     $value['provider_postalCode']
-                ));
+                    )
+                );
                 $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
@@ -1626,7 +1635,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 $query_ins_users = "INSERT INTO users
                                 ( username,
                                   fname,
+                                  lname,
                                   npi,
+                                  authorized,
                                   organization,
                                   street,
                                   city,
@@ -1641,6 +1652,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                   ?,
                                   ?,
                                   ?,
+                                  1,
+                                  ?,
                                   ?,
                                   ?,
                                   ?,
@@ -1649,14 +1662,15 @@ class CarecoordinationTable extends AbstractTableGateway
                                   'external_provider'
                                 )";
                 $res_query_ins_users = $appTable->zQuery($query_ins_users, array('',
-                    $value['provider_name'] ?? null,
+                    $value['provider_name'] ?: 'External',
+                    $value['provider_family'] ?: 'Provider',
                     $value['provider_npi'] ?? null,
                     $value['represented_organization_name'] ?? null,
                     $value['provider_address'] ?? null,
                     $value['provider_city'] ?? null,
                     $value['provider_state'] ?? null,
                     $value['provider_postalCode'] ?? null));
-                $provider_id = $res_query_ins_users->getGeneratedValue();
+                    $provider_id = $res_query_ins_users->getGeneratedValue();
             }
 
             //facility
@@ -1733,10 +1747,14 @@ class CarecoordinationTable extends AbstractTableGateway
                             facility_id,
                             provider_id,
                             external_id,
-                            reason
+                            reason,
+                            encounter_type_code,
+                            encounter_type_description
                            )
                            VALUES
                            (
+                            ?,
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -1756,6 +1774,8 @@ class CarecoordinationTable extends AbstractTableGateway
                         $facility_id,
                         $provider_id,
                         $value['extension'] ?? null,
+                        $value['code_text'] ?? null,
+                        $value['code'] ?? null,
                         $value['code_text'] ?? null
                     )
                 );
@@ -3197,13 +3217,16 @@ class CarecoordinationTable extends AbstractTableGateway
                                                           1,
                                                           'external_provider'
                                                         )";
-                                    $res_query_ins_users = $appTable->zQuery($query_ins_users, array($data['lists3-provider_fname-con'][$i],
-                                        $data['lists3-provider_lname-con'][$i],
+                                    $res_query_ins_users = $appTable->zQuery(
+                                        $query_ins_users,
+                                        array($data['lists3-provider_fname-con'][$i] ?: 'External',
+                                        $data['lists3-provider_lname-con'][$i] ?: 'Provider',
                                         $data['lists3-provider_address-con'][$i],
                                         $data['lists3-provider_city-con'][$i],
                                         $data['lists3-provider_state-con'][$i],
                                         $data['lists3-provider_postalCode-con'][$i]
-                                    ));
+                                        )
+                                    );
                                     $provider_id = $res_query_ins_users->getGeneratedValue();
                                 }
 

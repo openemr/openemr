@@ -155,7 +155,8 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['code_text'] = $code_text;
 
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_npi'] = $entry['encounter']['performer']['assignedEntity']['id']['extension'];
-            $this->templateData['field_name_value_array']['encounter'][$i]['provider_name'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given'];
+            $this->templateData['field_name_value_array']['encounter'][$i]['provider_name'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given']; // first
+            $this->templateData['field_name_value_array']['encounter'][$i]['provider_family'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['family']; // last
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_address'] = $entry['encounter']['performer']['assignedEntity']['addr']['streetAddressLine'];
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_city'] = $entry['encounter']['performer']['assignedEntity']['addr']['city'];
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_state'] = $entry['encounter']['performer']['assignedEntity']['addr']['state'];
@@ -264,13 +265,14 @@ class CdaTemplateParse
                 '2.16.840.1.113883.10.20.24.3.139' => 'dispensed',
                 '2.16.840.1.113883.10.20.24.3.105' => 'discharge',
             );
-            $request_type = 'active';
-            if (!empty($entry['substanceAdministration']['templateId']['root'])) {
-                $request_type = $substanceAdministration_oids[$entry['substanceAdministration']['templateId']['root']];
-            } elseif (!empty($entry['substanceAdministration']['templateId'][1]['root'])) {
-                $request_type = $substanceAdministration_oids[$entry['substanceAdministration']['templateId'][1]['root']];
+            $request_type = '';
+            if ($this->is_qrda_import) {
+                if (!empty($entry['substanceAdministration']['templateId']['root'])) {
+                    $request_type = $substanceAdministration_oids[$entry['substanceAdministration']['templateId']['root']];
+                } elseif (!empty($entry['substanceAdministration']['templateId'][1]['root'])) {
+                    $request_type = $substanceAdministration_oids[$entry['substanceAdministration']['templateId'][1]['root']];
+                }
             }
-
             $ctService = new CodeTypesService();
             $code_raw = $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
             $code_type = 'RXCUI';

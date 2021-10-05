@@ -9,7 +9,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -25,12 +25,13 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-require_once dirname(__FILE__) . "/../../library/forms.inc";
-require_once dirname(__FILE__) . "/../../library/encounter.inc";
+require_once __DIR__ . "/../../library/forms.inc";
+require_once __DIR__ . "/../../library/encounter.inc";
 
 class EncounterService extends BaseService
 {
@@ -52,9 +53,9 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Returns a list of encounters matching the encounter indentifier.
+     * Returns a list of encounters matching the encounter identifier.
      *
-     * @param  $euuid     The encounter identifier of particular encounter
+     * @param  $euuid     - The encounter identifier of particular encounter
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                    payload.
@@ -124,11 +125,11 @@ class EncounterService extends BaseService
         // confusing ...
         if (!empty($puuidBindValue)) {
             // code to support patient binding
-            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBindValue, true);
+            $isValidPatient = $this->encounterValidator::validateId('uuid', self::PATIENT_TABLE, $puuidBindValue, true);
             if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
-            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBindValue), self::PATIENT_TABLE, "pid");
+            $pid = self::getIdByUuid(UuidRegistry::uuidToBytes($puuidBindValue), self::PATIENT_TABLE, "pid");
             if (empty($pid)) {
                 $processingResult->setValidationMessages("Invalid pid");
                 return $processingResult;
@@ -201,6 +202,8 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
+                               encounter_type_code,
+                               encounter_type_description,
                                pid as encounter_pid
                            FROM form_encounter
                        ) fe
@@ -287,8 +290,8 @@ class EncounterService extends BaseService
     /**
      * Inserts a new Encounter record.
      *
-     * @param $puuid The patient identifier of particular encounter
-     * @param $data  The encounter fields (array) to insert.
+     * @param $puuid - The patient identifier of particular encounter
+     * @param $data  - The encounter fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *               payload.
      */
@@ -297,7 +300,7 @@ class EncounterService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult = $this->encounterValidator->validate(
             array_merge($data, ["puuid" => $puuid]),
-            EncounterValidator::DATABASE_INSERT_CONTEXT
+            BaseValidator::DATABASE_INSERT_CONTEXT
         );
 
         if (!$processingResult->isValid()) {
@@ -309,7 +312,7 @@ class EncounterService extends BaseService
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
-        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['pid'] = self::getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO form_encounter SET ";
         $sql .= $query['set'];
@@ -335,7 +338,8 @@ class EncounterService extends BaseService
                 'uuid' => UuidRegistry::uuidToString($data['uuid']),
             ));
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            // @todo resolved missing addProcessingError() method! sjp
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -344,7 +348,7 @@ class EncounterService extends BaseService
     /**
      * Updates an existing Encounter record.
      *
-     * @param $puuid The patient identifier of particular encounter.
+     * @param $puuid - The patient identifier of particular encounter.
      * @param $euuid - The Encounter identifier used for update.
      * @param $data  - The updated Encounter data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
@@ -355,7 +359,7 @@ class EncounterService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult = $this->encounterValidator->validate(
             array_merge($data, ["puuid" => $puuid, "euuid" => $euuid]),
-            EncounterValidator::DATABASE_UPDATE_CONTEXT
+            BaseValidator::DATABASE_UPDATE_CONTEXT
         );
 
         if (!$processingResult->isValid()) {
@@ -364,8 +368,8 @@ class EncounterService extends BaseService
 
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $euuidBytes = UuidRegistry::uuidToBytes($euuid);
-        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $encounter = $this->getIdByUuid($euuidBytes, self::ENCOUNTER_TABLE, "encounter");
+        $pid = self::getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $encounter = self::getIdByUuid($euuidBytes, self::ENCOUNTER_TABLE, "encounter");
 
         $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
@@ -398,7 +402,7 @@ class EncounterService extends BaseService
         if ($results) {
             $processingResult = $this->getEncounter($euuid, $puuid);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
