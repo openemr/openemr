@@ -155,6 +155,8 @@ class EncounterService extends BaseService
                        fe.billing_facility,
                        fe.external_id,
                        fe.pos_code,
+                       fe.encounter_type_code,
+                       fe.encounter_type_description,
                        fe.class_code,
                        class.notes as class_title,
                        opc.pc_catname,
@@ -177,7 +179,6 @@ class EncounterService extends BaseService
                        fe.discharge_disposition,
                        discharge_list.discharge_disposition_text
                        
-
                        FROM (
                            select
                                encounter as eid,
@@ -202,8 +203,6 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
-                               encounter_type_code,
-                               encounter_type_description,
                                pid as encounter_pid
                            FROM form_encounter
                        ) fe
