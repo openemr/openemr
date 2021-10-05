@@ -29,7 +29,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
 $reportID = $_POST['reportID'];
 $ruleID = $_POST['ruleID'];
 $counter = $_POST['counter'];
-$fileName = ( isset($_GET['fileName']) ) ? $_GET['fileName'] : "";
+$fileName = $_GET['fileName'] ?? "";
 $provider_id = $_POST['provider_id'];
 
 if ($fileName) {

@@ -94,6 +94,9 @@ class CodeTypesService
      */
     public function getCodeWithType($code, $type, $oe_format = false)
     {
+        if (empty($type) || empty($code)) {
+            return "";
+        }
         if ($oe_format) {
             $type = $this->formatCodeType($type);
         }
@@ -146,6 +149,9 @@ class CodeTypesService
             case 'RXCUI':
             case 'RXNORM':
                 $type = 'RXCUI'; // let's use RxCUI for lookups
+                break;
+            case 'CPT':
+                $type = 'CPT4';
                 break;
         }
         return $type;

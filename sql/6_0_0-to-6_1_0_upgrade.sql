@@ -1061,3 +1061,18 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfMissingColumn audit_master is_qrda_document
 ALTER TABLE `audit_master` ADD `is_qrda_document` BOOLEAN NULL DEFAULT FALSE;
 #EndIf
+
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VSAC load_release_date 2020-05-07 load_filename ep_ec_only_cms_20200507.xml.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('CQM_VALUESET', 'NIH_VSAC', '2020-05-07', 'ep_ec_only_cms_20200507.xml.zip', '02dc0b497da979e336c24b0b5c6e1ccb');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+( 'CQM_VALUESET', 'NIH_VSAC', '2021-05-06', 'ep_ec_eh_cms_20210506.xml.zip', '6455da86e269edb6d33288e72b467373');
+#EndIf
+
+#IfMissingColumn form_encounter encounter_type_code
+ALTER TABLE `form_encounter` ADD `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL, ADD `encounter_type_description` TEXT NULL;
+#EndIf
+
+#IfMissingColumn users billing_facility
+ALTER TABLE `users` ADD `billing_facility` TEXT NULL, ADD `billing_facility_id` INT(11) NOT NULL DEFAULT '0';
+#EndIf
