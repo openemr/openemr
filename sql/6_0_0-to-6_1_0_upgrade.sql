@@ -1070,9 +1070,9 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfMissingColumn form_encounter encounter_type_code
-ALTER TABLE `form_encounter` ADD `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL, ADD `encounter_type_description` TEXT NULL;
+ALTER TABLE `form_encounter` ADD `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL, ADD `encounter_type_description` TEXT;
 #EndIf
 
 #IfMissingColumn users billing_facility
-ALTER TABLE `users` ADD `billing_facility` TEXT NULL, ADD `billing_facility_id` INT(11) NOT NULL DEFAULT '0';
+ALTER TABLE `users` ADD `billing_facility` TEXT, ADD `billing_facility_id` INT(11) NOT NULL DEFAULT '0';
 #EndIf
