@@ -1831,6 +1831,8 @@ CREATE TABLE `form_encounter` (
   `shift` varchar(31) NOT NULL DEFAULT '',
   `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
   `discharge_disposition` varchar(100) NULL DEFAULT NULL,
+  `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
+  `encounter_type_description` TEXT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
