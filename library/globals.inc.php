@@ -452,7 +452,7 @@ $GLOBALS_METADATA = array(
             xl('Show Tagline on Login Page') . "*",
             'bool',
             '1',
-            xl('Hide the tagline from the login screen'),
+            xl('Show the tagline from the login screen'),
         ],
 
         'login_tagline_text' => [
@@ -466,7 +466,14 @@ $GLOBALS_METADATA = array(
             xl('Show Acknowledgment Link on Login Page') . "*",
             'bool',
             '1',
-            xl('Hide the tagline from the login screen'),
+            xl('Show the tagline from the login screen'),
+        ],
+
+        'show_labels_on_login_form' => [
+            xl('Show Username and Password Labels on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show labels on the login form'),
         ],
 
         'show_label_login' => array(

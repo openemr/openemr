@@ -23,9 +23,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\FacilityService;
 
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
@@ -220,7 +219,6 @@ $viewArgs = [
     'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.svg"),
     'logocode' => $logocode,
     'displayLoginLabel' => ($GLOBALS["show_label_login"]) ? true : false,
-    'openemrName' => $openemr_name,
     'displayTinyLogo' => $displayTinyLogo,
     'tinyLogo1' => $tinylogocode1,
     'tinyLogo2' => $tinylogocode2,
@@ -235,5 +233,6 @@ $viewArgs = [
     'siteID' => $_SESSION['site_id'],
     'loginRow' => $loginrow,
     'formArea' => $formarea,
+    'showLabels' => $GLOBALS['show_labels_on_login_form'],
 ];
 echo $t->render("login_core.html.twig", $viewArgs);

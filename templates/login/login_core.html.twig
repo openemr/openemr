@@ -1,10 +1,11 @@
+{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     {% if displayGoogleSignin %}
         <meta name="google-signin-client_id" content="{{ googleSigninClientID }}">
     {% endif %}
-    <title>{{ title|text }} {{ "Login"|xl }}</title>
+    <title>{{ title|text }} {{ "Login"|xlt }}</title>
     {% block head %}{% endblock %}
     <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ jsIncludes }}"></script>
     <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ jsIncludes }}"></script>
@@ -32,7 +33,7 @@
             // nothing fancy. mainly for mobile.
             element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText({{ "Authenticating"|xlj }});
                 {% if hasSession %}
-                document.cookie = {{ cookieText|xlj }};
+                document.cookie = {{ cookieText }};
                 {% endif %}
                 document.forms[0].submit();
             return true;
@@ -40,12 +41,12 @@
 
         var registrationTranslations = {{ regTranslations }};
 
-        var registrationConstants = {{ regConstants|json_encode }};
+        var registrationConstants = {{ regConstants }};
     </script>
     {{ setupHeader() }}
 </head>
 <body class="login">
-    <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr }}" target="_top" name="login_form">
+    <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">
         <div class="{{ loginRow|attr }}">
             <div class="{{ formArea|attr }}">
                 <input type="hidden" name="new_login_session_management" value="1">
@@ -53,23 +54,23 @@
 
                 {% if relogin == 1 %}
                 <div class="alert alert-info m-1 font-weight-bold">
-                    {{ "password security has recently been upgraded"|xlt }}. {{ "Please login again"|xlt }}
+                    {{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}
                 </div>
                 {% endif %}
 
                 {% if loginFail == 1 %}
                 <div class="alert alert-danger login-failure m-1 font-weight-bold">
-                    {{ "Invalid usernamem or password"|xlt }}
+                    {{ "Invalid username or password"|xlt }}
                 </div>
                 {% endif %}
 
                 <div id="standard-auth-username" class="form-group">
-                    <label for="authUser" class="text-right sr-only">{{ "Username"|xlt }}</label>
+                    <label for="authUser" class="text-right {{ srOnly }}">{{ "Username"|xlt }}</label>
                     <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ "Username"|xla }}">
                 </div>
 
                 <div id="standard-auth-password" class="form-group">
-                    <label for="clearPass" class="text-right sr-only">{{ "Password"|xlt }}</label>
+                    <label for="clearPass" class="text-right {{ srOnly }}">{{ "Password"|xlt }}</label>
                     <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="{{ "Password"|xla }}">
                 </div>
 
@@ -82,7 +83,7 @@
                         <select class="form-control" name="languageChoice" size="1">
                             <option value="{{ defaultLangID|attr }}" selected>{{ "Default"|xlt }} - {{ defaultLangName|xlt }}</option>
                             {% for l in languageList %}
-                                <option value="{{ l.lang_id }}|attr">{{ l.trans_lang_description|text }}</option>
+                                <option value="{{ l.lang_id|attr }}">{{ l.trans_lang_description|text }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -143,7 +144,7 @@
 
                 {% if displayLoginLabel %}
                 <div class="text-center login-title-label">
-                        {{ openemrName|text }}
+                        {{ title|text }}
                     </div>
                 {% endif %}
 
@@ -177,7 +178,7 @@
                         <p class="context">
                             {{ "Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."|xlt }}
                         </p>
-                        <input placeholder="{{ "email"|xlt }}" type="email" class="email w-100 text-body form-control" />
+                        <input placeholder="{{ "email"|xla }}" type="email" class="email w-100 text-body form-control" />
                         <p class="message font-italic"></p>
                     </div>
                     <div class="modal-footer">
