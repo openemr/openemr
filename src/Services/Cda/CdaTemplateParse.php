@@ -91,8 +91,8 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.42' => 'fetchMedicationData', // Medication Administered Act @todo honor end dates
             '2.16.840.1.113883.10.20.24.3.139' => 'fetchMedicationData', // Medication Dispensed Act
             '2.16.840.1.113883.10.20.24.3.105' => 'fetchMedicationData', // Medication Discharge Act
-            //'2.16.840.1.113883.10.20.24.3.42' => '', // QDM Datatype: Substance, Administered
-            //'2.16.840.1.113883.10.20.24.3.47' => '', // QDM Datatype: Substance, Order @todo figure out substance i.e water, breast milk ...? what to do!
+            '2.16.840.1.113883.10.20.24.3.42' => 'fetchMedicationData', // QDM Datatype: Substance, Administered
+            '2.16.840.1.113883.10.20.24.3.47' => 'fetchMedicationData', // QDM Datatype: Substance, Order @todo figure out substance i.e water, breast milk ...? what to do!
             '2.16.840.1.113883.10.20.24.3.137' => 'fetchMedicalProblemData', // diagnosis
             '2.16.840.1.113883.10.20.24.3.140' => 'fetchImmunizationData', // Immunization Administered (V3)
             '2.16.840.1.113883.10.20.24.3.143' => 'fetchImmunizationData', // Immunization Order (V3) @todo verify status
@@ -104,14 +104,14 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
         );
         foreach ($entryComponents['section']['entry'] as $entry) {
-            $key = array_keys($entry)[0]; // need the entry type i.e. observation, activity, substance etc.
+            $key = array_keys($entry)[0]; // need the entry template type i.e. observation, activity, substance etc.
             if (!empty($entry[$key]['templateId']['root'])) {
                 if (!empty($qrda_oids[$entry[$key]['templateId']['root']])) {
                     $func_name = $qrda_oids[$entry[$key]['templateId']['root']];
                     $this->$func_name($entry);
                 } else {
                     $text = $entry[$key]['templateId']['root'] . ' ' . ($entry[$key]['text'] ?? $entry[$key]['code']['displayName']);
-                    error_log('Missing QDM: ' . $text);
+                    error_log('Root Missing QDM: ' . $text);
                 }
             } elseif (count($entry[$key]['templateId']) > 1) {
                 foreach ($entry[$key]['templateId'] as $key_1 => $value_1) {
@@ -119,12 +119,11 @@ class CdaTemplateParse
                         $func_name = $qrda_oids[$entry[$key]['templateId'][$key_1]['root']];
                         if (!empty($func_name)) {
                             $this->$func_name($entry);
+                            break;
                         }
-                        break;
-                    } else {
-                        $text = $entry[$key]['templateId'][1]['root'] . ' ' . ($entry[$key]['text'] ?? $entry[$key]['code']['displayName']);
-                        error_log('Missing QDM: ' . $text);
                     }
+                    $text = $entry[$key]['templateId'][1]['root'] . ' ' . ($entry[$key]['text'] ?? $entry[$key]['code']['displayName']);
+                    error_log('Missing QDM: ' . $text);
                 }
             }
         }
@@ -148,7 +147,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['date'] = $entry['encounter']['effectiveTime']['value'] ?: $entry['encounter']['effectiveTime']['low']['value'];
 
             $code_type = $entry['encounter']['code']['codeSystemName'];
-            $code_text = $entry['encounter']['code']['displayName'] ?? $entry['encounter']['text'];
+            $code_text = $entry['encounter']['code']['displayName'] ?? ($entry['encounter']['text'] ?? '');
             $code = $this->codeService->getCodeWithType($entry['encounter']['code']['code'], $code_type ?: 'SNOMED-CT', true);
             $code_text = $code_text ?: $this->codeService->lookup_code_description($code, 'code_text_short');
             $this->templateData['field_name_value_array']['encounter'][$i]['code'] = $code;
@@ -795,7 +794,7 @@ class CdaTemplateParse
         $this->templateData['field_name_value_array']['discharge_medication'][$i]['drug_code'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'];
         $this->templateData['field_name_value_array']['discharge_medication'][$i]['drug_text'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName'];
         $this->templateData['field_name_value_array']['discharge_medication'][$i]['note'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['text']['reference']['value'];
-        $this->templateData['field_name_value_array']['discharge_medication'][$i]['indication'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ? $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] : $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship']['observation']['value']['displayName'];
+        $this->templateData['field_name_value_array']['discharge_medication'][$i]['indication'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship'][0]['observation']['value']['displayName'] ?: $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship']['observation']['value']['displayName'];
         $this->templateData['field_name_value_array']['discharge_medication'][$i]['prn'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['precondition']['criterion']['value']['displayName'];
 
         $this->templateData['field_name_value_array']['discharge_medication'][$i]['provider_title'] = $discharge_medications_data['act']['entryRelationship']['substanceAdministration']['entryRelationship'][1]['supply']['author']['assignedAuthor']['assignedPerson']['name']['prefix'];
