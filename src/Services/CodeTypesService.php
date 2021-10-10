@@ -144,8 +144,7 @@ class CodeTypesService
             $parsedCode = $parts[1];
             $parsedType = $parts[0];
         }
-        $oid = $this->getSystemForCode($this->formatCodeType($parsedType ?? ''), true) ?: "";
-        return ['code' => $parsedCode, 'code_type' => $parsedType, 'system_oid' => $oid];
+        return ['code' => $parsedCode, 'code_type' => $parsedType];
     }
 
     /**
