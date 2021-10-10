@@ -2,7 +2,8 @@
 
 /**
  * CodeTypesService.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -13,10 +14,15 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
+/**
+ * Service for code type
+ */
 class CodeTypesService
 {
-    private $snomedInstalled;
 
+    /**
+     * @const string
+     */
     const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
     const CODE_TYPE_SNOMED = "SNOMED";
     const CODE_TYPE_CPT4 = "CPT4";
@@ -24,47 +30,98 @@ class CodeTypesService
     const CODE_TYPE_NUCC = "NUCC";
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
+    const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_OID = array(
+        '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
+        '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
+        '2.16.840.1.113883.6.1' => self::CODE_TYPE_LOINC,
+        '2.16.840.1.113883.6.101' => self::CODE_TYPE_NUCC,
+        '2.16.840.1.113883.6.88' => self::CODE_TYPE_RXNORM,
+        '2.16.840.1.113883.6.90' => self::CODE_TYPE_ICD10,
+    );
+    /**
+     * @var array
+     */
+    public $installedCodeTypes;
+    /**
+     * @var bool
+     */
+    private $snomedInstalled;
+    private $cpt4Installed;
+    private $rxnormInstalled;
 
     public function __construct()
     {
-        // currently our installed code types are
+        // currently, our installed code types are
         global $code_types;
+        $this->installedCodeTypes = $code_types;
 
         $this->snomedInstalled = isset($code_types[self::CODE_TYPE_SNOMED_CT]);
         $this->cpt4Installed = isset($code_types[self::CODE_TYPE_CPT4]);
+        $this->rxnormInstalled = isset($code_types[self::CODE_TYPE_RXNORM]);
     }
 
     /**
      * Lookup the description for a series of codes in the database.  Eventually we would want to
      * remove the global lookup_code_descriptions and use this so we can mock these codes and improve our unit test speed.
+     *
+     * @param string $codes       - Is of the form "type:code;type:code; etc.".
+     * @param string $desc_detail - Can choose either the normal description('code_text') or the brief description('code_text_short').
+     * @return string               - Is of the form "description;description; etc.".
      * @see code_types.inc.php
-     * @param  string $codes  Is of the form "type:code;type:code; etc.".
-     * @param  string $desc_detail Can choose either the normal description('code_text') or the brief description('code_text_short').
-     * @return string         Is of the form "description;description; etc.".
      */
-    public function lookup_code_description($codes, $desc_detail = "code_text")
+    public function lookup_code_description($codes, $desc_detail = "code_text"): string
     {
-        return lookup_code_descriptions($codes, $desc_detail);
+        if (empty($codes)) {
+            return "";
+        }
+        $code_text = lookup_code_descriptions($codes, $desc_detail);
+        if (empty($code_text)) {
+            // let's return a description of code if available.
+            // sometimes depending on code, long and/or short description may not be available.
+            $desc_detail = $desc_detail == "code_text" ? "code_text_short" : "code_text";
+            $code_text = lookup_code_descriptions($codes, $desc_detail);
+        }
+        return $code_text;
     }
 
     /**
-     * Returns true if the snomed-ct codes are installed
-     * @return bool
+     *
+     * @return bool - Returns true if the snomed-ct codes are installed
      */
-    public function isSnomedCodesInstalled()
+    public function isSnomedCodesInstalled(): bool
     {
         return $this->snomedInstalled;
     }
 
     /**
-     * Returns whether the system has the cpt4 codes installed
-     * @return bool
+     *
+     * @return bool - Returns whether the system has the cpt4 codes installed
      */
-    public function isCPT4Installed()
+    public function isCPT4Installed(): bool
     {
         return $this->cpt4Installed;
     }
 
+    /**
+     *
+     * @return bool - Returns whether the system has the rxnorm codes installed
+     */
+    public function isRXNORMInstalled(): bool
+    {
+        return $this->rxnormInstalled;
+    }
+
+    public function isInstalledCodeType($codeType): bool
+    {
+        return isset($this->installedCodeTypes[$codeType]);
+    }
+
+    /**
+     * @param       $code
+     * @param false $useOid
+     * @return string|null
+     */
     public function getSystemForCode($code, $useOid = false)
     {
         $codeType = $this->getCodeTypeForCode($code);
@@ -74,20 +131,26 @@ class CodeTypesService
         return null;
     }
 
+    /**
+     * @param $code
+     * @return array
+     */
     public function parseCode($code)
     {
         $parsedCode = $code;
         $parsedType = null;
         if (is_string($code) && strpos($code, ":") !== false) {
             $parts = explode(":", $code);
-            $parsedCode  = $parts[1];
+            $parsedCode = $parts[1];
             $parsedType = $parts[0];
         }
-        return ['code' => $parsedCode, 'code_type' => $parsedType];
+        $oid = $this->getSystemForCode($this->formatCodeType($parsedType), true) ?: "";
+        return ['code' => $parsedCode, 'code_type' => $parsedType, 'system_oid' => $oid];
     }
 
     /**
      * Returns a code with the code type prefixed
+     *
      * @param $code string The value for the code that exists in the given code_type datadatabse
      * @param $type string The code_type that the code belongs to (SNOMED, RXCUI, ICD10, etc).
      * @return string  The fully typed code (TYPE:CODE)
@@ -98,27 +161,43 @@ class CodeTypesService
             return "";
         }
         if ($oe_format) {
-            $type = $this->formatCodeType($type);
+            $type = $this->formatCodeType($type ?? "");
         }
         return ($type ?? "") . ":" . ($code ?? "");
     }
 
+    /**
+     * @param $code
+     * @return mixed
+     */
     public function getCodeTypeForCode($code)
     {
         $parsedCode = $this->parseCode($code);
         return $parsedCode['code_type'];
     }
 
+    /**
+     * @param string $codeType
+     * @param false  $useOid
+     * @return string|null
+     */
     public function getSystemForCodeType($codeType, $useOid = false)
     {
         $system = null;
+
         if ($useOid) {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
+                $system = '2.16.840.1.113883.6.96';
+            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
                 $system = '2.16.840.1.113883.6.96';
             } elseif (self::CODE_TYPE_CPT4 == $codeType) {
                 $system = '2.16.840.1.113883.6.12';
             } elseif (self::CODE_TYPE_LOINC == $codeType) {
                 $system = '2.16.840.1.113883.6.1';
+            } elseif (self::CODE_TYPE_ICD10 == $codeType) {
+                $system = '2.16.840.1.113883.6.90';
+            } elseif (self::CODE_TYPE_RXCUI == $codeType || self::CODE_TYPE_RXNORM == $codeType) {
+                $system = '2.16.840.1.113883.6.88';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
@@ -136,24 +215,119 @@ class CodeTypesService
         return $system;
     }
 
-    public function formatCodeType($type)
+    /**
+     * @param string $type
+     * @return string
+     */
+    public function formatCodeType(string $type)
     {
-        switch (strtoupper($type)) {
+        switch (strtoupper(trim($type))) {
+            case 'ICD10':
+            case 'ICD10-CM':
+            case 'ICD-10-CM':
             case 'ICD10CM':
                 $type = 'ICD10';
                 break;
             case 'SNOMED CT':
+            case 'SNOMED-CT':
             case 'SNOMEDCT':
                 $type = 'SNOMED-CT';
+                if (!$this->isSnomedCodesInstalled()) {
+                    $type = 'SNOMED CT'; // for valueset table lookups
+                    break;
+                }
                 break;
             case 'RXCUI':
             case 'RXNORM':
-                $type = 'RXCUI'; // let's use RxCUI for lookups
+                if (!$this->isRXNORMInstalled() && $this->isInstalledCodeType('RXCUI')) {
+                    $type = 'RXCUI'; // then let's use RxCUI for lookups
+                } else {
+                    $type = 'RXNORM';
+                }
                 break;
             case 'CPT':
+            case 'CPT4':
                 $type = 'CPT4';
                 break;
+            default:
+                if (strpos($type, '2.16.840.1.113883.') !== false) {
+                    $type = $this->getCodeTypeFromSystem($type);
+                }
         }
-        return $type;
+        return $type ?? "";
+    }
+
+    public function getCodeTypeFromSystem($oid): string
+    {
+        return self::CODE_TYPE_OID[$oid] ?? '';
+    }
+
+    /**
+     * Returns a resolved code set including using valueset table to try and get a code set.
+     *
+     * @param        $code
+     * @param        $codeType
+     * @param string $currentCodeText
+     * @param string $codeDescriptionType
+     * @return array
+     */
+    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text')
+    {
+        $valueset = '';
+        $valueset_name = '';
+        $rtn = array(
+            'code' => $code ?? '',
+            'formatted_code' => '',
+            'formatted_code_type' => $codeType ?? '',
+            'code_text' => $currentCodeText,
+            'system_oid' => '',
+            'valueset' => '',
+            'valueset_name' => ''
+        );
+        if (empty($code)) {
+            return $rtn;
+        }
+        $formatted_type = $this->formatCodeType($codeType ?: '');
+        $oid = $this->getSystemForCodeType($formatted_type, true);
+        // use valueset table if code type not installed or active.
+        if (!$this->isInstalledCodeType($formatted_type)) {
+            if (strpos($codeType, '2.16.840.1.113883.') !== false) {
+                $oid = trim($codeType);
+                $codeType = "";
+            }
+            $value = $this->lookupFromValueset($code, $formatted_type, $oid);
+            $formatted_type = $value['code_type'];
+            $oid = $value['code_system'];
+            $currentCodeText = $value['description'];
+            $valueset_name = $value['valueset_name'];
+            $valueset = $value['valueset'];
+        }
+        $formatted_code = $this->getCodeWithType($code ?? '', $formatted_type);
+        if (empty($currentCodeText)) {
+            $currentCodeText = $this->lookup_code_description($formatted_code, $codeDescriptionType);
+        }
+        return array(
+            'code' => $code ?? "",
+            'formatted_code' => $formatted_code ?? "",
+            'formatted_code_type' => $formatted_type ?? "",
+            'code_text' => $currentCodeText,
+            'system_oid' => $oid ?? "",
+            'valueset' => $valueset ?? "",
+            'valueset_name' => $valueset_name ?? ''
+        );
+    }
+
+    public function getInstalledCodeTypes()
+    {
+        return $this->installedCodeTypes ?? null;
+    }
+
+    public function lookupFromValueset($code, $codeType, $codeSystem)
+    {
+        $value = sqlQuery(
+            "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
+            array($code, $codeType, "$codeType%", $codeSystem)
+        );
+        return $value;
     }
 }
