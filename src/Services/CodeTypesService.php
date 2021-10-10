@@ -144,7 +144,7 @@ class CodeTypesService
             $parsedCode = $parts[1];
             $parsedType = $parts[0];
         }
-        $oid = $this->getSystemForCode($this->formatCodeType($parsedType), true) ?: "";
+        $oid = $this->getSystemForCode($this->formatCodeType($parsedType ?? ''), true) ?: "";
         return ['code' => $parsedCode, 'code_type' => $parsedType, 'system_oid' => $oid];
     }
 
@@ -219,7 +219,7 @@ class CodeTypesService
      * @param string $type
      * @return string
      */
-    public function formatCodeType(string $type)
+    public function formatCodeType($type)
     {
         switch (strtoupper(trim($type))) {
             case 'ICD10':
