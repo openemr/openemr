@@ -123,11 +123,11 @@ class FacilityService extends BaseService
 
     public function getPrimaryBillingLocation()
     {
-        $records = $this->get(array(
+        $record = $this->get(array(
             "order" => "ORDER BY FAC.billing_location DESC, FAC.id DESC",
             "limit" => 1
         ));
-        return $records[0] ?? null;
+        return $record;
     }
 
     public function getAllBillingLocations()
@@ -152,13 +152,13 @@ class FacilityService extends BaseService
 
     public function getFacilityForUser($userId)
     {
-        $records = $this->get(array(
+        $record = $this->get(array(
             "where" => "WHERE USER.id = ?",
             "data" => array($userId),
             "join" => "JOIN users USER ON FAC.id = USER.facility_id",
             "limit" => 1
         ));
-        return $records[0] ?? null;
+        return $record;
     }
 
     public function getFacilityForUserFormatted($userId)
@@ -185,13 +185,13 @@ class FacilityService extends BaseService
 
     public function getFacilityForEncounter($encounterId)
     {
-        $records = $this->get(array(
+        $record = $this->get(array(
             "where" => "WHERE ENC.encounter = ?",
             "data" => array($encounterId),
             "join" => "JOIN form_encounter ENC ON FAC.id = ENC.facility_id",
             "limit" => 1
         ));
-        return $records[0] ?? null;
+        return $record;
     }
 
     public function updateFacility($data)
@@ -240,6 +240,7 @@ class FacilityService extends BaseService
 
     /**
      * Shared getter for the various specific facility getters.
+     * NOTE: if a limit of 1 is specified the associative array is returned
      *
      * @param $map - Query information.
      * @return array of associative arrays | one associative array.
@@ -287,8 +288,15 @@ class FacilityService extends BaseService
             $records = self::selectHelper($sql, $map);
             $returnRecords = [];
             if (!empty($records)) {
-                foreach ($records as $record) {
-                    $returnRecords[] = $this->createResultRecordFromDatabaseResult($record);
+                // base service method returns just the associative array which messes with our methods for LIMIT etc.
+                if (!empty($map['limit']) && $map['limit'] == 1)
+                {
+                    $returnRecords = $this->createResultRecordFromDatabaseResult($records);
+                }
+                else {
+                    foreach ($records as $record) {
+                        $returnRecords[] = $this->createResultRecordFromDatabaseResult($record);
+                    }
                 }
             }
             return $returnRecords;
@@ -300,11 +308,11 @@ class FacilityService extends BaseService
 
     private function getPrimaryBusinessEntityLegacy()
     {
-        $records = $this->get(array(
+        $record = $this->get(array(
             "order" => "ORDER BY FAC.billing_location DESC, FAC.accepts_assignment DESC, FAC.id ASC",
             "limit" => 1
         ));
-        return $records[0] ?? null;
+        return $record;
     }
 
     public function getAllWithIds(array $ids)
