@@ -289,11 +289,9 @@ class FacilityService extends BaseService
             $returnRecords = [];
             if (!empty($records)) {
                 // base service method returns just the associative array which messes with our methods for LIMIT etc.
-                if (!empty($map['limit']) && $map['limit'] == 1)
-                {
+                if (!empty($map['limit']) && $map['limit'] == 1) {
                     $returnRecords = $this->createResultRecordFromDatabaseResult($records);
-                }
-                else {
+                } else {
                     foreach ($records as $record) {
                         $returnRecords[] = $this->createResultRecordFromDatabaseResult($record);
                     }
