@@ -1076,3 +1076,7 @@ ALTER TABLE `form_encounter` ADD `encounter_type_code` VARCHAR(31) NULL DEFAULT 
 #IfMissingColumn users billing_facility
 ALTER TABLE `users` ADD `billing_facility` TEXT, ADD `billing_facility_id` INT(11) NOT NULL DEFAULT '0';
 #EndIf
+
+#IfNotRow4D code_types ct_key VALUESET ct_id 113 ct_seq 113 ct_external 13
+INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('VALUESET', '113', '113', '0', '', '', '1', '1', '0', '1', '1', 'CQM Valueset', '13', '1', '1', '1', '1', '1');
+#EndIf
