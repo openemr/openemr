@@ -123,10 +123,11 @@ class FacilityService extends BaseService
 
     public function getPrimaryBillingLocation()
     {
-        return $this->get(array(
+        $records = $this->get(array(
             "order" => "ORDER BY FAC.billing_location DESC, FAC.id DESC",
             "limit" => 1
         ));
+        return $records[0] ?? null;
     }
 
     public function getAllBillingLocations()
@@ -151,12 +152,13 @@ class FacilityService extends BaseService
 
     public function getFacilityForUser($userId)
     {
-        return $this->get(array(
+        $records = $this->get(array(
             "where" => "WHERE USER.id = ?",
             "data" => array($userId),
             "join" => "JOIN users USER ON FAC.id = USER.facility_id",
             "limit" => 1
         ));
+        return $records[0] ?? null;
     }
 
     public function getFacilityForUserFormatted($userId)
@@ -183,12 +185,13 @@ class FacilityService extends BaseService
 
     public function getFacilityForEncounter($encounterId)
     {
-        return $this->get(array(
+        $records = $this->get(array(
             "where" => "WHERE ENC.encounter = ?",
             "data" => array($encounterId),
             "join" => "JOIN form_encounter ENC ON FAC.id = ENC.facility_id",
             "limit" => 1
         ));
+        return $records[0] ?? null;
     }
 
     public function updateFacility($data)
@@ -297,10 +300,11 @@ class FacilityService extends BaseService
 
     private function getPrimaryBusinessEntityLegacy()
     {
-        return $this->get(array(
+        $records = $this->get(array(
             "order" => "ORDER BY FAC.billing_location DESC, FAC.accepts_assignment DESC, FAC.id ASC",
             "limit" => 1
         ));
+        return $records[0] ?? null;
     }
 
     public function getAllWithIds(array $ids)
