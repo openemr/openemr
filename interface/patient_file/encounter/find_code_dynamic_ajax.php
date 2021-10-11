@@ -8,6 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -311,10 +312,14 @@ if ($what == 'fields' && $source == 'V') {
     );
     if (!empty($res)) {
         while ($row = sqlFetchArray($res)) {
+            $dynCodeType = $codetype;
+            if (stripos($codetype, 'VALUESET') !== false) {
+                $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
+            }
             $arow = array('DT_RowId' => genFieldIdString(array(
               'code' => $row['code'],
               'description' => $row['code_text'],
-              'codetype' => $codetype,
+              'codetype' => $dynCodeType,
             )));
             $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
             $arow[] = $row['code_text'];
