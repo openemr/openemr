@@ -19,7 +19,14 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  */
 class FacilityServiceTest extends TestCase
 {
+    /**
+     * @var FacilityService
+     */
     private $facilityService;
+
+    /**
+     * @var FacilityFixtureManager
+     */
     private $fixtureManager;
 
     protected function setUp(): void
@@ -158,5 +165,13 @@ class FacilityServiceTest extends TestCase
             $this->assertArrayHasKey("uuid", $resultData);
             $this->assertEquals("0123456789", $facilityRecord["facility_npi"]);
         }
+    }
+
+    public function testGetFacilityForUser()
+    {
+        $this->fixtureManager->installFacilityFixtures();
+
+        $actualResult = $this->facilityService->getFacilityForUser(1);
+        $this->assertNotNull($actualResult);
     }
 }
