@@ -560,7 +560,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $dischargeListDisposition = new ListService();
                                 $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
                                 foreach ($dischargeDisposiitons as $dispositon) {
-                                    $selected = ($result['discharge_disposition'] ?? '') == $dispositon['option_id'] ? "selected='selected'" : "";
+                                    $selected = ($result['discharge_disposition'] ?? null) == $dispositon['option_id'] ? "selected='selected'" : "";
                                     ?>
                                 <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
                                 <?php } ?>
