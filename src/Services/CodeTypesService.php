@@ -295,7 +295,7 @@ class CodeTypesService
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
-            $formatted_type = $value['code_type'];
+            $formatted_type = $value['code_type'] ?: $formatted_type;
             $oid = $value['code_system'];
             $currentCodeText = $value['description'];
             $valueset_name = $value['valueset_name'];

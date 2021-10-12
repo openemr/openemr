@@ -620,6 +620,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedures['procedure'][$y]['code_text'] = $newdata['procedure']['code_text'];
                 $arr_procedures['procedure'][$y]['date'] = $newdata['procedure']['date'];
 
+                $arr_procedures['procedure'][$y]['status'] = $newdata['procedure']['status'];
+                $arr_procedures['procedure'][$y]['procedure_type'] = $newdata['procedure']['procedure_type'];
+
                 $arr_procedures['procedure'][$y]['represented_organization1'] = $newdata['procedure']['represented_organization1'];
                 $arr_procedures['procedure'][$y]['represented_organization_address1'] = $newdata['procedure']['represented_organization_address1'];
                 $arr_procedures['procedure'][$y]['represented_organization_city1'] = $newdata['procedure']['represented_organization_city1'];
