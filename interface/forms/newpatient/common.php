@@ -288,6 +288,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             }
         }
     }
+    $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
     ?>
 </head>
 <body <?php echo $body_javascript; ?>>
@@ -505,7 +506,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 } elseif (!empty($default_fac_override)) {
                                     $def_facility = $default_fac_override;
                                 } else {
-                                    $def_facility = ($facilityService->getFacilityForUser($_SESSION['authUserID'])['id'] ?? null);
+                                    $def_facility = ($user_facility['id'] ?? null);
                                 }
                                 $posCode = '';
                                 $facilities = $facilityService->getAllServiceLocations();
@@ -532,10 +533,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             if (!empty($default_bill_fac_override)) {
                                 $default_bill_fac = $default_bill_fac_override;
                             } elseif (!$viewmode && $mode !== "followup") {
-                                $tmp_be = $facilityService->getPrimaryBusinessEntity();
-                                $tmp_bl = $facilityService->getPrimaryBillingLocation();
-                                $tmp = !empty($tmp_be['id']) ? $tmp_be['id'] : (!empty($tmp_bl['id']) ? $tmp_bl['id'] : null);
-                                $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
+                                if ($user_facility['billing_location'] == '1' ) {
+                                    $default_bill_fac =  $user_facility['id'] ;
+                                } else {
+                                    $tmp_be = $facilityService->getPrimaryBusinessEntity();
+                                    $tmp_bl =  $facilityService->getPrimaryBillingLocation();
+                                    $tmp = !empty($tmp_be['id']) ? $tmp_be['id'] : (!empty($tmp_bl['id']) ? $tmp_bl['id'] : null);
+                                    $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
+                                }
                             } else {
                                 $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
                             }
