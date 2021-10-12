@@ -533,7 +533,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             if (!empty($default_bill_fac_override)) {
                                 $default_bill_fac = $default_bill_fac_override;
                             } elseif (!$viewmode && $mode !== "followup") {
-                                if ($user_facility['billing_location'] == '1' ) {
+                                if ($user_facility['billing_location'] == '1') {
                                     $default_bill_fac =  $user_facility['id'] ;
                                 } else {
                                     $tmp_be = $facilityService->getPrimaryBusinessEntity();
