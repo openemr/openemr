@@ -533,7 +533,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             if (!empty($default_bill_fac_override)) {
                                 $default_bill_fac = $default_bill_fac_override;
                             } elseif (!$viewmode && $mode !== "followup") {
-                                if ($user_facility['billing_location'] == '1' ) {
+                                if ($user_facility['billing_location'] == '1') {
                                     $default_bill_fac =  $user_facility['id'] ;
                                 } else {
                                     $tmp_be = $facilityService->getPrimaryBusinessEntity();
@@ -560,7 +560,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $dischargeListDisposition = new ListService();
                                 $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
                                 foreach ($dischargeDisposiitons as $dispositon) {
-                                    $selected = $result['discharge_disposition'] == $dispositon['option_id'] ? "selected='selected'" : "";
+                                    $selected = ($result['discharge_disposition'] ?? null) == $dispositon['option_id'] ? "selected='selected'" : "";
                                     ?>
                                 <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
                                 <?php } ?>
