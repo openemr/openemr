@@ -288,6 +288,17 @@ $esignApi = new Api();
 </head>
 
 <body class="min-vw-100">
+<?php
+    // fire off an event here
+if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     */
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    // TODO: @adunsulag need to look at making this an actual typed event
+    $dispatcher->dispatch('main.body.render.pre');
+}
+?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
@@ -360,6 +371,17 @@ $esignApi = new Api();
             goRepeaterServices();
         });
     </script>
+    <?php
+    // fire off an event here
+    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+        /**
+         * @var \Symfony\Component\EventDispatcher\EventDispatcher
+         */
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        // TODO: @adunsulag need to look at making this an actual typed event
+        $dispatcher->dispatch('main.body.render.post');
+    }
+    ?>
 </body>
 
 </html>
