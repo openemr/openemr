@@ -328,6 +328,12 @@ class PatientService extends BaseService
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
+            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            foreach ($search as $field => $key) {
+                if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
+                    $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
+                }
+            }
         }
         return $this->search($querySearch, $isAndCondition);
     }
