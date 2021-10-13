@@ -14,16 +14,26 @@
 
 namespace OpenEMR\Services;
 
+use MongoDB\Driver\Query;
+use OpenEMR\Common\Database\QueryUtils;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
-class AppointmentService
+class AppointmentService extends BaseService
 {
+    const TABLE_NAME = "openemr_postcalendar_events";
 
   /**
    * Default constructor.
    */
     public function __construct()
     {
+        parent::__construct(self::TABLE_NAME);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['puuid', 'pce_aid_uuid'];
     }
 
     public function validate($appointment)
@@ -39,6 +49,21 @@ class AppointmentService
         $validator->required('pc_startTime')->length(5); // HH:MM is 5 chars
         $validator->required('pc_facility')->numeric();
         $validator->required('pc_billing_location')->numeric();
+        $validator->optional('pc_aid')->numeric()
+            ->callback(function ($value, $data) {
+                $id = QueryUtils::fetchSingleValue('Select id FROM users WHERE id = ? ', 'id', [$value]);
+                if (empty($id)) {
+                    throw new InvalidValueException('pc_aid must be for a valid user', 'pc_aid');
+                }
+                return true;
+            });
+        $validator->optional('pid')->callback(function ($value, $data) {
+            $id = QueryUtils::fetchSingleValue('Select id FROM patient_data WHERE pid = ? ', 'id', [$value]);
+            if (empty($id)) {
+                throw new InvalidValueException('pid must be for a valid patient', 'pid');
+            }
+            return true;
+        });
 
         return $validator->validate($appointment);
     }
@@ -51,40 +76,11 @@ class AppointmentService
                        pd.fname,
                        pd.lname,
                        pd.DOB,
-                       pce.pc_apptstatus,
-                       pce.pc_eventDate,
-                       pce.pc_startTime,
-                       pce.pc_endTime,
-              	       pce.pc_facility,
-                       pce.pc_billing_location,
-                       f1.name as facility_name,
-                       f2.name as billing_location_name
-                       FROM openemr_postcalendar_events as pce
-                       LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
-                       LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
-                       LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid";
-
-        if ($pid) {
-            $sql .= " WHERE pd.pid = ?";
-            array_push($sqlBindArray, $pid);
-        }
-
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
-    }
-
-    public function getAppointment($eid)
-    {
-        $sql = "SELECT pce.pc_eid,
-                       pd.fname,
-                       pd.lname,
-                       pd.DOB,
+                       pd.pid,
+                       pd.uuid AS puuid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
                        pce.pc_apptstatus,
                        pce.pc_eventDate,
                        pce.pc_startTime,
@@ -97,9 +93,57 @@ class AppointmentService
                        LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
                        LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id";
+
+        if ($pid) {
+            $sql .= " WHERE pd.pid = ?";
+            array_push($sqlBindArray, $pid);
+        }
+
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+        $finalRecords = [];
+        if (!empty($records)) {
+            foreach ($records as $record) {
+                $finalRecords[] = $this->createResultRecordFromDatabaseResult($record);
+            }
+        }
+        return $finalRecords;
+    }
+
+    public function getAppointment($eid)
+    {
+        $sql = "SELECT pce.pc_eid,
+                       pd.fname,
+                       pd.lname,
+                       pd.DOB,
+                       pd.pid,
+                       pd.uuid AS puuid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
+                       pce.pc_apptstatus,
+                       pce.pc_eventDate,
+                       pce.pc_startTime,
+                       pce.pc_endTime,
+              	       pce.pc_facility,
+                       pce.pc_billing_location,
+                       f1.name as facility_name,
+                       f2.name as billing_location_name
+                       FROM openemr_postcalendar_events as pce
+                       LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
+                       LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
+                       LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id
                        WHERE pce.pc_eid = ?";
 
-        return sqlQuery($sql, array($eid));
+        $records = QueryUtils::fetchRecords($sql, [$eid]);
+        $finalRecords = [];
+        if (!empty($records)) {
+            foreach ($records as $record) {
+                $finalRecords[] = $this->createResultRecordFromDatabaseResult($record);
+            }
+        }
+        return $finalRecords;
     }
 
     public function insert($pid, $data)
@@ -121,7 +165,8 @@ class AppointmentService
         $sql .= "     pc_billing_location=?,";
         $sql .= "     pc_informant=1,";
         $sql .= "     pc_eventstatus=1,";
-        $sql .= "     pc_sharing=1";
+        $sql .= "     pc_sharing=1,";
+        $sql .= "     pc_aid=?";
 
         $results = sqlInsert(
             $sql,
@@ -136,7 +181,8 @@ class AppointmentService
                 $startTime,
                 $endTime,
                 $data["pc_facility"],
-                $data["pc_billing_location"]
+                $data["pc_billing_location"],
+                $data["pc_aid"] ?? null
             )
         );
 
@@ -145,6 +191,12 @@ class AppointmentService
 
     public function delete($eid)
     {
-        return sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        return ['message' => 'record deleted'];
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        return parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
     }
 }
