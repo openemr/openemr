@@ -46,20 +46,5 @@ class FhirVitalsServiceTest extends TestCase
         // now let's make sure we have a bunch of uuid's generated
         $uuid = QueryUtils::fetchSingleValue("select `uuid` FROM form_vitals WHERE id=?", 'uuid', [$id]);
         $this->assertNotNull($uuid, "UUID was not populated in form_values");
-
-        $uuidMapping = new UuidMapping();
-        $mappedRecords = $uuidMapping->getMappedRecordsForTableUUID($uuid);
-        $resourcePath = [];
-        foreach ($mappedRecords as $record) {
-            $this->assertEquals("Observation", $record['resource'], "Resource was not populated for mapped uuids");
-            $resourcePath[] = $record['resource_path'];
-        }
-        $expectedCodes = ['59408-5', '77606-2', '59576-9', '8289-1'];
-        $expectedPaths = array_map(function ($code) {
-            return "category=vital-signs&code=$code";
-        }, $expectedCodes);
-        foreach ($expectedPaths as $path) {
-            $this->assertContains($path, $resourcePath, "Mapped UUIDs did not contain $path");
-        }
     }
 }

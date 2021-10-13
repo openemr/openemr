@@ -38,7 +38,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
      */
     private $fhirSocialObservationResourcePaths = [];
 
-    private const CATEGORY = "Observation";
+    private const RESOURCE = "Observation";
 
     public function __construct()
     {
@@ -84,14 +84,14 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
             $targetUuid = $data['uuid'] ?? null;
             $keysToCreate = $this->getFhirVitalObservationResourcePaths();
             // vitals as of October 13th 2021 had 27 mapping uuids... so we batch this process
-            $this->createMappingRecordsForService($targetUuid, 'Observation', VitalsService::TABLE_VITALS, $keysToCreate);
+            $this->createMappingRecordsForService($targetUuid, self::RESOURCE, VitalsService::TABLE_VITALS, $keysToCreate);
         }
         if ($event->getService() instanceof SocialHistoryService) {
             // now we need to generate our uuid mappings if they don't exist
             $data = $event->getSaveData() ?? [];
             $targetUuid = $data['uuid'] ?? null;
             $keysToCreate = $this->getFhirSocialObservationResourcePaths();
-            $this->createMappingRecordsForService($targetUuid, 'Observation', SocialHistoryService::TABLE_NAME, $keysToCreate);
+            $this->createMappingRecordsForService($targetUuid, self::RESOURCE, SocialHistoryService::TABLE_NAME, $keysToCreate);
         }
     }
 
@@ -120,7 +120,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
 
         $this->fhirSocialObservationResourcePaths = [];
         foreach (FhirObservationSocialHistoryService::COLUMN_MAPPINGS as $column => $mapping) {
-            $resourcePath = $this->getResourcePathForCode($mapping['code']);
+            $resourcePath = $this->getSocialResourcePathForCode($mapping['code']);
             $this->fhirSocialObservationResourcePaths[$resourcePath] = $resourcePath;
         }
         return $this->fhirSocialObservationResourcePaths;
@@ -134,14 +134,19 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
 
         $this->fhirVitalObservationResourcePaths = [];
         foreach (FhirObservationVitalsService::COLUMN_MAPPINGS as $column => $mapping) {
-            $resourcePath = $this->getResourcePathForCode($mapping['code']);
+            $resourcePath = $this->getVitalsResourcePathForCode($mapping['code']);
             $this->fhirVitalObservationResourcePaths[$resourcePath] = $resourcePath;
         }
         return $this->fhirVitalObservationResourcePaths;
     }
 
-    private function getResourcePathForCode($code)
+    private function getSocialResourcePathForCode($code)
     {
-        return "category=" . self::CATEGORY . "&code=" . $code;
+        return "category=" . FhirObservationSocialHistoryService::CATEGORY . "&code=" . $code;
+    }
+
+    private function getVitalsResourcePathForCode($code)
+    {
+        return "category=" . FhirObservationVitalsService::CATEGORY . "&code=" . $code;
     }
 }
