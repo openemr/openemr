@@ -18,7 +18,6 @@ namespace OpenEMR\Common\Uuid;
 
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 
@@ -69,6 +68,37 @@ class UuidMapping
             }
         }
         return $mappedCounter;
+    }
+
+    public static function createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath = array())
+    {
+        $uuidRegistry = new UuidRegistry(['table_name' => 'uuid_mapping', 'mapped' => true]);
+
+
+        $columns = ['`uuid`', '`resource`', '`table`', '`target_uuid`', '`created`', '`resource_path`'];
+        $bind_insert_str = "VALUES (?, ?, ?, ?, NOW(), ?)";
+        $insertStatement = "INSERT INTO `uuid_mapping`(" . implode(",", $columns) . ") " . $bind_insert_str;
+        if (empty($resourcePath)) {
+            $uuid = $uuidRegistry->createUuid();
+            $bindValues = [$uuid, $resource, $table, $targetUuid, null];
+            $uuids = [$uuid];
+            sqlStatementNoLog($insertStatement, $bindValues, true);
+        } else {
+            $uuids = $uuidRegistry->getUnusedUuidBatch(count($resourcePath));
+            $index = 0;
+            foreach ($resourcePath as $path) {
+                $bindValues = [$uuids[$index], $resource, $table, $targetUuid, $path];
+                sqlStatementNoLog($insertStatement, $bindValues, true);
+                $index++;
+            }
+        }
+        return $uuids;
+    }
+
+    public static function createMappingRecord($targetUuid, $resource, $table, $resourcePath = null)
+    {
+
+        return self::createMappingRecordForResourcePaths($targetUuid, $resource, $table, $resourcePath ?? []);
     }
 
     // For now, support one to one uuid to target table, but will plan to add one uuid to many targets tables in future

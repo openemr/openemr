@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -21,7 +22,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 class SocialHistoryService extends BaseService
 {
-    private const TABLE_NAME = "history_data";
+    public const TABLE_NAME = "history_data";
 
     public function __construct()
     {
@@ -139,6 +140,7 @@ class SocialHistoryService extends BaseService
 
     private function insertRecord($record)
     {
+        $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $record);
         $pid = $record['pid'] ?? null;
         if (!is_numeric($pid)) {
             throw new \InvalidArgumentException("pid must be a valid number");
@@ -156,7 +158,13 @@ class SocialHistoryService extends BaseService
                 return "`$key` = ?";
             }, array_keys($record)));
         }
-        return QueryUtils::sqlInsert($sql, $arraySqlBind);
+        $insertId = QueryUtils::sqlInsert($sql, $arraySqlBind);
+        // now put everything back.
+        $record['id'] = $insertId;
+        $record['uuid'] = $uuid;
+        $record['pid'] = $pid;
+        $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $record);
+        return $record;
     }
 
     function getUuidFields(): array
@@ -164,6 +172,23 @@ class SocialHistoryService extends BaseService
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
         return ['puuid', 'euuid', 'uuid', 'user_uuid'];
+    }
+
+
+    /**
+     *
+     * @param string $type The type of save event to dispatch
+     * @param $saveData The history data to send in the event
+     * @return array
+     */
+    private function dispatchSaveEvent(string $type, $saveData)
+    {
+        $saveEvent = new ServiceSaveEvent($this, $saveData);
+        $filteredData = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($saveEvent, $type);
+        if ($filteredData instanceof ServiceSaveEvent) { // make sure whoever responds back gives us the right data.
+            $saveData = $filteredData->getSaveData();
+        }
+        return $saveData;
     }
 
     public function updateHistoryDataForPatientPid($pid, $new)

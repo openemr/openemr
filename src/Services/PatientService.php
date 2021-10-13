@@ -33,7 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
-    private const TABLE_NAME = 'patient_data';
+    public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
