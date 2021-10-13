@@ -86,22 +86,22 @@ class CdaTemplateParse
     {
         $this->is_qrda_import = true;
         $qrda_oids = array(
-            '2.16.840.1.113883.10.20.24.3.147' => 'fetchAllergyIntoleranceObservation',
-            '2.16.840.1.113883.10.20.24.3.41' => 'fetchMedicationData',  // active medication @todo verify status all meds
-            '2.16.840.1.113883.10.20.24.3.42' => 'fetchMedicationData',  // Medication Administered Act @todo honor end dates
-            '2.16.840.1.113883.10.20.24.3.139' => 'fetchMedicationData', // Medication Dispensed Act
-            '2.16.840.1.113883.10.20.24.3.105' => 'fetchMedicationData', // Medication Discharge Act
-            '2.16.840.1.113883.10.20.24.3.47' => 'fetchMedicationData',  // QDM Datatype: Substance, Order @todo substance water, breast milk
-            //'' => '',
-            '2.16.840.1.113883.10.20.24.3.137' => 'fetchMedicalProblemData',// diagnosis
-            '2.16.840.1.113883.10.20.24.3.140' => 'fetchImmunizationData',  // Immunization Administered (V3)
-            '2.16.840.1.113883.10.20.24.3.143' => 'fetchImmunizationData',  // Immunization Order (V3) @todo verify status
-            '2.16.840.1.113883.10.20.22.4.14' => 'fetchProcedureActivityData', // procedure activity-performed cda 2.16.840.1.113883.10.20.24.3.64
-            '2.16.840.1.113883.10.20.24.3.7' => 'fetchProcedureDeviceData', // procedure preformed Device Applied
-            '2.16.840.1.113883.10.20.24.3.37' => 'fetchQrdaLabResultData',  // lab test ordered
-            '2.16.840.1.113883.10.20.24.3.38' => 'fetchQrdaLabResultData',  // lab test preformed
-            //'2.16.840.1.113883.10.20.24.3.39' => 'fetchQrdaLabResultData',// lab test recommend. @todo maybe care plan
-            '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
+        '2.16.840.1.113883.10.20.24.3.147' => 'fetchAllergyIntoleranceObservation',
+        '2.16.840.1.113883.10.20.24.3.41' => 'fetchMedicationData',  // active medication @todo verify status all meds
+        '2.16.840.1.113883.10.20.24.3.42' => 'fetchMedicationData',  // Medication Administered Act @todo honor end dates
+        '2.16.840.1.113883.10.20.24.3.139' => 'fetchMedicationData', // Medication Dispensed Act @todo set med type
+        '2.16.840.1.113883.10.20.24.3.105' => 'fetchMedicationData', // Medication Discharge Act
+        '2.16.840.1.113883.10.20.24.3.47' => 'fetchMedicationData',  // QDM Datatype: Substance, Order @todo substance water, breast milk
+        '2.16.840.1.113883.10.20.24.3.137' => 'fetchMedicalProblemData',// diagnosis
+        '2.16.840.1.113883.10.20.24.3.140' => 'fetchImmunizationData',  // Immunization Administered (V3)
+        '2.16.840.1.113883.10.20.24.3.143' => 'fetchImmunizationData',  // Immunization Order (V3) @todo verify status
+        '2.16.840.1.113883.10.20.22.4.14' => 'fetchProcedureActivityData', // procedure activity-performed 2.16.840.1.113883.10.20.24.3.64
+        '2.16.840.1.113883.10.20.24.3.7' => 'fetchProcedureDeviceData', // procedure preformed Device Applied
+        '2.16.840.1.113883.10.20.24.3.32' => 'fetchProcedurePreformedActivity',// procedure activity-intervention
+        '2.16.840.1.113883.10.20.24.3.37' => 'fetchQrdaLabResultData',  // lab test ordered
+        '2.16.840.1.113883.10.20.24.3.38' => 'fetchQrdaLabResultData',  // lab test preformed
+        '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
+        //'' => '',
         );
         foreach ($entryComponents['section']['entry'] as $entry) {
             $key = array_keys($entry)[0]; // need the entry template type i.e. observation, activity, substance etc.
@@ -392,7 +392,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['procedure'][$i]['code_text'] = $code['code_text'];
             $this->templateData['field_name_value_array']['procedure'][$i]['codeSystemName'] = $code['formatted_code_type'];
 
-            $this->templateData['field_name_value_array']['procedure'][$i]['procedure_type'] = 'procedure';
+            $this->templateData['field_name_value_array']['procedure'][$i]['procedure_type'] = $procedure_type;
             $this->templateData['field_name_value_array']['procedure'][$i]['status'] = $entry['procedure']['statusCode']['code'] ?? '';
 
             if (!empty($entry['procedure']['effectiveTime']['low']['value'])) {
@@ -458,6 +458,49 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['procedure']['effectiveTime']['low']['value'] ?? null;
             } else {
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['procedure']['effectiveTime']['value'] ?? null;
+            }
+
+            $this->templateData['entry_identification_array']['procedure'][$i] = $i;
+        }
+    }
+
+    /**
+     * @param $entry
+     */
+    public function fetchProcedurePreformedActivity($entry): void
+    {
+        if (!empty($entry['act']['code']['code'])) {
+            $i = 1;
+            if (!empty($this->templateData['field_name_value_array']['procedure'])) {
+                $i += count($this->templateData['field_name_value_array']['procedure']);
+            }
+
+            $procedure_type = 'intervention';
+            if (!empty($entry['act']['templateId'][1]['root']) && $entry['act']['templateId'][1]['root'] == '2.16.840.1.113883.10.20.24.3.32') {
+                $procedure_type = 'intervention';
+            }
+
+            $code = $this->codeService->resolveCode(
+                $entry['act']['code']['code'] ?? '',
+                $entry['act']['code']['codeSystemName'] ?: $entry['act']['code']['codeSystem'] ?? null,
+                $entry['act']['code']['displayName'] ?? $entry['act']['text']
+            );
+
+            $this->templateData['field_name_value_array']['procedure'][$i]['procedure_type'] = $procedure_type;
+
+            $this->templateData['field_name_value_array']['procedure'][$i]['status'] = $entry['act']['statusCode']['code'] ?? '';
+
+            $this->templateData['field_name_value_array']['procedure'][$i]['extension'] = $entry['act']['id']['extension'] ?? null;
+            $this->templateData['field_name_value_array']['procedure'][$i]['root'] = $entry['act']['id']['root'] ?? null;
+
+            $this->templateData['field_name_value_array']['procedure'][$i]['code'] = $code['code'];
+            $this->templateData['field_name_value_array']['procedure'][$i]['code_text'] = $code['code_text'];
+            $this->templateData['field_name_value_array']['procedure'][$i]['codeSystemName'] = $code['formatted_code_type'];
+
+            if (!empty($entry['act']['effectiveTime']['low']['value'])) {
+                $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['act']['effectiveTime']['low']['value'] ?? null;
+            } else {
+                $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['act']['effectiveTime']['value'] ?? null;
             }
 
             $this->templateData['entry_identification_array']['procedure'][$i] = $i;

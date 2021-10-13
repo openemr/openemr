@@ -274,9 +274,9 @@ class CodeTypesService
     {
         $valueset = '';
         $valueset_name = '';
-        $rtn = array(
+        $default = array(
             'code' => $code ?? '',
-            'formatted_code' => '',
+            'formatted_code' => $code . ':' . $codeType,
             'formatted_code_type' => $codeType ?? '',
             'code_text' => $currentCodeText,
             'system_oid' => '',
@@ -284,12 +284,15 @@ class CodeTypesService
             'valueset_name' => ''
         );
         if (empty($code)) {
-            return $rtn;
+            $default['formatted_code'] = '';
+            return $default;
+        }
+        if (!empty($currentCodeText)) {
         }
         $formatted_type = $this->formatCodeType($codeType ?: '');
         $oid = $this->getSystemForCodeType($formatted_type, true);
         // use valueset table if code type not installed or active.
-        if (!$this->isInstalledCodeType($formatted_type)) {
+        if (!$this->isInstalledCodeType($formatted_type) && empty($currentCodeText)) {
             if (strpos($codeType, '2.16.840.1.113883.') !== false) {
                 $oid = trim($codeType);
                 $codeType = "";
@@ -309,10 +312,10 @@ class CodeTypesService
             'code' => $code ?? "",
             'formatted_code' => $formatted_code ?? "",
             'formatted_code_type' => $formatted_type ?? "",
-            'code_text' => $currentCodeText,
+            'code_text' => trim($currentCodeText),
             'system_oid' => $oid ?? "",
             'valueset' => $valueset ?? "",
-            'valueset_name' => $valueset_name ?? ''
+            'valueset_name' => $valueset_name ?? ""
         );
     }
 

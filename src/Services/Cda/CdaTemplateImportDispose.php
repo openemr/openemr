@@ -398,7 +398,7 @@ class CdaTemplateImportDispose
 
             //procedure_order_code
             $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
-            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', 'procedure', $value['procedure_type']));
+            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type']));
 
             $po_name = xlt('External Procedure') . '-';
             if ($carecoordinationTable->is_qrda_import) {
@@ -680,20 +680,16 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($qc_insert, array($value['cvx_code_text'], $value['cvx_code'], $ct_id));
             }
 
-            $q1_unit = "SELECT *
-                       FROM list_options
-                       WHERE list_id='drug_units' AND title=?";
+            $q1_unit = "SELECT * FROM list_options WHERE list_id='drug_units' AND title=?";
             $res_q1_unit = $appTable->zQuery($q1_unit, array($value['amount_administered_unit']));
             foreach ($res_q1_unit as $val) {
                 $oid_unit = $val['option_id'];
             }
-
             if ($res_q1_unit->count() == 0) {
                 $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", array('drug_units'));
                 foreach ($lres as $lrow) {
                     $oid_unit = $lrow['option_id'];
                 }
-
                 $q_insert_route = "INSERT INTO list_options
                            (
                             list_id,
