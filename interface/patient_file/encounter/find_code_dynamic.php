@@ -55,7 +55,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 <?php Header::setupHeader(['opener', 'datatables', 'datatables-bs', 'datatables-colreorder']); ?>
 
 <script>
-    var singleCodeSelection = <?php echo $_GET['singleCodeSelection'] ?? 0 ?>;
+    var singleCodeSelection = <?php echo (isset($_GET['singleCodeSelection'])) ? js_escape($_GET['singleCodeSelection']) : 0 ?>;
     var oTable;
 
     // Keeps track of which items have been selected during this session.

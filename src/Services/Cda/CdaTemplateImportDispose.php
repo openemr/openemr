@@ -391,20 +391,42 @@ class CdaTemplateImportDispose
             // format code
             $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
 
+            $pro_name = xlt('External Procedure');
+            $query_select_pro = 'SELECT * FROM procedure_providers WHERE name = ?';
+            $result_pro = $appTable->zQuery($query_select_pro, array($pro_name));
+            if ($result_pro->count() == 0) {
+                $query_insert_pro = 'INSERT INTO procedure_providers(name) VALUES (?)';
+                $result_pro = $appTable->zQuery($query_insert_pro, array($pro_name));
+                $pro_id = $result_pro->getGeneratedValue();
+            } else {
+                foreach ($result_pro as $value1) {
+                    $pro_id = $value1['ppid'];
+                }
+            }
+            $query_select_pt = 'SELECT * FROM procedure_type WHERE procedure_code = ? AND lab_id = ?';
+            $result_types = sqlQuery($query_select_pt, array($code, $pro_id));
+            $ptid = (int)($result_types['procedure_type_id'] ?? 0);
+            if ($ptid === 0) {
+                $query_insert = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
+                $ptid = sqlInsert(
+                    $query_insert,
+                    array(
+                        $value['code_text'], $pro_id, $code, 'ord', 1, $value['procedure_type'])
+                );
+                $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
+                sqlQuery($query_update_pt, array($ptid, $ptid));
+            }
             //procedure_order
             $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) VALUES (?,?,?,NULL,?,?,?,?,?,?)';
-            $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $encounter_for_billing, $procedure_date_value, 'normal', ($value['status'] ?? 'completed'), 1, '', $value['procedure_type']));
+            $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $encounter_for_billing, $procedure_date_value, 'normal', ($value['status'] ?? 'completed'), 1, $pro_id, $value['procedure_type']));
             $po_id = $result_po->getGeneratedValue();
 
             //procedure_order_code
             $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
             $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type']));
 
-            $po_name = xlt('External Procedure') . '-';
-            if ($carecoordinationTable->is_qrda_import) {
-                $po_name = xlt('Qrda Procedure') . '-';
-            }
-            addForm($encounter_for_billing, $po_name . $po_id, $po_id, 'procedure_order', $pid, $this->userauthorized);
+            $pro_name_enc = $pro_name . '-' . $value['procedure_type'];
+            addForm($encounter_for_billing, $pro_name_enc, $po_id, 'procedure_order', $pid, $this->userauthorized);
         }
     }
 
