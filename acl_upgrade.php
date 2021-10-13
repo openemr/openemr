@@ -587,6 +587,9 @@ if ($acl_version < $upgrade_acl) {
     AclExtended::updateAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'amendment', 'Amendments (write,addonly optional)', 'addonly');
     AclExtended::updateAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'lab', 'Lab Results (write,addonly optional)', 'addonly');
 
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'auth', 'Authorize - my encounters', 'write');
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'notes', 'Notes - my encounters (write,addonly optional)', 'write');
+
     AclExtended::updateAcl($clin_write, 'Clinicians', 'groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar', 'write');
     AclExtended::updateAcl($clin_write, 'Clinicians', 'groups', 'Groups', 'glog', 'Group encounter log', 'write');
 

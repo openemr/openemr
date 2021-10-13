@@ -922,10 +922,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params[] = $pid;
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
+                        $insCount = 0;
                         while ($row = sqlFetchArray($res)) {
                             $insCount = ($row['provider']) ? $insCount++ : $insCount;
                             if ($row['provider']) {
-                                $row['isOld'] = (strcmp($enddate, 'Present') != 0) ? true : false;
+                                $row['isOld'] = (strcmp($enddate ?? '', 'Present') != 0) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
