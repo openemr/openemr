@@ -814,7 +814,6 @@ if ($acl_version < $upgrade_acl) {
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
-*/
 
 /* This is a template for a new revision, when needed
 // Upgrade for acl_version 12
