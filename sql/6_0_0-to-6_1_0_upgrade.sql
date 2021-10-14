@@ -1377,3 +1377,29 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
 VALUES ('DEM', 'em_street_line_2', @group_id, 'Employer Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
 #Endif
+
+#IfNotTable payment_processing_audit
+CREATE TABLE `payment_processing_audit` (
+`uuid` binary(16) NOT NULL DEFAULT '',
+`service` varchar(50) DEFAULT NULL,
+`pid` bigint NOT NULL,
+`success` tinyint DEFAULT 0,
+`action_name` varchar(50) DEFAULT NULL,
+`amount` varchar(20) DEFAULT NULL,
+`ticket` varchar(100) DEFAULT NULL,
+`transaction_id` varchar(100) DEFAULT NULL,
+`audit_data` text,
+`date` datetime DEFAULT NULL,
+`map_uuid` binary(16) DEFAULT NULL,
+`map_transaction_id` varchar(100) DEFAULT NULL,
+`reverted` tinyint DEFAULT 0,
+`revert_action_name` varchar(50) DEFAULT NULL,
+`revert_transaction_id` varchar(100) DEFAULT NULL,
+`revert_audit_data` text,
+`revert_date` datetime DEFAULT NULL,
+PRIMARY KEY (`uuid`),
+KEY (`pid`),
+KEY (`success`)
+) ENGINE=InnoDB;
+#EndIf
+

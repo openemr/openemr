@@ -3124,6 +3124,7 @@ $GLOBALS_METADATA = array(
             array(
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
+                'Sphere' => xl('Gateway for Sphere Payments'),
                 'Stripe' => xl('Gateway for Stripe Manual Payments')
             ),
             'InHouse',
@@ -3156,6 +3157,55 @@ $GLOBALS_METADATA = array(
             'encrypted',
             '',
             xl('Mainly Authorize.Net uses two keys')
+        ),
+
+        'sphere_clinicfront_trxcustid' => array(
+            xl('Sphere Clinicfront (MOTO) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront (MOTO) Transaction CustID')
+        ),
+
+        'sphere_clinicfront_trxcustid_licensekey' => array(
+            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key')
+        ),
+
+        'sphere_moto_tc_link_pass' => array(
+            xl('Sphere MOTO TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere MOTO TC Link Password')
+        ),
+
+        'sphere_patientfront_trxcustid' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID')
+        ),
+
+        'sphere_patientfront_trxcustid_licensekey' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key')
+        ),
+
+        'sphere_ecomm_tc_link_pass' => array(
+            xl('Sphere Ecomm TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere Ecomm TC Link Password')
+        ),
+
+        'sphere_credit_void_confirm_pin' => array(
+            xl('Sphere Void/Credit Confirmation PIN'),
+            'encrypted_hash',
+            '',
+            xl('Sphere Void/Credit Confirmation Password. OpenEMR confirms pin/password before proceeding with void/credit.')
         ),
 
         'medex_enable' => array(
