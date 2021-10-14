@@ -884,7 +884,8 @@ if (
             "onsubmit='return validate(this)'>\n";
         ?>
         <!-- row width will size to col content width -->
-        <div class="row">
+        <!-- We need all possible viewport width sjp w-100 -->
+        <div class="row w-100">
             <div class="col-12">
                 <?php
                 $cmsportal_login = '';

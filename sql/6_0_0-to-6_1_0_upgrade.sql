@@ -1087,3 +1087,8 @@ INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_
     ('VALUESET', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), '0', '', '', '1', '1', '0', '1', '1', 'CQM Valueset', '13', '1', '1', '1', '1', '1');
 DROP TABLE `temp_table_one`;
 #EndIf
+
+#IfNotRow4D layout_options form_id HIS field_id exams titlecols 1 datacols 3
+UPDATE `layout_options` SET `title` = 'Exams/Tests', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'exams';
+UPDATE `layout_options` SET `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'usertext11';
+#EndIf
