@@ -295,14 +295,10 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     echo "self.location.href='edit_globals.php?unique=yes';";
     echo "</script>";
 }
+
+$title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
 ?>
-
-<?php if ($userMode) { ?>
-  <title><?php  echo xlt('User Settings'); ?></title>
-<?php } else { ?>
-  <title><?php echo xlt('Global Settings'); ?></title>
-<?php } ?>
-
+<title><?php  echo $title; ?></title>
 <?php Header::setupHeader(['common','jscolor']); ?>
 
 <style>
@@ -322,11 +318,8 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 }
 </style>
 <?php
-if ($userMode) {
-    $heading_title = xl('Edit User Settings');
-} else {
-    $heading_title = xl('Edit Global Settings');
-}
+$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Global Settings");
+
 $arrOeUiSettings = array(
     'heading_title' => $heading_title,
     'include_patient_name' => false,// use only in appropriate pages
@@ -349,13 +342,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
              <div class="col-sm-12">
-                <div class="mt-3">
-                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+                <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 pl-0">
                 <?php if ($userMode) { ?>
                 <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
                 <?php } else { ?>
@@ -455,9 +446,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4 font-weight-bold'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6 font-weight-bold'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
                                             }
 
                                             if (is_array($fldtype)) {
