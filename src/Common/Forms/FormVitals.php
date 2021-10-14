@@ -491,12 +491,6 @@ class FormVitals extends ORDataObject
             $item->set_form_id($this->get_id());
             $item->persist();
         }
-
-        $fhirVitalsService = new FhirObservationVitalsService();
-        // TODO: @adunsulag we should really make this so it populates it for just the one uuid we make..
-
-        // TODO: @adunsulag look at making this into an event and our FHIR module listens to vital saves and can respond
-        $fhirVitalsService->populateResourceMappingUuidsForAllVitals();
     }
 
     public function populate_array($results)

@@ -34,7 +34,7 @@ class VitalsService extends BaseService
     const MEASUREMENT_PERSIST_IN_METRIC = 2;
     const MEASUREMENT_PERSIST_IN_USA = 1;
 
-    private const TABLE_VITALS = "form_vitals";
+    public const TABLE_VITALS = "form_vitals";
 
     /**
      * @var boolean whether vital measurement for records retrieved should be converted based upon global settings.
