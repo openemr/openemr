@@ -587,9 +587,6 @@ if ($acl_version < $upgrade_acl) {
     AclExtended::updateAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'amendment', 'Amendments (write,addonly optional)', 'addonly');
     AclExtended::updateAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'lab', 'Lab Results (write,addonly optional)', 'addonly');
 
-    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'auth', 'Authorize - my encounters', 'write');
-    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'notes', 'Notes - my encounters (write,addonly optional)', 'write');
-
     AclExtended::updateAcl($clin_write, 'Clinicians', 'groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar', 'write');
     AclExtended::updateAcl($clin_write, 'Clinicians', 'groups', 'Groups', 'glog', 'Group encounter log', 'write');
 
@@ -788,11 +785,42 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 11
 $upgrade_acl = 11;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'auth', 'Authorize - my encounters', 'write');
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'encounters', 'Encounters', 'notes', 'Notes - my encounters (write,addonly optional)', 'write');
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+*/
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 12
+$upgrade_acl = 12;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
