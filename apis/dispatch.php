@@ -249,7 +249,7 @@ if ($isLocalApi) {
     } elseif ($userRole === 'system' && ($gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
     } else {
-        $logger->error("OpenEMR Error: api failed because user role does not have access to the resource");
+        $logger->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
         $gbl::destroySession();
         http_response_code(401);
         exit();

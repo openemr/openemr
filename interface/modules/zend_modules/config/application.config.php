@@ -17,6 +17,7 @@ $core_modules = [
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
+    'FHIR', // Handles FHIR mapped uuid population and other FHIR utility functions
 ];
 
 /**

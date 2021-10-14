@@ -73,10 +73,27 @@ class EncounterService extends BaseService
     }
 
     /**
+     * Given a patient pid return the most recent patient encounter for that patient
+     * @param $pid The unique public id (pid) for the patient.
+     * @return array|null Returns the encounter if found, null otherwise
+     */
+    public function getMostRecentEncounterForPatient($pid): ?array
+    {
+        $pid = new TokenSearchField('pid', [new TokenSearchValue($pid, null)]);
+        // we discovered that most queries were ordering by encounter id which may NOT be the most recent encounter as
+        // an older historical encounter may be entered after a more recent encounter, so ordering be encounter id screws
+        // this up.
+        $result = $this->search(['pid' => $pid], true, '', ['limit' => 1, 'order' => '`date` DESC']);
+        if ($result->hasData()) {
+            return array_pop($result->getData());
+        }
+        return null;
+    }
+
+    /**
      * Returns a list of encounters matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
-     * TODO: @adunsulag rename this to be search() to be consistent with other services.
      *
      * @param array  $search         search array parameters
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
@@ -84,8 +101,9 @@ class EncounterService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '')
+    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '', $options = array())
     {
+        $limit = $options['limit'] ?? null;
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();
 
@@ -183,7 +201,7 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
-                               pid
+                               pid as encounter_pid
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
@@ -204,7 +222,7 @@ class EncounterService extends BaseService
                                   pid
                                  ,uuid AS puuid
                            FROM patient_data
-                       ) patient ON fe.pid = patient.pid
+                       ) patient ON fe.encounter_pid = patient.pid
                        LEFT JOIN (
                            select
                                 id AS provider_provider_id
@@ -234,7 +252,17 @@ class EncounterService extends BaseService
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
-            $sql .= " ORDER BY fe.eid DESC";
+
+            if (empty($options['order'])) {
+                $sql .= " ORDER BY fe.eid DESC";
+            } else {
+                $sql .= " ORDER BY " . $options['order'];
+            }
+
+
+            if (is_int($limit) && $limit > 0) {
+                $sql .= " LIMIT " . $limit;
+            }
 
             $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
 

@@ -112,6 +112,12 @@ class HttpRestRequest
      */
     private $queryParams;
 
+    /**
+     * The raw POST or PUT body contents
+     * @var null|string
+     */
+    private $requestBody;
+
     public function __construct($restConfig, $server)
     {
         $this->restConfig = $restConfig;
@@ -126,6 +132,26 @@ class HttpRestRequest
             unset($queryParams['_REWRITE_COMMAND']);
         }
         $this->setQueryParams($queryParams);
+
+        if ($this->getRequestMethod() == "POST" || $this->getRequestMethod() == "PUT") {
+            $this->requestBody = file_get_contents("php://input") ?? null;
+        }
+    }
+
+    /**
+     * Returns the raw request body if this is a POST or PUT request
+     */
+    public function getRequestBody()
+    {
+        return $this->requestBody;
+    }
+
+    public function getRequestBodyJSON()
+    {
+        if (!empty($this->requestBody)) {
+            return (array) (json_decode($this->requestBody));
+        }
+        return null;
     }
 
     public function setRequestMethod($requestMethod)

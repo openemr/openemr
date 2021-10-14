@@ -160,15 +160,6 @@ class SmartLaunchController
             // work...
             if ($client->isEnabled() && $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
                 $smartList[] = $client;
-            } else {
-                (new SystemLogger())->debug(
-                    "Skipping over client ",
-                    [
-                        "clientId" => $client->getIdentifier()
-                        , "enabled" => $client->isEnabled()
-                        , "hasLaunchScope" => $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
-                    ]
-                );
             }
         }
         return $smartList;

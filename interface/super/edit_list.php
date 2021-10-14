@@ -552,7 +552,7 @@ function writeOptionLine(
 
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][codes]' title='" .
-        xla('Clinical Term Code(s)') . "' value='" .
+        xla('Code(s)') . "' value='" .
         attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin' />";
     echo "</td>\n";
 
@@ -967,11 +967,10 @@ function writeITLine($it_array)
         }
 
         // This invokes the find-code popup.
-        // For CVX/immunization code administration.
         function select_clin_term_code(e) {
             current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("clinical_term", "csv")); ?>, '_blank', 900, 600);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.

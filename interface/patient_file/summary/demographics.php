@@ -923,6 +923,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
                         while ($row = sqlFetchArray($res)) {
+                            // TODO: $insCount appears to be undefined here and is throwing errors... probably need to fix this.
                             $insCount = ($row['provider']) ? $insCount++ : $insCount;
                             if ($row['provider']) {
                                 $row['isOld'] = (strcmp($enddate, 'Present') != 0) ? true : false;

@@ -19,6 +19,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\RestControllers\RestControllerHelper;
 use Psr\Log\LoggerInterface;
 
@@ -687,7 +689,17 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
         (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
-        return $scopesSupported;
+        $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
+        $scopesEvent->setScopes($scopesSupported);
+
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+
+        if ($scopesEvent instanceof RestApiScopeEvent) {
+            $scopesSupportedList = $scopesEvent->getScopes();
+        }
+
+        return $scopesSupportedList;
     }
 
     public function getCurrentStandardScopes(): array
@@ -764,9 +776,18 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         asort($scopesSupported);
 
-        // TODO: @adunsulag we need to fire off an event here so that people can extend the scopes and add additional scopes / endpoints here via modules.s
+        $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_STANDARD);
+        $scopesSupportedList = array_keys($scopesSupported);
+        $scopesEvent->setScopes($scopesSupportedList);
 
-        return array_keys($scopesSupported);
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+
+        if ($scopesEvent instanceof RestApiScopeEvent) {
+            $scopesSupportedList = $scopesEvent->getScopes();
+        }
+
+        return $scopesSupportedList;
     }
 
     /**

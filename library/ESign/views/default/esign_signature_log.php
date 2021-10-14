@@ -26,7 +26,7 @@
 <div id='esign-signature-log-<?php echo attr($this->logId); ?>' class='esign-signature-log-container'>
     <div class="esign-signature-log-table">
     
-        <div class="body_title esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
+        <div class="esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
         
         <?php if (!$this->verified) { ?>
         <div class="esign-log-row">

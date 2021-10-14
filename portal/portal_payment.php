@@ -227,7 +227,7 @@ if ($_POST['form_save']) {
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = 0 + $payment) {
+            if ($amount = (float)$payment) {
                 $zero_enc = $enc;
 
                 //----------------------------------------------------------------------------------------------------
@@ -1109,7 +1109,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $bres = sqlStatement($query, array($pid, $pid));
             //
             while ($brow = sqlFetchArray($bres)) {
-                $key = 0 + $brow['encounter'];
+                $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
                     $encs[$key] = array('encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
                     );
@@ -1148,7 +1148,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $dres = sqlStatement($query, array($pid, $pid));
             //
             while ($drow = sqlFetchArray($dres)) {
-                $key = 0 + $drow['encounter'];
+                $key = (int)$drow['encounter'];
                 if (empty($encs[$key])) {
                     $encs[$key] = array(
                         'encounter' => $drow['encounter'], 'date' => $drow['encdate'],

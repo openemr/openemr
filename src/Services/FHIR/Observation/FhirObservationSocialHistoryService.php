@@ -68,7 +68,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     {
         parent::__construct($fhirApiURL);
         $this->service = new SocialHistoryService();
-        $this->populateResourceMappingUuidsForAll();
     }
 
     public function getResourcePathForCode($code)

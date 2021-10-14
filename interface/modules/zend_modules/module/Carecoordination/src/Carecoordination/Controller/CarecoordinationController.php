@@ -121,7 +121,7 @@ class CarecoordinationController extends AbstractActionController
             throw new RuntimeException('You can only use this action from a console!');
         }
         $document = $request->getParam('document');
-        $this->getCarecoordinationTable()->importNewpatient($document);
+        $this->getCarecoordinationTable()->importNewPatient($document);
         exit;
     }
 
@@ -166,7 +166,7 @@ class CarecoordinationController extends AbstractActionController
         $document_id = $_REQUEST["document_id"];
         $this->getCarecoordinationTable()->import($document_id);
 
-        $view = new \Laminas\View\Model\JsonModel();
+        $view = new JsonModel();
         $view->setTerminal(true);
         return $view;
         // $view = new ViewModel(array());
@@ -658,7 +658,7 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($encounter_audit['encounter'] as $key => $val) {
-                        if ($val['code_text'] != 'NULL') {
+                        if (!empty($val['code_text'])) {
                             $encounter_activity = 'Active';
                         } else {
                             $encounter_activity = '';
@@ -670,8 +670,9 @@ class CarecoordinationController extends AbstractActionController
         <td>' . CommonPlugin::escape($val['provider_name']) . '</td>
         <td>' . CommonPlugin::escape($val['represented_organization_name']) . '</td>
         <td>' . ApplicationTable::fixDate($enc_date, $this->date_format, 'yyyy-mm-dd') . '</td>
-        <td>' . ($val['code_text'] != 'NULL' ? CommonPlugin::escape($val['code_text']) : '') . '</td>
+        <td>' . (!empty($val['code_text']) ? CommonPlugin::escape($val['encounter_diagnosis_issue']) : '') . '</td>
         <td>' . Listener::z_xlt($encounter_activity) . '</td>
+        <td>' . (!empty($val['code_text']) ? CommonPlugin::escape($val['code_text']) : '') . '</td>
         <td></td>
     </tr>';
                     }
