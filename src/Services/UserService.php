@@ -88,7 +88,6 @@ class UserService
                 // we should always have this setup, but create them just in case.
                 UuidRegistry::createMissingUuidsForTables(['users']);
             }
-            $user = $this->createResultRecordFromDatabaseResult($user);
         }
         return $user;
     }
