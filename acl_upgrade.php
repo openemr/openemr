@@ -792,6 +792,7 @@ if ($acl_version < $upgrade_acl) {
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $clin_write = AclExtended::getAclIdNumber('Clinicians', 'write');
 
     //Add new object Sections
     echo "<BR/><B>Adding new object sections</B><BR/>";
@@ -805,7 +806,6 @@ if ($acl_version < $upgrade_acl) {
     //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
-    $clin_write = AclExtended::getAclIdNumber('Clinicians', 'write');
 
     //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
