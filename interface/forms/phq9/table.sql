@@ -1,0 +1,21 @@
+create table form_phq9(
+	id bigint(20) NOT NULL AUTO_INCREMENT,
+	pid int not null,
+	encounter int not null,
+	little_interest varchar(50),
+	feeling_down varchar(50),
+	trouble_falling varchar(50),
+	feeling_tired varchar(50),
+	overeating varchar(50),
+	feeling_bad varchar(50),
+	television varchar(50),
+	restless varchar(50),
+	hurtingyourself varchar(50),
+	problems_checked varchar(50),
+	evaluator varchar(50),
+	assessmentdate varchar(50),
+	unabletoevaluate varchar(50),
+	unable_to_evaluate_desc text,
+	UNIQUE(id),
+	primary key(pid,encounter)
+);

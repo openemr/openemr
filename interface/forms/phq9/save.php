@@ -1,0 +1,45 @@
+<?php
+
+include_once("../../globals.php");
+include_once("$srcdir/api.inc");
+include_once("$srcdir/forms.inc");
+
+
+if (!$encounter) { // comes from globals.php
+    die(xlt("Internal error: we do not seem to be in an encounter!"));
+}
+
+if(!isset($_POST["unabletoevaluate"])){
+	$_POST["unabletoevaluate"] = "";
+}
+
+$formid = $_POST["id"];
+if(!$_POST["id"]){
+	unset($_POST["id"]);
+}
+
+$columns = '';
+$values = '';
+$updateStmt = ' ON DUPLICATE KEY UPDATE ';
+
+foreach($_POST as $key => $value){
+	$columns .= '`' . add_escape_custom($key) . '`, ';
+	$values .= "'" . add_escape_custom($value) . '\', ';
+	//if($key != 'patientID' and $key != 'encounterID') {
+		$updateStmt .=  add_escape_custom($key) . "=" . "'" . add_escape_custom($value) . '\', ';
+	//}
+}
+$columns = substr($columns, 0, -2);
+$values = substr($values, 0, -2);
+$updateStmt = substr($updateStmt, 0, -2);
+$preadmissioninsertupd = 'INSERT INTO `form_phq9` ('.$columns.') VALUES ('.$values.')' . $updateStmt;
+$newid = sqlInsert($preadmissioninsertupd);
+
+if(!$formid){
+	addForm($encounter, "PHQ-9 Patient Depression Questionnaire", $newid, "phq9", $_SESSION["pid"], $userauthorized);
+}
+//header('Location: new.php?pid='.$_POST['pid'].'&encounter='.$_POST['encounter']);
+$_SESSION["encounter"] = $encounter;
+formHeader("Redirecting....");
+formJump();
+formFooter();
