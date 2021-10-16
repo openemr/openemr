@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
 	<a class="navbar-brand" href="home.php">
 		<img class="img-fluid" width="140" src="{{ images_static_relative | attr }}/logo-full-con.png"/>
 	</a>
@@ -18,14 +18,13 @@
 
 						{{ item.label | text }}
 
-						{% if item.messageCount%}
-							<span class="badge badge-pill badge-danger">{{ item.messageCount | text }}</span>
+						{% if item.messageCount %}
+							<i class="fa fa-envelope-open-text text-danger"></i>
 						{% endif %}
-
 
 					</a>
 
-					{% if item.children | length > 0%}
+					{% if item.children | length > 0 %}
 						<ul class="dropdown-menu" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
 							{% for child in item.children %}
 								<li>
@@ -34,7 +33,11 @@
 											<i class="fas {{ child.icon | attr }}"></i>
 										{% endif %}
 
+
 										{{ child.label | text }}
+                                        {% if child.messageCount > 0 %}
+                                            <span class="badge-pill badge-danger ml-1">{{ child.messageCount | text }}</span>
+                                        {% endif %}
 									</a>
 								</li>
 							{% endfor %}

@@ -50,9 +50,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // this allows twig templates to call generate_form_field().
                     ob_start();
                     generate_form_field($frow, $currentValue);
-                    $the_form = ob_get_contents(); // @TODO shouldn't this be ob_get_clean()?
-                    ob_end_clean();
-                    return $the_form;
+                    return ob_get_clean();
                 }
             ),
 
@@ -61,9 +59,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function ($formType, $result1, $result2) {
                     ob_start();
                     display_layout_tabs($formType, $result1, $result2);
-                    $output = ob_get_contents();
-                    ob_end_clean();
-                    return $output;
+                    return ob_get_clean();
                 }
             ),
 
@@ -72,9 +68,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function ($formType, $result1, $result2) {
                     ob_start();
                     display_layout_tabs_data($formType, $result1, $result2);
-                    $output = ob_get_contents();
-                    ob_end_clean();
-                    return $output;
+                    return ob_get_clean();
                 }
             ),
 
@@ -83,9 +77,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function ($id, $category) {
                     ob_start();
                     image_widget($id, $category);
-                    $output = ob_get_contents();
-                    ob_end_clean();
-                    return $output;
+                    return ob_get_clean();
                 }
             ),
         ];

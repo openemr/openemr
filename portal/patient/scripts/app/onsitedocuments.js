@@ -533,6 +533,8 @@ var page = {
 
     getDocument: function (templateName, pid) {
         let currentName = page.onsiteDocument.get('docType');
+        let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
+        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -623,7 +625,9 @@ var page = {
         if (cnt !== -1) {
             cdate = cdate.toString().substring(0, cnt);
         }
-        $('#docPanelHeader').append(' : ' + currentName + ' Dated: ' + cdate + ' Status: ' + status);
+        $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
+            jsText(' Dated: ' + cdate + ' Status: ' + status));
+        $('#docTitle').html(jsText(currentNameStyled));
     },
     /**
      * show the doc for editing

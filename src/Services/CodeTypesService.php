@@ -287,8 +287,7 @@ class CodeTypesService
             $default['formatted_code'] = '';
             return $default;
         }
-        if (!empty($currentCodeText)) {
-        }
+
         $formatted_type = $this->formatCodeType($codeType ?: '');
         $oid = $this->getSystemForCodeType($formatted_type, true);
         // use valueset table if code type not installed or active.
