@@ -79,12 +79,14 @@ var page = {
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
                 var m = page.onsiteDocuments.get(this.id);
                 page.showDetailDialog(m);
-                $('html,body').animate({scrollTop:0},500);
             });
             // make the headers clickable for sorting
-            $('table.collection thead tr th').on('click', function (e) {
+            $('table.collection thead tr th').unbind().on('click', function (e) {
                 e.preventDefault();
                 var prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
@@ -100,7 +102,7 @@ var page = {
                 page.fetchOnsiteDocuments(page.fetchParams);
             });
             // Let's scroll to document editor on selection.
-            $('.history-btn').on('click', function (e) {
+            $('.history-btn').unbind().on('click', function (e) {
                 /*e.preventDefault();
                 var m = page.onsiteDocuments.get(this.offsetParent.parentElement.id);
                 page.showDetailDialog(m);
@@ -164,11 +166,6 @@ var page = {
                 });
             });
 
-            $('.sidebar-expand button').on('click', function () {
-                $(this).toggleClass("flip-y");
-                $('.nav-sidebar, .main-full, .main-added').toggleClass("active");
-            });
-
             docid = page.onsiteDocument.get('docType');
             page.isLocked = (page.onsiteDocument.get('denialReason') === 'Locked');
             (page.isLocked) ? $("#printTemplate").show() : $("#printTemplate").hide();
@@ -216,7 +213,7 @@ var page = {
                 isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
                 (page.lbfFormName === 'HIS' && !page.isLocked) ? $("#chartHistory").show() : $("#chartHistory").hide();
 
-                $("#chartTemplate").on('click', function (e) {
+                $("#chartTemplate").unbind().on('click', function (e) {
                     e.preventDefault();
                     if (page.isFrameForm) {
                         let formFrame = document.getElementById('lbfForm');
@@ -261,7 +258,7 @@ var page = {
                     }
                 });
 
-                $("#downloadTemplate").on('click', function (e) {
+                $("#downloadTemplate").unbind().on('click', function (e) {
                     // just render the existing model and not save template.
                     // For downloads we just want to give user a chance to dispose/view rendered
                     // document and leave template intact for further edits before charting.
@@ -323,7 +320,7 @@ var page = {
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
-                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg' );
+                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
 
                         page.renderModelView(false);
                     }
@@ -337,7 +334,7 @@ var page = {
                 page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
             }
 
-            $("#saveTemplate").on('click', function (e) {
+            $("#saveTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
@@ -371,7 +368,7 @@ var page = {
             });
 
             // send to review and save current
-            $("#sendTemplate").on('click', function (e) {
+            $("#sendTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
@@ -402,7 +399,7 @@ var page = {
             });
 
             // download from portal
-            $("#submitTemplate").on('click', function () {
+            $("#submitTemplate").unbind().on('click', function () {
                 if (page.onsiteDocument.get('denialReason') === 'In Review') {
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
                 } else {
@@ -418,7 +415,7 @@ var page = {
                 page.updateModel();
             });
 
-            $("#chartHistory").on('click', function () {
+            $("#chartHistory").unbind().on('click', function () {
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
                     page.lbfFormId = 0;
@@ -532,9 +529,10 @@ var page = {
     },
 
     getDocument: function (templateName, pid) {
+        $(".helpHide").removeClass("d-none");
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
-        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/] / gi, ' ');
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -543,7 +541,7 @@ var page = {
             $("#docid").val(currentName);
             // get document template
             let templateContents = page.onsiteDocument.get('fullDocument');
-            page.lbfFormId = page.onsiteDocument.get("encounter") ?? 0;
+            page.lbfFormId = page.onsiteDocument.get("encounter") ?  ? 0;
             page.isFrameForm = templateContents.includes("</iframe>");
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
@@ -627,8 +625,12 @@ var page = {
         }
         $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
             jsText(' Dated: ' + cdate + ' Status: ' + status));
-        $('#docTitle').html(jsText(currentNameStyled));
-    },
+        //$('#docTitle').html(jsText(currentNameStyled));
+        $("html, body").animate({
+            scrollTop: 0
+        }, "slow");
+    }
+    ,
     /**
      * show the doc for editing
      * @param model
@@ -708,7 +710,7 @@ var page = {
             page.onsiteDocument.set('denialReason', 'Open');
             app.showProgress('modelLoader');
         }
-        var isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1;
+        let isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1;
         if (isLink !== -1) {
             $('#patientSignature').attr('src', signhere);
         }
@@ -785,7 +787,7 @@ var page = {
                     return;
                 }
                 if (reload) {
-                    setTimeout("location.reload(true);", 4000);
+                    //setTimeout("location.reload(true);", 4000);
                 }
             },
             error: function (model, response, scope) {
