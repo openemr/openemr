@@ -320,7 +320,7 @@ var page = {
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
-                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
+                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg' );
 
                         page.renderModelView(false);
                     }
@@ -532,7 +532,7 @@ var page = {
         $(".helpHide").removeClass("d-none");
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
-        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/] / gi, ' ');
+        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -541,7 +541,7 @@ var page = {
             $("#docid").val(currentName);
             // get document template
             let templateContents = page.onsiteDocument.get('fullDocument');
-            page.lbfFormId = page.onsiteDocument.get("encounter") ?  ? 0;
+            page.lbfFormId = page.onsiteDocument.get("encounter") ?? 0;
             page.isFrameForm = templateContents.includes("</iframe>");
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
