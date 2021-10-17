@@ -36,7 +36,7 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-//$whereto = $_SESSION['whereto'] ?? 'documentscard';
+$whereto = $_SESSION['whereto'] ?? null;
 
 $user = $_SESSION['sessionUser'] ?? 'portal user';
 $result = getPatientData($pid);
@@ -49,7 +49,9 @@ foreach ($msgs as $i) {
         $newcnt += 1;
     }
 }
-
+if ($newcnt > 0 && $_SESSION['portal_init']) {
+    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
+}
 $messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
@@ -105,10 +107,11 @@ function buildNav($newcnt, $pid, $result)
             'label' => $result['fname'] . ' ' . $result['lname'],
             'icon' => 'fa-user',
             'dropdownID' => 'account',
+            'messageCount' => $newcnt ?? 0,
             'children' => [
                 [
                     'url' => '#profilecard',
-                    'label' => xl(' My Profile'),
+                    'label' => xl('My Profile'),
                     'icon' => 'fa-user',
                     'dataToggle' => 'collapse',
                 ],
@@ -118,6 +121,7 @@ function buildNav($newcnt, $pid, $result)
                     'label' => xl('My Messages'),
                     'icon' => 'fa-envelope',
                     'dataToggle' => 'collapse',
+                    'messageCount' => $newcnt ?? 0,
                 ],
                 [
                     'url' => '#documentscard',
@@ -127,7 +131,7 @@ function buildNav($newcnt, $pid, $result)
                 ],
                 [
                     'url' => '#lists',
-                    'label' => xl('My Lists'),
+                    'label' => xl('My Dashboard'),
                     'icon' => 'fa-list',
                     'dataToggle' => 'collapse'
                 ],
@@ -147,7 +151,7 @@ function buildNav($newcnt, $pid, $result)
             'dropdownID' => 'reports',
             'children' => [
                 [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=startandrun',
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=startandrun&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
                     'label' => xl('View CCD'),
                     'icon' => 'fa-envelope',
                 ]
@@ -245,7 +249,7 @@ $navMenu = buildNav($newcnt, $pid, $result);
 
 echo (new TwigContainer(''))->getTwig()->render('portal/home.html.twig', [
     'user' => $user,
-    'whereto' => $whereto ?? 'documentscard',
+    'whereto' => $_SESSION['whereto'] ?: ($whereto ?? '#documentscard'),
     'result' => $result,
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,
