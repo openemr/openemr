@@ -51,7 +51,7 @@ use OpenEMR\PatientPortal\Chat\ChatController;
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
 if (isset($_REQUEST['fullscreen'])) {
-    $_SESSION['whereto'] = 'messagescard';
+    $_SESSION['whereto'] = '#messagescard';
     define('IS_FULLSCREEN', true);
 } else {
     define('IS_FULLSCREEN', false);

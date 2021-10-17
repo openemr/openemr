@@ -24,11 +24,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
-    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    require_once(__DIR__ . "/../interface/globals.php");
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../interface/globals.php");
+    require_once(__DIR__ . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -125,13 +125,13 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
 
-    $sum_charges += $charges * 1;
-    $sum_ptpaid += $ptpaid * -1;
-    $sum_inspaid += $inspaid * -1;
-    $sum_duept += $duept * 1;
-    $sum_patcopay += $patcopay * 1;
-    $sum_copay += $copay * 1;
-    $sum_balance += $balance * 1;
+    $sum_charges += (float)$charges * 1;
+    $sum_ptpaid += (float)$ptpaid * -1;
+    $sum_inspaid += (float)$inspaid * -1;
+    $sum_duept += (float)$duept * 1;
+    $sum_patcopay += (float)$patcopay * 1;
+    $sum_copay += (float)$copay * 1;
+    $sum_balance += (float)$balance * 1;
 }
 
 // We use this to put dashes, colons, etc. back into a timestamp.
@@ -227,7 +227,7 @@ if ($_POST['form_save']) {
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = 0 + $payment) {
+            if ($amount = (float)$payment) {
                 $zero_enc = $enc;
 
                 //----------------------------------------------------------------------------------------------------
@@ -1109,7 +1109,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $bres = sqlStatement($query, array($pid, $pid));
             //
             while ($brow = sqlFetchArray($bres)) {
-                $key = 0 + $brow['encounter'];
+                $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
                     $encs[$key] = array('encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
                     );
@@ -1148,7 +1148,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $dres = sqlStatement($query, array($pid, $pid));
             //
             while ($drow = sqlFetchArray($dres)) {
-                $key = 0 + $drow['encounter'];
+                $key = (int)$drow['encounter'];
                 if (empty($encs[$key])) {
                     $encs[$key] = array(
                         'encounter' => $drow['encounter'], 'date' => $drow['encdate'],
