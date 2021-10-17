@@ -7,13 +7,13 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 //Need to unwrap data to ensure user/patient is authorized
-$data = (array)(json_decode(file_get_contents("php://input")));
+$data = (array)(json_decode(file_get_contents("php://input"), true, 512, JSON_THROW_ON_ERROR));
 $req_pid = $data['pid'];
 $user = $data['user'];
 $type = $data['type'];
@@ -23,7 +23,7 @@ $ignoreAuth = false;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
-    require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
+    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -48,17 +48,17 @@ if ($isAdmin) {
 }
 
 if ($req_pid === 0 || empty($user)) {
-    if (!$isAdmin || empty($user)) {
-        echo(js_escape('error'));
+    if (!$isAdmin) {
+        echo(js_escape('error not an admin'));
         exit();
     }
 }
 
 if ($data['mode'] === 'fetch_info') {
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as userName From users Where id = ?";
-    $user_result = sqlQuery($stmt, array($user));
+    $user_result = sqlQuery($stmt, array($user)) ?: [];
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as ptName From patient_data Where pid = ?";
-    $pt_result = sqlQuery($stmt, array($req_pid));
+    $pt_result = sqlQuery($stmt, array($req_pid)) ?: [];
     $signature = [];
     if ($pt_result) {
         $info_query = array_merge($pt_result, $user_result, $signature);

@@ -1,0 +1,488 @@
+{% extends "portal/base.html.twig" %}
+
+{% block head %}
+	{{parent()}}
+
+	<link href="../portal/sign/css/signer_modal.css?v={{ jsVersion | attr }}" rel="stylesheet"/>
+	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ jsVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ jsVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signer_api.js?v={{ jsVersion | attr }}"></script>
+
+	{% if payment_gateway == 'Stripe' %}
+		<script src="https://js.stripe.com/v3/"></script>
+	{% endif %}
+
+	{% if payment_gateway == 'AuthorizeNet' %}
+		{% if gateway_mode_production %}
+			<script src="https://js.authorize.net/v1/Accept.js"></script>
+		{% else %}
+			<script src="https://jstest.authorize.net/v1/Accept.js"></script>
+		{% endif %}
+	{% endif %}
+
+	<script>
+		var cpid = {{ patientID | js_escape }},
+		cuser = {{ user | js_escape }},
+		webRoot = {{ web_root | js_escape }},
+		ptName = {{ patientName | js_escape }},
+        whereto = {{ whereto | js_escape }},
+		webroot_url = webRoot,
+		tab_mode = true,
+		isPortal = 1;
+
+		function restoreSession() {
+			return true;
+		}
+
+        function persist(where, portalInit = false) {
+            if (where[0] !== '#') {
+                return;
+            }
+            whereto = where;
+            fetch('lib/persist.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'where': where,
+                        'portal_init': portalInit
+                    }
+                ),
+            });
+        }
+
+		$(function () {
+            $('li a.dropdown-item').on('click', (e) => {
+                persist($(e.target).attr('href'), false);
+            });
+
+			if ($('body').css('direction') == "rtl") {
+				$('.float-left').each(function () {
+					$(this).addClass('float-right').removeClass('float-left');
+				});
+				$('.dropdown-menu-right').each(function () {
+					$(this).removeClass('dropdown-menu-right');
+				});
+				$('.dropdown-menu-md-right').each(function () {
+					$(this).removeClass('dropdown-menu-md-right');
+				});
+			}
+
+			$("#profilereport").load("get_profile.php", {}, function () {
+				$("table").addClass("table table-sm");
+				$(".demographics td").removeClass("label");
+				$(".demographics td").addClass("bold");
+				$(".insurance table").addClass("table-sm table-striped");
+				$("#editDems").click(function () {
+					showProfileModal()
+				});
+			});
+
+			$("#medicationlist").load("./get_medications.php", {}, function () {});
+
+			$("#labresults").load("./get_lab_results.php", {}, function () {});
+
+			$("#amendmentslist").load("./get_amendments.php", {}, function () {});
+
+			$("#problemslist").load("./get_problems.php", {}, function () {});
+
+			$("#allergylist").load("./get_allergies.php", {}, function () {});
+
+			$("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
+
+            });
+
+			{% if portal_two_payments %}
+				$("#payment").load("./portal_payment.php", {}, function () {});
+			{% endif %}
+
+			$(".generateDoc_download").click(function () {
+				$("#doc_form").submit();
+			});
+
+			function showProfileModal() {
+				var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
+
+				var params = {
+					buttons: [{
+					text: {{ 'Help' | xlj }},
+					close: false,
+					style: 'info',
+					id: 'formHelp'
+					},
+					{
+					text: {{ 'Cancel' | xlj }},
+					close: true,
+					style: 'default'
+					},
+					{
+					text: {{ 'Revert Edits' | xlj }},
+					close: false,
+					style: 'danger',
+					id: 'replaceAllButton'
+					},
+					{
+					text: {{ 'Submit Changes' | xlj }},
+					close: false,
+					style: 'success',
+					id: 'donePatientButton'
+					}],
+					sizeHeight: 'full',
+					allowDrag: false,
+					onClosed: 'reload',
+					resolvePromiseOn: 'init',
+					type: 'GET',
+					url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
+					};
+
+					dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
+						$('div.modal-body', dialog).addClass('overflow-auto');
+					});
+			}
+
+			function saveProfile() {
+				page.updateModel();
+			}
+
+			var gowhere = {{ whereto | js_escape }};
+
+			$(gowhere).collapse('show');
+
+			$('#cardgroup').on('show.bs.collapse', '.collapse', function () {
+				$('#cardgroup').find('.collapse.show').collapse('hide');
+			});
+
+			$('#popwait').addClass('d-none');
+
+			$('#callccda').click(function () {
+				$('#popwait').removeClass('d-none');
+			});
+		});
+
+		function editAppointment(mode, deid) {
+			let mdata = {};
+			let title = '';
+
+			if (mode === 'add') {
+				title = {{ 'Request New Appointment' | xlj }};
+				mdata = {
+					pid: deid
+				};
+			} else if (mode === 'recurring') {
+				let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
+				signerAlertMsg(msg, 8000);
+				return false;
+			} else {
+				title = {{ 'Edit Appointment' | xlj }};
+				mdata = {
+					eid: deid
+				};
+			}
+
+			var params = {
+				dialogId: 'editpop',
+				buttons: [{text: 'Cancel', close: true, style: 'btn-sm btn-secondary'}],
+				allowDrag: false,
+				sizeHeight: 'full',
+				size: 750,
+				title: title,
+				type: "GET",
+				url: './add_edit_event_user.php',
+				data: mdata
+			};
+			/*
+			* A couple notes on dialog.ajax .alert etc.
+			* opener is not required. library will handle for you.
+			* these run in the same scope as calling script.
+			* so same styles, dependencies are in scope.
+			* a promise is returned for doing other neat stuff.
+			*
+			* */
+			dialog.ajax(params);
+		}
+
+		function changeCredentials(e) {
+			title = {{ 'Please Enter New Credentials' | xlj }};
+			dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
+		}
+
+		{% if isEasyPro %}
+
+			$("#pro").load("./get_pro.php", {}, function () {});
+
+			function writeResult(score, stdErr, assessmentOID) {
+				$.ajax({
+				url: '../library/ajax/easipro_util.php',
+				data: {
+					'csrf_token_form': {{ csrfUtils | js_escape }},
+					'function': 'record_result',
+					'score': score,
+					'stdErr': stdErr,
+					'assessmentOID': assessmentOID
+				},
+				type: 'POST',
+				dataType: 'script'
+				});
+			}
+
+			function selectResponse(obj, assessmentOID) {
+				$.ajax({
+					url: '../library/ajax/easipro_util.php',
+					type: "POST",
+					data: {
+						'csrf_token_form': {{ csrfUtils | js_escape }},
+						'function': 'select_response',
+						'assessmentOID': assessmentOID,
+						'ItemResponseOID': obj.name,
+						'Response': + obj.id
+					},
+					dataType: "json",
+					success: function (data) {
+						if (data.DateFinished != '') {
+							document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
+							document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+							document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+							$.ajax({
+								url: '../library/ajax/easipro_util.php',
+								type: "POST",
+								data: {
+									'csrf_token_form': {{ csrfUtils | js_escape }},
+									'function': 'collect_results',
+									'assessmentOID': assessmentOID
+								},
+								dataType: "json",
+								success: function (data) {
+									writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+								}
+							});
+							return
+						}
+
+						var screen = "";
+						for (var j = 0; j < data.Items[0].Elements.length; j++) {
+							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+								screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
+							} else {
+									for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Descriptio}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
+									}
+								}
+						}
+						document.getElementById("Content").innerHTML = screen;
+					},
+					error: function (jqXHR, textStatus, errorThrown) { // document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+					alert("An error occurred");
+					}
+				});
+			}
+
+			function startAssessment(param, assessmentOID) {
+				param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
+
+				$.ajax({
+					url: '../library/ajax/easipro_util.php',
+					type: "POST",
+					data: {
+						'csrf_token_form': {{ csrfUtils | js_escape }},
+						'function': 'start_assessment',
+						'assessmentOID': assessmentOID
+					},
+					dataType: "json",
+					success: function (data) {
+						var screen = "";
+						for (var j = 0; j < data.Items[0].Elements.length; j++) {
+							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+								screen = `<div style="height: 30px">${data.Items[0].Elements[j].Description}</div>`;
+							} else {
+								for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+									screen = `<div style="height: 50px"><input type="button" class='btn-submit' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this, ${assessmentOID})/></div>`;
+								}
+							}
+						}
+
+						document.getElementById("Content").innerHTML = screen;
+
+						param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+
+						// document.write(jqXHR.responseText);
+						alert("An error occurred");
+					}
+				});
+			}
+
+		{% endif %}
+	</script>
+
+{% endblock %}
+
+{% block pagetitle %}
+	{{ pagetitle | text }}
+{% endblock %}
+
+{% block header %}
+	{% include "portal/header.html.twig" %}
+{% endblock %}
+
+{% block content %}
+
+	<section class="flex-column" id="cardgroup">
+
+		<div id="popwait" class="alert alert-warning d-none">
+			<strong>{{ 'Working!' | xlt }}</strong>
+			{{ 'Please wait...' | xlt }}</div>
+
+		<div class="collapse" id="lists">
+			<div class="card">
+				<header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
+				<div id="medicationlist" class="card-body bg-light"></div>
+			</div>
+			<div class="card">
+				<header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
+				<div id="allergylist" class="card-body bg-light"></div>
+			</div>
+			<div class="card">
+				<header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
+				<div id="problemslist" class="card-body bg-light"></div>
+			</div>
+			<div class="card">
+				<header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
+				<div id="amendmentslist" class="card-body bg-light"></div>
+			</div>
+			<div class="card">
+				<header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
+				<div id="labresults" class="card-body bg-light"></div>
+			</div>
+		</div>
+
+		<div class="card collapse" id="reportcard">
+			<header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
+			<div id="reports" class="card-body"></div>
+		</div>
+
+		<div class="card collapse" id="profilecard">
+			<div id="profilereport" class="card-body bg-light"></div>
+		</div>
+		<div class="collapse" id="documentscard">
+			<div class="card">
+				<div id="patdocuments" class="card-body">
+					<iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+				</div>
+			</div>
+		</div>
+		<div class="collapse" id="secure-msgs-card">
+			<div class="card">
+				<div id="secure-msgs" class="card-body">
+					<iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+				</div>
+			</div>
+		</div>
+		<!-- /.lists -->
+
+		{% if allow_portal_appointments %}
+			<div class="collapse mt-2" id="appointmentcard">
+				<div class="jumbotron jumbotron-fluid m-5 p-3">
+					<div class="container-fluid">
+						<h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+
+						{% if appointments|length > 0 %}
+
+							{% for appt in appointments %}
+
+								<div class="card p-2">
+									<div class="card-header">
+										<a href="#" onclick="editAppointment({{ appt.mode | attr_js }},{{ appt.pc_eid | attr_js }})" title="{{ appt.etitle | attr }}">
+											<i class='float-right fa fa-edit {% if appt.pc_recurrtype > 0 %} text-danger {% else %} text-success {% endif %} bg-light'></i>
+										</a>
+									</div>
+									<div class="body font-weight-bold">
+										<p>
+											{{ appt.appointmentDate | text }}<br>
+											{{ appt.appointmentType | text }}<br>
+											{{ appt.provider | text }}<br>
+											{{ appt.status | text }}
+										</p>
+									</div>
+								</div>
+							{% endfor %}
+
+							{% if appointmentLimit == appointmentCount %}
+								<p>{{ 'Display limit reached' | xlt }}
+									<br>
+									{{ 'More appointments may exist' | xlt }}</p>
+							{% endif %}
+
+
+						{% else %}
+							<h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
+						{% endif %}
+
+						<span>
+							<a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+						</span>
+					</div>
+				</div>
+			</div>
+				<!-- /.row -->
+			{% endif %}
+
+			{% if portal_two_payments %}
+				<div class="collapse" id="paymentcard">
+					<div class="card">
+						<header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
+						<div id="payment" class="card-body bg-light"></div>
+					</div>
+				</div>
+			{% endif %}
+
+			{% if allow_portal_chat %}
+				<div class="collapse" id="messagescard">
+					<div class="card pt-0 pb-0">
+						<header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
+						<div id="chat" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
+							<iframe src="./messaging/secure_chat.php" class="w-100 h-100"></iframe>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+
+			{% if portal_onsite_document_download %}
+				<div class="card collapse" id="downloadcard">
+					<header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
+					<div id="docsdownload" class="card-body">
+						<div>
+							<span class="text">{{ 'Download all patient documents' | xlt }}</span>
+							<form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
+								<input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}"/>
+							</form>
+						</div>
+					</div>
+					<!-- /.card-body -->
+				</div>
+			{% endif %}
+
+			{% if portal_two_ledger %}
+				<div class="collapse" id="ledgercard">
+					<div class="card">
+						<header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
+						<div id="patledger" class="card-body">
+							<iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+
+			{% if isEasyPro %}
+				<div class="card collapse" id="procard">
+					<header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
+					<div id="pro" class="card-body bg-light"></div>
+				</div>
+			{% endif %}
+
+		</section>
+	{% endblock %}
