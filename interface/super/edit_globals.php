@@ -27,7 +27,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
+
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
@@ -482,7 +484,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     echo "</option>\n";
                                                 }
                                                         echo "  </select>\n";
-                                            } elseif ($fldtype == 'bool') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
                                                 if ($userMode) {
                                                     if ($globalValue == 1) {
                                                         $globalTitle = xlt('Checked');
@@ -495,19 +497,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     echo " checked";
                                                 }
                                                         echo " />\n";
-                                            } elseif ($fldtype == 'num') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_NUMBER) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='15' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == 'text') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXT) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == 'if_empty_create_random_uuid') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
@@ -518,7 +520,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                 echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                     "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == 'encrypted') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) {
                                                 if (empty($fldvalue)) {
                                                     // empty value
                                                     $fldvalueDecrypted = '';
@@ -544,13 +546,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     }
                                                 }
                                                 $fldvalueDecrypted = '';
-                                            } elseif ($fldtype == 'pass') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
                                                 echo "  <input type='password' class='form-control' name='form_$i' " .
                                                 "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == 'lang') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_LANGUAGE) {
                                                 $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
                                                 echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                 while ($row = sqlFetchArray($res)) {
@@ -565,7 +567,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                           echo "  </select>\n";
-                                            } elseif ($fldtype == 'all_code_types') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
                                                 global $code_types;
                                                 echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                 foreach (array_keys($code_types) as $code_key) {
@@ -580,7 +582,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
-                                            } elseif ($fldtype == 'm_lang') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_LANGUAGE_SELECT) {
                                                 $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
                                                 echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                                 while ($row = sqlFetchArray($res)) {
@@ -596,14 +598,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     echo "</option>\n";
                                                 }
                                                 echo "  </select>\n";
-                                            } elseif ($fldtype == 'color_code') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_COLOR_CODE) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
                                                 echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
                                                 "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                                 "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
-                                            } elseif ($fldtype == 'default_visit_category') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {
                                                 $sql = "SELECT pc_catid, pc_catname, pc_cattype
                                                 FROM openemr_postcalendar_categories
                                                 WHERE pc_active = 1 ORDER BY pc_seq";
@@ -629,7 +631,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     echo $optionStr;
                                                 }
                                                 echo "</select>";
-                                            } elseif ($fldtype == 'css' || $fldtype == 'tabs_css') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_CSS || $fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
@@ -654,7 +656,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             continue;
                                                         }
 
-                                                        if ($fldtype == 'tabs_css') {
+                                                        if ($fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
                                                             // Drop the "tabs_style_" part and any replace any underscores with spaces
                                                             $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
                                                         } else { // $fldtype == 'css'
@@ -682,7 +684,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     echo "</select>\n";
                                                 }
                                                 closedir($dh);
-                                            } elseif ($fldtype == 'hour') {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_HOUR) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
