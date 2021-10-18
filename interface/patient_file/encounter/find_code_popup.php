@@ -195,13 +195,17 @@ $focus = "document.theform.search_term.select();";
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
                             $itertext = ucfirst(strtolower(trim($row['code_text'])));
+                            $dynCodeType = $form_code_type;
+                            if (stripos($codetype, 'VALUESET') !== false) {
+                                $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
+                            }
                             if (!empty($target_element)) {
                                 // add a 5th parameter to function to select the target element on the form for placing the code.
                                 $anchor = "<a href='' " .
-                                    "onclick='return selcode_target(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
+                                    "onclick='return selcode_target(" . attr_js($dynCodeType) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
                             } else {
                                 $anchor = "<a href='' " .
-                                    "onclick='return selcode(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
+                                    "onclick='return selcode(" . attr_js($dynCodeType) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
                             }
                             echo " <tr>";
                             echo "  <td>$anchor" . text($itercode) . "</a></td>\n";

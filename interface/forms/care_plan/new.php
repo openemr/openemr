@@ -113,7 +113,7 @@ endforeach;
                     checkId = 1;
                 }
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4,RXCUI', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?default=SNOMED', '_blank', 700, 400);
             }
 
             function set_related(codetype, code, selector, codedesc) {

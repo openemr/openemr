@@ -164,7 +164,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
         } else {
             if (target_element != '') {
                 var msg = opener.set_related_target(codetype, code, selector, codedesc, target_element, limit);
-            } else if (singleCodeSelection === 1) {
+            } else if (singleCodeSelection == '1') {
                 opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
                 dlgclose();
             } else {
@@ -262,6 +262,9 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 } else {
                     echo "<div class='col'><select name='form_code_type' onchange='oTable.fnDraw()'>\n";
                     foreach ($allowed_codes as $code) {
+                        if (empty($code_types[$code]['label'])) {
+                            continue;
+                        }
                         echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
                     }
                     echo "</select></div>\n";
@@ -269,6 +272,9 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             } else {
                 echo "<div class='col'><select class='form-control' name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($code_types as $key => $value) {
+                    if (empty($value['label'])) {
+                        continue;
+                    }
                     echo " <option value='" . attr($key) . "'";
                     echo ">" . xlt($value['label']) . "</option>\n";
                 }
