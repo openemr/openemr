@@ -1092,3 +1092,150 @@ DROP TABLE `temp_table_one`;
 UPDATE `layout_options` SET `title` = 'Exams/Tests', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'exams';
 UPDATE `layout_options` SET `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'usertext11';
 #EndIf
+
+#IfNotRow codes code_text Ebola Zaire vaccine, live, recombinant, 1mL dose
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "Ebola Zaire vaccine, live, recombinant, 1mL dose", "Ebola Zaire vaccine, live, recombinant, 1mL dose", 204, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 (COVID-19) vaccine, Subunit, recombinant spike protein-nanoparticle+Matrix-M1 Adjuvant, preservative free, 0.5mL per dose
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 (COVID-19) vaccine, Subunit, recombinant spike protein-nanoparticle+Matrix-M1 Adjuvant, preservative free, 0.5mL per dose", "COVID-19 vaccine, Subunit, rS-nanoparticle+Matrix-M1 Adjuvant, PF, 0.5 mL", 211, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED", "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED", 213, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text Ebola, unspecified
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "Ebola, unspecified", "Ebola, unspecified", 214, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text Pneumococcal conjugate vaccine 15-valent (PCV15), polysaccharide CRM197 conjugate, adjuvant, preservative free
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "Pneumococcal conjugate vaccine 15-valent (PCV15), polysaccharide CRM197 conjugate, adjuvant, preservative free", "Pneumococcal conjugate PCV15, polysaccharide CRM197 conjugate, adjuvant, PF", 215, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text Pneumococcal conjugate vaccine 20-valent (PCV20), polysaccharide CRM197 conjugate, adjuvant, preservative free
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "Pneumococcal conjugate vaccine 20-valent (PCV20), polysaccharide CRM197 conjugate, adjuvant, preservative free", "Pneumococcal conjugate PCV20, polysaccharide CRM197 conjugate, adjuvant, PF", 216, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose, tris-sucrose formulation
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose, tris-sucrose formulation", "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose, tris-sucrose", 217, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 10 mcg/0.2mL dose, tris-sucrose formulation
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 10 mcg/0.2mL dose, tris-sucrose formulation", "COVID-19, mRNA, LNP-S, PF, 10 mcg/0.2 mL dose, tris-sucrose", 218, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 3 mcg/0.2mL dose, tris-sucrose formulation
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 3 mcg/0.2mL dose, tris-sucrose formulation", "COVID-19, mRNA, LNP-S, PF, 3 mcg/0.2 mL dose, tris-sucrose", 219, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Non-US Vaccine, Specific Product Unknown
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Non-US Vaccine, Specific Product Unknown", "COVID-19 Non-US Vaccine, Product Unknown", 500, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (QAZCOVID-IN)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (QAZCOVID-IN)", "COVID-19 IV Non-US Vaccine (QAZCOVID-IN)", 501, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (COVAXIN)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (COVAXIN)", "COVID-19 IV Non-US Vaccine (COVAXIN)", 502, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19  Live Attenuated Virus Non-US Vaccine Product (COVIVAC)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Live Attenuated Virus Non-US Vaccine Product (COVIVAC)", "COVID-19 LAV Non-US Vaccine (COVIVAC)", 503, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)", "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)", 504, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik V)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik V)", "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik V)", 505, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (CanSino Biological Inc./Beijing Institute of Biotechnology)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (CanSino Biological Inc./Beijing Institute of Biotechnology)", "COVID-19 VVnr Non-US Vaccine (CanSino Biological Inc./Beijing Institute of Biotechnology)", 506, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product (Anhui Zhifei Longcom Biopharmaceutical + Institute of Microbiology, Chinese Academy of Sciences)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product (Anhui Zhifei Longcom Biopharmaceutical + Institute of Microbiology, Chinese Academy of Sciences)", "COVID-19 PS Non-US Vaccine (Anhui Zhifei Longcom Biopharm + Inst of Micro, Chinese Acad of Sciences)", 507, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product  (Jiangsu Province Centers for Disease Control and Prevention)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product  (Jiangsu Province Centers for Disease Control and Prevention)", "COVID-19 PS Non-US Vaccine (Jiangsu Province Centers for Disease Control and Prevention)", 508, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product (EpiVacCorona)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Protein Subunit Non-US Vaccine Product (EpiVacCorona)", "COVID-19 PS Non-US Vaccine (EpiVacCorona)", 509, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (BIBP, Sinopharm)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (BIBP, Sinopharm)", "COVID-19 IV Non-US Vaccine (BIBP, Sinopharm)", 510, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
+
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (CoronaVac, Sinovac)
+SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
+INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
+VALUES
+(NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (CoronaVac, Sinovac)", "COVID-19 IV Non-US Vaccine (CoronaVac, Sinovac)", 511, @codetypeid, '', 0, 0, '', '', '', 1);
+#EndIf
