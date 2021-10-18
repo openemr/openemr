@@ -52,6 +52,7 @@ class UuidRegistry
         'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
         'patient_data' => ['table_name' => 'patient_data'],
+        'patient_history' => ['table_name' => 'patient_history'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
@@ -113,9 +114,10 @@ class UuidRegistry
         return $uuid;
     }
 
-    // Generic function to update all missing uuids (to be primarily used in service that is run intermittently; should not use anywhere else)
+    // Generic function to update all missing uuids (to be primarily used in service that is run intermittently in addition to upgrade/patch mechanism)
     // When add support for a new table uuid, need to add it here
     //  Will log by default
+    //  Will return log or false
     public static function populateAllMissingUuids($log = true)
     {
         $logEntryComment = '';
@@ -132,10 +134,20 @@ class UuidRegistry
             self::appendPopulateLog('uuid_mapping', $mappedCounter, $logEntryComment);
         }
 
+        if (!empty($logEntryComment)) {
+            $logEntryComment = rtrim($logEntryComment, ', ');
+        }
+
         // log it
         if ($log && !empty($logEntryComment)) {
-            $logEntryComment = rtrim($logEntryComment, ', ');
             EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+        }
+
+        // return it
+        if (!empty($logEntryComment)) {
+            return $logEntryComment;
+        } else {
+            return false;
         }
     }
 
@@ -204,7 +216,7 @@ class UuidRegistry
         }
     }
 
-    public function createMissingUuids()
+    private function createMissingUuids()
     {
         try {
             sqlBeginTrans();
@@ -232,18 +244,6 @@ class UuidRegistry
             sqlRollbackTrans();
             throw $exception;
         }
-    }
-
-
-    // Generic function to see if there are missing uuids in a sql table (table needs an `id` column to work)
-    public function tableNeedsUuidCreation()
-    {
-        // Empty should be NULL, but to be safe also checking for empty and null bytes
-        $resultSet = sqlQueryNoLog("SELECT count(`" . $this->table_id . "`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
-        if ($resultSet['total'] > 0) {
-            return true;
-        }
-        return false;
     }
 
     /**

@@ -400,6 +400,40 @@ class Installer
         return true;
     }
 
+    public function on_care_coordination()
+    {
+        $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $modId = $resource_array['mod_id'];
+        if (empty($modId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get mod_id for Carecoordination module\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `section_id` FROM `module_acl_sections` WHERE `section_identifier` = 'carecoordination' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $sectionId = $resource_array['section_id'];
+        if (empty($sectionId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get section_id for carecoordination module section\n";
+            return false;
+        }
+
+        $resource = $this->execute_sql("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = 'admin' LIMIT 1");
+        $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
+        $groupId = $resource_array['id'];
+        if (empty($groupId)) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to get id for gacl_aro_groups admin section\n";
+            return false;
+        }
+
+        if ($this->execute_sql("INSERT INTO `module_acl_group_settings` (`module_id`, `group_id`, `section_id`, `allowed`) VALUES ('" . $this->escapeSql($modId) . "', '" . $this->escapeSql($groupId) . "', '" . $this->escapeSql($sectionId) . "', 1)") == false) {
+            $this->error_message = "ERROR configuring Care Coordination module. Unable to add the module_acl_group_settings acl entry\n";
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Generates the initial user's 2FA QR Code
      * @return bool|string|void
@@ -1198,6 +1232,10 @@ $config = 1; /////////////
             if (! $this->install_additional_users()) {
                 return false;
             }
+
+            if (! $this->on_care_coordination()) {
+                return false;
+            }
         }
 
         return true;
@@ -1396,7 +1434,8 @@ $config = 1; /////////////
         " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
-        $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
+        $tmp1 = [];
+        $tmp0 = exec($cmd, $tmp1, $tmp2);
         if ($tmp2) {
             die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
         }
@@ -1464,12 +1503,10 @@ $config = 1; /////////////
             $theme_file_path = $img_path . $theme_file_name;
             $div_start = "                      <div class='row'>";
             $div_end = "                      </div>";
-            $img_div = <<<FDIV
-                                        <div class="col-sm-2 checkboxgroup">
-                                            <label for="my_radio_button_id{$id}"><img height="160px" src="{$theme_file_path}" width="100%"></label>
-                                            <p class="m-0">{$theme_title}</p><input id="my_radio_button_id{$id}" name="stylesheet" type="radio" value="{$theme_value}">
-                                        </div>
-FDIV;
+            $img_div = "                <div class='col-sm-2 checkboxgroup'>
+                                            <label for='my_radio_button_id" . attr($id) . "'><img height='160px' src='" . attr($theme_file_path) . "' width='100%'></label>
+                                            <p class='m-0'>" . text($theme_title) . "</p><input id='my_radio_button_id" . attr($id) . "' name='stylesheet' type='radio' value='" . attr($theme_value) . "'>
+                                        </div>";
             $theme_img_number = $i % 6; //to ensure that last file in array will always generate 5 and will end the row
             switch ($theme_img_number) {
                 case 0: //start row

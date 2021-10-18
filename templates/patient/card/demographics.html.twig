@@ -1,0 +1,10 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<ul class="tabNav">
+    {{ tabRow('DEM', result, result2) }}
+</ul>
+<div class="tabContainer">
+    {{ tabData('DEM', result, result2) }}
+</div>
+{% endblock %}

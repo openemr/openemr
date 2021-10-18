@@ -42,6 +42,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
         foreach ($data as $key => $value) {
             if (
+                $key == "uuid" ||
                 $key == "id" || $key == "pid" ||
                 $key == "user" || $key == "groupname" ||
                 $key == "authorized" || $key == "activity" ||
@@ -54,6 +55,10 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
             if ($value == "on") {
                 $value = "yes";
+            }
+
+            if ($key == 'inhaled_oxygen_concentration') {
+                $value .= " %";
             }
 
             $key = ucwords(str_replace("_", " ", $key));

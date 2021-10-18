@@ -86,7 +86,8 @@ class SmartLaunchController
             // appear to be required in the spec.
 
             $issuer = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
-            $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer);
+            // issuer and audience are the same in a EHR SMART Launch
+            $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
 
             expand_collapse_widget(
                 $widgetTitle,
@@ -159,15 +160,6 @@ class SmartLaunchController
             // work...
             if ($client->isEnabled() && $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
                 $smartList[] = $client;
-            } else {
-                (new SystemLogger())->debug(
-                    "Skipping over client ",
-                    [
-                        "clientId" => $client->getIdentifier()
-                        , "enabled" => $client->isEnabled()
-                        , "hasLaunchScope" => $client->hasScope(self::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
-                    ]
-                );
             }
         }
         return $smartList;

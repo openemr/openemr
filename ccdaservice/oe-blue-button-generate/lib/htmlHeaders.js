@@ -70,7 +70,7 @@ var getText = function (topArrayKey, headers, values) {
 
 exports.allergiesSectionEntriesRequiredHtmlHeader = {
     key: "text",
-    existsWhen: condition.keyExists("allergies"),
+    existsWhen: condition.propertyValueEmpty('allergies.0.no_know_allergies'),
 
     content: [{
         key: "table",
@@ -630,7 +630,7 @@ exports.socialHistorySectionHtmlHeader = {key: "text",
                     attributes: {
                         ID: leafLevel.nextTableReference("social")
                     },
-                    text: leafLevel.deepInputProperty("code.name", nda)
+                    text: leafLevel.deepInputProperty("element", nda)
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("value", nda)
@@ -756,7 +756,7 @@ exports.medicalEquipmentSectionEntriesOptionalHtmlHeader = {
                     text: leafLevel.deepInputProperty("device.name", nda),
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputProperty("device.udi", "na"),
+                    text: leafLevel.deepInputProperty("device.udi", nda),
                 }
                 ]
             }],
@@ -808,6 +808,47 @@ exports.functionalStatusSectionHtmlHeader = {
     }]
 };
 
+exports.assessmentSectionHtmlHeader = {
+    key: "text",
+    existsWhen: condition.keyExists("assessments"),
+
+    content: [{
+        key: "table",
+        attributes: {
+            width: "100%",
+            border: "1"
+        },
+        content: [{
+            key: "thead",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "th",
+                    text: leafLevel.input,
+                    dataTransform: function () {
+                        return ["Narrative"];
+                    }
+                }]
+            }]
+        }, {
+            key: "tbody",
+            content: [{
+                key: "tr",
+                content: [{
+                    key: "td",
+                    attributes: {
+                        ID: leafLevel.nextTableReference("assessment")
+                    },
+                    text: leafLevel.deepInputProperty("description", nda),
+                }
+                ]
+            }],
+            dataKey: 'assessments'
+        }]
+    }]
+};
+
+exports.assessmentSectionHtmlHeaderNA = "Not Available";
 exports.functionalStatusSectionHtmlHeaderNA = "Not Available";
 exports.allergiesSectionEntriesRequiredHtmlHeaderNA = "Not Available";
 exports.medicationsSectionEntriesRequiredHtmlHeaderNA = "Not Available";

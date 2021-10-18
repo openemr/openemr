@@ -98,7 +98,9 @@ var problemObservation = {
             dataKey: "problem.code",
             existsWhen: condition.codeOrDisplayname,
             required: true
-        }, {
+        },
+        fieldLevel.author,
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "REFR"

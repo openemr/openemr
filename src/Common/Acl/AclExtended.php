@@ -13,6 +13,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +22,7 @@ namespace OpenEMR\Common\Acl;
 use OpenEMR\Gacl\GaclApi;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Common\Acl\AclMain;
 
 class AclExtended
 {
@@ -1015,5 +1017,105 @@ class AclExtended
         }
 
         return;
+    }
+
+    /**
+     * Update the provided array of ACOs that the designated group has permission for.
+     * This is an array keyed on ACO section ID with values that are arrays keyed on ACO ID
+     * with values that are arrays keyed on return value.
+     *
+     * @param  string  $group_name            Name of group
+     * @param  array   $perms                 The array to update
+     */
+    public static function getGroupPermissions($group_name, &$perms)
+    {
+        $gacl = self::collectGaclApiObject();
+        $acl_ids = $gacl->search_acl(false, false, false, false, $group_name, false, false, false, false);
+        foreach ($acl_ids as $acl_id) {
+            $acl = $gacl->get_acl($acl_id);
+            $ret = $acl['return_value'];
+            foreach ($acl['aco'] as $sectionid => $acos) {
+                if ($sectionid != 'placeholder') {
+                    foreach ($acos as $aco) {
+                        $perms[$sectionid][$aco][$ret] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Return an array of all ACOs that the designated user has permission for.
+     * This is an array keyed on ACO section ID with values that are arrays keyed on ACO ID
+     * with values that are arrays keyed on return value.
+     *
+     * @param  string  $username              Name of user
+     * @return array                          The array of ACOs
+     */
+    public static function getUserPermissions($username = '')
+    {
+        if (!$username) {
+            $username = $_SESSION['authUser'];
+        }
+        $gacl = self::collectGaclApiObject();
+        $perms = array();
+        $username_acl_groups = self::aclGetGroupTitles($username); // array of roles for the user
+        if ($username_acl_groups) {
+            foreach ($username_acl_groups as $group_name) {
+                self::getGroupPermissions($group_name, $perms);
+            }
+        }
+        return $perms;
+    }
+
+    /**
+     * Test if the logged-in user has all of the permissions of the specified user.
+     *
+     * @param  string  $username              Name of user
+     * @return boolean
+     */
+    public static function iHavePermissionsOf($username)
+    {
+        $perms = self::getUserPermissions($username);
+        $myperms = self::getUserPermissions();
+        foreach ($perms as $sectionid => $acos) {
+            foreach ($acos as $aco => $rets) {
+                foreach ($rets as $ret => $dummy) {
+                    // Next test is just to speed things up.
+                    if (empty($myperms[$sectionid][$aco][$ret]) && empty($myperms[$sectionid][$aco]['write'])) {
+                        if (!aclMain::aclCheckCore($sectionid, $aco, '', $ret)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Test if the logged-in user has all of the permissions of the specified group.
+     *
+     * @param  string  $group_name            Name of group
+     * @return boolean
+     */
+    public static function iHaveGroupPermissions($group_name)
+    {
+        $perms = array();
+        self::getGroupPermissions($group_name, $perms);
+        $myperms = self::getUserPermissions();
+        foreach ($perms as $sectionid => $acos) {
+            foreach ($acos as $aco => $rets) {
+                foreach ($rets as $ret => $dummy) {
+                    // Next test is just to speed things up.
+                    if (empty($myperms[$sectionid][$aco][$ret]) && empty($myperms[$sectionid][$aco]['write'])) {
+                        if (!aclMain::aclCheckCore($sectionid, $aco, '', $ret)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

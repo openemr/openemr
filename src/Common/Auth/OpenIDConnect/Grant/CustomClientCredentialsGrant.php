@@ -17,6 +17,7 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
@@ -31,7 +32,11 @@ use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\RsaSha384Signer;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
@@ -68,6 +73,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     private $userService;
 
     /**
+     * @var JWTRepository
+     */
+    private $jwtRepository;
+
+    /**
      * The required value for the jwt assertion type
      */
     const OAUTH_JWT_CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
@@ -82,6 +92,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         $this->authTokenUrl = $authTokenUrl;
         $this->trustedUserService = new TrustedUserService();
         $this->userService = new UserService();
+        $this->jwtRepository = new JWTRepository();
     }
 
     /**
@@ -132,6 +143,22 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     public function setUserService(UserService $userService): void
     {
         $this->userService = $userService;
+    }
+
+    /**
+     * @return JWTRepository
+     */
+    public function getJwtRepository(): JWTRepository
+    {
+        return $this->jwtRepository;
+    }
+
+    /**
+     * @param JWTRepository $jwtRepository
+     */
+    public function setJwtRepository(JWTRepository $jwtRepository): void
+    {
+        $this->jwtRepository = $jwtRepository;
     }
 
     /**
@@ -260,6 +287,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             throw OAuthServerException::invalidClient($request);
         }
 
+        if (!$client->isEnabled()) {
+            $this->logger->error("CustomClientCredentialsGrant->validateClient() client returned was not enabled", ['client' => $clientId]);
+            throw OAuthServerException::invalidClient($request);
+        }
+
         // validate everything to do with the JWT...
 
         // @see https://tools.ietf.org/html/rfc7523#section-3
@@ -282,7 +314,8 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         // @see https://tools.ietf.org/html/rfc7523#section-3.2
         // IF ERROR set "error" parameter to "invalid_client" use "error_description" or "error_uri" to provide error
         // information
-
+        $jwtRepository = $this->getJwtRepository();
+        $token = null;
         try {
             // http client required for fetching jwks from the jwks uri and makes unit testing easier
             $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
@@ -295,7 +328,8 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
                 new ValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
                 new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
                 new IssuedBy($client->getIdentifier()),
-                new PermittedFor($this->authTokenUrl) // allowed audience
+                new PermittedFor($this->authTokenUrl), // allowed audience
+                new UniqueID($jwtRepository)
             );
 
             // Attempt to parse and validate the JWT
@@ -307,12 +341,13 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
                 "Token parsed",
                 ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]
             );
-//
 
             $constraints = $configuration->validationConstraints();
 
             try {
-                $configuration->validator()->assert($token, ...$constraints);
+                // phpseclib's RSA validation triggers a NOTICE that gets printed to the screen which messes up the JSON result returned
+                // TODO: if phpseclib fixes this error remove the @ ignore sign, note this does not disable the exceptions.
+                @$configuration->validator()->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
                 $this->logger->error(
                     "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
@@ -337,7 +372,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
                 ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
             );
             throw OAuthServerException::invalidClient($request);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (JWKValidatorException | \InvalidArgumentException $exception) {
             $this->logger->error(
                 "CustomClientCredentialsGrant->validateClient() failed to retrieve jwk for client",
                 ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
@@ -358,6 +393,9 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             $this->validateRedirectUri($redirectUri, $client, $request);
         }
 
+        // if everything is valid we are going to save off the jti so we can prevent replay attacks
+        $this->saveJwtHistory($jwtRepository, $clientId, $token);
+
         return $client;
     }
 
@@ -369,5 +407,25 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     private function getJWTFromRequest(ServerRequestInterface $request)
     {
         return $this->getRequestParameter('client_assertion', $request, null);
+    }
+
+    private function saveJwtHistory(JWTRepository $jwtRepository, $clientId, Token $token)
+    {
+        $exp = null;
+        $jti = null;
+        try {
+            $exp = $token->claims()->get("exp", null);
+            if ($exp instanceof \DateTimeInterface) {
+                $exp = $exp->getTimestamp();
+            }
+            $jti = $token->claims()->get("jti");
+            $jwtRepository->saveJwtHistory($jti, $clientId, $exp);
+        } catch (SqlQueryException $exception) {
+            (new SystemLogger())->error(
+                "Failed to save jti to database Exception: " . $exception->getMessage(),
+                ['clientId' => $clientId, 'exp' => $exp, 'jti' => $jti]
+            );
+            throw OAuthServerException::serverError("Server error occurred in parsing JWT", $exception);
+        }
     }
 }

@@ -26,7 +26,7 @@ class FhirCodeSystemConstants
 
     const PROVIDER_NPI = "http://hl7.org/fhir/sid/us-npi";
 
-    public const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
+    const HL7_SYSTEM_CAREPLAN_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/careplan-category";
 
     const LOINC = "http://loinc.org";
 
@@ -50,4 +50,26 @@ class FhirCodeSystemConstants
     const HL7_IDENTIFIER_TYPE_TABLE = "http://hl7.org/fhir/v2/0203";
 
     const HL7_ORGANIZATION_TYPE = "http://terminology.hl7.org/CodeSystem/organization-type";
+
+    // @see http://hl7.org/fhir/R4/valueset-observation-interpretation.html
+    const HL7_V3_OBSERVATION_INTERPRETATION = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
+
+    const HL7_ICD10 = "http://hl7.org/fhir/sid/icd-10";
+
+    public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
+
+    public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";
+
+    public const RFC_3986 = "urn:ietf:rfc:3986";
+
+    const HL7_DISCHARGE_DISPOSITION = "http://terminology.hl7.org/CodeSystem/discharge-disposition";
+
+    const RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm";
+
+    const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
+    public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
+
+    const OID_RACE_AND_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
+
+    const HL7_US_CORE_RACE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
 }

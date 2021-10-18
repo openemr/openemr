@@ -19,6 +19,8 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -31,6 +33,7 @@ class ProcedureService extends BaseService
     private const PRACTITIONER_TABLE = "users";
     private const PROCEDURE_PROVIDER_TABLE = "procedure_providers";
     private const PROCEDURE_REPORT_TABLE = "procedure_report";
+    private const PROCEDURE_RESULT_TABLE = "procedure_result";
 
     /**
      * Default constructor.
@@ -39,12 +42,13 @@ class ProcedureService extends BaseService
     {
         parent::__construct(self::PROCEDURE_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::PROCEDURE_TABLE, self::PATIENT_TABLE, self::ENCOUNTER_TABLE
-            , self::PRACTITIONER_TABLE, self::PROCEDURE_REPORT_TABLE, self::PROCEDURE_PROVIDER_TABLE]);
+            , self::PRACTITIONER_TABLE, self::PROCEDURE_REPORT_TABLE, self::PROCEDURE_PROVIDER_TABLE
+            , self::PROCEDURE_RESULT_TABLE]);
     }
 
     public function getUuidFields(): array
     {
-        return ['result_uuid','report_uuid', 'lab_uuid','puuid', 'order_uuid', 'euuid'];
+        return ['result_uuid','report_uuid', 'lab_uuid','puuid', 'order_uuid', 'euuid', 'provider_uuid'];
     }
 
     public function search($search, $isAndCondition = true)
@@ -63,6 +67,7 @@ class ProcedureService extends BaseService
                     ,preport.report_date
                     ,preport.procedure_report_id
                     ,preport.report_uuid
+                    ,preport.report_notes
        
                     ,presult.procedure_result_id
                     ,presult.result_uuid 
@@ -77,6 +82,7 @@ class ProcedureService extends BaseService
      
                     ,order_codes.procedure_name
                     ,order_codes.procedure_code
+                    ,order_codes.procedure_type
      
                     ,pcode_types.standard_code
 
@@ -94,7 +100,25 @@ class ProcedureService extends BaseService
 
                     ,docs.doc_id
                     ,docs.doc_uuid
+                    
+                    ,provider.provider_uuid
+                    ,provider.provider_id
+                    ,provider.provider_fname
+                    ,provider.provider_mname
+                    ,provider.provider_lname
+                    ,provider.provider_npi
                 FROM (
+                    SELECT
+                        date_report AS report_date
+                        ,procedure_report_id
+                        ,procedure_order_id
+                        ,procedure_order_seq
+                        ,uuid AS report_uuid
+                        ,report_notes
+                    FROM
+                    procedure_report
+                ) preport
+                LEFT JOIN (
                     SELECT 
                         procedure_result_id
                          ,procedure_report_id
@@ -114,17 +138,6 @@ class ProcedureService extends BaseService
                     FROM
                         `procedure_result`
                 ) presult
-                JOIN 
-                    (
-                        SELECT
-                            date_report AS report_date
-                            ,procedure_report_id
-                            ,procedure_order_id
-                            ,procedure_order_seq
-                            ,uuid AS report_uuid
-                        FROM
-                        procedure_report
-                    ) preport
                 ON 
                     preport.procedure_report_id = presult.procedure_report_id
                 LEFT JOIN (
@@ -138,6 +151,7 @@ class ProcedureService extends BaseService
                         ,lab_id as order_lab_id
                         ,procedure_order_id AS order_id
                         ,patient_id AS order_patient_id
+                        ,provider_id
                     FROM
                         procedure_order
                 ) porder
@@ -166,7 +180,17 @@ class ProcedureService extends BaseService
                 ON 
                     labs.lab_id = porder.order_lab_id
                 LEFT JOIN 
-                    procedure_order_code AS order_codes
+                    (
+                        select
+                            procedure_order_id
+                        ,procedure_order_seq
+                        ,procedure_code
+                        ,procedure_name
+                        -- we exclude the legacy procedure_type and use procedure_order_title
+                        ,procedure_order_title AS procedure_type
+                        FROM procedure_order_code
+                    )
+                    order_codes
                 ON 
                     order_codes.procedure_order_id = porder.procedure_order_id AND order_codes.procedure_order_seq = preport.procedure_order_seq
                 LEFT JOIN (
@@ -192,7 +216,17 @@ class ProcedureService extends BaseService
                     FROM
                         documents
                 ) docs ON presult.result_document_id = docs.doc_id
-                ";
+                LEFT JOIN (
+                    SELECT
+                        users.uuid AS provider_uuid
+                        ,users.id AS provider_id
+                        ,users.fname AS provider_fname
+                        ,users.mname AS provider_mname
+                        ,users.lname AS provider_lname
+                        ,users.npi AS provider_npi
+                    FROM users
+                    WHERE npi IS NOT NULL AND npi != ''
+                ) provider ON provider.provider_id = porder.provider_id ";
 
         $excludeDNR_TNP = new StringSearchField('result_string', ['DNR','TNP'], SearchModifier::NOT_EQUALS_EXACT, true);
         if (isset($search['result_string']) && $search['result_string'] instanceof ISearchField) {
@@ -201,7 +235,13 @@ class ProcedureService extends BaseService
             $compoundColumn->addChild($excludeDNR_TNP);
             $search['result_string'] = $compoundColumn;
         } else {
-            $search['result_string'] = $excludeDNR_TNP;
+            $compoundColumn = new CompositeSearchField('result_string', [], false);
+            // we have to have an optional is null due to the way the joins are setup.
+            $resultIsNull = new TokenSearchField('result_string', [new TokenSearchValue(true)]);
+            $resultIsNull->setModifier(SearchModifier::MISSING);
+            $compoundColumn->addChild($resultIsNull);
+            $compoundColumn->addChild($excludeDNR_TNP);
+            $search['result_string'] = $compoundColumn;
         }
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -252,9 +292,19 @@ class ProcedureService extends BaseService
                     , 'standard_code' => $record['standard_code']
                     , 'diagnosis' => $record['order_diagnosis']
                     , 'activity' => $record['order_activity']
-                    , 'provider_id' => $record['order_provider_id']
+
                     , 'reports' => []
                 ];
+                if (!empty($record['provider_id'])) {
+                    $procedure['provider'] = [
+                        'id' => $record['provider_id']
+                        ,'uuid' => $record['provider_uuid']
+                        ,'fname' => $record['fname']
+                        ,'mname' => $record['mname']
+                        ,'lname' => $record['lname']
+                        ,'npi' => $record['npi']
+                    ];
+                }
                 if (!empty($record['lab_id'])) {
                     $procedure['lab'] = [
                         'id' => $record['lab_id'] ?? null
@@ -287,6 +337,7 @@ class ProcedureService extends BaseService
                     'date' => $record['report_date']
                     , 'id' => $record['procedure_report_id']
                     , 'uuid' => $record['report_uuid']
+                    , 'notes' => $record['report_notes']
                     , 'results' => []
                 ];
                 $procedure['reports'][] = $reportUuid;
@@ -305,20 +356,22 @@ class ProcedureService extends BaseService
              * ,presult.document_id
              * ,presult.result_status
              */
-            $result = [
-                'id' => $record['procedure_result_id']
-                , 'uuid' => $record['result_uuid']
-                , 'code' => $record['result_code']
-                , 'text' => $record['result_text']
-                , 'units' => $record['result_units']
-                , 'result' => $record['result_result']
-                , 'range' => $record['result_range']
-                , 'abnormal' => $record['result_abnormal']
-                , 'comments' => $record['result_comments']
-                , 'document_id' => $record['result_document_id']
-                , 'status' => $record['result_status']
-            ];
-            $report['results'][] = $result;
+            if (!empty($record['procedure_result_id'])) {
+                $result = [
+                    'id' => $record['procedure_result_id']
+                    , 'uuid' => $record['result_uuid']
+                    , 'code' => $record['result_code']
+                    , 'text' => $record['result_text']
+                    , 'units' => $record['result_units']
+                    , 'result' => $record['result_result']
+                    , 'range' => $record['result_range']
+                    , 'abnormal' => $record['result_abnormal']
+                    , 'comments' => $record['result_comments']
+                    , 'document_id' => $record['result_document_id']
+                    , 'status' => $record['result_status']
+                ];
+                $report['results'][] = $result;
+            }
             // need to copy back in since we don't have a copy by reference here
             $reportsByUuid[$reportUuid] = $report;
             $procedureByUuid[$procedureUuid] = $procedure;

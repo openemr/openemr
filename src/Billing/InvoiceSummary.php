@@ -131,7 +131,7 @@ class InvoiceSummary
         $res = sqlStatement("SELECT " .
             "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, a.reason_code, " .
             "a.post_time, a.session_id, a.sequence_no, a.account_code, a.follow_up_note, " .
-            "s.payer_id, s.reference, s.check_date, s.deposit_date " .
+            "s.payer_id, s.reference, s.check_date, s.deposit_date, s.payment_method " .
             ",i.name " .
             "FROM ar_activity AS a " .
             "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
@@ -173,6 +173,10 @@ class InvoiceSummary
                 $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
+                    $tmp['pmt_method'] = $row['payment_method'];
+                } else {
+                    $tmp['pmt'] = 0;
+                    $tmp['pmt_method'] = '';
                 }
 
                 if (isset($row['reason_code'])) {

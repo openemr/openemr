@@ -91,7 +91,11 @@ class HttpRestRouteHandler
                     if ($return_method === 'standard') {
                         header('Content-Type: application/json');
                         // if we fail to encode we WANT an error thrown
-                        echo json_encode($result, JSON_THROW_ON_ERROR);
+                        // PHP default json_encode will escape forward slash characters '/' so you can embed the JSON
+                        // inside of a <script> tag.  However, since forward slash escaping is optional as part of the
+                        // JSON spec some servers (looking at you ONC FHIR Inferno and your missing data tests) don't
+                        // know how to handle the unescaped slashes so we remove the forward slash escaping.
+                        echo json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
                         break;
                     }
                     if ($return_method === 'direct-json') {

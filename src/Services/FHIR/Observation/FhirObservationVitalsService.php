@@ -166,7 +166,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         // pediatric profiles are different...
         // need pediatric BMI
         // need pediatric head-occipetal
-        // TODO: @adunsulag figure out where these values come from...
 
         // Birth - 36 months @see https://www.cdc.gov/growthcharts/html_charts/hcageinf.htm
         // @see
@@ -195,6 +194,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ,'code' => '77606-2'
             ,'description' => 'Weight-for-length Per age and sex'
             ,'column' => ['ped_weight_height', 'ped_weight_height_unit']
+            ,'in_vitals_panel' => false
+        ],
+        '3150-0' => [
+            'fullcode' => 'LOINC:3150-0'
+            ,'code' => '3150-0'
+            ,'description' => 'Inhaled Oxygen Saturation'
+            ,'column' => ['inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit']
             ,'in_vitals_panel' => false
         ]
         // need pediatric weight for height observations...
@@ -378,6 +384,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ];
 
             $columns = $this->getColumnsForCode($code);
+            $columns[] = 'details'; // make sure to grab our detail columns
             // if any value of the column is populated we will return that the record has a value.
             foreach ($columns as $column) {
                 if (isset($record[$column]) && $record[$column] != "") {
@@ -459,7 +466,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
         $observation->setStatus(self::VITALS_DEFAULT_OBSERVATION_STATUS);
 
-        // TODO: @adunsulag if our provenance needs to be more detailed we can use performer to set the user
+        if (!empty($dataRecord['user_uuid']) && !empty($dataRecord['user_npi'])) {
+            $observation->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['user_uuid']));
+        }
 
         $obsConcept = new FHIRCodeableConcept();
         $obsCategoryCoding = new FhirCoding();
@@ -475,7 +484,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         $basic_codes = [
-            "9279-1" => 'respiration', "8867-4" => 'pulse', '2708-6' => 'oxygen_saturation', '8310-5' => 'temperature'
+            "9279-1" => 'respiration', "8867-4" => 'pulse', '2708-6' => 'oxygen_saturation'
+            , '3150-0' => 'inhaled_oxygen_concentration'
+            , '8310-5' => 'temperature'
             ,'8302-2' => 'height', '9843-4' => 'head_circ', '29463-7' => 'weight', '39156-5' => 'BMI'
             ,'59576-9' => 'ped_bmi', '8289-1' => 'ped_head_circ', '77606-2' => 'ped_weight_height'
         ];
@@ -606,6 +617,22 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         } else {
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
+
+        if (isset($record['details'][$column])) {
+            $observation->addInterpretation($this->getInterpretationForColumn($record, $column));
+        }
+    }
+
+    private function getInterpretationForColumn($record, $column): ?FHIRCodeableConcept
+    {
+        if (isset($record['details'][$column])) {
+            $code = $record['details'][$column]['interpretation_codes'];
+            $text = $record['details'][$column]['interpretation_title'];
+            return UtilsService::createCodeableConcept([$code =>
+                ['code' => $code, 'description' => $text, 'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION]
+            ]);
+        }
+        return null;
     }
 
     private function getFHIRQuantityForColumn($column, $record)
@@ -615,13 +642,18 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $quantity->setValue(floatval($record[$column]));
             $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $unit = $record[$column . '_unit'] ?? null;
+            $code = $unit;
             // @see http://hl7.org/fhir/R4/observation-vitalsigns.html for the codes on this
             if ($unit === 'in') {
                 $unit = 'in_i';
+                $code = "[" . $unit . "]";
             } else if ($unit === 'lb') {
                 $unit = 'lb_av';
+                $code = "[" . $unit . "]";
+            } else if ($unit === 'degF') {
+                $code = "[" . $unit . "]";
             }
-            $quantity->setCode($unit);
+            $quantity->setCode($code);
             $quantity->setUnit($unit);
             return $quantity;
         }
@@ -635,6 +667,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord)
     {
+            // Based on conversations with Jerry Padget and Brady Miller on August 14th 2021 we decided that if the values
+            // were both 0 for bpd and bps we would treat this as a data absent reason.  In this case an attempt was made
+            // to record the data but no value was recorded (such as the blood pressure cuff becoming loose).
+        if ($dataRecord['bpd'] == 0 && $dataRecord['bps'] == 0) {
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+        }
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,
@@ -654,13 +692,20 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
     {
         $component = new FHIRObservationComponent();
-        $coding = UtilsService::createCodeableConcept([$code => xlt($description)], FhirCodeSystemConstants::LOINC);
+        $coding = UtilsService::createCodeableConcept(
+            [
+                $code => ['code' => $code, 'description' => xlt($description), 'system' => FhirCodeSystemConstants::LOINC]
+            ]
+        );
         $component->setCode($coding);
         $quantity = $this->getFHIRQuantityForColumn($column, $dataRecord);
         if ($quantity != null) {
             $component->setValueQuantity($quantity);
         } else {
             $component->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+        }
+        if (isset($dataRecord['details'][$column])) {
+            $component->addInterpretation($this->getInterpretationForColumn($dataRecord, $column));
         }
         $observation->addComponent($component);
     }
@@ -684,7 +729,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $performer = null;
+        if (!empty($dataRecord->getPerformer())) {
+            // grab the first one
+            $performer = current($dataRecord->getPerformer());
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

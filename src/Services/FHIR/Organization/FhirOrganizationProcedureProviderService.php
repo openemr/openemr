@@ -66,10 +66,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
 
             $name = new TokenSearchField('name', [new TokenSearchValue(false)]);
             $name->setModifier(SearchModifier::MISSING);
-            $npi = new TokenSearchField('npi', [new TokenSearchValue(false)]);
-            $npi->setModifier(SearchModifier::MISSING);
-            $openEMRSearchParameters['identifier-name'] = new CompositeSearchField('identifier-name', [], false);
-            $openEMRSearchParameters['identifier-name']->setChildren([$name, $npi]);
+            $openEMRSearchParameters['name'] = $name;
         }
         return $this->service->search($openEMRSearchParameters);
     }
@@ -91,15 +88,14 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
         $organizationResource->setMeta($fhirMeta);
         $organizationResource->setActive($dataRecord['active'] == '1');
 
-        $narrativeText = '';
-        if (isset($dataRecord['name'])) {
-            $narrativeText = $dataRecord['name'];
+        $narrativeText = trim($dataRecord['name'] ?? "");
+        if (!empty($narrativeText)) {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $organizationResource->setText($text);
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $organizationResource->setText($text);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -124,7 +120,9 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
             $organizationResource->setName(UtilsService::createDataMissingExtension());
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => "Healthcare Provider"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['prov' => [
+            'code' => 'prov', 'description' => "Healthcare Provider", 'system' => FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE]
+        ]));
 
         if ($encode) {
             return json_encode($organizationResource);

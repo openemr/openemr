@@ -21,7 +21,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -55,10 +54,10 @@ class EncounterService extends BaseService
     /**
      * Returns a list of encounters matching the encounter indentifier.
      *
-     * @param  $euuid The encounter identifier of particular encounter
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $euuid     The encounter identifier of particular encounter
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *                    payload.
      */
     public function getEncounter($euuid, $puuidBind = null)
     {
@@ -69,22 +68,42 @@ class EncounterService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'];
+        return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
+            , 'facility_location_uuid', 'billing_location_uuid'];
+    }
+
+    /**
+     * Given a patient pid return the most recent patient encounter for that patient
+     * @param $pid The unique public id (pid) for the patient.
+     * @return array|null Returns the encounter if found, null otherwise
+     */
+    public function getMostRecentEncounterForPatient($pid): ?array
+    {
+        $pid = new TokenSearchField('pid', [new TokenSearchValue($pid, null)]);
+        // we discovered that most queries were ordering by encounter id which may NOT be the most recent encounter as
+        // an older historical encounter may be entered after a more recent encounter, so ordering be encounter id screws
+        // this up.
+        $result = $this->search(['pid' => $pid], true, '', ['limit' => 1, 'order' => '`date` DESC']);
+        if ($result->hasData()) {
+            return array_pop($result->getData());
+        }
+        return null;
     }
 
     /**
      * Returns a list of encounters matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
-     * TODO: @adunsulag rename this to be search() to be consistent with other services.
-     * @param  $search search array parameters
-     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *
+     * @param array  $search         search array parameters
+     * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
+     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
+     *                               payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBind = true)
+    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '', $options = array())
     {
+        $limit = $options['limit'] ?? null;
         $sqlBindArray = array();
         $processingResult = new ProcessingResult();
 
@@ -96,24 +115,25 @@ class EncounterService extends BaseService
                 $search['uuid'],
                 true
             );
-            if ($isValidEncounter != true) {
+            if ($isValidEncounter !== true) {
                 return $isValidEncounter;
             }
             $search['uuid'] = UuidRegistry::uuidToBytes($search['uuid']);
         }
-
-        if (!empty($puuidBind)) {
+        // passed in uuid string to bind patient via their uuid.
+        // confusing ...
+        if (!empty($puuidBindValue)) {
             // code to support patient binding
-            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBind, true);
-            if ($isValidPatient != true) {
+            $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuidBindValue, true);
+            if ($isValidPatient !== true) {
                 return $isValidPatient;
             }
-            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBind), self::PATIENT_TABLE, "pid");
+            $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuidBindValue), self::PATIENT_TABLE, "pid");
             if (empty($pid)) {
                 $processingResult->setValidationMessages("Invalid pid");
                 return $processingResult;
             }
-            $search['puuid'] = new TokenSearchField('eeuid', [new TokenSearchValue($puuidBind, null, true)]);
+            $search['puuid'] = new TokenSearchField('puuid', [new TokenSearchValue($puuidBindValue, null, true)]);
         }
 
         $sql = "SELECT fe.eid,
@@ -128,7 +148,6 @@ class EncounterService extends BaseService
                        fe.last_level_closed,
                        fe.last_stmt_date,
                        fe.stmt_count,
-                       fe.provider_id,
                        fe.supervisor_id,
                        fe.invoice_refno,
                        fe.referral_source,
@@ -144,10 +163,19 @@ class EncounterService extends BaseService
                        facilities.facility_id,
                        facilities.facility_uuid,
                        facilities.facility_name,
+                       facilities.facility_location_uuid,
 
                        fa.billing_facility_id,
                        fa.billing_facility_uuid,
-                       fa.billing_facility_name
+                       fa.billing_facility_name,
+                       fa.billing_location_uuid,
+                
+                       fe.provider_id,
+                       providers.provider_uuid,
+                       providers.provider_username,
+                       fe.discharge_disposition,
+                       discharge_list.discharge_disposition_text
+                       
 
                        FROM (
                            select
@@ -172,7 +200,8 @@ class EncounterService extends BaseService
                                pos_code,
                                class_code,
                                facility_id,
-                               pid
+                               discharge_disposition,
+                               pid as encounter_pid
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
@@ -180,38 +209,60 @@ class EncounterService extends BaseService
                        LEFT JOIN list_options as class ON class.option_id = fe.class_code
                        LEFT JOIN (
                            select
-                                id AS billing_facility_id
-                                ,uuid AS billing_facility_uuid
-                                ,`name` AS billing_facility_name
+                                facility.id AS billing_facility_id
+                                ,facility.uuid AS billing_facility_uuid
+                                ,facility.`name` AS billing_facility_name
+                                ,locations.uuid AS billing_location_uuid
                            from facility
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
                            select
                                   pid
                                  ,uuid AS puuid
                            FROM patient_data
-                       ) patient ON fe.pid = patient.pid
+                       ) patient ON fe.encounter_pid = patient.pid
                        LEFT JOIN (
                            select
-                                id AS provider_id
+                                id AS provider_provider_id
                                 ,uuid AS provider_uuid
-                                ,`username` AS provider_name
+                                ,`username` AS provider_username
                             FROM users
                             WHERE
                                 npi IS NOT NULL and npi != ''
-                       ) providers ON fe.provider_id = providers.provider_id
+                       ) providers ON fe.provider_id = providers.provider_provider_id
                        LEFT JOIN (
                            select
-                                id AS facility_id
-                                ,uuid AS facility_uuid
-                                ,`name` AS facility_name
+                                facility.id AS facility_id
+                                ,facility.uuid AS facility_uuid
+                                ,facility.`name` AS facility_name
+                                ,`locations`.`uuid` AS facility_location_uuid
                            from facility
-                       ) facilities ON facilities.facility_id = fe.facility_id";
+                           LEFT JOIN uuid_mapping AS locations 
+                               ON locations.target_uuid = facility.uuid AND locations.resource='Location'
+                       ) facilities ON facilities.facility_id = fe.facility_id
+                       LEFT JOIN (
+                           select option_id AS discharge_option_id
+                           ,title AS discharge_disposition_text
+                           FROM list_options
+                           WHERE list_id = 'discharge-disposition'
+                       ) discharge_list ON fe.discharge_disposition = discharge_list.discharge_option_id";
 
         try {
             $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
             $sql .= $whereFragment->getFragment();
-            $sql .= " ORDER BY fe.eid DESC";
+
+            if (empty($options['order'])) {
+                $sql .= " ORDER BY fe.eid DESC";
+            } else {
+                $sql .= " ORDER BY " . $options['order'];
+            }
+
+
+            if (is_int($limit) && $limit > 0) {
+                $sql .= " LIMIT " . $limit;
+            }
 
             $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
 
@@ -237,9 +288,9 @@ class EncounterService extends BaseService
      * Inserts a new Encounter record.
      *
      * @param $puuid The patient identifier of particular encounter
-     * @param $data The encounter fields (array) to insert.
+     * @param $data  The encounter fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *               payload.
      */
     public function insertEncounter($puuid, $data)
     {
@@ -295,9 +346,9 @@ class EncounterService extends BaseService
      *
      * @param $puuid The patient identifier of particular encounter.
      * @param $euuid - The Encounter identifier used for update.
-     * @param $data - The updated Encounter data fields
+     * @param $data  - The updated Encounter data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
+     *               payload.
      */
     public function updateEncounter($puuid, $euuid, $data)
     {
@@ -355,7 +406,7 @@ class EncounterService extends BaseService
 
     public function insertSoapNote($pid, $eid, $data)
     {
-        $soapSql  = " INSERT INTO form_soap SET";
+        $soapSql = " INSERT INTO form_soap SET";
         $soapSql .= "     date=NOW(),";
         $soapSql .= "     activity=1,";
         $soapSql .= "     pid=?,";
@@ -402,7 +453,7 @@ class EncounterService extends BaseService
 
     public function updateSoapNote($pid, $eid, $sid, $data)
     {
-        $sql  = " UPDATE form_soap SET";
+        $sql = " UPDATE form_soap SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
         $sql .= "     pid=?,";
@@ -427,141 +478,52 @@ class EncounterService extends BaseService
 
     public function updateVital($pid, $eid, $vid, $data)
     {
-        $sql  = " UPDATE form_vitals SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     bps=?,";
-        $sql .= "     bpd=?,";
-        $sql .= "     weight=?,";
-        $sql .= "     height=?,";
-        $sql .= "     temperature=?,";
-        $sql .= "     temp_method=?,";
-        $sql .= "     pulse=?,";
-        $sql .= "     respiration=?,";
-        $sql .= "     note=?,";
-        $sql .= "     waist_circ=?,";
-        $sql .= "     head_circ=?,";
-        $sql .= "     oxygen_saturation=?";
-        $sql .= "     where id=?";
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['activity'] = 1;
+        $data['id'] = $vid;
+        $data['pid'] = $pid;
+        $data['eid'] = $eid;
 
-        return sqlStatement(
-            $sql,
-            array(
-                $pid,
-                $data["bps"],
-                $data["bpd"],
-                $data["weight"],
-                $data["height"],
-                $data["temperature"],
-                $data["temp_method"],
-                $data["pulse"],
-                $data["respiration"],
-                $data["note"],
-                $data["waist_circ"],
-                $data["head_circ"],
-                $data["oxygen_saturation"],
-                $vid
-            )
-        );
+        $vitalsService = new VitalsService();
+        $updatedRecords = $vitalsService->save($data);
+        return $updatedRecords;
     }
 
     public function insertVital($pid, $eid, $data)
     {
-        $vitalSql  = " INSERT INTO form_vitals SET";
-        $vitalSql .= "     date=NOW(),";
-        $vitalSql .= "     activity=1,";
-        $vitalSql .= "     pid=?,";
-        $vitalSql .= "     bps=?,";
-        $vitalSql .= "     bpd=?,";
-        $vitalSql .= "     weight=?,";
-        $vitalSql .= "     height=?,";
-        $vitalSql .= "     temperature=?,";
-        $vitalSql .= "     temp_method=?,";
-        $vitalSql .= "     pulse=?,";
-        $vitalSql .= "     respiration=?,";
-        $vitalSql .= "     note=?,";
-        $vitalSql .= "     waist_circ=?,";
-        $vitalSql .= "     head_circ=?,";
-        $vitalSql .= "     oxygen_saturation=?";
+        $data['eid'] = $eid;
+        $data['authorized'] = '1';
+        $data['pid'] = $pid;
+        $vitalsService = new VitalsService();
+        $savedVitals = $vitalsService->save($data);
 
-        $vitalResults = sqlInsert(
-            $vitalSql,
-            array(
-                $pid,
-                $data["bps"],
-                $data["bpd"],
-                $data["weight"],
-                $data["height"],
-                $data["temperature"],
-                $data["temp_method"],
-                $data["pulse"],
-                $data["respiration"],
-                $data["note"],
-                $data["waist_circ"],
-                $data["head_circ"],
-                $data["oxygen_saturation"]
-            )
-        );
-
-        if (!$vitalResults) {
-            return false;
-        }
-
-        $formSql = "INSERT INTO forms SET";
-        $formSql .= "     date=NOW(),";
-        $formSql .= "     encounter=?,";
-        $formSql .= "     form_name='Vitals',";
-        $formSql .= "     authorized='1',";
-        $formSql .= "     form_id=?,";
-        $formSql .= "     pid=?,";
-        $formSql .= "     formdir='vitals'";
-
-        $formResults = sqlInsert(
-            $formSql,
-            array(
-                $eid,
-                $vitalResults,
-                $pid
-            )
-        );
-
-        return array($vitalResults, $formResults);
+        // need to grab the form record here, not sure why people need this but sure, why not, since the old method returned
+        // it we will keep the functionality.
+        $vitalsFormId = $savedVitals['id'];
+        $formId = intval(QueryUtils::fetchSingleValue('select id FROM forms WHERE form_id = ? ', 'id', [$vitalsFormId]));
+        return [$vitalsFormId, $formId];
     }
 
     public function getVitals($pid, $eid)
     {
-        $sql  = "  SELECT fs.*";
-        $sql .= "  FROM forms fo";
-        $sql .= "  JOIN form_vitals fs on fs.id = fo.form_id";
-        $sql .= "  WHERE fo.encounter = ?";
-        $sql .= "    AND fs.pid = ?";
-
-        $statementResults = sqlStatement($sql, array($eid, $pid));
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        $vitalsService = new VitalsService();
+        $vitals = $vitalsService->getVitalsForPatientEncounter($pid, $eid) ?? [];
+        return $vitals;
     }
 
     public function getVital($pid, $eid, $vid)
     {
-        $sql  = "  SELECT fs.*";
-        $sql .= "  FROM forms fo";
-        $sql .= "  JOIN form_vitals fs on fs.id = fo.form_id";
-        $sql .= "  WHERE fo.encounter = ?";
-        $sql .= "    AND fs.id = ?";
-        $sql .= "    AND fs.pid = ?";
-
-        return sqlQuery($sql, array($eid, $vid, $pid));
+        $vitalsService = new VitalsService();
+        $vitals = $vitalsService->getVitalsForForm($vid);
+        if (!empty($vitals) && $vitals['eid'] == $eid && $vitals['pid'] == $pid) {
+            return $vitals;
+        }
+        return null;
     }
 
     public function getSoapNotes($pid, $eid)
     {
-        $sql  = "  SELECT fs.*";
+        $sql = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
         $sql .= "  JOIN form_soap fs on fs.id = fo.form_id";
         $sql .= "  WHERE fo.encounter = ?";
@@ -579,7 +541,7 @@ class EncounterService extends BaseService
 
     public function getSoapNote($pid, $eid, $sid)
     {
-        $sql  = "  SELECT fs.*";
+        $sql = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
         $sql .= "  JOIN form_soap fs on fs.id = fo.form_id";
         $sql .= "  WHERE fo.encounter = ?";

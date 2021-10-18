@@ -263,7 +263,7 @@ function doWait(e){
         // Get patient matching selections from this form if there are any.
         if (!empty($_POST['select']) && is_array($_POST['select'])) {
             foreach ($_POST['select'] as $selkey => $selval) {
-                $info['select'][$selkey] = $selval;
+                $info['select'][urldecode($selkey)] = $selval;
             }
         }
         // Get file delete requests from this form if there are any.
@@ -317,7 +317,7 @@ function doWait(e){
         }
 
         $count = 0;
-        if (is_array($infoval['mssgs'])) {
+        if (is_array($infoval) && !empty($infoval['mssgs'])) {
             foreach ($infoval['mssgs'] as $message) {
                 $s .= " <tr class='detail'>\n";
                 if (substr($message, 0, 1) == '*') {
@@ -521,11 +521,11 @@ function doWait(e){
 
             if ($form_reviewed == 2) {
                 $where .= " AND pr.procedure_report_id IS NOT NULL AND pr.review_status = 'reviewed'";
-            } else if ($form_reviewed == 3) {
+            } elseif ($form_reviewed == 3) {
                 $where .= " AND pr.procedure_report_id IS NOT NULL AND pr.review_status != 'reviewed'";
-            } else if ($form_reviewed == 4) {
+            } elseif ($form_reviewed == 4) {
                 $where .= " AND po.date_transmitted IS NOT NULL AND pr.procedure_report_id IS NULL";
-            } else if ($form_reviewed == 5) {
+            } elseif ($form_reviewed == 5) {
                 $where .= " AND po.date_transmitted IS NULL AND pr.procedure_report_id IS NULL";
             }
 

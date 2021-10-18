@@ -200,7 +200,7 @@ function echoServiceLines()
             echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox'" .
             ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
 
-            if ($GLOBALS['gbl_auto_create_rx']) {
+            if (!empty($GLOBALS['gbl_auto_create_rx'])) {
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";
             }
 

@@ -14,27 +14,55 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Core\Kernel;
 use OpenEMR\Common\Twig\TwigExtension;
 use Twig\Environment;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
 class TwigContainer
 {
-    private $path;  // path in /templates
+    private $paths = [];  // path in /templates
 
-    public function __construct($path = null)
+    /**
+     * Instance of Kernel
+     */
+    private $kernel = null;
+
+    /**
+     * Create a new Twig superclass holding a twig environment
+     *
+     * @var $path string Additional path to add to $fileroot/templates string
+     * @var $kernel Kernel An instance of Kernel to test if the environment is dev vs prod
+     */
+    public function __construct(string $path = null, Kernel $kernel = null)
     {
-        $this->path = $GLOBALS['fileroot'] . '/templates';
+        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {
-            $this->path = $this->path . '/' . $path;
+            $this->paths[] = $path;
+        }
+
+        if ($kernel) {
+            $this->kernel = $kernel;
         }
     }
 
+    /**
+     * Get the Twig Environment.
+     *
+     * @return Twig\Environment The twig environment
+     */
     public function getTwig()
     {
-        $twigLoader = new FilesystemLoader($this->path);
+        $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $twigEnv->addExtension(new TwigExtension());
+
+        if ($this->kernel && $this->kernel->isDev()) {
+            $twigEnv->addExtension(new DebugExtension());
+            $twigEnv->enableDebug();
+        }
+
         return $twigEnv;
     }
 }

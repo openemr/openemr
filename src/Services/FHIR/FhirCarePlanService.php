@@ -19,15 +19,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
+class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var CarePlanService
@@ -108,6 +112,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $carePlanResource->setText(UtilsService::createDataMissingExtension());
         }
 
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
+            $carePlanResource->getAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+        }
+
         if ($encode) {
             return json_encode($carePlanResource);
         } else {
@@ -129,8 +137,11 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function createProvenanceResource($dataRecord, $encode = false)
     {
+        if (!($dataRecord instanceof FHIRCarePlan)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
         $provenanceService = new FhirProvenanceService();
-        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord);
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
         return $provenance;
     }
 
@@ -151,7 +162,8 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             // use description or fallback on codetext if needed
             $descriptions[] = $detail['description'] ?? $detail['codetext'] ?? "";
         }
-        $carePlanText = ['text' => implode("\n", $descriptions), "xhtml" => ""];
+        // make sure we clear any white space out that blows up FHIR validation
+        $carePlanText = ['text' => trim(implode("\n", $descriptions)), "xhtml" => ""];
         if (!empty($descriptions)) {
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }

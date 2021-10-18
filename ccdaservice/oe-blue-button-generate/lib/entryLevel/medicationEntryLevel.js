@@ -207,7 +207,8 @@ exports.medicationActivity = {
                 unit: leafLevel.inputProperty("unit")
             },
             dataKey: "administration.rate"
-        }, /*{
+        },
+        /*{
             key: "administrationUnitCode",
             attributes: leafLevel.code,
             existsWhen: function (input) {
@@ -219,7 +220,7 @@ exports.medicationActivity = {
             content: medicationInformation,
             dataKey: "product"
         },
-        /* below not required for v2 screw v1 */
+        fieldLevel.author
         /*fieldLevel.performer, {
             key: "participant",
             attributes: {

@@ -12,6 +12,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
+require_once "C_FormVitals.class.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -19,7 +20,6 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-require("C_FormVitals.class.php");
 $c = new C_FormVitals();
 echo $c->default_action_process($_POST);
 @formJump();

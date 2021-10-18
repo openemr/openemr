@@ -75,7 +75,7 @@ function getInsuranceProvider($ins_id)
 
     $sql = "select name from insurance_companies where id=?";
     $row = sqlQuery($sql, array($ins_id));
-    return $row['name'];
+    return $row['name'] ?? '';
 }
 
 function getInsuranceProviders()
@@ -298,8 +298,9 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         $command = "like";
     }
 
+// removing active from query since is checked above with $providers_only argument
     $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
-        "from users where username != '' and active = 1 and id $command '" .
+        "from users where username != '' and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
@@ -705,7 +706,7 @@ function getByPatientDemographicsFilter(
 function getPatientPID($args)
 {
     $pid = "%";
-    $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+    $given = "pid, id, lname, fname, mname, suffix, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
     $orderby = "lname ASC, fname ASC";
     $limit = "all";
     $start = "0";
@@ -769,6 +770,40 @@ function getPatientName($pid)
 
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
+}
+
+/**
+ * Get a patient's first name, middle name, last name and suffix if applicable.
+ *
+ * Returns a properly formatted, complete name when applicable. Example name
+ * would be "John B Doe Jr". No additional punctuation is added. Spaces are
+ * correctly omitted if the middle name of suffix does not apply.
+ *
+ * @var $pid int The Patient ID
+ * @returns string The Full Name
+ */
+function getPatientFullNameAsString(int $pid): string
+{
+    $ptData = getPatientPID(["pid" => $pid]);
+    $pt = $ptData[0];
+
+    if (empty($pt['lname'])) {
+        return "";
+    }
+
+    $name = $pt['fname'];
+
+    if ($pt['mname']) {
+        $name .= " {$pt['mname']}";
+    }
+
+    $name .= " {$pt['lname']}";
+
+    if ($pt['suffix']) {
+        $name .= " {$pt['suffix']}";
+    }
+
+    return $name;
 }
 
 /* return a patient's name in the format FIRST LAST */

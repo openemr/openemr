@@ -10,6 +10,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -26,9 +28,11 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var ConditionService
@@ -52,7 +56,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('condition_uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -118,12 +122,13 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         if (!empty($dataRecord['diagnosis'])) {
             $diagnosisCoding = new FHIRCoding();
             $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $display) {
+            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
                 }
                 $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($display);
+                $diagnosisCoding->setDisplay($codeValues['description']);
+                $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
             $conditionResource->setCode($diagnosisCode);
@@ -205,7 +210,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
+        $result = $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
+        return $result;
     }
 
     public function createProvenanceResource($dataRecord = array(), $encode = false)
@@ -232,5 +238,10 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

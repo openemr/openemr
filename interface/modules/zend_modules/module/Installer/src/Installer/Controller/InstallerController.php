@@ -729,7 +729,7 @@ class InstallerController extends AbstractActionController
         }
 
         if ($moduleId !== null) {
-            echo 'module [' . $moduleName . '] was find' . PHP_EOL;
+            echo 'module [' . $moduleName . '] was found' . PHP_EOL;
 
             $msg = "command completed successfully";
 

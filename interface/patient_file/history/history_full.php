@@ -7,6 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -239,7 +240,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 <body>
 
-<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
+<div id="container_div" class="container-fluid mt-3">
     <div class="row">
         <div class="col-12">
             <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>

@@ -1,29 +1,14 @@
 <?php
 
-/*
+/**
  * edih_segments.php
  *
- * Copyright 2016 Kevin McCormick <kevin@kt61p>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
- * @subpackage ediHistory
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -1268,7 +1253,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     }
 
     //
-    $capstr .= ($claimid) ? " <em>ID:</em> " . text($claimid) : "";
+    $capstr .= ($claimid) ? " ID: " . text($claimid) : "";
     //
     $str_html .= "<table id=" . attr($tbl_id) . " cols=3 class='segtxt'><caption>" . text($capstr) . "</caption>" . PHP_EOL;
     $str_html .= "<thead>" . PHP_EOL;

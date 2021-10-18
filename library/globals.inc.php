@@ -1150,6 +1150,13 @@ $GLOBALS_METADATA = array(
             xl('Turn off auto calculations of adjustments in EOB')
         ),
 
+        'force_claim_balancing' => array(
+            xl('Force claim balancing in EOB Posting'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Force claim balancing in EOB Posting')
+        ),
+
         'show_payment_history' => array(
             xl('Show all payment history in Patient Ledger'),
             'bool',                           // data type
@@ -1169,6 +1176,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
+        ),
+
+        'include_inactive_providers' => array(
+            xl('Include inactive providers in the fee sheet'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Include inactive providers in the fee sheet.')
         ),
 
         'replicate_justification' => array(

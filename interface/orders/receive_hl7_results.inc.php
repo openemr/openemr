@@ -865,12 +865,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $in_ssn = preg_replace('/[^0-9]/', '', $a[4]);
             $in_dob = rhl7Date($a[7]);
             $tmp = explode($d2, $a[11]);
-            $in_street = rhl7Text($tmp[0]);
-            $in_street1 = rhl7Text($tmp[1]);
-            $in_city = rhl7Text($tmp[2]);
-            $in_state = rhl7Text($tmp[3]);
-            $in_zip = rhl7Text($tmp[4]);
-            $in_phone = rhl7Text($a[13]);
+            $in_street = rhl7Text($tmp[0]) ?? '';
+            $in_street1 = rhl7Text($tmp[1] ?? '');
+            $in_city = rhl7Text($tmp[2] ?? '');
+            $in_state = rhl7Text($tmp[3] ?? '');
+            $in_zip = rhl7Text($tmp[4] ?? '');
+            $in_phone = rhl7Text($a[13]) ?? '';
             switch (strtoupper($a[8])) {
                 case 'M':
                     $in_sex = 'Male';
@@ -1327,7 +1327,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
             if (empty($obrPerformingOrganization)) {
-                $performingOrganization = getPerformingOrganizationDetails($a[23], $a[24], $a[25], $d2, $commentdelim);
+                $performingOrganization = getPerformingOrganizationDetails($a[23] ?? '', $a[24] ?? '', $a[25] ?? '', $d2, $commentdelim);
             } else {
                 $performingOrganization = $obrPerformingOrganization;
             }
@@ -1408,7 +1408,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Ignore and do nothing.
         } elseif ($a[0] == 'NTE' && 'PID' == $context) {
             // will get orderid on save.
-            $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+            if (!empty($amain[0])) {
+                $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+            }
         } elseif ('ZPS' == $a[0] && 'ORU' == $msgtype) {
             //global $ares;
             $performingOrganization = parseZPS($a);
@@ -1708,7 +1710,9 @@ function poll_hl7_results(&$info, $labs = 0)
 
                 // Do a dry run of its contents and check for errors and match requests.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
-                $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " . $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
+                if (!empty($tmp['mssgs'])) {
+                    $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " . $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
+                }
 
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];

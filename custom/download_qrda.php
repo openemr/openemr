@@ -171,7 +171,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
             $counter = 0;
         foreach ($dataSheet as $row) {
             if (isset($row['is_main']) || isset($row['is_sub'])) {
-                if (count($cqmCodes) && in_array($row['cqm_nqf_code'], $cqmCodes)) {
+                if (count($cqmCodes ?? []) && in_array($row['cqm_nqf_code'], $cqmCodes)) {
                     continue;
                 }
 

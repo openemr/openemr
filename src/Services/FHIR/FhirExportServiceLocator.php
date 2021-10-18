@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 
 class FhirExportServiceLocator
 {
@@ -37,22 +37,7 @@ class FhirExportServiceLocator
      */
     public function findExportServices()
     {
-        $resourceRegistry = [];
-        $restHelper = new RestControllerHelper();
-        $restConfig = $this->restConfig;
-        $restCapability = $restHelper->getCapabilityRESTObject($restConfig::$FHIR_ROUTE_MAP);
-        $resources = $restCapability->getResource();
-        foreach ($resources as $resource) {
-            $resourceName = $resource->getType()->getValue();
-            $serviceClassName = $restHelper->getFullyQualifiedServiceClassForResource($resourceName);
-            if (!empty($serviceClassName)) {
-                $service = new $serviceClassName();
-                if ($service instanceof IFhirExportableResourceService) {
-                    // if service is instance of IFHIRExportableResource
-                    $resourceRegistry[$resourceName] = $service;
-                }
-            }
-        }
-        return $resourceRegistry;
+        $locator = new FhirServiceLocator($this->restConfig);
+        return $locator->findServices(IFhirExportableResourceService::class);
     }
 }

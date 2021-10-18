@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -29,12 +30,25 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid)
+    public static function createRelativeReference($type, $uuid, $displayName = null)
     {
         $reference = new FHIRReference();
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
+        if (!empty($displayName) && is_string($displayName)) {
+            $reference->setDisplay($displayName);
+        }
         return $reference;
+    }
+
+    public static function getUuidFromReference(FHIRReference $reference)
+    {
+        $uuid = null;
+        if (!empty($reference->getReference())) {
+            $parts = explode("/", $reference->getReference());
+            $uuid = $parts[1] ?? null;
+        }
+        return $uuid;
     }
 
     public static function createQuantity($value, $unit, $code)
@@ -58,12 +72,13 @@ class UtilsService
         return $coding;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem, $defaultDisplay = ""): FHIRCodeableConcept
+    public static function createCodeableConcept(array $diagnosisCodes, $defaultCodeSystem = "", $defaultDisplay = ""): FHIRCodeableConcept
     {
         $diagnosisCode = new FHIRCodeableConcept();
-        foreach ($diagnosisCodes as $code => $display) {
-            if (!empty($display)) {
-                $diagnosisCode->addCoding(self::createCoding($code, $display, $codeSystem));
+        foreach ($diagnosisCodes as $code => $codeValues) {
+            $codeSystem = $codeValues['system'] ?? $defaultCodeSystem;
+            if (!empty($codeValues['description'])) {
+                $diagnosisCode->addCoding(self::createCoding($code, $codeValues['description'], $codeSystem));
             } else {
                 $diagnosisCode->addCoding(self::createCoding($code, $defaultDisplay, $codeSystem));
             }
@@ -173,12 +188,23 @@ class UtilsService
 
     public static function createNullFlavorUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_NULL_FLAVOR => 'unknown'], FhirCodeSystemConstants::HL7_NULL_FLAVOR);
+        return self::createCodeableConcept([
+            self::UNKNOWNABLE_CODE_NULL_FLAVOR => [
+                'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
+                ,'description' => 'unknown'
+                ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
+            ]]);
     }
 
     public static function createDataAbsentUnknownCodeableConcept()
     {
-        return self::createCodeableConcept([self::UNKNOWNABLE_CODE_DATA_ABSENT => 'Unknown'], FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM);
+        return self::createCodeableConcept(
+            [self::UNKNOWNABLE_CODE_DATA_ABSENT => [
+                'code' => self::UNKNOWNABLE_CODE_DATA_ABSENT
+                , 'description' => 'Unknown'
+                , 'system' => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM
+            ]]
+        );
     }
 
     /**
@@ -204,5 +230,16 @@ class UtilsService
             'start' => $start,
             'end' => $end
         ];
+    }
+
+    public static function createNarrative($message, $status = "generated"): FHIRNarrative
+    {
+        $div = "<div xmlns='http://www.w3.org/1999/xhtml'>" . $message . "</div>";
+        $narrative = new FHIRNarrative();
+        $code = new FHIRCode();
+        $code->setValue($status);
+        $narrative->setStatus($code);
+        $narrative->setDiv($div);
+        return $narrative;
     }
 }

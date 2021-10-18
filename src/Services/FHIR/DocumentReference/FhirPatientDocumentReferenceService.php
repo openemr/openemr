@@ -31,7 +31,10 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirPatientDocumentReferenceService extends FhirServiceBase
@@ -79,6 +82,15 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             // we have nothing with this category so we are going to return nothing as we never should have gotten here
 
             unset($openEMRSearchParameters['category']);
+        }
+        if (isset($openEMRSearchParameters['patient'])) {
+            // make sure that no other modifier such as NOT_EQUALS, OR missing=true is sent which would let system file names be
+            // leaked out in the API
+            $openEMRSearchParameters['patient']->setModifier(SearchModifier::EXACT);
+        } else {
+            // make sure we only return documents that are tied to patients
+            $openEMRSearchParameters['patient'] = new TokenSearchField('puuid', [new TokenSearchValue(false, null)]);
+            $openEMRSearchParameters['patient']->setModifier(SearchModifier::MISSING);
         }
         return $this->service->search($openEMRSearchParameters);
     }
@@ -154,16 +166,17 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         // TODO: @adunsulag check with @brady.miller is there anyway to translate our document categories into LOINC codes?
 
         $docCategoryValueSetSystem = $this->getFhirApiURL() . "/fhir/ValueSet/openemr-document-types";
-        $docReference->addCategory(UtilsService::createCodeableConcept(['openemr-document' => 'OpenEMR Document'], $docCategoryValueSetSystem));
+        $docReference->addCategory(UtilsService::createCodeableConcept(
+            ['openemr-document' => ['code' => 'openemr-document', 'description' => 'OpenEMR Document', 'system' => $docCategoryValueSetSystem]
+            ]
+        ));
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         $docReference->setCustodian($orgReference);
 
-        // TODO: @adunsulag check with @sjpadgett and @brady.miller how are patient documents setup?  Do they populate the owner column?
-        // how do you determine if a patient uploaded a document vs a regular user?
         if (!empty($dataRecord['user_uuid'])) {
-            if (!empty($dataRecord['npi'])) {
+            if (!empty($dataRecord['user_npi'])) {
                 $docReference->addAuthor(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
             } else {
                 // if we don't have a practitioner reference then it is the business owner that will be the author on
@@ -199,7 +212,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

@@ -18,9 +18,12 @@ class CodeTypesService
     private $snomedInstalled;
 
     const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
+    const CODE_TYPE_SNOMED = "SNOMED";
     const CODE_TYPE_CPT4 = "CPT4";
     const CODE_TYPE_LOINC = "LOINC";
     const CODE_TYPE_NUCC = "NUCC";
+    const CODE_TYPE_RXNORM = "RXNORM";
+    const CODE_TYPE_RXCUI = "RXCUI";
 
     public function __construct()
     {
@@ -64,11 +67,46 @@ class CodeTypesService
 
     public function getSystemForCode($code, $useOid = false)
     {
-        if (strpos($code, ":") !== false) {
-            $parts = explode(":", $code);
-            return $this->getSystemForCodeType($parts[0]);
+        $codeType = $this->getCodeTypeForCode($code);
+        if (!empty($codeType)) {
+            return $this->getSystemForCodeType($codeType);
         }
         return null;
+    }
+
+    public function parseCode($code)
+    {
+        $parsedCode = $code;
+        $parsedType = null;
+        if (is_string($code) && strpos($code, ":") !== false) {
+            $parts = explode(":", $code);
+            $parsedCode  = $parts[1];
+            $parsedType = $parts[0];
+        }
+        return ['code' => $parsedCode, 'code_type' => $parsedType];
+    }
+
+    /**
+     * Returns a code with the code type prefixed
+     * @param $code string The value for the code that exists in the given code_type datadatabse
+     * @param $type string The code_type that the code belongs to (SNOMED, RXCUI, ICD10, etc).
+     * @return string  The fully typed code (TYPE:CODE)
+     */
+    public function getCodeWithType($code, $type, $oe_format = false)
+    {
+        if (empty($type) || empty($code)) {
+            return "";
+        }
+        if ($oe_format) {
+            $type = $this->formatCodeType($type);
+        }
+        return ($type ?? "") . ":" . ($code ?? "");
+    }
+
+    public function getCodeTypeForCode($code)
+    {
+        $parsedCode = $this->parseCode($code);
+        return $parsedCode['code_type'];
     }
 
     public function getSystemForCodeType($codeType, $useOid = false)
@@ -85,12 +123,37 @@ class CodeTypesService
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
                 $system = FhirCodeSystemConstants::SNOMED_CT;
+            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
+                $system = FhirCodeSystemConstants::SNOMED_CT;
             } elseif (self::CODE_TYPE_NUCC == $codeType) {
                 $system = FhirCodeSystemConstants::NUCC_PROVIDER;
-            } else if (self::CODE_TYPE_LOINC == $codeType) {
+            } elseif (self::CODE_TYPE_LOINC == $codeType) {
                 $system = FhirCodeSystemConstants::LOINC;
+            } elseif (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
+                $system = FhirCodeSystemConstants::RXNORM;
             }
         }
         return $system;
+    }
+
+    public function formatCodeType($type)
+    {
+        switch (strtoupper($type)) {
+            case 'ICD10CM':
+                $type = 'ICD10';
+                break;
+            case 'SNOMED CT':
+            case 'SNOMEDCT':
+                $type = 'SNOMED-CT';
+                break;
+            case 'RXCUI':
+            case 'RXNORM':
+                $type = 'RXCUI'; // let's use RxCUI for lookups
+                break;
+            case 'CPT':
+                $type = 'CPT4';
+                break;
+        }
+        return $type;
     }
 }

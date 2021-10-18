@@ -109,6 +109,29 @@ class SystemLogger implements LoggerInterface
     }
 
     /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.  This function automatically logs the class and function method that invoked the
+     * error log.
+     * @param $message
+     * @param array $context
+     */
+    public function errorLogCaller($message, array $context = array())
+    {
+        // we skip over arguments and go 2 stack traces to get the current call and the caller function into this one.
+        $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $callerContext = $dbt[1] ?? [];
+        $callerClass = $callerContext['class'] ?? "";
+        $callerType = $callerContext['type'] ?? "";
+        $callerFunction = $callerContext['function'] ?? "";
+        $caller = $callerClass . $callerType . $callerFunction;
+        if ($caller != "") {
+            // make it look like a method signature
+            $caller .= "() ";
+        }
+        $this->error($caller . $message, $context);
+    }
+
+    /**
      * Exceptional occurrences that are not errors.
      *
      * Example: Use of deprecated APIs, poor use of an API, undesirable things

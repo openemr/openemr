@@ -86,6 +86,10 @@ class ImmunizationService extends BaseService
                 site.notes as site_code,
                 completion_status,
                 refusal_reason,
+                providers.provider_uuid,
+                providers.provider_npi,
+                providers.provider_username,
+                
                 IF(
                     IF(
                         information_source = 'new_immunization_record' AND
@@ -111,7 +115,16 @@ class ImmunizationService extends BaseService
                     FROM patient_data
                 ) patient ON immunizations.patient_id = patient.pid
                 LEFT JOIN codes as cvx ON cvx.code = immunizations.cvx_code
-                LEFT JOIN list_options as site ON site.option_id = immunizations.administration_site";
+                LEFT JOIN list_options as site ON site.option_id = immunizations.administration_site
+                LEFT JOIN (
+                    select
+                        uuid AS provider_uuid
+                        ,npi AS provider_npi
+                        ,username AS provider_username
+                        ,id AS provider_id
+                    FROM
+                        users
+                ) provider ON immunizations.administered_by_id = providers.provider_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

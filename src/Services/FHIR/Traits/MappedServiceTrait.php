@@ -13,9 +13,6 @@ namespace OpenEMR\Services\FHIR\Traits;
 
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 trait MappedServiceTrait

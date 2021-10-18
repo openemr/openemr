@@ -13,6 +13,7 @@
  */
 
 require_once("../../../library/api.inc");
+require_once("../vitals/C_FormVitals.class.php");
 
 function addAppt($days, $time)
 {
@@ -23,8 +24,7 @@ function addAppt($days, $time)
 }
 function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 {
-//This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.php
-//if it doesn't work, look there for changes.
+//This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.phpif it doesn't work, look there for changes.
     $_POST['process'] = 'true';
     $_POST['weight'] = $weight;
     $_POST['height'] = $height;
@@ -32,7 +32,6 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     $_POST['bpd'] = $diastolic;
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
-    require("../vitals/C_FormVitals.class.php");
     $c = new C_FormVitals();
     echo $c->default_action_process($_POST);
 }

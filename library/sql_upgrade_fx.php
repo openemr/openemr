@@ -27,9 +27,6 @@
  * @link      https://www.open-emr.org
  */
 
-use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Common\Uuid\UuidRegistry;
-
 /**
  * Return the name of the OpenEMR database.
  *
@@ -126,6 +123,20 @@ function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
         // Standard case when checking if default is neither NULL or ""(blank)
         return (strcasecmp($row['Default'], $coldefault) == 0);
     }
+}
+
+/**
+ * Check if a Sql row exists (with one null value)
+ *
+ * @param string $tblname Sql Table Name
+ * @param string $colname Sql Column Name
+ * @return boolean           returns true if the sql row does exist
+ */
+function tableHasRowNull($tblname, $colname)
+{
+    $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+        "$colname IS NULL");
+    return $row['count'] ? true : false;
 }
 
 /**
@@ -642,13 +653,6 @@ function flush_echo($string = '')
  *   arguments: table_name colname
  *   behavior:  If the index does not exist, it will be created
  *
- * #IfUuidNeedUpdate
- *   argument: table_name
- *   behavior: this will populate a uuid column in table (table needs to be mapped in UUID_TABLE_DEFINITIONS in UuidRegistry class)
- *
- * #IfMappingUuidNeedUpdate
- *   behavior: this will populate the mapping_uuid table
- *
  * #IfNotMigrateClickOptions
  *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
  *
@@ -904,6 +908,17 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }
+        } elseif (preg_match('/^#IfRowIsNull\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = !(tableHasRowNull($matches[1], $matches[2]));
+            } else {
+                // If no such table then should skip.
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<p class='text-success'>$skip_msg $line</p>\n";
+            }
         } elseif (preg_match('/^#IfRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow($matches[1], $matches[2], $matches[3]));
@@ -1049,37 +1064,6 @@ function upgradeFromSqlFile($filename, $path = '')
                 }
             }
 
-            if ($skipping) {
-                echo "<p class='text-success'>$skip_msg $line</p>\n";
-            }
-        } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
-            $uuidRegistry = UuidRegistry::getRegistryForTable($matches[1]);
-            if ($uuidRegistry->tableNeedsUuidCreation()) {
-                $skipping = false;
-                echo "<p>Going to add UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-                $number = $uuidRegistry->createMissingUuids();
-                echo "<p class='text-success'>Successfully completed added " . $number . " UUIDs to " . $matches[1] . " table</p>\n";
-                flush_echo();
-            } else {
-                $skipping = true;
-            }
-            if ($skipping) {
-                echo "<p class='text-success'>$skip_msg $line</p>\n";
-            }
-        } elseif (preg_match('/^#IfMappingUuidNeedUpdate/', $line)) {
-            echo "<p>Checking for missing mapped resource UUIDs</p>";
-            flush_echo();
-            $uuidMappingCount = UuidMapping::createAllMissingResourceUuids();
-            if (!empty($uuidMappingCount)) {
-                $skipping = false;
-                echo "<p>Going to add UUIDs to uuid_mapping table</p>\n";
-                flush_echo();
-                echo "<p class='text-success'>Successfully completed added " . $uuidMappingCount . " UUIDs to uuid_mapping table</p>\n";
-                flush_echo();
-            } else {
-                $skipping = true;
-            }
             if ($skipping) {
                 echo "<p class='text-success'>$skip_msg $line</p>\n";
             }

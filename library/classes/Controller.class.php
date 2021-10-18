@@ -1,5 +1,6 @@
 <?php
 
+// TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
 
@@ -78,10 +79,10 @@ class Controller extends Smarty
             $_POST['process'] = "true";
         }
 
-            $args = array_reverse(array_keys($qarray));
-            $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
-            $parts = explode("_", $c_name);
-            $name = "";
+        $args = array_reverse(array_keys($qarray));
+        $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
+        $parts = explode("_", $c_name);
+        $name = "";
 
         foreach ($parts as $p) {
             $name .= ucfirst($p);

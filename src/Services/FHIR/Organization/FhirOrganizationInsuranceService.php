@@ -97,15 +97,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         $organizationResource->setMeta($fhirMeta);
         $organizationResource->setActive($dataRecord['inactive'] == '0');
 
-        $narrativeText = '';
-        if (isset($dataRecord['name'])) {
-            $narrativeText = $dataRecord['name'];
+        $narrativeText = trim($dataRecord['name'] ?? "");
+        if (!empty($narrativeText)) {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $organizationResource->setText($text);
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $organizationResource->setText($text);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -144,7 +143,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
             }
         }
 
-        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => "Insurance Company"], FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE));
+        $organizationResource->addType(UtilsService::createCodeableConcept(['ins' => [
+            'code' => 'ins', 'description' => "Insurance Company"
+            , 'system' => FhirCodeSystemConstants::HL7_ORGANIZATION_TYPE]
+        ]));
 
         if ($encode) {
             return json_encode($organizationResource);

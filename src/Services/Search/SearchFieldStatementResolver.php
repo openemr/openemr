@@ -46,7 +46,7 @@ class SearchFieldStatementResolver
         } else if ($field instanceof CompositeSearchField) {
             return self::resolveCompositeSearchField($field, $count);
         } else {
-            throw new \InvalidArgumentException("Provided search field type was not implemented");
+            throw new SearchFieldException($field->getName(), "Provided search field type was not implemented");
         }
     }
 
@@ -59,7 +59,7 @@ class SearchFieldStatementResolver
     public static function resolveDateField(DateSearchField $searchField)
     {
         if (empty($searchField->getValues())) {
-            throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
+            throw new SearchFieldException($searchField->getField(), " field does not have a value to search on");
         }
 
         $clauses = [];
@@ -82,7 +82,7 @@ class SearchFieldStatementResolver
                 $lowerBoundDateRange = $value;
                 $upperBoundDateRange = $value;
             } else {
-                throw new \InvalidArgumentException("DateSearchField " . $searchField->getField() . " contained value that was not a DatePeriod or DateTime object");
+                throw new SearchFieldException($searchField->getField(), "DateSearchField contained value that was not a DatePeriod or DateTime object");
             }
 
             switch ($comparableValue->getComparator()) {
@@ -174,7 +174,7 @@ class SearchFieldStatementResolver
     public static function resolveReferenceField(ReferenceSearchField $searchField)
     {
         if (empty($searchField->getValues())) {
-            throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
+            throw new SearchFieldException($searchField->getField(), "field does not have a value to search on");
         }
 
         $searchFragment = new SearchQueryFragment();
@@ -204,7 +204,7 @@ class SearchFieldStatementResolver
     public static function resolveTokenField(TokenSearchField $searchField)
     {
         if (empty($searchField->getValues())) {
-            throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
+            throw new SearchFieldException($searchField->getField(), "field does not have a value to search on");
         }
 
         $searchFragment = new SearchQueryFragment();
@@ -251,7 +251,7 @@ class SearchFieldStatementResolver
     public static function resolveStringSearchField(StringSearchField $searchField)
     {
         if (empty($searchField->getValues())) {
-            throw new \InvalidArgumentException("Search field " . $searchField->getField() . " does not have a value to search on");
+            throw new SearchFieldException($searchField->getField(), "does not have a value to search on");
         }
 
         $clauses = [];
