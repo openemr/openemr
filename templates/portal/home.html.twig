@@ -25,15 +25,39 @@
 		cuser = {{ user | js_escape }},
 		webRoot = {{ web_root | js_escape }},
 		ptName = {{ patientName | js_escape }},
+        whereto = {{ whereto | js_escape }},
 		webroot_url = webRoot,
 		tab_mode = true,
 		isPortal = 1;
 
-		function restoreSession() { // dummy functions so the dlgopen function will work in the patient portal
+		function restoreSession() {
 			return true;
 		}
 
+        function persist(where, portalInit = false) {
+            if (where[0] !== '#') {
+                return;
+            }
+            whereto = where;
+            fetch('lib/persist.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'where': where,
+                        'portal_init': portalInit
+                    }
+                ),
+            });
+        }
+
 		$(function () {
+            $('li a.dropdown-item').on('click', (e) => {
+                persist($(e.target).attr('href'), false);
+            });
 
 			if ($('body').css('direction') == "rtl") {
 				$('.float-left').each(function () {
@@ -67,7 +91,9 @@
 
 			$("#allergylist").load("./get_allergies.php", {}, function () {});
 
-			$("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});
+			$("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
+
+            });
 
 			{% if portal_two_payments %}
 				$("#payment").load("./portal_payment.php", {}, function () {});
@@ -78,7 +104,7 @@
 			});
 
 			function showProfileModal() {
-				var title = {{ 'Profile Edits Red = Charted Values Blue = Patient Edits' | xlj }};
+				var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
 
 				var params = {
 					buttons: [{
@@ -121,7 +147,7 @@
 				page.updateModel();
 			}
 
-			var gowhere = '#' + {{ whereto | js_escape }};
+			var gowhere = {{ whereto | js_escape }};
 
 			$(gowhere).collapse('show');
 
@@ -138,7 +164,6 @@
 
 		function editAppointment(mode, deid) {
 			let mdata = {};
-
 			let title = '';
 
 			if (mode === 'add') {
@@ -159,13 +184,7 @@
 
 			var params = {
 				dialogId: 'editpop',
-				buttons: [
-					{
-					text: 'Cancel',
-					close: true,
-					style: 'btn-sm btn-secondary',
-					}
-					],
+				buttons: [{text: 'Cancel', close: true, style: 'btn-sm btn-secondary'}],
 				allowDrag: false,
 				sizeHeight: 'full',
 				size: 750,
@@ -187,7 +206,7 @@
 
 		function changeCredentials(e) {
 			title = {{ 'Please Enter New Credentials' | xlj }};
-			dlgopen("./account/index_reset.php", '', 575, 500, null, title, {});
+			dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
 		}
 
 		{% if isEasyPro %}

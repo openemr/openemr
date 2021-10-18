@@ -946,9 +946,9 @@ $config = 1; /////////////
         $gacl->add_acl(
             array(
                 'admin' => array('drugs'),
-                'encounters' => array('coding'),
+                'encounters' => array('auth', 'coding', 'notes'),
                 'patients' => array('appt'),
-                'groups' => array('gcalendar','glog')
+                'groups' => array('gcalendar', 'glog')
             ),
             null,
             array($clin),
