@@ -1181,7 +1181,7 @@ VALUES
 SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
 VALUES
-(NULL, "SARS-COV-2 COVID-19  Live Attenuated Virus Non-US Vaccine Product (COVIVAC)", "COVID-19 LAV Non-US Vaccine (COVIVAC)", 503, @codetypeid, '', 0, 0, '', '', '', 1);
+(NULL, "SARS-COV-2 COVID-19 Live Attenuated Virus Non-US Vaccine Product (COVIVAC)", "COVID-19 LAV Non-US Vaccine (COVIVAC)", 503, @codetypeid, '', 0, 0, '', '', '', 1);
 #EndIf
 
 #IfNotRow codes code_text SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)

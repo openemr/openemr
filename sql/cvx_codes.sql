@@ -219,7 +219,7 @@ VALUES
 (NULL, "SARS-COV-2 COVID-19 Non-US Vaccine, Specific Product Unknown", "COVID-19 Non-US Vaccine, Product Unknown", 500, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (QAZCOVID-IN)", "COVID-19 IV Non-US Vaccine (QAZCOVID-IN)", 501, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (COVAXIN)", "COVID-19 IV Non-US Vaccine (COVAXIN)", 502, @codetypeid, '', 0, 0, '', '', '', 1),
-(NULL, "SARS-COV-2 COVID-19  Live Attenuated Virus Non-US Vaccine Product (COVIVAC)", "COVID-19 LAV Non-US Vaccine (COVIVAC)", 503, @codetypeid, '', 0, 0, '', '', '', 1),
+(NULL, "SARS-COV-2 COVID-19 Live Attenuated Virus Non-US Vaccine Product (COVIVAC)", "COVID-19 LAV Non-US Vaccine (COVIVAC)", 503, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)", "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik Light)", 504, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik V)", "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (Sputnik V)", 505, @codetypeid, '', 0, 0, '', '', '', 1),
 (NULL, "SARS-COV-2 COVID-19 Viral Vector Non-replicating Non-US Vaccine Product (CanSino Biological Inc./Beijing Institute of Biotechnology)", "COVID-19 VVnr Non-US Vaccine (CanSino Biological Inc./Beijing Institute of Biotechnology)", 506, @codetypeid, '', 0, 0, '', '', '', 1),
