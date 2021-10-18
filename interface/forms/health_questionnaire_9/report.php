@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * PHQ9 form report.php
+ * Health Questionnaire 9 form report.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -14,9 +14,9 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
-function phq9_report($pid, $encounter, $cols, $id){
+function health_questionnaire_9_report($pid, $encounter, $cols, $id){
 
-	$sql = "SELECT * FROM `form_phq9` WHERE pid = ? AND encounter = ? AND id = ?";
+	$sql = "SELECT * FROM `form_health_questionnaire_9` WHERE pid = ? AND encounter = ? AND id = ?";
 	$res = sqlStatement($sql, array($pid, $encounter, $id));
 	$data = array();
 	for ($iter = 0; $row = sqlFetchArray($res); $iter++) {

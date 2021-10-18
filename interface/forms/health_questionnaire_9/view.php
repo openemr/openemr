@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHQ9 form view.php
+ * Health Questionnaire 9 form view.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

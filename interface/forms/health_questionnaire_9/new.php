@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHQ9 form new.php
+ * Health Questionnaire 9 form new.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -23,23 +23,12 @@ use OpenEMR\Core\Header;
 $returnurl = 'encounter_top.php';
 $formid = isset($_GET['id']) ? $_GET['id'] : 0;
 
-// verify whether form data deleted or not
-// $form_sql = "SELECT deleted, form_id FROM `forms` WHERE pid = ? AND encounter = ? AND formdir = 'phq9' ORDER BY id DESC LIMIT 1";
-// $form_res = sqlStatement($form_sql, array($_SESSION["pid"], $_SESSION["encounter"]));
-// if(sqlNumRows($form_res)){
-// 	$form_data = sqlFetchArray($form_res);
-// 	if($form_data['deleted']){
-// 		// deleting record from form_bio_psychosocial table for the corresponding 
-// 		$del_sql = "DELETE FROM `form_phq9` WHERE pid = ? AND encounter = ? AND id = ?";
-// 		sqlQuery($del_sql, array($_SESSION["pid"], $_SESSION["encounter"],$form_data['form_id']));
-// 	}
-// }
 
 $data = array();
 
 if($formid){
 
-	$sql = "SELECT * FROM `form_phq9` WHERE pid = ? AND encounter = ? AND id = ?";
+	$sql = "SELECT * FROM `form_health_questionnaire_9` WHERE pid = ? AND encounter = ? AND id = ?";
 	$res = sqlStatement($sql, array($_SESSION["pid"], $_SESSION["encounter"], $formid));
 
 	for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -158,7 +147,7 @@ $userId = $userDetails[0]['id'];
 	                </div>
 	            </div>
         	</div>
-           	<form class="mt-3" id="phq9-form" method='post' action="<?php echo $rootdir ?>/forms/phq9/save.php" name='phq9'>
+           	<form class="mt-3" id="phq9-form" method='post' action="<?php echo $rootdir ?>/forms/health_questionnaire_9/save.php" name='phq9'>
 					<input type="hidden" name="pid" value="<?php echo $_SESSION["pid"]; ?>">
 					<input type="hidden" name="encounter" value="<?php echo $_SESSION["encounter"]; ?>">
 					<input type="hidden" name="evaluator" class="form-control" style="opacity:1" value="<?php echo $_SESSION['authUserID']; ?>">

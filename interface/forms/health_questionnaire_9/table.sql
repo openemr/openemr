@@ -1,4 +1,4 @@
-create table form_phq9(
+create table form_health_questionnaire_9(
 	id bigint(20) NOT NULL AUTO_INCREMENT,
 	pid int not null,
 	encounter int not null,

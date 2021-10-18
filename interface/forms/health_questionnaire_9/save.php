@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHQ9 form save.php
+ * Health Questionnaire 9 form save.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -44,11 +44,11 @@ foreach($_POST as $key => $value){
 $columns = substr($columns, 0, -2);
 $values = substr($values, 0, -2);
 $updateStmt = substr($updateStmt, 0, -2);
-$preadmissioninsertupd = 'INSERT INTO `form_phq9` ('.$columns.') VALUES ('.$values.')' . $updateStmt;
+$preadmissioninsertupd = 'INSERT INTO `form_health_questionnaire_9` ('.$columns.') VALUES ('.$values.')' . $updateStmt;
 $newid = sqlInsert($preadmissioninsertupd);
 
 if(!$formid){
-	addForm($encounter, "PHQ-9 Patient Depression Questionnaire", $newid, "phq9", $_SESSION["pid"], $userauthorized);
+	addForm($encounter, "Health Questionnaire 9", $newid, "health_questionnaire_9", $_SESSION["pid"], $userauthorized);
 }
 //header('Location: new.php?pid='.$_POST['pid'].'&encounter='.$_POST['encounter']);
 $_SESSION["encounter"] = $encounter;
