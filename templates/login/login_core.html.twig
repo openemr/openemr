@@ -9,14 +9,18 @@
     {% block head %}{% endblock %}
     <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ jsIncludes }}"></script>
     <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ jsIncludes }}"></script>
-
+    {{ setupHeader() }}
     <script type="text/javascript">
+        const registrationTranslations = {{ regTranslations }};
+        const registrationConstants = {{ regConstants }};
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('authUser').focus();
         });
-        $(function () {
-            init();
 
+        $(document).ready(init());
+
+        function init() {
             var productRegistrationController = new ProductRegistrationController();
             productRegistrationController.getProductRegistrationStatus(function (err, data) {
                 if (err) { return; }
@@ -25,25 +29,20 @@
                     productRegistrationController.showProductRegistrationModal();
                 }
             });
-        });
+        }
 
         function transmit_form(element) {
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
             element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText({{ "Authenticating"|xlj }});
-                {% if hasSession %}
-                document.cookie = {{ cookieText }};
-                {% endif %}
-                document.forms[0].submit();
+            {% if hasSession %}
+            document.cookie = {{ cookieText }};
+            {% endif %}
+            document.forms[0].submit();
             return true;
         }
-
-        var registrationTranslations = {{ regTranslations }};
-
-        var registrationConstants = {{ regConstants }};
     </script>
-    {{ setupHeader() }}
 </head>
 <body class="login">
     <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">

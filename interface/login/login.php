@@ -4,7 +4,7 @@
  * Login screen.
  *
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link    http://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
@@ -16,10 +16,12 @@
  * @author  Tyler Wrenn <tyler@tylerwrenn.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @author  Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,7 +33,7 @@ $ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
-$twig = new TwigContainer("login", $GLOBALS["kernel"]);
+$twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
@@ -186,19 +188,21 @@ $regTranslations = json_encode(array(
 
 $cookie = '';
 if (session_name()) {
-    $sid = json_encode(urlencode(session_id()));
-    $sname = json_encode(urlencode(session_name()));
+    $sid = urlencode(session_id());
+    $sname = urlencode(session_name());
     $scparams = session_get_cookie_params();
-    $domain = json_encode($scparams['domain']);
-    $path = json_encode($scparams['path']);
+    $domain = $scparams['domain'];
+    $path = $scparams['path'];
     $oldDate = gmdate('Y', strtotime("-1 years"));
     $expires = gmdate(DATE_RFC1123, $oldDate);
-    $sameSite = json_encode(empty($scparams['samesite']) ? '' : $scparams['samesite']);
+    $sameSite = empty($scparams['samesite']) ? '' : $scparams['samesite'];
     $cookie = "{$sname}={$sid}; path={$path}; domain={$domain}; expires={$expires}";
 
     if ($sameSite) {
         $cookie .= "; SameSite={$sameSite}";
     }
+
+    $cookie = json_encode($cookie);
 }
 
 $viewArgs = [
@@ -228,11 +232,11 @@ $viewArgs = [
     'hasSession' => (session_name()) ? true : false,
     'cookieText' => $cookie,
     'regTranslations' => $regTranslations,
-    'regConstants' => ['webroot' => $GLOBALS['webroot']],
+    'regConstants' => json_encode(['webroot' => $GLOBALS['webroot']]),
     'jsIncludes' => $v_js_includes,
     'siteID' => $_SESSION['site_id'],
     'loginRow' => $loginrow,
     'formArea' => $formarea,
     'showLabels' => $GLOBALS['show_labels_on_login_form'],
 ];
-echo $t->render("login_core.html.twig", $viewArgs);
+echo $t->render("login/login_core.html.twig", $viewArgs);
