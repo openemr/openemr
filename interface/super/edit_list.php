@@ -882,7 +882,9 @@ function writeITLine($it_array)
                 }
             }
         });
-
+        $(document).on('select2:open', () => {
+            document.querySelector('.select2-search__field').focus();
+        });
         // Keeping track of code picker requests.
         var current_lino = 0;
         var current_sel_name = '';

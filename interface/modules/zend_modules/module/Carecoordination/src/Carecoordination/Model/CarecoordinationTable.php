@@ -310,6 +310,8 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_care_plan = array();
         $arr_functional_cognitive_status = array();
         $arr_referral = array();
+        $arr_observation_preformed = array();
+
         $appTable = new ApplicationTable();
 
         $pres = $appTable->zQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
@@ -340,10 +342,10 @@ class CarecoordinationTable extends AbstractTableGateway
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
-                                     FROM audit_details
-                                     WHERE audit_master_id=? AND
-                                     table_name=? AND
-                                     entry_identification=?",
+                             FROM audit_details
+                             WHERE audit_master_id=? AND
+                             table_name=? AND
+                             entry_identification=?",
                     array($audit_master_id, $row['table_name'], $row['entry_identification'])
                 );
             } else {
@@ -407,6 +409,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['functional_cognitive_status'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'referral') {
                     $newdata['referral'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'observation_preformed') {
+                    $newdata['observation_preformed'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
 
@@ -644,6 +648,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
                 $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'];
+                $arr_care_plan['care_plan'][$e]['plan_type'] = $newdata['care_plan']['plan_type'];
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -657,6 +662,20 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_referral['referral'][$g]['body'] = $newdata['referral']['body'];
                 $arr_referral['referral'][$g]['root'] = $newdata['referral']['root'];
                 $g++;
+            } elseif ($table == 'observation_preformed') {
+                $arr_observation_preformed['observation_preformed'][$h]['extension'] = $newdata['observation_preformed']['extension'];
+                $arr_observation_preformed['observation_preformed'][$h]['root'] = $newdata['observation_preformed']['root'];
+                $arr_observation_preformed['observation_preformed'][$h]['date'] = $newdata['observation_preformed']['date'];
+
+                $arr_observation_preformed['observation_preformed'][$h]['observation'] = $newdata['observation_preformed']['observation'];
+                $arr_observation_preformed['observation_preformed'][$h]['observation_type'] = $newdata['observation_preformed']['observation_type'];
+
+                $arr_observation_preformed['observation_preformed'][$h]['code'] = $newdata['observation_preformed']['code'];
+                $arr_observation_preformed['observation_preformed'][$h]['code_text'] = $newdata['observation_preformed']['code_text'];
+
+                $arr_observation_preformed['observation_preformed'][$h]['result_code'] = $newdata['observation_preformed']['result_code'];
+                $arr_observation_preformed['observation_preformed'][$h]['result_code_text'] = $newdata['observation_preformed']['result_code_text'];
+                $h++;
             }
         }
 
@@ -672,6 +691,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, 0);
         $this->importService->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, $this, 0);
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
+        $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -1325,6 +1345,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_care_plan['care_plan'][$e]['text'] = $data['care_plan-text'][$i];
                                 $arr_care_plan['care_plan'][$e]['code'] = $data['care_plan-code'][$i];
                                 $arr_care_plan['care_plan'][$e]['description'] = $data['care_plan-description'][$i];
+                                $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'];
                                 $e++;
                             } elseif (substr($key, 0, -4) == 'functional_cognitive_status') {
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $data['functional_cognitive_status-extension'][$i];

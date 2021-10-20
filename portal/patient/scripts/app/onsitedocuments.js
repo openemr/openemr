@@ -787,7 +787,7 @@ var page = {
                     return;
                 }
                 if (reload) {
-                    //setTimeout("location.reload(true);", 4000);
+                    setTimeout("location.reload(true);", 4000);
                 }
             },
             error: function (model, response, scope) {
