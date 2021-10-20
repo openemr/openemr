@@ -195,8 +195,8 @@ $focus = "document.theform.search_term.select();";
                         while ($row = sqlFetchArray($res)) { // Display normal search
                             $itercode = $row['code'];
                             $itertext = ucfirst(strtolower(trim($row['code_text'])));
-                            $dynCodeType = $form_code_type;
-                            if (stripos($codetype, 'VALUESET') !== false) {
+                            $dynCodeType = $form_code_type ?: $codetype;
+                            if (stripos($dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
                             }
                             if (!empty($target_element)) {

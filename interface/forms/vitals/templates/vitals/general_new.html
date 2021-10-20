@@ -74,7 +74,7 @@ function vitalsFormSubmitted() {
     .currentvalues {
         padding-right: 5px;
         text-align: left;
-        min-width: 6rem;
+        min-width: 10rem;
     }
 
     th.currentvalues,
@@ -159,7 +159,7 @@ function vitalsFormSubmitted() {
                                     <th class='currentvalues p-2' title="{xla t='Date and time of this observation'}">
                                         <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
                                     </th>
-                                    <th class="editonly">{xlt t="Abn"}</th>
+                                    <th class="currentvalues editonly">{xlt t="Abn"}</th>
                                     {foreach item=result from=$results}
                                         <th class='historicalvalues'>{$result->get_date()|date_format:"%Y-%m-%d %H:%M"|text}</th>
                                     {/foreach}

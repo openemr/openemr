@@ -221,8 +221,8 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $query_insert = "INSERT INTO form_care_plan(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], date('Y-m-d')));
+            $query_insert = "INSERT INTO form_care_plan(id,pid,groupname,user,encounter,activity,code,codetext,description,date,care_plan_type) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], date('Y-m-d'), $value['plan_type']));
         }
 
         if (count($care_plan_array) > 0) {
@@ -1579,6 +1579,63 @@ class CdaTemplateImportDispose
                 $vitals_id,
                 $pid,
                 ($_SESSION['authUser'] ?? null)));
+        }
+    }
+
+    public function InsertObservationPerformed($observation_preformed_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
+    {
+        if (empty($observation_preformed_array)) {
+            return;
+        }
+        $newid = '';
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery('SELECT MAX(id) as largestId FROM `form_observation`');
+        foreach ($res as $val) {
+            if ($val['largestId']) {
+                $newid = $val['largestId'] + 1;
+            } else {
+                $newid = 1;
+            }
+        }
+
+        foreach ($observation_preformed_array as $key => $value) {
+            if ($value['date'] != '') {
+                $date = $carecoordinationTable->formatDate($value['date']);
+            } else {
+                $date = date('Y-m-d');
+            }
+
+            $query_sel_enc = 'SELECT encounter
+                            FROM form_encounter
+                            WHERE date=? AND pid=?';
+            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($date, $pid));
+
+            if ($res_query_sel_enc->count() == 0) {
+                $res_enc = $appTable->zQuery('SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1', array($pid));
+                $res_enc_cur = $res_enc->current();
+                $encounter_for_forms = $res_enc_cur['encounter'];
+            } else {
+                foreach ($res_query_sel_enc as $value2) {
+                    $encounter_for_forms = $value2['encounter'];
+                }
+            }
+
+            $query_insert = 'INSERT INTO form_observation(id,date,pid,groupname,user,encounter, activity,code,observation,ob_value,ob_unit,description,ob_code,ob_type) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $res = $appTable->zQuery(
+                $query_insert,
+                array(
+                $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1, $value['code'], $value['observation'], $value['result_code_text'], "", $value['code_text'], $value['result_code'], $value['observation_type']
+                )
+            );
+        }
+
+        if (count($observation_preformed_array) > 0) {
+            $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
+            $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
         }
     }
 }
