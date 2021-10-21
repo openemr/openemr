@@ -7,15 +7,10 @@ use Aranyasen\HL7\Segments\MSH;
 class Parser_HL7v2
 {
 
-    var $field_separator;
-    var $map;
-    var $message;
-    var $message_type;
+    protected $message;
+    protected $options;
 
-    var $MSH;
-    var $EVN;
-
-    function __construct($message, $_options = null)
+    public function __construct($message, $_options = null)
     {
         $this->message = new Message($message);
         $this->options = [];
@@ -24,7 +19,7 @@ class Parser_HL7v2
         }
     }
 
-    function parse()
+    public function parse()
     {
         $segments = $this->message->getSegments();
 
@@ -37,25 +32,44 @@ class Parser_HL7v2
         $cmp = array();
 
         // Loop through messages
-        $count = 0;
         $segmentMethods = get_class_methods(new Segment('XYZ'));
         foreach ($segments as $key => $segment) {
             $type = $segment->getName();
-            $cmp["$type"] = array();
 
             $classMethods = get_class_methods($segment);
 
             foreach ($classMethods as $index => $method) {
                 if (
                     substr($method, 0, 3) == "get" &&
-                    (!in_array($method, $segmentMethods)) &&
-                    ($segment->$method())
+                    !in_array($method, $segmentMethods) &&
+                    $segment->$method()
                 ) {
-                    $cmp[$type][] = substr($method, 3) . " " . $segment->$method();
+                    $data = $segment->$method();
+                    if (is_array($data)) {
+                        $data = $this->implode_recursive(', ', $segment->$method());
+                    }
+                    $cmp[$type][] = substr($method, 3) . " " . $data;
                 }
             }
-            $count++;
         }
         return $cmp;
+    }
+
+    // https://gist.github.com/jimmygle/2564610#gistcomment-3634215
+    private function implode_recursive(string $separator, array $array): string
+    {
+        $string = '';
+        foreach ($array as $i => $a) {
+            if (is_array($a)) {
+                $string .= $this->implode_recursive($separator, $a);
+            } else {
+                $string .= $a;
+                if ($i < count($array) - 1) {
+                    $string .= $separator;
+                }
+            }
+        }
+
+        return $string;
     }
 }

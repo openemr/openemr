@@ -22,13 +22,7 @@ class C_Hl7 extends Controller
         }
 
         $hp = new Parser_HL7v2($msg);
-        $err = $hp->parse();
-        //print_r($hp);
-        //if (!empty($err)) {
-        //    $this->assign("hl7_message_err", nl2br("Error:<br />" . $err));
-        //}
-
-        $this->assign("hl7_array", $err);
+        $this->assign("hl7_array", $hp->parse());
         return;
     }
 }
