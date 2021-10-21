@@ -1239,3 +1239,12 @@ INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, 
 VALUES
 (NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (CoronaVac, Sinovac)", "COVID-19 IV Non-US Vaccine (CoronaVac, Sinovac)", 511, @codetypeid, '', 0, 0, '', '', '', 1);
 #EndIf
+
+#IfMissingColumn form_observation ob_type
+ALTER TABLE `form_observation` ADD `ob_code` VARCHAR(31) DEFAULT NULL;
+ALTER TABLE `form_observation` ADD `ob_type` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id intervention
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '11', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+#EndIf

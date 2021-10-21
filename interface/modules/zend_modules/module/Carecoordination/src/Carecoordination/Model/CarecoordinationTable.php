@@ -530,6 +530,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_vitals['vitals'][$q]['oxygen_saturation'] = $newdata['vital_sign']['oxygen_saturation'] ?? null;
                 $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'] ?? null;
                 $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'] ?? null;
+                $arr_vitals['vitals'][$q]['BMI'] = $newdata['vital_sign']['BMI'] ?? null;
                 $q++;
             } elseif ($table == 'social_history') {
                 $tobacco_status = array(
