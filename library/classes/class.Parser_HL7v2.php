@@ -2,7 +2,6 @@
 
 use Aranyasen\HL7\Message;
 use Aranyasen\HL7\Segment;
-use Aranyasen\HL7\Segments\MSH;
 
 class Parser_HL7v2
 {
