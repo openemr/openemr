@@ -1457,11 +1457,13 @@ class CdaTemplateImportDispose
                           respiration,
                           head_circ,
                           oxygen_saturation,
+                          BMI,
                           activity,
                           external_id
                          )
                          VALUES
                          (
+                          ?,
                           ?,
                           ?,
                           ?,
@@ -1487,6 +1489,7 @@ class CdaTemplateImportDispose
                     $value['respiration'],
                     $value['head_circ'],
                     $value['oxygen_saturation'],
+                    $value['BMI'],
                     $value['extension']));
                 $vitals_id = $res->getGeneratedValue();
             } else {
@@ -1501,7 +1504,8 @@ class CdaTemplateImportDispose
                              pulse=?,
                              respiration=?,
                              head_circ=?,
-                             oxygen_saturation=?
+                             oxygen_saturation=?,
+                             BMI=?
                          WHERE external_id=?";
                 $appTable->zQuery($q_upd_vitals, array($pid,
                     $vitals_date_value,
@@ -1514,6 +1518,7 @@ class CdaTemplateImportDispose
                     $value['respiration'],
                     $value['head_circ'],
                     $value['oxygen_saturation'],
+                    $value['BMI'],
                     $value['extension']));
                 foreach ($res_q_sel_vitals as $row_vitals) {
                     $vitals_id = $row_vitals['id'];

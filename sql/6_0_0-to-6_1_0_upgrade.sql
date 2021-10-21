@@ -1245,6 +1245,6 @@ ALTER TABLE `form_observation` ADD `ob_code` VARCHAR(31) DEFAULT NULL;
 ALTER TABLE `form_observation` ADD `ob_type` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
-#IfNotRow list_options option_id intervention
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id intervention
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '11', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 #EndIf

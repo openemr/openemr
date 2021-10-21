@@ -105,7 +105,8 @@ class CdaTemplateParse
         '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
         '2.16.840.1.113883.10.20.24.3.31' => 'fetchCarePlanData', // Plan of Care Activity Observation Intervention Order
         '2.16.840.1.113883.10.20.24.3.37' => 'fetchCarePlanData',  // Plan of Care Activity Observation Lab order
-        //'2.16.840.1.113883.10.20.24.3.59' => '', // Physical Exam, Performed observation Vitals
+        '2.16.840.1.113883.10.20.24.3.17' => 'fetchCarePlanData', // Plan of Care Activity Observation Diagnostic Study, Order
+        '2.16.840.1.113883.10.20.24.3.59' => 'fetchPhysicalExamPerformedData', // Physical Exam, Performed observation Vitals
         '2.16.840.1.113883.10.20.24.3.144' => 'fetchObservationPerformedData', // Assessment Performed
         );
         foreach ($entryComponents['section']['entry'] as $entry) {
@@ -764,6 +765,50 @@ class CdaTemplateParse
                         $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
                     }
                 }
+            }
+
+            $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
+        }
+    }
+
+    public function fetchPhysicalExamPerformedData($entry)
+    {
+        if (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value'])) {
+            $i = 1;
+            /*if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
+                if ($this->templateData['field_name_value_array']['vital_sign']['pid'] !== (int)$pid) {
+                    $i += count($this->templateData['field_name_value_array']['vital_sign']);
+                }
+            }*/
+
+            /*$result_code = $this->codeService->resolveCode(
+                $entry['observation']['code']['code'] ?? null,
+                $entry['observation']['code']['codeSystemName'] ?? $value['observation']['code']['codeSystem'] ?? '',
+                $entry['observation']['code']['displayName'] ?? ''
+            );*/
+
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['extension'] = $entry['organizer']['id']['extension'] ?? null;
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['root'] = $entry['organizer']['id']['root'] ?? null;
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? null;
+            $vitals_array = array(
+                '8310-5' => 'temperature',
+                '8462-4' => 'bpd',
+                '8480-6' => 'bps',
+                '8287-5' => 'head_circ',
+                '8867-4' => 'pulse',
+                '8302-2' => 'height',
+                '2710-2' => 'oxygen_saturation',
+                '9279-1' => 'respiration',
+                '3141-9' => 'weight',
+                '39156-5' => 'BMI'
+            );
+
+            $code = $entry['observation']['code']['code'] ?? null;
+            if (array_key_exists($code, $vitals_array)) {
+                $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
+            } else {
+                // log missed exam
+                error_log('Missed Physical Exam code (likely vital): ' . $code);
             }
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
