@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4138d41d96893dd509fe7019de9d4dec",
+    "content-hash": "2290d0a6eeba724d9dcb21a53dd7367f",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -187,6 +187,59 @@
                 "source": "https://github.com/ADOdb/ADOdb"
             },
             "time": "2021-02-27T11:38:53+00:00"
+        },
+        {
+            "name": "aranyasen/hl7",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/senaranya/HL7.git",
+                "reference": "95e96b622fc1f6e7ef845c46de1686181d98b492"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/senaranya/HL7/zipball/95e96b622fc1f6e7ef845c46de1686181d98b492",
+                "reference": "95e96b622fc1f6e7ef845c46de1686181d98b492",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "dms/phpunit-arraysubset-asserts": "^0.2",
+                "ext-pcntl": "*",
+                "ext-sockets": "*",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Aranyasen\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aranya Sen",
+                    "email": "sen.aranya@gmail.com",
+                    "role": "Owner"
+                }
+            ],
+            "description": "HL7 parser, generator and sender.",
+            "support": {
+                "issues": "https://github.com/senaranya/HL7/issues",
+                "source": "https://github.com/senaranya/HL7/tree/2.1.0"
+            },
+            "time": "2021-10-20T01:58:36+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -11767,5 +11820,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
