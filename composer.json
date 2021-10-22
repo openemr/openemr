@@ -66,7 +66,7 @@
         "monolog/monolog": "2.2.0",
         "google/apiclient": "2.9.1",
         "stripe/stripe-php": "7.77.0",
-        "aranyasen/hl7": "^2.0"
+        "aranyasen/hl7": "^2.1"
     },
     "config": {
         "platform": {

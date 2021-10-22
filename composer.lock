@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75ba652764b0b3c2383daccccddf9e2e",
+    "content-hash": "2290d0a6eeba724d9dcb21a53dd7367f",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -190,16 +190,16 @@
         },
         {
             "name": "aranyasen/hl7",
-            "version": "2.0.6",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/senaranya/HL7.git",
-                "reference": "1257e4f4c97a17773ed026b7aea305e8b89780b3"
+                "reference": "95e96b622fc1f6e7ef845c46de1686181d98b492"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/senaranya/HL7/zipball/1257e4f4c97a17773ed026b7aea305e8b89780b3",
-                "reference": "1257e4f4c97a17773ed026b7aea305e8b89780b3",
+                "url": "https://api.github.com/repos/senaranya/HL7/zipball/95e96b622fc1f6e7ef845c46de1686181d98b492",
+                "reference": "95e96b622fc1f6e7ef845c46de1686181d98b492",
                 "shasum": ""
             },
             "require": {
@@ -237,9 +237,9 @@
             "description": "HL7 parser, generator and sender.",
             "support": {
                 "issues": "https://github.com/senaranya/HL7/issues",
-                "source": "https://github.com/senaranya/HL7/tree/2.0.6"
+                "source": "https://github.com/senaranya/HL7/tree/2.1.0"
             },
-            "time": "2021-07-15T04:12:59+00:00"
+            "time": "2021-10-20T01:58:36+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",

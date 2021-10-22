@@ -1,30 +1,38 @@
 <?php
 
+/**
+ * Parser_HL7v2 Class.
+ *
+ * @package OpenEMR
+ * @link    https://www.open-emr.org
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use Aranyasen\HL7\Message;
 use Aranyasen\HL7\Segment;
 
 class Parser_HL7v2
 {
 
+    /**
+    * @var Message
+    */
     protected $message;
-    protected $options;
 
-    public function __construct($message, $_options = null)
+    public function __construct(string $message)
     {
         $this->message = new Message($message);
-        $this->options = [];
-        if (is_array($_options)) {
-            $this->options = $_options;
-        }
     }
 
-    public function parse()
+    public function parse(): array
     {
         $segments = $this->message->getSegments();
 
         // Fail if there are no or one segments
         if (count($segments) <= 1) {
-            return false;
+            return [];
         }
 
         // create return array
@@ -54,7 +62,12 @@ class Parser_HL7v2
         return $cmp;
     }
 
-    // https://gist.github.com/jimmygle/2564610#gistcomment-3634215
+
+    /**
+     * Recursively implode arrays in the hl7 fields.
+     *
+     * https://gist.github.com/jimmygle/2564610#gistcomment-3634215
+     */
     private function implode_recursive(string $separator, array $array): string
     {
         $string = '';
