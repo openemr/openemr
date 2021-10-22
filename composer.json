@@ -42,7 +42,7 @@
         "omnipay/stripe": "3.1.0",
         "paragonie/multi-factor": "0.2.2",
         "particle/validator": "2.3.4",
-        "pear/archive_tar": "1.4.13",
+        "pear/archive_tar": "1.4.14",
         "phpmailer/phpmailer": "6.4.1",
         "phpoffice/phpspreadsheet": "1.17.1",
         "phpseclib/phpseclib": "2.0.31",
