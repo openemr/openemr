@@ -281,9 +281,10 @@ class CdaTemplateParse
             }
 
             $this->templateData['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
-            $this->templateData['field_name_value_array']['lists2'][$i]['extension'] = $entry['id']['extension'] ?? null;
-            $this->templateData['field_name_value_array']['lists2'][$i]['begdate'] = $entry['effectiveTime']['low']['value'] ?? null;
-            $this->templateData['field_name_value_array']['lists2'][$i]['enddate'] = $entry['effectiveTime']['high']['value'] ?? null;
+            $this->templateData['field_name_value_array']['lists2'][$i]['extension'] = $entry['observation']['id']['extension'] ?? null;
+            $this->templateData['field_name_value_array']['lists2'][$i]['begdate'] = $entry['observation']['effectiveTime']['low']['value'] ?? null;
+            $this->templateData['field_name_value_array']['lists2'][$i]['enddate'] = $entry['observation']['effectiveTime']['high']['value'] ?? null;
+            $this->templateData['field_name_value_array']['lists2'][$i]['status'] = $entry['observation']['statusCode']['code'] ?? null;
 
             $code = $this->codeService->resolveCode(
                 $entry['observation']['participant']['participantRole']['playingEntity']['code']['code'] ?? null,

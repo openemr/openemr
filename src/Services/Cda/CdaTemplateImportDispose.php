@@ -978,21 +978,23 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($q_insert, array('drug_form', $oidu_unit, $value['dose_unit'], 1));
             }
 
-            $res_q_sel_pres = null; // to avoid php8 warnings
+            $res_q_sel_pres_cnt = $res_q_sel_pres_r_cnt = null; // to avoid php8 warnings
             if (!empty($value['extension'])) {
                 $q_sel_pres = "SELECT *
                          FROM prescriptions
                          WHERE patient_id = ? AND external_id = ?";
                 $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
+                $res_q_sel_pres_cnt = $res_q_sel_pres->count();
             } else {
                 // prevent bunch of duplicated prescriptions/medications
                 $q_sel_pres_r = "SELECT *
                          FROM `prescriptions`
                          WHERE `patient_id` = ? AND `drug` = ?";
-                $res_q_sel_pres = $appTable->zQuery($q_sel_pres_r, array($pid, $value['drug_text']));
+                $res_q_sel_pres_r = $appTable->zQuery($q_sel_pres_r, array($pid, $value['drug_text']));
+                $res_q_sel_pres_r_cnt = $res_q_sel_pres_r->count();
             }
 
-            if (empty($value['extension']) && $res_q_sel_pres->count() == 0) {
+            if ((empty($value['extension']) && $res_q_sel_pres_r_cnt == 0) || ($res_q_sel_pres_cnt == 0)) {
                 $query = "INSERT INTO prescriptions
                   ( patient_id,
                     date_added,
