@@ -205,6 +205,16 @@ class CarecoordinationTable extends AbstractTableGateway
         } else {
             $name = $xml['recordTarget']['patientRole']['patient']['name'];
         }
+        $patient_role = $xml['recordTarget']['patientRole'];
+        if (empty($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'])) {
+            if ($patient_role['patient']['administrativeGenderCode']['code'] == 'F') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Female';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Female';
+            } elseif ($patient_role['patient']['administrativeGenderCode']['code'] == 'M') {
+                $patient_role['patient']['administrativeGenderCode']['displayName'] = 'Male';
+                $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] = 'Male';
+            }
+        }
         $this->documentData['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
@@ -594,14 +604,14 @@ class CarecoordinationTable extends AbstractTableGateway
                     $smoking_value,
                     date('Y-m-d H:i:s')));
             } elseif ($table == 'procedure_result') {
-                if ($newdata['procedure_result']['date'] != 0) {
-                    $proc_date = $this->formatDate($newdata['procedure_result']['date'], 0);
+                if (!empty($newdata['procedure_result']['date'])) {
+                    $proc_date = $this->formatDate($newdata['procedure_result']['date'], 1);
                 } else {
                     $proc_date = $newdata['procedure_result']['date'];
                 }
 
-                if ($newdata['procedure_result']['results_date'] != 0) {
-                    $proc_result_date = $this->formatDate($newdata['procedure_result']['results_date'], 0);
+                if (!empty($newdata['procedure_result']['results_date'])) {
+                    $proc_result_date = $this->formatDate($newdata['procedure_result']['results_date'], 1);
                 } else {
                     $proc_result_date = $newdata['procedure_result']['results_date'];
                 }
@@ -614,6 +624,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedure_res['procedure_result'][$j]['results_text'] = $newdata['procedure_result']['results_text'];
                 $arr_procedure_res['procedure_result'][$j]['results_code'] = $newdata['procedure_result']['results_code'];
                 $arr_procedure_res['procedure_result'][$j]['results_range'] = $newdata['procedure_result']['results_range'];
+                $arr_procedure_res['procedure_result'][$j]['results_unit'] = $newdata['procedure_result']['results_unit'];
                 $arr_procedure_res['procedure_result'][$j]['results_value'] = $newdata['procedure_result']['results_value'];
                 $arr_procedure_res['procedure_result'][$j]['results_date'] = $proc_result_date;
                 $j++;
@@ -650,6 +661,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
                 $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'];
                 $arr_care_plan['care_plan'][$e]['plan_type'] = $newdata['care_plan']['plan_type'];
+                $arr_care_plan['care_plan'][$e]['date'] = $newdata['care_plan']['date'];
+                $arr_care_plan['care_plan'][$e]['end_date'] = $newdata['care_plan']['end_date'];
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -689,7 +702,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $lab_results = $this->buildLabArray($arr_procedure_res['procedure_result'] ?? null);
         $this->importService->InsertProcedures(($arr_procedures['procedure'] ?? null), $pid, $this, 0);
         $this->importService->InsertLabResults($lab_results, $pid, $this);
-        $this->importService->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, 0);
+        $this->importService->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, $this, 0);
         $this->importService->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, $this, 0);
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
@@ -796,6 +809,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
                 $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
                 $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
+                $lab_results[$value['extension']]['result'][$j]['result_unit'] = $value['results_unit'];
             } elseif (!empty($value['extension'])) {
                 $j = 0;
                 $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
@@ -808,6 +822,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
                 $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
                 $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
+                $lab_results[$value['extension']]['result'][$j]['result_unit'] = $value['results_unit'];
             }
         }
 
@@ -1316,6 +1331,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_procedure_res['procedure_result'][$j]['results_range'] = $data['procedure_result-result_range'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['results_value'] = $data['procedure_result-result_value'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['results_date'] = $data['procedure_result-result_date'][$i];
+                                $arr_procedure_res['procedure_result'][$j]['results_unit'] = $data['procedure_result-result_unit'][$i];
                                 $j++;
                             } elseif (substr($key, 0, -4) == 'procedure') {
                                 $arr_procedures['procedure'][$y]['extension'] = $data['procedures-extension'][$i];
@@ -1687,7 +1703,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertProcedures($arr_procedures['procedure'], $data['pid'], $this, 1);
         $lab_results = $this->buildLabArray($arr_procedure_res['procedure_result']);
         $this->importService->InsertLabResults($lab_results, $data['pid'], $this);
-        $this->importService->InsertCarePlan($arr_care_plan['care_plan'], $data['pid'], 1);
+        $this->importService->InsertCarePlan($arr_care_plan['care_plan'], $data['pid'], $this, 1);
         $this->importService->InsertFunctionalCognitiveStatus($arr_functional_cognitive_status['functional_cognitive_status'], $data['pid'], $this, 1);
         $this->importService->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
