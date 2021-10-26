@@ -189,7 +189,9 @@ class CdaTemplateParse
      */
     public function fetchEncounterPerformed($entry): void
     {
-        $entry = $entry['act']['entryRelationship'];
+        if ($this->is_qrda_import) {
+            $entry = $entry['act']['entryRelationship'];
+        }
         if ($entry['encounter']['effectiveTime']['value'] != 0 || $entry['encounter']['effectiveTime']['low']['value'] != 0) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['encounter'])) {
@@ -643,13 +645,29 @@ class CdaTemplateParse
         if (!empty($lab_result_data['organizer']['component'])) {
             foreach ($lab_result_data['organizer']['component'] as $key => $value) {
                 if (!empty($value['observation']['code']['code'])) {
+                    $code = $this->codeService->resolveCode(
+                        $lab_result_data['organizer']['code']['code'] ?? '',
+                        $lab_result_data['organizer']['code']['codeSystemName'] ?: $lab_result_data['organizer']['code']['codeSystem'] ?? '',
+                        $lab_result_data['organizer']['code']['displayName'] ?? ''
+                    );
+                    if (empty($lab_result_data['organizer']['id']['extension'])) {
+                        $lab_result_data['organizer']['id']['extension'] = $lab_result_data['organizer']['id']['root'] ?? null;
+                    }
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['extension'] = $lab_result_data['organizer']['id']['extension'] ?? null;
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['root'] = $lab_result_data['organizer']['id']['root'] ?? null;
-                    $this->templateData['field_name_value_array']['procedure_result'][$i]['proc_code'] = $lab_result_data['organizer']['code']['code'] ?? null;
-                    $this->templateData['field_name_value_array']['procedure_result'][$i]['proc_text'] = $lab_result_data['organizer']['code']['displayName'] ?? null;
-                    $this->templateData['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'] ?? null;
+                    $this->templateData['field_name_value_array']['procedure_result'][$i]['proc_code'] = $code['formatted_code'] ?? null;
+                    $this->templateData['field_name_value_array']['procedure_result'][$i]['proc_text'] = $code['code_text'] ?? null;
+                    if (!empty($lab_result_data['organizer']['effectiveTime']['low']['value'])) {
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['low']['value'];
+                    } else {
+                        $this->templateData['field_name_value_array']['procedure_result'][$i]['date'] = $lab_result_data['organizer']['effectiveTime']['value'] ?? null;
+                    }
+
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['status'] = $lab_result_data['organizer']['statusCode']['code'] ?? null;
 
+                    if (empty($value['observation']['id']['extension'])) {
+                        $value['observation']['id']['extension'] = $value['observation']['id']['root'] ?? null;
+                    }
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'] ?? null;
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'] ?? null;
                     // @TODO code lookup here
@@ -813,7 +831,8 @@ class CdaTemplateParse
                 '8287-5' => 'head_circ',
                 '8867-4' => 'pulse',
                 '8302-2' => 'height',
-                '2710-2' => 'oxygen_saturation',
+                '2710-2' => 'oxygen_saturation', // deprecated code
+                '59408-5' => 'oxygen_saturation',
                 '9279-1' => 'respiration',
                 '3141-9' => 'weight',
                 '29463-7' => 'weight', // with clothes
