@@ -92,18 +92,32 @@ if (count($emr_app)) {
 }
 
 // This code allows configurable positioning in the login page
-$loginrow = "row login-row align-items-center m-5";
+$logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
+$formarea = "py-3 px-2 p-sm-5 bg-white order-2";
+$loginrow = "row login-row bg-white shadow-lg align-items-center m-0 m-sm-5";
 
-if ($GLOBALS['login_page_layout'] == 'left') {
-    $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
-    $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
-} elseif ($GLOBALS['login_page_layout'] == 'right') {
-    $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
-    $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
-} else {
-    $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
-    $formarea = "col-12 p-5 login-area-center order-2";
-    $loginrow = "row login-row login-row-center align-items-center";
+// Apply these classes to the logo area if the login page is left or right
+$lrArr = ['left', 'right'];
+$logoarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+$formarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+
+// More finite control on a per-setting basis
+switch ($GLOBALS['login_page_layout']) {
+    case 'left':
+        $logoarea .= " order-md-2";
+        $formarea .= " order-md-1";
+        break;
+
+    case 'right':
+        $logoarea .= " order-md-1";
+        $formarea .= " order-md-2";
+        break;
+
+    default:
+        $logoarea .= " order-1";
+        $formarea .= " col-12";
+        $loginrow .= " login-row-center";
+        break;
 }
 
 function getDefaultLanguage(): array
