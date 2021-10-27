@@ -30,6 +30,7 @@ class CareTeamService extends BaseService
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
     private const PATIENT_HISTORY_TABLE = "patient_history";
+    public const MAPPING_RESOURCE_NAME = "CareTeam";
 
     /**
      * Default constructor.
@@ -37,7 +38,6 @@ class CareTeamService extends BaseService
     public function __construct()
     {
         UuidRegistry::createMissingUuidsForTables([self::PATIENT_TABLE, self::PRACTITIONER_TABLE, self::FACILITY_TABLE, self::PATIENT_HISTORY_TABLE]);
-        UuidMapping::createMissingResourceUuids("CareTeam", self::PATIENT_TABLE);
         parent::__construct(self::PATIENT_HISTORY_TABLE);
     }
 

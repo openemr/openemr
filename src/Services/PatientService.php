@@ -33,7 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
-    private const TABLE_NAME = 'patient_data';
+    public const TABLE_NAME = 'patient_data';
     private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
@@ -326,6 +326,12 @@ class PatientService extends BaseService
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
+                }
+            }
+            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            foreach ($search as $field => $key) {
+                if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
+                    $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
                 }
             }
         }

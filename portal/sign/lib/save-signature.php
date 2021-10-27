@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -24,7 +24,7 @@ $ignoreAuth = false;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
-    require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
+    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -33,7 +33,7 @@ if ($isPortal) {
         $ignoreAuth_onsite_portal = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        echo js_escape("error");
+        echo js_escape("error invalid session,");
         exit();
     }
 }
@@ -59,6 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
     }
 
-    echo json_encode('Done');
+    echo json_encode('Done', JSON_THROW_ON_ERROR);
     exit();
 }

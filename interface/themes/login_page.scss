@@ -65,7 +65,7 @@ $login-button-primary: false !default;
   .login-bg-left,
   .login-bg-right,
   .login-bg-center {
-    background: linear-gradient(140deg, $login-color-1 0%, $login-color-2 35%, $login-color-3 100%);
+    background: map-get($theme-colors, "primary");
   }
 
   @media (max-width: map-get($grid-breakpoints, "md")) {

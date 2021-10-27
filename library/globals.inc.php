@@ -11,6 +11,7 @@
  * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -447,6 +448,34 @@ $GLOBALS_METADATA = array(
             '0',
             xl('What kind of sorting will be in the drop lists.')
         ),
+
+        'show_tagline_on_login' => [
+            xl('Show Tagline on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show the tagline from the login screen'),
+        ],
+
+        'login_tagline_text' => [
+            xl('Login Page Tagline') . "*",
+            'text',
+            xl("The most popular open-source Electronic Health Record and Medical Practice Management solution."),
+            xl("Tagline text on the login page")
+        ],
+
+        'show_ack_on_login' => [
+            xl('Show Acknowledgment Link on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show the tagline from the login screen'),
+        ],
+
+        'show_labels_on_login_form' => [
+            xl('Show Username and Password Labels on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show labels on the login form'),
+        ],
 
         'show_label_login' => array(
             xl('Show Title on Login'),

@@ -28,7 +28,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 420;
+$v_database = 421;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -36,7 +36,7 @@ $v_database = 420;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 10;
+$v_acl = 11;
 
 // Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
 // Also whenever you change a .js or .css file, make sure that all URLs referencing it

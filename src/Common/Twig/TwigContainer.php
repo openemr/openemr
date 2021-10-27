@@ -8,6 +8,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -15,7 +16,6 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
-use OpenEMR\Common\Twig\TwigExtension;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
@@ -32,8 +32,8 @@ class TwigContainer
     /**
      * Create a new Twig superclass holding a twig environment
      *
-     * @var $path string Additional path to add to $fileroot/templates string
-     * @var $kernel Kernel An instance of Kernel to test if the environment is dev vs prod
+     * @var string|null $path   Additional path to add to $fileroot/templates string
+     * @var Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
      */
     public function __construct(string $path = null, Kernel $kernel = null)
     {
@@ -50,9 +50,9 @@ class TwigContainer
     /**
      * Get the Twig Environment.
      *
-     * @return Twig\Environment The twig environment
+     * @return Environment The twig environment
      */
-    public function getTwig()
+    public function getTwig(): Environment
     {
         $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);

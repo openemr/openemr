@@ -5107,6 +5107,11 @@ RestConfig::$ROUTE_MAP = array(
      *                      description="The billinag location id of the appointment.",
      *                      type="string"
      *                  ),
+     *                  @OA\Property(
+     *                      property="pc_aid",
+     *                      description="The provider id for the appointment.",
+     *                      type="string"
+     *                  ),
      *                  required={"pc_catid", "pc_title", "pc_duration", "pc_hometext", "pc_apptstatus", "pc_eventDate", "pc_startTime", "pc_facility", "pc_billing_location"},
      *                  example={
      *                      "pc_catid": "5",
@@ -5117,7 +5122,8 @@ RestConfig::$ROUTE_MAP = array(
      *                      "pc_eventDate": "2018-10-19",
      *                      "pc_startTime": "09:00",
      *                      "pc_facility": "9",
-     *                      "pc_billing_location": "10"
+     *                      "pc_billing_location": "10",
+     *                      "pc_aid": "1"
      *                  }
      *              )
      *          )

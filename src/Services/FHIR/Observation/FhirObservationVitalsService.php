@@ -210,29 +210,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     {
         parent::__construct($fhirApiURL);
         $this->service = new VitalsService();
-        $this->populateResourceMappingUuidsForAllVitals();
     }
 
-    public function getResourcePathForCode($code)
-    {
-        return "category=" . self::CATEGORY . "&code=" . $code;
-    }
     public function getCodeFromResourcePath($resourcePath)
     {
         $query_vars = [];
         parse_str($resourcePath, $query_vars);
         return $query_vars['code'] ?? null;
-    }
-
-    public function populateResourceMappingUuidsForAllVitals()
-    {
-        $resourcePathList = [];
-        foreach (self::COLUMN_MAPPINGS as $column => $mapping) {
-            // TODO: @adunsulag make this a single function call so we can be more effecient
-//            $resourcePathList[] = "category=vital-signs&code=" . $mapping['code'];
-            $resourcePath = $this->getResourcePathForCode($mapping['code']);
-            UuidMapping::createMissingResourceUuids('Observation', 'form_vitals', $resourcePath);
-        }
     }
 
     public function supportsCategory($category)
