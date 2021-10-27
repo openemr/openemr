@@ -994,7 +994,7 @@ class CdaTemplateImportDispose
                 $res_q_sel_pres_r_cnt = $res_q_sel_pres_r->count();
             }
 
-            if ((empty($value['extension']) && $res_q_sel_pres_r_cnt == 0) || ($res_q_sel_pres_cnt == 0)) {
+            if ((empty($value['extension']) && $res_q_sel_pres_r_cnt === 0) || ($res_q_sel_pres_cnt === 0)) {
                 $query = "INSERT INTO prescriptions
                   ( patient_id,
                     date_added,
