@@ -1248,3 +1248,13 @@ ALTER TABLE `form_observation` ADD `ob_type` VARCHAR(31) DEFAULT NULL;
 #IfNotRow2D list_options list_id Plan_of_Care_Type option_id intervention
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '11', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 #EndIf
+
+#IfMissingColumn layout_options codes
+ALTER TABLE `layout_options` ADD `codes` varchar(255) NOT NULL DEFAULT '';
+UPDATE `layout_options` SET `codes` = 'SNOMED-CT:66839005' WHERE `form_id` = 'HIS' AND `field_id` = 'history_father';
+UPDATE `layout_options` SET `codes` = 'SNOMED-CT:72705000' WHERE `form_id` = 'HIS' AND `field_id` = 'history_mother';
+UPDATE `layout_options` SET `codes` = 'SNOMED-CT:82101005' WHERE `form_id` = 'HIS' AND `field_id` = 'history_siblings';
+UPDATE `layout_options` SET `codes` = 'SNOMED-CT:127848009' WHERE `form_id` = 'HIS' AND `field_id` = 'history_spouse';
+UPDATE `layout_options` SET `codes` = 'SNOMED-CT:67822003' WHERE `form_id` = 'HIS' AND `field_id` = 'history_offspring';
+#EndIf
+

@@ -459,6 +459,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
                 "default_value = '" . add_escape_custom(trim($iter['default']))   . "', " .
                 "description = '"   . add_escape_custom(trim($iter['desc']))      . "', " .
+                "codes = '"   . add_escape_custom(trim($iter['codes']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
                 "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
@@ -476,7 +477,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $listval = $data_type == 34 ? trim($_POST['contextName']) : trim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, description" .
+      ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
@@ -493,6 +494,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
       ",'" . add_escape_custom($data_type) . "'"                                  .
         ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newcodes'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
       ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
       ",'" . add_escape_custom($listval) . "'" .
@@ -914,6 +916,9 @@ function writeFieldLine($linedata)
             echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
+    echo "  <td class='text-center optcell'>";
+    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][datacols]' id='codes_fld[" . attr($fld_line_no) . "][datacols]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control optin' />";
+    echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
@@ -1607,6 +1612,7 @@ if ($layout_id) {
                 if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
+          <th><?php echo xlt('Code(s)'); ?></th>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
       </thead>
@@ -1686,6 +1692,7 @@ if ($layout_id) {
    <th><?php echo xlt('Data Cols'); ?></th>
    <th><?php echo xlt('Options'); ?></th>
    <th><?php echo xlt('Description'); ?></th>
+   <th><?php echo xlt('Code(s)'); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -1739,6 +1746,7 @@ foreach ($sorted_datatypes as $key => $value) {
    <td><select name="newedit_options[]" id="newedit_options"  multiple class='form-control typeAddons'></select>
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
    <td><input type="text" class='form-control' name="newdesc" id="newdesc" value="" size="20" /> </td>
+   <td><input type='text' class='form-control' name="newcodes" id="newcodes" value="" onclick='select_clin_term_code(this)' size='10' maxlength='255' /> </td>
   </tr>
   <tr>
    <td colspan="9">
@@ -2285,6 +2293,7 @@ function SetField(field_id, title, data_type, uor, fld_length, max_length,
   elemFromPart('datacols'    ).value = datacols;
   elemFromPart('edit_options').value = edit_options;
   elemFromPart('desc'        ).value = description;
+  elemFromPart('codes'        ).value = codes;
   elemFromPart('lengthHeight').value = fld_rows;
 }
 
@@ -2346,6 +2355,40 @@ function IsNumeric(value, min, max) {
         return false;
 
     return true;
+}
+
+// This invokes the find-code popup.
+function select_clin_term_code(e) {
+    current_sel_name = '';
+    current_sel_clin_term = e.id;
+    dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
+}
+
+// This is for callback by the find-code popup.
+function set_related(codetype, code, selector, codedesc) {
+    // Coming from the Clinical Terms Code(s) edit
+    var e =  document.getElementById(current_sel_clin_term);
+    var s = e.value;
+    if (code) {
+        if (s.length > 0) s += ';';
+        s += codetype + ':' + code;
+    }
+    else {
+        s = '';
+    }
+    e.value = s;
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    my_del_related(s, document.getElementById(current_sel_clin_term), false);
+}
+
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return document.getElementById(current_sel_clin_term).value.split(';');
 }
 
 /****************************************************/
