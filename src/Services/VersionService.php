@@ -31,6 +31,15 @@ class VersionService extends BaseService
     }
 
     /**
+     * Return the compounded major, minor, patch and tag verions as a string
+     */
+    public function asString(): string
+    {
+        $v = $this->fetch();
+        return "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}{$v['v_tag']}";
+    }
+
+    /**
      * Updates the sole version entry in the database. If the release contains
      * a patch file, also updates the real patch indicator.
      *

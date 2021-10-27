@@ -263,13 +263,6 @@ $GLOBALS_METADATA = array(
             xl('Width in pixels of the left navigation frame in frame based layout.')
         ),
 
-        'openemr_name' => array(
-            xl('Application Title'),
-            'text',
-            'OpenEMR',
-            xl('Application name for login page and main window title.')
-        ),
-
         'enable_group_therapy' => array(
             xl('Enable Group Therapy'),
             'bool',                           // data type
@@ -373,20 +366,6 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
         ),
-        //
-        'online_support_link' => array(
-            xl('Online Support Link'),
-            'text',                           // data type
-            'http://open-emr.org/',
-            xl('URL for OpenEMR support.')
-        ),
-
-        'support_phone_number' => array(
-            xl('Support Phone Number'),
-            'text',
-            '',
-            xl('Phone Number for Vendor Support that Appears on the About Page.')
-        ),
 
         'encounter_page_size' => array(
             xl('Encounter Page Size'),
@@ -449,6 +428,75 @@ $GLOBALS_METADATA = array(
             xl('What kind of sorting will be in the drop lists.')
         ),
 
+        'prevent_browser_refresh' => array(
+            xl('Prevent Web Browser Refresh') . '*',
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
+    ),
+
+    'Branding' => [
+        'openemr_name' => array(
+            xl('Application Title'),
+            'text',
+            'OpenEMR',
+            xl('Application name used throughout the user interface.')
+        ),
+
+        'display_main_menu_logo' => [
+            xl('Display main menu logo'),
+            'bool',
+            '1',
+            xl('Dislay main menu logo'),
+        ],
+
+        'online_support_link' => array(
+            xl('Online Support Link'),
+            'text',                           // data type
+            'http://open-emr.org/',
+            xl('URL to a support page.')
+        ),
+
+        'user_manual_link' => [
+            xl('User Manual Link'),
+            'text',
+            'https://www.open-emr.org/wiki/index.php'
+        ],
+
+        'support_phone_number' => array(
+            xl('Support Phone Number'),
+            'text',
+            '',
+            xl('Phone Number for Vendor Support that Appears on the About Page.')
+        ),
+
+        'display_acknowledgements' => [
+            xl('Display links to the acknowledgements page'),
+            'bool',
+            '1',
+            xl('Used on the login and about pages'),
+        ],
+
+        'display_review_link' => [
+            xl('Display the Review link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Review link on the About page'),
+        ],
+
+        'display_donations_link' => [
+            xl('Display the Donations link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Donations link on the About page'),
+        ],
+
         'show_tagline_on_login' => [
             xl('Show Tagline on Login Page') . "*",
             'bool',
@@ -461,13 +509,6 @@ $GLOBALS_METADATA = array(
             'text',
             xl("The most popular open-source Electronic Health Record and Medical Practice Management solution."),
             xl("Tagline text on the login page")
-        ],
-
-        'show_ack_on_login' => [
-            xl('Show Acknowledgment Link on Login Page') . "*",
-            'bool',
-            '1',
-            xl('Show the tagline from the login screen'),
         ],
 
         'show_labels_on_login_form' => [
@@ -504,19 +545,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Mini Logo 2')
         ),
-
-        'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh') . '*',
-            array(
-                '0' => xl('Do not warn or prevent web browser refresh'),
-                '1' => xl('Warn, but do not prevent web browser refresh'),
-                '2' => xl('Warn and prevent web browser refresh')
-            ),
-            '2',                              // default = true
-            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
-        ),
-
-    ),
+    ],
 
     // Locale Tab
     //
