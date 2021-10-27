@@ -35,7 +35,7 @@
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-sync fa-spin"></i> ' + jsText({{ "Authenticating"|xlj }});
+            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="sr-only">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
             {% if hasSession %}
             document.cookie = {{ cookieText }};
             {% endif %}
@@ -58,7 +58,7 @@
                 {% endif %}
 
                 {% if loginFail == 1 %}
-                <div class="alert alert-danger login-failure m-1 font-weight-bold">
+                <div class="bg-danger text-light py-2 px-3 login-failure mb-3 font-weight-bold">
                     {{ "Invalid username or password"|xlt }}
                 </div>
                 {% endif %}
@@ -103,7 +103,7 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group oe-pull-away">
+                <div class="form-group d-flex justify-content-end">
                     <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
                 </div>
 
