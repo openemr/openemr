@@ -208,19 +208,19 @@ function generate_select_list(
             // do translate
             if ($GLOBALS['gb_how_sort_list'] == '0') {
                 // order by seq
-                $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
+                $order_by_sql = "lo.seq, title";
             } else { //$GLOBALS['gb_how_sort_list'] == '1'
                 // order by title
-                $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
+                $order_by_sql = "title, lo.seq";
             }
             $lres = sqlStatement(
                 "SELECT lo.option_id, lo.is_default, " .
-                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                "COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld " .
+                "WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? " .
+                "AND ld.definition IS NOT NULL AND ld.definition != '' " .
+                "LIMIT 1), lo.title) AS title " .
                 "FROM list_options AS lo " .
-                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
-                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                "ld.lang_id = ? " .
-                "WHERE lo.list_id = ?  AND lo.activity = ? " .
+                "WHERE lo.list_id = ? AND lo.activity = ? " .
                 "ORDER BY " . $order_by_sql,
                 array($lang_id, $list_id, $active)
             );
