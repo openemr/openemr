@@ -1406,11 +1406,25 @@ $GLOBALS_METADATA = array(
             xl('This will give the user the option to lock (separate locking and signing)')
         ),
 
+        'esign_report_show_only_signed' => array(
+            xl('Only Include E-Signed Forms On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any encounter forms not E-Signed on the patient report')
+        ),
+
         'esign_report_hide_empty_sig' => array(
             xl('Hide Empty E-Sign Logs On Report'),
             'bool',                           // data type
             '1',                              // default = false
             xl('This will hide empty e-sign logs on the patient report')
+        ),
+
+        'esign_report_hide_all_sig' => array(
+            xl('Exclude All E-Sign Logs On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any e-sign logs on the patient report')
         ),
 
     ),
