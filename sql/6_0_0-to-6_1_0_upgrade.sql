@@ -1258,3 +1258,6 @@ UPDATE `layout_options` SET `codes` = 'SNOMED-CT:127848009' WHERE `form_id` = 'H
 UPDATE `layout_options` SET `codes` = 'SNOMED-CT:67822003' WHERE `form_id` = 'HIS' AND `field_id` = 'history_offspring';
 #EndIf
 
+#IfNotRow3D layout_options form_id DEM field_id pubpid max_length 255
+UPDATE `layout_options` SET `max_length` = '255' WHERE `form_id` = 'DEM' AND `field_id` = 'pubpid';
+#EndIf
