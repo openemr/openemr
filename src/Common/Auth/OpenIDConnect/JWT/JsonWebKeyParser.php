@@ -12,9 +12,12 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
 use Exception;
-use Lcobucci\JWT\Parser;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\ValidationData;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use League\OAuth2\Server\CryptTrait;
 use LogicException;
 
@@ -58,20 +61,31 @@ class JsonWebKeyParser
         if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
-        // Attempt to parse and validate the JWT
-        $token = (new Parser())->parse($rawToken);
+
+        // Create the jwtConfiguration object
+        $configuration = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file($this->publicKeyLocation),
+            InMemory::plainText($this->encryptionKey)
+        );
+
+        // Attempt to parse the JWT
+        $token = $configuration->parser()->parse($rawToken);
         // defaults
         $result = array(
             'active' => true,
             'status' => 'active',
-            'scope' => implode(" ", $token->getClaim('scopes')),
+            'scope' => implode(" ", $token->claims()->get('scopes')),
             'exp' => $token->claims()->get('exp'),
             'sub' => $token->claims()->get('sub'), // user_id
             'jti' => $token->claims()->get('jti'),
             'aud' => $token->claims()->get('aud')
         );
+
+        // Attempt to validate the JWT
+        $validator = $configuration->validator();
         try {
-            if ($token->verify(new Sha256(), 'file://' . $this->publicKeyLocation) === false) {
+            if ($validator->validate($token, (new SignedWith(new Sha256(), InMemory::file($this->publicKeyLocation)))) === false) {
                 $result['active'] = false;
                 $result['status'] = 'failed_verification';
             }
@@ -79,13 +93,20 @@ class JsonWebKeyParser
             $result['active'] = false;
             $result['status'] = 'invalid_signature';
         }
+
         // Ensure access token hasn't expired
-        $data = new ValidationData();
-        $data->setCurrentTime(\time());
-        if ($token->validate($data) === false) {
+        //  Forced to use a Clock object to be able to use the ValidAt Validator
+        $nowClock = SystemClock::fromSystemTimezone();
+        try {
+            if ($validator->validate($token, (new ValidAt($nowClock))) === false) {
+                $result['active'] = false;
+                $result['status'] = 'expired';
+            }
+        } catch (Exception $exception) {
             $result['active'] = false;
             $result['status'] = 'expired';
         }
+
         return $result;
     }
 
