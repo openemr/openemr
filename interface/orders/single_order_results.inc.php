@@ -138,13 +138,6 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     // Have to make sure results are consistent with those before that change.
     $result_comments = str_replace("\r", "\n", $result_comments);
 
-    if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
-    // If the first line of comments is not empty, then it is actually a long textual
-    // result value with lines delimited by "~" characters.
-        $result_comments = str_replace("~", "\n", substr($result_comments, 0, $i)) .
-        substr($result_comments, $i);
-    }
-
     $result_comments = trim($result_comments);
 
     $result_noteid = '';
@@ -715,5 +708,6 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } // end if input form ?>
 
     <?php
-} // end function generate_order_report
+// end function generate_order_report
+}
 ?>
