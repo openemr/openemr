@@ -12,12 +12,10 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
 use Exception;
-use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use League\OAuth2\Server\CryptTrait;
 use LogicException;
 
@@ -63,11 +61,9 @@ class JsonWebKeyParser
         }
 
         // Create the jwtConfiguration object
-        $configuration = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            InMemory::file($this->publicKeyLocation),
-            InMemory::plainText($this->encryptionKey)
-        );
+        //  Just using object for parsing, so keys not needed
+        //   (ie. not using forAsymmetricSigner and just using forUnsecuredSigner)
+        $configuration = Configuration::forUnsecuredSigner();
 
         // Attempt to parse the JWT
         $token = $configuration->parser()->parse($rawToken);
@@ -95,14 +91,8 @@ class JsonWebKeyParser
         }
 
         // Ensure access token hasn't expired
-        //  Forced to use a Clock object to be able to use the ValidAt Validator
-        $nowClock = SystemClock::fromSystemTimezone();
-        try {
-            if ($validator->validate($token, (new ValidAt($nowClock))) === false) {
-                $result['active'] = false;
-                $result['status'] = 'expired';
-            }
-        } catch (Exception $exception) {
+        $now   = new \DateTimeImmutable();
+        if ($token->isExpired($now) === true) {
             $result['active'] = false;
             $result['status'] = 'expired';
         }

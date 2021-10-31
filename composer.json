@@ -61,7 +61,6 @@
         "steverhoades/oauth2-openid-connect-server": "2.2.0",
         "nyholm/psr7": "1.4.1",
         "nyholm/psr7-server": "1.0.2",
-        "lcobucci/clock": "2.0.0",
         "lcobucci/jwt": "4.1.5",
         "psr/log": "1.1.4",
         "monolog/monolog": "2.3.5",
