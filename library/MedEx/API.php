@@ -3373,8 +3373,8 @@ class MedEx
         if (empty($force)) {
             $timer = strtotime($info['MedEx_lastupdated']);
             $utc_now = date('Y-m-d H:m:s');
-            $now = strtotime($utc_now, "-60 minutes");
-            if ($now > $timer) {
+            $hour_ago = strtotime($utc_now . "-60 minutes");
+            if ($hour_ago > $timer) {
                 $expired = '1';
             }
         }

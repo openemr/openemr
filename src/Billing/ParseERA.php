@@ -33,9 +33,10 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             if ($GLOBALS['force_claim_balancing']) {
-                $paytotal = $out['amount_approved'];
-                $pattotal = (int)$out['amount_patient'];
-                $adjtotal = $out['amount_charged'] - $paytotal - $pattotal;
+                $chgtotal = floatval($out['amount_charged']);
+                $paytotal = floatval($out['amount_approved']);
+                $pattotal = floatval($out['amount_patient']);
+                $adjtotal = $chgtotal - $paytotal - $pattotal;
                 foreach ($out['svc'] as $svc) {
                     $paytotal -= $svc['paid'];
                     foreach ($svc['adj'] as $adj) {
