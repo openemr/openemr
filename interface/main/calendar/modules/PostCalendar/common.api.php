@@ -223,8 +223,9 @@ function postcalendar_getDate($format = '%Y%m%d')
 function &postcalendar_today($format = '%Y%m%d')
 {
     $time = time();
+    $strftime = strftime($format, $time);
 
-    return strftime($format, $time);
+    return $strftime;
 }
 
 /**
