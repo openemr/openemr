@@ -1396,7 +1396,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
-            $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
+            $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3] ?? '', true) . $commentdelim;
             // Ensoftek: Get data from SPM segment for specimen.
             // SPM segment always occurs after the OBX segment.
         } elseif ('SPM' == $a[0] && 'ORU' == $msgtype) {
