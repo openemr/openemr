@@ -887,7 +887,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $tmp = explode($d2, $a[5]);
             $in_lname = rhl7Text($tmp[0]);
             $in_fname = rhl7Text($tmp[1]);
-            $in_mname = rhl7Text($tmp[2]);
+            $in_mname = rhl7Text($tmp[2] ?? '');
 
             $patient_id = 0;
 
@@ -981,7 +981,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             $tmp = explode($d2, $a[4]);
             $in_procedure_code = $tmp[0];
-            $in_procedure_name = $tmp[1];
+            $in_procedure_name = rhl7Text($tmp[1]);
             $in_report_status = rhl7ReportStatus($a[25]);
             if ($lab_npi == "QUEST") {
                 // for profiles that may return dif component codes for profile code.
@@ -1067,7 +1067,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     );
                     if (!empty($encrow)) {
                         $encounter_id = intval($encrow['encounter']);
-                        $provider_id = intval($encrow['provider_id']);
+                        $provider_id = intval($encrow['provider_id'] ?? '');
                     }
 
                     if (!$provider_id) {
@@ -1170,8 +1170,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 // procedure_source = '2' indicates this.
                 if (!$dryrun) {
                     $lkup = lookupTestCode($lab_id, $in_procedure_code);
-                    $code_type = $lkup['procedure_type'] ? trim($lkup['procedure_type']) : '';
-                    $code_transport = $lkup['transport'] ? trim($lkup['transport']) : '';
+                    $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
+                    $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
                     sqlBeginTrans();
                     $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
                     sqlInsert(
@@ -1249,14 +1249,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $j >= 0 && $context == 'OBX' && $a[2] == 'TX'
                 && $amain[$i]['res'][$j]['result_data_type'] == 'L'
                 && $amain[$i]['res'][$j]['result_code'] == $result_code
-                && $amain[$i]['res'][$j]['date'] == rhl7DateTime($a[14])
-                && $amain[$i]['res'][$j]['facility'] == rhl7Text($a[15])
-                && $amain[$i]['res'][$j]['abnormal'] == rhl7Abnormal($a[8])
-                && $amain[$i]['res'][$j]['result_status'] == rhl7ReportStatus($a[11])
+                && $amain[$i]['res'][$j]['date'] == rhl7DateTime($a[14] ?? '')
+                && ($amain[$i]['res'][$j]['facility'] ?? '') == rhl7Text($a[15] ?? '')
+                && $amain[$i]['res'][$j]['abnormal'] == rhl7Abnormal($a[8] ?? '')
+                && $amain[$i]['res'][$j]['result_status'] == rhl7ReportStatus($a[11] ?? '')
             ) {
                 $amain[$i]['res'][$j]['comments'] =
-                    substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments']) - 1) .
-                    '~' . rhl7Text($a[5]) . $commentdelim;
+                    substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments'])) . rhl7Text($a[5] ?? '') . $commentdelim;
                 continue;
             }
 
@@ -1316,14 +1315,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             $ares['result_code'] = $result_code;
             $ares['result_text'] = $result_text;
-            $ares['date'] = rhl7DateTime($a[14]);
+            $ares['date'] = rhl7DateTime($a[14] ?? '');
             //$ares['facility'] = rhl7Text($a[15]);
             // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
-            $tmp = explode($d2, $a[6]);
+            $tmp = explode($d2, ($a[6] ?? ''));
             $ares['units'] = rhl7Text($tmp[0]);
-            $ares['range'] = rhl7Text($a[7]);
-            $ares['abnormal'] = rhl7Abnormal($a[8]); // values are lab dependent
-            $ares['result_status'] = rhl7ReportStatus($a[11]);
+            $ares['range'] = rhl7Text($a[7] ?? '');
+            $ares['abnormal'] = rhl7Abnormal($a[8] ?? ''); // values are lab dependent
+            $ares['result_status'] = rhl7ReportStatus($a[11] ?? '');
 
             // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
             if (empty($obrPerformingOrganization)) {
@@ -1343,7 +1342,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
              ****/
 
             // obxkey is to allow matching this as a parent result.
-            $ares['obxkey'] = $a[3] . $d1 . $a[4];
+            $ares['obxkey'] = $a[3] . $d1 . ($a[4] ?? '');
 
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
@@ -1397,7 +1396,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
-            $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
+            $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3] ?? '', true) . $commentdelim;
             // Ensoftek: Get data from SPM segment for specimen.
             // SPM segment always occurs after the OBX segment.
         } elseif ('SPM' == $a[0] && 'ORU' == $msgtype) {
