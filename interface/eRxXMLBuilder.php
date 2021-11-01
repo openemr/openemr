@@ -717,30 +717,34 @@ class eRxXMLBuilder
             ->getPatientDiagnosisByPatientId($patientId);
 
         $elements = array();
-
         while ($diagnosis = sqlFetchArray($diagnosisData)) {
-            $element = $this->getDocument()->createElement('PatientDiagnosis');
-
             if ($diagnosis['diagnosis']) {
-                $res = explode(":", $diagnosis['diagnosis']); //split diagnosis
-                $element->appendChild($this->createElementText('diagnosisID', $res[1]));
-                $element->appendChild($this->createElementText('diagnosisType', $res[0]));
-            }
+                // For issues that have multiple diagnosis coded, they are semicolon-separated
+                // explode() will return an array containing the individual diagnosis if there is no semicolon
+                $multiple = explode(";", $diagnosis['diagnosis']);
+                foreach ($multiple as $individual) {
+                    $element = $this->getDocument()->createElement('PatientDiagnosis');
+                    $res = explode(":", $individual); //split diagnosis type and code
 
-            if ($diagnosis['begdate']) {
-                $element->appendChild($this->createElementText('onsetDate', str_replace("-", "", $diagnosis['begdate'])));
-            }
+                    $element->appendChild($this->createElementText('diagnosisID', $res[1]));
+                    $element->appendChild($this->createElementText('diagnosisType', $res[0]));
 
-            if ($diagnosis['title']) {
-                $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
-            }
+                    if ($diagnosis['begdate']) {
+                        $element->appendChild($this->createElementText('onsetDate', str_replace("-", "", $diagnosis['begdate'])));
+                    }
 
-            if ($diagnosis['date']) {
-                $date = new DateTime($diagnosis['date']);
-                $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
-            }
+                    if ($diagnosis['title']) {
+                        $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
+                    }
 
-            $elements[] = $element;
+                    if ($diagnosis['date']) {
+                        $date = new DateTime($diagnosis['date']);
+                        $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
+                    }
+
+                    $elements[] = $element;
+                }
+            }
         }
 
         return $elements;
