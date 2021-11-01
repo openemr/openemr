@@ -277,6 +277,12 @@ $esignApi = new Api();
             width: max-content;
             min-height: 100% !important;
             height: 100% !important;
+            overflow-x: hidden;
+        }
+        @media only screen and (min-width: 992px) {
+          body {
+            overflow-x: auto !important;
+          }
         }
     </style>
 </head>
