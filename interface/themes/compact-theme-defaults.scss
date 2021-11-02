@@ -15,7 +15,7 @@ $grid-gutter-width: 20px;
 // Changes the table cell padding to table small cell padding
 $table-cell-padding: 0.3rem;
 
-$label-margin-bottom: 0.5rem / 2;
+$label-margin-bottom: 0.5rem * 0.5;
 
 // Changes the input buttons to be smaller as well as all forms
 $input-btn-padding-y: 0.2rem;
@@ -52,5 +52,5 @@ label {
 // _images.scss overrides
 //
 .figure-img {
-  margin-bottom: $spacer / 2 !important;
+  margin-bottom: $spacer * 0.5 !important;
 }

@@ -30,7 +30,7 @@ class UniqueID implements Constraint
     }
 
     /** @throws ConstraintViolation */
-    public function assert(Token $token)
+    public function assert(Token $token): void
     {
         $jti = $token->claims()->get('jti');
         $exp = $token->claims()->get('exp');
