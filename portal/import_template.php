@@ -12,20 +12,23 @@
 
 require_once("../interface/globals.php");
 
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+
+$templateService = new DocumentTemplateService();
+$patient = (int)$_POST['upload_pid'];
+
 if ($_POST['mode'] === 'get') {
-    $rebuilt = validateFile($_POST['docid']);
-    if ($rebuilt) {
-        echo file_get_contents($rebuilt);
+    if ($_POST['docid']) {
+        $template = $templateService->fetchTemplate($_POST['docid']);
+        echo $template['template_content'];
         exit();
     } else {
         die(xlt('Invalid File'));
     }
 } elseif ($_POST['mode'] === 'save') {
-    $rebuilt = validateFile($_POST['docid']);
-    if ($rebuilt) {
+    if ($_POST['docid']) {
         if (stripos($_POST['content'], "<?php") === false) {
-            file_put_contents($rebuilt, $_POST['content']);
-            exit(true);
+            $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
         } else {
             die(xlt('Invalid Content'));
         }
@@ -33,59 +36,40 @@ if ($_POST['mode'] === 'get') {
         die(xlt('Invalid File'));
     }
 } elseif ($_POST['mode'] === 'delete') {
-    $rebuilt = validateFile($_POST['docid']);
-    if ($rebuilt) {
-        unlink($rebuilt);
+    if ($_POST['docid']) {
+        $template = $templateService->deleteTemplate($_POST['docid']);
         exit(true);
     }
 
     die(xlt('Invalid File'));
 }
 
-// so it is an import. create file structure.
-$UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-if (!empty($_POST['up_dir'])) { // a patient template
-    $UPLOAD_DIR = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' .
-        convert_safe_file_dir_name($_POST['up_dir']) . "/";
-} else { // so then add what category template belongs.
-    $UPLOAD_DIR .= !empty($_POST['doc_category']) ? (convert_safe_file_dir_name($_POST['doc_category']) . "/") : "";
-}
-// create dir if needed
-if (!is_dir($UPLOAD_DIR) && !mkdir($UPLOAD_DIR, 0755, true) && !is_dir($UPLOAD_DIR)) {
-    die("<p>" . xlt("Unable to import file: Use back button!") . "</p>");
-}
+// so it is a template file import. create record(s).
 
-if (!empty($_FILES["tplFile"])) {
-    $tplFile = $_FILES["tplFile"];
-    if ($tplFile["error"] !== UPLOAD_ERR_OK) {
-        header("refresh:3;url= import_template_ui.php");
-        echo "<title>" . xlt("Error") . " ...</title><h4 style='color:red;'>" .
-            xlt("An error occurred: Missing file to upload. Returning to form.") . "</h4>";
-        exit;
-    }
-    // ensure a safe filename
-    $name = preg_replace("/[^A-Z0-9._-]/i", "_", $tplFile["name"]);
-    if (preg_match("/(.*)\.(php|php7|php8)$/i", $name) !== 0) {
-        die(xlt('Executables not allowed'));
-    }
-    $parts = pathinfo($name);
-    $name = $parts["filename"] . '.tpl';
-    // don't overwrite an existing file
-    while (file_exists($UPLOAD_DIR . $name)) {
-        $i = rand(0, 128);
-        $newname = $parts["filename"] . "-" . $i . "." . $parts["extension"] . ".replaced";
-        rename($UPLOAD_DIR . $name, $UPLOAD_DIR . $newname);
-    }
+if (!empty($_FILES["template_files"])) {
+    $import_files = $_FILES["template_files"];
+    $total = count($_FILES['template_files']['name']);
+    for( $i=0 ; $i < $total ; $i++ ) {
+        if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<title>' . xlt('Error') . " ...</title><h4 style='color:red;'>" .
+                xlt('An error occurred: Missing file to upload. Returning to form.') . '</h4>';
+            exit;
+        }
+        // parse out what we need
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", $_FILES['template_files']['name'][$i]);
+        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", $name) !== 0) {
+            die(xlt('Invalid file type.'));
+        }
+        $parts = pathinfo($name);
+        $name = ucwords(strtolower($parts["filename"]));
 
-    // preserve file from temporary directory
-    $success = move_uploaded_file($tplFile["tmp_name"], $UPLOAD_DIR . $name);
-    if (!$success) {
-        echo "<p>" . xlt("Unable to save file: Use back button!") . "</p>";
-        exit;
+        $success = $templateService->uploadTemplate($name, $_POST['doc_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
+        if (!$success) {
+            echo "<p>" . xlt("Unable to save file: Use back button!") . "</p>";
+            exit;
+        }
     }
-
-    // set proper permissions on the new file
-    chmod($UPLOAD_DIR . $name, 0644);
     header("location: " . $_SERVER['HTTP_REFERER']);
     die();
 }

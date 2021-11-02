@@ -15,66 +15,26 @@
 require_once("../interface/globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+
+$templateService = new DocumentTemplateService();
 
 $patient = (int)($_POST['sel_pt'] ?? 0);
-$patient_dir = $patient > 0 ? convert_safe_file_dir_name($patient . "_tpls") : "";
-$cat_dir = convert_safe_file_dir_name($_POST['doc_category']) ?? "";
-// default root
-$tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-if (!empty($patient_dir)) {
-    $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $patient_dir . '/';
-} elseif (!empty($cat_dir)) {
-    $tdir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $cat_dir . '/';
-}
+$patient = $patient ?: ((int)$_POST['upload_pid']);
 
-$rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
-$category_list = array();
-while ($row = sqlFetchArray($rtn)) {
-    $category_list[] = $row;
-}
+$category = $_POST['doc_category'] ?? null;
+
+$category_list = $templateService->getDefaultCategories();
 
 function getAuthUsers()
 {
-    $response = sqlStatement("SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'");
+    $response = sqlStatement("SELECT patient_data.pid, Concat_Ws(', ', patient_data.lname, patient_data.fname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'");
     $resultpd = array();
     while ($row = sqlFetchArray($response)) {
         $resultpd[] = $row;
     }
 
     return $resultpd;
-}
-
-function getTemplateList($dir, $location = "")
-{
-    $retval = array();
-    if (substr($dir, -1) !== "/") {
-        $dir .= "/";
-    }
-
-    if (false === $d = @dir($dir)) {
-        return false;
-    }
-    while (false !== ($entry = $d->read())) {
-        if ($entry[0] === "." || substr($entry, -3) !== 'tpl') {
-            continue;
-        }
-        if (is_dir("$dir$entry")) {
-            continue;
-        }
-
-        if (is_readable("$dir$entry")) {
-            $retval[] = array(
-                'pathname' => "$dir$entry",
-                'name' => "$entry",
-                'size' => filesize("$dir$entry"),
-                'lastmod' => filemtime("$dir$entry"),
-                'location' => text("./documents/onsite_portal_documents/templates/" . $location)
-            );
-        }
-    }
-
-    $d->close();
-    return $retval;
 }
 
 ?>
@@ -84,14 +44,14 @@ function getTemplateList($dir, $location = "")
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['datetime-picker', 'summernote', 'summernote-ext-nugget']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'summernote', 'summernote-ext-nugget', 'select2']); ?>
 
 </head>
 <script>
     let currentEdit = "";
-    let tedit = function (docname) {
-        currentEdit = docname;
-        getDocument(docname, 'get', '');
+    let tedit = function (id) {
+        currentEdit = id;
+        getDocument(id, 'get', '');
         return false;
     };
 
@@ -99,31 +59,32 @@ function getTemplateList($dir, $location = "")
         let makrup = $('#templatecontent').summernote('code');
         getDocument(currentEdit, 'save', makrup)
     };
-    let tdelete = function (docname) {
-        let delok = confirm(<?php echo xlj('You are about to delete template'); ?> +": " + docname + "\n" + <?php echo xlj('Is this Okay?'); ?>);
+
+    let tdelete = function (id) {
+        let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> + ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
         if (delok === true) {
-            getDocument(docname, 'delete', '')
+            getDocument(id, 'delete', '')
         }
         return false;
     };
 
-    function getDocument(docname, mode, content) {
+    function getDocument(id, mode, content) {
         let liburl = 'import_template.php';
         $.ajax({
             type: "POST",
             url: liburl,
-            data: {docid: docname, mode: mode, content: content},
+            data: {docid: id, mode: mode, content: content},
             beforeSend: function (xhr) {
                 console.log("Please wait..." + content);
             },
             error: function (qXHR, textStatus, errorThrow) {
                 console.log("There was an error");
-                alert(<?php echo xlj("File Error") ?> +"\n" + docname)
+                alert(<?php echo xlj("File Error") ?> +"\n" + id)
             },
             success: function (templateHtml, textStatus, jqXHR) {
                 if (mode == 'get') {
                     let editHtml = '<div class="edittpl" id="templatecontent"></div>';
-                    dlgopen('', 'popeditor', 'modal-full', 850, '', '', {
+                    dlgopen('', 'popeditor', 'modal-lg', 850, '', '', {
                         buttons: [
                             {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: tsave},
                             {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
@@ -139,6 +100,7 @@ function getTemplateList($dir, $location = "")
                     $('#templatecontent').empty().append(templateHtml);
                     $('#templatecontent').summernote({
                         focus: true,
+                        dialogsInBody: true,
                         placeholder: '',
                         toolbar: [
                             ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -170,64 +132,70 @@ function getTemplateList($dir, $location = "")
     }
 </script>
 <style>
-    .modal.modal-wide .modal-dialog {
-        width: 55%;
-    }
+  .modal.modal-wide .modal-dialog {
+    width: 55%;
+  }
 
-    .modal-wide .modal-body {
-        overflow-y: auto;
-    }
+  .modal-wide .modal-body {
+    overflow-y: auto;
+  }
 </style>
 <body class="body-top">
     <div class='container'>
-        <h3><?php echo xlt('Patient Document Template Maintenance'); ?></h3>
-        <hr />
-        <div class="jumbotron jumbotron-fluid p-1 text-center">
-            <p>
+        <h3 class='ml-0 mt-2'><?php echo xlt('Patient Document Template Maintenance'); ?></h3>
+        <div class='col col-md col-lg'>
+        <div class="card col-8 offset-2 border-0 mb-2">
+            <div id="help-panel" class="card-block border-2 bg-dark text-light collapse">
+                <div class="card-title bg-light text-dark text-center"><?php echo xlt('Template Help'); ?></div>
+                <div class='card-text p-2'>
                 <?php echo xlt('Select a text or html template and upload for selected patient or all portal patients.'); ?><br /><?php echo xlt('Files base name becomes a pending document selection in Portal Documents.'); ?><br />
                 <em><?php echo xlt('For example: Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents.'); ?></em>
-            </p>
+                </div>
+            </div>
         </div>
-        <form id="form_upload" class="form-inline" action="import_template.php" method="post" enctype="multipart/form-data">
+        <form id="form_upload" class="form-inline row" action="import_template.php" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <div class="btn-group">
-                    <input class="btn btn-outline-info" type="file" name="tplFile">
-                    <button class="btn btn-outline-primary" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Uploading For'); ?> <label id='ptstatus'></label></button>
+                    <input class="btn btn-outline-info" type="file" multiple name="template_files[]">
+                    <button class="btn btn-outline-primary" type="submit" name="upload_submit" id="upload_submit"><label id='ptstatus'></label></button>
                 </div>
-                <button class="btn btn-success ml-2" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Dashboard'); ?></button>
+                <div class='btn-group ml-2'>
+                <button type="button" class='btn btn-primary' data-toggle='collapse' data-target='#help-panel'>
+                    <i class="fas fa-toggle-on mr-1"></i><?php echo xlt('Help') ?>
+                </button>
+                <button class="btn btn-success" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Dashboard'); ?></button>
+                </div>
             </div>
-            <input type='hidden' name="up_dir" value='<?php global $patient_dir;
-            echo $patient_dir; ?>' />
-            <input type='hidden' name="doc_category" value='<?php global $cat_dir;
-            echo $cat_dir; ?>' />
+            <?php //global $patient, $category; ?>
+            <input type='hidden' name='upload_pid' value='<?php echo $patient; ?>' />
+            <input type='hidden' name="doc_category" value='<?php echo $category; ?>' />
         </form>
         <hr>
         <div class='row'>
-            <h4><?php echo xlt('Active Templates'); ?></h4>
             <div class='col col-md col-lg'>
-                <form id="edit_form" name="edit_form" class="form-inline mb-2" action="" method="post">
+                <form id="edit_form" name="edit_form" class="row form-inline mb-2" action="" method="post">
+                    <h4 class="mb-1 mr-2"><?php echo xlt('Active Templates'); ?></h4>
                     <div class="form-group">
                         <label class="label mx-1" for="doc_category"><?php echo xlt('Category'); ?></label>
                         <select class="form-control" id="doc_category" name="doc_category">
-                            <option value=""><?php echo xlt('General'); ?></option>
+                            <option value=""><?php echo xlt('Default'); ?></option>
                             <?php
-                            foreach ($category_list as $dir) {
-                                if ($cat_dir == $dir['option_id']) {
-                                    echo "<option value='" . text($dir['option_id']) . "' selected>" . text($dir['title']) . "</option>\n";
+                            foreach ($category_list as $option_category) {
+                                if ($category == $option_category['option_id']) {
+                                    echo "<option value='" . text($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
                                 } else {
-                                    echo "<option value='" . text($dir['option_id']) . "'>" . text($dir['title']) . "</option>\n";
+                                    echo "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
                                 }
                             }
                             ?>
                         </select>
                         <label class="label mx-1" for="sel_pt"><?php echo xlt('Patient'); ?></label>
-                        <select class="form-control" id="sel_pt" name="sel_pt">
+                        <select class="form-control select-dropdown" id="sel_pt" name="sel_pt">
                             <option value='0'><?php echo xlt("All Patients") ?></option>
                             <?PHP
                             $ppt = getAuthUsers();
-                            global $patient_dir;
                             foreach ($ppt as $pt) {
-                                if ($patient_dir != $pt['pid'] . "_tpls") {
+                                if ($patient != $pt['pid']) {
                                     echo "<option value=" . attr($pt['pid']) . ">" . text($pt['ptname']) . "</option>";
                                 } else {
                                     echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . "</option>";
@@ -240,20 +208,12 @@ function getTemplateList($dir, $location = "")
                 </form>
             </div>
             <?php
-            $dir_list = [];
+            $templates = [];
             $show_cat_flag = false;
-            if (!empty($cat_dir)) {
-                $dir_list['general'] = getTemplateList($tdir);
+            if (!empty($category)) {
+                $templates = $templateService->getTemplateListByCategory($category);
             } else {
-                $dir_list['general'] = getTemplateList($tdir);
-                foreach ($category_list as $cat) {
-                    if (!empty($cat_dir) && $cat_dir != $cat['option_id']) {
-                        continue;
-                    }
-                    if ($cat_dir_iter = getTemplateList(($tdir . $cat['option_id']), $cat['option_id'])) {
-                        $dir_list[$cat['title']] = $cat_dir_iter;
-                    }
-                }
+                $templates = $templateService->getTemplateListAllCategories();
             }
             echo "<table class='table table-sm table-striped table-bordered'>\n";
             echo "<thead>\n";
@@ -263,18 +223,18 @@ function getTemplateList($dir, $location = "")
                 "</tr>\n";
             echo "</thead>\n";
             echo "<tbody>\n";
-            foreach ($dir_list as $cat => $files) {
+            foreach ($templates as $cat => $files) {
                 foreach ($files as $file) {
-                    $t = $file['pathname'];
+                    $template_id = $file['id'];
                     echo "<tr><td>";
-                    echo '<button id="tedit' . attr($t) .
-                        '" class="btn btn-sm btn-outline-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>' .
-                        '<button id="tdelete' . attr($t) .
-                        '" class="btn btn-sm btn-outline-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button>';
+                    echo '<button id="tedit' . attr($template_id) .
+                        '" class="btn btn-sm btn-outline-primary" onclick="tedit(' . attr_js($template_id) . ')" type="button">' . text($file['name']) . '</button>' .
+                        '<button id="tdelete' . attr($template_id) .
+                        '" class="btn btn-sm btn-outline-danger" onclick="tdelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") . '</button>';
                     echo "</td><td>" . text(ucwords($cat)) . "</td>";
                     echo "<td>" . text($file['location']) . "</td>";
                     echo "<td>" . text($file['size']) . "</td>";
-                    echo "<td>" . text(date('r', $file['lastmod'])) . "</td>";
+                    echo "<td>" . text(date('r', strtotime($file['modified_date']))) . "</td>";
                     echo "</tr>";
                 }
             }
@@ -282,9 +242,85 @@ function getTemplateList($dir, $location = "")
             echo "</table>";
             ?>
         </div>
-    </div>
+        <div class='row'>
+            <h4><?php echo xlt('Patient Templates'); ?></h4>
+            <div class='col col-md col-lg'>
+                <!--<form id="edit_form" name="edit_form" class="form-inline mb-2" action="" method="post">
+                    <div class="form-group">
+                        <label class="label mx-1" for="doc_category"><?php /*echo xlt('Category'); */ ?></label>
+                        <select class="form-control" id="doc_category" name="doc_category">
+                            <option value=""><?php /*echo xlt('General'); */ ?></option>
+                            <?php
+                /*                            foreach ($category_list as $option_category) {
+                                                if ($category == $option_category['option_id']) {
+                                                    echo "<option value='" . text($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
+                                                } else {
+                                                    echo "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                                                }
+                                            }
+                                            */ ?>
+                        </select>
+                        <label class="label mx-1" for="sel_pt"><?php /*echo xlt('Patient'); */ ?></label>
+                        <select class="form-control" id="sel_pt" name="sel_pt">
+                            <option value='0'><?php /*echo xlt('All Patients') */ ?></option>
+                            <?PHP
+                /*                            $ppt = getAuthUsers();
+                                            foreach ($ppt as $pt) {
+                                                if ($patient != $pt['pid']) {
+                                                    echo '<option value=' . attr($pt['pid']) . '>' . text($pt['ptname']) . '</option>';
+                                                } else {
+                                                    echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . '</option>';
+                                                }
+                                            }
+                                            */ ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary"><?php /*echo xlt('Refresh'); */ ?></button>
+                </form>-->
+            </div>
+            <?php
+            $templates = [];
+            $show_cat_flag = false;
+            if (!empty($category)) {
+                $templates = $templateService->getTemplateCategoriesByPatient($patient, $category);
+            } else {
+                $templates = $templateService->getTemplateCategoriesByPatient($patient);
+            }
+            echo "<table class='table table-sm table-striped table-bordered'>\n";
+            echo "<thead>\n";
+            echo "<tr>\n" .
+                '<th>' . xlt('Template') . ' - <i>' . xlt('Click to edit') . '</i></th>' .
+                '<th>' . xlt('Category') . '</th><th>' . xlt('Location') . '</th><th>' . xlt('Size') . '</th><th>' . xlt('Last Modified') . '</th>' .
+                "</tr>\n";
+            echo "</thead>\n";
+            echo "<tbody>\n";
+            foreach ($templates as $cat => $files) {
+                foreach ($files as $file) {
+                    $template_id = $file['id'];
+                    echo '<tr><td>';
+                    echo '<button id="tedit' . attr($template_id) .
+                        '" class="btn btn-sm btn-outline-primary" onclick="tedit(' . attr_js($template_id) . ')" type="button">' . text($file['name']) . '</button>' .
+                        '<button id="tdelete' . attr($template_id) .
+                        '" class="btn btn-sm btn-outline-danger" onclick="tdelete(' . attr_js($template_id) . ')" type="button">' . xlt('Delete') . '</button>';
+                    echo '</td><td>' . text(ucwords($cat)) . '</td>';
+                    echo '<td>' . text($file['location']) . '</td>';
+                    echo '<td>' . text($file['size']) . '</td>';
+                    echo '<td>' . text(date('r', strtotime($file['modified_date']))) . '</td>';
+                    echo '</tr>';
+                }
+            }
+            echo '</tbody>';
+            echo '</table>';
+            ?>
+        </div>
+        </div></div>
     <script>
         $(function () {
+            $('.select-dropdown').select2({
+                theme: 'bootstrap4',
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+
             $("#sel_pt").change(function () {
                 if (checkCategory()) {
                     $("#edit_form").submit();
@@ -304,13 +340,12 @@ function getTemplateList($dir, $location = "")
             function checkCategory() {
                 let cat = $("#doc_category").val();
                 let patient = $("#sel_pt").val();
-                if (patient !== "0" && cat !== "") {
-                    alert(xl("Alert! Can only use the General category with patients."));
-                    $("#doc_category").val("");
-                    return false;
-                }
                 return true;
             }
+        });
+
+        $(document).on('select2:open', () => {
+            document.querySelector('.select2-search__field').focus();
         });
     </script>
 </body>
