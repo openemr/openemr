@@ -8377,12 +8377,28 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `edi_sequences`
+--
+
+DROP TABLE IF EXISTS `edi_sequences`;
+CREATE TABLE `edi_sequences` (
+  `id` int(11) unsigned NOT NULL default '0'
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `edi_sequences`
+--
+
+INSERT INTO `edi_sequences` VALUES (1);
+
+-- --------------------------------------------------------
+--
 -- Table structure for table `sequences`
 --
 
 DROP TABLE IF EXISTS `sequences`;
 CREATE TABLE `sequences` (
-  `id` int(11) unsigned NOT NULL default '0'
+    `id` int(11) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB;
 
 --

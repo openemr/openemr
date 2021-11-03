@@ -1261,3 +1261,11 @@ UPDATE `layout_options` SET `codes` = 'SNOMED-CT:67822003' WHERE `form_id` = 'HI
 #IfNotRow3D layout_options form_id DEM field_id pubpid max_length 255
 UPDATE `layout_options` SET `max_length` = '255' WHERE `form_id` = 'DEM' AND `field_id` = 'pubpid';
 #EndIf
+
+#IfNotTable edi_sequence
+CREATE TABLE `edi_sequences` (
+    `id` int(11) unsigned NOT NULL default '0'
+) ENGINE=InnoDB;
+
+#IfNotRow edi_sequence id 1
+INSERT INTO `edi_sequences` VALUES (1);
