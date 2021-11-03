@@ -38,7 +38,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             'assets_dir' => $GLOBALS['assets_static_relative'],
             'srcdir' => $GLOBALS['srcdir'],
             'rootdir' => $GLOBALS['rootdir'],
-            'assetVerion' => attr($this->globals['v_js_includes']),
+            'assetVerion' => $this->globals['v_js_includes'],
         ];
     }
 

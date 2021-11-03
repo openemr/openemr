@@ -467,7 +467,7 @@ $GLOBALS_METADATA = array(
             xl('User Manual Link Override'),
             'text',
             '',
-            xl("Point to a custom user manual. Leave blank for the default, aut0-generated URL for specific version of application"),
+            xl("Point to a custom user manual. Leave blank for the default, auto-generated URL for specific version of application"),
         ],
 
         'support_phone_number' => array(
