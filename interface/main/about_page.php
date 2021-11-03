@@ -11,7 +11,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021 Roebrt Down <robertdown@live.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -43,9 +43,13 @@ $registrationTranslation = json_encode(array(
     'closeTooltip' => ''
 ));
 
+// Auto-generate the link if no override is specified. This is tied directly to the OpenEMR Wiki
+$userManual = ($GLOBALS['user_manual_link'] === '')
+    ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false) . "_Users_Guide"
+    : $GLOBALS['user_manual_link'];
+
 $viewArgs = [
-    'userManualHref' => "https://open-emr.org/wiki/index.php/OpenEMR_" . attr($version['v_major']) . "." . attr($version['v_minor']) . "." . attr($version['v_patch']) . "_Users_Guide",
-    'onlineSupportHref' => attr($GLOBALS["online_support_link"]),
+    'onlineSupportHref' => $GLOBALS["online_support_link"],
     'ackHref' => "../../acknowledge_license_cert.html",
     'registrationTranslations' => $registrationTranslation,
     'js_version' => $v_js_includes,
@@ -53,8 +57,8 @@ $viewArgs = [
     'versionNumber' => $versionService->asString(),
     'supportPhoneNumber' => $GLOBALS['support_phone_number'] ?? false,
     'theUUID' => UniqueInstallationUuid::getUniqueInstallationUuid(),
-    'userManualHref' => $GLOBALS['online_support_link'] ?? false,
-    'onlineSupportLink' => 'onlinesupporthref',
+    'userManualHref' => $userManual,
+    'onlineSupportLink' => $GLOBALS['online_support_link'] ?? false,
     'displayAcknowledgements' => $GLOBALS['display_acknowledgements'],
     'displayDonations' => $GLOBALS['display_review_link'],
     'displayReview' => $GLOBALS['display_donations_link'],

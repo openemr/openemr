@@ -32,11 +32,16 @@ class VersionService extends BaseService
 
     /**
      * Return the compounded major, minor, patch and tag verions as a string
+     *
+     * @var $includeTag bool Include the tag
+     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
      */
-    public function asString(): string
+    public function asString(bool $includeTag = true): string
     {
         $v = $this->fetch();
-        return "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}{$v['v_tag']}";
+        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
+        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
+        return $string;
     }
 
     /**

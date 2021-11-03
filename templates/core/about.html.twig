@@ -1,7 +1,7 @@
 <html>
 <head>
     {{ setupHeader() }}
-    <title>{{ "About"|xlt }} {{ applicationTitle }}</title>
+    <title>{{ "About"|xlt }} {{ applicationTitle|text }}</title>
     <script>
         var registrationTranslations = {{ registrationTranslations }}
         var registrationConstants = {
@@ -9,8 +9,8 @@
         }
     </script>
 
-    <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ js_version }}"></script>
-    <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ js_version }}"></script>
+    <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ assetVersion }}"></script>
+    <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion }}"></script>
 
     <script>
         $(function () {
@@ -50,21 +50,21 @@
                 {% if supportPhoneNumber %}
                 <div class="phone d-flex justify-content-between">
                     <p>{{ "Support Phone Number"|xlt }}</p>
-                    <strong><a href="tel:{{ supportPhoneNumber|attr }}" target="_blank">{{ supportPhoneNumber }}</a></strong>
+                    <strong><a href="tel:{{ supportPhoneNumber|attr }}" target="_blank">{{ supportPhoneNumber|text }}</a></strong>
                 </div>
                 {% endif %}
 
                 {% if onlineSupportHref %}
                 <div class="online-support d-flex justify-content-between">
                     <p>{{" Online Support"|xlt }}</p>
-                    <strong><a href="{{ onlineSupportHref }}" target="_blank" rel="noopener">{{ onlineSupportHref }}</a></strong>
+                    <strong><a href="{{ onlineSupportHref|attr }}" target="_blank" rel="noopener">{{ onlineSupportHref|text }}</a></strong>
 
                 </div>
                 {% endif %}
 
                 {% if userManualHref %}
                 <div class="user-manual mt-3">
-                    <a href="{{ userManualHref }}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                    <a href="{{ userManualHref|attr}}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
                         <i class="fa fa-fw fa-book fa-lg"></i>&nbsp;{{ "User Manual"|xlt }}
                     </a>
                 </div>
@@ -105,7 +105,7 @@
                     <p class="context">
                         {{ "Register your installation with the OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
                     </p>
-                    <input placeholder="{{ 'email'|xlt }}" type="email" class="email w-100 text-body form-control">
+                    <input placeholder="{{ 'email'|xla }}" type="email" class="email w-100 text-body form-control">
                     <p class="message font-italic"></p>
                 </div>
                 <div class="modal-footer">

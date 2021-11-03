@@ -464,9 +464,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'user_manual_link' => [
-            xl('User Manual Link'),
+            xl('User Manual Link Override'),
             'text',
-            'https://www.open-emr.org/wiki/index.php'
+            '',
+            xl("Point to a custom user manual. Leave blank for the default, aut0-generated URL for specific version of application"),
         ],
 
         'support_phone_number' => array(
