@@ -3,10 +3,10 @@
 {% block head %}
 	{{parent()}}
 
-	<link href="../portal/sign/css/signer_modal.css?v={{ jsVersion | attr }}" rel="stylesheet"/>
-	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ jsVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ jsVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signer_api.js?v={{ jsVersion | attr }}"></script>
+	<link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr }}" rel="stylesheet"/>
+	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr }}"></script>
 
 	{% if payment_gateway == 'Stripe' %}
 		<script src="https://js.stripe.com/v3/"></script>
@@ -267,7 +267,7 @@
 								screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
 							} else {
 									for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Descriptio}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
+										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
 									}
 								}
 						}

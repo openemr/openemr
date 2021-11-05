@@ -3,12 +3,12 @@
 <html lang="en">
 <head>
     {% if displayGoogleSignin %}
-        <meta name="google-signin-client_id" content="{{ googleSigninClientID }}">
+        <meta name="google-signin-client_id" content="{{ googleSigninClientID|attr }}">
     {% endif %}
     <title>{{ title|text }} {{ "Login"|xlt }}</title>
     {% block head %}{% endblock %}
-    <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ jsIncludes }}"></script>
-    <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ jsIncludes }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
     {{ setupHeader() }}
     <script type="text/javascript">
         const registrationTranslations = {{ regTranslations }};

@@ -35,10 +35,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         return [
-            'assets_dir' => $GLOBALS['assets_static_relative'],
-            'srcdir' => $GLOBALS['srcdir'],
-            'rootdir' => $GLOBALS['rootdir'],
-            'assetVerion' => $this->globals['v_js_includes'],
+            'assets_dir' => $this->globals['assets_static_relative'],
+            'srcdir' => $this->globals['srcdir'],
+            'rootdir' => $this->globals['rootdir'],
+            'webroot' => $this->globals['webroot'],
+            'assetVersion' => $this->globals['v_js_includes'],
         ];
     }
 

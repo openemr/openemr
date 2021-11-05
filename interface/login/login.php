@@ -247,7 +247,6 @@ $viewArgs = [
     'cookieText' => $cookie,
     'regTranslations' => $regTranslations,
     'regConstants' => json_encode(['webroot' => $GLOBALS['webroot']]),
-    'jsIncludes' => $v_js_includes,
     'siteID' => $_SESSION['site_id'],
     'loginRow' => $loginrow,
     'formArea' => $formarea,
