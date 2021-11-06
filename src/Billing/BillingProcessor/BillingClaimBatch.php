@@ -55,8 +55,7 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        // 5010 spec needs a 9 digit control number zero padded in necc
-        //$control_no =
+        // 5010 spec needs a 9 digit control number zero padded
         $this->bat_icn = str_pad(rand(1, 999999), 9, '0', STR_PAD_LEFT);
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
