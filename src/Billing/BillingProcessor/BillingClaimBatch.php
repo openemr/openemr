@@ -20,6 +20,8 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class BillingClaimBatch
 {
     protected $bat_type = ''; // will be edi or hcfa
@@ -57,9 +59,8 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        // Seconds since 1/1/1970 00:00:00 GMT will be our interchange control number
-        // but since limited to 9 char must be without leading 1
-        $this->bat_icn = substr((string)$this->bat_time, 1, 9);
+        // using edi_sequences table for ICN and GS control no.
+        $this->bat_icn = str_pad((string)QueryUtils::ediGenerateId(), 9, '0', STR_PAD_LEFT);
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
     }
@@ -110,6 +111,14 @@ class BillingClaimBatch
     public function setBatFiledir(string $bat_filedir): void
     {
         $this->bat_filedir = $bat_filedir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBatIcn(): string
+    {
+        return $this->bat_icn;
     }
 
     /**
@@ -210,7 +219,8 @@ class BillingClaimBatch
             if ($elems[0] == 'GS') {
                 if ($this->bat_gscount == 0) {
                     ++$this->bat_gscount;
-                    $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*$this->bat_yyyymmdd*$this->bat_hhmm*1*X*" . $elems[8] . "~";
+                    $this->bat_gs06 = str_pad((string)QueryUtils::ediGenerateId(), 9, '0', STR_PAD_LEFT);
+                    $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*$this->bat_yyyymmdd*$this->bat_hhmm*$this->bat_gs06*X*" . $elems[8] . "~";
                 }
                 continue;
             }
