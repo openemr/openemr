@@ -586,7 +586,11 @@ function HelpfulDie($statement, $sqlerr = '')
 }
 
 /**
-* @todo document use of the generate_id function
+* Function provides generation of sequence numbers with built-in ADOdb function.
+* Increments the number in the sequences table.
+* One example of use is the counter for form_id in the forms table.
+*
+* @return integer
 */
 function generate_id()
 {
