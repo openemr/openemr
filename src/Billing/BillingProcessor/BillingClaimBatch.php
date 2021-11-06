@@ -55,7 +55,7 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        // 5010 spec needs a 9 digit control number zero padded
+        // 5010 spec needs a 9 digit control number for ISA 13
         $this->bat_icn = str_pad(rand(1, 999999), 9, '0', STR_PAD_LEFT);
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
@@ -215,6 +215,8 @@ class BillingClaimBatch
             if ($elems[0] == 'GS') {
                 if ($this->bat_gscount == 0) {
                     ++$this->bat_gscount;
+                    // We increment the ICN to use as the batch counter.
+                    // We lose the zero padding to 9 digits but that's okay.
                     $this->bat_gs06 = $this->bat_icn + 1;
                     $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*$this->bat_yyyymmdd*$this->bat_hhmm*$this->bat_gs06*X*" . $elems[8] . "~";
                 }
@@ -234,7 +236,7 @@ class BillingClaimBatch
 
             if ($elems[0] == 'BHT') {
                 // needle is set in OpenEMR\Billing\X125010837P
-                $this->bat_content .= substr_replace($seg, '*' . $this->bat_gs06 + 1 . '*', strpos($seg, '*0123*'), 6);
+                $this->bat_content .= substr_replace($seg, '*' . "1" . '*', strpos($seg, '*0123*'), 6);
                 $this->bat_content .= "~";
                 continue;
             }
