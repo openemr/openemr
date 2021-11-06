@@ -218,7 +218,7 @@ function DeleteHooks(hooksID,mod_id,msg){
 }
 
 /**
-* Save Settings Tab Contants
+* Save Settings Tab Contents
 *
 * @param {string} frmId
 * @param {int} mod_id

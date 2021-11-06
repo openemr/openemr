@@ -228,9 +228,4 @@ class QueryUtils
     {
         return \generate_id();
     }
-
-    public static function ediGenerateId()
-    {
-        return \edi_generate_id();
-    }
 }

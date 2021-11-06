@@ -1443,23 +1443,6 @@ CREATE TABLE `drugs` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `edi_sequences`
---
-
-DROP TABLE IF EXISTS `edi_sequences`;
-CREATE TABLE `edi_sequences` (
-    `id` int(9) unsigned NOT NULL default '0'
-) ENGINE=InnoDB;
-
---
--- Inserting data for table `edi_sequences`
---
-
-INSERT INTO `edi_sequences` VALUES (1);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `eligibility_verification`
 --
 

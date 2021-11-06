@@ -20,8 +20,6 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 class BillingClaimBatch
 {
     protected $bat_type = ''; // will be edi or hcfa
@@ -34,8 +32,6 @@ class BillingClaimBatch
     protected $bat_hhmm;
     protected $bat_yymmdd;
     protected $bat_yyyymmdd;
-    // Seconds since 1/1/1970 00:00:00 GMT will be our interchange control number
-    // but since limited to 9 char must be without leading 1
     protected $bat_icn;
     protected $bat_filename;
     protected $bat_filedir;
@@ -59,8 +55,9 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        // using edi_sequences table for ICN and GS control no.
-        $this->bat_icn = str_pad((string)QueryUtils::ediGenerateId(), 9, '0', STR_PAD_LEFT);
+        // 5010 spec needs a 9 digit control number zero padded in necc
+        //$control_no =
+        $this->bat_icn = str_pad(rand(1, 999999), 9, '0', STR_PAD_LEFT);
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
     }
@@ -219,7 +216,7 @@ class BillingClaimBatch
             if ($elems[0] == 'GS') {
                 if ($this->bat_gscount == 0) {
                     ++$this->bat_gscount;
-                    $this->bat_gs06 = str_pad((string)QueryUtils::ediGenerateId(), 9, '0', STR_PAD_LEFT);
+                    $this->bat_gs06 = $this->bat_icn + 1;
                     $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*$this->bat_yyyymmdd*$this->bat_hhmm*$this->bat_gs06*X*" . $elems[8] . "~";
                 }
                 continue;
@@ -238,7 +235,7 @@ class BillingClaimBatch
 
             if ($elems[0] == 'BHT') {
                 // needle is set in OpenEMR\Billing\X125010837P
-                $this->bat_content .= substr_replace($seg, '*' . $this->bat_icn . $bat_st_02 . '*', strpos($seg, '*0123*'), 6);
+                $this->bat_content .= substr_replace($seg, '*' . $this->bat_gs06 + 1 . '*', strpos($seg, '*0123*'), 6);
                 $this->bat_content .= "~";
                 continue;
             }
