@@ -586,7 +586,7 @@ function HelpfulDie($statement, $sqlerr = '')
 }
 
 /**
-* Function provides generation of sequence numbers with built-in ADOdb function. 
+* Function provides generation of sequence numbers with built-in ADOdb function.
 * Increments the number in the sequences table.
 * One example of use is the counter for form_id in the forms table.
 *
@@ -847,7 +847,7 @@ function privQuery($sql, $params = null)
 }
 
 /**
-* Function provides generation of sequence numbers with built-in ADOdb function. 
+* Function provides generation of sequence numbers with built-in ADOdb function.
 * Increments the number in the edi_sequences table.
 * One example of use is the counter for batches in the 837 claims creation.
 *
