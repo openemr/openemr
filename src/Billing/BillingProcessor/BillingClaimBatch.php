@@ -259,7 +259,7 @@ class BillingClaimBatch
     public function append_claim_close()
     {
         if ($this->bat_gscount) {
-            $this->bat_content .= "GE*$this->bat_stcount*1~";
+            $this->bat_content .= "GE*$this->bat_stcount*$this->bat_gs06~";
         }
 
         $this->bat_content .= "IEA*$this->bat_gscount*$this->bat_icn~";
