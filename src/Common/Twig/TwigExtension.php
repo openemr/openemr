@@ -17,6 +17,8 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Core\Kernel;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
@@ -24,10 +26,14 @@ use Twig\TwigFunction;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
-
     protected $globals;
 
-    public function __construct(GlobalsService $globals)
+    /**
+     * TwigExtension constructor.
+     * @param GlobalsService $globals
+     * @param Kernel|null $kernel
+     */
+    public function __construct(GlobalsService $globals, ?Kernel $kernel)
     {
         $this->globals = $globals->getGlobalsMetadata();
     }
@@ -91,6 +97,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
+            new TwigFunction(
+                'fireEvent',
+                function ($eventName, $eventData = array()) {
+                    if (empty($this->kernel)) {
+                        return '';
+                    }
+                    ob_start();
+                    $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
+                    return ob_get_clean();
+                }
+            )
         ];
     }
 
