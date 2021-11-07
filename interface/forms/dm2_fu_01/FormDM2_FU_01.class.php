@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DM2FU form
+ * dm2_fu_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -21,10 +21,10 @@ define("EVENT_OTHER", 4);
 
 
 /**
- * class FormHpTjePrimary
+ * class FormDM2_FU_01
  *
  */
-class FormDM2FU extends ORDataObject
+class FormDM2_FU_01 extends ORDataObject
 {
 
     /**
@@ -62,7 +62,7 @@ class FormDM2FU extends ORDataObject
             $this->date = date("Y-m-d H:i:s");
         }
 
-        $this->_table = "form_DM2FU";
+        $this->_table = "form_dm2_fu_01";
         $this->activity = 1;
         $this->pid = $GLOBALS['pid'];
         if ($id != "") {

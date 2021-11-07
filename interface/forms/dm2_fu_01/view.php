@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DM2FU form
+ * dm2_fu_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -15,13 +15,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+require("C_FormDM2_FU_01.class.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
-
-require("C_FormDM2FU.class.php");
-$c = new C_FormDM2FU();
-echo $c->default_action_process($_POST);
-@formJump();
+$c = new C_FormDM2_FU_01();
+echo $c->view_action($_GET['id']);

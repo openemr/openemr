@@ -1,24 +1,25 @@
 <?php
 
 /**
- * DM2FU form
- * Forms generated from formsWiz
+ * dm2_fu_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ralf Lukner <lukner@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ralf Lukner <lukner@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
-function DM2FU_report($pid, $encounter, $cols, $id)
+function dm2_fu_01_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column
     $count = 0;
-    $data = formFetch("form_DM2FU", $id);
+    $data = formFetch("form_dm2_fu_01", $id);
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DM2FU form
+ * dm2_fu_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -13,11 +13,11 @@
  */
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once("FormDM2FU.class.php");
+require_once("FormDM2_FU_01.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-class C_FormDM2FU extends Controller
+class C_FormDM2_FU_01 extends Controller
 {
 
     var $template_dir;
@@ -35,7 +35,7 @@ class C_FormDM2FU extends Controller
 
     function default_action()
     {
-        $form = new FormDM2FU();
+        $form = new FormDM2_FU_01();
         $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
@@ -43,9 +43,9 @@ class C_FormDM2FU extends Controller
     function view_action($form_id)
     {
         if (is_numeric($form_id)) {
-            $form = new FormDM2FU($form_id);
+            $form = new FormDM2_FU_01($form_id);
         } else {
-            $form = new FormDM2FU();
+            $form = new FormDM2_FU_01();
         }
 
         $dbconn = $GLOBALS['adodb']['db'];
@@ -61,7 +61,7 @@ class C_FormDM2FU extends Controller
             return;
         }
 
-        $this->form = new FormDM2FU($_POST['id']);
+        $this->form = new FormDM2_FU_01($_POST['id']);
         parent::populate_object($this->form);
 
         $this->form->persist();
@@ -70,7 +70,7 @@ class C_FormDM2FU extends Controller
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "DM2FU", $this->form->id, "DM2FU", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm($GLOBALS['encounter'], "DM2_FU_01", $this->form->id, "dm2_fu_01", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
 

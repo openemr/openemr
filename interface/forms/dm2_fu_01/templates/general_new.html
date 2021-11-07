@@ -1,20 +1,20 @@
 <html>
 <head>
-<title>{xlt t='DM2FU'}</title>
+<title>{xlt t='DM2_FU_01'}</title>
 {headerTemplate}
 </head>
 <body>
     <div class="container mt-3">
         <div class="row">
             <div class="col-12">
-                <h2>{xlt t='DM2FU'}</h2>
-                <form name="DM2FU" method="post" action="{$FORM_ACTION}/interface/forms/DM2FU/save.php" onsubmit="return top.restoreSession()">
+                <h2>{xlt t='DM2_FU_01'}</h2>
+                <form name="dm2_fu_01" method="post" action="{$FORM_ACTION}/interface/forms/dm2_fu_01/save.php" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
                     <fieldset>
                         <legend>{xlt t='Subjective'}</legend>
                         <div class="container">
                             <div class="form-group" >
-                                <textarea name="subjective" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_subjective()|text}</textarea>
+                                <textarea name="subjective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_subjective()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -22,7 +22,7 @@
                         <legend>{xlt t='Objective'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="objective" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_objective()|text}</textarea>
+                                <textarea name="objective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_objective()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -30,7 +30,7 @@
                         <legend>{xlt t='Assessment'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_assessment()|text}</textarea>
+                                <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_assessment()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -38,7 +38,7 @@
                         <legend>{xlt t='Plan'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_plan()|text}</textarea>
+                                <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_plan()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -59,13 +59,13 @@
     {literal}
     <script>
         const close = function() {
-            if (top.isDM2FUEdit === true) {
+            if (top.isSoapEdit === true) {
                 dlgopen('', '', 450, 125, '', '<div class="text-danger">{/literal}{xla t='Warning'}{literal}</div>', {
                     type: 'Alert',
                     html: '<p>{/literal}{xla t='Do you want to close the tabs?'}{literal}</p>',
                     buttons: [
                         {text: '{/literal}{xla t='Cancel'}{literal}', close: true, style: 'default btn-sm'},
-                        {text: '{/literal}{xla t='Close'}{literal}', close: true, style: 'danger btn-sm', click: closeDM2FU},
+                        {text: '{/literal}{xla t='Close'}{literal}', close: true, style: 'danger btn-sm', click: closeSoap},
                     ],
                     allowDrag: false,
                     allowResize: false,
@@ -76,8 +76,8 @@
             }
         }
 
-        const closeDM2FU = function() {
-            top.isDM2FUEdit = false;
+        const closeSoap = function() {
+            top.isSoapEdit = false;
             top.restoreSession();
             location.href = 'javascript:parent.closeTab(window.name, false)';
         }
