@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Globals\GlobalsService;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
@@ -23,12 +24,22 @@ use Twig\TwigFunction;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
+
+    protected $globals;
+
+    public function __construct(GlobalsService $globals)
+    {
+        $this->globals = $globals->getGlobalsMetadata();
+    }
+
     public function getGlobals(): array
     {
         return [
-            'assets_dir' => $GLOBALS['assets_static_relative'],
-            'srcdir' => $GLOBALS['srcdir'],
-            'rootdir' => $GLOBALS['rootdir']
+            'assets_dir' => $this->globals['assets_static_relative'],
+            'srcdir' => $this->globals['srcdir'],
+            'rootdir' => $this->globals['rootdir'],
+            'webroot' => $this->globals['webroot'],
+            'assetVersion' => $this->globals['v_js_includes'],
         ];
     }
 

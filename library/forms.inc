@@ -56,11 +56,11 @@ function addForm(
 
     global $attendant_type;
     if (!$user) {
-        $user = $_SESSION['authUser'];
+        $user = $_SESSION['authUser'] ?? null;
     }
 
     if (!$group) {
-        $group = $_SESSION['authProvider'];
+        $group = $_SESSION['authProvider'] ?? null;
     }
 
     if ($therapy_group == 'not_given') {

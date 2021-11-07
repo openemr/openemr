@@ -997,7 +997,7 @@ function make_insurance() {
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
-                                $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
+                                $query1112 = "SELECT * FROM list_options where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));
                                 while ($brow1112 = sqlFetchArray($bres1112)) {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {

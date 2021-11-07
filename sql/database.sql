@@ -8382,7 +8382,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 
 DROP TABLE IF EXISTS `sequences`;
 CREATE TABLE `sequences` (
-  `id` int(11) unsigned NOT NULL default '0'
+    `id` int(11) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB;
 
 --

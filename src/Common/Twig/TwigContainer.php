@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Services\Globals\GlobalsService;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
@@ -56,7 +57,8 @@ class TwigContainer
     {
         $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
-        $twigEnv->addExtension(new TwigExtension());
+        $globalsService = new GlobalsService($GLOBALS, [], []);
+        $twigEnv->addExtension(new TwigExtension($globalsService));
 
         if ($this->kernel && $this->kernel->isDev()) {
             $twigEnv->addExtension(new DebugExtension());
