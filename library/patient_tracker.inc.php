@@ -29,6 +29,8 @@
 
 require_once(dirname(__FILE__) . '/appointments.inc.php');
 
+use OpenEMR\Services\AppointmentService;
+
 function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
 {
 
@@ -141,27 +143,15 @@ function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null,
 #check to see if a status code exist as a check in
 function is_checkin($option)
 {
-
-    $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
-    "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
-    if (empty($row['toggle_setting_1'])) {
-        return(false);
-    }
-
-    return(true);
+    $appointmentStatus = new AppointmentService();
+    return $appointmentStatus->isCheckInStatus($option);
 }
 
 #check to see if a status code exist as a check out
 function is_checkout($option)
 {
-
-    $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
-    "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
-    if (empty($row['toggle_setting_2'])) {
-        return(false);
-    }
-
-    return(true);
+    $service = new AppointmentService();
+    return $service->isCheckInStatus($option);
 }
 
 

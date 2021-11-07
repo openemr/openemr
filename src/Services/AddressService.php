@@ -36,6 +36,32 @@ class AddressService
         return $validator->validate($insuranceCompany);
     }
 
+    public function getAddressFromRecordAsString(array $addressRecord)
+    {
+        // works for patients and users
+        $address = [];
+        if (!empty($addressRecord['street'])) {
+            $address[] = $addressRecord['street'];
+            $address[] = "\n";
+        }
+        if (!empty($addressRecord['city'])) {
+            $address[] = $addressRecord['city'];
+            $address[] = ", ";
+        }
+        if (!empty($addressRecord['state'])) {
+            $address[] = $addressRecord['state'];
+            $address[] = " ";
+        }
+        if (!empty($addressRecord['postal_code'])) {
+            $address[] = $addressRecord['postal_code'];
+            $address[] = " ";
+        }
+        if (!empty($addressRecord['country_code'])) {
+            $address[] = $addressRecord['country_code'];
+        }
+        return implode("", $address);
+    }
+
 
     public function getFreshId()
     {

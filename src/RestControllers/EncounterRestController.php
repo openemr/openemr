@@ -40,6 +40,8 @@ class EncounterRestController
      */
     public function post($puuid, $data)
     {
+        $data['user'] = $_SESSION['authUser'];
+        $data['group'] = $_SESSION['authProvider'];
         $processingResult = $this->encounterService->insertEncounter($puuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
