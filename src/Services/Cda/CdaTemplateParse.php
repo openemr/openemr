@@ -773,7 +773,7 @@ class CdaTemplateParse
                 $this->fetchVitalSignData($value);
             }
         } else {
-            $this->fetchVitalSignData($component['section']['entry']);
+            $this->fetchVitalSignData($component['section']['entry'] ?? null);
         }
     }
 
