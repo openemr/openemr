@@ -177,7 +177,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         // test if a QRDA QDM CAT I document type from header OIDs
-        $qrda = $xml['templateId'][2]['root'];
+        $qrda = $xml['templateId'][2]['root'] ?? null;
         if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = true;
             // Offset to Patient Data section
@@ -348,7 +348,7 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         foreach ($res as $row) {
-            $this->is_qrda_import = $row['is_qrda_document'];
+            $this->is_qrda_import = $row['is_qrda_document'] ?? false;
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
