@@ -605,11 +605,13 @@ foreach ($providers as $provider) {
                     $evtClass = "event_reserved";
                     break;
                 default: // some appointment
-                    $evtClass = "event_appointment";
+                    $evtClass = 'event_appointment';
                     break;
             }
+            // eventViewClass allows the event class to override the template (such as from a dispatched system event).
+            $evtClass = $event['eventViewClass'] ?? $evtClass;
 
-            // if this is an IN or OUT event then we have some extra special
+                    // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
             // or, without an OUT DIV matching the IN event
@@ -749,8 +751,7 @@ foreach ($providers as $provider) {
                     $link_title = $fname . " " . $lname . " \n";
                     $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";
                     $link_title .= "(" . xl('Click to view') . ")";
-
-                    $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
+                    $content .= "<a class='link_title' data-pid='". attr($patientid) . "' href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
                     $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . attr($link_title) . "'></i>";
                     if ($catid == 1) $content .= "<s>";
                     $content .= text($lname);
@@ -808,7 +809,7 @@ foreach ($providers as $provider) {
           // the normal DIV so it doesn't overlap another event DIV and include the time
           if ($event['catid'] == 2) {
               $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-              echo "<div class='" . attr($evtClass) . " event in_start' style='top:".$inTop.
+              echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event in_start' style='top:".$inTop.
                   "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                   "; $divWidth".
                   "; $divLeft".
@@ -826,7 +827,7 @@ foreach ($providers as $provider) {
 
             if ($event['catid'] != "6") {
               $background_string = "; background-color:" . attr($color);
-              echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
+              echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
@@ -835,7 +836,7 @@ foreach ($providers as $provider) {
               ">";
             } else {
               $background_string= "; background-color:" . attr($color);
-              echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+              echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
@@ -850,7 +851,7 @@ foreach ($providers as $provider) {
        elseif($_SESSION['pc_facility'] == $row['id']){
            if ($event['catid'] == 2) {
                $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-               echo "<div class='" . attr($evtClass) . " event in_start' style='top:".$inTop.
+               echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
                    "; $divLeft".
@@ -866,7 +867,7 @@ foreach ($providers as $provider) {
            // output the DIV and content
            // For "OUT" events, applying the background color in CSS.
           $background_string= "; background-color:".$event["catcolor"];
-          echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
+          echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
                $background_string.
                "; $divWidth".
                "; $divLeft".
@@ -881,7 +882,7 @@ foreach ($providers as $provider) {
 
            if ($event['catid'] == 2) {
                $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-               echo "<div class='" . attr($evtClass) ." event in_start' style='top:".$inTop.
+               echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) ." event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
                    "; $divLeft".
@@ -896,7 +897,7 @@ foreach ($providers as $provider) {
            }
 
            // output the DIV and content
-           echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
+           echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
                "; background-color: var(--gray300)".
                "; $divWidth".
                "; $divLeft".

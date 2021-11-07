@@ -13,6 +13,8 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Events\Core\ScriptFilterEvent;
+use OpenEMR\Events\Core\StyleFilterEvent;
 
 if (!defined('__POSTCALENDAR__')) {
     @define('__POSTCALENDAR__', 'PostCalendar');
@@ -57,6 +59,8 @@ require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
 
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 
 /**
  *  postcalendar_userapi_buildView
@@ -539,6 +543,17 @@ function postcalendar_userapi_buildView($args)
             $tpl->assign('showdaysurl', "index.php?" . $_SERVER['QUERY_STRING'] . "&show_days=1");
         }
 
+        // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
+        $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
+        $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
+        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+
+        $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
+        $styleFilterEvent->setContextArgument('viewtype', $viewtype);
+        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+
+        $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
+        $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
         $tpl->assign('interval', $GLOBALS['calendar_interval']);
         $tpl->assign_by_ref('VIEW_TYPE', $viewtype);
         $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
@@ -1260,6 +1275,20 @@ function &postcalendar_userapi_pcGetEvents($args)
     }
 
     $days = calculateEvents($days, $events, ($viewtype ?? null));
+
+    $event = new CalendarUserGetEventsFilter();
+    $event->setEventsByDays($days);
+    $event->setViewType($viewtype);
+    $event->setKeywords($s_keywords);
+    $event->setCategory($s_category);
+    $event->setStartDate($start_date);
+    $event->setEndDate($end_date);
+    $event->setProviderID($providerID ?? $provider_id ?? null);
+
+    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    if ($result instanceof CalendarUserGetEventsFilter) {
+        $days = $result->getEventsByDays();
+    }
     return $days;
 }
 
