@@ -34,7 +34,12 @@ class FhirSearchWhereClauseBuilder
             foreach ($search as $key => $field) {
                 if (!$field instanceof ISearchField) {
                     // developer logic error
-                    throw new \BadMethodCallException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
+                    // treat the field as an exact string match if they send us a primitive
+                    if (is_string($field) || is_numeric($field)) {
+                        $field = new StringSearchField($key, $field, SearchModifier::EXACT);
+                    } else {
+                        throw new \BadMethodCallException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
+                    }
                 }
                 $whereType = $isAndCondition ? "and" : "or";
 
