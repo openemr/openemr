@@ -1228,21 +1228,21 @@ class CdaTemplateImportDispose
         $userName = "";
 
         if (!empty($value['provider_fname'])) {
-            $value['provider_name'] = $value['provider_fname'] ?? 'External';
-            $value['provider_family'] = $value['provider_lname'] ?? 'Provider';
+            $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
+            $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
         }
 
         if ($create_user_name) {
-            $userName = ($value['provider_name'] ?? 'External') . ($value['provider_family'] ?? 'Provider');
+            $userName = (($value['provider_name'] ?? '') ?: 'External') . (($value['provider_family'] ?? '') ?: 'Provider');
         }
         $query_ins_users = "INSERT INTO users
         ( username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
         VALUES(?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 1, 'external_provider')";
         $res_query_ins_users = $appTable->zQuery($query_ins_users, array(
             $userName,
-            $value['provider_name'] ?? 'External',
-            $value['provider_family'] ?? 'Provider',
-            $value['provider_npi'] ?? CarecoordinationTable::NPI_SAMPLE,
+            ($value['provider_name'] ?? '') ?: 'External',
+            ($value['provider_family'] ?? '') ?: 'Provider',
+            ($value['provider_npi'] ?? '') ?: CarecoordinationTable::NPI_SAMPLE,
             $value['represented_organization_name'] ?? null,
             $value['provider_address'] ?? null,
             $value['provider_city'] ?? null,
