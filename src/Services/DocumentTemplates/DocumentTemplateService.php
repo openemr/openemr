@@ -134,7 +134,7 @@ class DocumentTemplateService
     {
     }
 
-    public function deleteTemplate($id): bool | array | null
+    public function deleteTemplate($id)
     {
         return sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
     }
