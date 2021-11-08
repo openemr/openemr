@@ -15,7 +15,7 @@ require_once("../interface/globals.php");
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $templateService = new DocumentTemplateService();
-$patient = (int)$_POST['upload_pid'];
+$patient = json_decode($_POST['upload_pid']);
 
 if ($_POST['mode'] === 'get') {
     if ($_POST['docid']) {
@@ -40,16 +40,26 @@ if ($_POST['mode'] === 'get') {
         $template = $templateService->deleteTemplate($_POST['docid']);
         exit(true);
     }
-
     die(xlt('Invalid File'));
-}
+} elseif ($_POST['mode'] === 'send') {
+    if (!empty($_POST['docid'])) {
+        $pids_array = json_decode($_POST['docid']) ?: ['0'];
+        $ids = json_decode($_POST['checked']) ?: [];
 
-// so it is a template file import. create record(s).
-
-if (!empty($_FILES["template_files"])) {
+        $last_id = $templateService->sendTemplate($pids_array, $ids, $_POST['category']);
+        if ($last_id) {
+            echo xlt("Templates Successfully sent to patients.");
+        } else {
+            echo xlt('Error. Problem sending one or more templates. Some templates may not have been sent.');
+        }
+        exit;
+    }
+    die(xlt('Invalid Request'));
+} elseif (!empty($_FILES["template_files"])) {
+    // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
-    for( $i=0 ; $i < $total ; $i++ ) {
+    for ($i = 0; $i < $total; $i++) {
         if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
             header('refresh:3;url= import_template_ui.php');
             echo '<title>' . xlt('Error') . " ...</title><h4 style='color:red;'>" .
@@ -63,35 +73,15 @@ if (!empty($_FILES["template_files"])) {
         }
         $parts = pathinfo($name);
         $name = ucwords(strtolower($parts["filename"]));
-
-        $success = $templateService->uploadTemplate($name, $_POST['doc_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
+        // get em and dispose
+        $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
         if (!$success) {
-            echo "<p>" . xlt("Unable to save file: Use back button!") . "</p>";
+            echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
             exit;
         }
     }
     header("location: " . $_SERVER['HTTP_REFERER']);
     die();
-}
-
-function validateFile($filename = '')
-{
-    $knownPath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/'; // default path
-    $unknown = str_replace("\\", "/", realpath($filename)); // normalize requested path
-    $parts = pathinfo($unknown);
-    $unkParts = explode('/', $parts['dirname']);
-    $ptpid = $unkParts[count($unkParts) - 1]; // is this a patient or global template
-    $ptpid = ($ptpid == 'templates') ? '' : ($ptpid . '/'); // last part should be pid or template
-    $rebuiltPath = $knownPath . $ptpid . $parts['filename'] . '.tpl';
-    if (file_exists($rebuiltPath) === false || $parts['extension'] != 'tpl') {
-        redirect();
-    } elseif (realpath($rebuiltPath) != realpath($filename)) { // these need to match to be valid request
-        redirect();
-    } elseif (stripos(realpath($filename), realpath($knownPath)) === false) { // this needs to pass be a valid request
-        redirect();
-    }
-
-    return $rebuiltPath;
 }
 
 function redirect()

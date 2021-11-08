@@ -8,42 +8,54 @@ class DocumentTemplateService
     {
     }
 
-    public function getTemplateListAllCategories(): array
+    public function getTemplateListAllCategories($pid = 0): array
     {
         $results = array();
-        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE pid = ? ORDER BY `category`', array(0));
+        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE pid = ? ORDER BY `category`', array($pid));
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
-                $results[$row['category'] ?: 'Default'][] = array(
-                    'id' => $row['id'],
-                    'pid' => $row['pid'],
-                    'category' => $row['category'],
-                    'name' => $row['template_name'],
-                    'size' => strlen($row['template_content'] ?? ''),
-                    'modified_date' => $row['modified_date'],
-                    'location' => $row['location']
-                );
+                $results[$row['category'] ?? ''][] = $row;
             }
         }
         return $results;
     }
 
-    public function getTemplateListByCategory($category = null): array
+    public function getTemplateList($category = null): array
     {
         $results = array($category => null);
         $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, 0));
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
-                $results[$category][] = array(
-                    'id' => $row['id'],
-                    'pid' => $row['pid'],
-                    'category' => $row['category'],
-                    'name' => $row['template_name'],
-                    'size' => strlen($row['template_content'] ?? ''),
-                    'modified_date' => $row['modified_date'],
-                    'location' => $row['location']
-                );
+                $results[$category][] = $row;
             }
+        }
+        return $results;
+    }
+
+    public function getTemplateListByCategory($category = null, $pid = 0): array
+    {
+        $results = array($category => null);
+        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+        while ($row = sqlFetchArray($query_result)) {
+            if (is_array($row)) {
+                $results[$category][] = $row;
+            }
+        }
+        return $results;
+    }
+
+    public function getTemplateCategoriesByPids($pids, $category = null): array
+    {
+        $results = array();
+        foreach ($pids as $pid) {
+            if ($pid == -1) {
+                continue;
+            }
+            $result = $this->getTemplateCategoriesByPatient($pid, $category);
+            if (empty($result)) {
+                continue;
+            }
+            $results = array_merge_recursive($results, $result);
         }
         return $results;
     }
@@ -51,11 +63,13 @@ class DocumentTemplateService
     public function getTemplateCategoriesByPatient($pid = null, $category = null): array
     {
         $results = array();
-        $bind = array($pid ?? 0);
+        $bind = array();
         if (empty($pid)) {
             $where = 'WHERE pid > ?';
+            $bind = array($pid ?? 0);
         } else {
             $where = 'WHERE pid = ?';
+            $bind = array($pid);
         }
         if (!empty($category)) {
             $where .= ' AND category = ?';
@@ -65,24 +79,20 @@ class DocumentTemplateService
         $query_result = sqlStatement($sql, $bind);
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
-                $results[$row['category']][] = array(
-                    'id' => $row['id'],
-                    'pid' => $row['pid'],
-                    'category' => $row['category'],
-                    'name' => $row['template_name'],
-                    'size' => strlen($row['template_content'] ?? ''),
-                    'modified_date' => $row['modified_date'],
-                    'location' => $row['location']
-                );
+                $results[$row['category']][] = $row;
             }
         }
         return $results;
     }
 
-    public function uploadTemplate($template_name, $category, $file, $pid = 0): int
+    public function uploadTemplate($template_name, $category, $file, $pids = [])
     {
         $content = file_get_contents($file);
-        return $this->insertTemplate($pid, $category, $template_name, $content);
+        $id = 0;
+        foreach ($pids as $pid) {
+            $id = $this->insertTemplate($pid, $category, $template_name, $content);
+        }
+        return $id;
     }
 
     public function insertTemplate($pid, $category, $template, $content): int
@@ -90,27 +100,46 @@ class DocumentTemplateService
         $name = null;
         if (!empty($pid)) {
             $name = sqlQuery("SELECT patient_data.pid, Concat_Ws(', ', patient_data.lname, patient_data.fname) as name FROM patient_data WHERE pid = ?", array($pid))['name'];
+        } elseif ($pid == -1) {
+            $name = 'Repository';
         }
-        $sql = 'INSERT INTO `document_templates` (`pid`, `provider`, `category`, `template_name`, `location`, `template_content`) VALUES (?, ?, ?, ?, ?, ?)';
-        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, $content));
+        $sql = 'REPLACE INTO `document_templates` (`pid`, `provider`, `category`, `template_name`, `location`, `status`, `template_content`, `size`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, 'New', $content, strlen($content)));
     }
 
-    public function updateTemplateContent($id, $content): bool|array|null
+    public function sendTemplate($pids, $templates, $category = null): int
+    {
+        $result = 0;
+        foreach ($templates as $id) {
+            $template = $this->fetchTemplate($id);
+            $destination_category = $template['category'];
+            if ($destination_category === 'repository') {
+                $destination_category = $category;
+            }
+            $content = $template['template_content'];
+            $name = $template['template_name'];
+            foreach ($pids as $pid) {
+                $result = $this->insertTemplate($pid, $destination_category, $name, $content);
+            }
+        }
+        return $result;
+    }
+
+    public function updateTemplateContent($id, $content)
     {
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', array($content, $id));
     }
 
     public function updateTemplate($id, $category, $template, $content)
     {
-
     }
 
-    public function deleteTemplate($id): bool|array|null
+    public function deleteTemplate($id): bool | array | null
     {
         return sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
     }
 
-    public function fetchTemplate($id): bool|array|null
+    public function fetchTemplate($id): bool | array | null
     {
         return sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
     }
@@ -135,4 +164,8 @@ class DocumentTemplateService
         return $category_list;
     }
 
+    public function fetchtemplateStatus($id)
+    {
+        return sqlQuery('SELECT status FROM `document_templates` WHERE `id` = ?', array($id))['status'];
+    }
 }

@@ -266,6 +266,7 @@ echo (new TwigContainer(''))->getTwig()->render('portal/home.html.twig', [
     'youHave' => xl('You have'),
     'navMenu' => $navMenu,
     'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
+    'jsVersion' => $v_js_includes,
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
     'patientName' => $_SESSION['ptName'],

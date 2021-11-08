@@ -12,7 +12,6 @@
 
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
-
 if ($include_auth !== true) {
     die('Not allowed');
 }

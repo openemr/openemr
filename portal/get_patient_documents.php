@@ -57,7 +57,7 @@ while ($file = sqlFetchArray($fres)) {
 
     // copy the document
     $documentId = $file['id'];
-    $obj = new \C_Document();
+    $obj = new() \C_Document();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
         $pos = strpos(substr($file['name'], -5), '.');
