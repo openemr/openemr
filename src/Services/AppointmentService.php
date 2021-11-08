@@ -169,6 +169,7 @@ class AppointmentService extends BaseService
               	       pce.pc_facility,
                        pce.pc_billing_location,
                        pce.pc_catid,
+                       pce.pc_room,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
@@ -290,11 +291,22 @@ class AppointmentService extends BaseService
      * Updates the status for an appointment.  TODO: should be refactored at some point to update the entire record
      * @param $eid The id of the appointment event
      * @param $status The status the appointment event should be set to.
+     * @param $user The user performing the update
+     * @param $encounter The encounter of the appointment
      */
-    public function updateAppointmentStatus($eid, $status)
+    public function updateAppointmentStatus($eid, $status, $user, $encounter = '')
     {
+        $appt = $this->getAppointment($eid);
+        if (empty($appt)) {
+            throw new \InvalidArgumentException("Appointment does not exist for eid " . $eid);
+        }
+
         $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ? WHERE pc_eid = ? ";
         $binds = [$status, $eid];
+
+
+        $trackerService = new PatientTrackerService();
+        $trackerService->manage_tracker_status($appt['pc_eventDate'], $appt['pc_startTime'], $eid, $appt['pid'], $user, $status, $appt['pc_room'], $encounter);
         return QueryUtils::sqlStatementThrowException($sql, $binds);
     }
 
