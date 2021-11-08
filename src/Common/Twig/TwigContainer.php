@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Services\Globals\GlobalsService;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
@@ -58,11 +59,15 @@ class TwigContainer
         $twigLoader = new FilesystemLoader($this->paths);
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $globalsService = new GlobalsService($GLOBALS, [], []);
-        $twigEnv->addExtension(new TwigExtension($globalsService));
+        $twigEnv->addExtension(new TwigExtension($globalsService, $this->kernel));
 
-        if ($this->kernel && $this->kernel->isDev()) {
-            $twigEnv->addExtension(new DebugExtension());
-            $twigEnv->enableDebug();
+        if ($this->kernel) {
+            if ($this->kernel->isDev()) {
+                $twigEnv->addExtension(new DebugExtension());
+                $twigEnv->enableDebug();
+            }
+            $event = new TwigEnvironmentEvent($twigEnv);
+            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED, 10);
         }
 
         return $twigEnv;

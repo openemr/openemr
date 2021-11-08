@@ -480,6 +480,8 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
+            // eventViewClass allows the event class to override the template (such as from a dispatched system event).
+            $evtClass = $event['eventViewClass'] ?? $evtClass;
 
             // now, output the event DIV
 
@@ -555,7 +557,7 @@ foreach ($providers as $provider) {
                     $link_title = $fname . " " . $lname . " \n";
                     $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";
                     $link_title .= "(" . xl('Click to view') . ")";
-                    $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
+                    $content .= "<a class='link_title' data-pid='". attr($patientid) . "' href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
                     $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".$patientid."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . attr($link_title) . "' alt='View Patient' />";
                     if ($catid == 1) $content .= "<s>";
                     $content .= text($lname);
@@ -610,12 +612,12 @@ foreach ($providers as $provider) {
                      $divTitle .= "\n(" . xl('double click to edit') . ")";
                 }
             if($_SESSION['pc_facility'] == 0){
-                    echo "<div class='" . attr($evtClass) . " month_event' style='background-color:" . $color. "' title='" . attr($divTitle) . "'" . " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'" . ">";
+                    echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " month_event' style='background-color:" . $color. "' title='" . attr($divTitle) . "'" . " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'" . ">";
                     echo $content;
                     echo "</div>\n";
             }
             elseif($_SESSION['pc_facility'] == $row['id']){
-                    echo "<div class='" . attr($evtClass) . " month_event' style='background-color:".$event["catcolor"].
+                    echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " month_event' style='background-color:".$event["catcolor"].
                         "' title='" . attr($divTitle) . "'".
                         " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                         ">";
@@ -623,7 +625,7 @@ foreach ($providers as $provider) {
                     echo "</div>\n";
             }
             else{
-                    echo "<div class='" . attr($evtClass) . " month_event' style='background-color: var(--gray300)' title='" . attr($divTitle) . "'" . " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'>";
+                    echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " month_event' style='background-color: var(--gray300)' title='" . attr($divTitle) . "'" . " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'>";
                     echo "<span class='text-center text-danger'>" . text($displayTime) . " " . text($row['name'])."</span>";
                     echo "</div>\n";
             }

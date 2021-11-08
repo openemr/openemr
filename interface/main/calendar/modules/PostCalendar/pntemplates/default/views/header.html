@@ -6,7 +6,26 @@
 <!--[if IE]>
         <link rel="stylesheet" href="[-php-]echo $GLOBALS['webroot'].'/interface/themes/ajax_calendar_ie.css';[-/php-]">
 <![endif]-->
+[-php-]
+    // note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php
+    if (!empty($this->_tpl_vars['HEADER_SCRIPTS'])) {
+        echo "<!-- Module Scripts Started -->";
+        foreach ($this->_tpl_vars['HEADER_SCRIPTS'] as $script)
+        {
+            echo "<script src='$script' type='text/javascript'></script>";
+        }
+        echo "<!-- Module Scripts Ended -->";
+    }
 
+    if (!empty($this->_tpl_vars['HEADER_STYLES'])) {
+        echo "<!-- Module Styles Started -->";
+        foreach ($this->_tpl_vars['HEADER_STYLES'] as $cssSrc)
+        {
+        echo "<link rel='stylesheet' href='$cssSrc' type='text/css' />";
+        }
+        echo "<!-- Module Styles Ended -->";
+    }
+[-/php-]
 <!-- the javascript used for the ajax_* style calendars -->
 <script src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/calendarDirectSelect.js"></script>
 <script>

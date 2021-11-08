@@ -378,6 +378,8 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
+            // eventViewClass allows the event class to override the template (such as from a dispatched system event).
+            $evtClass = $event['eventViewClass'] ?? $evtClass;
 
             // now, output the event DIV
 
@@ -424,7 +426,7 @@ foreach ($providers as $provider) {
                 if ($catid == 1) $content .= "</s>";
             }
 
-            echo "<div class='" . attr($evtClass) . "' style='background-color:" . attr($event['catcolor']) . ";'>";
+            echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . "' style='background-color:" . attr($event['catcolor']) . ";'>";
             echo $content;
             echo "</div>\n";
         } // end EVENT loop
