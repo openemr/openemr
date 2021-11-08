@@ -696,7 +696,8 @@ if (
             dlgopen(url, 'billnote', 'modal-sm', 275, '');
         }
 
-        function toEncSummary(pid) {
+        function toEncSummary(e, pid) {
+            e.preventDefault();
             // Tabs only
             top.restoreSession();
             let encurl = 'patient_file/history/encounters.php?billing=1&issue=0&pagesize=20&pagestart=0';
@@ -1051,7 +1052,7 @@ if (
                         <table class="table table-striped table-sm">
                             <thead>
                             <tr>
-                                <th class="id dehead"><?php echo xlt('id'); ?></th>
+                                <th class="id dehead"><?php echo xlt('Billing Note'); ?></th>
                                 <th class="dehead">&nbsp;<?php echo xlt('Patient'); ?></th>
                                 <th class="dehead">&nbsp;<?php echo xlt('Invoice'); ?></th>
                                 <th class="dehead">&nbsp;<?php echo xlt('Svc Date'); ?></th>
@@ -1134,7 +1135,7 @@ if (
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="#" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                        <a href="#" class="btn btn-secondary btn-sm" onclick="toEncSummary(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
@@ -1251,6 +1252,7 @@ if (
 
                 if (input.length) {
                     input.val(log);
+                    $('#btn-era-upld').prop("disabled", false);
                 }
                 else {
                     if (log) alert(log);
@@ -1277,6 +1279,7 @@ if (
                 $('#payment-allocate').hide();
                 $('#search-btn').show();
                 $('#btn-era-upld').show();
+                $('#btn-era-upld').prop("disabled", true);
                 var legend_text = $('#hid2').val();
                 $('#search-upload').find('legend').find('span').text(legend_text);
                 $('#select-method-tooltip').hide();

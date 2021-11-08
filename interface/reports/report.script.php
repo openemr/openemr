@@ -236,6 +236,10 @@
         elOptNew.text = text0 + seperator + text1;
         FromDateValue = document.getElementById(FromDate).value;
         ToDateValue = document.getElementById(ToDate).value;
+        // save a few clicks
+        if (ToDateValue == '') {
+            ToDateValue = FromDateValue;
+        } 
         if (Type == 'date') {
             elOptNew.value = value0 + "|between|" + FromDateValue + "|" + ToDateValue;
         }
