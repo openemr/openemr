@@ -38,7 +38,7 @@ class FhirSearchWhereClauseBuilder
                     if (is_string($field) || is_numeric($field)) {
                         $field = new StringSearchField($key, $field, SearchModifier::EXACT);
                     } else {
-                        throw new \BadMethodCallException("Method called with invalid parameter.  Expected SearchField object for parameter '" . $key . "'");
+                        throw new \BadMethodCallException("Method called with invalid parameter.  Expected string, number, or SearchField object for parameter '" . $key . "'");
                     }
                 }
                 $whereType = $isAndCondition ? "and" : "or";
