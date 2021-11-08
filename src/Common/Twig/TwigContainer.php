@@ -16,8 +16,8 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
+use OpenEMR\Services\Globals\GlobalsService;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;

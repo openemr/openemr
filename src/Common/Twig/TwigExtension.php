@@ -16,8 +16,8 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Header;
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Services\Globals\GlobalsService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
