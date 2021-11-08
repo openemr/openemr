@@ -139,7 +139,7 @@ class DocumentTemplateService
         return sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
     }
 
-    public function fetchTemplate($id): bool | array | null
+    public function fetchTemplate($id)
     {
         return sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
     }
