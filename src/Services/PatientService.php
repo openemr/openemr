@@ -600,6 +600,163 @@ class PatientService extends BaseService
         return text($name);
     }
 
+    /**
+     * Returns a string to be used to display a patient's age
+     *
+     * @param type $dobYMD
+     * @param type $asOfYMD
+     * @return string suitable for displaying patient's age based on preferences
+     */
+    public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
+    {
+        if ($GLOBALS['age_display_format'] == '1') {
+            $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
+            if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
+                return $ageYMD['ageinYMD'];
+            } else {
+                return $this->getPatientAge($dobYMD, $asOfYMD);
+            }
+        } else {
+            return $this->getPatientAge($dobYMD, $asOfYMD);
+        }
+    }
+
+    // Returns Age
+    //   in months if < 2 years old
+    //   in years  if > 2 years old
+    // given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
+    // (optional) nowYMD is a date in YYYYMMDD format
+    public function getPatientAge($dobYMD, $nowYMD = null)
+    {
+        if (empty($dobYMD)) {
+            return '';
+        }
+        // strip any dashes from the DOB
+        $dobYMD = preg_replace("/-/", "", $dobYMD);
+        $dobDay = substr($dobYMD, 6, 2);
+        $dobMonth = substr($dobYMD, 4, 2);
+        $dobYear = (int) substr($dobYMD, 0, 4);
+
+        // set the 'now' date values
+        if ($nowYMD == null) {
+            $nowDay = date("d");
+            $nowMonth = date("m");
+            $nowYear = date("Y");
+        } else {
+            $nowDay = substr($nowYMD, 6, 2);
+            $nowMonth = substr($nowYMD, 4, 2);
+            $nowYear = substr($nowYMD, 0, 4);
+        }
+
+        $dayDiff = $nowDay - $dobDay;
+        $monthDiff = $nowMonth - $dobMonth;
+        $yearDiff = $nowYear - $dobYear;
+
+        $ageInMonths = (($nowYear * 12) + $nowMonth) - (($dobYear * 12) + $dobMonth);
+
+        // We want the age in FULL months, so if the current date is less than the numerical day of birth, subtract a month
+        if ($dayDiff < 0) {
+            $ageInMonths -= 1;
+        }
+
+        if ($ageInMonths > 24) {
+            $age = $yearDiff;
+            if (($monthDiff == 0) && ($dayDiff < 0)) {
+                $age -= 1;
+            } elseif ($monthDiff < 0) {
+                $age -= 1;
+            }
+        } else {
+            $age = "$ageInMonths " . xl('month');
+        }
+
+        return $age;
+    }
+
+
+    /**
+     *
+     * @param type $dob
+     * @param type $date
+     * @return array containing
+     *      age - decimal age in years
+     *      age_in_months - decimal age in months
+     *      ageinYMD - formatted string #y #m #d
+     */
+    public function getPatientAgeYMD($dob, $date = null)
+    {
+        if ($date == null) {
+            $daynow = date("d");
+            $monthnow = date("m");
+            $yearnow = date("Y");
+            $datenow = $yearnow . $monthnow . $daynow;
+        } else {
+            $datenow = preg_replace("/-/", "", $date);
+            $yearnow = substr($datenow, 0, 4);
+            $monthnow = substr($datenow, 4, 2);
+            $daynow = substr($datenow, 6, 2);
+            $datenow = $yearnow . $monthnow . $daynow;
+        }
+
+        $dob = preg_replace("/-/", "", $dob);
+        $dobyear = substr($dob, 0, 4);
+        $dobmonth = substr($dob, 4, 2);
+        $dobday = substr($dob, 6, 2);
+        $dob = $dobyear . $dobmonth . $dobday;
+
+        //to compensate for 30, 31, 28, 29 days/month
+        $mo = $monthnow; //to avoid confusion with later calculation
+
+        if ($mo == 05 or $mo == 07 or $mo == 10 or $mo == 12) {  // determined by monthnow-1
+            $nd = 30; // nd = number of days in a month, if monthnow is 5, 7, 9, 12 then
+        } elseif ($mo == 03) { // look at April, June, September, November for calculation.  These months only have 30 days.
+            // for march, look to the month of February for calculation, check for leap year
+            $check_leap_Y = $yearnow / 4; // To check if this is a leap year.
+            if (is_int($check_leap_Y)) { // If it true then this is the leap year
+                $nd = 29;
+            } else { // otherwise, it is not a leap year.
+                $nd = 28;
+            }
+        } else { // other months have 31 days
+            $nd = 31;
+        }
+
+        $bdthisyear = $yearnow . $dobmonth . $dobday; //Date current year's birthday falls on
+        if ($datenow < $bdthisyear) { // if patient hasn't had birthday yet this year
+            $age_year = $yearnow - $dobyear - 1;
+            if ($daynow < $dobday) {
+                $months_since_birthday = 12 - $dobmonth + $monthnow - 1;
+                $days_since_dobday = $nd - $dobday + $daynow; //did not take into account for month with 31 days
+            } else {
+                $months_since_birthday = 12 - $dobmonth + $monthnow;
+                $days_since_dobday = $daynow - $dobday;
+            }
+        } else // if patient has had birthday this calandar year
+        {
+            $age_year = $yearnow - $dobyear;
+            if ($daynow < $dobday) {
+                $months_since_birthday = $monthnow - $dobmonth - 1;
+                $days_since_dobday = $nd - $dobday + $daynow;
+            } else {
+                $months_since_birthday = $monthnow - $dobmonth;
+                $days_since_dobday = $daynow - $dobday;
+            }
+        }
+
+        $day_as_month_decimal = $days_since_dobday / 30;
+        $months_since_birthday_float = $months_since_birthday + $day_as_month_decimal;
+        $month_as_year_decimal = $months_since_birthday_float / 12;
+        $age_float = $age_year + $month_as_year_decimal;
+
+        $age_in_months = $age_year * 12 + $months_since_birthday_float;
+        $age_in_months = round($age_in_months, 2);  //round the months to xx.xx 2 floating points
+        $age = round($age_float, 2);
+
+        // round the years to 2 floating points
+        $ageinYMD = $age_year . "y " . $months_since_birthday . "m " . $days_since_dobday . "d";
+        return compact('age', 'age_in_months', 'ageinYMD');
+    }
+
     private function parseSuffixForPatientRecord($patientRecord)
     {
         // parse suffix from last name. saves messing with LBF
