@@ -32,8 +32,6 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use OpenEMR\Core\ModulesApplication;
 
 //=========================================================================
 //  Load the API Functions

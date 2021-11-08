@@ -13,8 +13,11 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Events\Appointments\CalendarFilterEvent;
+use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+
 
 if (!defined('__POSTCALENDAR__')) {
     @define('__POSTCALENDAR__', 'PostCalendar');
@@ -57,10 +60,6 @@ $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
-
-use OpenEMR\Events\Appointments\CalendarFilterEvent;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 
 /**
  *  postcalendar_userapi_buildView
