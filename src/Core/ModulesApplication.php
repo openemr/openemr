@@ -115,4 +115,34 @@ class ModulesApplication
     {
         $this->application->run();
     }
+
+    /**
+     * Given a list of module files (javascript, css, etc) make sure they are locked down to be just inside the modules
+     * folder.  The intent is to prevent module writers from including files outside the modules installation directory.
+     * If the file exists and is inside the modules installation path it will be returned.  Otherwise it is filtered out
+     * of the array list
+     * @param $files The list of files to safely filter
+     * @return array
+     */
+    public static function filterSafeLocalModuleFiles(array $files): array
+    {
+        if (is_array($files) && !empty($files)) {
+            // for safety we only allow the scripts to be from the local filesystem for now
+            // TODO: talk with @brady.miller if the system has a safer mechanism to lock down an asset file to the local domain
+            // how much do we want to protect the end user vs allow external scripts for things such as CDN access or 3rd party integration?
+            $filteredFiles = array_filter(array_map(function ($scriptSrc) {
+                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrc);
+                // make sure we haven't left our root path ie interface folder
+                if (strpos($realPath, $GLOBALS['fileroot'] . '/interface/modules/') === 0 && file_exists($realPath)) {
+                    return $scriptSrc;
+                }
+                return null;
+            }, $files), function ($script) {
+                return !empty($script);
+            });
+        } else {
+            $filteredFiles = [];
+        }
+        return $filteredFiles;
+    }
 }
