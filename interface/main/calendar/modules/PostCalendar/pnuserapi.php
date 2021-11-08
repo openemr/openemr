@@ -18,7 +18,6 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 
-
 if (!defined('__POSTCALENDAR__')) {
     @define('__POSTCALENDAR__', 'PostCalendar');
 }
