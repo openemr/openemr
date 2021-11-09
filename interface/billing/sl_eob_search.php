@@ -1252,7 +1252,7 @@ if (
 
                 if (input.length) {
                     input.val(log);
-                    $('#btn-era-upld').prop("disabled", false);
+                    document.querySelector('#btn-era-upld').disabled = false;
                 }
                 else {
                     if (log) alert(log);
@@ -1279,7 +1279,7 @@ if (
                 $('#payment-allocate').hide();
                 $('#search-btn').show();
                 $('#btn-era-upld').show();
-                $('#btn-era-upld').prop("disabled", true);
+                document.querySelector('#btn-era-upld').disabled = true;
                 var legend_text = $('#hid2').val();
                 $('#search-upload').find('legend').find('span').text(legend_text);
                 $('#select-method-tooltip').hide();
