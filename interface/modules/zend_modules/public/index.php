@@ -61,8 +61,6 @@ require_once(__DIR__ . "/../../../globals.php");
 require_once(__DIR__ . "/../../../../library/forms.inc");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
 
-require_once(__DIR__ . "/../../../../library/sql_upgrade_fx.php");
-
 chdir(dirname(__DIR__));
 
 // Run the application!
