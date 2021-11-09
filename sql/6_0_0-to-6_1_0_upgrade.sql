@@ -1177,7 +1177,7 @@ VALUES
 (NULL, "SARS-COV-2 COVID-19 Inactivated Virus Non-US Vaccine Product (COVAXIN)", "COVID-19 IV Non-US Vaccine (COVAXIN)", 502, @codetypeid, '', 0, 0, '', '', '', 1);
 #EndIf
 
-#IfNotRow codes code_text SARS-COV-2 COVID-19  Live Attenuated Virus Non-US Vaccine Product (COVIVAC)
+#IfNotRow codes code_text SARS-COV-2 COVID-19 Live Attenuated Virus Non-US Vaccine Product (COVIVAC)
 SET @codetypeid = (SELECT `ct_id` FROM `code_types` WHERE `ct_key` = 'CVX');
 INSERT INTO `codes` (`id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, `superbill`, `related_code`, `taxrates`, `active`)
 VALUES
