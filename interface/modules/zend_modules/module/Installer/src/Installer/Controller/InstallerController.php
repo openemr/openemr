@@ -30,7 +30,7 @@ use Laminas\Console\Request as ConsoleRequest;
 class InstallerController extends AbstractActionController
 {
     /**
-     * @var Installer\Model\InstModuleTable
+     * @var InstModuleTable
      */
     protected $InstallerTable;
     protected $listenerObject;
@@ -74,6 +74,8 @@ class InstallerController extends AbstractActionController
             'InstallersAll' => $allModules,
             'listenerObject' => $this->listenerObject,
             'dependencyObject' => $this->getInstallerTable(),
+            // TODO: @adunsulag there should be a way to pull this from application.config.php but so far the answer eludes me.
+            'coreModules' => ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard']
         ));
     }
 
