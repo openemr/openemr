@@ -358,4 +358,16 @@ class PatientTrackerService extends BaseService
             return $tracker['start_datetime'];
         }
     }
+
+    public function getApptStatus($appointments)
+    {
+        $astat = array();
+        $astat['count_all'] = count($appointments);
+        //group the appointment by status
+        foreach ($appointments as $appointment) {
+            $astat[$appointment['pc_apptstatus']] += 1;
+        }
+
+        return $astat;
+    }
 }
