@@ -439,8 +439,7 @@ class InstModuleTable
             $sql = "DELETE FROM modules WHERE mod_id = ?";
             $results = $this->applicationTable->zQuery($sql, array($id));
         }
-        if ($results == false)
-        {
+        if ($results == false) {
             return 'failure';
         } else if (is_string($results) && stripos($results, 'ERROR') !== false) {
             return 'failure';
