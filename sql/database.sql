@@ -11426,7 +11426,7 @@ CREATE TABLE `form_observation` (
   `result_status` varchar(32) DEFAULT NULL,
   `ob_reason_status` varchar(32) DEFAULT NULL,
   `ob_reason_code` varchar(255) DEFAULT NULL,
-  `ob_reason_text` text DEFAULT NULL,
+  `ob_reason_text` text,
   `ob_documentationof_table` varchar(255) DEFAULT NULL,
   `ob_documentationof_table_id` bigint(21) DEFAULT NULL
 ) ENGINE=InnoDB;

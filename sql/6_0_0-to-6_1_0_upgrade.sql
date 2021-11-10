@@ -1275,7 +1275,7 @@ ALTER TABLE `form_observation` ADD `ob_reason_status` VARCHAR(32) NULL;
 ALTER TABLE `form_observation` ADD `ob_reason_code` VARCHAR(32) NULL;
 #EndIf
 #IfMissingColumn form_observation ob_reason_text
-ALTER TABLE `form_observation` ADD `ob_reason_text` TEXT NULL;
+ALTER TABLE `form_observation` ADD `ob_reason_text` TEXT;
 #EndIf
 #IfMissingColumn form_observation ob_documentationof_table
 ALTER TABLE `form_observation` ADD `ob_documentationof_table` VARCHAR(255) NULL;
