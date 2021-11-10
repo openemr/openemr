@@ -67,4 +67,9 @@ class UserUpdatedEvent extends Event
     {
         $this->newUserData = $newUserData;
     }
+
+    public function getUserId()
+    {
+        return $this->newUserData['id'] ?? null;
+    }
 }
