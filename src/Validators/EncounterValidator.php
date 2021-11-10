@@ -58,6 +58,10 @@ class EncounterValidator extends BaseValidator
                 $context->required("puuid", "Patient UUID")->callback(function ($value) {
                     return $this->validateId('uuid', "patient_data", $value, true);
                 })->uuid();
+                $context->required("user", "Encounter Author")->callback(function ($value) {
+                    return $this->validteId('username', "users", $value);
+                })->string();
+                $context->required("group", "Encounter Provider Group")->string();
                 $context->optional('class_code')->callback(
                     function ($value) {
                         return $this->validateCode($value, "list_options", "_ActEncounterCode");

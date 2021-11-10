@@ -60,7 +60,8 @@ class UserService
     public function getUser($userId)
     {
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
-        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
+        $record = sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$userId]);
+        return $this->createResultRecordFromDatabaseResult($record);
     }
 
     /**
