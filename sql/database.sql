@@ -8382,7 +8382,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 
 DROP TABLE IF EXISTS `sequences`;
 CREATE TABLE `sequences` (
-    `id` int(11) unsigned NOT NULL default '0'
+  `id` int(11) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB;
 
 --
@@ -11421,7 +11421,14 @@ CREATE TABLE `form_observation` (
   `code_type` varchar(255),
   `table_code` varchar(255),
   `ob_code` VARCHAR(31) DEFAULT NULL,
-  `ob_type` VARCHAR(31) DEFAULT NULL
+  `ob_type` VARCHAR(31) DEFAULT NULL,
+  `ob_status` varchar(32) DEFAULT NULL,
+  `result_status` varchar(32) DEFAULT NULL,
+  `ob_reason_status` varchar(32) DEFAULT NULL,
+  `ob_reason_code` varchar(255) DEFAULT NULL,
+  `ob_reason_text` text DEFAULT NULL,
+  `ob_documentationof_table` varchar(255) DEFAULT NULL,
+  `ob_documentationof_table_id` bigint(21) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
