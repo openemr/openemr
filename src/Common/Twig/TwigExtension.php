@@ -29,6 +29,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     protected $globals;
 
     /**
+     * @var Kernel
+     */
+    protected $kernel;
+
+    /**
      * TwigExtension constructor.
      * @param GlobalsService $globals
      * @param Kernel|null $kernel
@@ -36,6 +41,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function __construct(GlobalsService $globals, ?Kernel $kernel)
     {
         $this->globals = $globals->getGlobalsMetadata();
+        $this->kernel = $kernel;
     }
 
     public function getGlobals(): array
