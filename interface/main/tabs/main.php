@@ -23,6 +23,7 @@ use Esign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
@@ -295,8 +296,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
      * @var \Symfony\Component\EventDispatcher\EventDispatcher
      */
     $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    // TODO: @adunsulag need to look at making this an actual typed event
-    $dispatcher->dispatch('main.body.render.pre');
+    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
 }
 ?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
@@ -378,8 +378,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
          * @var \Symfony\Component\EventDispatcher\EventDispatcher
          */
         $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        // TODO: @adunsulag need to look at making this an actual typed event
-        $dispatcher->dispatch('main.body.render.post');
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
     }
     ?>
 </body>
