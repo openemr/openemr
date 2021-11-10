@@ -149,6 +149,7 @@ class PatientService extends BaseService
             $sql,
             $query['bind']
         );
+        $data['id'] = $results;
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
