@@ -51,6 +51,7 @@ require_once('library/sql_upgrade_fx.php');
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
 // Force logging off
@@ -96,6 +97,8 @@ $_SESSION['language_choice'] = $defaultLangID;
 $_SESSION['language_direction'] = $direction;
 CsrfUtils::setupCsrfKey();
 session_write_close();
+
+$sqlUpgradeService = new SQLUpgradeService();
 
 header('Content-type: text/html; charset=utf-8');
 
@@ -357,27 +360,27 @@ function pausePoll(othis) {
                 continue;
             }
             // set polling version and start
-            flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
-            upgradeFromSqlFile($filename);
+            $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
+            $sqlUpgradeService->upgradeFromSqlFile($filename);
             // end polling
             sleep(2); // fixes odd bug, where if the sql upgrade goes to fast, then the polling does not stop
-            flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
+            $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
         }
 
         if (!empty($GLOBALS['ippf_specific'])) {
             // Upgrade custom stuff for IPPF.
-            upgradeFromSqlFile('ippf_upgrade.sql');
+            $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
         }
 
         if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
             // This release contains a patch file, so process it.
             echo "<script>serverStatus('Patch', 0, 1);</script>";
-            upgradeFromSqlFile('patch.sql');
+            $sqlUpgradeService->upgradeFromSqlFile('patch.sql');
         }
         flush();
 
         echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
-        flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
+        $sqlUpgradeService->flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
         $updateUuidLog = UuidRegistry::populateAllMissingUuids();
         if (!empty($updateUuidLog)) {
             echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
@@ -385,7 +388,7 @@ function pausePoll(othis) {
             echo "Did not need to update or add any new UUIDs</p><br />\n";
         }
         sleep(2); // fixes odd bug, where if process goes to fast, then the polling does not stop
-        flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
+        $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
         echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
         $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
