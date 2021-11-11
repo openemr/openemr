@@ -926,8 +926,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $prior_ins_type = '';
 
                         while ($row = sqlFetchArray($res)) {
-                            // TODO: $insCount appears to be undefined here and is throwing errors... probably need to fix this.
-                            //$insCount = ($row['provider']) ? $insCount++ : $insCount;
                             if ($row['provider']) {
                                 $insCount++;
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
