@@ -4885,7 +4885,7 @@ EOD;
  * @param string $test
  * @return boolean
  */
-function isOption(string|null $options, string $test): bool
+function isOption($options, string $test): bool
 {
     if (empty($options) || !isset($test) || $options == "null") {
         return false; // why bother?
