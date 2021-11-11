@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Services\FormService;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
@@ -11,34 +12,8 @@ function getFormByEncounter(
     $name = "",
     $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
 ) {
-
-    global $attendant_type;
-    $arraySqlBind = array();
-    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), array('forms')) . " from forms where encounter = ? and deleted = 0 ";
-    array_push($arraySqlBind, $encounter);
-    if (!empty($name)) {
-        $sql .= "and form_name=? ";
-        array_push($arraySqlBind, $name);
-    }
-
-    if ($attendant_type == 'pid') {
-        $sql .= " and pid=? and therapy_group_id IS NULL ";
-    } else {
-        $sql .= " and therapy_group_id = ? and pid IS NULL ";
-    }
-
-    array_push($arraySqlBind, $attendant_id);
-
-    // Default $orderby puts vitals first in the list, and newpatient last:
-    $sql .= "ORDER BY $orderby";
-
-    $res = sqlStatement($sql, $arraySqlBind);
-
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
-
-    return $all;
+    $formService = new FormService();
+    return $formService->getFormByEncounter($attendant_id, $encounter, $cols, $name, $orderby);
 }
 
 function addForm(
@@ -56,11 +31,11 @@ function addForm(
 
     global $attendant_type;
     if (!$user) {
-        $user = $_SESSION['authUser'];
+        $user = $_SESSION['authUser'] ?? null;
     }
 
     if (!$group) {
-        $group = $_SESSION['authProvider'];
+        $group = $_SESSION['authProvider'] ?? null;
     }
 
     if ($therapy_group == 'not_given') {

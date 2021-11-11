@@ -52,7 +52,6 @@ $viewArgs = [
     'onlineSupportHref' => $GLOBALS["online_support_link"],
     'ackHref' => "../../acknowledge_license_cert.html",
     'registrationTranslations' => $registrationTranslation,
-    'js_version' => $v_js_includes,
     'applicationTitle' => $openemr_name,
     'versionNumber' => $versionService->asString(),
     'supportPhoneNumber' => $GLOBALS['support_phone_number'] ?? false,

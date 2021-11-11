@@ -1050,7 +1050,7 @@ class CdaTemplateImportDispose
                     $provider_id,
                     $value['extension'],
                     0,
-                    $value['request_intent']));
+                    ($value['request_intent'] ?? null)));
             } else {
                 $q_upd_pres = "UPDATE prescriptions
                        SET patient_id=?,
@@ -1089,7 +1089,7 @@ class CdaTemplateImportDispose
                     $value['extension'],
                     $pid,
                     0,
-                    $value['request_intent']));
+                    ($value['request_intent'] ?? null)));
             }
         }
     }
@@ -1228,21 +1228,21 @@ class CdaTemplateImportDispose
         $userName = "";
 
         if (!empty($value['provider_fname'])) {
-            $value['provider_name'] = $value['provider_fname'] ?: 'External';
-            $value['provider_family'] = $value['provider_lname'] ?: 'Provider';
+            $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
+            $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
         }
 
         if ($create_user_name) {
-            $userName = ($value['provider_name'] ?: 'External') . ($value['provider_family'] ?: 'Provider');
+            $userName = (($value['provider_name'] ?? '') ?: 'External') . (($value['provider_family'] ?? '') ?: 'Provider');
         }
         $query_ins_users = "INSERT INTO users
         ( username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
         VALUES(?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 1, 'external_provider')";
         $res_query_ins_users = $appTable->zQuery($query_ins_users, array(
             $userName,
-            $value['provider_name'] ?: 'External',
-            $value['provider_family'] ?: 'Provider',
-            $value['provider_npi'] ?: CarecoordinationTable::NPI_SAMPLE,
+            ($value['provider_name'] ?? '') ?: 'External',
+            ($value['provider_family'] ?? '') ?: 'Provider',
+            ($value['provider_npi'] ?? '') ?: CarecoordinationTable::NPI_SAMPLE,
             $value['represented_organization_name'] ?? null,
             $value['provider_address'] ?? null,
             $value['provider_city'] ?? null,
@@ -1305,7 +1305,7 @@ class CdaTemplateImportDispose
 
             //procedure_order
             $query_insert_po = "INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) VALUES (?,?,?,?,?,?,?,?,?,'laboratory_test')";
-            $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, $date, $date, 'normal', $value['status'] ?? 'complete', 1, $pro_id));
+            $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, ($date ?? null), ($date ?? null), 'normal', $value['status'] ?? 'complete', 1, $pro_id));
             $po_id = $result_po->getGeneratedValue();
 
             //procedure_order_code
@@ -1316,7 +1316,7 @@ class CdaTemplateImportDispose
 
             //procedure_report
             $query_insert_pr = 'INSERT INTO procedure_report(procedure_order_id,date_collected,date_report,report_status,review_status) VALUES (?,?,?,?,?)';
-            $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, $date, $date, 'final', 'reviewed'));
+            $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, ($date ?? null), ($date ?? null), 'final', 'reviewed'));
             $res_id = $result_pr->getGeneratedValue();
 
             foreach ($value['result'] as $res) {
@@ -1343,7 +1343,7 @@ class CdaTemplateImportDispose
                         $result_pt = $appTable->zQuery($query_insert_pt, array($res['result_text'], $pro_id, $res['result_code'], 'res', 1, 'laboratory_test'));
                         $res_pt_id_res = $result_pt->getGeneratedValue();
                         $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
-                        $appTable->zQuery($query_update_pt, array($res_pt_id, $res_pt_id_res));
+                        $appTable->zQuery($query_update_pt, array(($res_pt_id ?? null), $res_pt_id_res));
                     }
 
                     if (!empty($res['result_code'])) {
@@ -1659,11 +1659,34 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $query_insert = 'INSERT INTO form_observation(id,date,pid,groupname,user,encounter, activity,code,observation,ob_value,ob_unit,description,ob_code,ob_type) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $res = $appTable->zQuery(
-                $query_insert,
+                'INSERT INTO form_observation(
+                id,date,pid,groupname,user,encounter, activity,
+                             code,
+                             observation,
+                             ob_value,
+                             ob_unit,
+                             description,
+                             ob_status,
+                             ob_code,
+                             ob_type,
+                             ob_reason_status,
+                             ob_reason_code,
+                             ob_reason_text) 
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
-                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1, $value['code'], $value['observation'], $value['result_code_text'], "", $value['code_text'], $value['result_code'], $value['observation_type']
+                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
+                    $value['code'],
+                    $value['observation'],
+                    $value['result_code_text'],
+                    "",
+                    $value['code_text'],
+                    $value['observation_status'],
+                    $value['result_code'],
+                    $value['observation_type'],
+                    $value['reason_status'],
+                    $value['reason_code'],
+                    $value['reason_code_text']
                 )
             );
         }

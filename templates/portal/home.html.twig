@@ -3,10 +3,10 @@
 {% block head %}
 	{{parent()}}
 
-	<link href="../portal/sign/css/signer_modal.css?v={{ jsVersion | attr }}" rel="stylesheet"/>
-	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ jsVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ jsVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signer_api.js?v={{ jsVersion | attr }}"></script>
+	<link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr }}" rel="stylesheet"/>
+	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr }}"></script>
+	<script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr }}"></script>
 
 	{% if payment_gateway == 'Stripe' %}
 		<script src="https://js.stripe.com/v3/"></script>
@@ -267,7 +267,7 @@
 								screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
 							} else {
 									for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Descriptio}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
+										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
 									}
 								}
 						}
@@ -318,6 +318,7 @@
 
 		{% endif %}
 	</script>
+	{{ fireEvent(eventNames.scriptsRenderPre) }}
 
 {% endblock %}
 
@@ -394,21 +395,7 @@
 
 							{% for appt in appointments %}
 
-								<div class="card p-2">
-									<div class="card-header">
-										<a href="#" onclick="editAppointment({{ appt.mode | attr_js }},{{ appt.pc_eid | attr_js }})" title="{{ appt.etitle | attr }}">
-											<i class='float-right fa fa-edit {% if appt.pc_recurrtype > 0 %} text-danger {% else %} text-success {% endif %} bg-light'></i>
-										</a>
-									</div>
-									<div class="body font-weight-bold">
-										<p>
-											{{ appt.appointmentDate | text }}<br>
-											{{ appt.appointmentType | text }}<br>
-											{{ appt.provider | text }}<br>
-											{{ appt.status | text }}
-										</p>
-									</div>
-								</div>
+								{% include 'portal/appointment-item.html.twig' with {appt: appt} %}
 							{% endfor %}
 
 							{% if appointmentLimit == appointmentCount %}
@@ -483,6 +470,8 @@
 					<div id="pro" class="card-body bg-light"></div>
 				</div>
 			{% endif %}
+
+		{{ fireEvent(eventNames.sectionRenderPost) }}
 
 		</section>
 	{% endblock %}

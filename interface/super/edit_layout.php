@@ -917,7 +917,7 @@ function writeFieldLine($linedata)
         }
     }
     echo "  <td class='text-center optcell'>";
-    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][datacols]' id='codes_fld[" . attr($fld_line_no) . "][datacols]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control optin' />";
+    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][codes]' id='codes_fld[" . attr($fld_line_no) . "][codes]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control optin' />";
     echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.

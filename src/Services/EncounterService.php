@@ -34,11 +34,20 @@ require_once dirname(__FILE__) . "/../../library/encounter.inc";
 
 class EncounterService extends BaseService
 {
+    /**
+     * @var EncounterValidator
+     */
     private $encounterValidator;
+
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
+
+    /**
+     * Default class_code from list_options.  Defaults to outpatient ambulatory care.
+     */
+    const DEFAULT_CLASS_CODE = 'AMB';
 
     /**
      * Default constructor.
@@ -49,6 +58,20 @@ class EncounterService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::ENCOUNTER_TABLE, self::PATIENT_TABLE, self::PROVIDER_TABLE,
             self::FACILITY_TABLE]);
         $this->encounterValidator = new EncounterValidator();
+    }
+
+    /**
+     * Returns a list of encounters matching the encounter identifier.
+     *
+     * @param  $eid     The encounter identifier of particular encounter
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     *                    payload.
+     */
+    public function getEncounterById($eid, $puuidBind = null)
+    {
+        $search = ['eid' => new TokenSearchField('eid', [new TokenSearchValue($eid)])];
+        return $this->search($search, true, $puuidBind);
     }
 
     /**
@@ -326,7 +349,9 @@ class EncounterService extends BaseService
             "newpatient",
             $data['pid'],
             $data["provider_id"],
-            $data["date"]
+            $data["date"],
+            $data['user'],
+            $data['group']
         );
 
         if ($results) {
@@ -583,5 +608,48 @@ class EncounterService extends BaseService
         $validator->optional('oxygen_saturation')->numeric();
 
         return $validator->validate($vital);
+    }
+
+    public function getEncountersForPatientByPid($pid)
+    {
+        $encounterResult = $this->search(['pid' => $pid]);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData();
+        }
+        return [];
+    }
+
+    /**
+     * The result of this function returns the format needed by the frontend with the window.left_nav.setPatientEncounter function
+     * @param $pid
+     * @return array
+     */
+    public function getPatientEncounterListWithCategories($pid)
+    {
+        $encounters = $this->getEncountersForPatientByPid($pid);
+        /**
+         *  $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
+        if (sqlNumRows($result4) > 0) {
+        while ($rowresult4 = sqlFetchArray($result4)) { ?>
+        EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
+        EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+        CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
+        Count++;
+        <?php
+        }
+        }
+         */
+        $encounterList = [
+            'ids' => []
+            ,'dates' => []
+            ,'categories' => []
+        ];
+        foreach ($encounters as $index => $encounter) {
+            $encounterList['ids'][$index] = $encounter['eid'];
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['categories'][$index] = $encounter['pc_catname'];
+        }
+        return $encounterList;
     }
 }

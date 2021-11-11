@@ -5,12 +5,12 @@
     <script>
         var registrationTranslations = {{ registrationTranslations }}
         var registrationConstants = {
-            "webroot": {{ webroot }}
+            "webroot": {{ webroot|js_escape }}
         }
     </script>
 
-    <script src="{{ webroot }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
-    <script src="{{ webroot }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
 
     <script>
         $(function () {
@@ -31,7 +31,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-12 col-lg-8 offset-lg-2 mt-5">
-                <h1 class="text-center">{{ "About"|xlt }} {{ applicationTitle }}</h1>
+                <h1 class="text-center">{{ "About"|xlt }} {{ applicationTitle|text }}</h1>
 
                 <span class="product-registration">
                     <span class="email"></span>
@@ -64,7 +64,7 @@
 
                 {% if userManualHref %}
                 <div class="user-manual mt-3">
-                    <a href="{{ userManualHref|attr}}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                    <a href="{{ userManualHref|attr }}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
                         <i class="fa fa-fw fa-book fa-lg"></i>&nbsp;{{ "User Manual"|xlt }}
                     </a>
                 </div>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{{ "OpenEMR Error"|xlt }}{% endblock %}</title>
+    {{ setupHeader() }}
+</head>
+<body class="error">
+{% block errorBody %}
+    {% block errorHeader %}<h1>{{ "We're Sorry! An Error has occured!"|xlt }}  {{ "Type"|xlt }}: {{ statusCode|text }}</h1>{% endblock %}
+    {% block errorDetails %}
+        <p>{{ errorMessage|default("Please try your request again, check the server logs, or contact the site administrator for support")|text|xlt }}</p>
+    {% endblock %}
+{% endblock %}
+</body>
+</html>
