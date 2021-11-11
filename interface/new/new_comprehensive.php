@@ -397,6 +397,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <br />
         <div class="row">
             <div class="<?php echo $BS_COL_CLASS; ?>-12">
+                <div class="accordion" id="dem_according">
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
                  method='post'
                  onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
@@ -447,6 +448,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 echo "</div>\n";
                             }
                         }
+                        echo "</div>";
                     }
 
                     $last_group    = '';
@@ -485,17 +487,21 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 end_group();
                                 $group_seq++;    // ID for DIV tags
                                 $group_name = $grparr[$this_group]['grp_title'];
-                                if (strlen($last_group) > 0) {
-                                    echo "<br />";
-                                }
-                                echo "<span class='font-weight-bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' id='form_cb_" . attr($group_seq) . "' value='1' " .
-                                "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
-                                if ($display_style == 'block') {
-                                    echo " checked";
-                                }
-                                echo " />&nbsp;" . text(xl_layout_label($group_name)) . "</span>\n";
-                                echo "<div id='div_" . attr($group_seq) . "' class='section' style='display: $display_style;'>\n";
-                                echo " <div class='container-fluid'>\n";
+
+                                $group_seq_attr = attr($group_seq);
+                                $checked = ($display_style == 'block') ? "show" : "";
+                                $group_name_xl = text(xl_layout_label($group_name));
+                                $onclick = attr_js("div_" . $group_seq);
+                                echo <<<HTML
+                                <div class="card">
+                                    <div class="card-header" id="header_{$group_seq_attr}">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                        </h2>
+                                    </div>
+                                    <div id="div_{$group_seq_attr}" class="section collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
+                                        <div class="container-fluid card-body">
+                                HTML;
                                 $display_style = 'none';
                             } elseif (strlen($last_group) == 0) {
                                 echo " <div class='container-fluid'>\n";
@@ -521,7 +527,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             end_cell();
                             $bs_cols = $titlecols * intval(12 / $CPR);
                             echo "<div class='$BS_COL_CLASS-$bs_cols pt-1 ";
-                            echo ($frow['uor'] == 2) ? "required" : "font-weight-bold";
+                            echo ($frow['uor'] == 2) ? "required" : "";
                             echo "' id='" . attr($field_id_label) . "'";
                             echo ">";
                             $cell_count += $titlecols;
@@ -535,14 +541,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             echo "<span class='text-nowrap mr-2'>"; // mb-2 doesn't work here
                         }
 
-                        echo "<strong>";
+
                         // Modified 6-09 by BM - Translate if applicable
                         if ($frow['title']) {
                             echo (text(xl_layout_label($frow['title'])) . ":");
                         } else {
                             echo "&nbsp;";
                         }
-                        echo "</strong>";
 
                         // Handle starting of a new data cell.
                         if ($datacols > 0) {
@@ -589,14 +594,17 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             $insurance_info[2] = getInsuranceData($pid, "secondary");
                             $insurance_info[3] = getInsuranceData($pid, "tertiary");
                         }
-                        echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_ins' value='1' " .
-                        "onclick='return divclick(this,\"div_ins\");'";
-                        if ($display_style == 'block') {
-                            echo " checked";
-                        }
-
-                        echo " /><strong>" . xlt('Insurance') . "</strong></span>\n";
-                        echo "<div id='div_ins' class='section' style='display: $display_style;'>\n";
+                        $insuranceTitle = xlt("Insurance");
+                        echo <<<HTML
+                        <div class="card">
+                            <div class="card-header" id="header_ins">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                </h2>
+                            </div>
+                            <div id="div_ins" class="section collapse" aria-labelledby="header_ins" >
+                                <div class="container-fluid card-body">
+                        HTML;
 
                         for ($i = 1; $i <= sizeof($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
@@ -647,7 +655,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"] ?? ''); ?>" onkeyup='policykeyup(this)' />
                           </div>
-                          <label class='col-form-label col-md-1 mb-2 font-weight-bold'><?php echo xlt('D.O.B.'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2'><?php echo xlt('D.O.B.'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>subscriber_DOB' id='i<?php echo attr($i); ?>subscriber_DOB' value='<?php echo attr($result3['subscriber_DOB'] ?? ''); ?>' />
                           </div>
@@ -655,7 +663,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3["group_number"] ?? ''); ?>" onkeyup='policykeyup(this)' />
                           </div>
-                          <label class='col-form-label col-md-1 mb-2 font-weight-bold'><?php echo xlt('S.S.'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2'><?php echo xlt('S.S.'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_ss' value="<?php echo attr($result3["subscriber_ss"] ?? ''); ?>" />
                           </div>
@@ -668,7 +676,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                               </small>
                             </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 font-weight-bold'><?php echo xlt('Sex'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Sex'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'), $result3['subscriber_sex'] ?? '');
@@ -732,11 +740,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             ?>
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 font-weight-bold'><?php echo xlt('Subscriber Phone'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Subscriber Phone'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"] ?? ''); ?>' onkeyup='phonekeyup(this,mypcc)' />
                           </div>
-                          <label class='col-form-label col-md-1 mb-2 font-weight-bold'><?php echo xlt('Co-Pay'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Co-Pay'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='text' class='form-control' size="6" name='i<?php echo attr($i); ?>copay' value="<?php echo attr($result3["copay"] ?? ''); ?>" />
                           </div>
@@ -768,6 +776,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         </tr>
                     </table>
                 </form>
+                </div>
             </div>
         </div>
         <div class="row">
