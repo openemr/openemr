@@ -542,7 +542,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
 
         //pass an empty array because we don't want the documents for each category showing up in this list box
-        $rnode = $this->_array_recurse($this->tree->tree, array());
+        $rnode = $this->array_recurse($this->tree->tree, array());
         $menu->addItem($rnode);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 
@@ -781,7 +781,9 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
-                    $filetext = file_get_contents($url);
+                    if (!is_dir($url)) {
+                        $filetext = file_get_contents($url);
+                    }
                 }
                 if ($disable_exit == true) {
                     return $filetext;
@@ -1050,7 +1052,7 @@ class C_Document extends Controller
         //print_r($categories_list);
 
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->_array_recurse($this->tree->tree, $categories_list);
+        $rnode = $this->array_recurse($this->tree->tree, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
@@ -1073,7 +1075,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    public function &_array_recurse($array, $categories = array())
+    public function &array_recurse($array, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1096,7 +1098,7 @@ class C_Document extends Controller
                     $current_node = &$this->_last_node;
                 }
 
-                $this->_array_recurse($ar, $categories);
+                $this->array_recurse($ar, $categories);
             } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);

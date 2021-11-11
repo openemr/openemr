@@ -1365,7 +1365,7 @@ class BillingUtilities
         'N838' => 'Alert: Service/procedure postponed due to a federal, state, or local mandate/disaster declaration. Any amounts applied to deductible or member liability will be applied to the prior plan year from which the procedure was cancelled.'
     );
 
-    public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
+    public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text", $deleted = false)
     {
         $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), array('billing')) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter, $pid));
 

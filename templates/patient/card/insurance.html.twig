@@ -15,7 +15,7 @@
 {% for c in ins %}
     <div class="tab-pane {{ loop.first ? "active" }}" id="{{ c.type|attr }}" role="tabpanel" aria-labelledby="{{ c.type|attr }}-tab">
         <div class="text-primary pb-2 pt-1">
-            {{ (c.idOld) ? "Old"|xlt ~ " " ~ c.type|capitalize|text : c.type|capitalize|text }} {{ "Insurance"|xlt }}
+            {{ (c.isOld) ? "Old"|xlt ~ " " ~ c.type|capitalize|text : c.type|capitalize|text }} {{ "Insurance"|xlt }}
             {% if c.dispFromDate == true %}{{ "from"|xlt}} {{ c.date|shortDate|text }} {% endif %}
             {{ "until"|xlt }} {{ "Present"|xlt }}
         </div>
