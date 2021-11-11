@@ -303,6 +303,9 @@ class CodeTypesService
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
             $formatted_type = $value['code_type'] ?: $formatted_type;
+            if (!empty($code) && !empty($formatted_type)) {
+                $formatted_code = $formatted_type . ':' . $code;
+            }
             $oid = $value['code_system'];
             $currentCodeText = $value['description'];
             $valueset_name = $value['valueset_name'];
@@ -311,8 +314,8 @@ class CodeTypesService
 
         return array(
             'code' => $code ?? "",
-            'formatted_code' => $formatted_code ?? "",
-            'formatted_code_type' => $formatted_type ?? "",
+            'formatted_code' => $formatted_code ?: $code,
+            'formatted_code_type' => $formatted_type ?: $codeType,
             'code_text' => trim($currentCodeText),
             'system_oid' => $oid ?? "",
             'valueset' => $valueset ?? "",
