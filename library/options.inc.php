@@ -4,6 +4,7 @@
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 // Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (c) 2021 Robert Down <robertdown@live.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,6 +37,7 @@
 // P = Default to previous value when current value is not yet set
 // R = Distributor types only (address book)
 // T = Use description as default Text
+// DAP = Use description as placeholder
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
 // 0 = Read Only - the input element's "disabled" property is set
@@ -535,6 +537,9 @@ function generate_form_field($frow, $currvalue)
         $description = '';
     }
 
+    // Support using the description as a placeholder
+    $placeholder = (isOption($edit_options, 'DAP') === true) ? " placeholder='{$description}' " : '';
+
     // added 5-2009 by BM to allow modification of the 'empty' text title field.
     //  Can pass $frow['empty_title'] with this variable, otherwise
     //  will default to 'Unassigned'.
@@ -603,6 +608,7 @@ function generate_form_field($frow, $currvalue)
                 " id='form_text_" . attr($field_id) . "'" .
                 " size='" . attr($frow['fld_length']) . "'" .
                 " class='form-control'" .
+                $placeholder .
                 " " . ((!empty($frow['max_length'])) ? "maxlength='" . attr($frow['max_length']) . "'" : "") . " " .
                 " style='" . $display . "'" .
                 " value='" . attr($comment) . "'/>";
@@ -616,14 +622,15 @@ function generate_form_field($frow, $currvalue)
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'" .
-        " class='form-control$smallform'" .
-        " name='form_$field_id_esc'" .
-        " id='form_$field_id_esc'" .
-        " size='$fldlength'" .
-        " $string_maxlength" .
-        " title='$description'" .
-        " value='$currescaped'";
+        echo "<input type='text'
+            class='form-control{$smallform}'
+            name='form_{$field_id_esc}'
+            id='form_{$field_id_esc}'
+            size='{$fldlength}'
+            {$string_maxlength}
+            {$placeholder}
+            title='{$description}'
+            value='{$currescaped}'";
         $tmp = $lbfchange;
         if (isOption($edit_options, 'C') !== false) {
             $tmp .= "capitalizeMe(this);";
@@ -662,6 +669,7 @@ function generate_form_field($frow, $currvalue)
         " class='form-control$smallform'" .
         " id='form_$field_id_esc'" .
         " title='$description'" .
+        $placeholder .
         " cols='$textCols'" .
         " rows='$textRows' $lbfonchange $disabled" .
         ">" . $currescaped . "</textarea>";
@@ -683,10 +691,10 @@ function generate_form_field($frow, $currvalue)
             $datetimepickerclass = $frow['validation'] === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
-                echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
+                echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' {$placeholder} name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
             } else {
                 $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
-                echo "<input type='text' size='20' class='datetimepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
+                echo "<input type='text' size='20' class='datetimepicker$datetimepickerclass form-control$smallform' {$placeholder} name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
             }
         }
         if (!$agestr) {
@@ -1106,6 +1114,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
+            $placeholder .
             " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$optionValue'";
@@ -4876,7 +4885,7 @@ EOD;
  * @param string $test
  * @return boolean
  */
-function isOption($options, $test)
+function isOption(json $options, string $test): bool
 {
     if (empty($options) || !isset($test) || $options == "null") {
         return false; // why bother?
