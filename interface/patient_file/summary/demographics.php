@@ -922,12 +922,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params[] = $pid;
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
-                        $insCount = 0;
                         $prior_ins_type = '';
 
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
-                                $insCount++;
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
                                 $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
