@@ -648,8 +648,6 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
         </div>
     </div>
-</div>
-
 <div class='encounter-summary-column'>
 <?php if ($esign->isLogViewable()) {
     $esign->renderLog();
