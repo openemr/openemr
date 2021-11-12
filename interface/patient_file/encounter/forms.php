@@ -538,6 +538,35 @@ foreach ($reg as $item) {
     $menuArray[$_cat]['children'][] = $item;
 }
 
+// Module hooks
+$module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
+        FROM modules_hooks_settings AS msh
+        LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+        LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+        WHERE fld_type=3
+            AND mod_active=1
+            AND sql_run=1
+            AND attached_to='encounter'
+        ORDER BY mod_id");
+
+$moduleMenuArray = [];
+
+while ($row = sqlFetchArray($module_query)) {
+    $_cat = $row['mod_ui_name'];
+    if ($row['type'] == 0) {
+        $modulePath = $GLOBALS['customModDir'];
+        $added = "";
+    } else {
+        $modulePath = $GLOBALS['zendModDir'];
+        $added = "index";
+    }
+
+    $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
+    $row['menu_name'] = $row['menu_name'] ?: "No_Name";
+    $row['href'] = $relativeLink;
+    $moduleMenuArray[$_cat]['children'][] = $row;
+}
+
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
@@ -583,67 +612,11 @@ echo $t->render('encounter/forms/navbar.html.twig', [
     'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
     'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
     'menuArray' => $menuArray,
+    'moduleMenuArray' => $moduleMenuArray,
 ]);
 ?>
 
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-    $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
-        FROM modules_hooks_settings AS msh
-        LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-        LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-        WHERE fld_type=3
-            AND mod_active=1
-            AND sql_run=1
-            AND attached_to='encounter'
-        ORDER BY mod_id");
-    $DivId = 'mod_installer';
-    if (sqlNumRows($module_query)) {
-        if (!$StringEcho) {
-            $StringEcho = '<ul>';
-        }
-        $jid = 0;
-        $modid = '';
-        while ($modulerow = sqlFetchArray($module_query)) {
-            $DivId = 'mod_' . $modulerow['mod_id'];
-            $new_category = $modulerow['mod_ui_name'];
-            $modulePath = "";
-            $added      = "";
-            if ($modulerow['type'] == 0) {
-                $modulePath = $GLOBALS['customModDir'];
-                $added      = "";
-            } else {
-                $added      = "index";
-                $modulePath = $GLOBALS['zendModDir'];
-            }
-            $relative_link = "../../modules/" . $modulePath . "/public/" . $modulerow['path'];
-            $nickname = $modulerow['menu_name'] ?: 'Noname';
-            if ($jid == 0 || ($modid != $modulerow['mod_id'])) {
-                if ($jid !== 0) {
-                    $StringEcho .= "</div>\n";
-                    $StringEcho .= '</div>';
-                }
-                $StringEcho .= "<div class='dropdown d-inline'>\n";
-                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" . text($new_category) . "</button>\n";
-                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
-            }
-            $jid++;
-            $modid = $modulerow['mod_id'];
-            $StringEcho .= "<button class='dropdown-item' onclick='openNewForm(" .
-            attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")'>" . text(xl_form_title($nickname)) . "</button>\n";
-        }
-        $StringEcho .= "</div>\n";
-        $StringEcho .= '</div>';
-    }
-    ?>
-<!-- DISPLAYING HOOKS ENDS HERE -->
-<?php
-if ($StringEcho) {
-    $StringEcho .= "</ul>" . $StringEcho2;
-}
-?>
 <div id="encounter_forms" class="mx-1">
-
 <div class='encounter-summary-container'>
     <div class='encounter-summary-column'>
         <div>
@@ -937,7 +910,7 @@ if (
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
-                 echo "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'>" . xlt('Locked') . "</a>";
+                 echo "<a href='#' class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
         } else {
             if (
                 (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)

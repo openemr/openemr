@@ -29,8 +29,25 @@
                     </li>
                 {% endif %}
             {% endfor %}
+            {% for category, details in moduleMenuArray %}
+                {% if details.children is iterable %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|xla }}" role="button" data-toggle="dropdown" aria-expanded="false">
+                            {{ category }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="category_{{ category|xla }}">
+                            {% for item in details.children %}
+                                <a href="#" class="dropdown-item" onclick="openNewForm('{{ item.href }}', {{ item.menu_name|xlFormTitle|attr_js }})">{{ item.menu_name|xlFormTitle|text }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">{{ category }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
         </ul>
-
         <ul class="navbar-nav ml-auto">
             {% if enableFollowUpEncounters %}
             <li class="nav-item"><a href="#" class="nav-link" onclick="return createFollowUpEncounter()">{{ "Create follow-up encounter"|xlt }}</a></li>
