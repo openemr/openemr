@@ -352,7 +352,6 @@ function refreshVisitDisplay() {
     div.formname {
         float: left;
         min-width: 160px;
-        font-weight: bold;
         padding: 0;
         margin: 0;
     }
@@ -959,24 +958,31 @@ if (
         } else {
             $form_author = ($user['fname'] ?? '') . "  " . ($user['lname'] ?? '');
         }
-        echo "<div class='form_header'>";
-        echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .
-          "<div class='formname' title='" . xla('Expand/Collapse this form') . "'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
-          "</a>";
-        echo "</div>";
-
-        // a link to edit the form
-        echo "<div class='form_header_controls btn-group' role='group'>";
+        $div_nums_attr = attr($divnos);
+        $title = xla("Expand/Collapse this form");
+        $display = text($form_name) . " " . xlt("by") . " " . text($form_author);
+        $author_text = text($form_author);
+        $by_text = xlt("by");
+        $form_text = text($form_name);
+        echo <<<HTML
+        <div class="form_header">
+            <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
+                <h5>{$form_text}</h5>
+                {$by_text} {$author_text}
+            </a>
+        </div>
+        <div class='form_header_controls btn-group' role='group'>
+        HTML;
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
-                 echo "<a href=# class='btn btn-primary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'>" . xlt('Locked') . "</a>";
+                 echo "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'>" . xlt('Locked') . "</a>";
         } else {
             if (
                 (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
                 or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
             ) {
-                echo "<a class='btn btn-primary btn-sm form-edit-button btn-edit' " .
+                echo "<a class='btn btn-secondary btn-sm form-edit-button btn-edit' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
@@ -1000,7 +1006,7 @@ if (
             "&formid="    . attr_url($iter['form_id']) .
             "&visitid="   . attr_url($encounter)       .
             "&patientid=" . attr_url($pid)             .
-            "' class='btn btn-primary btn-sm' title='" . xla('Print this form') .
+            "' class='btn btn-secondary btn-sm' title='" . xla('Print this form') .
             "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
         }
 
@@ -1018,7 +1024,7 @@ if (
             }
         }
 
-        echo "<a class='btn btn-primary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+        echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";
