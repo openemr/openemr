@@ -20,7 +20,6 @@ require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
 
-use Acl\Model\Acl;
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
