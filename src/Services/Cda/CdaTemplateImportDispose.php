@@ -1659,11 +1659,34 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $query_insert = 'INSERT INTO form_observation(id,date,pid,groupname,user,encounter, activity,code,observation,ob_value,ob_unit,description,ob_code,ob_type) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $res = $appTable->zQuery(
-                $query_insert,
+                'INSERT INTO form_observation(
+                id,date,pid,groupname,user,encounter, activity,
+                             code,
+                             observation,
+                             ob_value,
+                             ob_unit,
+                             description,
+                             ob_status,
+                             ob_code,
+                             ob_type,
+                             ob_reason_status,
+                             ob_reason_code,
+                             ob_reason_text) 
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
-                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1, $value['code'], $value['observation'], $value['result_code_text'], "", $value['code_text'], $value['result_code'], $value['observation_type']
+                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
+                    $value['code'],
+                    $value['observation'],
+                    $value['result_code_text'],
+                    "",
+                    $value['code_text'],
+                    $value['observation_status'],
+                    $value['result_code'],
+                    $value['observation_type'],
+                    $value['reason_status'],
+                    $value['reason_code'],
+                    $value['reason_code_text']
                 )
             );
         }

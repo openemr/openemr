@@ -683,12 +683,17 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_observation_preformed['observation_preformed'][$h]['observation'] = $newdata['observation_preformed']['observation'];
                 $arr_observation_preformed['observation_preformed'][$h]['observation_type'] = $newdata['observation_preformed']['observation_type'];
+                $arr_observation_preformed['observation_preformed'][$h]['observation_status'] = $newdata['observation_preformed']['observation_status'];
 
                 $arr_observation_preformed['observation_preformed'][$h]['code'] = $newdata['observation_preformed']['code'];
                 $arr_observation_preformed['observation_preformed'][$h]['code_text'] = $newdata['observation_preformed']['code_text'];
 
+                $arr_observation_preformed['observation_preformed'][$h]['result_status'] = $newdata['observation_preformed']['result_status'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code'] = $newdata['observation_preformed']['result_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code_text'] = $newdata['observation_preformed']['result_code_text'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_status'] = $newdata['observation_preformed']['reason_status'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_code'] = $newdata['observation_preformed']['reason_code'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_code_text'] = $newdata['observation_preformed']['reason_code_text'];
                 $h++;
             }
         }
