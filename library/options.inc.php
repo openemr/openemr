@@ -1563,7 +1563,7 @@ function generate_form_field($frow, $currvalue)
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div>"; // wrapper for myHideOrShow()
-        echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
+        echo "<div id='form_$field_id_esc' style='width:${mywidth}px; height:${myheight}px;'></div>";
         // Hidden form field exists to send updated data to the server at submit time.
         echo "<input type='hidden' name='form_$field_id_esc' value='' />";
         // Hidden image exists to support initialization of the canvas.
