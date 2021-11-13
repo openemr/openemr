@@ -1477,7 +1477,7 @@ function myChangeCheck() {
     <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xla('Save Changes'); ?></button>
 </div>
 <br>
-<?php echo xlt('With selected');?>:&nbsp;
+    <?php echo xlt('With selected');?>:&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
 <input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
 <select id='copytolayout' class='form-control form-control-sm d-inline-block'
@@ -1575,7 +1575,7 @@ if ($layout_id) {
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
                 'translate_layout' > ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
-                'xla_gmyname' => attr_js($gmyname),
+                'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
             <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
@@ -1589,7 +1589,7 @@ if ($layout_id) {
                         <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
                     </div>
                     <div class="btn-group mr-2" role="group" aria-label="Group Options">
-                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['xla_gmyname']}">{$t_vars['xla_rename_group']}</button>
+                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['attr_gmyname']}">{$t_vars['xla_rename_group']}</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xla_group_props']}</button>
                         <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xla_delete_group']}</button>
                     </div>
