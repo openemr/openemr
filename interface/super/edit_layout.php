@@ -1117,6 +1117,11 @@ function genLayoutOptions($title = '?', $default = '')
   <?php Header::setupHeader(['select2']); ?>
   <title><?php echo xlt('Layout Editor'); ?></title>
   <style>
+      .sticky-top {
+          top: 80px;
+          z-index: 999;
+      }
+
     .orgTable tr.head {
         font-size: 0.6875rem;
         background-color: var(--gray400);
@@ -1172,10 +1177,6 @@ function genLayoutOptions($title = '?', $default = '')
 
     .help {
         cursor: help;
-    }
-
-    .layouts_title {
-        font-size: 110%;
     }
 
     .translation {
@@ -1470,12 +1471,13 @@ function myChangeCheck() {
 <?php echo xlt('Include inactive'); ?></label>
 
 <?php if ($layout_id) { ?>
-<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
-<input type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup' value='<?php echo xla('Add Group'); ?>' />
-<span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger btn-sm" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span>
-<br />
-    <?php echo xlt('With selected');?>:&nbsp;
+<div class="btn-group ml-auto">
+    <button type='button' class='btn btn-secondary btn-sm' onclick='edit_layout_props("")'><?php echo xla('Layout Properties'); ?></button>
+    <button type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup'><?php echo xla('Add Group'); ?></button>
+    <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xla('Save Changes'); ?></button>
+</div>
+<br>
+<?php echo xlt('With selected');?>:&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
 <input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
 <select id='copytolayout' class='form-control form-control-sm d-inline-block'
@@ -1486,7 +1488,7 @@ function myChangeCheck() {
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
 <?php } else { ?>
-<input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<button type='button' class='btn btn-primary btn-sm btn-add btn-new' onclick='edit_layout_props("")'><?php echo xla('New Layout'); ?></button>
 <?php } ?>
 
 <div id="tips" class="container tips">
@@ -1550,7 +1552,7 @@ if ($layout_id) {
             }
 
             // echo "<div id='" . $group_id . "' class='group'>";
-            echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
+            echo "<div class='text bold layouts_title'>";
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
@@ -1562,26 +1564,37 @@ if ($layout_id) {
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 
-            echo text($gdispname);
-            // if not english and set to translate layout labels, then show the translation of group name
-            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                // echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
-                echo "<span class='translation'>" . xlt($gdispname) . "</span>";
-                echo "&nbsp; ";
-            }
-            echo "&nbsp; ";
-            echo " <input type='button' class='addfield' id='" . attr("addto~$group_id") . "' value='" . xla('Add Field') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='renamegroup' id='" . attr("$group_id~$gmyname") . "' value='" . xla('Rename Group') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='deletegroup' id='" . attr("$group_id") . "' value='" . xla('Delete Group') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='movegroup' id='" . attr("$group_id~up") . "' value='" . xla('Move Up') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='movegroup' id='" . attr("$group_id~down") . "' value='" . xla('Move Down') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
-            echo "</div>";
+            $group_id_attr = attr($group_id);
+            $t_vars = [
+                "xla_add_field" => xla("Add Field"),
+                "xla_rename_group" => xla("Rename Group"),
+                "xla_delete_group" => xla("Delete Group"),
+                "xla_move_up" => xla("Move Up"),
+                "xla_move_down" => xla("Move Down"),
+                "xla_group_props" => xla("Group Properties"),
+                'text_group_name' => text($gdispname),
+                'translate_layout' > ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+            ];
+            echo <<<HTML
+            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+                <span class="navbar-brand">{$_vars['trnaslate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
+                <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
+                    <div class="btn-group mr-2" role="group" aria-label="Field Group">
+                        <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id}">{$t_vars['xla_add_field']}</button>
+                    </div>
+                    <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
+                    </div>
+                    <div class="btn-group mr-2" role="group" aria-label="Group Options">
+                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id}~{$gmyname}">{$t_vars['xla_rename_group']}</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr})">{$t_vars['xla_group_props']}</button>
+                        <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id}">{$t_vars['xla_delete_group']}</button>
+                    </div>
+                </div>
+
+            </nav>
+            HTML;
             $firstgroup = false;
             if (!empty($row['form_id'])) { // if this is not an empty group
                 ?>
