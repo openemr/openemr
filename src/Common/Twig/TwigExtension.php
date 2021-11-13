@@ -207,8 +207,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
             new TwigFilter(
                 'xlFormTitle',
-                function ($string, $mode = 'r', $prepend = '', $append = '') {
-                    return xl_form_title($string, $mode, $prepend, $append);
+                function ($string) {
+                    return xl_form_title($string);
                 }
             )
         ];
