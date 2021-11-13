@@ -1565,6 +1565,7 @@ if ($layout_id) {
             $gmyname = $grparr[$group_id]['grp_title'];
 
             $group_id_attr = attr($group_id);
+            $group_id_attr_js = attr_js($group_id);
             $t_vars = [
                 "xla_add_field" => xla("Add Field"),
                 "xla_rename_group" => xla("Rename Group"),
@@ -1574,22 +1575,23 @@ if ($layout_id) {
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
                 'translate_layout' > ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'xla_gmyname' => attr_js($gmyname),
             ];
             echo <<<HTML
             <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-                <span class="navbar-brand">{$_vars['trnaslate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
+                <span class="navbar-brand">{$t_vars['translate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
                 <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
                     <div class="btn-group mr-2" role="group" aria-label="Field Group">
-                        <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id}">{$t_vars['xla_add_field']}</button>
+                        <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id_attr}">{$t_vars['xla_add_field']}</button>
                     </div>
                     <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
-                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
-                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
                     </div>
                     <div class="btn-group mr-2" role="group" aria-label="Group Options">
-                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id}~{$gmyname}">{$t_vars['xla_rename_group']}</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr})">{$t_vars['xla_group_props']}</button>
-                        <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id}">{$t_vars['xla_delete_group']}</button>
+                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['xla_gmyname']}">{$t_vars['xla_rename_group']}</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xla_group_props']}</button>
+                        <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xla_delete_group']}</button>
                     </div>
                 </div>
 
