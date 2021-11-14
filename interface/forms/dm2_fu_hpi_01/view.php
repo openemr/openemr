@@ -1,7 +1,7 @@
 <?php
 
 /**
- * dm2_fu_01 form
+ * dm2_fu_hpi_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -15,7 +15,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
-require("C_FormDM2_FU_01.class.php");
+require("C_FormDM2_FU_HPI_01.class.php");
 
-$c = new C_FormDM2_FU_01();
-echo $c->default_action();
+$c = new C_FormDM2_FU_HPI_01();
+echo $c->view_action($_GET['id']);

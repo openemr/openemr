@@ -1,7 +1,7 @@
 <?php
 
 /**
- * dm2_fu_01 form
+ * dm2_fu_hpi_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -21,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-require("C_FormDM2_FU_01.class.php");
-$c = new C_FormDM2_FU_01();
+require("C_FormDM2_FU_HPI_01.class.php");
+$c = new C_FormDM2_FU_HPI_01();
 echo $c->default_action_process($_POST);
 @formJump();

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `form_dm2_fu_01` (
+CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
 `id` bigint(20) NOT NULL auto_increment,
 `date` datetime default NULL,
 `pid` bigint(20) default 0,
