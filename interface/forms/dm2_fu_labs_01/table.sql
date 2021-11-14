@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_labs_01` (
 `serum_creatinine` text,
 `egfr` text,
 `albumin_creatinine_ratio` text,
+`prev_labs_comments` text,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;

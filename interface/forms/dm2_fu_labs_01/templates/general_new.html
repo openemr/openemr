@@ -56,7 +56,7 @@
                         <legend>{xlt t='eGFR'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="egfr" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_egfr()|text}</textarea>
+                                <textarea name="egfr" class="form-control" cols="60" rows="1" onkeyup="top.isDM2FUEdit = true;">{$data->get_egfr()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -64,7 +64,15 @@
                         <legend>{xlt t='Urine Albumin to Creatinine Ratio'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="albumin_creatinine_ratio" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_albumin_creatinine_ratio()|text}</textarea>
+                                <textarea name="albumin_creatinine_ratio" class="form-control" cols="60" rows="1" onkeyup="top.isDM2FUEdit = true;">{$data->get_albumin_creatinine_ratio()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Previous lab results and comments'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="prev_labs_comments" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_prev_labs_comments()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>

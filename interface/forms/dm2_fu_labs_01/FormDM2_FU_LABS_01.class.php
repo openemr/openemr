@@ -50,6 +50,7 @@ class FormDM2_FU_LABS_01 extends ORDataObject
     var $serum_creatinine;
     var $egfr;
     var $albumin_creatinine_ratio;
+    var $prev_labs_comments;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -196,6 +197,17 @@ class FormDM2_FU_LABS_01 extends ORDataObject
     {
         if (!empty($data)) {
             $this->albumin_creatinine_ratio = $data;
+        }
+    }
+    /* prev_labs_comments */
+    function get_prev_labs_comments()
+    {
+        return $this->prev_labs_comments;
+    }
+    function set_prev_labs_comments($data)
+    {
+        if (!empty($data)) {
+            $this->prev_labs_comments = $data;
         }
     }
 
