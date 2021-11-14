@@ -203,6 +203,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function ($string) {
                     return xl_document_category($string);
                 }
+            ),
+
+            new TwigFilter(
+                'xlFormTitle',
+                function ($string) {
+                    return xl_form_title($string);
+                }
             )
         ];
     }
