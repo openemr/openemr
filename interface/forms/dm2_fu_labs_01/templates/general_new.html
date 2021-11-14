@@ -45,7 +45,7 @@
                         <legend>{xlt t='Serum Creatinine'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="serum_creatinine" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_scr()|text}</textarea>
+                                <textarea name="serum_creatinine" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_serum_creatinine()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -53,7 +53,7 @@
                         <legend>{xlt t='eGFR'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="egfr" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->egfr()|text}</textarea>
+                                <textarea name="egfr" class="form-control" cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">{$data->get_egfr()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
