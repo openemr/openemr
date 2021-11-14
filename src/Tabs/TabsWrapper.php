@@ -145,11 +145,11 @@ function twSetup(tabsid) {
     }
 
     const closeSoap = function() {
-        top.isSoapEdit = false;
+        top.isDM2FUEdit = false;
         closeTab();
     }
 
-    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+    if (self[0].id === 'SOAP' && top.isDM2FUEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
             html: '<p>$modalContent</p>',
@@ -218,8 +218,8 @@ function twAddFrameTab(tabsid, label, url) {
     );
     return panelId;
   }
-  
-  
+
+
 }
 
 // Remove the specified tab from the specified tab set.

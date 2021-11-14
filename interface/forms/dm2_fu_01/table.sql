@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_01` (
 `groupname` varchar(255) default NULL,
 `authorized` tinyint(4) default 0,
 `activity` tinyint(4) default 0,
+`date_of_original_dm2_diagnosis` text,
 `subjective` text,
 `objective` text,
 `assessment` text,

@@ -44,6 +44,7 @@ class FormDM2_FU_01 extends ORDataObject
     var $groupname;
     var $authorized;
     var $activity;
+    var $date_of_original_dm2_diagnosis;
     var $subjective;
     var $objective;
     var $assessment;
@@ -137,6 +138,14 @@ class FormDM2_FU_01 extends ORDataObject
         if (!empty($u)) {
             $this->user = $u;
         }
+    }
+    function get_date_of_original_dm2_diagnosis()
+    {
+        return $this->date_of_original_dm2_diagnosis;
+    }
+    function set_date_of_original_dm2_diagnosis($data)
+    {
+        $this->date_of_original_dm2_diagnosis = $data;
     }
     function get_subjective()
     {
