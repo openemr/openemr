@@ -1,0 +1,594 @@
+#!/bin/bash
+# Function: Install the base services, e.g. git docker docker-compose, openemr-cmd and minikube
+# The script support policy:
+# ubuntu: 16.04 and later
+# debian: 9 and 10
+# rhel/centos: 7.x
+# fedora: 30 and 31
+# macOS: 10.13 and later
+
+os_type=$(uname)        # check the os type e.g. Linux, Darwin(macOS)
+code_location=$1        # specify the openemr code location
+github_account=$2       # github account
+
+# Installation: git --> docker --> docker-compose --> openemr-cmd --> minikube
+# Run as root for centos/rhel/fedora
+script_run_as_root(){
+if [ "$UID" -ne 0 ]
+then
+	echo 'Please run with the root user.'
+	exit
+fi
+}
+
+# Install git
+install_git() {
+# Check the os distribution ubuntu/debian/rhel/fedora/centos
+os_distribution=$(grep ^HOME_URL /etc/os-release| awk -F'[/.]' '{print $(NF-2)}')
+which git &>/dev/null
+if [ $? -ne 0 ]
+then
+	echo -e "\033[30m===>\033[0m \033[32mInstalling git... \033[0m"
+	echo ''
+	case "$os_distribution" in
+		ubuntu|debian)
+			sudo apt-get update -y
+    		sudo apt-get install git -y
+			;;
+		redhat|centos)
+			yum install git -y
+			;;
+		fedoraproject)
+		    dnf update -y
+			dnf install git -y
+			;;
+	esac
+    [ $? -ne 0 ] && echo '' && echo -e "\e[31mInstalled failed, please check the repo list and the network.\e[0m" && exit
+	echo ''
+else
+	echo -e "\033[30m===>\033[0m \033[32mGit is already installed. \033[0m"
+	echo ''
+fi
+}
+
+# The script usage
+installer_script_usage() {
+    echo "Usage: bash `basename $0` <code location> <github account>"
+	echo ''
+    echo "  e.g. bash `basename $0` /home/test/code testuser"
+    echo "    or bash `basename $0` /Users/test/code testuser"
+	echo ''
+    echo -e "\033[33mNOTE1: Please make sure you have created your own fork of OpenEMR and OpenEMR-devops at first.\033[0m"
+    echo -e "\033[33mNOTE2: Please make sure you have the necessary environment if use minikube:\033[0m"
+    echo -e "\033[33m       * 2 CPUs or more\033[0m"
+    echo -e "\033[33m       * 2GB of free memory\033[0m"
+    echo -e "\033[33m       * 20GB of free disk space\033[0m"
+    echo -e "\033[33m       * Internet connection\033[0m"
+    echo -e "\033[33m       * Container or virtual machine manager,\033[0m"
+    echo -e "\033[33m         such as: Docker, Hyperkit, Hyper-V, KVM, Parallels, Podman, VirtualBox, or VMWare\033[0m"
+    exit $EXIT_CODE
+}
+
+# Clone the code from github to local
+git_clone_function(){
+    code_location=$1
+    github_account=$2
+    cd ${code_location} && [ `pwd` != "${code_location}" ] && cd ${code_location}
+    echo -e "\033[30m===>\033[0m \033[32mDownloading OpenEMR repository... \033[0m"
+    echo ''
+	# For openemr repos
+    git clone https://github.com/${github_account}/openemr.git
+    cd ${code_location}/openemr && [ `pwd` != "${code_location}/openemr" ] && cd ${code_location}/openemr
+    git remote add upstream https://github.com/openemr/openemr.git
+    git fetch upstream
+    echo ''
+    echo -e "\033[30m===>\033[0m \033[32mPulling the latest data... \033[0m"
+    echo ''
+    git pull upstream master
+    echo ''
+
+	# For openemr-devops repos
+    cd ${code_location} && [ `pwd` != "${code_location}" ] && cd ${code_location}
+    echo -e "\033[30m===>\033[0m \033[32mDownloading OpenEMR-devops repository... \033[0m"
+    echo ''
+    git clone https://github.com/${github_account}/openemr-devops.git
+    cd ${code_location}/openemr-devops && [ `pwd` != "${code_location}/openemr-devops" ] && cd ${code_location}/openemr-devops
+    git remote add upstream https://github.com/openemr/openemr-devops.git
+    git fetch upstream
+    echo ''
+    echo -e "\033[30m===>\033[0m \033[32mPulling the latest data... \033[0m"
+    echo ''
+    git pull upstream master
+    echo ''
+}
+
+# Check the code clone or not
+code_dir_exist_or_not() {
+code_location=$1
+github_account=$2
+# Create the code location if not exist
+if [ ! -d ${code_location} ]
+then
+    mkdir -p ${code_location}
+    git_clone_function $1 $2
+# It already downloaded if openemr dir exsit
+elif [ ! -d ${code_location}/openemr ]
+then
+    git_clone_function $1 $2
+elif [ ! -d ${code_location}/openemr-devops ]
+then
+    git_clone_function $1 $2
+else
+    echo -e "\033[30m===>\033[0m \033[32mOpenEMR repos are already downloaded. \033[0m"
+    echo ''
+fi
+}
+
+# Register note for rhel
+register_note() {
+	echo -e "\033[33mPlease register the system at first:\033[0m"
+	echo '  subscription-manager register'
+	echo '  subscription-manager list --available'
+	echo '  subscription-manager attach --pool=<Pool ID>'
+	# Clean the lock file
+	rm -f /tmp/openemr-register-lock
+	exit
+}
+
+# Check rhel register or not
+rhel_register_check_and_enable_repo() {
+register_lock=/tmp/openemr-register-lock
+repo_lock=/tmp/openemr-repo-lock
+# Due to subscription-manager check very slow, so add a lock file to check
+if [ ! -f $register_lock ]
+then
+	subscription-manager status | grep Current &>/dev/null
+	if [ $? -eq 0 ]
+	then
+		echo 0 > $register_lock
+	else
+		echo 1 > $register_lock
+		register_note
+	fi
+elif [ -f $register_lock ]
+then
+	if [ "$(cat /tmp/openemr-register-lock)" == "1" ]
+	then
+		register_note
+	fi
+fi
+
+# Attach the necessary repo
+if [ ! -f $repo_lock ]
+then
+	echo -e "\033[30m===>\033[0m \033[32mEnabling base and extras repo... \033[0m"
+	echo ''
+	subscription-manager repos --enable rhel-7-server-rpms &>/dev/null
+	[ $? -eq 0 ] && echo 1 >  $repo_lock
+	subscription-manager repos --enable rhel-7-server-extras-rpms &>/dev/null
+	[ $? -eq 0 ] && echo 2 >> $repo_lock
+elif [ -f $repo_lock ]
+then
+	if [ "$(cat /tmp/openemr-repo-lock|wc -l)" == "2" ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mBoth of base and extras repo are already enabled. \033[0m"
+		echo ''
+	fi
+fi
+}
+
+# Start and enable docker
+start_enable_docker(){
+	sudo systemctl start docker
+	sudo systemctl enable docker
+}
+
+# Install docker service
+install_docker() {
+os_distribution=$(grep ^HOME_URL /etc/os-release| awk -F'[/.]' '{print $(NF-2)}')
+# Check docker service status if do not install or not startup
+sudo systemctl start docker &>/dev/null
+if [ $? -ne 0 ]
+then
+	case "$os_distribution" in
+		ubuntu|debian)
+ 				echo -e "\033[30m===>\033[0m \033[32mUpdate the apt package index and install packages to allow apt to use a repository over HTTPS... \033[0m"
+				echo ''
+				sudo apt-get update -y
+				sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
+				echo ''
+				echo -e "\033[30m===>\033[0m \033[32mAdding the Docker official GPG key... \033[0m"
+				sudo curl -fsSL https://download.docker.com/linux/${os_distribution}/gpg | sudo apt-key add -
+				echo ''
+				echo -e "\033[30m===>\033[0m \033[32mSetting up the stable repository... \033[0m"
+				sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/${os_distribution} $(lsb_release -cs) stable"
+				echo ''
+				echo -e "\033[30m===>\033[0m \033[32mInstalling docker engine... \033[0m"
+				echo ''
+				sudo apt-get update -y
+				sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+				echo -e "\033[30m===>\033[0m \033[32mAdding your username to the docker group to avoid typing sudo whenever you run the docker command... \033[0m"
+				echo ''
+				sudo usermod -aG docker ${USER}
+				sudo systemctl start docker
+				sudo systemctl enable docker
+				echo ''
+				;;
+		redhat)
+				echo -e "\033[30m===>\033[0m \033[32mInstalling docker device-mapper-libs device-mapper-event-libs... \033[0m"
+				echo ''
+				yum install docker device-mapper-libs device-mapper-event-libs -y
+				start_enable_docker
+				echo ''
+				;;
+		centos)
+ 				echo -e "\033[30m===>\033[0m \033[32mDownloading docker-ce repo... \033[0m"
+				echo ''
+    			curl -o /etc/yum.repos.d/docker-ce.repo https://download.docker.com/linux/centos/docker-ce.repo &>/dev/null
+				echo -e "\033[30m===>\033[0m \033[32mInstalling docker-ce docker-ce-cli containerd.io... \033[0m"
+				echo ''
+				yum install docker-ce docker-ce-cli containerd.io -y
+				start_enable_docker
+				echo ''
+				;;
+		fedoraproject)
+ 				echo -e "\033[30m===>\033[0m \033[32mDownloading docker-ce repo... \033[0m"
+				echo ''
+    			curl -o /etc/yum.repos.d/docker-ce.repo https://download.docker.com/linux/fedora/docker-ce.repo &>/dev/null
+				echo -e "\033[30m===>\033[0m \033[32mInstalling docker-ce docker-ce-cli containerd.io... \033[0m"
+				echo ''
+				dnf update -y
+				dnf install docker-ce docker-ce-cli containerd.io -y
+				start_enable_docker
+				echo ''
+				;;
+	esac
+else
+	echo -e "\033[30m===>\033[0m \033[32mDocker is already installed. \033[0m"
+	start_enable_docker
+	echo ''
+fi
+}
+
+# install docker-compose tool
+install_docker_compose() {
+which docker-compose &>/dev/null
+if [ $? -ne 0 ]
+then
+	echo -e "\033[30m===>\033[0m \033[32mInstalling docker-compose... \033[0m"
+	echo ''
+	# Run sudo under root mode that is also fine e.g. rhel/fedora/centos
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
+	echo ''
+else
+	echo -e "\033[30m===>\033[0m \033[32mDocker-compose is already installed. \033[0m"
+	echo ''
+fi
+}
+
+# Install openemr-cmd tool
+install_openemr_cmd() {
+os_type=$(uname)
+if [ "$os_type" == "Linux" ]
+then
+	os_distribution=$(grep ^HOME_URL /etc/os-release| awk -F'[/.]' '{print $(NF-2)}')
+else
+	os_distribution=$(uname)
+fi
+
+which openemr-cmd &>/dev/null
+if [ $? -ne 0 ]
+then
+	echo -e "\033[30m===>\033[0m \033[32mInstalling openemr-cmd... \033[0m"
+    echo ''
+	case "$os_distribution" in
+	ubuntu|debian)
+		sudo curl -L https://raw.githubusercontent.com/openemr/openemr-devops/master/utilities/openemr-cmd/openemr-cmd -o /usr/local/bin/openemr-cmd
+		sudo chmod +x /usr/local/bin/openemr-cmd
+		echo ''
+		;;
+	*)
+		# It requests a password if run sudo in macOS, so try without sudo
+		curl -L https://raw.githubusercontent.com/openemr/openemr-devops/master/utilities/openemr-cmd/openemr-cmd -o /usr/local/bin/openemr-cmd
+		chmod +x /usr/local/bin/openemr-cmd
+		echo ''
+		;;
+	esac
+	echo ''
+else
+	echo -e "\033[30m===>\033[0m \033[32mOpenEMR-cmd is already installed. \033[0m"
+	echo ''
+fi
+}
+
+# Install command check
+install_cmd_chk(){
+	which install &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[33mNOTE: Please make sure you have installed coreutils package at first.\033[0m"
+		exit
+	fi
+}
+
+# Run minikube cmd to startup cluster tip
+run_cluster_tip() {
+	echo -e "\033[32mFrom a terminal with administrator access (but not logged in as root), run:\033[0m"
+	echo -e "\033[36m     minikube start \033[0m"
+	echo -e "\033[32mIf minikube fails to start, see the drivers page(https://minikube.sigs.k8s.io/docs/drivers/)\033[0m"
+	echo -e "\033[32mfor help setting up a compatible container or virtual-machine manager.\033[0m"
+}
+
+# Install conntrack pkg
+install_conntrack() {
+os_distribution=$(grep ^HOME_URL /etc/os-release| awk -F'[/.]' '{print $(NF-2)}')
+case "$os_distribution" in
+	ubuntu|debian)
+ 			echo -e "\033[30m===>\033[0m \033[32mInatalling conntrack package... \033[0m"
+			echo ''
+			sudo apt-get update -y
+			sudo apt-get install conntrack -y
+			echo ''
+			;;
+	redhat|centos|fedoraproject)
+			echo -e "\033[30m===>\033[0m \033[32mInatalling conntrack package... \033[0m"
+			echo ''
+			yum install conntrack -y
+			echo ''
+			;;
+esac
+}
+
+# Install minikube and kubectl
+install_minikube_kubectl(){
+# Judge the os type e.g. Linux or MacOS
+if [ "$os_type" == "Linux" ]
+then
+	minikube_os=linux
+elif [ "$os_type" == "Darwin" ]
+then
+	minikube_os=darwin
+fi
+	# Install minikube
+	which minikube &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mInstalling minikube... \033[0m"
+		echo ''
+		sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-${minikube_os}-amd64
+		echo ''
+		install_cmd_chk
+		sudo install minikube-${minikube_os}-amd64 /usr/local/bin/minikube
+		sudo rm -f minikube-${minikube_os}-amd64
+		echo ''
+		run_cluster_tip
+		echo ''
+	else
+		echo -e "\033[30m===>\033[0m \033[32mMinikube is already installed. \033[0m"
+		echo ''
+		run_cluster_tip
+		echo ''
+	fi
+	# Install kubectl
+	which kubectl &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mInstalling kubectl... \033[0m"
+		echo ''
+		sudo curl -L https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/${minikube_os}/amd64/kubectl -o /usr/local/bin/kubectl
+		sudo chmod +x /usr/local/bin/kubectl
+		echo ''
+	else
+		echo -e "\033[30m===>\033[0m \033[32mKubectl is already installed. \033[0m"
+		echo ''
+	fi
+}
+
+# The checking command
+quick_check_command() {
+	git --version
+	docker --version
+	docker-compose --version
+	openemr-cmd --version
+	minikube version | grep version
+	echo -e "\033[36mKubectl check:\033[0m"
+	kubectl version --client
+}
+
+# The checking result
+quick_check_result() {
+	# Get the value after started docker
+	docker_status=$(sudo systemctl is-active docker)
+	# Check the installation result
+	echo '*****************Quick Check*****************'
+	quick_check_command
+	echo -e "\033[36mThe docker status: \033[0m\033[32m${docker_status} \033[0m"
+	echo -e "\033[33mNOTE: Please run 'dnf update' for fedora if docker-compose check failed.\033[0m"
+	echo '*********************************************'
+	echo ''
+}
+
+# Show the startup commands
+startup_the_env() {
+	# Startup env
+	code_location=$1
+	echo '*********************************************Startup Env*********************************************'
+	echo -e "\033[33mNOTE: Please log out and back in for using docker as a non-root user to take effect if ubuntu/debian.\033[0m"
+	echo -e "\033[34m==>\033[0mRun the below command to startup \033[33measy env\033[0m."
+	echo -e "\033[32m   cd ${code_location}/openemr/docker/development-easy && openemr-cmd up\033[0m"
+	echo -e "\033[34m==>\033[0mOr run the below command to startup \033[33minsane env\033[0m."
+	echo -e "\033[32m   cd ${code_location}/openemr/docker/development-insane && openemr-cmd up\033[0m"
+	echo -e "\033[34m==>\033[0mOr run the below command to startup \033[33mOpenEMR Orchestration\033[0m."
+	echo -e "\033[33m   Please try to run with '--driver=docker' option if it cannot detect the driver.\033[0m"
+	echo -e "\033[32m   minikube start\033[0m"
+	echo -e "\033[32m   cd ${code_location}/openemr-devops/kubernetes/minikube/ && bash kub-up\033[0m"
+	echo '*****************************************************************************************************'
+}
+
+# The main logic
+# Judge the os type e.g. Linux or MacOS
+if [ "$os_type" == "Linux" ]
+then
+	major_release=$(grep VERSION_ID /etc/os-release | awk -F'[.]' '{print $1}' | awk -F'["]' '{print $2}')
+	os_distribution=$(grep ^HOME_URL /etc/os-release| awk -F'[/.]' '{print $(NF-2)}')
+	case "$os_distribution" in
+		ubuntu)
+			if [ "$major_release" -lt  "16" ]
+			then
+				echo 'The script only supports ubuntu 16.04 or later.'
+				exit
+			fi
+			[ $# -ne 2 ] && installer_script_usage
+			;;
+		debian)
+			if [ "$major_release" -lt  "9" ] || [ "$major_release" -gt  "10" ]
+			then
+				echo 'The script only supports debian 9 or debian 10.'
+				exit
+			fi
+			[ $# -ne 2 ] && installer_script_usage
+			;;
+		fedoraproject)
+			# Due to the different format, so get the keyword again in fedora
+		    major_release=$(grep VERSION_ID /etc/os-release| awk -F'=' '{print $2}')
+			if [ "$major_release" -lt "30" ] || [ "$major_release" -gt "31" ]
+			then
+				echo 'The script only supports fedora30 and fedora31.'
+				exit
+			fi
+			script_run_as_root
+			[ $# -ne 2 ] && installer_script_usage
+			;;
+		redhat)
+			if [ "$major_release" != "7" ]
+			then
+				echo 'The script only supports rhel7.'
+				exit
+			fi
+			script_run_as_root
+			[ $# -ne 2 ] && installer_script_usage
+			rhel_register_check_and_enable_repo
+			;;
+		centos)
+			if [ "$major_release" != "7" ]
+			then
+				echo 'The script only supports centos7.'
+				exit
+			fi
+			script_run_as_root
+			[ $# -ne 2 ] && installer_script_usage
+			;;
+	esac
+			install_git
+			code_dir_exist_or_not $1 $2
+			install_docker
+			install_docker_compose
+			install_openemr_cmd
+			install_conntrack
+			install_minikube_kubectl
+			quick_check_result
+			startup_the_env $1
+elif [ "$os_type" == "Darwin" ]
+then
+	# For MacOS
+	# Check the macOS version
+	major_release=$(sw_vers -productVersion| awk -F'.' '{print $1}')
+
+	if [ "$major_release" -lt "10" ]
+	then
+		echo 'The script only supports macOS10.13 and later.'
+		exit
+	elif [ "$major_release" -eq "10" ] 
+	then
+		minor_release=$(sw_vers -productVersion| awk -F'.' '{print $2}')
+		if [ "$minor_release" -lt "13" ]
+		then
+			echo 'The script only supports macOS10.13 and later.'
+			exit
+		fi
+	fi
+
+
+	# Script usage
+	[ $# -ne 2 ] && installer_script_usage
+
+	# Install brew
+	# Homebrew info: https://brew.sh
+	which brew &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mInstalling Homebrew... \033[0m"
+		/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+		echo ''
+	else
+		echo -e "\033[30m===>\033[0m \033[32mHomebrew is already installed. \033[0m"
+		echo ''
+	fi
+
+	# Install git
+	which git &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mInstalling git... \033[0m"
+    	brew install git
+    	[ $? -ne 0 ] && echo '' && echo -e "\e[31mInstalled failed, please check the network.\e[0m" && exit
+		echo ''
+	else
+		echo -e "\033[30m===>\033[0m \033[32mGit is already installed. \033[0m"
+		echo ''
+	fi
+
+	# Check the code dir and git clone
+	code_dir_exist_or_not $1 $2
+
+	# Install docker
+	which docker &>/dev/null
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[30m===>\033[0m \033[32mInstalling docker... \033[0m"
+		echo ''
+		brew cask install docker
+		echo ''
+		open /Applications/Docker.app
+		echo -e "\033[30m===>\033[0m \033[33mPlease click open for docker prompt window. \033[0m"
+		echo -e "\033[30m===>\033[0m \033[33mPlease click ok and provide your login password for docker privileged access prompt window. \033[0m"
+    	while true
+    	do
+        	read -p "Please enter [yes|y] to continue if you already permitted the docker access: " CONFIRM_PERMIT
+        	if [ "$CONFIRM_PERMIT" == "yes" ] || [ "$CONFIRM_PERMIT" == "y" ]
+        	then
+            	break
+        	fi
+    	done
+		echo ''
+	else
+		echo -e "\033[30m===>\033[0m \033[32mDocker is already installed. \033[0m"
+		echo ''
+	fi
+
+	# Install docker-compose
+	echo -e "\033[30m===>\033[0m \033[32mDocker Compose is installed as part of Docker for Mac. \033[0m"
+	echo ''
+
+	# Install openemr-cmd
+	install_openemr_cmd
+
+    # Install minikube
+	install_minikube_kubectl
+
+	# Check the installation result
+	echo '****************************Quick Check****************************'
+	quick_check_command
+	echo ''
+	echo -e "\033[36mThe docker status: \033[0m"
+	echo -e "\033[33mPlease check the docker icon on the top right of the desktop.\033[0m"
+	echo '********************************************************************'
+	echo ''
+
+	# Startup env
+	startup_the_env $1
+else
+	echo -e "\e[31mNot supported OS. The tool only supports Linux or Darwin(macOS).\e[0m"
+	exit
+fi
