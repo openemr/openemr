@@ -18,8 +18,7 @@
                             <div class="form-group" >
                                 <textarea name="date_of_original_dm2_diagnosis"
                                           class="form-control" cols="60" rows="1"
-                                          onkeyup="top.isDM2FUEdit = true;">
-                                    {$data->get_date_of_original_dm2_diagnosis()|text}</textarea>
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_date_of_original_dm2_diagnosis()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -27,9 +26,8 @@
                         <legend>{xlt t='Date of Last DM2 Visit'}</legend>
                         <div class="container">
                             <div class="form-group" >
-                                <textarea name="date_last_dm2_visit" class="form-control"
-                                          cols="60" rows="1" onkeyup="top.isDM2FUEdit = true;">
-                                    {$data->get_date_last_dm2_visit()|text}</textarea>
+                                <textarea name="date_last_dm2_visit" class="form-control" cols="60" rows="1"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_date_last_dm2_visit()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -37,19 +35,17 @@
                         <legend>{xlt t='DM2 Management Actions at Last Visit'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="dm2_mgmt_last_visit" class="form-control"
-                                          cols="60" rows="6" onkeyup="top.isDM2FUEdit = true;">
-                                    {$data->get_dm2_mgmt_last_visit()|text}</textarea>
+                                <textarea name="dm2_mgmt_last_visit" class="form-control" cols="60" rows="6"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_mgmt_last_visit()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>{xlt t='Assessment'}</legend>
+                        <legend>{xlt t='Interval History (Symptoms, Blood Sugars, ER visits, Hospitalizations)'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="assessment" class="form-control" cols="60"
-                                          rows="6" onkeyup="top.isDM2FUEdit = true;">
-                                    {$data->get_assessment()|text}</textarea>
+                                <textarea name="intv_hx_chngs_bs_er_hosp" class="form-control" cols="60" rows="6"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_intv_hx_chngs_bs_er_hosp()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -58,8 +54,7 @@
                         <div class="container">
                             <div class="form-group">
                                 <textarea name="plan" class="form-control" cols="60" rows="6"
-                                          onkeyup="top.isDM2FUEdit = true;">
-                                    {$data->get_plan()|text}</textarea>
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_plan()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>

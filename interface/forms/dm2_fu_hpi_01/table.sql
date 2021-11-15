@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
 `date_of_original_dm2_diagnosis` text,
 `date_last_dm2_visit` text,
 `dm2_mgmt_last_visit` text,
-`assessment` text,
+`intv_hx_chngs_bs_er_hosp` text,
 `plan` text,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;
