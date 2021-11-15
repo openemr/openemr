@@ -48,7 +48,7 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     var $date_last_dm2_visit;
     var $dm2_mgmt_last_visit;
     var $intv_hx_chngs_bs_er_hosp;
-    var $plan;
+    var $severity_significance;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -177,14 +177,14 @@ class FormDM2_FU_HPI_01 extends ORDataObject
             $this->intv_hx_chngs_bs_er_hosp = $data;
         }
     }
-    function get_plan()
+    function get_severity_significance()
     {
-        return $this->plan;
+        return $this->severity_significance;
     }
-    function set_plan($data)
+    function set_severity_significance($data)
     {
         if (!empty($data)) {
-            $this->plan = $data;
+            $this->severity_significance = $data;
         }
     }
 

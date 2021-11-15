@@ -41,7 +41,7 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>{xlt t='Interval History (Symptoms, Blood Sugars, ER visits, Hospitalizations)'}</legend>
+                        <legend>{xlt t='Interval History & Timing (Symptoms, Blood Sugars, ER visits, Hospitalizations)'}</legend>
                         <div class="container">
                             <div class="form-group">
                                 <textarea name="intv_hx_chngs_bs_er_hosp" class="form-control" cols="60" rows="6"
@@ -50,11 +50,11 @@
                         </div>
                     </fieldset>
                     <fieldset>
-                        <legend>{xlt t='Plan'}</legend>
+                        <legend>{xlt t='Severity and Significance of Symptoms, History, Observations'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="plan" class="form-control" cols="60" rows="6"
-                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_plan()|text}</textarea>
+                                <textarea name="severity_significance" class="form-control" cols="60" rows="6"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_severity_significance()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>
