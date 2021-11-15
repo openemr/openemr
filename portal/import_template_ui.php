@@ -19,12 +19,13 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $templateService = new DocumentTemplateService();
 
-$patient = $_POST['selected_patients'] ?? null;
-$patient = $patient ?: ($_POST['upload_pid'] ?? 0);
+$patient = $_REQUEST['selected_patients'] ?? null;
+$patient = $patient ?: ($_REQUEST['upload_pid'] ?? 0);
 
-$category = $_POST['template_category'] ?? '';
-
+$category = $_REQUEST['template_category'] ?? '';
 $category_list = $templateService->getDefaultCategories();
+
+$none_message = xlt("Nothing to show for current actions.");
 
 function getAuthUsers()
 {
@@ -47,8 +48,8 @@ function getAuthUsers()
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['datetime-picker', 'summernote', 'summernote-ext-nugget', 'select2']); ?>
-    <script src='./../../node_modules/@ckeditor/ckeditor5-build-classic/build/ckeditor.js'></script>
+    <?php Header::setupHeader(['datetime-picker', 'select2', 'ckeditor']); ?>
+
     <script>
         let currentEdit = "";
         let editor;
@@ -59,7 +60,8 @@ function getAuthUsers()
         };
 
         let templateSave = function () {
-            let markup = editor.getData();
+            //let editor = CKEDITOR.instances.templateContent;
+            let markup = CKEDITOR.instances.templateContent.getData();
             handleTemplate(currentEdit, 'save', markup);
         };
 
@@ -80,7 +82,28 @@ function getAuthUsers()
             return checked;
         }
 
+        function updateCategory(id) {
+            top.restoreSession();
+            let url = 'import_template.php';
+            let category = event.currentTarget.value;
+            const data = new FormData();
+            data.append('docid', id);
+            data.append('category', category);
+            data.append('mode', 'update_category');
+            fetch(url, {
+                method: 'POST',
+                body: data,
+            }).then(rtn => rtn.text()).then((rtn) => {
+                dialog.alert(xl('Result Message') + ': ' + rtn).then((rtn) => {
+                    document.edit_form.submit();
+                });
+            }).catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
         function sendTemplate(mode = 'send', content = '') {
+            top.restoreSession();
             let url = 'import_template.php';
             let ids = $('#selected_patients').select2('val');
             let category = $('#template_category').val();
@@ -91,14 +114,12 @@ function getAuthUsers()
             data.append('checked', JSON.stringify(checked));
             data.append('mode', mode);
             data.append('content', content);
-
             fetch(url, {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
-                dialog.alert(xl('Result ' + rtn)).then((rtn) => {
-                    alert('submit')
-                    document.edit_form.submit();
+                dialog.alert(rtn).then((rtn) => {
+                    $('#edit_form').submit();
                 });
             }).catch((error) => {
                 console.error('Error:', error);
@@ -106,10 +127,18 @@ function getAuthUsers()
         }
 
         function handleTemplate(id, mode, content) {
-            let liburl = 'import_template.php';
+            top.restoreSession();
+            let libUrl = 'import_template.php';
+            let renderUrl = 'import_template.php?mode=editor_render_html&docid=' + id;
+
+            if (document.getElementById('is_modal').checked) {
+                dialog.popUp(renderUrl, null, 'edit' + id);
+                return false;
+            }
+
             $.ajax({
                 type: "POST",
-                url: liburl,
+                url: libUrl,
                 data: {docid: id, mode: mode, content: content},
                 error: function (qXHR, textStatus, errorThrow) {
                     console.log("There was an error");
@@ -117,25 +146,48 @@ function getAuthUsers()
                 },
                 success: function (templateHtml, textStatus, jqXHR) {
                     if (mode == 'get') {
-                        let editHtml = '<div class="edittpl" id="templatecontent"></div>';
-                        dlgopen('', 'popeditor', 'modal-lg', 850, '', '', {
+                        let url = 'import_template.php?templateHtml=' + encodeURIComponent(templateHtml);
+                        let editHtml = '<textarea rows="1" cols="120" id="templateContent" contenteditable="true">' + (templateHtml) + '</textarea>';
+
+                        dlgopen(url, 'pop-editor', 'modal-lg', 850, '', '', {
                             buttons: [
                                 {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: templateSave},
                                 {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
                             ],
+                            resolvePromiseOn: 'show',
                             allowDrag: false,
-                            allowResize: true,
+                            allowResize: false,
                             sizeHeight: 'full',
                             onClosed: 'reload',
                             html: editHtml,
+                            //frameContent: editHtml,
                             type: 'alert'
-                        });
-                        //$('#templatecontent').summernote('destroy');
-                        $('#templatecontent').empty().append(templateHtml);
-                        ClassicEditor.create(document.querySelector('#templatecontent')).then(newEditor => {
-                            editor = newEditor;
-                        }).catch(error => {
-                            console.error(error);
+                        }).then(rtn => rtn.text()).then((rtn) => {
+                            editor = CKEDITOR.instances['templateContent'];
+                            if (editor) {
+                                editor.destroy(true);
+                            }
+                            /*CKEDITOR.config.extraPlugins = 'autogrow';
+                            CKEDITOR.config.autoGrow_onStartup = true;
+                            CKEDITOR.config.autoGrow_minWidth = '200px';
+                            CKEDITOR.config.autoGrow_maxWidth = '100%';
+                            CKEDITOR.config.autoGrow_minHeight = 200;
+                            CKEDITOR.config.autoGrow_maxHeight = 575;
+                            CKEDITOR.config.autoGrow_bottomSpace = 0;*/
+                            editor = CKEDITOR.replace('templateContent', {
+                                //extraPlugins: 'docprops',
+                                //removePlugins: 'resize',
+                                removeButtons: 'PasteFromWord',
+                                width: '100%',
+                                height: 375,
+                                resize_dir: 'both',
+                                //resize_minWidth: 300,
+                                //resize_maxWidth: '100%',
+                                //resize_minHeight: 200,
+                                //resize_maxHeight: 375,
+                                fullPage: true,
+                                allowedContent: true,
+                            });
                         });
                     } else if (mode === 'save') {
                         location.reload();
@@ -147,10 +199,19 @@ function getAuthUsers()
         }
 
         $(function () {
+            $('#fetch_files').on('click touchstart', function () {
+                $(this).val('');
+            });
+            $('#fetch_files').change(function (e) {
+                $('#upload_submit').removeClass('d-none');
+            });
+
             $('.select-dropdown').select2({
                 placeholder: xl("Type to search."),
                 minimumResultsForSearch: 15,
                 theme: 'bootstrap4',
+                width: 'resolve',
+                //closeOnSelect: false,
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
 
@@ -158,20 +219,27 @@ function getAuthUsers()
                 let checked = getSendChecks();
                 if (checked.length > 0) {
                     $('#send-button').removeClass('d-none');
+                    $('#category_group').addClass('d-none');
                 } else {
                     $('#send-button').addClass('d-none');
+                    $('#category_group').removeClass('d-none');
                 }
             });
 
-            /*$('#selected_patients').change(function () {
+            let select_focus = false;
+            /* Can't use if we want multi selects for locations. so ??? */
+           /* $('#selected_patients').change(function () {
                 if (checkCategory()) {
+                    select_focus = true;
                     $('#edit_form').submit();
                 }
             });*/
+            $('#selected_patients').on('select2:close', function (e) {
+                $('#edit_form').submit();
+            });
 
             $('#upload-nav').on('hidden.bs.collapse', function () {
                 $('#upload-nav-value').val('hidden');
-                $('#edit_form').submit();
             });
             $('#upload-nav').on('show.bs.collapse', function () {
                 $('#upload-nav-value').val('show');
@@ -184,9 +252,13 @@ function getAuthUsers()
                 }
             });
 
-            $("#ptstatus").text($("#selected_patients").find(":selected").text());
-            $("#ptstatus").append(' ' + xl("to Category") + ' ');
-            $("#ptstatus").append($("#template_category").find(":selected").text());
+            let selText = '';
+            let selCat = $('#template_category').find(':selected').text();
+            let ids = $('#selected_patients').find(':selected').each(function () {
+                selText += $(this).text() + '; ';
+            });
+            $('#upload_scope_category').empty().append(' ' + xl('For Category') + ': ' + selCat);
+            $("#upload_scope").empty().append(xl('To Locations') + ': ' + selText);
 
             function checkCategory() {
                 let cat = $("#template_category").val();
@@ -216,7 +288,18 @@ function getAuthUsers()
 <body class="body-top">
     <div class='container'>
         <div class='col col-12'>
-            <h3 class='ml-0 mt-2'><?php echo xlt('Template Maintenance'); ?></h3>
+            <div class='ml-0 mt-2'><span class="title"><?php echo xlt('Template Maintenance'); ?></span>
+                <span>
+                    <div class='btn-group ml-1'>
+                            <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
+                                <?php echo xlt('Help') ?>
+                            </button>
+                            <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
+                                <?php echo xlt('Dashboard'); ?>
+                            </button>
+                        </div>
+                </span>
+            </div>
             <div class='card col-8 offset-2 border-0 mb-2'>
                 <div id='help-panel' class='card-block border-2 bg-dark text-light collapse'>
                     <div class='card-title bg-light text-dark text-center'><?php echo xlt('Template Help'); ?></div>
@@ -225,69 +308,76 @@ function getAuthUsers()
                         <em><?php echo xlt('For example: Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents.'); ?></em>
                     </div>
                 </div>
-            </div><hr />
+            </div>
+            <hr />
+            <!-- Actions Scope to act on -->
             <nav class='navbar navbar-light bg-light sticky-top'>
-                <form id="edit_form" name="edit_form" class="row form-inline" action="" method="post">
+                <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
                     <a class='navbar-brand ml-1'><?php echo xlt('Scope'); ?></a>
                     <div class="form-group">
-                        <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
-                        <select class="form-control" id="template_category" name="template_category">
-                            <option value=""><?php echo xlt('Standard'); ?></option>
-                            <?php
-                            foreach ($category_list as $option_category) {
-                                if (stripos($option_category['option_id'], 'repository') !== false) {
-                                    continue;
-                                }
-                                if ($category == $option_category['option_id']) {
-                                    echo "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
-                                } else {
-                                    echo "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
-                                }
-                            }
-                            ?>
-                        </select>
-                        <label class="font-weight-bold mx-1" for="selected_patients"><?php echo xlt('Location'); ?></label>
+                        <label class='font-weight-bold mx-1' for='selected_patients'><?php echo xlt('Location'); ?></label>
                         <select class="form-control select-dropdown" id="selected_patients" name="selected_patients[]" multiple>
                             <?PHP
                             $ppt = getAuthUsers();
                             foreach ($ppt as $pt) {
                                 if ((is_array($patient) && !in_array($pt['pid'], $patient)) || empty($patient)) {
-                                    echo "<option value=" . attr($pt['pid']) . ">" . text($pt['ptname']) . "</option>";
+                                    echo '<option value=' . attr($pt['pid']) . '>' . text($pt['ptname']) . '</option>';
                                 } else {
-                                    echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname'] . ' ') . "</option>";
+                                    echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname'] . ' ') . '</option>';
                                 }
                             }
                             ?>
                         </select>
-                        <button type='submit' class='btn btn-search btn-secondary'><?php /*echo xlt('Refresh'); */ ?></button>
+                        <?php
+                        $select_cat_options = '<option value="">' . xlt('General')  . "</option>\n";
+                        foreach ($category_list as $option_category) {
+                            if (stripos($option_category['option_id'], 'repository') !== false) {
+                                continue;
+                            }
+                            if ($category === $option_category['option_id']) {
+                                $select_cat_options .=  "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
+                            } else {
+                                $select_cat_options .=  "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                            }
+                        }
+                        ?>
+                        <div class="form-group" id="category_group">
+                        <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
+                        <select class="form-control" id="template_category" name="template_category">
+                            <?php echo $select_cat_options ?>
+                        </select>
+                        </div>
                     </div>
                     <div class='btn-group ml-1'>
-                        <button type='button' id="send-button" class='btn btn-transmit btn-outline-primary d-none' onclick="top.restoreSession(); return sendTemplate()">
+                        <button type='submit' class='btn btn-search btn-secondary'><?php /*echo xlt('Refresh'); */ ?></button>
+                        <button type='button' id="send-button" class='btn btn-transmit btn-outline-primary d-none' onclick="return sendTemplate()">
                             <?php echo xlt('Send'); ?>
                         </button>
-                        <button id="upload-nav-button" name='upload-nav-button' type='button' class='btn btn-primary' data-toggle='collapse' data-target='#upload-nav'>
+                        <button type='button' id="upload-nav-button" name='upload-nav-button' class='btn btn-primary' data-toggle='collapse' data-target='#upload-nav'>
                             <?php echo xlt('Files') ?>
                         </button>
                     </div>
-                    <div class='btn-group ml-1'>
-                        <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
-                            <?php echo xlt('Help') ?>
-                        </button>
-                        <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
-                            <?php echo xlt('Dashboard'); ?>
-                        </button>
+                    <div class="ml-auto">
+                        <label class="form-check"><?php echo xlt('Use Popout Editor'); ?>
+                            <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' />
+                        </label>
                     </div>
-                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo $_POST['upload-nav-value'] ?? 'hidden' ?>' />
+                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo $_REQUEST['upload-nav-value'] ?? 'hidden' ?>' />
                 </form>
             </nav>
             <!-- Upload -->
-            <nav class="collapse my-2 <?php echo $_POST['upload-nav-value'] ?>" id="upload-nav">
+            <nav class="collapse my-2 <?php echo $_REQUEST['upload-nav-value'] ?>" id="upload-nav">
                 <div class='col col-12'>
                     <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                        <div class='form-group'>
+                        <hr />
+                        <div class='col'>
+                            <div id='upload_scope_category'></div>
+                            <div class="mb-2" id='upload_scope'></div>
+                        </div>
+                        <div class='form-group col'>
                             <div class='form-group'>
-                                <input class='btn btn-outline-info' type='file' multiple name='template_files[]' />
-                                <button class='btn btn-outline-primary' type='submit' name='upload_submit' id='upload_submit'><label id='ptstatus'></label></button>
+                                <input type='file' class='btn btn-outline-info' id="fetch_files" name='template_files[]' multiple />
+                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit'><i class='fa fa-upload' aria-hidden='true'></i></button>
                             </div>
                         </div>
                         <input type='hidden' name='upload_pid' value='<?php echo json_encode($patient); ?>' />
@@ -300,19 +390,21 @@ function getAuthUsers()
                 <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse'>
                     <h5><i class='fa fa-eye-slash mr-1' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?></h5>
                 </div>
+                <!-- Repository table -->
                 <div class='col col-12 table-responsive collapse show' id="repository-collapse">
                     <?php
                     $templates = [];
                     $show_cat_flag = false;
                     if (!empty($category)) {
                         $templates = $templateService->getTemplateListByCategory($category, -1);
+                        //$templates = $templateService->getTemplateListAllCategories(-1);
                     } else {
                         $templates = $templateService->getTemplateListAllCategories(-1);
                     }
                     echo "<table class='table table-sm table-striped table-bordered'>\n";
-                   /* echo '<caption role="button" data-toggle="collapse" data-target="#repository-collapse" title="' .
-                        xlt('Click to expand or collapse Repository templates panel.') .
-                        '"><h5>' . xlt('Repository Available Templates') . '</h5></caption>';*/
+                    /* echo '<caption role="button" data-toggle="collapse" data-target="#repository-collapse" title="' .
+                         xlt('Click to expand or collapse Repository templates panel.') .
+                         '"><h5>' . xlt('Repository Available Templates') . '</h5></caption>';*/
                     echo "<thead>\n";
                     echo "<tr>\n" .
                         "<th>" . xlt('Send') . "</th>" .
@@ -324,17 +416,34 @@ function getAuthUsers()
                     echo "</thead>\n";
                     echo "<tbody>\n";
                     foreach ($templates as $cat => $files) {
+                        if (empty($cat)) {
+                            $cat = xlt('Default');
+                        }
                         foreach ($files as $file) {
                             $template_id = $file['id'];
+                            $this_cat = $file['category'];
+                            $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
+                            foreach ($category_list as $option_category) {
+                                if (stripos($option_category['option_id'], 'repository') !== false) {
+                                    continue;
+                                }
+                                if ($this_cat === $option_category['option_id']) {
+                                    $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
+                                } else {
+                                    $select_cat_options .= "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                                }
+                            }
                             echo "<tr>";
                             echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";
-                            echo '<td>' . text(ucwords($cat)) . '</td><td>';
-                            echo '<button id="templateEdit' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . '</button>' .
-                                /*'<button id="sendTemplate' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-success" onclick="templateSend(' . attr_js($template_id) . ')" type="button">' . xlt('Send') . '</button>' .*/
+                            echo '<td><select class="form-control form-control-sm" id="category_table' . attr($template_id) .
+                                '" onchange="updateCategory(' . attr_js($template_id) .  ')" value="' . attr($this_cat) . '">' .
+                                $select_cat_options  .  '</select></td>';
+                            echo '<td>' .
+                                '<button id="templateEdit' . attr($template_id) .
+                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/'</button>' .
                                 '<button id="templateDelete' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") . '</button>';
+                                '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") .
+                                '</button></td>';
                             echo "<td>" . text($file['size']) . "</td>";
                             echo "<td>" . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . "</td>";
                             echo "</tr>";
@@ -342,8 +451,11 @@ function getAuthUsers()
                             <?php
                         }
                     }
-                    echo "</tbody>";
-                    echo "</table>";
+                    if (empty($template_id)) {
+                        echo '<tr><td>' . $none_message . "</td></tr>\n";
+                    }
+                    echo "</tbody>\n";
+                    echo "</table>\n";
                     ?>
                 </div>
             </div>
@@ -375,6 +487,9 @@ function getAuthUsers()
                     echo "</thead>\n";
                     echo "<tbody>\n";
                     foreach ($templates as $cat => $files) {
+                        if (empty($cat)) {
+                            $cat = xlt('Default');
+                        }
                         foreach ($files as $file) {
                             $template_id = $file['id'];
                             echo '<tr>';
@@ -393,8 +508,11 @@ function getAuthUsers()
                             <?php
                         }
                     }
-                    echo '</tbody>';
-                    echo '</table>';
+                    if (empty($files)) {
+                        echo '<tr><td>' . $none_message . "</td></tr>\n";
+                    }
+                    echo "</tbody>\n";
+                    echo "</table>\n";
                     ?>
                 </div>
             </div>
@@ -417,9 +535,9 @@ function getAuthUsers()
                     echo '<caption><h5>' . xlt("Patient Assigned Templates") . '</h5></caption>';
                     echo "<thead>\n";
                     echo "<tr>\n" .
+                        '<th>' . xlt('Patient') . '</th>' .
                         '<th>' . xlt('Category') . '</th>' .
                         '<th>' . xlt('Template Actions') .
-                        '</th><th>' . xlt('Patient') .
                         '</th><th>' . xlt('Status') .
                         '</th><th>' . xlt('Size') .
                         '</th><th>' . xlt('Last Modified') . '</th>' .
@@ -427,24 +545,30 @@ function getAuthUsers()
                     echo "</thead>\n";
                     echo "<tbody>\n";
                     foreach ($templates as $cat => $files) {
+                        if (empty($cat)) {
+                            $cat = xlt('Default');
+                        }
                         foreach ($files as $file) {
                             $template_id = $file['id'];
-                            echo '<tr><td>' . text(ucwords($cat)) . '</td>';
+                            echo '<tr><td>' . text($file['location']) . '</td>';
+                            echo '<td>' . text(ucwords($cat)) . '</td>';
                             echo '<td>' .
                                 '<button type="button" id="patientEdit' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')">' .
                                 text($file['template_name']) . "</button>\n" .
                                 '<button type="button" id="patientDelete' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button></td>\n";
-                            echo '<td>' . text($file['location']) . '</td>';
                             echo '<td>' . text($file['status']) . '</td>';
                             echo '<td>' . text($file['size']) . '</td>';
                             echo '<td>' . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . '</td>';
                             echo "</tr>\n";
                         }
                     }
-                    echo '</tbody>';
-                    echo '</table>';
+                    if (empty($files)) {
+                        echo '<tr><td>' . $none_message . "</td></tr>\n";
+                    }
+                    echo "</tbody>\n";
+                    echo "</table>\n";
                     ?>
                 </div>
             </div>

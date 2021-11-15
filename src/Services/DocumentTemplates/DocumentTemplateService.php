@@ -103,8 +103,9 @@ class DocumentTemplateService
         } elseif ($pid == -1) {
             $name = 'Repository';
         }
-        $sql = 'REPLACE INTO `document_templates` (`pid`, `provider`, `category`, `template_name`, `location`, `status`, `template_content`, `size`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, 'New', $content, strlen($content)));
+        $sql = "INSERT INTO `document_templates` (`pid`, `provider`, `category`, `template_name`, `location`, `status`, `template_content`, `size`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)  ON DUPLICATE KEY UPDATE `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW()";
+
+        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, 'New', $content, strlen($content), ($_SESSION['authUserID'] ?? null), $content, strlen($content)));
     }
 
     public function sendTemplate($pids, $templates, $category = null): int
@@ -130,8 +131,9 @@ class DocumentTemplateService
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', array($content, $id));
     }
 
-    public function updateTemplate($id, $category, $template, $content)
+    public function updateTemplateCategory($id, $category)
     {
+        return sqlQuery('UPDATE  `document_templates`  SET `category` =  ? WHERE `id` = ?', array($category, $id ));
     }
 
     public function deleteTemplate($id)

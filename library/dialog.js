@@ -15,7 +15,7 @@
         root.confirm = confirm;
         root.closeAjax = closeAjax;
         root.close = close;
-
+        root.popUp = popUp;
         return root;
 
         function ajax(data) {
@@ -64,6 +64,54 @@
                 sizeHeight: 'auto',
                 html: '<p class="text-center">' + data + '</p>'
             });
+        }
+
+        /* popUp
+        * Borrowed from a CKEditor Source plugin and modified to suit my purpose.
+        * Licensed under the GPL 2 or greater.
+        * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+        * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+        */
+        function popUp( url, data, name, width, height) {
+            width = width || '60%'; height = height || '90%';
+
+            if ( typeof width == 'string' && width.length > 1 && width.substr( width.length - 1, 1 ) === '%') {
+                width = parseInt(window.screen.width * parseInt(width, 10) / 100, 10);
+            }
+            if ( typeof height == 'string' && height.length > 1 && height.substr( height.length - 1, 1 ) === '%') {
+                height = parseInt(window.screen.height * parseInt(height, 10) / 100, 10);
+            }
+            if ( width < 640 ) {
+                width = 640;
+            }
+            if ( height < 420 ) {
+                height = 420;
+            }
+            let top = parseInt(( window.screen.height - height ) / 2, 10);
+            let left = parseInt(( window.screen.width - width ) / 2, 10);
+
+            let options = ('location=no,menubar=no,toolbar=no,dependent=yes,minimizable=no,modal=yes,alwaysRaised=yes,resizable=yes,scrollbars=yes') +
+                ',width=' + width +
+                ',height=' + height +
+                ',top=' + top +
+                ',left=' + left;
+
+            let modalWindow = window.open('', name, options, true);
+            if ( !modalWindow ) {
+                return false;
+            }
+            try {
+                modalWindow.focus();
+                if (data) {
+                    modalWindow.document.body.innerHTML = data;
+                } else {
+                    modalWindow.location.href = url;
+                }
+            } catch ( e ) {
+                window.open(url, null, options, true);
+            }
+
+            return true;
         }
 
         function closeAjax() {
