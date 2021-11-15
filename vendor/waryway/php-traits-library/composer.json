@@ -1,0 +1,21 @@
+{
+    "name": "waryway/php-traits-library",
+    "description": "General use traits",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kyle Wiering",
+            "email": "kyle@waryway.com"
+        }
+    ],
+	"autoload": {
+		"psr-4": {
+			"Waryway\\PhpTraitsLibrary\\": "src/"
+		}
+	},
+    "minimum-stability": "dev",
+    "require-dev": {
+        "phpunit/phpunit": "6.4.3"
+    }
+}

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true">
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <file>./src/Sql/Ddl/Column/Float.php</file>
+        </exclude>
+    </coverage>
+
+    <testsuites>
+        <testsuite name="unit test">
+            <directory>./test/unit</directory>
+        </testsuite>
+        <testsuite name="integration test">
+            <directory>./test/integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <listeners>
+        <listener class="LaminasIntegrationTest\Db\IntegrationTestListener" file="./test/integration/IntegrationTestListener.php"/>
+    </listeners>
+
+    <php>
+        <!-- Integration Test Variables -->
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_MYSQL" value="true" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_MYSQL_HOSTNAME" value="mysql" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_MYSQL_USERNAME" value="gha" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_MYSQL_PASSWORD" value="password" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_MYSQL_DATABASE" value="laminasdb_test" />
+
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLSRV" value="true" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLSRV_HOSTNAME" value="mssql" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLSRV_USERNAME" value="sa" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLSRV_PASSWORD" value="Password123" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLSRV_DATABASE" value="laminasdb_test" />
+
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_OCI8" value="false" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_OCI8_HOSTNAME" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_OCI8_USERNAME" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_OCI8_PASSWORD" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_OCI8_DATABASE" value="" />
+
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_IBMDB2" value="false" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_IBMDB2_HOSTNAME" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_IBMDB2_USERNAME" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_IBMDB2_PASSWORD" value="" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_IBMDB2_DATABASE" value="" />
+
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_PGSQL" value="true" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_PGSQL_HOSTNAME" value="postgres" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_PGSQL_USERNAME" value="gha" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_PGSQL_PASSWORD" value="password" />
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_PGSQL_DATABASE" value="laminasdb_test" />
+
+        <env name="TESTS_LAMINAS_DB_ADAPTER_DRIVER_SQLITE_MEMORY" value="true" />
+    </php>
+</phpunit>
+

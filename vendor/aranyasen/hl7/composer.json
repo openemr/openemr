@@ -1,0 +1,41 @@
+{
+    "name": "aranyasen/hl7",
+    "description": "HL7 parser, generator and sender.",
+    "type": "library",
+    "license": "MIT",
+    "keyword": ["HL7", "Parse", "Generate", "Send"],
+    "authors": [
+        {
+            "name": "Aranya Sen",
+            "email": "sen.aranya@gmail.com",
+            "role": "Owner"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable" : true,
+    "require": {
+        "php": ">=7.3",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9",
+        "dms/phpunit-arraysubset-asserts": "^0.2",
+        "ext-pcntl": "*",
+        "ext-sockets": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aranyasen\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aranyasen\\HL7\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}

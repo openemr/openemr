@@ -1,0 +1,49 @@
+HTTP/1.1 200 OK 
+Server: nginx 
+Date: Wed, 24 Jul 2013 07:14:02 GMT 
+Content-Type: application/json;charset=utf-8 
+Content-Length: 1092 
+Connection: keep-alive 
+Access-Control-Allow-Credentials: true 
+Access-Control-Max-Age: 300 
+Cache-Control: no-cache, no-store 
+
+{
+  "id": "txn_1044bu4CmsDZ3Zk6BGg97VUU",
+  "object": "balance_transaction",
+  "amount": 4013,
+  "available_on": 1401235200,
+  "created": 1400651717,
+  "currency": "eur",
+  "description": "Test #4",
+  "fee": 226,
+  "fee_details": [
+    {
+      "amount": 80,
+      "application": null,
+      "currency": "chf",
+      "description": "Stripe currency conversion fee",
+      "type": "stripe_fee"
+    },
+    {
+      "amount": 146,
+      "application": null,
+      "currency": "chf",
+      "description": "Stripe processing fees",
+      "type": "stripe_fee"
+    }
+  ],
+  "net": 3787,
+  "source": "ch_1044bu4CmsDZ3Zk6HkSkVsxd",
+  "sourced_transfers": {
+    "object": "list",
+    "data": [
+
+    ],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/transfers?source_transaction=ch_1044bu4CmsDZ3Zk6HkSkVsxd"
+  },
+  "status": "available",
+  "type": "charge"
+}

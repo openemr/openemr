@@ -1,0 +1,1 @@
+{"version":3,"file":"CircleElement.d.ts","sourceRoot":"","sources":["../../src/Document/CircleElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAClB,OAAO,WAAW,MAAM,gBAAgB,CAAC;AACzC,OAAO,WAAW,MAAM,eAAe,CAAC;AAExC,MAAM,CAAC,OAAO,OAAO,aAAc,SAAQ,WAAW;IACrD,IAAI,SAAY;IAEhB,IAAI,CAAC,GAAG,EAAE,kBAAkB;IAmB5B,UAAU;CAGV"}

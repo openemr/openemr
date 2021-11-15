@@ -1,0 +1,15 @@
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Sun, 21 Feb 2016 21:16:02 GMT
+Content-Type: application/json
+Content-Length: 143
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such transfer: NOTFOUND",
+    "param": "id"
+  }
+}

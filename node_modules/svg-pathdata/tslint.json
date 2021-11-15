@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+      "no-shadowed-variable": false,
+      "one-variable-per-declaration": false,
+      "variable-name": ["allow-trailing-underscore", "allow-leading-underscore"],
+      "interface-over-type-literal": false,
+      "member-access": false,
+      "no-conditional-assignment": false,
+      "member-ordering": false,
+      "no-bitwise": false,
+      "object-literal-sort-keys": false
+    },
+    "rulesDirectory": []
+}

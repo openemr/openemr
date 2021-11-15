@@ -1,0 +1,65 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 05 May 2013 08:51:15 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 997
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+
+{
+	"id": "pi_1Ev1M1FSbr6xR4YAgJIBBVX0",
+	"object": "payment_intent",
+	"amount": 8000,
+	"amount_capturable": 0,
+	"amount_received": 0,
+	"application": null,
+	"application_fee_amount": null,
+	"canceled_at": null,
+	"cancellation_reason": null,
+	"capture_method": "manual",
+	"charges": {
+		"object": "list",
+		"data": [],
+		"has_more": false,
+		"total_count": 0,
+		"url": "\/v1\/charges?payment_intent=pi_1Ev1M1FSbr6xR4YAgJIBBVX0"
+	},
+	"client_secret": "pi_1Ev1M1FSbr6xR4YAgJIBBVX0_secret_MfGgtbEAM6GZ4JyquqbC09FXC",
+	"confirmation_method": "manual",
+	"created": 1562847989,
+	"currency": "usd",
+	"customer": "cus_Q8sHn93nAzgdn1",
+	"description": "Order #184",
+	"invoice": null,
+	"last_payment_error": null,
+	"livemode": false,
+	"metadata": {
+		"order_id": "184",
+		"order_number": "fd17b4d8d756814bc6a258ba578fc359",
+		"transaction_reference": "939185d93ad0634402cbe45b833e7428",
+		"client_ip": "::1"
+	},
+	"next_action": {
+		"redirect_to_url": {
+			"return_url": "http:\/\/this-is-a-test-site.test\/complete-payment?foo=bar",
+			"url": "https:\/\/hooks.stripe.com\/3d_secure_2_eap\/begin_test\/src_1Ev1M5FSbr6xR4YAg5qdBN6B\/src_client_secret_FPr4a6wAiVNi6YrnuI7vah6H"
+		},
+		"type": "redirect_to_url"
+	},
+	"on_behalf_of": null,
+	"payment_method": "pm_1Ev1LzFSbr6xR4YA0TZ8jta0",
+	"payment_method_types": [
+		"card"
+	],
+	"receipt_email": null,
+	"review": null,
+	"setup_future_usage": null,
+	"shipping": null,
+	"source": null,
+	"statement_descriptor": null,
+	"status": "requires_action",
+	"transfer_data": null,
+	"transfer_group": null
+}

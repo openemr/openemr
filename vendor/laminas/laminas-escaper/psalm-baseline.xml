@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="3.16@d03e5ef057d6adc656c0ff7e166c50b73b4f48f3">
+  <file src="src/Escaper.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($encoding)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="10">
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="4">
+      <code>$from</code>
+      <code>$this-&gt;cssMatcher</code>
+      <code>$this-&gt;htmlAttrMatcher</code>
+      <code>$this-&gt;jsMatcher</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="3">
+      <code>$chr</code>
+      <code>$chr</code>
+      <code>$chr</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="1">
+      <code>static::$htmlNamedEntityMap[$ord]</code>
+    </MixedOperand>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$from</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="test/EscaperTest.php">
+    <DuplicateArrayKey occurrences="4">
+      <code>'"'     =&gt; '&amp;quot;'</code>
+      <code>'&amp;'     =&gt; '&amp;amp;'</code>
+      <code>'&lt;'     =&gt; '&amp;lt;'</code>
+      <code>'&gt;'     =&gt; '&amp;gt;'</code>
+    </DuplicateArrayKey>
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingPropertyType occurrences="6">
+      <code>$cssSpecialChars</code>
+      <code>$htmlAttrSpecialChars</code>
+      <code>$htmlSpecialChars</code>
+      <code>$jsSpecialChars</code>
+      <code>$supportedEncodings</code>
+      <code>$urlSpecialChars</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="19">
+      <code>setUp</code>
+      <code>testCssEscapingConvertsSpecialChars</code>
+      <code>testCssEscapingEscapesOwaspRecommendedRanges</code>
+      <code>testCssEscapingReturnsStringIfContainsOnlyDigits</code>
+      <code>testCssEscapingReturnsStringIfZeroLength</code>
+      <code>testHtmlAttributeEscapingConvertsSpecialChars</code>
+      <code>testHtmlAttributeEscapingEscapesOwaspRecommendedRanges</code>
+      <code>testHtmlEscapingConvertsSpecialChars</code>
+      <code>testJavascriptEscapingConvertsSpecialChars</code>
+      <code>testJavascriptEscapingEscapesOwaspRecommendedRanges</code>
+      <code>testJavascriptEscapingReturnsStringIfContainsOnlyDigits</code>
+      <code>testJavascriptEscapingReturnsStringIfZeroLength</code>
+      <code>testReturnsEncodingFromGetter</code>
+      <code>testSettingEncodingToEmptyStringShouldThrowException</code>
+      <code>testSettingEncodingToInvalidValueShouldThrowException</code>
+      <code>testSettingEncodingToNonStringShouldThrowException</code>
+      <code>testSettingValidEncodingShouldNotThrowExceptions</code>
+      <code>testUnicodeCodepointConversionToUtf8</code>
+      <code>testUrlEscapingConvertsSpecialChars</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="6">
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="6">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="5">
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+    </MixedOperand>
+    <ReservedWord occurrences="19">
+      <code>$this-&gt;assertEquals($expected, $result)</code>
+      <code>$this-&gt;assertEquals($literal, $this-&gt;escaper-&gt;escapeCss($literal))</code>
+      <code>$this-&gt;assertEquals($literal, $this-&gt;escaper-&gt;escapeHtmlAttr($literal))</code>
+      <code>$this-&gt;assertEquals($literal, $this-&gt;escaper-&gt;escapeHtmlAttr($literal))</code>
+      <code>$this-&gt;assertEquals($literal, $this-&gt;escaper-&gt;escapeJs($literal))</code>
+      <code>$this-&gt;assertEquals($literal, $this-&gt;escaper-&gt;escapeJs($literal))</code>
+      <code>$this-&gt;assertEquals('', $this-&gt;escaper-&gt;escapeCss(''))</code>
+      <code>$this-&gt;assertEquals('', $this-&gt;escaper-&gt;escapeJs(''))</code>
+      <code>$this-&gt;assertEquals('123', $this-&gt;escaper-&gt;escapeCss('123'))</code>
+      <code>$this-&gt;assertEquals('123', $this-&gt;escaper-&gt;escapeJs('123'))</code>
+      <code>$this-&gt;assertEquals('utf-8', $this-&gt;escaper-&gt;getEncoding())</code>
+    </ReservedWord>
+  </file>
+</files>

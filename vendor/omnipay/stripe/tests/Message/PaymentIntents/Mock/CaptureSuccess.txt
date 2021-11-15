@@ -1,0 +1,170 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Feb 2013 18:25:28 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 995
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Request-Id: req_8PDHeZazN2LwML
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+
+{
+  "id": "pi_1EUon22Tb35ankTnMW9GNjSh",
+  "object": "payment_intent",
+  "amount": 8000,
+  "amount_capturable": 0,
+  "amount_received": 8000,
+  "application": null,
+  "application_fee_amount": null,
+  "canceled_at": null,
+  "cancellation_reason": null,
+  "capture_method": "manual",
+  "charges": {
+    "object": "list",
+    "data": [
+      {
+        "id": "ch_1EZvfwFSbr6xR4YAWulsIcYV",
+        "object": "charge",
+        "amount": 8000,
+        "amount_refunded": 2000,
+        "application": null,
+        "application_fee": null,
+        "application_fee_amount": null,
+        "balance_transaction": "txn_1EZvjKFSbr6xR4YAvqraMGP8",
+        "billing_details": {
+          "address": {
+            "city": "New York",
+            "country": "United States"
+          },
+          "email": "some@person.com",
+          "name": "Jeff Bridge",
+          "phone": null
+        },
+        "captured": true,
+        "created": 1557821272,
+        "currency": "usd",
+        "customer": "cus_F1UMEEnT2OBgMg",
+        "description": "Order #69",
+        "destination": null,
+        "dispute": null,
+        "failure_code": null,
+        "failure_message": null,
+        "fraud_details": {},
+        "invoice": null,
+        "livemode": false,
+        "metadata": {
+          "order_id": "69",
+          "order_number": "47eae2af9d6f75b51e7111e27a43617b",
+          "transaction_reference": "8e914cb212f2e4c2a83e280d8b99488a",
+          "client_ip": "::1"
+        },
+        "on_behalf_of": null,
+        "order": null,
+        "outcome": {
+          "network_status": "approved_by_network",
+          "reason": null,
+          "risk_level": "normal",
+          "risk_score": 38,
+          "rule": "allow_if_3ds_authenticated_liability_shift",
+          "seller_message": "Payment complete.",
+          "type": "authorized"
+        },
+        "paid": true,
+        "payment_intent": "pi_1EUon22Tb35ankTnMW9GNjSh",
+        "payment_method": "pm_1EZvfYFSbr6xR4YAGMpD5hNj",
+        "payment_method_details": {
+          "card": {
+            "brand": "visa",
+            "checks": {
+              "address_line1_check": "pass",
+              "address_postal_code_check": "pass",
+              "cvc_check": "pass"
+            },
+            "country": "IE",
+            "exp_month": 12,
+            "exp_year": 2020,
+            "fingerprint": "TLkivWVGoP3a2M2U",
+            "funding": "credit",
+            "last4": "3220",
+            "three_d_secure": {
+              "authenticated": true,
+              "succeeded": true,
+              "version": "2.1.0"
+            },
+            "wallet": null
+          },
+          "type": "card"
+        },
+        "receipt_email": null,
+        "receipt_number": null,
+        "receipt_url": "https://pay.stripe.com/receipts/acct_1AjnbxFSbr6xR4YA/ch_1EZvfwFSbr6xR4YAWulsIcYV/rcpt_F43njL6DofvVuE7tlNDARemskoCJxff",
+        "refunded": false,
+        "refunds": {
+          "object": "list",
+          "data": [
+            {
+              "id": "re_1EZvjaFSbr6xR4YAbdaX3k3R",
+              "object": "refund",
+              "amount": 2000,
+              "balance_transaction": "txn_1EZvjaFSbr6xR4YAtzwsSxhk",
+              "charge": "ch_1EZvfwFSbr6xR4YAWulsIcYV",
+              "created": 1557821498,
+              "currency": "usd",
+              "metadata": {},
+              "reason": null,
+              "receipt_number": null,
+              "source_transfer_reversal": null,
+              "status": "succeeded",
+              "transfer_reversal": null
+            }
+          ],
+          "has_more": false,
+          "total_count": 1,
+          "url": "/v1/charges/ch_1EZvfwFSbr6xR4YAWulsIcYV/refunds"
+        },
+        "review": null,
+        "shipping": null,
+        "source": null,
+        "source_transfer": null,
+        "statement_descriptor": null,
+        "status": "succeeded",
+        "transfer_data": null,
+        "transfer_group": null
+      }
+    ],
+    "has_more": false,
+    "total_count": 1,
+    "url": "/v1/charges?payment_intent=pi_1EUon22Tb35ankTnMW9GNjSh"
+  },
+  "client_secret": "pi_1EUon22Tb35ankTnMW9GNjSh_secret_kxK3CBky2Uex0ctbsFxbokHyu",
+  "confirmation_method": "manual",
+  "created": 1557821043,
+  "currency": "usd",
+  "customer": "cus_F1UMEEnT2OBgMg",
+  "description": "Order #69",
+  "invoice": null,
+  "last_payment_error": null,
+  "livemode": false,
+  "metadata": {
+    "order_id": "69",
+    "order_number": "47eae2af9d6f75b51e7111e27a43617b",
+    "transaction_reference": "8e914cb212f2e4c2a83e280d8b99488a",
+    "client_ip": "::1"
+  },
+  "next_action": null,
+  "on_behalf_of": null,
+  "payment_method": "pm_1EZvfYFSbr6xR4YAGMpD5hNj",
+  "payment_method_types": [
+    "card"
+  ],
+  "receipt_email": null,
+  "review": null,
+  "setup_future_usage": null,
+  "shipping": null,
+  "source": null,
+  "statement_descriptor": null,
+  "status": "succeeded",
+  "transfer_data": null,
+  "transfer_group": null
+}

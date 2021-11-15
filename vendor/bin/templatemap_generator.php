@@ -1,0 +1,1 @@
+../laminas/laminas-view/bin/templatemap_generator.php

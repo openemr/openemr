@@ -1,0 +1,75 @@
+{
+  "_args": [
+    [
+      "knockout@3.5.1",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "knockout@3.5.1",
+  "_id": "knockout@3.5.1",
+  "_inBundle": false,
+  "_integrity": "sha512-wRJ9I4az0QcsH7A4v4l0enUpkS++MBx0BnL/68KaLzJg7x1qmbjSlwEoCNol7KTYZ+pmtI7Eh2J0Nu6/2Z5J/Q==",
+  "_location": "/knockout",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "knockout@3.5.1",
+    "name": "knockout",
+    "escapedName": "knockout",
+    "rawSpec": "3.5.1",
+    "saveSpec": null,
+    "fetchSpec": "3.5.1"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/knockout/-/knockout-3.5.1.tgz",
+  "_spec": "3.5.1",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "The Knockout.js team"
+  },
+  "bugs": {
+    "url": "https://github.com/knockout/knockout/issues"
+  },
+  "description": "Knockout makes it easier to create rich, responsive UIs with JavaScript",
+  "devDependencies": {
+    "closure-compiler": "~0.2.1",
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.0"
+  },
+  "homepage": "http://knockoutjs.com/",
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "main": "build/output/knockout-latest.js",
+  "name": "knockout",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knockout/knockout.git"
+  },
+  "scripts": {
+    "prepublish": "grunt",
+    "test": "node spec/runner.node.js"
+  },
+  "testling": {
+    "preprocess": "build/build.sh",
+    "html": "spec/runner.html?src=build/output/knockout-latest.js&testling=true",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/20..latest",
+      "firefox/3..latest",
+      "safari/5.0.5..latest",
+      "opera/11.0..latest",
+      "iphone/6..latest",
+      "ipad/6..latest"
+    ]
+  },
+  "types": "build/types/knockout.d.ts",
+  "version": "3.5.1"
+}

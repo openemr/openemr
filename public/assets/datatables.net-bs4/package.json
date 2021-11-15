@@ -1,0 +1,76 @@
+{
+  "_from": "datatables.net-bs4@1.11.3",
+  "_id": "datatables.net-bs4@1.11.3",
+  "_inBundle": false,
+  "_integrity": "sha512-UPT2F1nvZZzKJSSHb+3+bTeQy1ULLMT1BexBHCkh5PhMnAZNPbTEZD+6To1RCBfUF1rtPwIJTwJ+Jjjxy86xRw==",
+  "_location": "/datatables.net-bs4",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "datatables.net-bs4@1.11.3",
+    "name": "datatables.net-bs4",
+    "escapedName": "datatables.net-bs4",
+    "rawSpec": "1.11.3",
+    "saveSpec": null,
+    "fetchSpec": "1.11.3"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-bs4/-/datatables.net-bs4-1.11.3.tgz",
+  "_shasum": "04817c5d9457f1b9807a1330f12c37a541596328",
+  "_spec": "datatables.net-bs4@1.11.3",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "datatables.net": ">=1.10.25",
+    "jquery": ">=1.7"
+  },
+  "deprecated": false,
+  "description": "DataTables for jQuery with styling for [Bootstrap4](https://getbootstrap.com/docs/4.6/getting-started/introduction/)",
+  "files": [
+    "css/**/*.css",
+    "js/**/*.js",
+    "types/**/*.d.ts",
+    "images/*"
+  ],
+  "homepage": "https://datatables.net",
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "keywords": [
+    "Bootstrap",
+    "Bootstrap4",
+    "Datatables",
+    "jQuery",
+    "table",
+    "filter",
+    "sort"
+  ],
+  "license": "MIT",
+  "main": "js/dataTables.bootstrap4.js",
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "name": "datatables.net-bs4",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-Bootstrap4.git"
+  },
+  "style": "css/dataTables.bootstrap4.css",
+  "types": "./types/dataTables.bootstrap4.d.ts",
+  "version": "1.11.3"
+}

@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK 
+Server: nginx 
+Date: Wed, 24 Jul 2013 07:14:02 GMT 
+Content-Type: application/json;charset=utf-8 
+Content-Length: 1092 
+Connection: keep-alive 
+Access-Control-Allow-Credentials: true 
+Access-Control-Max-Age: 300 
+Cache-Control: no-cache, no-store 
+
+{
+  "id": "trr_1ARKQ22eZvKYlo2Cv5APdtKF",
+  "object": "transfer_reversal",
+  "amount": 400,
+  "balance_transaction": "txn_19XJJ02eZvKYlo2ClwuJ1rbA",
+  "created": 1496666090,
+  "currency": "usd",
+  "metadata": {
+  },
+  "transfer": "tr_1ARKPl2eZvKYlo2CsNTKWIOO"
+}

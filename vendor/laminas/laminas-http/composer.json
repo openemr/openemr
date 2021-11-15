@@ -1,0 +1,61 @@
+{
+    "name": "laminas/laminas-http",
+    "description": "Provides an easy interface for performing Hyper-Text Transfer Protocol (HTTP) requests",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "http",
+        "HTTP client"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-http/",
+        "issues": "https://github.com/laminas/laminas-http/issues",
+        "source": "https://github.com/laminas/laminas-http",
+        "rss": "https://github.com/laminas/laminas-http/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-loader": "^2.5.1",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-uri": "^2.5.2",
+        "laminas/laminas-validator": "^2.10.1",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-config": "^3.1 || ^2.6",
+        "phpunit/phpunit": "^9.3"
+    },
+    "suggest": {
+        "paragonie/certainty": "For automated management of cacert.pem"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Http\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Http\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-http": "^2.11.2"
+    }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"SymbolElement.d.ts","sourceRoot":"","sources":["../../src/Document/SymbolElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAClB,OAAO,eAAe,MAAM,mBAAmB,CAAC;AAEhD,MAAM,CAAC,OAAO,OAAO,aAAc,SAAQ,eAAe;IACzD,IAAI,SAAY;IAEhB,MAAM,CAAC,CAAC,EAAE,kBAAkB;CAG5B"}

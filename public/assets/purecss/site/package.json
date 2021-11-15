@@ -1,0 +1,37 @@
+{
+  "name": "pure",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "docusaurus build",
+    "deploy": "docusaurus deploy",
+    "predeploy": "npm run build",
+    "prestart": "cp -rf ../build/ ./static/css/pure/",
+    "start": "docusaurus start",
+    "swizzle": "docusaurus swizzle"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^2.0.0-alpha.53",
+    "@docusaurus/plugin-content-pages": "^2.0.0-alpha.53",
+    "@docusaurus/plugin-google-analytics": "^2.0.0-alpha.53",
+    "classnames": "^2.2.6",
+    "common-tags": "^1.8.0",
+    "gzip-size": "^5.1.1",
+    "js-beautify": "^1.11.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-syntax-highlighter": "^12.2.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

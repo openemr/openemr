@@ -1,0 +1,44 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Tue, 26 Feb 2013 16:33:08 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 52
+Connection: keep-alive
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "id": "cus_1MZSEtqSghKx99",
+  "object": "customer",
+  "account_balance": 0,
+  "created": 1458672689,
+  "currency": "cad",
+  "default_source": null,
+  "delinquent": false,
+  "description": null,
+  "discount": null,
+  "email": "foo@foo.com",
+  "livemode": false,
+  "metadata": {
+  },
+  "shipping": null,
+  "sources": {
+    "object": "list",
+    "data": [
+
+    ],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/customers/cus_1MZSEtqSghKx99/sources"
+  },
+  "subscriptions": {
+    "object": "list",
+    "data": [
+
+    ],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/customers/cus_1MZSEtqSghKx99/subscriptions"
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"ClipPathElement.d.ts","sourceRoot":"","sources":["../../src/Document/ClipPathElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAElB,OAAO,OAAO,MAAM,WAAW,CAAC;AAOhC,MAAM,CAAC,OAAO,OAAO,eAAgB,SAAQ,OAAO;IACnD,IAAI,SAAc;IAElB,KAAK,CAAC,GAAG,EAAE,kBAAkB;IAsD7B,MAAM,CAAC,CAAC,EAAE,kBAAkB;CAG5B"}

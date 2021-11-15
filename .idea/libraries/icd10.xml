@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="icd10">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/openemr/contrib/icd10/2022-Code Descriptions.zip!/" />
+      <root url="jar://$PROJECT_DIR$/openemr/contrib/icd10/Zip File 3 2022 ICD-10-PCS Codes File.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

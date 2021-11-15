@@ -1,0 +1,77 @@
+{
+    "name": "laminas/laminas-mvc-i18n",
+    "description": "Integration between laminas-mvc and laminas-i18n",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "mvc",
+        "i18n"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-mvc-i18n/",
+        "issues": "https://github.com/laminas/laminas-mvc-i18n/issues",
+        "source": "https://github.com/laminas/laminas-mvc-i18n",
+        "rss": "https://github.com/laminas/laminas-mvc-i18n/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laminas": {
+            "component": "Laminas\\Mvc\\I18n",
+            "config-provider": "Laminas\\Mvc\\I18n\\ConfigProvider"
+        }
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "container-interop/container-interop": "^1.1",
+        "laminas/laminas-i18n": "^2.11",
+        "laminas/laminas-router": "^3.0",
+        "laminas/laminas-servicemanager": "^3.6",
+        "laminas/laminas-stdlib": "^3.3",
+        "laminas/laminas-validator": "^2.14",
+        "laminas/laminas-zendframework-bridge": "^1.2"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.5",
+        "psalm/plugin-phpunit": "^0.15.1",
+        "vimeo/psalm": "^4.7"
+    },
+    "conflict": {
+        "laminas/laminas-mvc": "<3.0.0",
+        "phpspec/prophecy": "<1.8.0"
+    },
+    "suggest": {
+        "laminas/laminas-cache": "To enable caching of translation strings"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Mvc\\I18n\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Mvc\\I18n\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test",
+            "@static-analysis"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-mvc-i18n": "^1.1.1"
+    }
+}

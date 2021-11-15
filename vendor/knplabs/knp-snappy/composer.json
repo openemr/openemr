@@ -1,0 +1,43 @@
+{
+    "name": "knplabs/knp-snappy",
+    "type": "library",
+    "description": "PHP5 library allowing thumbnail, snapshot or PDF generation from a url or a html page. Wrapper for wkhtmltopdf/wkhtmltoimage.",
+    "keywords": ["pdf", "thumbnail", "snapshot", "knplabs", "knp", "wkhtmltopdf"],
+    "homepage": "http://github.com/KnpLabs/snappy",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "KnpLabs Team",
+            "homepage": "http://knplabs.com"
+        },
+        {
+            "name": "Symfony Community",
+            "homepage": "http://github.com/KnpLabs/snappy/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "symfony/process": "~3.4||~4.3||~5.0",
+        "psr/log": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.4"
+    },
+    "suggest": {
+        "h4cc/wkhtmltopdf-amd64": "Provides wkhtmltopdf-amd64 binary for Linux-compatible machines, use version `~0.12` as dependency",
+        "h4cc/wkhtmltopdf-i386": "Provides wkhtmltopdf-i386 binary for Linux-compatible machines, use version `~0.12` as dependency",
+        "h4cc/wkhtmltoimage-amd64": "Provides wkhtmltoimage-amd64 binary for Linux-compatible machines, use version `~0.12` as dependency",
+        "h4cc/wkhtmltoimage-i386": "Provides wkhtmltoimage-i386 binary for Linux-compatible machines, use version `~0.12` as dependency",
+        "wemersonjanuario/wkhtmltopdf-windows": "Provides wkhtmltopdf executable for Windows, use version `~0.12` as dependency"
+    },
+    "autoload": {
+        "psr-4": {
+            "Knp\\Snappy\\": "src/Knp/Snappy"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}

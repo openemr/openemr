@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Feb 2013 18:25:28 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 995
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Request-Id: req_8PDHeZazN2LwML
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+
+{
+	"id": "pi_1Euf5UFSbr6xR4YAp9PPTxza",
+	"object": "payment_intent",
+	"amount": 8000,
+	"amount_capturable": 0,
+	"amount_received": 0,
+	"application": null,
+	"application_fee_amount": null,
+	"canceled_at": null,
+	"cancellation_reason": null,
+	"capture_method": "manual",
+	"charges": {
+		"object": "list",
+		"data": [],
+		"has_more": false,
+		"total_count": 0,
+		"url": "\/v1\/charges?payment_intent=pi_1Euf5UFSbr6xR4YAp9PPTxza"
+	},
+	"client_secret": "pi_1Euf5UFSbr6xR4YAp9PPTxza_secret_QjDdAp77yVbiJoyJ92mXx76F7",
+	"confirmation_method": "manual",
+	"created": 1562762396,
+	"currency": "usd",
+	"customer": "cus_F1UMEEnT2OBgMg",
+	"description": "Order #153",
+	"invoice": null,
+	"last_payment_error": null,
+	"livemode": false,
+	"metadata": {
+		"order_id": "153",
+		"order_number": "d1defe5bbef31c3472b06d3c8c723baf",
+		"transaction_reference": "386b931a5e2bdb0a216749d488367b94",
+		"client_ip": "::1"
+	},
+	"next_action": null,
+	"on_behalf_of": null,
+	"payment_method": "pm_1Euf5RFSbr6xR4YAwZ5fP28B",
+	"payment_method_types": [
+		"card"
+	],
+	"receipt_email": null,
+	"review": null,
+	"setup_future_usage": null,
+	"shipping": null,
+	"source": null,
+	"statement_descriptor": null,
+	"status": "requires_confirmation",
+	"transfer_data": null,
+	"transfer_group": null
+}

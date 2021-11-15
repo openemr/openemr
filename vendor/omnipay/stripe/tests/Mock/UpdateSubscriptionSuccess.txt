@@ -1,0 +1,43 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 14 Feb 2016 23:07:23 GMT
+Content-Type: application/json
+Content-Length: 784
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+
+{
+  "id": "sub_7uNSBwlTzGjYWw",
+  "object": "subscription",
+  "application_fee_percent": null,
+  "cancel_at_period_end": false,
+  "canceled_at": null,
+  "current_period_end": 1456700778,
+  "current_period_start": 1455491178,
+  "customer": "cus_7lqqgOm33t4xSU",
+  "discount": null,
+  "ended_at": null,
+  "metadata": {},
+  "plan": {
+    "id": "basic",
+    "object": "plan",
+    "amount": 500,
+    "created": 1455313398,
+    "currency": "usd",
+    "interval": "month",
+    "interval_count": 1,
+    "livemode": false,
+    "metadata": {},
+    "name": "Basic",
+    "statement_descriptor": null,
+    "trial_period_days": null
+  },
+  "quantity": 1,
+  "start": 1455491178,
+  "status": "active",
+  "tax_percent": null,
+  "trial_end": null,
+  "trial_start": null
+}

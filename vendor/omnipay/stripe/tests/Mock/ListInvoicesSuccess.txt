@@ -1,0 +1,90 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Feb 2016 02:40:46 GMT
+Content-Type: application/json
+Content-Length: 6247
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "object": "list",
+  "url": "/v1/invoices",
+  "has_more": false,
+  "data": [
+    {
+      "id": "in_17jdy72ikvKYlo2CjDuZLVWA",
+      "object": "invoice",
+      "amount_due": 100,
+      "application_fee": null,
+      "attempt_count": 1,
+      "attempted": true,
+      "charge": "ch_17jdy72eZ5uYlo2C0Uh43dwl",
+      "closed": true,
+      "currency": "usd",
+      "customer": "cus_7zdKilofy4RbZk",
+      "date": 1456702135,
+      "description": null,
+      "discount": null,
+      "ending_balance": 0,
+      "forgiven": false,
+      "lines": {
+        "data": [
+          {
+            "id": "sub_7zdKiioEviVBEr",
+            "object": "line_item",
+            "amount": 50,
+            "currency": "usd",
+            "description": null,
+            "discountable": true,
+            "livemode": true,
+            "metadata": {
+            },
+            "period": {
+              "start": 1459208116,
+              "end": 1461886516
+            },
+            "plan": {
+              "id": "basic_plan_1",
+              "object": "plan",
+              "amount": 50,
+              "created": 1395968059,
+              "currency": "usd",
+              "interval": "month",
+              "interval_count": 1,
+              "livemode": false,
+              "metadata": {
+              },
+              "name": "Basic Plan",
+              "statement_descriptor": null,
+              "trial_period_days": null
+            },
+            "proration": false,
+            "quantity": 1,
+            "subscription": null,
+            "type": "subscription"
+          }
+        ],
+        "total_count": 1,
+        "object": "list",
+        "url": "/v1/invoices/in_17jdy72eZvKYlo2CjDuZLVWA/lines"
+      },
+      "livemode": false,
+      "metadata": {
+      },
+      "next_payment_attempt": null,
+      "paid": true,
+      "period_end": 1456702135,
+      "period_start": 1456702135,
+      "receipt_number": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "subscription": "sub_7zdEOXMTqKgzXW",
+      "subtotal": 100,
+      "tax": null,
+      "tax_percent": null,
+      "total": 100,
+      "webhooks_delivered_at": 1456702141
+    }
+  ]
+}

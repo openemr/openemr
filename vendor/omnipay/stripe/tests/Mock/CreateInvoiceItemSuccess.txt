@@ -1,0 +1,29 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 19 Feb 2016 05:45:18 GMT
+Content-Type: application/json
+Content-Length: 435
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "id": "ii_17hCVWCry4L0tg4v2hLQvxrX",
+  "object": "invoiceitem",
+  "amount": 1000,
+  "currency": "usd",
+  "customer": "cus_7vX2emm98A7crY",
+  "date": 1456109918,
+  "description": "One-time setup fee",
+  "discountable": true,
+  "invoice": null,
+  "livemode": false,
+  "metadata": {},
+  "period": {
+    "start": 1456109918,
+    "end": 1456109918
+  },
+  "plan": null,
+  "proration": false,
+  "quantity": null,
+  "subscription": null
+}

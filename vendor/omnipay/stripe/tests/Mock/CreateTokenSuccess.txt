@@ -1,0 +1,50 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 19 Jun 2017 00:28:43 GMT
+Content-Type: application/json
+Content-Length: 798
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET, POST, HEAD, OPTIONS, DELETE
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+Request-Id: req_ArxgXN0W9YsXss
+Stripe-Account: acct_14901h0a0fh01293
+Stripe-Version: 2015-04-07
+Strict-Transport-Security: max-age=31556926; includeSubDomains
+
+{
+  "id": "tok_1AWDl1JqXiFraDuL2xOKEXKy",
+  "object": "token",
+  "card": {
+    "id": "card_1AWDl1JqXiFraDuL8KJpKlxe",
+    "object": "card",
+    "address_city": null,
+    "address_country": null,
+    "address_line1": null,
+    "address_line1_check": null,
+    "address_line2": null,
+    "address_state": null,
+    "address_zip": null,
+    "address_zip_check": null,
+    "brand": "Visa",
+    "country": "US",
+    "currency": "usd",
+    "cvc_check": null,
+    "dynamic_last4": null,
+    "exp_month": 8,
+    "exp_year": 2019,
+    "fingerprint": "OfIzYIod5lokCObt",
+    "funding": "credit",
+    "last4": "4242",
+    "metadata": {},
+    "name": null,
+    "tokenization_method": null
+  },
+  "client_ip": "179.24.124.12",
+  "created": 1497832123,
+  "livemode": false,
+  "type": "card",
+  "used": false
+}

@@ -1,0 +1,55 @@
+.dir-ltr {
+  direction: ltr;
+}
+
+.highlight {
+  pre {
+    text-align: left;
+    direction: ltr;
+  }
+}
+
+kbd,
+code,
+.bd-content-title,
+.toc-entry a,
+.bd-example.ltr pre {
+  direction: ltr;
+
+  &::before {
+    content: "\202A"; //&lre;
+  }
+
+  &::after {
+    //content: "\202B"; //&rle;
+    content: "\202C"; //&pdf;
+  }
+}
+
+.card-link {
+  &::after {
+    content: "\200F"; //&rlm;
+  }
+}
+
+// External BUG: Microsift Edge(classic) does not show sticky element on rtl direction
+// So, in Edge(classic) ,I use relative position
+@supports (-ms-ime-align: auto) {
+  @supports (position: sticky) {
+    .bd-toc {
+      position: relative;
+      top: 0;
+    }
+
+    @include media-breakpoint-up(md) {
+      .bd-navbar,
+      .bd-sidebar {
+        position: relative;
+      }
+
+      .bd-sidebar {
+        top: 0;
+      }
+    }
+  }
+}

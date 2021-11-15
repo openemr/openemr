@@ -1,0 +1,155 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Feb 2013 18:25:28 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 995
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Request-Id: req_8PDHeZazN2LwML
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+
+{
+  "id": "pi_1EW0FmFSbr6xR4YAvECSRCv2",
+  "object": "payment_intent",
+  "amount": 8000,
+  "amount_capturable": 0,
+  "amount_received": 8000,
+  "application": null,
+  "application_fee_amount": null,
+  "canceled_at": null,
+  "cancellation_reason": null,
+  "capture_method": "automatic",
+  "charges": {
+    "object": "list",
+    "data": [
+      {
+        "id": "ch_1EW0FmFSbr6xR4YAZyURWxQe",
+        "object": "charge",
+        "amount": 8000,
+        "amount_refunded": 0,
+        "application": null,
+        "application_fee": null,
+        "application_fee_amount": null,
+        "balance_transaction": "txn_1EW0FnFSbr6xR4YAOVasO6Eu",
+        "billing_details": {
+          "address": {
+            "city": "Riga",
+            "country": "United States",
+            "line1": "GARRISON DRIVE 60837",
+            "line2": null,
+            "postal_code": "97702",
+            "state": null
+          },
+          "email": "andris@shift.lv",
+          "name": "Janice Friend",
+          "phone": null
+        },
+        "captured": true,
+        "created": 1556885558,
+        "currency": "usd",
+        "customer": "cus_F0026biLhRIcO9",
+        "description": "Order #34",
+        "destination": null,
+        "dispute": null,
+        "failure_code": null,
+        "failure_message": null,
+        "fraud_details": {
+        },
+        "invoice": null,
+        "livemode": false,
+        "metadata": {
+          "order_id": "34",
+          "order_number": "aaefd8ec96095c47ed0c665666c3c768",
+          "transaction_reference": "84aaac664c7048000146d3a88b5f0081",
+          "client_ip": "::1"
+        },
+        "on_behalf_of": null,
+        "order": null,
+        "outcome": {
+          "network_status": "approved_by_network",
+          "reason": null,
+          "risk_level": "normal",
+          "risk_score": 21,
+          "seller_message": "Payment complete.",
+          "type": "authorized"
+        },
+        "paid": true,
+        "payment_intent": "pi_1EW0FmFSbr6xR4YAvECSRCv2",
+        "payment_method": "pm_1EW0FPFSbr6xR4YAZOSMHIOE",
+        "payment_method_details": {
+          "card": {
+            "brand": "visa",
+            "checks": {
+              "address_line1_check": "pass",
+              "address_postal_code_check": "pass",
+              "cvc_check": "pass"
+            },
+            "country": "US",
+            "description": "Visa Classic",
+            "exp_month": 12,
+            "exp_year": 2020,
+            "fingerprint": "ZpBtWK0wNH3oi8mw",
+            "funding": "credit",
+            "last4": "4242",
+            "three_d_secure": null,
+            "wallet": null
+          },
+          "type": "card"
+        },
+        "receipt_email": null,
+        "receipt_number": null,
+        "receipt_url": "https://pay.stripe.com/receipts/acct_1AjnbxFSbr6xR4YA/ch_1EW0FmFSbr6xR4YAZyURWxQe/rcpt_F00G6tmZch7lV8HQbMulDt61Fd2T3Co",
+        "refunded": false,
+        "refunds": {
+          "object": "list",
+          "data": [
+          ],
+          "has_more": false,
+          "total_count": 0,
+          "url": "/v1/charges/ch_1EW0FmFSbr6xR4YAZyURWxQe/refunds"
+        },
+        "review": null,
+        "shipping": null,
+        "source": null,
+        "source_transfer": null,
+        "statement_descriptor": null,
+        "status": "succeeded",
+        "transfer_data": null,
+        "transfer_group": null
+      }
+    ],
+    "has_more": false,
+    "total_count": 1,
+    "url": "/v1/charges?payment_intent=pi_1EW0FmFSbr6xR4YAvECSRCv2"
+  },
+  "client_secret": "pi_1EW0FmFSbr6xR4YAvECSRCv2_secret_kUQ34vTWkFRAECbpbswOpAuus",
+  "confirmation_method": "automatic",
+  "created": 1556885558,
+  "currency": "usd",
+  "customer": "cus_F0026biLhRIcO9",
+  "description": "Order #34",
+  "invoice": null,
+  "last_payment_error": null,
+  "livemode": false,
+  "metadata": {
+    "order_id": "34",
+    "order_number": "aaefd8ec96095c47ed0c665666c3c768",
+    "transaction_reference": "84aaac664c7048000146d3a88b5f0081",
+    "client_ip": "::1"
+  },
+  "next_action": null,
+  "on_behalf_of": null,
+  "payment_method": "pm_1EW0FPFSbr6xR4YAZOSMHIOE",
+  "payment_method_types": [
+    "card"
+  ],
+  "receipt_email": null,
+  "review": null,
+  "shipping": null,
+  "source": null,
+  "statement_descriptor": null,
+  "status": "succeeded",
+  "transfer_data": null,
+  "transfer_group": null
+}

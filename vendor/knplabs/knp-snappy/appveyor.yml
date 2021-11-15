@@ -1,0 +1,53 @@
+build: false
+platform: x64
+clone_folder:  c:\projects\snappy
+
+environment:
+  matrix:
+    - dependencies: lowest
+      php_ver_target: 7.1
+    - dependencies: current
+      php_ver_target: 7.2
+    - dependencies: highest
+      php_ver_target: 7.3
+
+cache:
+  - composer.phar
+  - c:\ProgramData\chocolatey\bin -> appveyor.yml
+  - c:\ProgramData\chocolatey\lib -> appveyor.yml
+  - c:\php -> appveyor.yml
+
+init:
+  - SET PATH=c:\Program Files\OpenSSL;c:\tools\php;%PATH%
+  - SET COMPOSER_NO_INTERACTION=1
+  - SET PHP=1
+  - SET ANSICON=121x90 (121x90)
+
+install:
+  - IF EXIST c:\tools\php (SET PHP=0)
+  - ps: Set-Service wuauserv -StartupType Manual
+  # In order to be able to list all the avialable PHP packages we have to
+  # downgrade Chocolatey to version 0.10.13.
+  # See https://github.com/chocolatey/choco/issues/1843
+  - ps: choco install chocolatey -y --version 0.10.13 --allow-downgrade --force
+  - ps: choco search php --exact --all-versions -r
+  - ps: echo ((choco search php --exact --all-versions -r | select-string -pattern $env:php_ver_target | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+  - ps: appveyor-retry cinst php --params '""/InstallDir:c:\tools\php""' --ignore-checksums -y --force --version ((choco search php --exact --all-versions -r | select-string -pattern $env:php_ver_target | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+  - cd c:\tools\php
+  - IF %PHP%==1 copy php.ini-production php.ini /Y
+  - IF %PHP%==1 echo date.timezone="UTC" >> php.ini
+  - IF %PHP%==1 echo extension_dir=ext >> php.ini
+  - IF %PHP%==1 echo extension=php_openssl.dll >> php.ini
+  - IF %PHP%==1 echo extension=php_mbstring.dll >> php.ini
+  - IF %PHP%==1 echo extension=php_fileinfo.dll >> php.ini
+  - IF %PHP%==1 echo @php %%~dp0composer.phar %%* > composer.bat
+  - appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar
+  - cd c:\projects\snappy
+  - IF %dependencies%==lowest appveyor-retry composer update --prefer-lowest --no-progress --profile -n
+  - IF %dependencies%==current appveyor-retry composer install --no-progress --profile
+  - IF %dependencies%==highest appveyor-retry composer update --no-progress --profile -n
+  - composer show
+
+test_script:
+  - cd c:\projects\snappy
+  - vendor/bin/phpunit

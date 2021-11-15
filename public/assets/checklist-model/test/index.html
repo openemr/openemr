@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Test Runner</title>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular-scenario.js" ng-autotest></script>
+    <script>
+      var delay = 0.8;
+      var mainUrl = '../index.html';
+
+      function check(selector, arr) {
+        for (var i=0; i< arr.length; i++) {
+          expect(element(selector+':eq('+i+')').prop('checked')).toBe(!!arr[i]);
+        }
+      }
+    </script>
+    <script src="../docs/blocks/array-numbers/test.js"></script>`
+    <script src="../docs/blocks/array-simple/test.js"></script>
+    <script src="../docs/blocks/array-id/test.js"></script>
+    <script src="../docs/blocks/array-object/test.js"></script>
+    <script src="../docs/blocks/single-object/test.js"></script>
+    <script src="../docs/blocks/function-as-model/test.js"></script>
+    <script src="../docs/blocks/array-object-with-ngmodel/test.js"></script>
+    <script src="../docs/blocks/object/test.js"></script>
+    <script src="../docs/blocks/object-static-list/test.js"></script>
+    <script src="../docs/blocks/filter/test.js"></script>
+    <script src="../docs/blocks/comparator-expression/test.js"></script>
+    <script src="../docs/blocks/event/test.js"></script>
+    <script src="../docs/blocks/array-dynamic/test.js"></script>
+  </head>
+  <body>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+.idea/
+*.swp
+
+examples/components/
+coverage/
+*.nupkg

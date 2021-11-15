@@ -1,0 +1,22 @@
+{
+  "name": "checklist-model",
+  "version": "1.0.0",
+  "description": "AngularJS directive for list of checkboxes",
+  "author": "https://github.com/vitalets",
+  "license": "MIT",
+  "homepage": "http://vitalets.github.io/checklist-model",
+  "main": "checklist-model.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "docs",
+    "Gruntfile.js",
+    "index.html",
+    "package.json"
+  ],
+  "dependencies": {
+    "angular": ">=1.0.8"
+  },
+  "devDependencies": {
+  }
+}

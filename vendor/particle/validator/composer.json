@@ -1,0 +1,48 @@
+{
+    "name": "particle/validator",
+    "type": "library",
+    "description": "Flexible and highly usable validation library with no dependencies.",
+    "keywords": ["validation", "validator"],
+    "homepage": "http://github.com/particle-php/validator",
+    "license" : "BSD-3-Clause",
+    "authors" : [
+        {
+            "name": "Berry Langerak",
+            "email": "berry@berryllium.nl",
+            "role": "developer"
+        },
+        {
+            "name": "Rick van der Staaij",
+            "homepage": "http://rickvanderstaaij.nl",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "suggest": {
+        "byrokrat/checkdigit": "If you want to use CreditCard validation rule, this library must be installed.",
+        "giggsey/libphonenumber-for-php": "If you want to use Phone validation rule, this library must be installed."
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "squizlabs/php_codesniffer": "2.*",
+        "byrokrat/checkdigit": "^1.0",
+        "giggsey/libphonenumber-for-php": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Particle\\Validator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Particle\\Validator\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    }
+}

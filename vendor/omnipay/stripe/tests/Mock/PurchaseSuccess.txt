@@ -1,0 +1,63 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Feb 2013 18:25:28 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 995
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Request-Id: req_8PDHeZazN2LwML
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+
+{
+  "id": "ch_1IU9gcUiNASROd",
+  "object": "charge",
+  "created": 1360952728,
+  "livemode": false,
+  "paid": true,
+  "amount": 1000,
+  "currency": "usd",
+  "refunded": false,
+  "fee": 59,
+  "fee_details": [
+    {
+      "amount": 59,
+      "currency": "usd",
+      "type": "stripe_fee",
+      "description": "Stripe processing fees",
+      "application": null,
+      "amount_refunded": 0
+    }
+  ],
+  "source": {
+    "id": "card_16n3EU2baUhq7QENSrstkoN0",
+    "object": "card",
+    "address_city": "",
+    "address_country": "",
+    "address_line1": "",
+    "address_line1_check": null,
+    "address_line2": "",
+    "address_state": "",
+    "address_zip": "",
+    "address_zip_check": null,
+    "brand": "Visa",
+    "country": "US",
+    "customer": null,
+    "cvc_check": "pass",
+    "dynamic_last4": null,
+    "exp_month": 6,
+    "exp_year": 2016,
+    "funding": "credit",
+    "last4": "4242",
+    "metadata": {
+    },
+    "name": "",
+    "tokenization_method": null
+    },
+  "failure_message": null,
+  "amount_refunded": 0,
+  "customer": null,
+  "invoice": null,
+  "description": "first purchase",
+  "dispute": null
+}

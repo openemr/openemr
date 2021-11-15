@@ -1,0 +1,20 @@
+{
+    "name": "ttskch/select2-bootstrap4-theme",
+    "description": "Select2 v4 theme for Bootstrap4",
+    "keywords": [
+        "select2",
+        "theme",
+        "bootstrap",
+        "bootstrap4",
+        "css",
+        "scss"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Takashi Kanemoto",
+            "email": "ttskch@gmail.com"
+        }
+    ]
+}

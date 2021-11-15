@@ -1,0 +1,18 @@
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	colors="true"
+	backupGlobals="false">
+
+	<testsuites>
+		<testsuite>
+			<directory suffix=".php">./tests</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">src</directory>
+		</whitelist>
+	</filter>
+
+</phpunit>

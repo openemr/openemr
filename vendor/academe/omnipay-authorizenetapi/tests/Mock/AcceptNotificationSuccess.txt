@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Date: Sat, 16 Feb 2013 06:39:41 GMT
+X-Opnet-Transaction-Trace: 2b1726b9-2b7a-49f7-a5c6-24cd2622000b-8580-2210
+Content-Type: application/json
+X-Anet-Signature: sha512=13151697A33C77CB102AAA060CD58FB2394696BAEA981047A31830A8A1853A4C8D454E696871A38A68B6940B8746FC096111334D584579F6792F568A622A0373
+Content-Length: 340
+Connection: close
+X-Accel-Internal: /internal-nginx-static-location
+X-Forwarded-For: 198.241.207.38
+X-Real-Ip: 198.241.207.38
+Host: omnipay.example.co.uk
+
+{"notificationId":"701bf27d-d46f-4c3b-82f2-066448e2901e","eventType":"net.authorize.payment.authorization.created","eventDate":"2019-01-31T14:38:42.6937313Z","webhookId":"e6b3764d-5677-4fb1-a929-2e25a02f3073","payload":{"responseCode":1,"authCode":"P1XHLC","avsResponse":"Y","authAmount":7.67,"entityName":"transaction","id":"60116007277"}}

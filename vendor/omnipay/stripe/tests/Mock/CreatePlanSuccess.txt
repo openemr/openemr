@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 11 Feb 2016 20:23:14 GMT
+Content-Type: application/json
+Content-Length: 281
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "id": "basic",
+  "object": "plan",
+  "amount": 1900,
+  "created": 1455308594,
+  "currency": "usd",
+  "interval": "month",
+  "interval_count": 1,
+  "livemode": false,
+  "metadata": {},
+  "name": "Amazing Gold Plan",
+  "statement_descriptor": null,
+  "trial_period_days": 3
+}

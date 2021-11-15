@@ -1,0 +1,99 @@
+{
+  "_args": [
+    [
+      "purecss@2.0.6",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "purecss@2.0.6",
+  "_id": "purecss@2.0.6",
+  "_inBundle": false,
+  "_integrity": "sha512-R5V/Yk/j8/v5ivlg0MvQKQmo7F1BnWupK0wiMrKDyz2BofLB5BFKfZtSqu90YwHYBH4uzLtebmnDltY3ElcyLw==",
+  "_location": "/purecss",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "purecss@2.0.6",
+    "name": "purecss",
+    "escapedName": "purecss",
+    "rawSpec": "2.0.6",
+    "saveSpec": null,
+    "fetchSpec": "2.0.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/purecss/-/purecss-2.0.6.tgz",
+  "_spec": "2.0.6",
+  "_where": "/home/ubuntu/openemr",
+  "authors": [
+    "ericf <edf@ericf.me>",
+    "tilomitra <tilomitra@gmail.com>",
+    "msweeney <matt.sweeney@yahoo.com>",
+    "jamesalley <manalagi001@yahoo.com>"
+  ],
+  "browser": "build/pure-min.css",
+  "browserslist": [
+    "last 2 versions",
+    "ie >= 10",
+    "iOS >= 12",
+    "Android >= 6"
+  ],
+  "bugs": {
+    "url": "https://github.com/pure-css/pure/issues"
+  },
+  "description": "Pure is a ridiculously tiny CSS library you can use to start any web project.",
+  "devDependencies": {
+    "autoprefixer": "^9.8.6",
+    "eslint": "^7.18.0",
+    "eslint-plugin-react": "^7.22.0",
+    "grunt": "^1.3.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-csslint": "^2.0.0",
+    "grunt-contrib-cssmin": "^4.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-css-selectors": "^1.1.0",
+    "grunt-postcss": "^0.9.0",
+    "grunt-pure-grids": "^2.0.0",
+    "husky": "^6.0.0",
+    "normalize.css": "^8.0.1",
+    "tap": "^14.11.0"
+  },
+  "files": [
+    "build/"
+  ],
+  "homepage": "https://purecss.io",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
+  },
+  "keywords": [
+    "pure",
+    "css",
+    "purecss",
+    "yahoo"
+  ],
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "name": "purecss",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pure-css/pure.git"
+  },
+  "scripts": {
+    "lint": "eslint . --ext .js",
+    "prepare": "grunt release",
+    "pretest": "npm run lint",
+    "site:build": "npm run pretest && cd site && npm install && npm run build",
+    "site:start": "cd site && npm run start",
+    "test": "grunt test && tap test/*.js"
+  },
+  "style": "build/pure.css",
+  "version": "2.0.6"
+}

@@ -1,0 +1,53 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Tue, 26 Feb 2013 16:17:02 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 139
+Connection: keep-alive
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "id": "pm_1EUon32Tb35ankTnF6nuoRVE",
+  "object": "payment_method",
+  "billing_details": {
+    "address": {
+      "city": null,
+      "country": null,
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+    },
+    "email": null,
+    "name": null,
+    "phone": null
+  },
+  "card": {
+    "brand": "visa",
+    "checks": {
+      "address_line1_check": null,
+      "address_postal_code_check": null,
+      "cvc_check": null
+    },
+    "country": "US",
+    "exp_month": 8,
+    "exp_year": 2020,
+    "fingerprint": "9OyiQNfcCMaD1b7P",
+    "funding": "credit",
+    "generated_from": null,
+    "last4": "4242",
+    "three_d_secure_usage": {
+      "supported": true
+    },
+    "wallet": null
+  },
+  "created": 1556603165,
+  "customer": "cus_3f2EpMK2kPm90g",
+  "livemode": false,
+  "metadata": {
+    "order_id": "6735"
+  },
+  "type": "card"
+}

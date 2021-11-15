@@ -1,0 +1,80 @@
+{
+  "_args": [
+    [
+      "checklist-model@1.0.0",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "checklist-model@1.0.0",
+  "_id": "checklist-model@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-ZDaTrfKeUSleZjyNqTjD1+QKU6iK1qlXH1GwixX59xEKPiRFu4anDh0U8brNjjEef+SM6vyQb87YWhI5CU8eNg==",
+  "_location": "/checklist-model",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "checklist-model@1.0.0",
+    "name": "checklist-model",
+    "escapedName": "checklist-model",
+    "rawSpec": "1.0.0",
+    "saveSpec": null,
+    "fetchSpec": "1.0.0"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/checklist-model/-/checklist-model-1.0.0.tgz",
+  "_spec": "1.0.0",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Vitaliy Potapov",
+    "email": "noginsk@rambler.ru"
+  },
+  "bugs": {
+    "url": "https://github.com/vitalets/checklist-model/issues"
+  },
+  "contributors": [
+    {
+      "name": "Adrian Ber",
+      "email": "beradrian@yahoo.com"
+    }
+  ],
+  "dependencies": {},
+  "description": "AngularJS directive for list of checkboxes",
+  "devDependencies": {
+    "grunt": "^1.0.2",
+    "grunt-bump": "^0.8.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-compress": "^1.4.3",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.2.1",
+    "grunt-contrib-jade": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-jsdoc": "^2.2.1",
+    "grunt-replace": "^1.0.1",
+    "grunt-shell": "^2.1.0",
+    "jstransformer-markdown": "^1.2.1",
+    "marked": "^0.3.19"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "homepage": "http://vitalets.github.io/checklist-model",
+  "license": "MIT",
+  "main": "checklist-model.js",
+  "name": "checklist-model",
+  "peerDependencies": {
+    "angular": ">=1.0.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vitalets/checklist-model.git"
+  },
+  "version": "1.0.0"
+}

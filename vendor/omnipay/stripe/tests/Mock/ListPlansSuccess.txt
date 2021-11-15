@@ -1,0 +1,46 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Feb 2016 02:40:46 GMT
+Content-Type: application/json
+Content-Length: 6247
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "object": "list",
+  "url": "/v1/plans",
+  "has_more": false,
+  "data": [
+    {
+      "id": "test-1",
+      "object": "plan",
+      "amount": 29995,
+      "created": 1483391153,
+      "currency": "usd",
+      "interval": "year",
+      "interval_count": 1,
+      "livemode": false,
+      "metadata": {
+      },
+      "name": "Test 1",
+      "statement_descriptor": "Test 1",
+      "trial_period_days": 14
+    },
+    {
+      "id": "test-2",
+      "object": "plan",
+      "amount": 29995,
+      "created": 1483391153,
+      "currency": "usd",
+      "interval": "year",
+      "interval_count": 1,
+      "livemode": false,
+      "metadata": {
+      },
+      "name": "Test 1",
+      "statement_descriptor": "Test 2",
+      "trial_period_days": 14
+    }
+  ]
+}

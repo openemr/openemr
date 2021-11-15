@@ -1,0 +1,79 @@
+{
+  "_args": [
+    [
+      "datatables.net-scroller-jqui@2.0.5",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "datatables.net-scroller-jqui@2.0.5",
+  "_id": "datatables.net-scroller-jqui@2.0.5",
+  "_inBundle": false,
+  "_integrity": "sha512-2y+jpxdVYsQWd5p+5dB0+BVJ/W0NGK3+5JX6+KLOa+iSRkPnDufVkxGoLTFxhXlW2W7ENiSbzFwIBVBmzklwvw==",
+  "_location": "/datatables.net-scroller-jqui",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "datatables.net-scroller-jqui@2.0.5",
+    "name": "datatables.net-scroller-jqui",
+    "escapedName": "datatables.net-scroller-jqui",
+    "rawSpec": "2.0.5",
+    "saveSpec": null,
+    "fetchSpec": "2.0.5"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-scroller-jqui/-/datatables.net-scroller-jqui-2.0.5.tgz",
+  "_spec": "2.0.5",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net-jqui": ">=1.10.25",
+    "datatables.net-scroller": ">=2.0.4",
+    "jquery": ">=1.7"
+  },
+  "description": "Scroller for DataTables with styling for [jQueryUI](http://jqueryui.com/)",
+  "files": [
+    "css/**/*.css",
+    "js/**/*.js"
+  ],
+  "homepage": "https://datatables.net",
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "keywords": [
+    "Scroller",
+    "Virtual Scrolling",
+    "jQuery UI",
+    "jQueryUI",
+    "Datatables",
+    "jQuery",
+    "table",
+    "filter",
+    "sort"
+  ],
+  "license": "MIT",
+  "main": "js/scroller.jqueryui.js",
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "name": "datatables.net-scroller-jqui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-Scroller-jQueryUI.git"
+  },
+  "style": "css/scroller.jqueryui.css",
+  "types": "./types/scroller.jQueryUI.d.ts",
+  "version": "2.0.5"
+}

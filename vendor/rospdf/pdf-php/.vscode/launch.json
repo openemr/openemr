@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9000,
+            "preLaunchTask": "Run PHP Server",
+            "xdebugSettings": {
+                "max_depth": 3
+            }
+        },
+        {
+            "name": "Listen for XDebug (docker)",
+            "type": "php",
+            "request": "launch",
+            "port": 9000,
+            "xdebugSettings": {
+                "max_depth": 3,
+            },
+            "pathMappings": {
+                "/var/www/html": "${workspaceRoot}"
+            },
+            "preLaunchTask": "Run Docker"
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9000
+        }
+    ]
+}

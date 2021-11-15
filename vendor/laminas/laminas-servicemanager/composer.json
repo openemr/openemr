@@ -1,0 +1,83 @@
+{
+    "name": "laminas/laminas-servicemanager",
+    "description": "Factory-Driven Dependency Injection Container",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "di",
+        "dic",
+        "dependency-injection",
+        "psr-11",
+        "servicemanager",
+        "service-manager"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-servicemanager/",
+        "issues": "https://github.com/laminas/laminas-servicemanager/issues",
+        "source": "https://github.com/laminas/laminas-servicemanager",
+        "rss": "https://github.com/laminas/laminas-servicemanager/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "container-interop/container-interop": "^1.2",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-zendframework-bridge": "^1.0",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "composer/package-versions-deprecated": "^1.0",
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-container-config-test": "^0.3",
+        "laminas/laminas-dependency-plugin": "^2.1",
+        "mikey179/vfsstream": "^1.6.8",
+        "ocramius/proxy-manager": "^2.2.3",
+        "phpbench/phpbench": "^1.0.0-alpha3",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.4"
+    },
+    "provide": {
+        "container-interop/container-interop-implementation": "^1.2",
+        "psr/container-implementation": "^1.0"
+    },
+    "conflict": {
+        "zendframework/zend-code": "<3.3.1",
+        "laminas/laminas-code": "<3.3.1"
+    },
+    "suggest": {
+        "ocramius/proxy-manager": "ProxyManager ^2.1.1 to handle lazy initialization of services"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\ServiceManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\ServiceManager\\": "test/",
+            "LaminasBench\\ServiceManager\\": "benchmarks/"
+        }
+    },
+    "bin": [
+        "bin/generate-deps-for-config-factory",
+        "bin/generate-factory-for-class"
+    ],
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-servicemanager": "^3.4.0"
+    }
+}

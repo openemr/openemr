@@ -1,0 +1,98 @@
+doctype
+html(ng-app='app')
+  head
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Checklist-model - AngularJS directive for list of checkboxes
+
+    // Bootstrap 3
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css", rel="stylesheet", media="screen")
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css", rel="stylesheet", media="screen")
+
+    //docs css
+    link(href="docs/main.css", rel="stylesheet", media="screen")
+
+    //angular
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular.js')
+
+    //google-code-prettify
+    script(src='https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js')
+
+    //app
+    script(src='docs/app.js')
+
+    //checklist-model
+    script(src='checklist-model.js')
+  body
+
+    include tests.jade
+
+    .container
+      .row
+        .col-xs-12.col-sm-8
+          h1.title Checklist-model
+          h1(style="margin-top: 0")
+            small
+              a(href="http://angularjs.org/") AngularJS
+              |  directive for list of checkboxes
+
+        .col-xs-12.col-sm-4(style="padding-top: 20px; text-align: right")
+          a.btn.btn-primary.topbtn(href='checklist-model.js')
+            span.glyphicon.glyphicon-save(style="margin-right:10px")
+            strong Download
+          a.btn.btn-default.topbtn(href='https://github.com/vitalets/checklist-model', style="margin-left: 15px;")
+            strong View on GitHub
+
+      .row
+        .col-xs-12
+          :markdown
+            ###Why this is needed?
+            In Angular one checkbox `<input type="checkbox" ng-model="...">` is linked
+            with one model.
+            But in practice we usually want one model to store array of checked values
+            from several checkboxes.
+            **Checklist-model** solves that task without additional code in controller.
+            You should play with attributes of `<input type="checkbox">` tag:
+
+            1. set `checklist-model` instead of `ng-model`
+            2. set `checklist-value` - what should be picked as array item
+
+            Please, try out demos below:
+
+      each item in items
+        .row
+          .col-xs-12
+            h2(style="margin-bottom: 0")= item.text
+            - var dir = 'docs/blocks/'+item.id
+            - var view = fs.readFileSync(dir+"/view.html").toString().trim()
+            - var ctrl = fs.readFileSync(dir+"/ctrl.js").toString().trim()
+            - var ctrlName = item.ctrlName
+            - var ctrlShow = 'var app = angular.module("app", ["checklist-model"]);\n' + ctrl
+
+        .row(ng-controller=ctrlName)
+          .col-xs-12.col-sm-6
+            h3 demo
+            .well!= view
+            script!= ctrl
+            button(ng-click="checkAll()", style="margin-right: 10px") Check all
+            button(ng-click="uncheckAll()", style="margin-right: 10px") Uncheck all
+            button(ng-click="checkFirst()") Check first
+            button(ng-click="setToNull()", ng-if="setToNull") Set to null
+
+          .col-xs-12.col-sm-6
+            h3= item.testValue
+            pre= '{{' + item.testValue + '|json}}'
+
+        .row
+          .col-xs-12
+            h3 html
+            pre.prettyprint.ng-non-bindable= view
+
+            h3 js
+            pre.prettyprint= ctrlShow
+
+      footer
+        hr
+        :markdown
+          If you have question or idea please feel free to [open issue on github](https://github.com/vitalets/checklist-model/issues).
+          © [Vitaliy Potapov](https://github.com/vitalets) 2013. Released under the MIT license.

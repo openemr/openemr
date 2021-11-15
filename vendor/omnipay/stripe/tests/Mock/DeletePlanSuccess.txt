@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 12 Feb 2016 20:59:56 GMT
+Content-Type: application/json
+Content-Length: 39
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+
+{
+  "deleted": true,
+  "id": "basic"
+}

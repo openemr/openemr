@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Krajee JQuery Plugins - &copy; Kartik</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="../js/php-date-formatter.js" type="text/javascript"></script>
+</head>
+<body>
+<div style="margin:50px;padding:0 30px;border:3px double #ddd;border-radius:8px">
+    <div class="page-header">
+        <h1 class="text-info">PHP Date Formatter Demo
+            <small>&copy; Krajee Solutions</small>
+        </h1>
+    </div>
+    <form class="form-vertical">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="control-label">Date String</label>
+                    <input id="kv-1" value="" class="form-control">
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Source Format</label>
+                    <input id="kv-2" value="Y-m-d H:i:s" class="form-control">
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Display Format</label>
+                    <input id="kv-3" value="D, M jS, Y g:i:s A" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-8">
+                    <label class="control-label">Parsed Date</label>
+                    <input id="kv-4" class="form-control" readonly>
+                </div>
+                <div class="col-sm-4">
+                    <label class="control-label">Formatted Date</label>
+                    <input id="kv-5" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+    </form>
+    <h4>Date Format Results</h4>
+    <div id="formats">
+    </div>
+</div>
+</body>
+<script>
+    var fmt = new DateFormatter(), 
+        fmts = [
+            'd', 'D', 'j', 'l', 'N', 'w',  'z', 'W', 'F', 'm', 'M', 'n', 't', 'L', 'o', 
+            'Y', 'y', 'a', 'A', 'B', 'g', 'G', 'h', 'H', 'i', 's', 'u', 'e', 'I', 'O', 'P', 
+            'T', 'Z', 'c', 'r', 'U'
+        ],  setFmt = function() {
+            var out = '', d1, d2;
+            d1 = fmt.parseDate($("#kv-1").val(), $("#kv-2").val());
+            $("#kv-4").val(d1);
+            d2 = fmt.formatDate(d1, $("#kv-3").val());
+            $("#kv-5").val(d2);
+            if (!d1) {
+                $('#formats').html('<div class="alert alert-danger"><h4>Error</h4>Cannot parse source date</div>');
+                return;
+            }
+            $.each(fmts, function(i, f) {
+                out += '<tr><td><code>' + f + '</code></td><td><samp>' + fmt.parseFormat(f, d1) + '</samp></td></tr>';
+            });
+            $('#formats').html('<table class="table table-bordered table-hover"><tr class="active"><th>Format</th><th>Value</th></tr>' + out + '</table>');
+        };
+    $(document).on('ready', function () {
+        var initDate = fmt.formatDate(new Date(), $("#kv-2").val());
+        $('#kv-1').val(initDate);
+        setFmt();
+    });
+    $("#kv-1,#kv-2,#kv-3").on("change", function () {
+        setFmt();
+    });
+</script>
+</html>

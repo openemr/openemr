@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>jQuery Credit Card Validator Unit Tests</title>
+        <link rel="stylesheet" href="lib/qunit.css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="lib/qunit.js"></script>
+        <script src="../jquery.creditCardValidator.js"></script>
+    </head>
+
+    <body>
+        <div id="qunit"></div>
+
+        <div id="qunit-fixture">
+            <input id="cardNumber">
+        </div>
+
+        <script>
+            /*
+            * QUnit unit test suite for the jQuery Credit Card Validator plugin.
+            *
+            * To add a new test card, simply add another object literal to the following `cards` array. The format of the object is as follows:
+            *
+            * {
+            *   type: card_type                 //String, required
+            *   number: card_number             //String, required
+            *   invalidLuhn: invalid_luhn       //Boolean, optional
+            *   invalidLength: invalid_length   //Boolean, optional
+            * }
+            *
+            * `invalidLuhn` should be present and set to `true` if the number is not expected to pass Luhn validation.
+            * `invalidLength` should be present and set to `true` if the number is not expected to pass length validation.
+            */
+            var cards = [
+                {
+                    type: "amex",
+                    number: "378282246310005"
+                },
+                {
+                    type: "amex",
+                    number: "378734493671000"
+                },
+                {
+                    type: "amex",
+                    number: "370000000000000",
+                    invalidLuhn: true
+                },
+                {
+                    type: "amex",
+                    number: "3700000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "discover",
+                    number: "6011111111111117"
+                },
+                {
+                    type: "discover",
+                    number: "6011000990139424"
+                },
+                {
+                    type: "discover",
+                    number: "6011000990139429",
+                    invalidLuhn: true
+                },
+                {
+                    type: "discover",
+                    number: "6011000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "jcb",
+                    number: "3530111333300000"
+                },
+                {
+                    type: "jcb",
+                    number: "3566002020360505"
+                },
+                {
+                    type: "jcb",
+                    number: "3560000000000000",
+                    invalidLuhn: true
+                },
+                {
+                    type: "jcb",
+                    number: "356000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "mastercard",
+                    number: "5555555555554444"
+                },
+                {
+                    type: "mastercard",
+                    number: "5105105105105100"
+                },
+                {
+                    type: "mastercard",
+                    number: "5105105105105109",
+                    invalidLuhn: true
+                },
+                {
+                    type: "mastercard",
+                    number: "510500",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "mastercard",
+                    number: "2221222233334449"
+                },
+                {
+                    type: "mastercard",
+                    number: "2720111111111118"
+                },
+                {
+                    type: null,
+                    number: "2721000000000000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: null,
+                    number: "222000000000000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "visa",
+                    number: "4111111111111111"
+                },
+                {
+                    type: "visa",
+                    number: "4111111111111112",
+                    invalidLuhn: true
+                },
+                {
+                    type: "visa",
+                    number: "4012888888881881"
+                },
+                {
+                    type: "visa",
+                    number: "411111",
+                    invalidLuhn: true,
+                    invalidLength: true
+                },
+                {
+                    type: "visa",
+                    number: "4556781815037",
+                    invalidLuhn: false,
+                    invalidLength: false
+                },
+                {
+                    type: "visa",
+                    number: "4111111111119"
+                },
+                {
+                    type: "visa",
+                    number: "411111111111111118"
+                },
+                {
+                    type: "dankort",
+                    number: "5019717010103742",
+                    invalidLuhn: false,
+                    invalidLength: false
+                },
+                {
+                    type: "uatp",
+                    number: "111111111111119"
+                },
+                {
+                    type: "uatp",
+                    number: "11111111111110",
+                    invalidLength: true
+                },
+                {
+                    type: "uatp",
+                    number: "111111111111112",
+                    invalidLuhn: true
+                },
+                {
+                    type: null,
+                    number: "00000000",
+                    invalidLuhn: true,
+                    invalidLength: true
+                }
+            ];
+
+            var input = $("#cardNumber");
+            var results = [];
+
+            while (cards.length) {
+                (function() {
+                    var card = cards.shift();
+
+                    input.val(card.number);
+
+                    var result = input.validateCreditCard();
+
+                    QUnit.test("Card number " + card.number, function(assert) {
+                        assert.equal(result.card_type === null ? null : result.card_type.name, card.type, "Card type is " + (card.type === null ? "unknown" : card.type.toUpperCase()));
+                        assert.equal(result.luhn_valid, !card.invalidLuhn, "Luhn checksum is " + (card.invalidLuhn ? "invalid" : "valid"));
+                        assert.equal(result.length_valid, !card.invalidLength, "Length is " + (card.invalidLength ? "invalid" : "valid"));
+                        assert.equal(result.valid, !card.invalidLength && !card.invalidLuhn, "The card number is " + (!card.invalidLength && !card.invalidLuhn ? "valid" : "invalid"));
+                    });
+                })();
+            }
+        </script>
+    </body>
+</html>

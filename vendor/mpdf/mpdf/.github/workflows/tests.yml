@@ -1,0 +1,113 @@
+# https://help.github.com/en/categories/automating-your-workflow-with-github-actions
+
+name: "CI"
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+      - "development"
+      - "test"
+
+jobs:
+
+  tests:
+
+    name: "Tests"
+
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "5.6"
+          - "7.0"
+          - "7.1"
+          - "7.2"
+          - "7.3"
+          - "7.4"
+        operating-system: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "${{ matrix.php-version }}"
+          extensions: "mbstring, gd, bcmath, bz2"
+          tools: composer:v2
+
+      - name: "Install dependencies"
+        run: "composer install --no-interaction --no-progress"
+
+      - name: "Tests"
+        run: composer test
+
+  tests-ignore-reqs:
+
+    name: "Tests with ignore-platform-reqs"
+
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.0"
+        operating-system: [ ubuntu-latest, windows-latest ]
+
+    steps:
+      -   name: "Checkout"
+          uses: "actions/checkout@v2"
+
+      -   name: "Install PHP"
+          uses: "shivammathur/setup-php@v2"
+          with:
+            coverage: "none"
+            php-version: "${{ matrix.php-version }}"
+            extensions: "mbstring, gd, bcmath, bz2"
+            tools: composer:v2
+
+      -   name: "Install dependencies"
+          run: "composer install --no-interaction --no-progress --ignore-platform-reqs"
+
+      -   name: "Tests"
+          run: composer test
+          continue-on-error: true
+
+  tests-ignore-reqs-ignore-errors:
+
+    name: "Tests on dev environments"
+
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.1"
+        operating-system: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "${{ matrix.php-version }}"
+          extensions: "mbstring, gd, bcmath, bz2"
+          tools: composer:v2
+
+      - name: "Install dependencies"
+        run: "composer install --no-interaction --no-progress --ignore-platform-reqs"
+
+      - name: "Tests"
+        run: composer test
+        continue-on-error: true

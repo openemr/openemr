@@ -1,0 +1,66 @@
+{
+    "name": "laminas/laminas-router",
+    "description": "Flexible routing system for HTTP and console applications",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "routing"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-router/",
+        "issues": "https://github.com/laminas/laminas-router/issues",
+        "source": "https://github.com/laminas/laminas-router",
+        "rss": "https://github.com/laminas/laminas-router/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laminas": {
+            "component": "Laminas\\Router",
+            "config-provider": "Laminas\\Router\\ConfigProvider"
+        }
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "container-interop/container-interop": "^1.2",
+        "laminas/laminas-http": "^2.8.1",
+        "laminas/laminas-servicemanager": "^2.7.8 || ^3.3",
+        "laminas/laminas-stdlib": "^3.3",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-i18n": "^2.7.4",
+        "phpunit/phpunit": "^9.4"
+    },
+    "suggest": {
+        "laminas/laminas-i18n": "^2.7.4, if defining translatable HTTP path segments"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Router\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Router\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-router": "^3.3.0"
+    }
+}

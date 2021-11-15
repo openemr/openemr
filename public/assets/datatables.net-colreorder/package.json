@@ -1,0 +1,76 @@
+{
+  "_args": [
+    [
+      "datatables.net-colreorder@1.5.5",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "datatables.net-colreorder@1.5.5",
+  "_id": "datatables.net-colreorder@1.5.5",
+  "_inBundle": false,
+  "_integrity": "sha512-AUwv5A/87I4hg7GY/WbhRrDhqng9b019jLvvKutHibSPCEtMDWqyNtuP0q8zYoquqU9UQ1/nqXLW/ld8TzIDYQ==",
+  "_location": "/datatables.net-colreorder",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "datatables.net-colreorder@1.5.5",
+    "name": "datatables.net-colreorder",
+    "escapedName": "datatables.net-colreorder",
+    "rawSpec": "1.5.5",
+    "saveSpec": null,
+    "fetchSpec": "1.5.5"
+  },
+  "_requiredBy": [
+    "/",
+    "/datatables.net-colreorder-dt"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-colreorder/-/datatables.net-colreorder-1.5.5.tgz",
+  "_spec": "1.5.5",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net": ">=1.11.3",
+    "jquery": ">=1.7"
+  },
+  "description": "ColReorder for DataTables",
+  "files": [
+    "js/**/*.js",
+    "types/**/*.d.ts"
+  ],
+  "homepage": "https://datatables.net",
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "keywords": [
+    "ColReorder",
+    "Reorder",
+    "Datatables",
+    "jQuery",
+    "table",
+    "filter",
+    "sort"
+  ],
+  "license": "MIT",
+  "main": "js/dataTables.colReorder.js",
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "name": "datatables.net-colreorder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-ColReorder.git"
+  },
+  "types": "./types/types.d.ts",
+  "version": "1.5.5"
+}

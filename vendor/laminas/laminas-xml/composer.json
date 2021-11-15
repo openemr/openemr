@@ -1,0 +1,55 @@
+{
+    "name": "laminas/laminas-xml",
+    "description": "Utility library for XML usage, best practices, and security in PHP",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "xml",
+        "security"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "issues": "https://github.com/laminas/laminas-xml/issues",
+        "source": "https://github.com/laminas/laminas-xml",
+        "rss": "https://github.com/laminas/laminas-xml/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.4",
+        "ext-iconv": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Xml\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Xml\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zendxml": "^1.2.0"
+    }
+}

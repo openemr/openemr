@@ -1,0 +1,66 @@
+{
+    "name": "laminas/laminas-math",
+    "description": "Create cryptographically secure pseudo-random numbers, and manage big integers",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "math"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-math/",
+        "issues": "https://github.com/laminas/laminas-math/issues",
+        "source": "https://github.com/laminas/laminas-math",
+        "rss": "https://github.com/laminas/laminas-math/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.2.x-dev",
+            "dev-develop": "3.3.x-dev"
+        }
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "ext-mbstring": "*",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "suggest": {
+        "ext-bcmath": "If using the bcmath functionality",
+        "ext-gmp": "If using the gmp functionality"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Math\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Math\\": "test/"
+        },
+        "files": [
+            "test/TestAsset/random_bytes.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-math": "^3.2.0"
+    }
+}

@@ -1,0 +1,8 @@
+{
+  "defaultSeverity": "error",
+  "extends": "dtslint/dtslint.json",
+  "rules": {
+    "semicolon": false,
+    "no-null-undefined-union": false
+  }
+}

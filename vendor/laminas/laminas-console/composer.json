@@ -1,0 +1,66 @@
+{
+    "name": "laminas/laminas-console",
+    "description": "Build console applications using getopt syntax or routing, complete with prompts",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "console"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-console/",
+        "issues": "https://github.com/laminas/laminas-console/issues",
+        "source": "https://github.com/laminas/laminas-console",
+        "rss": "https://github.com/laminas/laminas-console/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.8.x-dev",
+            "dev-develop": "2.9.x-dev"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-filter": "^2.7.2",
+        "laminas/laminas-json": "^2.6 || ^3.0",
+        "laminas/laminas-validator": "^2.10.1",
+        "phpunit/phpunit": "^5.7.23 || ^6.4.3"
+    },
+    "suggest": {
+        "laminas/laminas-filter": "To support DefaultRouteMatcher usage",
+        "laminas/laminas-validator": "To support DefaultRouteMatcher usage"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Console\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Console\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-console": "self.version"
+    }
+}

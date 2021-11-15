@@ -1,0 +1,16 @@
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Sun, 24 Jan 2016 21:44:29 GMT
+Content-Type: application/json
+Content-Length: 299
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such plan: basico",
+    "param": "plan"
+  }
+}

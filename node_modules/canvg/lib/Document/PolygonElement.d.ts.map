@@ -1,0 +1,1 @@
+{"version":3,"file":"PolygonElement.d.ts","sourceRoot":"","sources":["../../src/Document/PolygonElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAClB,OAAO,eAAe,MAAM,mBAAmB,CAAC;AAEhD,MAAM,CAAC,OAAO,OAAO,cAAe,SAAQ,eAAe;IAC1D,IAAI,SAAa;IAEjB,IAAI,CAAC,GAAG,EAAE,kBAAkB;CAc5B"}

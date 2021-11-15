@@ -1,0 +1,62 @@
+{
+    "name": "laminas/laminas-server",
+    "description": "Create Reflection-based RPC servers",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "server"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-server/",
+        "issues": "https://github.com/laminas/laminas-server/issues",
+        "source": "https://github.com/laminas/laminas-server",
+        "rss": "https://github.com/laminas/laminas-server/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-code": "^3.5.1 || ^4.0.0",
+        "laminas/laminas-stdlib": "^3.3.1",
+        "laminas/laminas-zendframework-bridge": "^1.2.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.5.4",
+        "psalm/plugin-phpunit": "^0.15.1",
+        "vimeo/psalm": "^4.6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Server\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Server\\": "test/"
+        },
+        "files": [
+            "test/TestAsset/reflectionTestFunction.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-server": "^2.8.1"
+    }
+}

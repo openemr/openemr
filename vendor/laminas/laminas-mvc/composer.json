@@ -1,0 +1,83 @@
+{
+    "name": "laminas/laminas-mvc",
+    "description": "Laminas's event-driven MVC layer, including MVC Applications, Controllers, and Plugins",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "mvc"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-mvc/",
+        "issues": "https://github.com/laminas/laminas-mvc/issues",
+        "source": "https://github.com/laminas/laminas-mvc",
+        "rss": "https://github.com/laminas/laminas-mvc/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "container-interop/container-interop": "^1.2",
+        "laminas/laminas-eventmanager": "^3.2",
+        "laminas/laminas-http": "^2.7",
+        "laminas/laminas-modulemanager": "^2.8",
+        "laminas/laminas-router": "^3.0.2",
+        "laminas/laminas-servicemanager": "^3.3",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-view": "^2.11.3",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "http-interop/http-middleware": "^0.4.1",
+        "laminas/laminas-coding-standard": "^1.0.0",
+        "laminas/laminas-json": "^2.6.1 || ^3.0",
+        "laminas/laminas-psr7bridge": "^1.0",
+        "laminas/laminas-stratigility": ">=2.0.1 <2.2",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.4.2"
+    },
+    "suggest": {
+        "laminas/laminas-json": "(^2.6.1 || ^3.0) To auto-deserialize JSON body content in AbstractRestfulController extensions, when json_decode is unavailable",
+        "laminas/laminas-log": "^2.9.1  To provide log functionality via LogFilterManager, LogFormatterManager, and LogProcessorManager",
+        "laminas/laminas-mvc-console": "laminas-mvc-console provides the ability to expose laminas-mvc as a console application",
+        "laminas/laminas-mvc-i18n": "laminas-mvc-i18n provides integration with laminas-i18n, including a translation bridge and translatable route segments",
+        "laminas/laminas-mvc-middleware": "To dispatch middleware in your laminas-mvc application",
+        "laminas/laminas-mvc-plugin-fileprg": "To provide Post/Redirect/Get functionality around forms that container file uploads",
+        "laminas/laminas-mvc-plugin-flashmessenger": "To provide flash messaging capabilities between requests",
+        "laminas/laminas-mvc-plugin-identity": "To access the authenticated identity (per laminas-authentication) in controllers",
+        "laminas/laminas-mvc-plugin-prg": "To provide Post/Redirect/Get functionality within controllers",
+        "laminas/laminas-paginator": "^2.7 To provide pagination functionality via PaginatorPluginManager",
+        "laminas/laminas-servicemanager-di": "laminas-servicemanager-di provides utilities for integrating laminas-di and laminas-servicemanager in your laminas-mvc application"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Mvc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Mvc\\": "test/"
+        },
+        "files": [
+            "test/_autoload.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-mvc": "^3.1.1"
+    }
+}

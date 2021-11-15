@@ -1,0 +1,5219 @@
+import requestAnimationFrame from 'raf';
+import RGBColor from 'rgbcolor';
+import { SVGPathData } from 'svg-pathdata';
+import { canvasRGBA } from 'stackblur-canvas';
+
+/**
+ * Options preset for `OffscreenCanvas`.
+ * @param config - Preset requirements.
+ * @param config.DOMParser - XML/HTML parser from string into DOM Document.
+ * @returns Preset object.
+ */
+function offscreen({ DOMParser: DOMParserFallback } = {}) {
+    const preset = {
+        window: null,
+        ignoreAnimation: true,
+        ignoreMouse: true,
+        DOMParser: DOMParserFallback,
+        createCanvas(width, height) {
+            return new OffscreenCanvas(width, height);
+        },
+        async createImage(url) {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const img = await createImageBitmap(blob);
+            return img;
+        }
+    };
+    if (typeof DOMParser !== 'undefined'
+        || typeof DOMParserFallback === 'undefined') {
+        Reflect.deleteProperty(preset, 'DOMParser');
+    }
+    return preset;
+}
+
+/**
+ * Options preset for `node-canvas`.
+ * @param config - Preset requirements.
+ * @param config.DOMParser - XML/HTML parser from string into DOM Document.
+ * @param config.canvas - `node-canvas` exports.
+ * @param config.fetch - WHATWG-compatible `fetch` function.
+ * @returns Preset object.
+ */
+function node({ DOMParser, canvas, fetch }) {
+    return {
+        window: null,
+        ignoreAnimation: true,
+        ignoreMouse: true,
+        DOMParser,
+        fetch,
+        createCanvas: canvas.createCanvas,
+        createImage: canvas.loadImage
+    };
+}
+
+var index = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	offscreen: offscreen,
+	node: node
+});
+
+/**
+ * HTML-safe compress white-spaces.
+ * @param str - String to compress.
+ * @returns String.
+ */
+function compressSpaces(str) {
+    return str.replace(/(?!\u3000)\s+/gm, ' ');
+}
+/**
+ * HTML-safe left trim.
+ * @param str - String to trim.
+ * @returns String.
+ */
+function trimLeft(str) {
+    return str.replace(/^[\n \t]+/, '');
+}
+/**
+ * HTML-safe right trim.
+ * @param str - String to trim.
+ * @returns String.
+ */
+function trimRight(str) {
+    return str.replace(/[\n \t]+$/, '');
+}
+/**
+ * String to numbers array.
+ * @param str - Numbers string.
+ * @returns Numbers array.
+ */
+function toNumbers(str) {
+    const matches = (str || '').match(/-?(\d+(?:\.\d*(?:[eE][+-]?\d+)?)?|\.\d+)(?=\D|$)/gm) || [];
+    return matches.map(parseFloat);
+}
+// Microsoft Edge fix
+const allUppercase = /^[A-Z-]+$/;
+/**
+ * Normalize attribute name.
+ * @param name - Attribute name.
+ * @returns Normalized attribute name.
+ */
+function normalizeAttributeName(name) {
+    if (allUppercase.test(name)) {
+        return name.toLowerCase();
+    }
+    return name;
+}
+/**
+ * Parse external URL.
+ * @param url - CSS url string.
+ * @returns Parsed URL.
+ */
+function parseExternalUrl(url) {
+    //                      single quotes [2]
+    //                      v         double quotes [3]
+    //                      v         v         no quotes [4]
+    //                      v         v         v
+    const urlMatch = /url\(('([^']+)'|"([^"]+)"|([^'")]+))\)/.exec(url) || [];
+    return urlMatch[2] || urlMatch[3] || urlMatch[4];
+}
+/**
+ * Transform floats to integers in rgb colors.
+ * @param color - Color to normalize.
+ * @returns Normalized color.
+ */
+function normalizeColor(color) {
+    if (!color.startsWith('rgb')) {
+        return color;
+    }
+    let rgbParts = 3;
+    const normalizedColor = color.replace(/\d+(\.\d+)?/g, (num, isFloat) => (rgbParts-- && isFloat
+        ? String(Math.round(parseFloat(num)))
+        : num));
+    return normalizedColor;
+}
+
+// slightly modified version of https://github.com/keeganstreet/specificity/blob/master/specificity.js
+const attributeRegex = /(\[[^\]]+\])/g;
+const idRegex = /(#[^\s+>~.[:]+)/g;
+const classRegex = /(\.[^\s+>~.[:]+)/g;
+const pseudoElementRegex = /(::[^\s+>~.[:]+|:first-line|:first-letter|:before|:after)/gi;
+const pseudoClassWithBracketsRegex = /(:[\w-]+\([^)]*\))/gi;
+const pseudoClassRegex = /(:[^\s+>~.[:]+)/g;
+const elementRegex = /([^\s+>~.[:]+)/g;
+function findSelectorMatch(selector, regex) {
+    const matches = regex.exec(selector);
+    if (!matches) {
+        return [
+            selector,
+            0
+        ];
+    }
+    return [
+        selector.replace(regex, ' '),
+        matches.length
+    ];
+}
+/**
+ * Measure selector specificity.
+ * @param selector - Selector to measure.
+ * @returns Specificity.
+ */
+function getSelectorSpecificity(selector) {
+    const specificity = [0, 0, 0];
+    let currentSelector = selector
+        .replace(/:not\(([^)]*)\)/g, '     $1 ')
+        .replace(/{[\s\S]*/gm, ' ');
+    let delta = 0;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, attributeRegex);
+    specificity[1] += delta;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, idRegex);
+    specificity[0] += delta;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, classRegex);
+    specificity[1] += delta;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, pseudoElementRegex);
+    specificity[2] += delta;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, pseudoClassWithBracketsRegex);
+    specificity[1] += delta;
+    [currentSelector, delta] = findSelectorMatch(currentSelector, pseudoClassRegex);
+    specificity[1] += delta;
+    currentSelector = currentSelector
+        .replace(/[*\s+>~]/g, ' ')
+        .replace(/[#.]/g, ' ');
+    [currentSelector, delta] = findSelectorMatch(currentSelector, elementRegex); // lgtm [js/useless-assignment-to-local]
+    specificity[2] += delta;
+    return specificity.join('');
+}
+
+const PSEUDO_ZERO = .00000001;
+/**
+ * Vector magnitude.
+ * @param v
+ * @returns Number result.
+ */
+function vectorMagnitude(v) {
+    return Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2));
+}
+/**
+ * Ratio between two vectors.
+ * @param u
+ * @param v
+ * @returns Number result.
+ */
+function vectorsRatio(u, v) {
+    return (u[0] * v[0] + u[1] * v[1]) / (vectorMagnitude(u) * vectorMagnitude(v));
+}
+/**
+ * Angle between two vectors.
+ * @param u
+ * @param v
+ * @returns Number result.
+ */
+function vectorsAngle(u, v) {
+    return (u[0] * v[1] < u[1] * v[0] ? -1 : 1) * Math.acos(vectorsRatio(u, v));
+}
+function CB1(t) {
+    return t * t * t;
+}
+function CB2(t) {
+    return 3 * t * t * (1 - t);
+}
+function CB3(t) {
+    return 3 * t * (1 - t) * (1 - t);
+}
+function CB4(t) {
+    return (1 - t) * (1 - t) * (1 - t);
+}
+function QB1(t) {
+    return t * t;
+}
+function QB2(t) {
+    return 2 * t * (1 - t);
+}
+function QB3(t) {
+    return (1 - t) * (1 - t);
+}
+
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+class Property {
+    constructor(document, name, value) {
+        this.document = document;
+        this.name = name;
+        this.value = value;
+        this.isNormalizedColor = false;
+    }
+    static empty(document) {
+        return new Property(document, 'EMPTY', '');
+    }
+    split(separator = ' ') {
+        const { document, name } = this;
+        return compressSpaces(this.getString())
+            .trim()
+            .split(separator)
+            .map(value => new Property(document, name, value));
+    }
+    hasValue(zeroIsValue) {
+        const { value } = this;
+        return value !== null
+            && value !== ''
+            && (zeroIsValue || value !== 0)
+            && typeof value !== 'undefined';
+    }
+    isString(regexp) {
+        const { value } = this;
+        const result = typeof value === 'string';
+        if (!result || !regexp) {
+            return result;
+        }
+        return regexp.test(value);
+    }
+    isUrlDefinition() {
+        return this.isString(/^url\(/);
+    }
+    isPixels() {
+        if (!this.hasValue()) {
+            return false;
+        }
+        const asString = this.getString();
+        switch (true) {
+            case asString.endsWith('px'):
+            case /^[0-9]+$/.test(asString):
+                return true;
+            default:
+                return false;
+        }
+    }
+    setValue(value) {
+        this.value = value;
+        return this;
+    }
+    getValue(def) {
+        if (typeof def === 'undefined' || this.hasValue()) {
+            return this.value;
+        }
+        return def;
+    }
+    getNumber(def) {
+        if (!this.hasValue()) {
+            if (typeof def === 'undefined') {
+                return 0;
+            }
+            return parseFloat(def);
+        }
+        const { value } = this;
+        let n = parseFloat(value);
+        if (this.isString(/%$/)) {
+            n /= 100.0;
+        }
+        return n;
+    }
+    getString(def) {
+        if (typeof def === 'undefined' || this.hasValue()) {
+            return typeof this.value === 'undefined'
+                ? ''
+                : String(this.value);
+        }
+        return String(def);
+    }
+    getColor(def) {
+        let color = this.getString(def);
+        if (this.isNormalizedColor) {
+            return color;
+        }
+        this.isNormalizedColor = true;
+        color = normalizeColor(color);
+        this.value = color;
+        return color;
+    }
+    getDpi() {
+        return 96.0; // TODO: compute?
+    }
+    getRem() {
+        return this.document.rootEmSize;
+    }
+    getEm() {
+        return this.document.emSize;
+    }
+    getUnits() {
+        return this.getString().replace(/[0-9.-]/g, '');
+    }
+    getPixels(axisOrIsFontSize, processPercent = false) {
+        if (!this.hasValue()) {
+            return 0;
+        }
+        const [axis, isFontSize] = typeof axisOrIsFontSize === 'boolean'
+            ? [undefined, axisOrIsFontSize]
+            : [axisOrIsFontSize];
+        const { viewPort } = this.document.screen;
+        switch (true) {
+            case this.isString(/vmin$/):
+                return this.getNumber()
+                    / 100.0
+                    * Math.min(viewPort.computeSize('x'), viewPort.computeSize('y'));
+            case this.isString(/vmax$/):
+                return this.getNumber()
+                    / 100.0
+                    * Math.max(viewPort.computeSize('x'), viewPort.computeSize('y'));
+            case this.isString(/vw$/):
+                return this.getNumber()
+                    / 100.0
+                    * viewPort.computeSize('x');
+            case this.isString(/vh$/):
+                return this.getNumber()
+                    / 100.0
+                    * viewPort.computeSize('y');
+            case this.isString(/rem$/):
+                return this.getNumber() * this.getRem( /* viewPort */);
+            case this.isString(/em$/):
+                return this.getNumber() * this.getEm( /* viewPort */);
+            case this.isString(/ex$/):
+                return this.getNumber() * this.getEm( /* viewPort */) / 2.0;
+            case this.isString(/px$/):
+                return this.getNumber();
+            case this.isString(/pt$/):
+                return this.getNumber() * this.getDpi( /* viewPort */) * (1.0 / 72.0);
+            case this.isString(/pc$/):
+                return this.getNumber() * 15;
+            case this.isString(/cm$/):
+                return this.getNumber() * this.getDpi( /* viewPort */) / 2.54;
+            case this.isString(/mm$/):
+                return this.getNumber() * this.getDpi( /* viewPort */) / 25.4;
+            case this.isString(/in$/):
+                return this.getNumber() * this.getDpi( /* viewPort */);
+            case this.isString(/%$/) && isFontSize:
+                return this.getNumber() * this.getEm( /* viewPort */);
+            case this.isString(/%$/):
+                return this.getNumber() * viewPort.computeSize(axis);
+            default: {
+                const n = this.getNumber();
+                if (processPercent && n < 1.0) {
+                    return n * viewPort.computeSize(axis);
+                }
+                return n;
+            }
+        }
+    }
+    getMilliseconds() {
+        if (!this.hasValue()) {
+            return 0;
+        }
+        if (this.isString(/ms$/)) {
+            return this.getNumber();
+        }
+        return this.getNumber() * 1000;
+    }
+    getRadians() {
+        if (!this.hasValue()) {
+            return 0;
+        }
+        switch (true) {
+            case this.isString(/deg$/):
+                return this.getNumber() * (Math.PI / 180.0);
+            case this.isString(/grad$/):
+                return this.getNumber() * (Math.PI / 200.0);
+            case this.isString(/rad$/):
+                return this.getNumber();
+            default:
+                return this.getNumber() * (Math.PI / 180.0);
+        }
+    }
+    getDefinition() {
+        const asString = this.getString();
+        let name = /#([^)'"]+)/.exec(asString);
+        if (name) {
+            name = name[1];
+        }
+        if (!name) {
+            name = asString;
+        }
+        return this.document.definitions[name];
+    }
+    getFillStyleDefinition(element, opacity) {
+        let def = this.getDefinition();
+        if (!def) {
+            return null;
+        }
+        // gradient
+        if (typeof def.createGradient === 'function') {
+            return def.createGradient(this.document.ctx, element, opacity);
+        }
+        // pattern
+        if (typeof def.createPattern === 'function') {
+            if (def.getHrefAttribute().hasValue()) {
+                const patternTransform = def.getAttribute('patternTransform');
+                def = def.getHrefAttribute().getDefinition();
+                if (patternTransform.hasValue()) {
+                    def.getAttribute('patternTransform', true).setValue(patternTransform.value);
+                }
+            }
+            return def.createPattern(this.document.ctx, element, opacity);
+        }
+        return null;
+    }
+    getTextBaseline() {
+        if (!this.hasValue()) {
+            return null;
+        }
+        return Property.textBaselineMapping[this.getString()];
+    }
+    addOpacity(opacity) {
+        let value = this.getColor();
+        const len = value.length;
+        let commas = 0;
+        // Simulate old RGBColor version, which can't parse rgba.
+        for (let i = 0; i < len; i++) {
+            if (value[i] === ',') {
+                commas++;
+            }
+            if (commas === 3) {
+                break;
+            }
+        }
+        if (opacity.hasValue() && this.isString() && commas !== 3) {
+            const color = new RGBColor(value);
+            if (color.ok) {
+                color.alpha = opacity.getNumber();
+                value = color.toRGBA();
+            }
+        }
+        return new Property(this.document, this.name, value);
+    }
+}
+Property.textBaselineMapping = {
+    'baseline': 'alphabetic',
+    'before-edge': 'top',
+    'text-before-edge': 'top',
+    'middle': 'middle',
+    'central': 'middle',
+    'after-edge': 'bottom',
+    'text-after-edge': 'bottom',
+    'ideographic': 'ideographic',
+    'alphabetic': 'alphabetic',
+    'hanging': 'hanging',
+    'mathematical': 'alphabetic'
+};
+
+class ViewPort {
+    constructor() {
+        this.viewPorts = [];
+    }
+    clear() {
+        this.viewPorts = [];
+    }
+    setCurrent(width, height) {
+        this.viewPorts.push({
+            width,
+            height
+        });
+    }
+    removeCurrent() {
+        this.viewPorts.pop();
+    }
+    getCurrent() {
+        const { viewPorts } = this;
+        return viewPorts[viewPorts.length - 1];
+    }
+    get width() {
+        return this.getCurrent().width;
+    }
+    get height() {
+        return this.getCurrent().height;
+    }
+    computeSize(d) {
+        if (typeof d === 'number') {
+            return d;
+        }
+        if (d === 'x') {
+            return this.width;
+        }
+        if (d === 'y') {
+            return this.height;
+        }
+        return Math.sqrt(Math.pow(this.width, 2) + Math.pow(this.height, 2)) / Math.sqrt(2);
+    }
+}
+
+class Point {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    static parse(point, defaultValue = 0) {
+        const [x = defaultValue, y = defaultValue] = toNumbers(point);
+        return new Point(x, y);
+    }
+    static parseScale(scale, defaultValue = 1) {
+        const [x = defaultValue, y = x] = toNumbers(scale);
+        return new Point(x, y);
+    }
+    static parsePath(path) {
+        const points = toNumbers(path);
+        const len = points.length;
+        const pathPoints = [];
+        for (let i = 0; i < len; i += 2) {
+            pathPoints.push(new Point(points[i], points[i + 1]));
+        }
+        return pathPoints;
+    }
+    angleTo(point) {
+        return Math.atan2(point.y - this.y, point.x - this.x);
+    }
+    applyTransform(transform) {
+        const { x, y } = this;
+        const xp = x * transform[0] + y * transform[2] + transform[4];
+        const yp = x * transform[1] + y * transform[3] + transform[5];
+        this.x = xp;
+        this.y = yp;
+    }
+}
+
+class Mouse {
+    constructor(screen) {
+        this.screen = screen;
+        this.working = false;
+        this.events = [];
+        this.eventElements = [];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this.onClick = this.onClick.bind(this);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this.onMouseMove = this.onMouseMove.bind(this);
+    }
+    isWorking() {
+        return this.working;
+    }
+    start() {
+        if (this.working) {
+            return;
+        }
+        const { screen, onClick, onMouseMove } = this;
+        const canvas = screen.ctx.canvas;
+        canvas.onclick = onClick;
+        canvas.onmousemove = onMouseMove;
+        this.working = true;
+    }
+    stop() {
+        if (!this.working) {
+            return;
+        }
+        const canvas = this.screen.ctx.canvas;
+        this.working = false;
+        canvas.onclick = null;
+        canvas.onmousemove = null;
+    }
+    hasEvents() {
+        return this.working && this.events.length > 0;
+    }
+    runEvents() {
+        if (!this.working) {
+            return;
+        }
+        const { screen: document, events, eventElements } = this;
+        const { style } = document.ctx.canvas;
+        if (style) {
+            style.cursor = '';
+        }
+        events.forEach(({ run }, i) => {
+            let element = eventElements[i];
+            while (element) {
+                run(element);
+                element = element.parent;
+            }
+        });
+        // done running, clear
+        this.events = [];
+        this.eventElements = [];
+    }
+    checkPath(element, ctx) {
+        if (!this.working || !ctx) {
+            return;
+        }
+        const { events, eventElements } = this;
+        events.forEach(({ x, y }, i) => {
+            if (!eventElements[i] && ctx.isPointInPath && ctx.isPointInPath(x, y)) {
+                eventElements[i] = element;
+            }
+        });
+    }
+    checkBoundingBox(element, boundingBox) {
+        if (!this.working || !boundingBox) {
+            return;
+        }
+        const { events, eventElements } = this;
+        events.forEach(({ x, y }, i) => {
+            if (!eventElements[i] && boundingBox.isPointInBox(x, y)) {
+                eventElements[i] = element;
+            }
+        });
+    }
+    mapXY(x, y) {
+        const { window, ctx } = this.screen;
+        const point = new Point(x, y);
+        let element = ctx.canvas;
+        while (element) {
+            point.x -= element.offsetLeft;
+            point.y -= element.offsetTop;
+            element = element.offsetParent;
+        }
+        if (window.scrollX) {
+            point.x += window.scrollX;
+        }
+        if (window.scrollY) {
+            point.y += window.scrollY;
+        }
+        return point;
+    }
+    onClick(event) {
+        const { x, y } = this.mapXY(event.clientX, event.clientY);
+        this.events.push({
+            type: 'onclick',
+            x,
+            y,
+            run(eventTarget) {
+                if (eventTarget.onClick) {
+                    eventTarget.onClick();
+                }
+            }
+        });
+    }
+    onMouseMove(event) {
+        const { x, y } = this.mapXY(event.clientX, event.clientY);
+        this.events.push({
+            type: 'onmousemove',
+            x,
+            y,
+            run(eventTarget) {
+                if (eventTarget.onMouseMove) {
+                    eventTarget.onMouseMove();
+                }
+            }
+        });
+    }
+}
+
+const defaultWindow = typeof window !== 'undefined'
+    ? window
+    : null;
+const defaultFetch$1 = typeof fetch !== 'undefined'
+    ? fetch.bind(undefined) // `fetch` depends on context: `someObject.fetch(...)` will throw error.
+    : null;
+class Screen {
+    constructor(ctx, { fetch = defaultFetch$1, window = defaultWindow } = {}) {
+        this.ctx = ctx;
+        this.FRAMERATE = 30;
+        this.MAX_VIRTUAL_PIXELS = 30000;
+        this.CLIENT_WIDTH = 800;
+        this.CLIENT_HEIGHT = 600;
+        this.viewPort = new ViewPort();
+        this.mouse = new Mouse(this);
+        this.animations = [];
+        this.waits = [];
+        this.frameDuration = 0;
+        this.isReadyLock = false;
+        this.isFirstRender = true;
+        this.intervalId = null;
+        this.window = window;
+        this.fetch = fetch;
+    }
+    wait(checker) {
+        this.waits.push(checker);
+    }
+    ready() {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        if (!this.readyPromise) {
+            return Promise.resolve();
+        }
+        return this.readyPromise;
+    }
+    isReady() {
+        if (this.isReadyLock) {
+            return true;
+        }
+        const isReadyLock = this.waits.every(_ => _());
+        if (isReadyLock) {
+            this.waits = [];
+            if (this.resolveReady) {
+                this.resolveReady();
+            }
+        }
+        this.isReadyLock = isReadyLock;
+        return isReadyLock;
+    }
+    setDefaults(ctx) {
+        // initial values and defaults
+        ctx.strokeStyle = 'rgba(0,0,0,0)';
+        ctx.lineCap = 'butt';
+        ctx.lineJoin = 'miter';
+        ctx.miterLimit = 4;
+    }
+    setViewBox({ document, ctx, aspectRatio, width, desiredWidth, height, desiredHeight, minX = 0, minY = 0, refX, refY, clip = false, clipX = 0, clipY = 0 }) {
+        // aspect ratio - http://www.w3.org/TR/SVG/coords.html#PreserveAspectRatioAttribute
+        const cleanAspectRatio = compressSpaces(aspectRatio).replace(/^defer\s/, ''); // ignore defer
+        const [aspectRatioAlign, aspectRatioMeetOrSlice] = cleanAspectRatio.split(' ');
+        const align = aspectRatioAlign || 'xMidYMid';
+        const meetOrSlice = aspectRatioMeetOrSlice || 'meet';
+        // calculate scale
+        const scaleX = width / desiredWidth;
+        const scaleY = height / desiredHeight;
+        const scaleMin = Math.min(scaleX, scaleY);
+        const scaleMax = Math.max(scaleX, scaleY);
+        let finalDesiredWidth = desiredWidth;
+        let finalDesiredHeight = desiredHeight;
+        if (meetOrSlice === 'meet') {
+            finalDesiredWidth *= scaleMin;
+            finalDesiredHeight *= scaleMin;
+        }
+        if (meetOrSlice === 'slice') {
+            finalDesiredWidth *= scaleMax;
+            finalDesiredHeight *= scaleMax;
+        }
+        const refXProp = new Property(document, 'refX', refX);
+        const refYProp = new Property(document, 'refY', refY);
+        const hasRefs = refXProp.hasValue() && refYProp.hasValue();
+        if (hasRefs) {
+            ctx.translate(-scaleMin * refXProp.getPixels('x'), -scaleMin * refYProp.getPixels('y'));
+        }
+        if (clip) {
+            const scaledClipX = scaleMin * clipX;
+            const scaledClipY = scaleMin * clipY;
+            ctx.beginPath();
+            ctx.moveTo(scaledClipX, scaledClipY);
+            ctx.lineTo(width, scaledClipY);
+            ctx.lineTo(width, height);
+            ctx.lineTo(scaledClipX, height);
+            ctx.closePath();
+            ctx.clip();
+        }
+        if (!hasRefs) {
+            const isMeetMinY = meetOrSlice === 'meet' && scaleMin === scaleY;
+            const isSliceMaxY = meetOrSlice === 'slice' && scaleMax === scaleY;
+            const isMeetMinX = meetOrSlice === 'meet' && scaleMin === scaleX;
+            const isSliceMaxX = meetOrSlice === 'slice' && scaleMax === scaleX;
+            if (align.startsWith('xMid') && (isMeetMinY || isSliceMaxY)) {
+                ctx.translate(width / 2.0 - finalDesiredWidth / 2.0, 0);
+            }
+            if (align.endsWith('YMid') && (isMeetMinX || isSliceMaxX)) {
+                ctx.translate(0, height / 2.0 - finalDesiredHeight / 2.0);
+            }
+            if (align.startsWith('xMax') && (isMeetMinY || isSliceMaxY)) {
+                ctx.translate(width - finalDesiredWidth, 0);
+            }
+            if (align.endsWith('YMax') && (isMeetMinX || isSliceMaxX)) {
+                ctx.translate(0, height - finalDesiredHeight);
+            }
+        }
+        // scale
+        switch (true) {
+            case align === 'none':
+                ctx.scale(scaleX, scaleY);
+                break;
+            case meetOrSlice === 'meet':
+                ctx.scale(scaleMin, scaleMin);
+                break;
+            case meetOrSlice === 'slice':
+                ctx.scale(scaleMax, scaleMax);
+                break;
+        }
+        // translate
+        ctx.translate(-minX, -minY);
+    }
+    start(element, { enableRedraw = false, ignoreMouse = false, ignoreAnimation = false, ignoreDimensions = false, ignoreClear = false, forceRedraw, scaleWidth, scaleHeight, offsetX, offsetY } = {}) {
+        const { FRAMERATE, mouse } = this;
+        const frameDuration = 1000 / FRAMERATE;
+        this.frameDuration = frameDuration;
+        this.readyPromise = new Promise((resolve) => {
+            this.resolveReady = resolve;
+        });
+        if (this.isReady()) {
+            this.render(element, ignoreDimensions, ignoreClear, scaleWidth, scaleHeight, offsetX, offsetY);
+        }
+        if (!enableRedraw) {
+            return;
+        }
+        let now = Date.now();
+        let then = now;
+        let delta = 0;
+        const tick = () => {
+            now = Date.now();
+            delta = now - then;
+            if (delta >= frameDuration) {
+                then = now - (delta % frameDuration);
+                if (this.shouldUpdate(ignoreAnimation, forceRedraw)) {
+                    this.render(element, ignoreDimensions, ignoreClear, scaleWidth, scaleHeight, offsetX, offsetY);
+                    mouse.runEvents();
+                }
+            }
+            this.intervalId = requestAnimationFrame(tick);
+        };
+        if (!ignoreMouse) {
+            mouse.start();
+        }
+        this.intervalId = requestAnimationFrame(tick);
+    }
+    stop() {
+        if (this.intervalId) {
+            requestAnimationFrame.cancel(this.intervalId);
+            this.intervalId = null;
+        }
+        this.mouse.stop();
+    }
+    shouldUpdate(ignoreAnimation, forceRedraw) {
+        // need update from animations?
+        if (!ignoreAnimation) {
+            const { frameDuration } = this;
+            const shouldUpdate = this.animations.reduce((shouldUpdate, animation) => animation.update(frameDuration) || shouldUpdate, false);
+            if (shouldUpdate) {
+                return true;
+            }
+        }
+        // need update from redraw?
+        if (typeof forceRedraw === 'function' && forceRedraw()) {
+            return true;
+        }
+        if (!this.isReadyLock && this.isReady()) {
+            return true;
+        }
+        // need update from mouse events?
+        if (this.mouse.hasEvents()) {
+            return true;
+        }
+        return false;
+    }
+    render(element, ignoreDimensions, ignoreClear, scaleWidth, scaleHeight, offsetX, offsetY) {
+        const { CLIENT_WIDTH, CLIENT_HEIGHT, viewPort, ctx, isFirstRender } = this;
+        const canvas = ctx.canvas;
+        viewPort.clear();
+        if (canvas.width && canvas.height) {
+            viewPort.setCurrent(canvas.width, canvas.height);
+        }
+        else {
+            viewPort.setCurrent(CLIENT_WIDTH, CLIENT_HEIGHT);
+        }
+        const widthStyle = element.getStyle('width');
+        const heightStyle = element.getStyle('height');
+        if (!ignoreDimensions && (isFirstRender
+            || typeof scaleWidth !== 'number' && typeof scaleHeight !== 'number')) {
+            // set canvas size
+            if (widthStyle.hasValue()) {
+                canvas.width = widthStyle.getPixels('x');
+                if (canvas.style) {
+                    canvas.style.width = `${canvas.width}px`;
+                }
+            }
+            if (heightStyle.hasValue()) {
+                canvas.height = heightStyle.getPixels('y');
+                if (canvas.style) {
+                    canvas.style.height = `${canvas.height}px`;
+                }
+            }
+        }
+        let cWidth = canvas.clientWidth || canvas.width;
+        let cHeight = canvas.clientHeight || canvas.height;
+        if (ignoreDimensions && widthStyle.hasValue() && heightStyle.hasValue()) {
+            cWidth = widthStyle.getPixels('x');
+            cHeight = heightStyle.getPixels('y');
+        }
+        viewPort.setCurrent(cWidth, cHeight);
+        if (typeof offsetX === 'number') {
+            element.getAttribute('x', true).setValue(offsetX);
+        }
+        if (typeof offsetY === 'number') {
+            element.getAttribute('y', true).setValue(offsetY);
+        }
+        if (typeof scaleWidth === 'number'
+            || typeof scaleHeight === 'number') {
+            const viewBox = toNumbers(element.getAttribute('viewBox').getString());
+            let xRatio = 0;
+            let yRatio = 0;
+            if (typeof scaleWidth === 'number') {
+                const widthStyle = element.getStyle('width');
+                if (widthStyle.hasValue()) {
+                    xRatio = widthStyle.getPixels('x') / scaleWidth;
+                }
+                else if (!isNaN(viewBox[2])) {
+                    xRatio = viewBox[2] / scaleWidth;
+                }
+            }
+            if (typeof scaleHeight === 'number') {
+                const heightStyle = element.getStyle('height');
+                if (heightStyle.hasValue()) {
+                    yRatio = heightStyle.getPixels('y') / scaleHeight;
+                }
+                else if (!isNaN(viewBox[3])) {
+                    yRatio = viewBox[3] / scaleHeight;
+                }
+            }
+            if (!xRatio) {
+                xRatio = yRatio;
+            }
+            if (!yRatio) {
+                yRatio = xRatio;
+            }
+            element.getAttribute('width', true).setValue(scaleWidth);
+            element.getAttribute('height', true).setValue(scaleHeight);
+            const transformStyle = element.getStyle('transform', true, true);
+            transformStyle.setValue(`${transformStyle.getString()} scale(${1.0 / xRatio}, ${1.0 / yRatio})`);
+        }
+        // clear and render
+        if (!ignoreClear) {
+            ctx.clearRect(0, 0, cWidth, cHeight);
+        }
+        element.render(ctx);
+        if (isFirstRender) {
+            this.isFirstRender = false;
+        }
+    }
+}
+Screen.defaultWindow = defaultWindow;
+Screen.defaultFetch = defaultFetch$1;
+
+const { defaultFetch } = Screen;
+const DefaultDOMParser = typeof DOMParser !== 'undefined'
+    ? DOMParser
+    : null;
+class Parser {
+    constructor({ fetch = defaultFetch, DOMParser = DefaultDOMParser } = {}) {
+        this.fetch = fetch;
+        this.DOMParser = DOMParser;
+    }
+    async parse(resource) {
+        if (resource.startsWith('<')) {
+            return this.parseFromString(resource);
+        }
+        return this.load(resource);
+    }
+    parseFromString(xml) {
+        const parser = new this.DOMParser();
+        try {
+            return this.checkDocument(parser.parseFromString(xml, 'image/svg+xml'));
+        }
+        catch (err) {
+            return this.checkDocument(parser.parseFromString(xml, 'text/xml'));
+        }
+    }
+    checkDocument(document) {
+        const parserError = document.getElementsByTagName('parsererror')[0];
+        if (parserError) {
+            throw new Error(parserError.textContent);
+        }
+        return document;
+    }
+    async load(url) {
+        const response = await this.fetch(url);
+        const xml = await response.text();
+        return this.parseFromString(xml);
+    }
+}
+
+class Translate {
+    constructor(_, point) {
+        this.type = 'translate';
+        this.point = null;
+        this.point = Point.parse(point);
+    }
+    apply(ctx) {
+        const { x, y } = this.point;
+        ctx.translate(x || 0.0, y || 0.0);
+    }
+    unapply(ctx) {
+        const { x, y } = this.point;
+        ctx.translate(-1.0 * x || 0.0, -1.0 * y || 0.0);
+    }
+    applyToPoint(point) {
+        const { x, y } = this.point;
+        point.applyTransform([
+            1,
+            0,
+            0,
+            1,
+            x || 0.0,
+            y || 0.0
+        ]);
+    }
+}
+
+class Rotate {
+    constructor(document, rotate, transformOrigin) {
+        this.type = 'rotate';
+        this.angle = null;
+        this.originX = null;
+        this.originY = null;
+        this.cx = 0;
+        this.cy = 0;
+        const numbers = toNumbers(rotate);
+        this.angle = new Property(document, 'angle', numbers[0]);
+        this.originX = transformOrigin[0];
+        this.originY = transformOrigin[1];
+        this.cx = numbers[1] || 0;
+        this.cy = numbers[2] || 0;
+    }
+    apply(ctx) {
+        const { cx, cy, originX, originY, angle } = this;
+        const tx = cx + originX.getPixels('x');
+        const ty = cy + originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.rotate(angle.getRadians());
+        ctx.translate(-tx, -ty);
+    }
+    unapply(ctx) {
+        const { cx, cy, originX, originY, angle } = this;
+        const tx = cx + originX.getPixels('x');
+        const ty = cy + originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.rotate(-1.0 * angle.getRadians());
+        ctx.translate(-tx, -ty);
+    }
+    applyToPoint(point) {
+        const { cx, cy, angle } = this;
+        const rad = angle.getRadians();
+        point.applyTransform([
+            1,
+            0,
+            0,
+            1,
+            cx || 0.0,
+            cy || 0.0 // this.p.y
+        ]);
+        point.applyTransform([
+            Math.cos(rad),
+            Math.sin(rad),
+            -Math.sin(rad),
+            Math.cos(rad),
+            0,
+            0
+        ]);
+        point.applyTransform([
+            1,
+            0,
+            0,
+            1,
+            -cx || 0.0,
+            -cy || 0.0 // -this.p.y
+        ]);
+    }
+}
+
+class Scale {
+    constructor(_, scale, transformOrigin) {
+        this.type = 'scale';
+        this.scale = null;
+        this.originX = null;
+        this.originY = null;
+        const scaleSize = Point.parseScale(scale);
+        // Workaround for node-canvas
+        if (scaleSize.x === 0
+            || scaleSize.y === 0) {
+            scaleSize.x = PSEUDO_ZERO;
+            scaleSize.y = PSEUDO_ZERO;
+        }
+        this.scale = scaleSize;
+        this.originX = transformOrigin[0];
+        this.originY = transformOrigin[1];
+    }
+    apply(ctx) {
+        const { scale: { x, y }, originX, originY } = this;
+        const tx = originX.getPixels('x');
+        const ty = originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.scale(x, y || x);
+        ctx.translate(-tx, -ty);
+    }
+    unapply(ctx) {
+        const { scale: { x, y }, originX, originY } = this;
+        const tx = originX.getPixels('x');
+        const ty = originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.scale(1.0 / x, 1.0 / y || x);
+        ctx.translate(-tx, -ty);
+    }
+    applyToPoint(point) {
+        const { x, y } = this.scale;
+        point.applyTransform([
+            x || 0.0,
+            0,
+            0,
+            y || 0.0,
+            0,
+            0
+        ]);
+    }
+}
+
+class Matrix {
+    constructor(_, matrix, transformOrigin) {
+        this.type = 'matrix';
+        this.matrix = [];
+        this.originX = null;
+        this.originY = null;
+        this.matrix = toNumbers(matrix);
+        this.originX = transformOrigin[0];
+        this.originY = transformOrigin[1];
+    }
+    apply(ctx) {
+        const { originX, originY, matrix } = this;
+        const tx = originX.getPixels('x');
+        const ty = originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+        ctx.translate(-tx, -ty);
+    }
+    unapply(ctx) {
+        const { originX, originY, matrix } = this;
+        const a = matrix[0];
+        const b = matrix[2];
+        const c = matrix[4];
+        const d = matrix[1];
+        const e = matrix[3];
+        const f = matrix[5];
+        const g = 0.0;
+        const h = 0.0;
+        const i = 1.0;
+        const det = 1 / (a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g));
+        const tx = originX.getPixels('x');
+        const ty = originY.getPixels('y');
+        ctx.translate(tx, ty);
+        ctx.transform(det * (e * i - f * h), det * (f * g - d * i), det * (c * h - b * i), det * (a * i - c * g), det * (b * f - c * e), det * (c * d - a * f));
+        ctx.translate(-tx, -ty);
+    }
+    applyToPoint(point) {
+        point.applyTransform(this.matrix);
+    }
+}
+
+class Skew extends Matrix {
+    constructor(document, skew, transformOrigin) {
+        super(document, skew, transformOrigin);
+        this.type = 'skew';
+        this.angle = null;
+        this.angle = new Property(document, 'angle', skew);
+    }
+}
+
+class SkewX extends Skew {
+    constructor(document, skew, transformOrigin) {
+        super(document, skew, transformOrigin);
+        this.type = 'skewX';
+        this.matrix = [
+            1,
+            0,
+            Math.tan(this.angle.getRadians()),
+            1,
+            0,
+            0
+        ];
+    }
+}
+
+class SkewY extends Skew {
+    constructor(document, skew, transformOrigin) {
+        super(document, skew, transformOrigin);
+        this.type = 'skewY';
+        this.matrix = [
+            1,
+            Math.tan(this.angle.getRadians()),
+            0,
+            1,
+            0,
+            0
+        ];
+    }
+}
+
+function parseTransforms(transform) {
+    return compressSpaces(transform)
+        .trim()
+        .replace(/\)([a-zA-Z])/g, ') $1')
+        .replace(/\)(\s?,\s?)/g, ') ')
+        .split(/\s(?=[a-z])/);
+}
+function parseTransform(transform) {
+    const [type, value] = transform.split('(');
+    return [
+        type.trim(),
+        value.trim().replace(')', '')
+    ];
+}
+class Transform {
+    constructor(document, transform, transformOrigin) {
+        this.document = document;
+        this.transforms = [];
+        const data = parseTransforms(transform);
+        data.forEach((transform) => {
+            if (transform === 'none') {
+                return;
+            }
+            const [type, value] = parseTransform(transform);
+            const TransformType = Transform.transformTypes[type];
+            if (typeof TransformType !== 'undefined') {
+                this.transforms.push(new TransformType(this.document, value, transformOrigin));
+            }
+        });
+    }
+    static fromElement(document, element) {
+        const transformStyle = element.getStyle('transform', false, true);
+        const [transformOriginXProperty, transformOriginYProperty = transformOriginXProperty] = element.getStyle('transform-origin', false, true).split();
+        const transformOrigin = [
+            transformOriginXProperty,
+            transformOriginYProperty
+        ];
+        if (transformStyle.hasValue()) {
+            return new Transform(document, transformStyle.getString(), transformOrigin);
+        }
+        return null;
+    }
+    apply(ctx) {
+        const { transforms } = this;
+        const len = transforms.length;
+        for (let i = 0; i < len; i++) {
+            transforms[i].apply(ctx);
+        }
+    }
+    unapply(ctx) {
+        const { transforms } = this;
+        const len = transforms.length;
+        for (let i = len - 1; i >= 0; i--) {
+            transforms[i].unapply(ctx);
+        }
+    }
+    // TODO: applyToPoint unused ... remove?
+    applyToPoint(point) {
+        const { transforms } = this;
+        const len = transforms.length;
+        for (let i = 0; i < len; i++) {
+            transforms[i].applyToPoint(point);
+        }
+    }
+}
+Transform.transformTypes = {
+    translate: Translate,
+    rotate: Rotate,
+    scale: Scale,
+    matrix: Matrix,
+    skewX: SkewX,
+    skewY: SkewY
+};
+
+class Element {
+    constructor(document, node, captureTextNodes = false) {
+        this.document = document;
+        this.node = node;
+        this.captureTextNodes = captureTextNodes;
+        this.attributes = {};
+        this.styles = {};
+        this.stylesSpecificity = {};
+        this.animationFrozen = false;
+        this.animationFrozenValue = '';
+        this.parent = null;
+        this.children = [];
+        if (!node || node.nodeType !== 1) { // ELEMENT_NODE
+            return;
+        }
+        // add attributes
+        Array.from(node.attributes).forEach((attribute) => {
+            const nodeName = normalizeAttributeName(attribute.nodeName);
+            this.attributes[nodeName] = new Property(document, nodeName, attribute.value);
+        });
+        this.addStylesFromStyleDefinition();
+        // add inline styles
+        if (this.getAttribute('style').hasValue()) {
+            const styles = this.getAttribute('style')
+                .getString()
+                .split(';')
+                .map(_ => _.trim());
+            styles.forEach((style) => {
+                if (!style) {
+                    return;
+                }
+                const [name, value] = style.split(':').map(_ => _.trim());
+                this.styles[name] = new Property(document, name, value);
+            });
+        }
+        const { definitions } = document;
+        const id = this.getAttribute('id');
+        // add id
+        if (id.hasValue()) {
+            if (!definitions[id.getString()]) {
+                definitions[id.getString()] = this;
+            }
+        }
+        Array.from(node.childNodes).forEach((childNode) => {
+            if (childNode.nodeType === 1) {
+                this.addChild(childNode); // ELEMENT_NODE
+            }
+            else if (captureTextNodes && (childNode.nodeType === 3
+                || childNode.nodeType === 4)) {
+                const textNode = document.createTextNode(childNode);
+                if (textNode.getText().length > 0) {
+                    this.addChild(textNode); // TEXT_NODE
+                }
+            }
+        });
+    }
+    getAttribute(name, createIfNotExists = false) {
+        const attr = this.attributes[name];
+        if (!attr && createIfNotExists) {
+            const attr = new Property(this.document, name, '');
+            this.attributes[name] = attr;
+            return attr;
+        }
+        return attr || Property.empty(this.document);
+    }
+    getHrefAttribute() {
+        for (const key in this.attributes) {
+            if (key === 'href' || key.endsWith(':href')) {
+                return this.attributes[key];
+            }
+        }
+        return Property.empty(this.document);
+    }
+    getStyle(name, createIfNotExists = false, skipAncestors = false) {
+        const style = this.styles[name];
+        if (style) {
+            return style;
+        }
+        const attr = this.getAttribute(name);
+        if (attr?.hasValue()) {
+            this.styles[name] = attr; // move up to me to cache
+            return attr;
+        }
+        if (!skipAncestors) {
+            const { parent } = this;
+            if (parent) {
+                const parentStyle = parent.getStyle(name);
+                if (parentStyle?.hasValue()) {
+                    return parentStyle;
+                }
+            }
+        }
+        if (createIfNotExists) {
+            const style = new Property(this.document, name, '');
+            this.styles[name] = style;
+            return style;
+        }
+        return style || Property.empty(this.document);
+    }
+    render(ctx) {
+        // don't render display=none
+        // don't render visibility=hidden
+        if (this.getStyle('display').getString() === 'none'
+            || this.getStyle('visibility').getString() === 'hidden') {
+            return;
+        }
+        ctx.save();
+        if (this.getStyle('mask').hasValue()) { // mask
+            const mask = this.getStyle('mask').getDefinition();
+            if (mask) {
+                this.applyEffects(ctx);
+                mask.apply(ctx, this);
+            }
+        }
+        else if (this.getStyle('filter').getValue('none') !== 'none') { // filter
+            const filter = this.getStyle('filter').getDefinition();
+            if (filter) {
+                this.applyEffects(ctx);
+                filter.apply(ctx, this);
+            }
+        }
+        else {
+            this.setContext(ctx);
+            this.renderChildren(ctx);
+            this.clearContext(ctx);
+        }
+        ctx.restore();
+    }
+    setContext(_) {
+        // NO RENDER
+    }
+    applyEffects(ctx) {
+        // transform
+        const transform = Transform.fromElement(this.document, this);
+        if (transform) {
+            transform.apply(ctx);
+        }
+        // clip
+        const clipPathStyleProp = this.getStyle('clip-path', false, true);
+        if (clipPathStyleProp.hasValue()) {
+            const clip = clipPathStyleProp.getDefinition();
+            if (clip) {
+                clip.apply(ctx);
+            }
+        }
+    }
+    clearContext(_) {
+        // NO RENDER
+    }
+    renderChildren(ctx) {
+        this.children.forEach((child) => {
+            child.render(ctx);
+        });
+    }
+    addChild(childNode) {
+        const child = childNode instanceof Element
+            ? childNode
+            : this.document.createElement(childNode);
+        child.parent = this;
+        if (!Element.ignoreChildTypes.includes(child.type)) {
+            this.children.push(child);
+        }
+    }
+    matchesSelector(selector) {
+        const { node } = this;
+        if (typeof node.matches === 'function') {
+            return node.matches(selector);
+        }
+        const styleClasses = node.getAttribute('class');
+        if (!styleClasses || styleClasses === '') {
+            return false;
+        }
+        return styleClasses.split(' ').some(styleClass => `.${styleClass}` === selector);
+    }
+    addStylesFromStyleDefinition() {
+        const { styles, stylesSpecificity } = this.document;
+        for (const selector in styles) {
+            if (!selector.startsWith('@') && this.matchesSelector(selector)) {
+                const style = styles[selector];
+                const specificity = stylesSpecificity[selector];
+                if (style) {
+                    for (const name in style) {
+                        let existingSpecificity = this.stylesSpecificity[name];
+                        if (typeof existingSpecificity === 'undefined') {
+                            existingSpecificity = '000';
+                        }
+                        if (specificity >= existingSpecificity) {
+                            this.styles[name] = style[name];
+                            this.stylesSpecificity[name] = specificity;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    removeStyles(element, ignoreStyles) {
+        const toRestore = ignoreStyles.reduce((toRestore, name) => {
+            const styleProp = element.getStyle(name);
+            if (!styleProp.hasValue()) {
+                return toRestore;
+            }
+            const value = styleProp.getString();
+            styleProp.setValue('');
+            return [
+                ...toRestore,
+                [name, value]
+            ];
+        }, []);
+        return toRestore;
+    }
+    restoreStyles(element, styles) {
+        styles.forEach(([name, value]) => {
+            element.getStyle(name, true).setValue(value);
+        });
+    }
+}
+Element.ignoreChildTypes = [
+    'title'
+];
+
+class UnknownElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+    }
+}
+
+function wrapFontFamily(fontFamily) {
+    const trimmed = fontFamily.trim();
+    return /^('|")/.test(trimmed)
+        ? trimmed
+        : `"${trimmed}"`;
+}
+function prepareFontFamily(fontFamily) {
+    return typeof process === 'undefined'
+        ? fontFamily
+        : fontFamily
+            .trim()
+            .split(',')
+            .map(wrapFontFamily)
+            .join(',');
+}
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/font-style
+ * @param fontStyle
+ * @returns CSS font style.
+ */
+function prepareFontStyle(fontStyle) {
+    if (!fontStyle) {
+        return '';
+    }
+    const targetFontStyle = fontStyle.trim().toLowerCase();
+    switch (targetFontStyle) {
+        case 'normal':
+        case 'italic':
+        case 'oblique':
+        case 'inherit':
+        case 'initial':
+        case 'unset':
+            return targetFontStyle;
+        default:
+            if (/^oblique\s+(-|)\d+deg$/.test(targetFontStyle)) {
+                return targetFontStyle;
+            }
+            return '';
+    }
+}
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
+ * @param fontWeight
+ * @returns CSS font weight.
+ */
+function prepareFontWeight(fontWeight) {
+    if (!fontWeight) {
+        return '';
+    }
+    const targetFontWeight = fontWeight.trim().toLowerCase();
+    switch (targetFontWeight) {
+        case 'normal':
+        case 'bold':
+        case 'lighter':
+        case 'bolder':
+        case 'inherit':
+        case 'initial':
+        case 'unset':
+            return targetFontWeight;
+        default:
+            if (/^[\d.]+$/.test(targetFontWeight)) {
+                return targetFontWeight;
+            }
+            return '';
+    }
+}
+class Font {
+    constructor(fontStyle, fontVariant, fontWeight, fontSize, fontFamily, inherit) {
+        const inheritFont = inherit
+            ? typeof inherit === 'string'
+                ? Font.parse(inherit)
+                : inherit
+            : {};
+        this.fontFamily = fontFamily || inheritFont.fontFamily;
+        this.fontSize = fontSize || inheritFont.fontSize;
+        this.fontStyle = fontStyle || inheritFont.fontStyle;
+        this.fontWeight = fontWeight || inheritFont.fontWeight;
+        this.fontVariant = fontVariant || inheritFont.fontVariant;
+    }
+    static parse(font = '', inherit) {
+        let fontStyle = '';
+        let fontVariant = '';
+        let fontWeight = '';
+        let fontSize = '';
+        let fontFamily = '';
+        const parts = compressSpaces(font).trim().split(' ');
+        const set = {
+            fontSize: false,
+            fontStyle: false,
+            fontWeight: false,
+            fontVariant: false
+        };
+        parts.forEach((part) => {
+            switch (true) {
+                case !set.fontStyle && Font.styles.includes(part):
+                    if (part !== 'inherit') {
+                        fontStyle = part;
+                    }
+                    set.fontStyle = true;
+                    break;
+                case !set.fontVariant && Font.variants.includes(part):
+                    if (part !== 'inherit') {
+                        fontVariant = part;
+                    }
+                    set.fontStyle = true;
+                    set.fontVariant = true;
+                    break;
+                case !set.fontWeight && Font.weights.includes(part):
+                    if (part !== 'inherit') {
+                        fontWeight = part;
+                    }
+                    set.fontStyle = true;
+                    set.fontVariant = true;
+                    set.fontWeight = true;
+                    break;
+                case !set.fontSize:
+                    if (part !== 'inherit') {
+                        [fontSize] = part.split('/');
+                    }
+                    set.fontStyle = true;
+                    set.fontVariant = true;
+                    set.fontWeight = true;
+                    set.fontSize = true;
+                    break;
+                default:
+                    if (part !== 'inherit') {
+                        fontFamily += part;
+                    }
+            }
+        });
+        return new Font(fontStyle, fontVariant, fontWeight, fontSize, fontFamily, inherit);
+    }
+    toString() {
+        return [
+            prepareFontStyle(this.fontStyle),
+            this.fontVariant,
+            prepareFontWeight(this.fontWeight),
+            this.fontSize,
+            // Wrap fontFamily only on nodejs and only for canvas.ctx
+            prepareFontFamily(this.fontFamily)
+        ].join(' ').trim();
+    }
+}
+Font.styles = 'normal|italic|oblique|inherit';
+Font.variants = 'normal|small-caps|inherit';
+Font.weights = 'normal|bold|bolder|lighter|100|200|300|400|500|600|700|800|900|inherit';
+
+class BoundingBox {
+    constructor(x1 = Number.NaN, y1 = Number.NaN, x2 = Number.NaN, y2 = Number.NaN) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.addPoint(x1, y1);
+        this.addPoint(x2, y2);
+    }
+    get x() {
+        return this.x1;
+    }
+    get y() {
+        return this.y1;
+    }
+    get width() {
+        return this.x2 - this.x1;
+    }
+    get height() {
+        return this.y2 - this.y1;
+    }
+    addPoint(x, y) {
+        if (typeof x !== 'undefined') {
+            if (isNaN(this.x1) || isNaN(this.x2)) {
+                this.x1 = x;
+                this.x2 = x;
+            }
+            if (x < this.x1) {
+                this.x1 = x;
+            }
+            if (x > this.x2) {
+                this.x2 = x;
+            }
+        }
+        if (typeof y !== 'undefined') {
+            if (isNaN(this.y1) || isNaN(this.y2)) {
+                this.y1 = y;
+                this.y2 = y;
+            }
+            if (y < this.y1) {
+                this.y1 = y;
+            }
+            if (y > this.y2) {
+                this.y2 = y;
+            }
+        }
+    }
+    addX(x) {
+        this.addPoint(x, null);
+    }
+    addY(y) {
+        this.addPoint(null, y);
+    }
+    addBoundingBox(boundingBox) {
+        if (!boundingBox) {
+            return;
+        }
+        const { x1, y1, x2, y2 } = boundingBox;
+        this.addPoint(x1, y1);
+        this.addPoint(x2, y2);
+    }
+    sumCubic(t, p0, p1, p2, p3) {
+        return (Math.pow(1 - t, 3) * p0
+            + 3 * Math.pow(1 - t, 2) * t * p1
+            + 3 * (1 - t) * Math.pow(t, 2) * p2
+            + Math.pow(t, 3) * p3);
+    }
+    bezierCurveAdd(forX, p0, p1, p2, p3) {
+        const b = 6 * p0 - 12 * p1 + 6 * p2;
+        const a = -3 * p0 + 9 * p1 - 9 * p2 + 3 * p3;
+        const c = 3 * p1 - 3 * p0;
+        if (a === 0) {
+            if (b === 0) {
+                return;
+            }
+            const t = -c / b;
+            if (0 < t && t < 1) {
+                if (forX) {
+                    this.addX(this.sumCubic(t, p0, p1, p2, p3));
+                }
+                else {
+                    this.addY(this.sumCubic(t, p0, p1, p2, p3));
+                }
+            }
+            return;
+        }
+        const b2ac = Math.pow(b, 2) - 4 * c * a;
+        if (b2ac < 0) {
+            return;
+        }
+        const t1 = (-b + Math.sqrt(b2ac)) / (2 * a);
+        if (0 < t1 && t1 < 1) {
+            if (forX) {
+                this.addX(this.sumCubic(t1, p0, p1, p2, p3));
+            }
+            else {
+                this.addY(this.sumCubic(t1, p0, p1, p2, p3));
+            }
+        }
+        const t2 = (-b - Math.sqrt(b2ac)) / (2 * a);
+        if (0 < t2 && t2 < 1) {
+            if (forX) {
+                this.addX(this.sumCubic(t2, p0, p1, p2, p3));
+            }
+            else {
+                this.addY(this.sumCubic(t2, p0, p1, p2, p3));
+            }
+        }
+    }
+    // from http://blog.hackers-cafe.net/2009/06/how-to-calculate-bezier-curves-bounding.html
+    addBezierCurve(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) {
+        this.addPoint(p0x, p0y);
+        this.addPoint(p3x, p3y);
+        this.bezierCurveAdd(true, p0x, p1x, p2x, p3x);
+        this.bezierCurveAdd(false, p0y, p1y, p2y, p3y);
+    }
+    addQuadraticCurve(p0x, p0y, p1x, p1y, p2x, p2y) {
+        const cp1x = p0x + 2 / 3 * (p1x - p0x); // CP1 = QP0 + 2/3 *(QP1-QP0)
+        const cp1y = p0y + 2 / 3 * (p1y - p0y); // CP1 = QP0 + 2/3 *(QP1-QP0)
+        const cp2x = cp1x + 1 / 3 * (p2x - p0x); // CP2 = CP1 + 1/3 *(QP2-QP0)
+        const cp2y = cp1y + 1 / 3 * (p2y - p0y); // CP2 = CP1 + 1/3 *(QP2-QP0)
+        this.addBezierCurve(p0x, p0y, cp1x, cp2x, cp1y, cp2y, p2x, p2y);
+    }
+    isPointInBox(x, y) {
+        const { x1, y1, x2, y2 } = this;
+        return (x1 <= x
+            && x <= x2
+            && y1 <= y
+            && y <= y2);
+    }
+}
+
+class PathParser extends SVGPathData {
+    constructor(path) {
+        super(path
+            // Fix spaces after signs.
+            .replace(/([+\-.])\s+/gm, '$1')
+            // Remove invalid part.
+            .replace(/[^MmZzLlHhVvCcSsQqTtAae\d\s.,+-].*/g, ''));
+        this.control = null;
+        this.start = null;
+        this.current = null;
+        this.command = null;
+        this.commands = this.commands;
+        this.i = -1;
+        this.previousCommand = null;
+        this.points = [];
+        this.angles = [];
+    }
+    reset() {
+        this.i = -1;
+        this.command = null;
+        this.previousCommand = null;
+        this.start = new Point(0, 0);
+        this.control = new Point(0, 0);
+        this.current = new Point(0, 0);
+        this.points = [];
+        this.angles = [];
+    }
+    isEnd() {
+        const { i, commands } = this;
+        return i >= commands.length - 1;
+    }
+    next() {
+        const command = this.commands[++this.i];
+        this.previousCommand = this.command;
+        this.command = command;
+        return command;
+    }
+    getPoint(xProp = 'x', yProp = 'y') {
+        const point = new Point(this.command[xProp], this.command[yProp]);
+        return this.makeAbsolute(point);
+    }
+    getAsControlPoint(xProp, yProp) {
+        const point = this.getPoint(xProp, yProp);
+        this.control = point;
+        return point;
+    }
+    getAsCurrentPoint(xProp, yProp) {
+        const point = this.getPoint(xProp, yProp);
+        this.current = point;
+        return point;
+    }
+    getReflectedControlPoint() {
+        const previousCommand = this.previousCommand.type;
+        if (previousCommand !== SVGPathData.CURVE_TO
+            && previousCommand !== SVGPathData.SMOOTH_CURVE_TO
+            && previousCommand !== SVGPathData.QUAD_TO
+            && previousCommand !== SVGPathData.SMOOTH_QUAD_TO) {
+            return this.current;
+        }
+        // reflect point
+        const { current: { x: cx, y: cy }, control: { x: ox, y: oy } } = this;
+        const point = new Point(2 * cx - ox, 2 * cy - oy);
+        return point;
+    }
+    makeAbsolute(point) {
+        if (this.command.relative) {
+            const { x, y } = this.current;
+            point.x += x;
+            point.y += y;
+        }
+        return point;
+    }
+    addMarker(point, from, priorTo) {
+        const { points, angles } = this;
+        // if the last angle isn't filled in because we didn't have this point yet ...
+        if (priorTo && angles.length > 0 && !angles[angles.length - 1]) {
+            angles[angles.length - 1] = points[points.length - 1].angleTo(priorTo);
+        }
+        this.addMarkerAngle(point, from ? from.angleTo(point) : null);
+    }
+    addMarkerAngle(point, angle) {
+        this.points.push(point);
+        this.angles.push(angle);
+    }
+    getMarkerPoints() {
+        return this.points;
+    }
+    getMarkerAngles() {
+        const { angles } = this;
+        const len = angles.length;
+        for (let i = 0; i < len; i++) {
+            if (!angles[i]) {
+                for (let j = i + 1; j < len; j++) {
+                    if (angles[j]) {
+                        angles[i] = angles[j];
+                        break;
+                    }
+                }
+            }
+        }
+        return angles;
+    }
+}
+
+class RenderedElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.modifiedEmSizeStack = false;
+    }
+    calculateOpacity() {
+        let opacity = 1.0;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias, consistent-this
+        let element = this;
+        while (element) {
+            const opacityStyle = element.getStyle('opacity', false, true); // no ancestors on style call
+            if (opacityStyle.hasValue(true)) {
+                opacity *= opacityStyle.getNumber();
+            }
+            element = element.parent;
+        }
+        return opacity;
+    }
+    setContext(ctx, fromMeasure = false) {
+        if (!fromMeasure) { // causes stack overflow when measuring text with gradients
+            // fill
+            const fillStyleProp = this.getStyle('fill');
+            const fillOpacityStyleProp = this.getStyle('fill-opacity');
+            const strokeStyleProp = this.getStyle('stroke');
+            const strokeOpacityProp = this.getStyle('stroke-opacity');
+            if (fillStyleProp.isUrlDefinition()) {
+                const fillStyle = fillStyleProp.getFillStyleDefinition(this, fillOpacityStyleProp);
+                if (fillStyle) {
+                    ctx.fillStyle = fillStyle;
+                }
+            }
+            else if (fillStyleProp.hasValue()) {
+                if (fillStyleProp.getString() === 'currentColor') {
+                    fillStyleProp.setValue(this.getStyle('color').getColor());
+                }
+                const fillStyle = fillStyleProp.getColor();
+                if (fillStyle !== 'inherit') {
+                    ctx.fillStyle = fillStyle === 'none'
+                        ? 'rgba(0,0,0,0)'
+                        : fillStyle;
+                }
+            }
+            if (fillOpacityStyleProp.hasValue()) {
+                const fillStyle = new Property(this.document, 'fill', ctx.fillStyle)
+                    .addOpacity(fillOpacityStyleProp)
+                    .getColor();
+                ctx.fillStyle = fillStyle;
+            }
+            // stroke
+            if (strokeStyleProp.isUrlDefinition()) {
+                const strokeStyle = strokeStyleProp.getFillStyleDefinition(this, strokeOpacityProp);
+                if (strokeStyle) {
+                    ctx.strokeStyle = strokeStyle;
+                }
+            }
+            else if (strokeStyleProp.hasValue()) {
+                if (strokeStyleProp.getString() === 'currentColor') {
+                    strokeStyleProp.setValue(this.getStyle('color').getColor());
+                }
+                const strokeStyle = strokeStyleProp.getString();
+                if (strokeStyle !== 'inherit') {
+                    ctx.strokeStyle = strokeStyle === 'none'
+                        ? 'rgba(0,0,0,0)'
+                        : strokeStyle;
+                }
+            }
+            if (strokeOpacityProp.hasValue()) {
+                const strokeStyle = new Property(this.document, 'stroke', ctx.strokeStyle)
+                    .addOpacity(strokeOpacityProp)
+                    .getString();
+                ctx.strokeStyle = strokeStyle;
+            }
+            const strokeWidthStyleProp = this.getStyle('stroke-width');
+            if (strokeWidthStyleProp.hasValue()) {
+                const newLineWidth = strokeWidthStyleProp.getPixels();
+                ctx.lineWidth = !newLineWidth
+                    ? PSEUDO_ZERO // browsers don't respect 0 (or node-canvas? :-)
+                    : newLineWidth;
+            }
+            const strokeLinecapStyleProp = this.getStyle('stroke-linecap');
+            const strokeLinejoinStyleProp = this.getStyle('stroke-linejoin');
+            const strokeMiterlimitProp = this.getStyle('stroke-miterlimit');
+            // NEED TEST
+            // const pointOrderStyleProp = this.getStyle('paint-order');
+            const strokeDasharrayStyleProp = this.getStyle('stroke-dasharray');
+            const strokeDashoffsetProp = this.getStyle('stroke-dashoffset');
+            if (strokeLinecapStyleProp.hasValue()) {
+                ctx.lineCap = strokeLinecapStyleProp.getString();
+            }
+            if (strokeLinejoinStyleProp.hasValue()) {
+                ctx.lineJoin = strokeLinejoinStyleProp.getString();
+            }
+            if (strokeMiterlimitProp.hasValue()) {
+                ctx.miterLimit = strokeMiterlimitProp.getNumber();
+            }
+            // NEED TEST
+            // if (pointOrderStyleProp.hasValue()) {
+            // 	// ?
+            // 	ctx.paintOrder = pointOrderStyleProp.getValue();
+            // }
+            if (strokeDasharrayStyleProp.hasValue() && strokeDasharrayStyleProp.getString() !== 'none') {
+                const gaps = toNumbers(strokeDasharrayStyleProp.getString());
+                if (typeof ctx.setLineDash !== 'undefined') {
+                    ctx.setLineDash(gaps);
+                }
+                else 
+                // @ts-expect-error Handle browser prefix.
+                if (typeof ctx.webkitLineDash !== 'undefined') {
+                    // @ts-expect-error Handle browser prefix.
+                    ctx.webkitLineDash = gaps;
+                }
+                else 
+                // @ts-expect-error Handle browser prefix.
+                if (typeof ctx.mozDash !== 'undefined' && !(gaps.length === 1 && gaps[0] === 0)) {
+                    // @ts-expect-error Handle browser prefix.
+                    ctx.mozDash = gaps;
+                }
+                const offset = strokeDashoffsetProp.getPixels();
+                if (typeof ctx.lineDashOffset !== 'undefined') {
+                    ctx.lineDashOffset = offset;
+                }
+                else 
+                // @ts-expect-error Handle browser prefix.
+                if (typeof ctx.webkitLineDashOffset !== 'undefined') {
+                    // @ts-expect-error Handle browser prefix.
+                    ctx.webkitLineDashOffset = offset;
+                }
+                else 
+                // @ts-expect-error Handle browser prefix.
+                if (typeof ctx.mozDashOffset !== 'undefined') {
+                    // @ts-expect-error Handle browser prefix.
+                    ctx.mozDashOffset = offset;
+                }
+            }
+        }
+        // font
+        this.modifiedEmSizeStack = false;
+        if (typeof ctx.font !== 'undefined') {
+            const fontStyleProp = this.getStyle('font');
+            const fontStyleStyleProp = this.getStyle('font-style');
+            const fontVariantStyleProp = this.getStyle('font-variant');
+            const fontWeightStyleProp = this.getStyle('font-weight');
+            const fontSizeStyleProp = this.getStyle('font-size');
+            const fontFamilyStyleProp = this.getStyle('font-family');
+            const font = new Font(fontStyleStyleProp.getString(), fontVariantStyleProp.getString(), fontWeightStyleProp.getString(), fontSizeStyleProp.hasValue()
+                ? `${fontSizeStyleProp.getPixels(true)}px`
+                : '', fontFamilyStyleProp.getString(), Font.parse(fontStyleProp.getString(), ctx.font));
+            fontStyleStyleProp.setValue(font.fontStyle);
+            fontVariantStyleProp.setValue(font.fontVariant);
+            fontWeightStyleProp.setValue(font.fontWeight);
+            fontSizeStyleProp.setValue(font.fontSize);
+            fontFamilyStyleProp.setValue(font.fontFamily);
+            ctx.font = font.toString();
+            if (fontSizeStyleProp.isPixels()) {
+                this.document.emSize = fontSizeStyleProp.getPixels();
+                this.modifiedEmSizeStack = true;
+            }
+        }
+        if (!fromMeasure) {
+            // effects
+            this.applyEffects(ctx);
+            // opacity
+            ctx.globalAlpha = this.calculateOpacity();
+        }
+    }
+    clearContext(ctx) {
+        super.clearContext(ctx);
+        if (this.modifiedEmSizeStack) {
+            this.document.popEmSize();
+        }
+    }
+}
+
+class PathElement extends RenderedElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'path';
+        this.pathParser = null;
+        this.pathParser = new PathParser(this.getAttribute('d').getString());
+    }
+    path(ctx) {
+        const { pathParser } = this;
+        const boundingBox = new BoundingBox();
+        pathParser.reset();
+        if (ctx) {
+            ctx.beginPath();
+        }
+        while (!pathParser.isEnd()) {
+            switch (pathParser.next().type) {
+                case PathParser.MOVE_TO:
+                    this.pathM(ctx, boundingBox);
+                    break;
+                case PathParser.LINE_TO:
+                    this.pathL(ctx, boundingBox);
+                    break;
+                case PathParser.HORIZ_LINE_TO:
+                    this.pathH(ctx, boundingBox);
+                    break;
+                case PathParser.VERT_LINE_TO:
+                    this.pathV(ctx, boundingBox);
+                    break;
+                case PathParser.CURVE_TO:
+                    this.pathC(ctx, boundingBox);
+                    break;
+                case PathParser.SMOOTH_CURVE_TO:
+                    this.pathS(ctx, boundingBox);
+                    break;
+                case PathParser.QUAD_TO:
+                    this.pathQ(ctx, boundingBox);
+                    break;
+                case PathParser.SMOOTH_QUAD_TO:
+                    this.pathT(ctx, boundingBox);
+                    break;
+                case PathParser.ARC:
+                    this.pathA(ctx, boundingBox);
+                    break;
+                case PathParser.CLOSE_PATH:
+                    this.pathZ(ctx, boundingBox);
+                    break;
+            }
+        }
+        return boundingBox;
+    }
+    getBoundingBox(_) {
+        return this.path();
+    }
+    getMarkers() {
+        const { pathParser } = this;
+        const points = pathParser.getMarkerPoints();
+        const angles = pathParser.getMarkerAngles();
+        const markers = points.map((point, i) => [
+            point,
+            angles[i]
+        ]);
+        return markers;
+    }
+    renderChildren(ctx) {
+        this.path(ctx);
+        this.document.screen.mouse.checkPath(this, ctx);
+        const fillRuleStyleProp = this.getStyle('fill-rule');
+        if (ctx.fillStyle !== '') {
+            if (fillRuleStyleProp.getString('inherit') !== 'inherit') {
+                ctx.fill(fillRuleStyleProp.getString());
+            }
+            else {
+                ctx.fill();
+            }
+        }
+        if (ctx.strokeStyle !== '') {
+            if (this.getAttribute('vector-effect').getString() === 'non-scaling-stroke') {
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.stroke();
+                ctx.restore();
+            }
+            else {
+                ctx.stroke();
+            }
+        }
+        const markers = this.getMarkers();
+        if (markers) {
+            const markersLastIndex = markers.length - 1;
+            const markerStartStyleProp = this.getStyle('marker-start');
+            const markerMidStyleProp = this.getStyle('marker-mid');
+            const markerEndStyleProp = this.getStyle('marker-end');
+            if (markerStartStyleProp.isUrlDefinition()) {
+                const marker = markerStartStyleProp.getDefinition();
+                const [point, angle] = markers[0];
+                marker.render(ctx, point, angle);
+            }
+            if (markerMidStyleProp.isUrlDefinition()) {
+                const marker = markerMidStyleProp.getDefinition();
+                for (let i = 1; i < markersLastIndex; i++) {
+                    const [point, angle] = markers[i];
+                    marker.render(ctx, point, angle);
+                }
+            }
+            if (markerEndStyleProp.isUrlDefinition()) {
+                const marker = markerEndStyleProp.getDefinition();
+                const [point, angle] = markers[markersLastIndex];
+                marker.render(ctx, point, angle);
+            }
+        }
+    }
+    static pathM(pathParser) {
+        const point = pathParser.getAsCurrentPoint();
+        pathParser.start = pathParser.current;
+        return {
+            point
+        };
+    }
+    pathM(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { point } = PathElement.pathM(pathParser);
+        const { x, y } = point;
+        pathParser.addMarker(point);
+        boundingBox.addPoint(x, y);
+        if (ctx) {
+            ctx.moveTo(x, y);
+        }
+    }
+    static pathL(pathParser) {
+        const { current } = pathParser;
+        const point = pathParser.getAsCurrentPoint();
+        return {
+            current,
+            point
+        };
+    }
+    pathL(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, point } = PathElement.pathL(pathParser);
+        const { x, y } = point;
+        pathParser.addMarker(point, current);
+        boundingBox.addPoint(x, y);
+        if (ctx) {
+            ctx.lineTo(x, y);
+        }
+    }
+    static pathH(pathParser) {
+        const { current, command } = pathParser;
+        const point = new Point((command.relative ? current.x : 0) + command.x, current.y);
+        pathParser.current = point;
+        return {
+            current,
+            point
+        };
+    }
+    pathH(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, point } = PathElement.pathH(pathParser);
+        const { x, y } = point;
+        pathParser.addMarker(point, current);
+        boundingBox.addPoint(x, y);
+        if (ctx) {
+            ctx.lineTo(x, y);
+        }
+    }
+    static pathV(pathParser) {
+        const { current, command } = pathParser;
+        const point = new Point(current.x, (command.relative ? current.y : 0) + command.y);
+        pathParser.current = point;
+        return {
+            current,
+            point
+        };
+    }
+    pathV(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, point } = PathElement.pathV(pathParser);
+        const { x, y } = point;
+        pathParser.addMarker(point, current);
+        boundingBox.addPoint(x, y);
+        if (ctx) {
+            ctx.lineTo(x, y);
+        }
+    }
+    static pathC(pathParser) {
+        const { current } = pathParser;
+        const point = pathParser.getPoint('x1', 'y1');
+        const controlPoint = pathParser.getAsControlPoint('x2', 'y2');
+        const currentPoint = pathParser.getAsCurrentPoint();
+        return {
+            current,
+            point,
+            controlPoint,
+            currentPoint
+        };
+    }
+    pathC(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, point, controlPoint, currentPoint } = PathElement.pathC(pathParser);
+        pathParser.addMarker(currentPoint, controlPoint, point);
+        boundingBox.addBezierCurve(current.x, current.y, point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        if (ctx) {
+            ctx.bezierCurveTo(point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        }
+    }
+    static pathS(pathParser) {
+        const { current } = pathParser;
+        const point = pathParser.getReflectedControlPoint();
+        const controlPoint = pathParser.getAsControlPoint('x2', 'y2');
+        const currentPoint = pathParser.getAsCurrentPoint();
+        return {
+            current,
+            point,
+            controlPoint,
+            currentPoint
+        };
+    }
+    pathS(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, point, controlPoint, currentPoint } = PathElement.pathS(pathParser);
+        pathParser.addMarker(currentPoint, controlPoint, point);
+        boundingBox.addBezierCurve(current.x, current.y, point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        if (ctx) {
+            ctx.bezierCurveTo(point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        }
+    }
+    static pathQ(pathParser) {
+        const { current } = pathParser;
+        const controlPoint = pathParser.getAsControlPoint('x1', 'y1');
+        const currentPoint = pathParser.getAsCurrentPoint();
+        return {
+            current,
+            controlPoint,
+            currentPoint
+        };
+    }
+    pathQ(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, controlPoint, currentPoint } = PathElement.pathQ(pathParser);
+        pathParser.addMarker(currentPoint, controlPoint, controlPoint);
+        boundingBox.addQuadraticCurve(current.x, current.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        if (ctx) {
+            ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        }
+    }
+    static pathT(pathParser) {
+        const { current } = pathParser;
+        const controlPoint = pathParser.getReflectedControlPoint();
+        pathParser.control = controlPoint;
+        const currentPoint = pathParser.getAsCurrentPoint();
+        return {
+            current,
+            controlPoint,
+            currentPoint
+        };
+    }
+    pathT(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { current, controlPoint, currentPoint } = PathElement.pathT(pathParser);
+        pathParser.addMarker(currentPoint, controlPoint, controlPoint);
+        boundingBox.addQuadraticCurve(current.x, current.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        if (ctx) {
+            ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        }
+    }
+    static pathA(pathParser) {
+        const { current, command } = pathParser;
+        let { rX, rY, xRot, lArcFlag, sweepFlag } = command;
+        const xAxisRotation = xRot * (Math.PI / 180.0);
+        const currentPoint = pathParser.getAsCurrentPoint();
+        // Conversion from endpoint to center parameterization
+        // http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
+        // x1', y1'
+        const currp = new Point(Math.cos(xAxisRotation) * (current.x - currentPoint.x) / 2.0
+            + Math.sin(xAxisRotation) * (current.y - currentPoint.y) / 2.0, -Math.sin(xAxisRotation) * (current.x - currentPoint.x) / 2.0
+            + Math.cos(xAxisRotation) * (current.y - currentPoint.y) / 2.0);
+        // adjust radii
+        const l = Math.pow(currp.x, 2) / Math.pow(rX, 2)
+            + Math.pow(currp.y, 2) / Math.pow(rY, 2);
+        if (l > 1) {
+            rX *= Math.sqrt(l);
+            rY *= Math.sqrt(l);
+        }
+        // cx', cy'
+        let s = (lArcFlag === sweepFlag ? -1 : 1) * Math.sqrt(((Math.pow(rX, 2) * Math.pow(rY, 2))
+            - (Math.pow(rX, 2) * Math.pow(currp.y, 2))
+            - (Math.pow(rY, 2) * Math.pow(currp.x, 2))) / (Math.pow(rX, 2) * Math.pow(currp.y, 2)
+            + Math.pow(rY, 2) * Math.pow(currp.x, 2)));
+        if (isNaN(s)) {
+            s = 0;
+        }
+        const cpp = new Point(s * rX * currp.y / rY, s * -rY * currp.x / rX);
+        // cx, cy
+        const centp = new Point((current.x + currentPoint.x) / 2.0
+            + Math.cos(xAxisRotation) * cpp.x
+            - Math.sin(xAxisRotation) * cpp.y, (current.y + currentPoint.y) / 2.0
+            + Math.sin(xAxisRotation) * cpp.x
+            + Math.cos(xAxisRotation) * cpp.y);
+        // initial angle
+        const a1 = vectorsAngle([1, 0], [(currp.x - cpp.x) / rX, (currp.y - cpp.y) / rY]); // θ1
+        // angle delta
+        const u = [(currp.x - cpp.x) / rX, (currp.y - cpp.y) / rY];
+        const v = [(-currp.x - cpp.x) / rX, (-currp.y - cpp.y) / rY];
+        let ad = vectorsAngle(u, v); // Δθ
+        if (vectorsRatio(u, v) <= -1) {
+            ad = Math.PI;
+        }
+        if (vectorsRatio(u, v) >= 1) {
+            ad = 0;
+        }
+        return {
+            currentPoint,
+            rX,
+            rY,
+            sweepFlag,
+            xAxisRotation,
+            centp,
+            a1,
+            ad
+        };
+    }
+    pathA(ctx, boundingBox) {
+        const { pathParser } = this;
+        const { currentPoint, rX, rY, sweepFlag, xAxisRotation, centp, a1, ad } = PathElement.pathA(pathParser);
+        // for markers
+        const dir = 1 - sweepFlag ? 1.0 : -1.0;
+        const ah = a1 + dir * (ad / 2.0);
+        const halfWay = new Point(centp.x + rX * Math.cos(ah), centp.y + rY * Math.sin(ah));
+        pathParser.addMarkerAngle(halfWay, ah - dir * Math.PI / 2);
+        pathParser.addMarkerAngle(currentPoint, ah - dir * Math.PI);
+        boundingBox.addPoint(currentPoint.x, currentPoint.y); // TODO: this is too naive, make it better
+        if (ctx && !isNaN(a1) && !isNaN(ad)) {
+            const r = rX > rY ? rX : rY;
+            const sx = rX > rY ? 1 : rX / rY;
+            const sy = rX > rY ? rY / rX : 1;
+            ctx.translate(centp.x, centp.y);
+            ctx.rotate(xAxisRotation);
+            ctx.scale(sx, sy);
+            ctx.arc(0, 0, r, a1, a1 + ad, Boolean(1 - sweepFlag));
+            ctx.scale(1 / sx, 1 / sy);
+            ctx.rotate(-xAxisRotation);
+            ctx.translate(-centp.x, -centp.y);
+        }
+    }
+    static pathZ(pathParser) {
+        pathParser.current = pathParser.start;
+    }
+    pathZ(ctx, boundingBox) {
+        PathElement.pathZ(this.pathParser);
+        if (ctx) {
+            // only close path if it is not a straight line
+            if (boundingBox.x1 !== boundingBox.x2
+                && boundingBox.y1 !== boundingBox.y2) {
+                ctx.closePath();
+            }
+        }
+    }
+}
+
+class GlyphElement extends PathElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'glyph';
+        this.horizAdvX = this.getAttribute('horiz-adv-x').getNumber();
+        this.unicode = this.getAttribute('unicode').getString();
+        this.arabicForm = this.getAttribute('arabic-form').getString();
+    }
+}
+
+class TextElement extends RenderedElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, new.target === TextElement
+            ? true
+            : captureTextNodes);
+        this.type = 'text';
+        this.x = 0;
+        this.y = 0;
+        this.measureCache = -1;
+    }
+    setContext(ctx, fromMeasure = false) {
+        super.setContext(ctx, fromMeasure);
+        const textBaseline = this.getStyle('dominant-baseline').getTextBaseline()
+            || this.getStyle('alignment-baseline').getTextBaseline();
+        if (textBaseline) {
+            ctx.textBaseline = textBaseline;
+        }
+    }
+    initializeCoordinates(ctx) {
+        this.x = this.getAttribute('x').getPixels('x');
+        this.y = this.getAttribute('y').getPixels('y');
+        const dxAttr = this.getAttribute('dx');
+        const dyAttr = this.getAttribute('dy');
+        if (dxAttr.hasValue()) {
+            this.x += dxAttr.getPixels('x');
+        }
+        if (dyAttr.hasValue()) {
+            this.y += dyAttr.getPixels('y');
+        }
+        this.x += this.getAnchorDelta(ctx, this, 0);
+    }
+    getBoundingBox(ctx) {
+        if (this.type !== 'text') {
+            return this.getTElementBoundingBox(ctx);
+        }
+        this.initializeCoordinates(ctx);
+        let boundingBox = null;
+        this.children.forEach((_, i) => {
+            const childBoundingBox = this.getChildBoundingBox(ctx, this, this, i);
+            if (!boundingBox) {
+                boundingBox = childBoundingBox;
+            }
+            else {
+                boundingBox.addBoundingBox(childBoundingBox);
+            }
+        });
+        return boundingBox;
+    }
+    getFontSize() {
+        const { document, parent } = this;
+        const inheritFontSize = Font.parse(document.ctx.font).fontSize;
+        const fontSize = parent.getStyle('font-size').getNumber(inheritFontSize);
+        return fontSize;
+    }
+    getTElementBoundingBox(ctx) {
+        const fontSize = this.getFontSize();
+        return new BoundingBox(this.x, this.y - fontSize, this.x + this.measureText(ctx), this.y);
+    }
+    getGlyph(font, text, i) {
+        const char = text[i];
+        let glyph = null;
+        if (font.isArabic) {
+            const len = text.length;
+            const prevChar = text[i - 1];
+            const nextChar = text[i + 1];
+            let arabicForm = 'isolated';
+            if ((i === 0 || prevChar === ' ') && i < len - 2 && nextChar !== ' ') {
+                arabicForm = 'terminal';
+            }
+            if (i > 0 && prevChar !== ' ' && i < len - 2 && nextChar !== ' ') {
+                arabicForm = 'medial';
+            }
+            if (i > 0 && prevChar !== ' ' && (i === len - 1 || nextChar === ' ')) {
+                arabicForm = 'initial';
+            }
+            if (typeof font.glyphs[char] !== 'undefined') {
+                // NEED TEST
+                const maybeGlyph = font.glyphs[char];
+                glyph = maybeGlyph instanceof GlyphElement
+                    ? maybeGlyph
+                    : maybeGlyph[arabicForm];
+            }
+        }
+        else {
+            glyph = font.glyphs[char];
+        }
+        if (!glyph) {
+            glyph = font.missingGlyph;
+        }
+        return glyph;
+    }
+    getText() {
+        return '';
+    }
+    getTextFromNode(node) {
+        const textNode = node || this.node;
+        const childNodes = Array.from(textNode.parentNode.childNodes);
+        const index = childNodes.indexOf(textNode);
+        const lastIndex = childNodes.length - 1;
+        let text = compressSpaces(
+        // textNode.value
+        // || textNode.text
+        textNode.textContent
+            || '');
+        if (index === 0) {
+            text = trimLeft(text);
+        }
+        if (index === lastIndex) {
+            text = trimRight(text);
+        }
+        return text;
+    }
+    renderChildren(ctx) {
+        if (this.type !== 'text') {
+            this.renderTElementChildren(ctx);
+            return;
+        }
+        this.initializeCoordinates(ctx);
+        this.children.forEach((_, i) => {
+            this.renderChild(ctx, this, this, i);
+        });
+        const { mouse } = this.document.screen;
+        // Do not calc bounding box if mouse is not working.
+        if (mouse.isWorking()) {
+            mouse.checkBoundingBox(this, this.getBoundingBox(ctx));
+        }
+    }
+    renderTElementChildren(ctx) {
+        const { document, parent } = this;
+        const renderText = this.getText();
+        const customFont = parent.getStyle('font-family').getDefinition();
+        if (customFont) {
+            const { unitsPerEm } = customFont.fontFace;
+            const ctxFont = Font.parse(document.ctx.font);
+            const fontSize = parent.getStyle('font-size').getNumber(ctxFont.fontSize);
+            const fontStyle = parent.getStyle('font-style').getString(ctxFont.fontStyle);
+            const scale = fontSize / unitsPerEm;
+            const text = customFont.isRTL
+                ? renderText.split('').reverse().join('')
+                : renderText;
+            const dx = toNumbers(parent.getAttribute('dx').getString());
+            const len = text.length;
+            for (let i = 0; i < len; i++) {
+                const glyph = this.getGlyph(customFont, text, i);
+                ctx.translate(this.x, this.y);
+                ctx.scale(scale, -scale);
+                const lw = ctx.lineWidth;
+                ctx.lineWidth = ctx.lineWidth * unitsPerEm / fontSize;
+                if (fontStyle === 'italic') {
+                    ctx.transform(1, 0, .4, 1, 0, 0);
+                }
+                glyph.render(ctx);
+                if (fontStyle === 'italic') {
+                    ctx.transform(1, 0, -.4, 1, 0, 0);
+                }
+                ctx.lineWidth = lw;
+                ctx.scale(1 / scale, -1 / scale);
+                ctx.translate(-this.x, -this.y);
+                this.x += fontSize * (glyph.horizAdvX || customFont.horizAdvX) / unitsPerEm;
+                if (typeof dx[i] !== 'undefined' && !isNaN(dx[i])) {
+                    this.x += dx[i];
+                }
+            }
+            return;
+        }
+        const { x, y } = this;
+        // NEED TEST
+        // if (ctx.paintOrder === 'stroke') {
+        // 	if (ctx.strokeStyle) {
+        // 		ctx.strokeText(renderText, x, y);
+        // 	}
+        // 	if (ctx.fillStyle) {
+        // 		ctx.fillText(renderText, x, y);
+        // 	}
+        // } else {
+        if (ctx.fillStyle) {
+            ctx.fillText(renderText, x, y);
+        }
+        if (ctx.strokeStyle) {
+            ctx.strokeText(renderText, x, y);
+        }
+        // }
+    }
+    getAnchorDelta(ctx, parent, startI) {
+        const textAnchor = this.getStyle('text-anchor').getString('start');
+        if (textAnchor !== 'start') {
+            const { children } = parent;
+            const len = children.length;
+            let child = null;
+            let width = 0;
+            for (let i = startI; i < len; i++) {
+                child = children[i];
+                if (i > startI && child.getAttribute('x').hasValue()
+                    || child.getAttribute('text-anchor').hasValue()) {
+                    break; // new group
+                }
+                width += child.measureTextRecursive(ctx);
+            }
+            return -1 * (textAnchor === 'end' ? width : width / 2.0);
+        }
+        return 0;
+    }
+    adjustChildCoordinates(ctx, textParent, parent, i) {
+        const child = parent.children[i];
+        if (typeof child.measureText !== 'function') {
+            return child;
+        }
+        ctx.save();
+        child.setContext(ctx, true);
+        const xAttr = child.getAttribute('x');
+        const yAttr = child.getAttribute('y');
+        const dxAttr = child.getAttribute('dx');
+        const dyAttr = child.getAttribute('dy');
+        const textAnchor = child.getAttribute('text-anchor').getString('start');
+        if (i === 0 && child.type !== 'textNode') {
+            if (!xAttr.hasValue()) {
+                xAttr.setValue(textParent.getAttribute('x').getValue('0'));
+            }
+            if (!yAttr.hasValue()) {
+                yAttr.setValue(textParent.getAttribute('y').getValue('0'));
+            }
+            if (!dxAttr.hasValue()) {
+                dxAttr.setValue(textParent.getAttribute('dx').getValue('0'));
+            }
+            if (!dyAttr.hasValue()) {
+                dyAttr.setValue(textParent.getAttribute('dy').getValue('0'));
+            }
+        }
+        if (xAttr.hasValue()) {
+            child.x = xAttr.getPixels('x') + textParent.getAnchorDelta(ctx, parent, i);
+            if (textAnchor !== 'start') {
+                const width = child.measureTextRecursive(ctx);
+                child.x += -1 * (textAnchor === 'end' ? width : width / 2.0);
+            }
+            if (dxAttr.hasValue()) {
+                child.x += dxAttr.getPixels('x');
+            }
+        }
+        else {
+            if (textAnchor !== 'start') {
+                const width = child.measureTextRecursive(ctx);
+                textParent.x += -1 * (textAnchor === 'end' ? width : width / 2.0);
+            }
+            if (dxAttr.hasValue()) {
+                textParent.x += dxAttr.getPixels('x');
+            }
+            child.x = textParent.x;
+        }
+        textParent.x = child.x + child.measureText(ctx);
+        if (yAttr.hasValue()) {
+            child.y = yAttr.getPixels('y');
+            if (dyAttr.hasValue()) {
+                child.y += dyAttr.getPixels('y');
+            }
+        }
+        else {
+            if (dyAttr.hasValue()) {
+                textParent.y += dyAttr.getPixels('y');
+            }
+            child.y = textParent.y;
+        }
+        textParent.y = child.y;
+        child.clearContext(ctx);
+        ctx.restore();
+        return child;
+    }
+    getChildBoundingBox(ctx, textParent, parent, i) {
+        const child = this.adjustChildCoordinates(ctx, textParent, parent, i);
+        // not a text node?
+        if (typeof child.getBoundingBox !== 'function') {
+            return null;
+        }
+        const boundingBox = child.getBoundingBox(ctx);
+        if (!boundingBox) {
+            return null;
+        }
+        child.children.forEach((_, i) => {
+            const childBoundingBox = textParent.getChildBoundingBox(ctx, textParent, child, i);
+            boundingBox.addBoundingBox(childBoundingBox);
+        });
+        return boundingBox;
+    }
+    renderChild(ctx, textParent, parent, i) {
+        const child = this.adjustChildCoordinates(ctx, textParent, parent, i);
+        child.render(ctx);
+        child.children.forEach((_, i) => {
+            textParent.renderChild(ctx, textParent, child, i);
+        });
+    }
+    measureTextRecursive(ctx) {
+        const width = this.children.reduce((width, child) => width + child.measureTextRecursive(ctx), this.measureText(ctx));
+        return width;
+    }
+    measureText(ctx) {
+        const { measureCache } = this;
+        if (~measureCache) {
+            return measureCache;
+        }
+        const renderText = this.getText();
+        const measure = this.measureTargetText(ctx, renderText);
+        this.measureCache = measure;
+        return measure;
+    }
+    measureTargetText(ctx, targetText) {
+        if (!targetText.length) {
+            return 0;
+        }
+        const { parent } = this;
+        const customFont = parent.getStyle('font-family').getDefinition();
+        if (customFont) {
+            const fontSize = this.getFontSize();
+            const text = customFont.isRTL
+                ? targetText.split('').reverse().join('')
+                : targetText;
+            const dx = toNumbers(parent.getAttribute('dx').getString());
+            const len = text.length;
+            let measure = 0;
+            for (let i = 0; i < len; i++) {
+                const glyph = this.getGlyph(customFont, text, i);
+                measure += (glyph.horizAdvX || customFont.horizAdvX)
+                    * fontSize
+                    / customFont.fontFace.unitsPerEm;
+                if (typeof dx[i] !== 'undefined' && !isNaN(dx[i])) {
+                    measure += dx[i];
+                }
+            }
+            return measure;
+        }
+        if (!ctx.measureText) {
+            return targetText.length * 10;
+        }
+        ctx.save();
+        this.setContext(ctx, true);
+        const { width: measure } = ctx.measureText(targetText);
+        this.clearContext(ctx);
+        ctx.restore();
+        return measure;
+    }
+}
+
+class TSpanElement extends TextElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, new.target === TSpanElement
+            ? true
+            : captureTextNodes);
+        this.type = 'tspan';
+        // if this node has children, then they own the text
+        this.text = this.children.length > 0
+            ? ''
+            : this.getTextFromNode();
+    }
+    getText() {
+        return this.text;
+    }
+}
+
+class TextNode extends TSpanElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'textNode';
+    }
+}
+
+class SVGElement extends RenderedElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'svg';
+        this.root = false;
+    }
+    setContext(ctx) {
+        const { document } = this;
+        const { screen, window } = document;
+        const canvas = ctx.canvas;
+        screen.setDefaults(ctx);
+        if (canvas.style
+            && typeof ctx.font !== 'undefined'
+            && window
+            && typeof window.getComputedStyle !== 'undefined') {
+            ctx.font = window.getComputedStyle(canvas).getPropertyValue('font');
+            const fontSizeProp = new Property(document, 'fontSize', Font.parse(ctx.font).fontSize);
+            if (fontSizeProp.hasValue()) {
+                document.rootEmSize = fontSizeProp.getPixels('y');
+                document.emSize = document.rootEmSize;
+            }
+        }
+        // create new view port
+        if (!this.getAttribute('x').hasValue()) {
+            this.getAttribute('x', true).setValue(0);
+        }
+        if (!this.getAttribute('y').hasValue()) {
+            this.getAttribute('y', true).setValue(0);
+        }
+        let { width, height } = screen.viewPort;
+        if (!this.getStyle('width').hasValue()) {
+            this.getStyle('width', true).setValue('100%');
+        }
+        if (!this.getStyle('height').hasValue()) {
+            this.getStyle('height', true).setValue('100%');
+        }
+        if (!this.getStyle('color').hasValue()) {
+            this.getStyle('color', true).setValue('black');
+        }
+        const refXAttr = this.getAttribute('refX');
+        const refYAttr = this.getAttribute('refY');
+        const viewBoxAttr = this.getAttribute('viewBox');
+        const viewBox = viewBoxAttr.hasValue()
+            ? toNumbers(viewBoxAttr.getString())
+            : null;
+        const clip = !this.root
+            && this.getStyle('overflow').getValue('hidden') !== 'visible';
+        let minX = 0;
+        let minY = 0;
+        let clipX = 0;
+        let clipY = 0;
+        if (viewBox) {
+            minX = viewBox[0];
+            minY = viewBox[1];
+        }
+        if (!this.root) {
+            width = this.getStyle('width').getPixels('x');
+            height = this.getStyle('height').getPixels('y');
+            if (this.type === 'marker') {
+                clipX = minX;
+                clipY = minY;
+                minX = 0;
+                minY = 0;
+            }
+        }
+        screen.viewPort.setCurrent(width, height);
+        // Default value of transform-origin is center only for root SVG elements
+        // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform-origin
+        if (this.node // is not temporary SVGElement
+            && (!this.parent || this.node.parentNode?.nodeName === 'foreignObject')
+            && this.getStyle('transform', false, true).hasValue()
+            && !this.getStyle('transform-origin', false, true).hasValue()) {
+            this.getStyle('transform-origin', true, true).setValue('50% 50%');
+        }
+        super.setContext(ctx);
+        ctx.translate(this.getAttribute('x').getPixels('x'), this.getAttribute('y').getPixels('y'));
+        if (viewBox) {
+            width = viewBox[2];
+            height = viewBox[3];
+        }
+        document.setViewBox({
+            ctx,
+            aspectRatio: this.getAttribute('preserveAspectRatio').getString(),
+            width: screen.viewPort.width,
+            desiredWidth: width,
+            height: screen.viewPort.height,
+            desiredHeight: height,
+            minX,
+            minY,
+            refX: refXAttr.getValue(),
+            refY: refYAttr.getValue(),
+            clip,
+            clipX,
+            clipY
+        });
+        if (viewBox) {
+            screen.viewPort.removeCurrent();
+            screen.viewPort.setCurrent(width, height);
+        }
+    }
+    clearContext(ctx) {
+        super.clearContext(ctx);
+        this.document.screen.viewPort.removeCurrent();
+    }
+    /**
+     * Resize SVG to fit in given size.
+     * @param width
+     * @param height
+     * @param preserveAspectRatio
+     */
+    resize(width, height = width, preserveAspectRatio = false) {
+        const widthAttr = this.getAttribute('width', true);
+        const heightAttr = this.getAttribute('height', true);
+        const viewBoxAttr = this.getAttribute('viewBox');
+        const styleAttr = this.getAttribute('style');
+        const originWidth = widthAttr.getNumber(0);
+        const originHeight = heightAttr.getNumber(0);
+        if (preserveAspectRatio) {
+            if (typeof preserveAspectRatio === 'string') {
+                this.getAttribute('preserveAspectRatio', true).setValue(preserveAspectRatio);
+            }
+            else {
+                const preserveAspectRatioAttr = this.getAttribute('preserveAspectRatio');
+                if (preserveAspectRatioAttr.hasValue()) {
+                    preserveAspectRatioAttr.setValue(preserveAspectRatioAttr.getString().replace(/^\s*(\S.*\S)\s*$/, '$1'));
+                }
+            }
+        }
+        widthAttr.setValue(width);
+        heightAttr.setValue(height);
+        if (!viewBoxAttr.hasValue()) {
+            viewBoxAttr.setValue(`0 0 ${originWidth || width} ${originHeight || height}`);
+        }
+        if (styleAttr.hasValue()) {
+            const widthStyle = this.getStyle('width');
+            const heightStyle = this.getStyle('height');
+            if (widthStyle.hasValue()) {
+                widthStyle.setValue(`${width}px`);
+            }
+            if (heightStyle.hasValue()) {
+                heightStyle.setValue(`${height}px`);
+            }
+        }
+    }
+}
+
+class RectElement extends PathElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'rect';
+    }
+    path(ctx) {
+        const x = this.getAttribute('x').getPixels('x');
+        const y = this.getAttribute('y').getPixels('y');
+        const width = this.getStyle('width', false, true).getPixels('x');
+        const height = this.getStyle('height', false, true).getPixels('y');
+        const rxAttr = this.getAttribute('rx');
+        const ryAttr = this.getAttribute('ry');
+        let rx = rxAttr.getPixels('x');
+        let ry = ryAttr.getPixels('y');
+        if (rxAttr.hasValue() && !ryAttr.hasValue()) {
+            ry = rx;
+        }
+        if (ryAttr.hasValue() && !rxAttr.hasValue()) {
+            rx = ry;
+        }
+        rx = Math.min(rx, width / 2.0);
+        ry = Math.min(ry, height / 2.0);
+        if (ctx) {
+            const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
+            ctx.beginPath(); // always start the path so we don't fill prior paths
+            if (height > 0 && width > 0) {
+                ctx.moveTo(x + rx, y);
+                ctx.lineTo(x + width - rx, y);
+                ctx.bezierCurveTo(x + width - rx + (KAPPA * rx), y, x + width, y + ry - (KAPPA * ry), x + width, y + ry);
+                ctx.lineTo(x + width, y + height - ry);
+                ctx.bezierCurveTo(x + width, y + height - ry + (KAPPA * ry), x + width - rx + (KAPPA * rx), y + height, x + width - rx, y + height);
+                ctx.lineTo(x + rx, y + height);
+                ctx.bezierCurveTo(x + rx - (KAPPA * rx), y + height, x, y + height - ry + (KAPPA * ry), x, y + height - ry);
+                ctx.lineTo(x, y + ry);
+                ctx.bezierCurveTo(x, y + ry - (KAPPA * ry), x + rx - (KAPPA * rx), y, x + rx, y);
+                ctx.closePath();
+            }
+        }
+        return new BoundingBox(x, y, x + width, y + height);
+    }
+    getMarkers() {
+        return null;
+    }
+}
+
+class CircleElement extends PathElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'circle';
+    }
+    path(ctx) {
+        const cx = this.getAttribute('cx').getPixels('x');
+        const cy = this.getAttribute('cy').getPixels('y');
+        const r = this.getAttribute('r').getPixels();
+        if (ctx && r > 0) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2, false);
+            ctx.closePath();
+        }
+        return new BoundingBox(cx - r, cy - r, cx + r, cy + r);
+    }
+    getMarkers() {
+        return null;
+    }
+}
+
+class EllipseElement extends PathElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'ellipse';
+    }
+    path(ctx) {
+        const KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
+        const rx = this.getAttribute('rx').getPixels('x');
+        const ry = this.getAttribute('ry').getPixels('y');
+        const cx = this.getAttribute('cx').getPixels('x');
+        const cy = this.getAttribute('cy').getPixels('y');
+        if (ctx && rx > 0 && ry > 0) {
+            ctx.beginPath();
+            ctx.moveTo(cx + rx, cy);
+            ctx.bezierCurveTo(cx + rx, cy + (KAPPA * ry), cx + (KAPPA * rx), cy + ry, cx, cy + ry);
+            ctx.bezierCurveTo(cx - (KAPPA * rx), cy + ry, cx - rx, cy + (KAPPA * ry), cx - rx, cy);
+            ctx.bezierCurveTo(cx - rx, cy - (KAPPA * ry), cx - (KAPPA * rx), cy - ry, cx, cy - ry);
+            ctx.bezierCurveTo(cx + (KAPPA * rx), cy - ry, cx + rx, cy - (KAPPA * ry), cx + rx, cy);
+            ctx.closePath();
+        }
+        return new BoundingBox(cx - rx, cy - ry, cx + rx, cy + ry);
+    }
+    getMarkers() {
+        return null;
+    }
+}
+
+class LineElement extends PathElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'line';
+    }
+    getPoints() {
+        return [
+            new Point(this.getAttribute('x1').getPixels('x'), this.getAttribute('y1').getPixels('y')),
+            new Point(this.getAttribute('x2').getPixels('x'), this.getAttribute('y2').getPixels('y'))
+        ];
+    }
+    path(ctx) {
+        const [{ x: x0, y: y0 }, { x: x1, y: y1 }] = this.getPoints();
+        if (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+        }
+        return new BoundingBox(x0, y0, x1, y1);
+    }
+    getMarkers() {
+        const [p0, p1] = this.getPoints();
+        const a = p0.angleTo(p1);
+        return [
+            [p0, a],
+            [p1, a]
+        ];
+    }
+}
+
+class PolylineElement extends PathElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'polyline';
+        this.points = [];
+        this.points = Point.parsePath(this.getAttribute('points').getString());
+    }
+    path(ctx) {
+        const { points } = this;
+        const [{ x: x0, y: y0 }] = points;
+        const boundingBox = new BoundingBox(x0, y0);
+        if (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+        }
+        points.forEach(({ x, y }) => {
+            boundingBox.addPoint(x, y);
+            if (ctx) {
+                ctx.lineTo(x, y);
+            }
+        });
+        return boundingBox;
+    }
+    getMarkers() {
+        const { points } = this;
+        const lastIndex = points.length - 1;
+        const markers = [];
+        points.forEach((point, i) => {
+            if (i === lastIndex) {
+                return;
+            }
+            markers.push([
+                point,
+                point.angleTo(points[i + 1])
+            ]);
+        });
+        if (markers.length > 0) {
+            markers.push([
+                points[points.length - 1],
+                markers[markers.length - 1][1]
+            ]);
+        }
+        return markers;
+    }
+}
+
+class PolygonElement extends PolylineElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'polygon';
+    }
+    path(ctx) {
+        const boundingBox = super.path(ctx);
+        const [{ x, y }] = this.points;
+        if (ctx) {
+            ctx.lineTo(x, y);
+            ctx.closePath();
+        }
+        return boundingBox;
+    }
+}
+
+class PatternElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'pattern';
+    }
+    createPattern(ctx, _, parentOpacityProp) {
+        const width = this.getStyle('width').getPixels('x', true);
+        const height = this.getStyle('height').getPixels('y', true);
+        // render me using a temporary svg element
+        const patternSvg = new SVGElement(this.document, null);
+        patternSvg.attributes.viewBox = new Property(this.document, 'viewBox', this.getAttribute('viewBox').getValue());
+        patternSvg.attributes.width = new Property(this.document, 'width', `${width}px`);
+        patternSvg.attributes.height = new Property(this.document, 'height', `${height}px`);
+        patternSvg.attributes.transform = new Property(this.document, 'transform', this.getAttribute('patternTransform').getValue());
+        patternSvg.children = this.children;
+        const patternCanvas = this.document.createCanvas(width, height);
+        const patternCtx = patternCanvas.getContext('2d');
+        const xAttr = this.getAttribute('x');
+        const yAttr = this.getAttribute('y');
+        if (xAttr.hasValue() && yAttr.hasValue()) {
+            patternCtx.translate(xAttr.getPixels('x', true), yAttr.getPixels('y', true));
+        }
+        if (parentOpacityProp.hasValue()) {
+            this.styles['fill-opacity'] = parentOpacityProp;
+        }
+        else {
+            Reflect.deleteProperty(this.styles, 'fill-opacity');
+        }
+        // render 3x3 grid so when we transform there's no white space on edges
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                patternCtx.save();
+                patternSvg.attributes.x = new Property(this.document, 'x', x * patternCanvas.width);
+                patternSvg.attributes.y = new Property(this.document, 'y', y * patternCanvas.height);
+                patternSvg.render(patternCtx);
+                patternCtx.restore();
+            }
+        }
+        const pattern = ctx.createPattern(patternCanvas, 'repeat');
+        return pattern;
+    }
+}
+
+class MarkerElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'marker';
+    }
+    render(ctx, point, angle) {
+        if (!point) {
+            return;
+        }
+        const { x, y } = point;
+        const orient = this.getAttribute('orient').getString('auto');
+        const markerUnits = this.getAttribute('markerUnits').getString('strokeWidth');
+        ctx.translate(x, y);
+        if (orient === 'auto') {
+            ctx.rotate(angle);
+        }
+        if (markerUnits === 'strokeWidth') {
+            ctx.scale(ctx.lineWidth, ctx.lineWidth);
+        }
+        ctx.save();
+        // render me using a temporary svg element
+        const markerSvg = new SVGElement(this.document, null);
+        markerSvg.type = this.type;
+        markerSvg.attributes.viewBox = new Property(this.document, 'viewBox', this.getAttribute('viewBox').getValue());
+        markerSvg.attributes.refX = new Property(this.document, 'refX', this.getAttribute('refX').getValue());
+        markerSvg.attributes.refY = new Property(this.document, 'refY', this.getAttribute('refY').getValue());
+        markerSvg.attributes.width = new Property(this.document, 'width', this.getAttribute('markerWidth').getValue());
+        markerSvg.attributes.height = new Property(this.document, 'height', this.getAttribute('markerHeight').getValue());
+        markerSvg.attributes.overflow = new Property(this.document, 'overflow', this.getAttribute('overflow').getValue());
+        markerSvg.attributes.fill = new Property(this.document, 'fill', this.getAttribute('fill').getColor('black'));
+        markerSvg.attributes.stroke = new Property(this.document, 'stroke', this.getAttribute('stroke').getValue('none'));
+        markerSvg.children = this.children;
+        markerSvg.render(ctx);
+        ctx.restore();
+        if (markerUnits === 'strokeWidth') {
+            ctx.scale(1 / ctx.lineWidth, 1 / ctx.lineWidth);
+        }
+        if (orient === 'auto') {
+            ctx.rotate(-angle);
+        }
+        ctx.translate(-x, -y);
+    }
+}
+
+class DefsElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'defs';
+    }
+    render() {
+        // NOOP
+    }
+}
+
+class GElement extends RenderedElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'g';
+    }
+    getBoundingBox(ctx) {
+        const boundingBox = new BoundingBox();
+        this.children.forEach((child) => {
+            boundingBox.addBoundingBox(child.getBoundingBox(ctx));
+        });
+        return boundingBox;
+    }
+}
+
+class GradientElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.attributesToInherit = [
+            'gradientUnits'
+        ];
+        this.stops = [];
+        const { stops, children } = this;
+        children.forEach((child) => {
+            if (child.type === 'stop') {
+                stops.push(child);
+            }
+        });
+    }
+    getGradientUnits() {
+        return this.getAttribute('gradientUnits').getString('objectBoundingBox');
+    }
+    createGradient(ctx, element, parentOpacityProp) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias, consistent-this
+        let stopsContainer = this;
+        if (this.getHrefAttribute().hasValue()) {
+            stopsContainer = this.getHrefAttribute().getDefinition();
+            this.inheritStopContainer(stopsContainer);
+        }
+        const { stops } = stopsContainer;
+        const gradient = this.getGradient(ctx, element);
+        if (!gradient) {
+            return this.addParentOpacity(parentOpacityProp, stops[stops.length - 1].color);
+        }
+        stops.forEach((stop) => {
+            gradient.addColorStop(stop.offset, this.addParentOpacity(parentOpacityProp, stop.color));
+        });
+        if (this.getAttribute('gradientTransform').hasValue()) {
+            // render as transformed pattern on temporary canvas
+            const { document } = this;
+            const { MAX_VIRTUAL_PIXELS, viewPort } = document.screen;
+            const [rootView] = viewPort.viewPorts;
+            const rect = new RectElement(document, null);
+            rect.attributes.x = new Property(document, 'x', -MAX_VIRTUAL_PIXELS / 3.0);
+            rect.attributes.y = new Property(document, 'y', -MAX_VIRTUAL_PIXELS / 3.0);
+            rect.attributes.width = new Property(document, 'width', MAX_VIRTUAL_PIXELS);
+            rect.attributes.height = new Property(document, 'height', MAX_VIRTUAL_PIXELS);
+            const group = new GElement(document, null);
+            group.attributes.transform = new Property(document, 'transform', this.getAttribute('gradientTransform').getValue());
+            group.children = [rect];
+            const patternSvg = new SVGElement(document, null);
+            patternSvg.attributes.x = new Property(document, 'x', 0);
+            patternSvg.attributes.y = new Property(document, 'y', 0);
+            patternSvg.attributes.width = new Property(document, 'width', rootView.width);
+            patternSvg.attributes.height = new Property(document, 'height', rootView.height);
+            patternSvg.children = [group];
+            const patternCanvas = document.createCanvas(rootView.width, rootView.height);
+            const patternCtx = patternCanvas.getContext('2d');
+            patternCtx.fillStyle = gradient;
+            patternSvg.render(patternCtx);
+            return patternCtx.createPattern(patternCanvas, 'no-repeat');
+        }
+        return gradient;
+    }
+    inheritStopContainer(stopsContainer) {
+        this.attributesToInherit.forEach((attributeToInherit) => {
+            if (!this.getAttribute(attributeToInherit).hasValue()
+                && stopsContainer.getAttribute(attributeToInherit).hasValue()) {
+                this.getAttribute(attributeToInherit, true)
+                    .setValue(stopsContainer.getAttribute(attributeToInherit).getValue());
+            }
+        });
+    }
+    addParentOpacity(parentOpacityProp, color) {
+        if (parentOpacityProp.hasValue()) {
+            const colorProp = new Property(this.document, 'color', color);
+            return colorProp.addOpacity(parentOpacityProp).getColor();
+        }
+        return color;
+    }
+}
+
+class LinearGradientElement extends GradientElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'linearGradient';
+        this.attributesToInherit.push('x1', 'y1', 'x2', 'y2');
+    }
+    getGradient(ctx, element) {
+        const isBoundingBoxUnits = this.getGradientUnits() === 'objectBoundingBox';
+        const boundingBox = isBoundingBoxUnits
+            ? element.getBoundingBox(ctx)
+            : null;
+        if (isBoundingBoxUnits && !boundingBox) {
+            return null;
+        }
+        if (!this.getAttribute('x1').hasValue()
+            && !this.getAttribute('y1').hasValue()
+            && !this.getAttribute('x2').hasValue()
+            && !this.getAttribute('y2').hasValue()) {
+            this.getAttribute('x1', true).setValue(0);
+            this.getAttribute('y1', true).setValue(0);
+            this.getAttribute('x2', true).setValue(1);
+            this.getAttribute('y2', true).setValue(0);
+        }
+        const x1 = isBoundingBoxUnits
+            ? boundingBox.x + boundingBox.width * this.getAttribute('x1').getNumber()
+            : this.getAttribute('x1').getPixels('x');
+        const y1 = isBoundingBoxUnits
+            ? boundingBox.y + boundingBox.height * this.getAttribute('y1').getNumber()
+            : this.getAttribute('y1').getPixels('y');
+        const x2 = isBoundingBoxUnits
+            ? boundingBox.x + boundingBox.width * this.getAttribute('x2').getNumber()
+            : this.getAttribute('x2').getPixels('x');
+        const y2 = isBoundingBoxUnits
+            ? boundingBox.y + boundingBox.height * this.getAttribute('y2').getNumber()
+            : this.getAttribute('y2').getPixels('y');
+        if (x1 === x2 && y1 === y2) {
+            return null;
+        }
+        return ctx.createLinearGradient(x1, y1, x2, y2);
+    }
+}
+
+class RadialGradientElement extends GradientElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'radialGradient';
+        this.attributesToInherit.push('cx', 'cy', 'r', 'fx', 'fy', 'fr');
+    }
+    getGradient(ctx, element) {
+        const isBoundingBoxUnits = this.getGradientUnits() === 'objectBoundingBox';
+        const boundingBox = element.getBoundingBox(ctx);
+        if (isBoundingBoxUnits && !boundingBox) {
+            return null;
+        }
+        if (!this.getAttribute('cx').hasValue()) {
+            this.getAttribute('cx', true).setValue('50%');
+        }
+        if (!this.getAttribute('cy').hasValue()) {
+            this.getAttribute('cy', true).setValue('50%');
+        }
+        if (!this.getAttribute('r').hasValue()) {
+            this.getAttribute('r', true).setValue('50%');
+        }
+        const cx = isBoundingBoxUnits
+            ? boundingBox.x + boundingBox.width * this.getAttribute('cx').getNumber()
+            : this.getAttribute('cx').getPixels('x');
+        const cy = isBoundingBoxUnits
+            ? boundingBox.y + boundingBox.height * this.getAttribute('cy').getNumber()
+            : this.getAttribute('cy').getPixels('y');
+        let fx = cx;
+        let fy = cy;
+        if (this.getAttribute('fx').hasValue()) {
+            fx = isBoundingBoxUnits
+                ? boundingBox.x + boundingBox.width * this.getAttribute('fx').getNumber()
+                : this.getAttribute('fx').getPixels('x');
+        }
+        if (this.getAttribute('fy').hasValue()) {
+            fy = isBoundingBoxUnits
+                ? boundingBox.y + boundingBox.height * this.getAttribute('fy').getNumber()
+                : this.getAttribute('fy').getPixels('y');
+        }
+        const r = isBoundingBoxUnits
+            ? (boundingBox.width + boundingBox.height) / 2.0 * this.getAttribute('r').getNumber()
+            : this.getAttribute('r').getPixels();
+        const fr = this.getAttribute('fr').getPixels();
+        return ctx.createRadialGradient(fx, fy, fr, cx, cy, r);
+    }
+}
+
+class StopElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'stop';
+        const offset = Math.max(0, Math.min(1, this.getAttribute('offset').getNumber()));
+        const stopOpacity = this.getStyle('stop-opacity');
+        let stopColor = this.getStyle('stop-color', true);
+        if (stopColor.getString() === '') {
+            stopColor.setValue('#000');
+        }
+        if (stopOpacity.hasValue()) {
+            stopColor = stopColor.addOpacity(stopOpacity);
+        }
+        this.offset = offset;
+        this.color = stopColor.getColor();
+    }
+}
+
+class AnimateElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'animate';
+        this.duration = 0;
+        this.initialValue = null;
+        this.initialUnits = '';
+        this.removed = false;
+        this.frozen = false;
+        document.screen.animations.push(this);
+        this.begin = this.getAttribute('begin').getMilliseconds();
+        this.maxDuration = this.begin + this.getAttribute('dur').getMilliseconds();
+        this.from = this.getAttribute('from');
+        this.to = this.getAttribute('to');
+        this.values = new Property(document, 'values', null);
+        const valuesAttr = this.getAttribute('values');
+        if (valuesAttr.hasValue()) {
+            this.values.setValue(valuesAttr.getString().split(';'));
+        }
+    }
+    getProperty() {
+        const attributeType = this.getAttribute('attributeType').getString();
+        const attributeName = this.getAttribute('attributeName').getString();
+        if (attributeType === 'CSS') {
+            return this.parent.getStyle(attributeName, true);
+        }
+        return this.parent.getAttribute(attributeName, true);
+    }
+    calcValue() {
+        const { initialUnits } = this;
+        const { progress, from, to } = this.getProgress();
+        // tween value linearly
+        let newValue = from.getNumber() + (to.getNumber() - from.getNumber()) * progress;
+        if (initialUnits === '%') {
+            newValue *= 100.0; // numValue() returns 0-1 whereas properties are 0-100
+        }
+        return `${newValue}${initialUnits}`;
+    }
+    update(delta) {
+        const { parent } = this;
+        const prop = this.getProperty();
+        // set initial value
+        if (!this.initialValue) {
+            this.initialValue = prop.getString();
+            this.initialUnits = prop.getUnits();
+        }
+        // if we're past the end time
+        if (this.duration > this.maxDuration) {
+            const fill = this.getAttribute('fill').getString('remove');
+            // loop for indefinitely repeating animations
+            if (this.getAttribute('repeatCount').getString() === 'indefinite'
+                || this.getAttribute('repeatDur').getString() === 'indefinite') {
+                this.duration = 0;
+            }
+            else if (fill === 'freeze' && !this.frozen) {
+                this.frozen = true;
+                parent.animationFrozen = true;
+                parent.animationFrozenValue = prop.getString();
+            }
+            else if (fill === 'remove' && !this.removed) {
+                this.removed = true;
+                prop.setValue(parent.animationFrozen
+                    ? parent.animationFrozenValue
+                    : this.initialValue);
+                return true;
+            }
+            return false;
+        }
+        this.duration += delta;
+        // if we're past the begin time
+        let updated = false;
+        if (this.begin < this.duration) {
+            let newValue = this.calcValue(); // tween
+            const typeAttr = this.getAttribute('type');
+            if (typeAttr.hasValue()) {
+                // for transform, etc.
+                const type = typeAttr.getString();
+                newValue = `${type}(${newValue})`;
+            }
+            prop.setValue(newValue);
+            updated = true;
+        }
+        return updated;
+    }
+    getProgress() {
+        const { document, values } = this;
+        const result = {
+            progress: (this.duration - this.begin) / (this.maxDuration - this.begin)
+        };
+        if (values.hasValue()) {
+            const p = result.progress * (values.getValue().length - 1);
+            const lb = Math.floor(p);
+            const ub = Math.ceil(p);
+            result.from = new Property(document, 'from', parseFloat(values.getValue()[lb]));
+            result.to = new Property(document, 'to', parseFloat(values.getValue()[ub]));
+            result.progress = (p - lb) / (ub - lb);
+        }
+        else {
+            result.from = this.from;
+            result.to = this.to;
+        }
+        return result;
+    }
+}
+
+class AnimateColorElement extends AnimateElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'animateColor';
+    }
+    calcValue() {
+        const { progress, from, to } = this.getProgress();
+        const colorFrom = new RGBColor(from.getColor());
+        const colorTo = new RGBColor(to.getColor());
+        if (colorFrom.ok && colorTo.ok) {
+            // tween color linearly
+            const r = colorFrom.r + (colorTo.r - colorFrom.r) * progress;
+            const g = colorFrom.g + (colorTo.g - colorFrom.g) * progress;
+            const b = colorFrom.b + (colorTo.b - colorFrom.b) * progress;
+            // ? alpha
+            return `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+        }
+        return this.getAttribute('from').getColor();
+    }
+}
+
+class AnimateTransformElement extends AnimateElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'animateTransform';
+    }
+    calcValue() {
+        const { progress, from, to } = this.getProgress();
+        // tween value linearly
+        const transformFrom = toNumbers(from.getString());
+        const transformTo = toNumbers(to.getString());
+        const newValue = transformFrom.map((from, i) => {
+            const to = transformTo[i];
+            return from + (to - from) * progress;
+        }).join(' ');
+        return newValue;
+    }
+}
+
+class FontElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'font';
+        this.glyphs = {};
+        this.horizAdvX = this.getAttribute('horiz-adv-x').getNumber();
+        const { definitions } = document;
+        const { children } = this;
+        for (const child of children) {
+            switch (child.type) {
+                case 'font-face': {
+                    this.fontFace = child;
+                    const fontFamilyStyle = child.getStyle('font-family');
+                    if (fontFamilyStyle.hasValue()) {
+                        definitions[fontFamilyStyle.getString()] = this;
+                    }
+                    break;
+                }
+                case 'missing-glyph':
+                    this.missingGlyph = child;
+                    break;
+                case 'glyph': {
+                    const glyph = child;
+                    if (glyph.arabicForm) {
+                        this.isRTL = true;
+                        this.isArabic = true;
+                        if (typeof this.glyphs[glyph.unicode] === 'undefined') {
+                            this.glyphs[glyph.unicode] = {};
+                        }
+                        this.glyphs[glyph.unicode][glyph.arabicForm] = glyph;
+                    }
+                    else {
+                        this.glyphs[glyph.unicode] = glyph;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    render() {
+        // NO RENDER
+    }
+}
+
+class FontFaceElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'font-face';
+        this.ascent = this.getAttribute('ascent').getNumber();
+        this.descent = this.getAttribute('descent').getNumber();
+        this.unitsPerEm = this.getAttribute('units-per-em').getNumber();
+    }
+}
+
+class MissingGlyphElement extends PathElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'missing-glyph';
+        this.horizAdvX = 0;
+    }
+}
+
+class TRefElement extends TextElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'tref';
+    }
+    getText() {
+        const element = this.getHrefAttribute().getDefinition();
+        if (element) {
+            const firstChild = element.children[0];
+            if (firstChild) {
+                return firstChild.getText();
+            }
+        }
+        return '';
+    }
+}
+
+class AElement extends TextElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'a';
+        const { childNodes } = node;
+        const firstChild = childNodes[0];
+        const hasText = childNodes.length > 0
+            && Array.from(childNodes).every(node => node.nodeType === 3);
+        this.hasText = hasText;
+        this.text = hasText
+            ? this.getTextFromNode(firstChild)
+            : '';
+    }
+    getText() {
+        return this.text;
+    }
+    renderChildren(ctx) {
+        if (this.hasText) {
+            // render as text element
+            super.renderChildren(ctx);
+            const { document, x, y } = this;
+            const { mouse } = document.screen;
+            const fontSize = new Property(document, 'fontSize', Font.parse(document.ctx.font).fontSize);
+            // Do not calc bounding box if mouse is not working.
+            if (mouse.isWorking()) {
+                mouse.checkBoundingBox(this, new BoundingBox(x, y - fontSize.getPixels('y'), x + this.measureText(ctx), y));
+            }
+        }
+        else if (this.children.length > 0) {
+            // render as temporary group
+            const g = new GElement(this.document, null);
+            g.children = this.children;
+            g.parent = this;
+            g.render(ctx);
+        }
+    }
+    onClick() {
+        const { window } = this.document;
+        if (window) {
+            window.open(this.getHrefAttribute().getString());
+        }
+    }
+    onMouseMove() {
+        const ctx = this.document.ctx;
+        ctx.canvas.style.cursor = 'pointer';
+    }
+}
+
+class TextPathElement extends TextElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'textPath';
+        this.textWidth = 0;
+        this.textHeight = 0;
+        this.pathLength = -1;
+        this.glyphInfo = null;
+        this.letterSpacingCache = [];
+        this.measuresCache = new Map([['', 0]]);
+        const pathElement = this.getHrefAttribute().getDefinition();
+        this.text = this.getTextFromNode();
+        this.dataArray = this.parsePathData(pathElement);
+    }
+    getText() {
+        return this.text;
+    }
+    path(ctx) {
+        const { dataArray } = this;
+        if (ctx) {
+            ctx.beginPath();
+        }
+        dataArray.forEach(({ type, points }) => {
+            switch (type) {
+                case PathParser.LINE_TO:
+                    if (ctx) {
+                        ctx.lineTo(points[0], points[1]);
+                    }
+                    break;
+                case PathParser.MOVE_TO:
+                    if (ctx) {
+                        ctx.moveTo(points[0], points[1]);
+                    }
+                    break;
+                case PathParser.CURVE_TO:
+                    if (ctx) {
+                        ctx.bezierCurveTo(points[0], points[1], points[2], points[3], points[4], points[5]);
+                    }
+                    break;
+                case PathParser.QUAD_TO:
+                    if (ctx) {
+                        ctx.quadraticCurveTo(points[0], points[1], points[2], points[3]);
+                    }
+                    break;
+                case PathParser.ARC: {
+                    const [cx, cy, rx, ry, theta, dTheta, psi, fs] = points;
+                    const r = rx > ry ? rx : ry;
+                    const scaleX = rx > ry ? 1 : rx / ry;
+                    const scaleY = rx > ry ? ry / rx : 1;
+                    if (ctx) {
+                        ctx.translate(cx, cy);
+                        ctx.rotate(psi);
+                        ctx.scale(scaleX, scaleY);
+                        ctx.arc(0, 0, r, theta, theta + dTheta, Boolean(1 - fs));
+                        ctx.scale(1 / scaleX, 1 / scaleY);
+                        ctx.rotate(-psi);
+                        ctx.translate(-cx, -cy);
+                    }
+                    break;
+                }
+                case PathParser.CLOSE_PATH:
+                    if (ctx) {
+                        ctx.closePath();
+                    }
+                    break;
+            }
+        });
+    }
+    renderChildren(ctx) {
+        this.setTextData(ctx);
+        ctx.save();
+        const textDecoration = this.parent.getStyle('text-decoration').getString();
+        const fontSize = this.getFontSize();
+        const { glyphInfo } = this;
+        const fill = ctx.fillStyle;
+        if (textDecoration === 'underline') {
+            ctx.beginPath();
+        }
+        glyphInfo.forEach((glyph, i) => {
+            const { p0, p1, rotation, text: partialText } = glyph;
+            ctx.save();
+            ctx.translate(p0.x, p0.y);
+            ctx.rotate(rotation);
+            if (ctx.fillStyle) {
+                ctx.fillText(partialText, 0, 0);
+            }
+            if (ctx.strokeStyle) {
+                ctx.strokeText(partialText, 0, 0);
+            }
+            ctx.restore();
+            if (textDecoration === 'underline') {
+                if (i === 0) {
+                    ctx.moveTo(p0.x, p0.y + fontSize / 8);
+                }
+                ctx.lineTo(p1.x, p1.y + fontSize / 5);
+            }
+            // // To assist with debugging visually, uncomment following
+            //
+            // ctx.beginPath();
+            // if (i % 2)
+            // 	ctx.strokeStyle = 'red';
+            // else
+            // 	ctx.strokeStyle = 'green';
+            // ctx.moveTo(p0.x, p0.y);
+            // ctx.lineTo(p1.x, p1.y);
+            // ctx.stroke();
+            // ctx.closePath();
+        });
+        if (textDecoration === 'underline') {
+            ctx.lineWidth = fontSize / 20;
+            ctx.strokeStyle = fill;
+            ctx.stroke();
+            ctx.closePath();
+        }
+        ctx.restore();
+    }
+    getLetterSpacingAt(idx = 0) {
+        return this.letterSpacingCache[idx] || 0;
+    }
+    findSegmentToFitChar(ctx, anchor, textFullWidth, fullPathWidth, spacesNumber, inputOffset, dy, c, charI) {
+        let offset = inputOffset;
+        let glyphWidth = this.measureText(ctx, c);
+        if (c === ' '
+            && anchor === 'justify'
+            && textFullWidth < fullPathWidth) {
+            glyphWidth += (fullPathWidth - textFullWidth) / spacesNumber;
+        }
+        if (charI > -1) {
+            offset += this.getLetterSpacingAt(charI);
+        }
+        const splineStep = this.textHeight / 20;
+        const p0 = this.getEquidistantPointOnPath(offset, splineStep, 0);
+        const p1 = this.getEquidistantPointOnPath(offset + glyphWidth, splineStep, 0);
+        const segment = {
+            p0,
+            p1
+        };
+        const rotation = p0 && p1
+            ? Math.atan2(p1.y - p0.y, p1.x - p0.x)
+            : 0;
+        if (dy) {
+            const dyX = Math.cos(Math.PI / 2 + rotation) * dy;
+            const dyY = Math.cos(-rotation) * dy;
+            segment.p0 = {
+                ...p0,
+                x: p0.x + dyX,
+                y: p0.y + dyY
+            };
+            segment.p1 = {
+                ...p1,
+                x: p1.x + dyX,
+                y: p1.y + dyY
+            };
+        }
+        offset += glyphWidth;
+        return {
+            offset,
+            segment,
+            rotation
+        };
+    }
+    measureText(ctx, text) {
+        const { measuresCache } = this;
+        const targetText = text || this.getText();
+        if (measuresCache.has(targetText)) {
+            return measuresCache.get(targetText);
+        }
+        const measure = this.measureTargetText(ctx, targetText);
+        measuresCache.set(targetText, measure);
+        return measure;
+    }
+    // This method supposes what all custom fonts already loaded.
+    // If some font will be loaded after this method call, <textPath> will not be rendered correctly.
+    // You need to call this method manually to update glyphs cache.
+    setTextData(ctx) {
+        if (this.glyphInfo) {
+            return;
+        }
+        const renderText = this.getText();
+        const chars = renderText.split('');
+        const spacesNumber = renderText.split(' ').length - 1;
+        const dx = this.parent.getAttribute('dx').split().map(_ => _.getPixels('x'));
+        const dy = this.parent.getAttribute('dy').getPixels('y');
+        const anchor = this.parent.getStyle('text-anchor').getString('start');
+        const thisSpacing = this.getStyle('letter-spacing');
+        const parentSpacing = this.parent.getStyle('letter-spacing');
+        let letterSpacing = 0;
+        if (!thisSpacing.hasValue()
+            || thisSpacing.getValue() === 'inherit') {
+            letterSpacing = parentSpacing.getPixels();
+        }
+        else if (thisSpacing.hasValue()) {
+            if (thisSpacing.getValue() !== 'initial'
+                && thisSpacing.getValue() !== 'unset') {
+                letterSpacing = thisSpacing.getPixels();
+            }
+        }
+        // fill letter-spacing cache
+        const letterSpacingCache = [];
+        const textLen = renderText.length;
+        this.letterSpacingCache = letterSpacingCache;
+        for (let i = 0; i < textLen; i++) {
+            letterSpacingCache.push(typeof dx[i] !== 'undefined'
+                ? dx[i]
+                : letterSpacing);
+        }
+        const dxSum = letterSpacingCache.reduce((acc, cur, i) => (i === 0
+            ? 0
+            : acc + cur || 0), 0);
+        const textWidth = this.measureText(ctx);
+        const textFullWidth = Math.max(textWidth + dxSum, 0);
+        this.textWidth = textWidth;
+        this.textHeight = this.getFontSize();
+        this.glyphInfo = [];
+        const fullPathWidth = this.getPathLength();
+        const startOffset = this.getStyle('startOffset').getNumber(0) * fullPathWidth;
+        let offset = 0;
+        if (anchor === 'middle'
+            || anchor === 'center') {
+            offset = -textFullWidth / 2;
+        }
+        if (anchor === 'end'
+            || anchor === 'right') {
+            offset = -textFullWidth;
+        }
+        offset += startOffset;
+        chars.forEach((char, i) => {
+            // Find such segment what distance between p0 and p1 is approx. width of glyph
+            const { offset: nextOffset, segment, rotation } = this.findSegmentToFitChar(ctx, anchor, textFullWidth, fullPathWidth, spacesNumber, offset, dy, char, i);
+            offset = nextOffset;
+            if (!segment.p0 || !segment.p1) {
+                return;
+            }
+            // const width = this.getLineLength(
+            // 	segment.p0.x,
+            // 	segment.p0.y,
+            // 	segment.p1.x,
+            // 	segment.p1.y
+            // );
+            // Note: Since glyphs are rendered one at a time, any kerning pair data built into the font will not be used.
+            // Can foresee having a rough pair table built in that the developer can override as needed.
+            // Or use "dx" attribute of the <text> node as a naive replacement
+            // const kern = 0;
+            // placeholder for future implementation
+            // const midpoint = this.getPointOnLine(
+            // 	kern + width / 2.0,
+            // 	segment.p0.x, segment.p0.y, segment.p1.x, segment.p1.y
+            // );
+            this.glyphInfo.push({
+                // transposeX: midpoint.x,
+                // transposeY: midpoint.y,
+                text: chars[i],
+                p0: segment.p0,
+                p1: segment.p1,
+                rotation
+            });
+        });
+    }
+    parsePathData(path) {
+        this.pathLength = -1; // reset path length
+        if (!path) {
+            return [];
+        }
+        const pathCommands = [];
+        const { pathParser } = path;
+        pathParser.reset();
+        // convert l, H, h, V, and v to L
+        while (!pathParser.isEnd()) {
+            const { current } = pathParser;
+            const startX = current ? current.x : 0;
+            const startY = current ? current.y : 0;
+            const command = pathParser.next();
+            let nextCommandType = command.type;
+            let points = [];
+            switch (command.type) {
+                case PathParser.MOVE_TO:
+                    this.pathM(pathParser, points);
+                    break;
+                case PathParser.LINE_TO:
+                    nextCommandType = this.pathL(pathParser, points);
+                    break;
+                case PathParser.HORIZ_LINE_TO:
+                    nextCommandType = this.pathH(pathParser, points);
+                    break;
+                case PathParser.VERT_LINE_TO:
+                    nextCommandType = this.pathV(pathParser, points);
+                    break;
+                case PathParser.CURVE_TO:
+                    this.pathC(pathParser, points);
+                    break;
+                case PathParser.SMOOTH_CURVE_TO:
+                    nextCommandType = this.pathS(pathParser, points);
+                    break;
+                case PathParser.QUAD_TO:
+                    this.pathQ(pathParser, points);
+                    break;
+                case PathParser.SMOOTH_QUAD_TO:
+                    nextCommandType = this.pathT(pathParser, points);
+                    break;
+                case PathParser.ARC:
+                    points = this.pathA(pathParser);
+                    break;
+                case PathParser.CLOSE_PATH:
+                    PathElement.pathZ(pathParser);
+                    break;
+            }
+            if (command.type !== PathParser.CLOSE_PATH) {
+                pathCommands.push({
+                    type: nextCommandType,
+                    points,
+                    start: {
+                        x: startX,
+                        y: startY
+                    },
+                    pathLength: this.calcLength(startX, startY, nextCommandType, points)
+                });
+            }
+            else {
+                pathCommands.push({
+                    type: PathParser.CLOSE_PATH,
+                    points: [],
+                    pathLength: 0
+                });
+            }
+        }
+        return pathCommands;
+    }
+    pathM(pathParser, points) {
+        const { x, y } = PathElement.pathM(pathParser).point;
+        points.push(x, y);
+    }
+    pathL(pathParser, points) {
+        const { x, y } = PathElement.pathL(pathParser).point;
+        points.push(x, y);
+        return PathParser.LINE_TO;
+    }
+    pathH(pathParser, points) {
+        const { x, y } = PathElement.pathH(pathParser).point;
+        points.push(x, y);
+        return PathParser.LINE_TO;
+    }
+    pathV(pathParser, points) {
+        const { x, y } = PathElement.pathV(pathParser).point;
+        points.push(x, y);
+        return PathParser.LINE_TO;
+    }
+    pathC(pathParser, points) {
+        const { point, controlPoint, currentPoint } = PathElement.pathC(pathParser);
+        points.push(point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+    }
+    pathS(pathParser, points) {
+        const { point, controlPoint, currentPoint } = PathElement.pathS(pathParser);
+        points.push(point.x, point.y, controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        return PathParser.CURVE_TO;
+    }
+    pathQ(pathParser, points) {
+        const { controlPoint, currentPoint } = PathElement.pathQ(pathParser);
+        points.push(controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+    }
+    pathT(pathParser, points) {
+        const { controlPoint, currentPoint } = PathElement.pathT(pathParser);
+        points.push(controlPoint.x, controlPoint.y, currentPoint.x, currentPoint.y);
+        return PathParser.QUAD_TO;
+    }
+    pathA(pathParser) {
+        let { rX, rY, sweepFlag, xAxisRotation, centp, a1, ad } = PathElement.pathA(pathParser);
+        if (sweepFlag === 0 && ad > 0) {
+            ad -= 2 * Math.PI;
+        }
+        if (sweepFlag === 1 && ad < 0) {
+            ad += 2 * Math.PI;
+        }
+        return [
+            centp.x,
+            centp.y,
+            rX,
+            rY,
+            a1,
+            ad,
+            xAxisRotation,
+            sweepFlag
+        ];
+    }
+    calcLength(x, y, commandType, points) {
+        let len = 0;
+        let p1 = null;
+        let p2 = null;
+        let t = 0;
+        switch (commandType) {
+            case PathParser.LINE_TO:
+                return this.getLineLength(x, y, points[0], points[1]);
+            case PathParser.CURVE_TO:
+                // Approximates by breaking curve into 100 line segments
+                len = 0.0;
+                p1 = this.getPointOnCubicBezier(0, x, y, points[0], points[1], points[2], points[3], points[4], points[5]);
+                for (t = 0.01; t <= 1; t += 0.01) {
+                    p2 = this.getPointOnCubicBezier(t, x, y, points[0], points[1], points[2], points[3], points[4], points[5]);
+                    len += this.getLineLength(p1.x, p1.y, p2.x, p2.y);
+                    p1 = p2;
+                }
+                return len;
+            case PathParser.QUAD_TO:
+                // Approximates by breaking curve into 100 line segments
+                len = 0.0;
+                p1 = this.getPointOnQuadraticBezier(0, x, y, points[0], points[1], points[2], points[3]);
+                for (t = 0.01; t <= 1; t += 0.01) {
+                    p2 = this.getPointOnQuadraticBezier(t, x, y, points[0], points[1], points[2], points[3]);
+                    len += this.getLineLength(p1.x, p1.y, p2.x, p2.y);
+                    p1 = p2;
+                }
+                return len;
+            case PathParser.ARC: {
+                // Approximates by breaking curve into line segments
+                len = 0.0;
+                const start = points[4];
+                // 4 = theta
+                const dTheta = points[5];
+                // 5 = dTheta
+                const end = points[4] + dTheta;
+                let inc = Math.PI / 180.0;
+                // 1 degree resolution
+                if (Math.abs(start - end) < inc) {
+                    inc = Math.abs(start - end);
+                }
+                // Note: for purpose of calculating arc length, not going to worry about rotating X-axis by angle psi
+                p1 = this.getPointOnEllipticalArc(points[0], points[1], points[2], points[3], start, 0);
+                if (dTheta < 0) { // clockwise
+                    for (t = start - inc; t > end; t -= inc) {
+                        p2 = this.getPointOnEllipticalArc(points[0], points[1], points[2], points[3], t, 0);
+                        len += this.getLineLength(p1.x, p1.y, p2.x, p2.y);
+                        p1 = p2;
+                    }
+                }
+                else { // counter-clockwise
+                    for (t = start + inc; t < end; t += inc) {
+                        p2 = this.getPointOnEllipticalArc(points[0], points[1], points[2], points[3], t, 0);
+                        len += this.getLineLength(p1.x, p1.y, p2.x, p2.y);
+                        p1 = p2;
+                    }
+                }
+                p2 = this.getPointOnEllipticalArc(points[0], points[1], points[2], points[3], end, 0);
+                len += this.getLineLength(p1.x, p1.y, p2.x, p2.y);
+                return len;
+            }
+        }
+        return 0;
+    }
+    getPointOnLine(dist, p1x, p1y, p2x, p2y, fromX = p1x, fromY = p1y) {
+        const m = (p2y - p1y) / ((p2x - p1x) + PSEUDO_ZERO);
+        let run = Math.sqrt(dist * dist / (1 + m * m));
+        if (p2x < p1x) {
+            run *= -1;
+        }
+        let rise = m * run;
+        let pt = null;
+        if (p2x === p1x) { // vertical line
+            pt = {
+                x: fromX,
+                y: fromY + rise
+            };
+        }
+        else if ((fromY - p1y) / ((fromX - p1x) + PSEUDO_ZERO) === m) {
+            pt = {
+                x: fromX + run,
+                y: fromY + rise
+            };
+        }
+        else {
+            let ix = 0;
+            let iy = 0;
+            const len = this.getLineLength(p1x, p1y, p2x, p2y);
+            if (len < PSEUDO_ZERO) {
+                return null;
+            }
+            let u = ((fromX - p1x) * (p2x - p1x))
+                + ((fromY - p1y) * (p2y - p1y));
+            u /= len * len;
+            ix = p1x + u * (p2x - p1x);
+            iy = p1y + u * (p2y - p1y);
+            const pRise = this.getLineLength(fromX, fromY, ix, iy);
+            const pRun = Math.sqrt(dist * dist - pRise * pRise);
+            run = Math.sqrt(pRun * pRun / (1 + m * m));
+            if (p2x < p1x) {
+                run *= -1;
+            }
+            rise = m * run;
+            pt = {
+                x: ix + run,
+                y: iy + rise
+            };
+        }
+        return pt;
+    }
+    getPointOnPath(distance) {
+        const fullLen = this.getPathLength();
+        let cumulativePathLength = 0;
+        let p = null;
+        if (distance < -0.00005
+            || distance - 0.00005 > fullLen) {
+            return null;
+        }
+        const { dataArray } = this;
+        for (const command of dataArray) {
+            if (command
+                && (command.pathLength < 0.00005
+                    || cumulativePathLength + command.pathLength + 0.00005 < distance)) {
+                cumulativePathLength += command.pathLength;
+                continue;
+            }
+            const delta = distance - cumulativePathLength;
+            let currentT = 0;
+            switch (command.type) {
+                case PathParser.LINE_TO:
+                    p = this.getPointOnLine(delta, command.start.x, command.start.y, command.points[0], command.points[1], command.start.x, command.start.y);
+                    break;
+                case PathParser.ARC: {
+                    const start = command.points[4];
+                    // 4 = theta
+                    const dTheta = command.points[5];
+                    // 5 = dTheta
+                    const end = command.points[4] + dTheta;
+                    currentT = start + delta / command.pathLength * dTheta;
+                    if (dTheta < 0 && currentT < end
+                        || dTheta >= 0 && currentT > end) {
+                        break;
+                    }
+                    p = this.getPointOnEllipticalArc(command.points[0], command.points[1], command.points[2], command.points[3], currentT, command.points[6]);
+                    break;
+                }
+                case PathParser.CURVE_TO:
+                    currentT = delta / command.pathLength;
+                    if (currentT > 1) {
+                        currentT = 1;
+                    }
+                    p = this.getPointOnCubicBezier(currentT, command.start.x, command.start.y, command.points[0], command.points[1], command.points[2], command.points[3], command.points[4], command.points[5]);
+                    break;
+                case PathParser.QUAD_TO:
+                    currentT = delta / command.pathLength;
+                    if (currentT > 1) {
+                        currentT = 1;
+                    }
+                    p = this.getPointOnQuadraticBezier(currentT, command.start.x, command.start.y, command.points[0], command.points[1], command.points[2], command.points[3]);
+                    break;
+            }
+            if (p) {
+                return p;
+            }
+            break;
+        }
+        return null;
+    }
+    getLineLength(x1, y1, x2, y2) {
+        return Math.sqrt((x2 - x1) * (x2 - x1)
+            + (y2 - y1) * (y2 - y1));
+    }
+    getPathLength() {
+        if (this.pathLength === -1) {
+            this.pathLength = this.dataArray.reduce((length, command) => (command.pathLength > 0
+                ? length + command.pathLength
+                : length), 0);
+        }
+        return this.pathLength;
+    }
+    getPointOnCubicBezier(pct, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y) {
+        const x = p4x * CB1(pct) + p3x * CB2(pct) + p2x * CB3(pct) + p1x * CB4(pct);
+        const y = p4y * CB1(pct) + p3y * CB2(pct) + p2y * CB3(pct) + p1y * CB4(pct);
+        return {
+            x,
+            y
+        };
+    }
+    getPointOnQuadraticBezier(pct, p1x, p1y, p2x, p2y, p3x, p3y) {
+        const x = p3x * QB1(pct) + p2x * QB2(pct) + p1x * QB3(pct);
+        const y = p3y * QB1(pct) + p2y * QB2(pct) + p1y * QB3(pct);
+        return {
+            x,
+            y
+        };
+    }
+    getPointOnEllipticalArc(cx, cy, rx, ry, theta, psi) {
+        const cosPsi = Math.cos(psi);
+        const sinPsi = Math.sin(psi);
+        const pt = {
+            x: rx * Math.cos(theta),
+            y: ry * Math.sin(theta)
+        };
+        return {
+            x: cx + (pt.x * cosPsi - pt.y * sinPsi),
+            y: cy + (pt.x * sinPsi + pt.y * cosPsi)
+        };
+    }
+    // TODO need some optimisations. possibly build cache only for curved segments?
+    buildEquidistantCache(inputStep, inputPrecision) {
+        const fullLen = this.getPathLength();
+        const precision = inputPrecision || 0.25; // accuracy vs performance
+        const step = inputStep || fullLen / 100;
+        if (!this.equidistantCache
+            || this.equidistantCache.step !== step
+            || this.equidistantCache.precision !== precision) {
+            // Prepare cache
+            this.equidistantCache = {
+                step,
+                precision,
+                points: []
+            };
+            // Calculate points
+            let s = 0;
+            for (let l = 0; l <= fullLen; l += precision) {
+                const p0 = this.getPointOnPath(l);
+                const p1 = this.getPointOnPath(l + precision);
+                if (!p0 || !p1) {
+                    continue;
+                }
+                s += this.getLineLength(p0.x, p0.y, p1.x, p1.y);
+                if (s >= step) {
+                    this.equidistantCache.points.push({
+                        x: p0.x,
+                        y: p0.y,
+                        distance: l
+                    });
+                    s -= step;
+                }
+            }
+        }
+    }
+    getEquidistantPointOnPath(targetDistance, step, precision) {
+        this.buildEquidistantCache(step, precision);
+        if (targetDistance < 0
+            || targetDistance - this.getPathLength() > 0.00005) {
+            return null;
+        }
+        const idx = Math.round(targetDistance
+            / this.getPathLength()
+            * (this.equidistantCache.points.length - 1));
+        return this.equidistantCache.points[idx] || null;
+    }
+}
+
+// groups: 1: mime-type (+ charset), 2: mime-type (w/o charset), 3: charset, 4: base64?, 5: body
+const dataUriRegex = /^\s*data:(([^/,;]+\/[^/,;]+)(?:;([^,;=]+=[^,;=]+))?)?(?:;(base64))?,(.*)$/i;
+class ImageElement extends RenderedElement {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'image';
+        this.loaded = false;
+        const href = this.getHrefAttribute().getString();
+        if (!href) {
+            return;
+        }
+        const isSvg = href.endsWith('.svg') || /^\s*data:image\/svg\+xml/i.test(href);
+        document.images.push(this);
+        if (!isSvg) {
+            void this.loadImage(href);
+        }
+        else {
+            void this.loadSvg(href);
+        }
+        this.isSvg = isSvg;
+    }
+    async loadImage(href) {
+        try {
+            const image = await this.document.createImage(href);
+            this.image = image;
+        }
+        catch (err) {
+            console.error(`Error while loading image "${href}":`, err);
+        }
+        this.loaded = true;
+    }
+    async loadSvg(href) {
+        const match = dataUriRegex.exec(href);
+        if (match) {
+            const data = match[5];
+            if (match[4] === 'base64') {
+                this.image = atob(data);
+            }
+            else {
+                this.image = decodeURIComponent(data);
+            }
+        }
+        else {
+            try {
+                const response = await this.document.fetch(href);
+                const svg = await response.text();
+                this.image = svg;
+            }
+            catch (err) {
+                console.error(`Error while loading image "${href}":`, err);
+            }
+        }
+        this.loaded = true;
+    }
+    renderChildren(ctx) {
+        const { document, image, loaded } = this;
+        const x = this.getAttribute('x').getPixels('x');
+        const y = this.getAttribute('y').getPixels('y');
+        const width = this.getStyle('width').getPixels('x');
+        const height = this.getStyle('height').getPixels('y');
+        if (!loaded || !image
+            || !width || !height) {
+            return;
+        }
+        ctx.save();
+        ctx.translate(x, y);
+        if (this.isSvg) {
+            const subDocument = document.canvg.forkString(ctx, this.image, {
+                ignoreMouse: true,
+                ignoreAnimation: true,
+                ignoreDimensions: true,
+                ignoreClear: true,
+                offsetX: 0,
+                offsetY: 0,
+                scaleWidth: width,
+                scaleHeight: height
+            });
+            subDocument.document.documentElement.parent = this;
+            void subDocument.render();
+        }
+        else {
+            const image = this.image;
+            document.setViewBox({
+                ctx,
+                aspectRatio: this.getAttribute('preserveAspectRatio').getString(),
+                width,
+                desiredWidth: image.width,
+                height,
+                desiredHeight: image.height
+            });
+            if (this.loaded) {
+                if (typeof image.complete === 'undefined' || image.complete) {
+                    ctx.drawImage(image, 0, 0);
+                }
+            }
+        }
+        ctx.restore();
+    }
+    getBoundingBox() {
+        const x = this.getAttribute('x').getPixels('x');
+        const y = this.getAttribute('y').getPixels('y');
+        const width = this.getStyle('width').getPixels('x');
+        const height = this.getStyle('height').getPixels('y');
+        return new BoundingBox(x, y, x + width, y + height);
+    }
+}
+
+class SymbolElement extends RenderedElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'symbol';
+    }
+    render(_) {
+        // NO RENDER
+    }
+}
+
+class SVGFontLoader {
+    constructor(document) {
+        this.document = document;
+        this.loaded = false;
+        document.fonts.push(this);
+    }
+    async load(fontFamily, url) {
+        try {
+            const { document } = this;
+            const svgDocument = await document.canvg.parser.load(url);
+            const fonts = svgDocument.getElementsByTagName('font');
+            Array.from(fonts).forEach((fontNode) => {
+                const font = document.createElement(fontNode);
+                document.definitions[fontFamily] = font;
+            });
+        }
+        catch (err) {
+            console.error(`Error while loading font "${url}":`, err);
+        }
+        this.loaded = true;
+    }
+}
+
+class StyleElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'style';
+        const css = compressSpaces(Array.from(node.childNodes)
+            // NEED TEST
+            .map(_ => _.textContent)
+            .join('')
+            .replace(/(\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)|(^[\s]*\/\/.*)/gm, '') // remove comments
+            .replace(/@import.*;/g, '') // remove imports
+        );
+        const cssDefs = css.split('}');
+        cssDefs.forEach((_) => {
+            const def = _.trim();
+            if (!def) {
+                return;
+            }
+            const cssParts = def.split('{');
+            const cssClasses = cssParts[0].split(',');
+            const cssProps = cssParts[1].split(';');
+            cssClasses.forEach((_) => {
+                const cssClass = _.trim();
+                if (!cssClass) {
+                    return;
+                }
+                const props = document.styles[cssClass] || {};
+                cssProps.forEach((cssProp) => {
+                    const prop = cssProp.indexOf(':');
+                    const name = cssProp.substr(0, prop).trim();
+                    const value = cssProp.substr(prop + 1, cssProp.length - prop).trim();
+                    if (name && value) {
+                        props[name] = new Property(document, name, value);
+                    }
+                });
+                document.styles[cssClass] = props;
+                document.stylesSpecificity[cssClass] = getSelectorSpecificity(cssClass);
+                if (cssClass === '@font-face') { //  && !nodeEnv
+                    const fontFamily = props['font-family'].getString().replace(/"|'/g, '');
+                    const srcs = props.src.getString().split(',');
+                    srcs.forEach((src) => {
+                        if (src.indexOf('format("svg")') > 0) {
+                            const url = parseExternalUrl(src);
+                            if (url) {
+                                void new SVGFontLoader(document).load(fontFamily, url);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    }
+}
+StyleElement.parseExternalUrl = parseExternalUrl;
+
+class UseElement extends RenderedElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'use';
+    }
+    setContext(ctx) {
+        super.setContext(ctx);
+        const xAttr = this.getAttribute('x');
+        const yAttr = this.getAttribute('y');
+        if (xAttr.hasValue()) {
+            ctx.translate(xAttr.getPixels('x'), 0);
+        }
+        if (yAttr.hasValue()) {
+            ctx.translate(0, yAttr.getPixels('y'));
+        }
+    }
+    path(ctx) {
+        const { element } = this;
+        if (element) {
+            element.path(ctx);
+        }
+    }
+    renderChildren(ctx) {
+        const { document, element } = this;
+        if (element) {
+            let tempSvg = element;
+            if (element.type === 'symbol') {
+                // render me using a temporary svg element in symbol cases (http://www.w3.org/TR/SVG/struct.html#UseElement)
+                tempSvg = new SVGElement(document, null);
+                tempSvg.attributes.viewBox = new Property(document, 'viewBox', element.getAttribute('viewBox').getString());
+                tempSvg.attributes.preserveAspectRatio = new Property(document, 'preserveAspectRatio', element.getAttribute('preserveAspectRatio').getString());
+                tempSvg.attributes.overflow = new Property(document, 'overflow', element.getAttribute('overflow').getString());
+                tempSvg.children = element.children;
+                // element is still the parent of the children
+                element.styles.opacity = new Property(document, 'opacity', this.calculateOpacity());
+            }
+            if (tempSvg.type === 'svg') {
+                const widthStyle = this.getStyle('width', false, true);
+                const heightStyle = this.getStyle('height', false, true);
+                // if symbol or svg, inherit width/height from me
+                if (widthStyle.hasValue()) {
+                    tempSvg.attributes.width = new Property(document, 'width', widthStyle.getString());
+                }
+                if (heightStyle.hasValue()) {
+                    tempSvg.attributes.height = new Property(document, 'height', heightStyle.getString());
+                }
+            }
+            const oldParent = tempSvg.parent;
+            tempSvg.parent = this;
+            tempSvg.render(ctx);
+            tempSvg.parent = oldParent;
+        }
+    }
+    getBoundingBox(ctx) {
+        const { element } = this;
+        if (element) {
+            return element.getBoundingBox(ctx);
+        }
+        return null;
+    }
+    elementTransform() {
+        const { document, element } = this;
+        return Transform.fromElement(document, element);
+    }
+    get element() {
+        if (!this.cachedElement) {
+            this.cachedElement = this.getHrefAttribute().getDefinition();
+        }
+        return this.cachedElement;
+    }
+}
+
+function imGet(img, x, y, width, _height, rgba) {
+    return img[y * width * 4 + x * 4 + rgba];
+}
+function imSet(img, x, y, width, _height, rgba, val) {
+    img[y * width * 4 + x * 4 + rgba] = val;
+}
+function m(matrix, i, v) {
+    const mi = matrix[i];
+    return mi * v;
+}
+function c(a, m1, m2, m3) {
+    return m1 + Math.cos(a) * m2 + Math.sin(a) * m3;
+}
+class FeColorMatrixElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'feColorMatrix';
+        let matrix = toNumbers(this.getAttribute('values').getString());
+        switch (this.getAttribute('type').getString('matrix')) { // http://www.w3.org/TR/SVG/filters.html#feColorMatrixElement
+            case 'saturate': {
+                const s = matrix[0];
+                /* eslint-disable array-element-newline */
+                matrix = [
+                    0.213 + 0.787 * s, 0.715 - 0.715 * s, 0.072 - 0.072 * s, 0, 0,
+                    0.213 - 0.213 * s, 0.715 + 0.285 * s, 0.072 - 0.072 * s, 0, 0,
+                    0.213 - 0.213 * s, 0.715 - 0.715 * s, 0.072 + 0.928 * s, 0, 0,
+                    0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 1
+                ];
+                /* eslint-enable array-element-newline */
+                break;
+            }
+            case 'hueRotate': {
+                const a = matrix[0] * Math.PI / 180.0;
+                /* eslint-disable array-element-newline */
+                matrix = [
+                    c(a, 0.213, 0.787, -0.213), c(a, 0.715, -0.715, -0.715), c(a, 0.072, -0.072, 0.928), 0, 0,
+                    c(a, 0.213, -0.213, 0.143), c(a, 0.715, 0.285, 0.140), c(a, 0.072, -0.072, -0.283), 0, 0,
+                    c(a, 0.213, -0.213, -0.787), c(a, 0.715, -0.715, 0.715), c(a, 0.072, 0.928, 0.072), 0, 0,
+                    0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 1
+                ];
+                /* eslint-enable array-element-newline */
+                break;
+            }
+            case 'luminanceToAlpha':
+                /* eslint-disable array-element-newline */
+                matrix = [
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0,
+                    0.2125, 0.7154, 0.0721, 0, 0,
+                    0, 0, 0, 0, 1
+                ];
+                /* eslint-enable array-element-newline */
+                break;
+        }
+        this.matrix = matrix;
+        this.includeOpacity = this.getAttribute('includeOpacity').hasValue();
+    }
+    apply(ctx, _x, _y, width, height) {
+        // assuming x==0 && y==0 for now
+        const { includeOpacity, matrix } = this;
+        const srcData = ctx.getImageData(0, 0, width, height);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const r = imGet(srcData.data, x, y, width, height, 0);
+                const g = imGet(srcData.data, x, y, width, height, 1);
+                const b = imGet(srcData.data, x, y, width, height, 2);
+                const a = imGet(srcData.data, x, y, width, height, 3);
+                let nr = m(matrix, 0, r) + m(matrix, 1, g) + m(matrix, 2, b) + m(matrix, 3, a) + m(matrix, 4, 1);
+                let ng = m(matrix, 5, r) + m(matrix, 6, g) + m(matrix, 7, b) + m(matrix, 8, a) + m(matrix, 9, 1);
+                let nb = m(matrix, 10, r) + m(matrix, 11, g) + m(matrix, 12, b) + m(matrix, 13, a) + m(matrix, 14, 1);
+                let na = m(matrix, 15, r) + m(matrix, 16, g) + m(matrix, 17, b) + m(matrix, 18, a) + m(matrix, 19, 1);
+                if (includeOpacity) {
+                    nr = 0;
+                    ng = 0;
+                    nb = 0;
+                    na *= a / 255;
+                }
+                imSet(srcData.data, x, y, width, height, 0, nr);
+                imSet(srcData.data, x, y, width, height, 1, ng);
+                imSet(srcData.data, x, y, width, height, 2, nb);
+                imSet(srcData.data, x, y, width, height, 3, na);
+            }
+        }
+        ctx.clearRect(0, 0, width, height);
+        ctx.putImageData(srcData, 0, 0);
+    }
+}
+
+class MaskElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'mask';
+    }
+    apply(ctx, element) {
+        const { document } = this;
+        // render as temp svg
+        let x = this.getAttribute('x').getPixels('x');
+        let y = this.getAttribute('y').getPixels('y');
+        let width = this.getStyle('width').getPixels('x');
+        let height = this.getStyle('height').getPixels('y');
+        if (!width && !height) {
+            const boundingBox = new BoundingBox();
+            this.children.forEach((child) => {
+                boundingBox.addBoundingBox(child.getBoundingBox(ctx));
+            });
+            x = Math.floor(boundingBox.x1);
+            y = Math.floor(boundingBox.y1);
+            width = Math.floor(boundingBox.width);
+            height = Math.floor(boundingBox.height);
+        }
+        const ignoredStyles = this.removeStyles(element, MaskElement.ignoreStyles);
+        const maskCanvas = document.createCanvas(x + width, y + height);
+        const maskCtx = maskCanvas.getContext('2d');
+        document.screen.setDefaults(maskCtx);
+        this.renderChildren(maskCtx);
+        // convert mask to alpha with a fake node
+        // TODO: refactor out apply from feColorMatrix
+        new FeColorMatrixElement(document, ({
+            nodeType: 1,
+            childNodes: [],
+            attributes: [
+                {
+                    nodeName: 'type',
+                    value: 'luminanceToAlpha'
+                },
+                {
+                    nodeName: 'includeOpacity',
+                    value: 'true'
+                }
+            ]
+        })).apply(maskCtx, 0, 0, x + width, y + height);
+        const tmpCanvas = document.createCanvas(x + width, y + height);
+        const tmpCtx = tmpCanvas.getContext('2d');
+        document.screen.setDefaults(tmpCtx);
+        element.render(tmpCtx);
+        tmpCtx.globalCompositeOperation = 'destination-in';
+        tmpCtx.fillStyle = maskCtx.createPattern(maskCanvas, 'no-repeat');
+        tmpCtx.fillRect(0, 0, x + width, y + height);
+        ctx.fillStyle = tmpCtx.createPattern(tmpCanvas, 'no-repeat');
+        ctx.fillRect(0, 0, x + width, y + height);
+        // reassign mask
+        this.restoreStyles(element, ignoredStyles);
+    }
+    render(_) {
+        // NO RENDER
+    }
+}
+MaskElement.ignoreStyles = [
+    'mask',
+    'transform',
+    'clip-path'
+];
+
+const noop = () => {
+    // NOOP
+};
+class ClipPathElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'clipPath';
+    }
+    apply(ctx) {
+        const { document } = this;
+        const contextProto = Reflect.getPrototypeOf(ctx);
+        const { beginPath, closePath } = ctx;
+        if (contextProto) {
+            contextProto.beginPath = noop;
+            contextProto.closePath = noop;
+        }
+        Reflect.apply(beginPath, ctx, []);
+        this.children.forEach((child) => {
+            if (typeof child.path === 'undefined') {
+                return;
+            }
+            let transform = typeof child.elementTransform !== 'undefined'
+                ? child.elementTransform()
+                : null; // handle <use />
+            if (!transform) {
+                transform = Transform.fromElement(document, child);
+            }
+            if (transform) {
+                transform.apply(ctx);
+            }
+            child.path(ctx);
+            if (contextProto) {
+                contextProto.closePath = closePath;
+            }
+            if (transform) {
+                transform.unapply(ctx);
+            }
+        });
+        Reflect.apply(closePath, ctx, []);
+        ctx.clip();
+        if (contextProto) {
+            contextProto.beginPath = beginPath;
+            contextProto.closePath = closePath;
+        }
+    }
+    render(_) {
+        // NO RENDER
+    }
+}
+
+class FilterElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'filter';
+    }
+    apply(ctx, element) {
+        // render as temp svg
+        const { document, children } = this;
+        const boundingBox = element.getBoundingBox(ctx);
+        if (!boundingBox) {
+            return;
+        }
+        let px = 0;
+        let py = 0;
+        children.forEach((child) => {
+            const efd = child.extraFilterDistance || 0;
+            px = Math.max(px, efd);
+            py = Math.max(py, efd);
+        });
+        const width = Math.floor(boundingBox.width);
+        const height = Math.floor(boundingBox.height);
+        const tmpCanvasWidth = width + 2 * px;
+        const tmpCanvasHeight = height + 2 * py;
+        if (tmpCanvasWidth < 1 || tmpCanvasHeight < 1) {
+            return;
+        }
+        const x = Math.floor(boundingBox.x);
+        const y = Math.floor(boundingBox.y);
+        const ignoredStyles = this.removeStyles(element, FilterElement.ignoreStyles);
+        const tmpCanvas = document.createCanvas(tmpCanvasWidth, tmpCanvasHeight);
+        const tmpCtx = tmpCanvas.getContext('2d');
+        document.screen.setDefaults(tmpCtx);
+        tmpCtx.translate(-x + px, -y + py);
+        element.render(tmpCtx);
+        // apply filters
+        children.forEach((child) => {
+            if (typeof child.apply === 'function') {
+                child.apply(tmpCtx, 0, 0, tmpCanvasWidth, tmpCanvasHeight);
+            }
+        });
+        // render on me
+        ctx.drawImage(tmpCanvas, 0, 0, tmpCanvasWidth, tmpCanvasHeight, x - px, y - py, tmpCanvasWidth, tmpCanvasHeight);
+        this.restoreStyles(element, ignoredStyles);
+    }
+    render(_) {
+        // NO RENDER
+    }
+}
+FilterElement.ignoreStyles = [
+    'filter',
+    'transform',
+    'clip-path'
+];
+
+class FeDropShadowElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'feDropShadow';
+        this.addStylesFromStyleDefinition();
+    }
+    apply(_, _x, _y, _width, _height) {
+        // TODO: implement
+    }
+}
+
+class FeMorphologyElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'feMorphology';
+    }
+    apply(_, _x, _y, _width, _height) {
+        // TODO: implement
+    }
+}
+
+class FeCompositeElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'feComposite';
+    }
+    apply(_, _x, _y, _width, _height) {
+        // TODO: implement
+    }
+}
+
+class FeGaussianBlurElement extends Element {
+    constructor(document, node, captureTextNodes) {
+        super(document, node, captureTextNodes);
+        this.type = 'feGaussianBlur';
+        this.blurRadius = Math.floor(this.getAttribute('stdDeviation').getNumber());
+        this.extraFilterDistance = this.blurRadius;
+    }
+    apply(ctx, x, y, width, height) {
+        const { document, blurRadius } = this;
+        const body = document.window
+            ? document.window.document.body
+            : null;
+        const canvas = ctx.canvas;
+        // StackBlur requires canvas be on document
+        canvas.id = document.getUniqueId();
+        if (body) {
+            canvas.style.display = 'none';
+            body.appendChild(canvas);
+        }
+        canvasRGBA(canvas, x, y, width, height, blurRadius);
+        if (body) {
+            body.removeChild(canvas);
+        }
+    }
+}
+
+class TitleElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'title';
+    }
+}
+
+class DescElement extends Element {
+    constructor() {
+        super(...arguments);
+        this.type = 'desc';
+    }
+}
+
+const elements = {
+    'svg': SVGElement,
+    'rect': RectElement,
+    'circle': CircleElement,
+    'ellipse': EllipseElement,
+    'line': LineElement,
+    'polyline': PolylineElement,
+    'polygon': PolygonElement,
+    'path': PathElement,
+    'pattern': PatternElement,
+    'marker': MarkerElement,
+    'defs': DefsElement,
+    'linearGradient': LinearGradientElement,
+    'radialGradient': RadialGradientElement,
+    'stop': StopElement,
+    'animate': AnimateElement,
+    'animateColor': AnimateColorElement,
+    'animateTransform': AnimateTransformElement,
+    'font': FontElement,
+    'font-face': FontFaceElement,
+    'missing-glyph': MissingGlyphElement,
+    'glyph': GlyphElement,
+    'text': TextElement,
+    'tspan': TSpanElement,
+    'tref': TRefElement,
+    'a': AElement,
+    'textPath': TextPathElement,
+    'image': ImageElement,
+    'g': GElement,
+    'symbol': SymbolElement,
+    'style': StyleElement,
+    'use': UseElement,
+    'mask': MaskElement,
+    'clipPath': ClipPathElement,
+    'filter': FilterElement,
+    'feDropShadow': FeDropShadowElement,
+    'feMorphology': FeMorphologyElement,
+    'feComposite': FeCompositeElement,
+    'feColorMatrix': FeColorMatrixElement,
+    'feGaussianBlur': FeGaussianBlurElement,
+    'title': TitleElement,
+    'desc': DescElement
+};
+
+function createCanvas(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+}
+async function createImage(src, anonymousCrossOrigin = false) {
+    const image = document.createElement('img');
+    if (anonymousCrossOrigin) {
+        image.crossOrigin = 'Anonymous';
+    }
+    return new Promise((resolve, reject) => {
+        image.onload = () => {
+            resolve(image);
+        };
+        image.onerror = (_event, _source, _lineno, _colno, error) => {
+            reject(error);
+        };
+        image.src = src;
+    });
+}
+class Document {
+    constructor(canvg, { rootEmSize = 12, emSize = 12, createCanvas = Document.createCanvas, createImage = Document.createImage, anonymousCrossOrigin } = {}) {
+        this.canvg = canvg;
+        this.definitions = {};
+        this.styles = {};
+        this.stylesSpecificity = {};
+        this.images = [];
+        this.fonts = [];
+        this.emSizeStack = [];
+        this.uniqueId = 0;
+        this.screen = canvg.screen;
+        this.rootEmSize = rootEmSize;
+        this.emSize = emSize;
+        this.createCanvas = createCanvas;
+        this.createImage = this.bindCreateImage(createImage, anonymousCrossOrigin);
+        this.screen.wait(this.isImagesLoaded.bind(this));
+        this.screen.wait(this.isFontsLoaded.bind(this));
+    }
+    bindCreateImage(createImage, anonymousCrossOrigin) {
+        if (typeof anonymousCrossOrigin === 'boolean') {
+            return (source, forceAnonymousCrossOrigin) => createImage(source, typeof forceAnonymousCrossOrigin === 'boolean'
+                ? forceAnonymousCrossOrigin
+                : anonymousCrossOrigin);
+        }
+        return createImage;
+    }
+    get window() {
+        return this.screen.window;
+    }
+    get fetch() {
+        return this.screen.fetch;
+    }
+    get ctx() {
+        return this.screen.ctx;
+    }
+    get emSize() {
+        const { emSizeStack } = this;
+        return emSizeStack[emSizeStack.length - 1];
+    }
+    set emSize(value) {
+        const { emSizeStack } = this;
+        emSizeStack.push(value);
+    }
+    popEmSize() {
+        const { emSizeStack } = this;
+        emSizeStack.pop();
+    }
+    getUniqueId() {
+        return `canvg${++this.uniqueId}`;
+    }
+    isImagesLoaded() {
+        return this.images.every(_ => _.loaded);
+    }
+    isFontsLoaded() {
+        return this.fonts.every(_ => _.loaded);
+    }
+    createDocumentElement(document) {
+        const documentElement = this.createElement(document.documentElement);
+        documentElement.root = true;
+        documentElement.addStylesFromStyleDefinition();
+        this.documentElement = documentElement;
+        return documentElement;
+    }
+    createElement(node) {
+        const elementType = node.nodeName.replace(/^[^:]+:/, '');
+        const ElementType = Document.elementTypes[elementType];
+        if (typeof ElementType !== 'undefined') {
+            return new ElementType(this, node);
+        }
+        return new UnknownElement(this, node);
+    }
+    createTextNode(node) {
+        return new TextNode(this, node);
+    }
+    setViewBox(config) {
+        this.screen.setViewBox({
+            document: this,
+            ...config
+        });
+    }
+}
+Document.createCanvas = createCanvas;
+Document.createImage = createImage;
+Document.elementTypes = elements;
+
+/**
+ * SVG renderer on canvas.
+ */
+class Canvg {
+    /**
+     * Main constructor.
+     * @param ctx - Rendering context.
+     * @param svg - SVG Document.
+     * @param options - Rendering options.
+     */
+    constructor(ctx, svg, options = {}) {
+        this.parser = new Parser(options);
+        this.screen = new Screen(ctx, options);
+        this.options = options;
+        const document = new Document(this, options);
+        const documentElement = document.createDocumentElement(svg);
+        this.document = document;
+        this.documentElement = documentElement;
+    }
+    /**
+     * Create Canvg instance from SVG source string or URL.
+     * @param ctx - Rendering context.
+     * @param svg - SVG source string or URL.
+     * @param options - Rendering options.
+     * @returns Canvg instance.
+     */
+    static async from(ctx, svg, options = {}) {
+        const parser = new Parser(options);
+        const svgDocument = await parser.parse(svg);
+        return new Canvg(ctx, svgDocument, options);
+    }
+    /**
+     * Create Canvg instance from SVG source string.
+     * @param ctx - Rendering context.
+     * @param svg - SVG source string.
+     * @param options - Rendering options.
+     * @returns Canvg instance.
+     */
+    static fromString(ctx, svg, options = {}) {
+        const parser = new Parser(options);
+        const svgDocument = parser.parseFromString(svg);
+        return new Canvg(ctx, svgDocument, options);
+    }
+    /**
+     * Create new Canvg instance with inherited options.
+     * @param ctx - Rendering context.
+     * @param svg - SVG source string or URL.
+     * @param options - Rendering options.
+     * @returns Canvg instance.
+     */
+    fork(ctx, svg, options = {}) {
+        return Canvg.from(ctx, svg, {
+            ...this.options,
+            ...options
+        });
+    }
+    /**
+     * Create new Canvg instance with inherited options.
+     * @param ctx - Rendering context.
+     * @param svg - SVG source string.
+     * @param options - Rendering options.
+     * @returns Canvg instance.
+     */
+    forkString(ctx, svg, options = {}) {
+        return Canvg.fromString(ctx, svg, {
+            ...this.options,
+            ...options
+        });
+    }
+    /**
+     * Document is ready promise.
+     * @returns Ready promise.
+     */
+    ready() {
+        return this.screen.ready();
+    }
+    /**
+     * Document is ready value.
+     * @returns Is ready or not.
+     */
+    isReady() {
+        return this.screen.isReady();
+    }
+    /**
+     * Render only first frame, ignoring animations and mouse.
+     * @param options - Rendering options.
+     */
+    async render(options = {}) {
+        this.start({
+            enableRedraw: true,
+            ignoreAnimation: true,
+            ignoreMouse: true,
+            ...options
+        });
+        await this.ready();
+        this.stop();
+    }
+    /**
+     * Start rendering.
+     * @param options - Render options.
+     */
+    start(options = {}) {
+        const { documentElement, screen, options: baseOptions } = this;
+        screen.start(documentElement, {
+            enableRedraw: true,
+            ...baseOptions,
+            ...options
+        });
+    }
+    /**
+     * Stop rendering.
+     */
+    stop() {
+        this.screen.stop();
+    }
+    /**
+     * Resize SVG to fit in given size.
+     * @param width
+     * @param height
+     * @param preserveAspectRatio
+     */
+    resize(width, height = width, preserveAspectRatio = false) {
+        this.documentElement.resize(width, height, preserveAspectRatio);
+    }
+}
+
+export default Canvg;
+export { AElement, AnimateColorElement, AnimateElement, AnimateTransformElement, BoundingBox, CB1, CB2, CB3, CB4, Canvg, CircleElement, ClipPathElement, DefsElement, DescElement, Document, Element, EllipseElement, FeColorMatrixElement, FeCompositeElement, FeDropShadowElement, FeGaussianBlurElement, FeMorphologyElement, FilterElement, Font, FontElement, FontFaceElement, GElement, GlyphElement, GradientElement, ImageElement, LineElement, LinearGradientElement, MarkerElement, MaskElement, Matrix, MissingGlyphElement, Mouse, PSEUDO_ZERO, Parser, PathElement, PathParser, PatternElement, Point, PolygonElement, PolylineElement, Property, QB1, QB2, QB3, RadialGradientElement, RectElement, RenderedElement, Rotate, SVGElement, SVGFontLoader, Scale, Screen, Skew, SkewX, SkewY, StopElement, StyleElement, SymbolElement, TRefElement, TSpanElement, TextElement, TextPathElement, TitleElement, Transform, Translate, UnknownElement, UseElement, ViewPort, compressSpaces, getSelectorSpecificity, normalizeAttributeName, normalizeColor, parseExternalUrl, index as presets, toNumbers, trimLeft, trimRight, vectorMagnitude, vectorsAngle, vectorsRatio };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguYmFiZWwuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OzsifQ==

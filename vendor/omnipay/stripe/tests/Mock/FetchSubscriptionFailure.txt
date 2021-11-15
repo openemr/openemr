@@ -1,0 +1,15 @@
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 15 Feb 2016 08:23:59 GMT
+Content-Type: application/json
+Content-Length: 188
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "Customer cus_7twok4jHGpRWHs does not have a subscription with ID sub_7uNSBwlTzGjYWw",
+    "param": "subscription"
+  }
+}

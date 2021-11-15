@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 22 Feb 2016 06:42:10 GMT
+Content-Type: application/json
+Content-Length: 61
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "deleted": true,
+  "id": "ii_17hC3JCryC4r2g4vLyzjN0n3"
+}

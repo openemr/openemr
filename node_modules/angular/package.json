@@ -1,0 +1,56 @@
+{
+  "_args": [
+    [
+      "angular@1.8.2",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "angular@1.8.2",
+  "_id": "angular@1.8.2",
+  "_inBundle": false,
+  "_integrity": "sha512-IauMOej2xEe7/7Ennahkbb5qd/HFADiNuLSESz9Q27inmi32zB0lnAsFeLEWcox3Gd1F6YhNd1CP7/9IukJ0Gw==",
+  "_location": "/angular",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "angular@1.8.2",
+    "name": "angular",
+    "escapedName": "angular",
+    "rawSpec": "1.8.2",
+    "saveSpec": null,
+    "fetchSpec": "1.8.2"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/angular/-/angular-1.8.2.tgz",
+  "_spec": "1.8.2",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Angular Core Team",
+    "email": "angular-core+npm@google.com"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular.js/issues"
+  },
+  "description": "HTML enhanced for web apps",
+  "homepage": "http://angularjs.org",
+  "keywords": [
+    "angular",
+    "framework",
+    "browser",
+    "client-side"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "angular",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.8.2"
+}

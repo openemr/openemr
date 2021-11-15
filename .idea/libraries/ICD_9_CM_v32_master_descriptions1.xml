@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ICD-9-CM-v32-master-descriptions1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/openemr/contrib/icd9/ICD-9-CM-v32-master-descriptions.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

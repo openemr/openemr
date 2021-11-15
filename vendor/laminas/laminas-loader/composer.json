@@ -1,0 +1,52 @@
+{
+    "name": "laminas/laminas-loader",
+    "description": "Autoloading and plugin loading strategies",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "loader"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-loader/",
+        "issues": "https://github.com/laminas/laminas-loader/issues",
+        "source": "https://github.com/laminas/laminas-loader",
+        "rss": "https://github.com/laminas/laminas-loader/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Loader\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Loader\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-loader": "^2.6.1"
+    }
+}

@@ -1,0 +1,78 @@
+{
+  "_args": [
+    [
+      "validate.js@0.13.1",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "validate.js@0.13.1",
+  "_id": "validate.js@0.13.1",
+  "_inBundle": false,
+  "_integrity": "sha512-PnFM3xiZ+kYmLyTiMgTYmU7ZHkjBZz2/+F0DaALc/uUtVzdCt1wAosvYJ5hFQi/hz8O4zb52FQhHZRC+uVkJ+g==",
+  "_location": "/validate.js",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "validate.js@0.13.1",
+    "name": "validate.js",
+    "escapedName": "validate.js",
+    "rawSpec": "0.13.1",
+    "saveSpec": null,
+    "fetchSpec": "0.13.1"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/validate.js/-/validate.js-0.13.1.tgz",
+  "_spec": "0.13.1",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Nicklas Ansman",
+    "email": "nicklas@ansman.se"
+  },
+  "bugs": {
+    "url": "https://github.com/ansman/validate.js/issues"
+  },
+  "description": "Declarative validations for JavaScript",
+  "devDependencies": {
+    "coveralls": "2.11.9",
+    "grunt": "1.0.1",
+    "grunt-contrib-jasmine": "1.0.3",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-uglify": "1.0.1",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-docco": "0.4.0",
+    "grunt-notify": "0.4.5",
+    "grunt-template-jasmine-istanbul": "0.4.0"
+  },
+  "files": [
+    "typings.json",
+    "validate.d.ts",
+    "validate.js",
+    "validate.min.js",
+    "validate.min.map"
+  ],
+  "homepage": "http://validatejs.org",
+  "keywords": [
+    "validation",
+    "validate",
+    "server",
+    "client"
+  ],
+  "license": "MIT",
+  "main": "validate.js",
+  "name": "validate.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ansman/validate.js.git"
+  },
+  "scripts": {
+    "build": "grunt build",
+    "docs": "grunt docco",
+    "test": "grunt test",
+    "watch": "grunt watch"
+  },
+  "typings": "validate.d.ts",
+  "version": "0.13.1"
+}

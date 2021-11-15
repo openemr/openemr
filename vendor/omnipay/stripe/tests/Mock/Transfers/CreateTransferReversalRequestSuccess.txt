@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 01 Feb 2016 00:44:38 GMT
+Content-Type: application/json
+Content-Length: 1818
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "id": "trr_1ARKQ22eZvKYlo2Cv5APdtKF",
+  "object": "transfer_reversal",
+  "amount": 400,
+  "balance_transaction": "txn_1ARKQ22eZvKYlo2C76jP3q3o",
+  "created": 1496666090,
+  "currency": "usd",
+  "metadata": {
+  },
+  "transfer": "tr_1ARKPl2eZvKYlo2CsNTKWIOO"
+}

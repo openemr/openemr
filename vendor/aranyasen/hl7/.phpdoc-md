@@ -1,0 +1,45 @@
+<?php
+
+use Aranyasen\HL7;
+use Aranyasen\HL7\Segments\PV1;
+use Aranyasen\HL7\Segments\ORC;
+use Aranyasen\HL7\Segments\OBX;
+use Aranyasen\HL7\Segments\OBR;
+use Aranyasen\HL7\Segments\DG1;
+use Aranyasen\HL7\Segments\NTE;
+use Aranyasen\HL7\Segments\IN3;
+use Aranyasen\HL7\Segments\IN1;
+use Aranyasen\HL7\Segments\PID;
+use Aranyasen\HL7\Segments\MSH;
+use Aranyasen\HL7\Segments\EVN;
+use Aranyasen\HL7\Segments\EQU;
+use Aranyasen\HL7\Segments\SAC;
+use Aranyasen\HL7\Segment;
+use Aranyasen\HL7\Messages\ACK;
+use Aranyasen\HL7\Message;
+use Aranyasen\HL7\Connection;
+
+return (object)[
+    'rootNamespace' => HL7::class,
+    'destDirectory' => 'docs',
+    'format' => 'github',
+    'classes' => [
+        Connection::class,
+        Message::class,
+        ACK::class,
+        Segment::class,
+        MSH::class,
+        PID::class,
+        IN1::class,
+        IN3::class,
+        NTE::class,
+        DG1::class,
+        OBR::class,
+        OBX::class,
+        ORC::class,
+        PV1::class,
+        EVN::class,
+        EQU::class,
+        SAC::class,
+    ],
+];

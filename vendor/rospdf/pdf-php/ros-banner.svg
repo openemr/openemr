@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 338.66666 169.33334"
+   height="640"
+   width="1280">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer2">
+    <rect
+       y="0"
+       x="0"
+       height="169.33333"
+       width="338.66666"
+       id="rect1389"
+       style="fill:#ffffff;stroke-width:0.26458332" />
+    <image
+       xlink:href="ros.jpg"
+       y="25.209717"
+       x="108.48755"
+       id="image4537"
+       preserveAspectRatio="none"
+       height="57.150002"
+       width="122.06111" />
+    <text
+       id="text4542"
+       y="102.16049"
+       x="76.450928"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.93333244px;font-family:Garamond;-inkscape-font-specification:'Garamond Bold';stroke-width:0.26458332"
+         y="102.16049"
+         x="76.450928"
+         id="tspan4540">R&amp;OS Pdf class for PHP</tspan></text>
+    <text
+       id="text4553"
+       y="126.48203"
+       x="167.25778"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         id="tspan4555"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Garamond;-inkscape-font-specification:Garamond;text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.26458332"
+         y="126.48203"
+         x="167.25778">The official GIT repository</tspan></text>
+  </g>
+</svg>

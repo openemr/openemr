@@ -1,0 +1,70 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 15 Apr 2016 21:37:26 GMT
+Content-Type: application/json
+Content-Length: 1521
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "id": "ch_180ZdUCryC0oikg4v4lc4F59D",
+  "object": "charge",
+  "created": 1460437056,
+  "livemode": false,
+  "paid": true,
+  "status": "succeeded",
+  "amount": 1000,
+  "currency": "usd",
+  "refunded": false,
+  "source": {
+    "id": "card_990JozzC88C4rAAg4vg5yLG3j3",
+    "object": "card",
+    "last4": "1234",
+    "brand": "Visa",
+    "funding": "credit",
+    "exp_month": 1,
+    "exp_year": 2020,
+    "fingerprint": "32Q1po9Ujn5DpPgL",
+    "country": "US",
+    "name": "",
+    "address_line1": "",
+    "address_line2": "",
+    "address_city": "",
+    "address_state": "",
+    "address_zip": "",
+    "address_country": "",
+    "cvc_check": null,
+    "address_line1_check": null,
+    "address_zip_check": null,
+    "tokenization_method": null,
+    "dynamic_last4": null,
+    "metadata": {},
+    "customer": "cus_8GoWuzFake3R8C"
+  },
+  "source_transfer": null,
+  "captured": true,
+  "balance_transaction": "txn_180ZdUCry4Lot2g4vHVZH6y4A",
+  "failure_message": null,
+  "failure_code": null,
+  "amount_refunded": 0,
+  "customer": "cus_8GoWuzFake3R8C",
+  "invoice": "in_180Z1234yC4r2g4vCYO4qcIY",
+  "order": null,
+  "description": null,
+  "dispute": null,
+  "metadata": {},
+  "statement_descriptor": "STATEMENT",
+  "fraud_details": {},
+  "receipt_email": null,
+  "receipt_number": null,
+  "shipping": null,
+  "destination": null,
+  "application_fee": null,
+  "refunds": {
+    "object": "list",
+    "total_count": 0,
+    "has_more": false,
+    "url": "/v1/charges/ch_180ZdUCryC0oikg4v4lc4F59D/refunds",
+    "data": []
+  }
+}

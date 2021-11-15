@@ -1,0 +1,53 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 25 Jan 2016 16:23:04 GMT
+Content-Type: application/json
+Content-Length: 365
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "id": "evt_17X23UCryC4r2g4vdolh6muI",
+  "object": "event",
+  "api_version": "2015-09-08",
+  "created": 1453696460,
+  "data": {
+    "object": {
+      "id": "sub_7mbFbLbGdNjz2k",
+      "object": "subscription",
+      "application_fee_percent": null,
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "current_period_end": 1456374859,
+      "current_period_start": 1453696459,
+      "customer": "cus_7lqqgOm33t4xSU",
+      "discount": null,
+      "ended_at": null,
+      "metadata": {},
+      "plan": {
+        "id": "standard",
+        "object": "plan",
+        "amount": 1900,
+        "created": 1450152017,
+        "currency": "usd",
+        "interval": "month",
+        "interval_count": 1,
+        "livemode": false,
+        "metadata": {},
+        "name": "Standard",
+        "statement_descriptor": null,
+        "trial_period_days": null
+      },
+      "quantity": 1,
+      "start": 1453696459,
+      "status": "active",
+      "tax_percent": null,
+      "trial_end": null,
+      "trial_start": null
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 0,
+  "request": "req_7mbFgLgKFTc6Gu",
+  "type": "customer.subscription.created"
+}

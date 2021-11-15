@@ -1,0 +1,16 @@
+HTTP/1.1 402 Request Failed
+Server: nginx
+Date: Fri, 12 Feb 2016 20:48:09 GMT
+Content-Type: application/json
+Content-Length: 115
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "insufficient_funds",
+    "message": "Transfer does not have available funds"
+  }
+}

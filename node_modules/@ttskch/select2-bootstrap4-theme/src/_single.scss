@@ -1,0 +1,52 @@
+.select2-container--bootstrap4 {
+  .select2-selection--single {
+
+    // height of input box
+    height: $input-height !important; // stylelint-disable-line declaration-no-important
+
+    // placeholder
+    .select2-selection__placeholder {
+      line-height: $input-height-inner;
+      color: $input-placeholder-color;
+    }
+
+    // arrow
+    .select2-selection__arrow {
+      position: absolute;
+      top: 50%;
+      right: 3px;
+      width: 20px;
+      b {
+        position: absolute;
+        top: 60%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        margin-top: -2px;
+        margin-left: -4px;
+        border-color: $dark transparent transparent transparent;
+        border-style: solid;
+        border-width: 5px 4px 0;
+      }
+    }
+
+    // selected item
+    .select2-selection__rendered {
+      padding-left: $input-padding-x;
+      line-height: $input-height-inner;
+      color: $input-color;
+    }
+  }
+}
+
+// search box
+.select2-search--dropdown .select2-search__field {
+  padding: $input-padding-y $input-padding-x;
+  border: $input-border-width solid $input-border-color;
+  @include border-radius($input-border-radius);
+}
+
+// no result message
+.select2-results__message {
+  color: $secondary;
+}

@@ -1,0 +1,42 @@
+{
+    "name": "omnipay/stripe",
+    "type": "library",
+    "description": "Stripe driver for the Omnipay payment processing library",
+    "keywords": [
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "stripe"
+    ],
+    "homepage": "https://github.com/thephpleague/omnipay-stripe",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrian Macneil",
+            "email": "adrian@adrianmacneil.com"
+        },
+        {
+            "name": "Omnipay Contributors",
+            "homepage": "https://github.com/thephpleague/omnipay-stripe/contributors"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Stripe\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "^3"
+    },
+    "require-dev": {
+        "omnipay/tests": "^3",
+        "squizlabs/php_codesniffer": "^3",
+        "phpro/grumphp": "^0.14"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.1.x-dev"
+        }
+    },
+    "prefer-stable": true
+}

@@ -1,0 +1,32 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Tue, 26 Feb 2013 16:11:12 GMT
+Content-Type: application/json;charset=utf-8
+Connection: keep-alive
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+    "id": "card_15WgqxIobxWFFmzdk5V9z3g9",
+    "object": "card",
+    "last4": "4444",
+    "brand": "MasterCard",
+    "funding": "credit",
+    "exp_month": 1,
+    "exp_year": 2020,
+    "fingerprint": "JM5ri11gcDo8UgkV",
+    "country": "US",
+    "name": "Another Customer",
+    "address_line1": "1 Downa Creek Road",
+    "address_line2": "",
+    "address_city": "Upper Swan",
+    "address_state": "WA",
+    "address_zip": "6999",
+    "address_country": "AU",
+    "cvc_check": "pass",
+    "address_line1_check": "pass",
+    "address_zip_check": "pass",
+    "dynamic_last4": null,
+    "customer": "cus_5i75ZdvSgIgLdW"
+}

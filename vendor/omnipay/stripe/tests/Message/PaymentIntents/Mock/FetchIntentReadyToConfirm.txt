@@ -1,0 +1,59 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 05 May 2013 08:51:15 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 997
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+
+{
+	"id": "pi_1Ev1ezFSbr6xR4YAtM76y2kZ",
+	"object": "payment_intent",
+	"amount": 8000,
+	"amount_capturable": 0,
+	"amount_received": 0,
+	"application": null,
+	"application_fee_amount": null,
+	"canceled_at": null,
+	"cancellation_reason": null,
+	"capture_method": "manual",
+	"charges": {
+		"object": "list",
+		"data": [],
+		"has_more": false,
+		"total_count": 0,
+		"url": "\/v1\/charges?payment_intent=pi_1Ev1ezFSbr6xR4YAtM76y2kZ"
+	},
+	"client_secret": "pi_1Ev1ezFSbr6xR4YAtM76y2kZ_secret_1LNKABAbQzLv0PLghVQ9KzLtJ",
+	"confirmation_method": "manual",
+	"created": 1562849165,
+	"currency": "usd",
+	"customer": null,
+	"description": "Order #184",
+	"invoice": null,
+	"last_payment_error": null,
+	"livemode": false,
+	"metadata": {
+		"order_id": "184",
+		"order_number": "fd17b4d8d756814bc6a258ba578fc359",
+		"transaction_reference": "4bd4f322cf005e954c78194633b58b0b",
+		"client_ip": "::1"
+	},
+	"next_action": null,
+	"on_behalf_of": null,
+	"payment_method": "pm_1Ev1ewFSbr6xR4YAM7H9IPu8",
+	"payment_method_types": [
+		"card"
+	],
+	"receipt_email": null,
+	"review": null,
+	"setup_future_usage": null,
+	"shipping": null,
+	"source": null,
+	"statement_descriptor": null,
+	"status": "requires_confirmation",
+	"transfer_data": null,
+	"transfer_group": null
+}

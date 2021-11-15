@@ -1,0 +1,57 @@
+{
+    "name": "laminas/laminas-json",
+    "description": "provides convenience methods for serializing native PHP to JSON and decoding JSON to native PHP",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "json"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-json/",
+        "issues": "https://github.com/laminas/laminas-json/issues",
+        "source": "https://github.com/laminas/laminas-json",
+        "rss": "https://github.com/laminas/laminas-json/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-stdlib": "^2.7.7 || ^3.1",
+        "phpunit/phpunit": "^9.3"
+    },
+    "suggest": {
+        "laminas/laminas-json-server": "For implementing JSON-RPC servers",
+        "laminas/laminas-xml2json": "For converting XML documents to JSON"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Json\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Json\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-json": "^3.1.2"
+    }
+}

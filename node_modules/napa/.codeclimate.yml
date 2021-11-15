@@ -1,0 +1,8 @@
+engines:
+  eslint:
+    enabled: true
+
+ratings:
+   paths:
+   - lib/pkg.js
+   - cli.js

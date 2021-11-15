@@ -1,0 +1,83 @@
+{
+  "_args": [
+    [
+      "@eastdesire/jscolor@2.4.6",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "@eastdesire/jscolor@2.4.6",
+  "_id": "@eastdesire/jscolor@2.4.6",
+  "_inBundle": false,
+  "_integrity": "sha512-7/fHaXSI0v2Pyw/Bg4V0w7HisXxJCA/qo72E5Ihq0lff+6/58m+HfVNPkGsXXeX+Ejs9hzJhKJ8v3uYDNN9CCw==",
+  "_location": "/@eastdesire/jscolor",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "@eastdesire/jscolor@2.4.6",
+    "name": "@eastdesire/jscolor",
+    "escapedName": "@eastdesire%2fjscolor",
+    "scope": "@eastdesire",
+    "rawSpec": "2.4.6",
+    "saveSpec": null,
+    "fetchSpec": "2.4.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@eastdesire/jscolor/-/jscolor-2.4.6.tgz",
+  "_spec": "2.4.6",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Jan Odvarko - East Desire"
+  },
+  "bugs": {
+    "url": "https://github.com/EastDesire/jscolor/issues"
+  },
+  "description": "Web color picker with opacity (alpha channel) and custom palette. Supports CSS colors such as rgba() and hex, including #rrggbbaa.",
+  "homepage": "https://jscolor.com",
+  "keywords": [
+    "JavaScript",
+    "js",
+    "hex",
+    "rgba",
+    "rrggbbaa",
+    "color",
+    "picker",
+    "palette",
+    "swatch",
+    "input",
+    "chooser",
+    "selector",
+    "opacity",
+    "transparency",
+    "alpha",
+    "channel",
+    "support",
+    "AJAX",
+    "ColorPicker",
+    "ColorPalette",
+    "plugin",
+    "touchscreen",
+    "tablet",
+    "smartphone",
+    "mobile",
+    "popup",
+    "widget",
+    "dialog",
+    "dropdown",
+    "control",
+    "HTML5"
+  ],
+  "license": "GPL-3.0-or-later",
+  "main": "jscolor.js",
+  "name": "@eastdesire/jscolor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EastDesire/jscolor.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "2.4.6"
+}

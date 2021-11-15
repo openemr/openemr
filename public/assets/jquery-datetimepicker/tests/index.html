@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>jQuery DateTimepicker Tests </title>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+<div id="mocha"></div>
+
+<script src="../node_modules/mocha/mocha.js"></script>
+<script src="../node_modules/chai/chai.js"></script>
+
+<script>
+    mocha.ui('bdd');
+    mocha.reporter('html');
+</script>
+
+<link rel="stylesheet" href="./app.css" />
+<link rel="stylesheet" href="../jquery.datetimepicker.css" />
+<script src="../jquery.js"></script>
+
+<script src="../node_modules/php-date-formatter/js/php-date-formatter.js"></script>
+<script src="../jquery.datetimepicker.js"></script>
+
+<script src="./tests/bootstrap.js"></script>
+<script src="./tests/init.js"></script>
+<script src="./tests/destroy.js"></script>
+<script src="./tests/options.js"></script>
+<script src="./tests/methods.js"></script>
+<script src="./tests/events.js"></script>
+
+<script>
+    window.onload = function() {
+        if (window.mochaPhantomJS) {
+            mochaPhantomJS.run();
+        } else {
+            mocha.run();
+        }
+    };
+</script>
+</body>
+</html>

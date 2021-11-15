@@ -1,0 +1,69 @@
+{
+    "name": "laminas/laminas-config",
+    "description": "provides a nested object property based user interface for accessing this configuration data within application code",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "config"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-config/",
+        "issues": "https://github.com/laminas/laminas-config/issues",
+        "source": "https://github.com/laminas/laminas-config",
+        "rss": "https://github.com/laminas/laminas-config/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "ext-json": "*",
+        "laminas/laminas-stdlib": "^2.7.7 || ^3.1",
+        "laminas/laminas-zendframework-bridge": "^1.0",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-filter": "^2.7.2",
+        "laminas/laminas-i18n": "^2.10.3",
+        "laminas/laminas-servicemanager": "^3.4.1",
+        "malukenho/docheader": "^0.1.6",
+        "phpunit/phpunit": "^8.5.8"
+    },
+    "conflict": {
+        "container-interop/container-interop": "<1.2.0"
+    },
+    "suggest": {
+        "laminas/laminas-filter": "^2.7.2; install if you want to use the Filter processor",
+        "laminas/laminas-i18n": "^2.7.4; install if you want to use the Translator processor",
+        "laminas/laminas-servicemanager": "^2.7.8 || ^3.3; if you need an extensible plugin manager for use with the Config Factory"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Config\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Config\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@license-check",
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
+        "license-check": "docheader check src/"
+    },
+    "replace": {
+        "zendframework/zend-config": "^3.3.0"
+    }
+}

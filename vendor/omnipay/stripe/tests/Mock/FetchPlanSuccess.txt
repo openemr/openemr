@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 12 Feb 2016 20:47:00 GMT
+Content-Type: application/json
+Content-Length: 268
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+
+{
+  "id": "basic",
+  "object": "plan",
+  "amount": 500,
+  "created": 1450151929,
+  "currency": "usd",
+  "interval": "month",
+  "interval_count": 1,
+  "livemode": false,
+  "metadata": {},
+  "name": "Basic",
+  "statement_descriptor": null,
+  "trial_period_days": null
+}

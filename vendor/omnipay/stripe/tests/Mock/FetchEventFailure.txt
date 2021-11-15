@@ -1,0 +1,16 @@
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 25 Jan 2016 16:28:23 GMT
+Content-Type: application/json
+Content-Length: 132
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such event: evt_17X23UCryC4r2g4vdolh6muI",
+    "param": "id"
+  }
+}

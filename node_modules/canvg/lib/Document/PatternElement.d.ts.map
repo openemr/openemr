@@ -1,0 +1,1 @@
+{"version":3,"file":"PatternElement.d.ts","sourceRoot":"","sources":["../../src/Document/PatternElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAClB,OAAO,QAAQ,MAAM,aAAa,CAAC;AACnC,OAAO,OAAO,MAAM,WAAW,CAAC;AAGhC,MAAM,CAAC,OAAO,OAAO,cAAe,SAAQ,OAAO;IAClD,IAAI,SAAa;IAEjB,aAAa,CACZ,GAAG,EAAE,kBAAkB,EACvB,CAAC,EAAE,OAAO,EACV,iBAAiB,EAAE,QAAQ;CAyE5B"}

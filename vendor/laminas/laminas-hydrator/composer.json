@@ -1,0 +1,71 @@
+{
+    "name": "laminas/laminas-hydrator",
+    "description": "Serialize objects to arrays, and vice versa",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "hydrator"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-hydrator/",
+        "issues": "https://github.com/laminas/laminas-hydrator/issues",
+        "source": "https://github.com/laminas/laminas-hydrator",
+        "rss": "https://github.com/laminas/laminas-hydrator/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laminas": {
+            "component": "Laminas\\Hydrator",
+            "config-provider": "Laminas\\Hydrator\\ConfigProvider"
+        }
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-stdlib": "^3.3",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-eventmanager": "^3.2.1",
+        "laminas/laminas-modulemanager": "^2.8",
+        "laminas/laminas-serializer": "^2.9",
+        "laminas/laminas-servicemanager": "^3.3.2",
+        "phpunit/phpunit": "~9.3.0",
+        "psalm/plugin-phpunit": "^0.15.0",
+        "vimeo/psalm": "^4.2"
+    },
+    "suggest": {
+        "laminas/laminas-eventmanager": "^3.2, to support aggregate hydrator usage",
+        "laminas/laminas-serializer": "^2.9, to use the SerializableStrategy",
+        "laminas/laminas-servicemanager": "^3.3, to support hydrator plugin manager usage"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Hydrator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Hydrator\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-hydrator": "^3.0.2"
+    }
+}

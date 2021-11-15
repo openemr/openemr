@@ -1,0 +1,82 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 01 Feb 2016 00:44:38 GMT
+Content-Type: application/json
+Content-Length: 1818
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+ "id": "in_17ZPbRCryC4r2g4vIdAFxptK",
+ "object": "invoice",
+ "amount_due": 1900,
+ "application_fee": null,
+ "attempt_count": 1,
+ "attempted": true,
+ "charge": "ch_17ZPbRCryC4r2g4vXr5sduQX",
+ "closed": true,
+ "currency": "usd",
+ "customer": "cus_7mu7d9osRTRwzT",
+ "date": 1454263633,
+ "description": null,
+ "discount": null,
+ "ending_balance": 0,
+ "forgiven": false,
+ "lines": {
+   "object": "list",
+   "data": [
+     {
+       "id": "sub_7p3iCfmcz1Xowm",
+       "object": "line_item",
+       "amount": 1900,
+       "currency": "usd",
+       "description": null,
+       "discountable": true,
+       "livemode": false,
+       "metadata": {},
+       "period": {
+         "start": 1454263633,
+         "end": 1456769233
+       },
+       "plan": {
+         "id": "standard",
+         "object": "plan",
+         "amount": 1900,
+         "created": 1450152017,
+         "currency": "usd",
+         "interval": "month",
+         "interval_count": 1,
+         "livemode": false,
+         "metadata": {},
+         "name": "Standard",
+         "statement_descriptor": null,
+         "trial_period_days": null
+       },
+       "proration": false,
+       "quantity": 1,
+       "subscription": null,
+       "type": "subscription"
+     }
+   ],
+   "has_more": false,
+   "total_count": 1,
+   "url": "/v1/invoices/in_17ZPbRCryC4r2g4vIdAFxptK/lines"
+ },
+ "livemode": false,
+ "metadata": {},
+ "next_payment_attempt": null,
+ "paid": true,
+ "period_end": 1454263633,
+ "period_start": 1454260525,
+ "receipt_number": null,
+ "starting_balance": 0,
+ "statement_descriptor": null,
+ "subscription": "sub_7p3iCfmcz1Xowm",
+ "subtotal": 1900,
+ "tax": null,
+ "tax_percent": null,
+ "total": 1900,
+ "webhooks_delivered_at": 1454263646,
+ "payment": "ch_17ZPbRCryC4r2g4vXr5sduQX"
+}

@@ -1,0 +1,68 @@
+{
+    "name": "laminas/laminas-soap",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "soap"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-soap/",
+        "issues": "https://github.com/laminas/laminas-soap/issues",
+        "source": "https://github.com/laminas/laminas-soap",
+        "rss": "https://github.com/laminas/laminas-soap/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "ext-dom": "*",
+        "ext-soap": "*",
+        "laminas/laminas-server": "^2.9",
+        "laminas/laminas-stdlib": "^3.3",
+        "laminas/laminas-uri": "^2.8",
+        "laminas/laminas-zendframework-bridge": "^1.1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-config": "^3.4",
+        "laminas/laminas-http": "^2.14",
+        "phpspec/prophecy-phpunit": "^2.0.1",
+        "phpunit/phpunit": "^9.4.3"
+    },
+    "suggest": {
+        "ext-curl": "Curl is required when .NET compatibility is required",
+        "laminas/laminas-http": "Laminas\\Http component"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Soap\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Soap\\": "test/"
+        },
+        "files": [
+            "test/TestAsset/commontypes.php",
+            "test/TestAsset/call_user_func.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-soap": "^2.8.0"
+    }
+}

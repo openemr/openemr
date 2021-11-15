@@ -1,0 +1,48 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 31 Jan 2016 23:56:47 GMT
+Content-Type: application/json
+Content-Length: 898
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "sub_7p3iCfmcz1Xowm",
+      "object": "line_item",
+      "amount": 1900,
+      "currency": "usd",
+      "description": null,
+      "discountable": true,
+      "livemode": false,
+      "metadata": {},
+      "period": {
+        "start": 1454263633,
+        "end": 1456769233
+      },
+      "plan": {
+        "id": "standard",
+        "object": "plan",
+        "amount": 1900,
+        "created": 1450152017,
+        "currency": "usd",
+        "interval": "month",
+        "interval_count": 1,
+        "livemode": false,
+        "metadata": {},
+        "name": "Standard",
+        "statement_descriptor": null,
+        "trial_period_days": null
+      },
+      "proration": false,
+      "quantity": 1,
+      "subscription": null,
+      "type": "subscription"
+    }
+  ],
+  "has_more": false,
+  "url": "/v1/invoices/in_17ZPbRCryC4r2g4vIdAFxptK/lines"
+}

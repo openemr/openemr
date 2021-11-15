@@ -1,0 +1,15 @@
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Mon, 22 Feb 2016 05:47:29 GMT
+Content-Type: application/json
+Content-Length: 138
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such customer: cus_7vX2emm98A7YcrY",
+    "param": "customer"
+  }
+}

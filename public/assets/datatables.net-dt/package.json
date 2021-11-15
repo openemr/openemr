@@ -1,0 +1,77 @@
+{
+  "_args": [
+    [
+      "datatables.net-dt@1.11.3",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "datatables.net-dt@1.11.3",
+  "_id": "datatables.net-dt@1.11.3",
+  "_inBundle": false,
+  "_integrity": "sha512-EX/thRwXpQRj8hZSb+ZMDNQ4uW1zLZa9BoAhhw1b5HIDH1nJ9WRTkERsoxE+3WISeX8bDiaEydf8TTQBSqxXVw==",
+  "_location": "/datatables.net-dt",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "datatables.net-dt@1.11.3",
+    "name": "datatables.net-dt",
+    "escapedName": "datatables.net-dt",
+    "rawSpec": "1.11.3",
+    "saveSpec": null,
+    "fetchSpec": "1.11.3"
+  },
+  "_requiredBy": [
+    "/",
+    "/datatables.net-colreorder-dt"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-dt/-/datatables.net-dt-1.11.3.tgz",
+  "_spec": "1.11.3",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net": ">=1.10.25",
+    "jquery": ">=1.7"
+  },
+  "description": "DataTables for jQuery with styling for [DataTables](https://datatables.net/)",
+  "files": [
+    "css/**/*.css",
+    "js/**/*.js",
+    "types/**/*.d.ts",
+    "images/*"
+  ],
+  "homepage": "https://datatables.net",
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "keywords": [
+    "Datatables",
+    "jQuery",
+    "table",
+    "filter",
+    "sort"
+  ],
+  "license": "MIT",
+  "main": "js/dataTables.dataTables.js",
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "name": "datatables.net-dt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-DataTables.git"
+  },
+  "style": "css/jquery.dataTables.css",
+  "types": "./types/dataTables.dataTables.d.ts",
+  "version": "1.11.3"
+}

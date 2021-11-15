@@ -1,0 +1,8 @@
+preset: recommended
+
+enabled:
+  - concat_with_spaces
+
+disabled:
+  - no_multiline_whitespace_before_semicolons # Allow to put semicolons on a line after the last parenthesis
+  - concat_without_spaces

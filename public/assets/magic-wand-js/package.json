@@ -1,0 +1,50 @@
+{
+  "_args": [
+    [
+      "magic-wand-js@1.0.0",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "magic-wand-js@1.0.0",
+  "_id": "magic-wand-js@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha1-/ju29zkqsd06qyMd/B4BCtZaAGE=",
+  "_location": "/magic-wand-js",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "magic-wand-js@1.0.0",
+    "name": "magic-wand-js",
+    "escapedName": "magic-wand-js",
+    "rawSpec": "1.0.0",
+    "saveSpec": null,
+    "fetchSpec": "1.0.0"
+  },
+  "_requiredBy": [
+    "/",
+    "/dwv"
+  ],
+  "_resolved": "https://registry.npmjs.org/magic-wand-js/-/magic-wand-js-1.0.0.tgz",
+  "_spec": "1.0.0",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Tamersoul"
+  },
+  "bugs": {
+    "url": "https://github.com/Tamersoul/magic-wand-js/issues"
+  },
+  "description": "magic-wand-js\r =============",
+  "homepage": "https://github.com/Tamersoul/magic-wand-js#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "name": "magic-wand-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tamersoul/magic-wand-js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="summernoteDemo">
+<head>
+  <title>Angular-summernote fontstyle Plugin Demo</title>
+
+  <!--summernote dependencies-->
+  <script src="components/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
+  <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="components/font-awesome/css/font-awesome.min.css">
+
+  <!--summernote-->
+  <link rel="stylesheet" href="components/summernote/dist/summernote.css" />
+  <script src="components/summernote/dist/summernote.js"></script>
+  <script src="components/summernote/plugin/summernote-ext-fontstyle.js"></script>
+
+  <!--angular-summernote dependencies -->
+  <script src="components/angular/angular.min.js"></script>
+  <script src="../src/angular-summernote.js"></script>
+
+  <style>
+    body {
+      margin: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>angular-summernote</h1>
+  <p>angular directive for <a href="http://hackerwins.github.io/summernote/">Summernote</a></p>
+
+  <h2>summernote fontstyle-plugin</h2>
+  <div ng-controller="OptCtrl">
+    <summernote config="options"></summernote>
+  </div>
+
+  <script>
+    angular.module('summernoteDemo', ['summernote'])
+        .controller('OptCtrl', function($scope) {
+          $scope.options = {
+            toolbar: [
+              ['style', ['strikethrough', 'superscript', 'subscript', 'clear']],
+              ['fontsize', ['fontsize']]
+            ]
+          };
+        });
+  </script>
+</body>
+</html>

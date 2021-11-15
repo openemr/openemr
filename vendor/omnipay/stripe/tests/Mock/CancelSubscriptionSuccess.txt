@@ -1,0 +1,44 @@
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Sun, 24 Jan 2016 22:29:41 GMT
+Content-Type: application/json
+Content-Length: 188
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "id": "sub_7mU0FokE8GQZFW",
+  "object": "subscription",
+  "application_fee_percent": null,
+  "cancel_at_period_end": false,
+  "canceled_at": null,
+  "current_period_end": 1456347880,
+  "current_period_start": 1453669480,
+  "customer": "cus_7lqqgOm33t4xSU",
+  "discount": null,
+  "ended_at": null,
+  "metadata": {
+  },
+  "plan": {
+    "id": "basic",
+    "object": "plan",
+    "amount": 500,
+    "created": 1450151929,
+    "currency": "usd",
+    "interval": "month",
+    "interval_count": 1,
+    "livemode": false,
+    "metadata": {
+    },
+    "name": "Basic",
+    "statement_descriptor": null,
+    "trial_period_days": null
+  },
+  "quantity": 1,
+  "start": 1453669480,
+  "status": "canceled",
+  "tax_percent": null,
+  "trial_end": null,
+  "trial_start": null
+}

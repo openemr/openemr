@@ -1,0 +1,38 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Feb 2016 02:40:46 GMT
+Content-Type: application/json
+Content-Length: 6247
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "object": "list",
+  "url": "/v1/transfers/tr_164xRv2eZvKYlo2CZxJZWm1E/reversals",
+  "has_more": false,
+  "data": [
+    {
+      "id": "trr_1ARKQ22eZvKYlo2Cv5APdtKF",
+      "object": "transfer_reversal",
+      "amount": 400,
+      "balance_transaction": "txn_19XJJ02eZvKYlo2ClwuJ1rbA",
+      "created": 1496666090,
+      "currency": "usd",
+      "metadata": {
+      },
+      "transfer": "tr_1ARKPl2eZvKYlo2CsNTKWIOO"
+    },
+    {
+      "id": "trr_2ARKQ22eZvKYlo2Cv5APdtKF",
+      "object": "transfer_reversal",
+      "amount": 400,
+      "balance_transaction": "txn_29XJJ02eZvKYlo2ClwuJ1rbA",
+      "created": 1596666090,
+      "currency": "usd",
+      "metadata": {
+      },
+      "transfer": "tr_2ARKPl2eZvKYlo2CsNTKWIOO"
+    }
+  ]
+}

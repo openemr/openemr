@@ -1,0 +1,40 @@
+{
+    "name": "academe/omnipay-authorizenetapi",
+    "type": "library",
+    "description": "Authorize.Net payment gateway driver for the Omnipay 3.x payment processing library",
+    "keywords": [
+        "authorize.net",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment"
+    ],
+    "homepage": "https://github.com/academe/omnipay-authorizenetapi",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jason Judge",
+            "email": "jason@academe.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Omnipay\\AuthorizeNetApi\\": "src/"
+        }
+    },
+    "require": {
+        "omnipay/common": "^3",
+        "academe/authorizenet-objects": "~0.7",
+        "symfony/property-access": "^3.2 || ^4.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "^3",
+        "squizlabs/php_codesniffer": "^3"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.0.x-dev"
+        }
+    }
+}

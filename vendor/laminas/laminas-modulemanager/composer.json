@@ -1,0 +1,76 @@
+{
+    "name": "laminas/laminas-modulemanager",
+    "description": "Modular application system for laminas-mvc applications",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "modulemanager"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-modulemanager/",
+        "issues": "https://github.com/laminas/laminas-modulemanager/issues",
+        "source": "https://github.com/laminas/laminas-modulemanager",
+        "rss": "https://github.com/laminas/laminas-modulemanager/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ^8.0",
+        "brick/varexporter": "^0.3.2",
+        "laminas/laminas-config": "^3.4",
+        "laminas/laminas-eventmanager": "^3.3",
+        "laminas/laminas-stdlib": "^3.3",
+        "laminas/laminas-zendframework-bridge": "^1.1",
+        "webimpress/safe-writer": "^1.0.2 || ^2.1"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-console": "^2.8",
+        "laminas/laminas-di": "^2.6.1",
+        "laminas/laminas-loader": "^2.6.1",
+        "laminas/laminas-mvc": "^3.1.1",
+        "laminas/laminas-servicemanager": "^3.4.1",
+        "phpunit/phpunit": "^9.3.7"
+    },
+    "suggest": {
+        "laminas/laminas-console": "Laminas\\Console component",
+        "laminas/laminas-loader": "Laminas\\Loader component if you are not using Composer autoloading for your modules",
+        "laminas/laminas-mvc": "Laminas\\Mvc component",
+        "laminas/laminas-servicemanager": "Laminas\\ServiceManager component"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\ModuleManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "files": [
+            "test/autoload.php",
+            "test/TestAsset/ModuleAsClass.php"
+        ],
+        "psr-4": {
+            "ListenerTestModule\\": "test/TestAsset/ListenerTestModule/",
+            "ModuleAsClass\\": "test/TestAsset/ModuleAsClass/",
+            "LaminasTest\\ModuleManager\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-modulemanager": "^2.8.4"
+    }
+}

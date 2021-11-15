@@ -1,0 +1,17 @@
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Sun, 14 Feb 2016 23:05:08 GMT
+Content-Type: application/json
+Content-Length: 188
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "Customer cus_7lqqgOm33t4xSU does not have a subscription with ID sub_7uNSBwlTzGjYWw",
+    "param": "subscription"
+  }
+}

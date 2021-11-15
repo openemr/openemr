@@ -1,0 +1,1 @@
+{"version":3,"file":"EllipseElement.d.ts","sourceRoot":"","sources":["../../src/Document/EllipseElement.ts"],"names":[],"mappings":"AAAA,OAAO,EACN,kBAAkB,EAClB,MAAM,UAAU,CAAC;AAClB,OAAO,WAAW,MAAM,gBAAgB,CAAC;AACzC,OAAO,WAAW,MAAM,eAAe,CAAC;AAExC,MAAM,CAAC,OAAO,OAAO,cAAe,SAAQ,WAAW;IACtD,IAAI,SAAa;IAEjB,IAAI,CAAC,GAAG,EAAE,kBAAkB;IAqD5B,UAAU;CAGV"}

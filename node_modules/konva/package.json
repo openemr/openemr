@@ -1,0 +1,142 @@
+{
+  "_args": [
+    [
+      "konva@8.2.3",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "konva@8.2.3",
+  "_id": "konva@8.2.3",
+  "_inBundle": false,
+  "_integrity": "sha512-2hDlDzB9goNgV0Fm6oQqbq3ZISL34bOYvIpe4iXXQmOiPFFy1o3wwo0z0CX2x2Gv+fS6SHDR/JsRNRtEquApXA==",
+  "_location": "/konva",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "konva@8.2.3",
+    "name": "konva",
+    "escapedName": "konva",
+    "rawSpec": "8.2.3",
+    "saveSpec": null,
+    "fetchSpec": "8.2.3"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/konva/-/konva-8.2.3.tgz",
+  "_spec": "8.2.3",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Anton Lavrenov"
+  },
+  "browser": "./lib/index.js",
+  "bugs": {
+    "url": "https://github.com/konvajs/konva/issues"
+  },
+  "description": "<p align=\"center\">   <img src=\"https://konvajs.org/android-chrome-192x192.png\" alt=\"Konva logo\" height=\"180\" /> </p>",
+  "devDependencies": {
+    "@parcel/transformer-image": "2.0.0-beta.2",
+    "@size-limit/preset-big-lib": "^5.0.4",
+    "@types/mocha": "^9.0.0",
+    "canvas": "^2.8.0",
+    "chai": "4.3.4",
+    "filehound": "^1.17.5",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.7.0",
+    "gulp-exec": "^5.0.0",
+    "gulp-jsdoc3": "^3.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-replace": "^1.1.3",
+    "gulp-typescript": "^5.0.1",
+    "gulp-uglify": "^3.0.2",
+    "gulp-uglify-es": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "mocha": "8.4.0",
+    "mocha-headless-chrome": "^3.1.0",
+    "parcel": "2.0.0-beta.2",
+    "rollup": "^2.57.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "size-limit": "^5.0.4",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.4.3"
+  },
+  "files": [
+    "README.md",
+    "konva.js",
+    "konva.min.js",
+    "lib",
+    "cmj"
+  ],
+  "funding": [
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/lavrton"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/konva"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/lavrton"
+    }
+  ],
+  "homepage": "http://konvajs.org/",
+  "keywords": [
+    "canvas",
+    "animations",
+    "graphic",
+    "html5"
+  ],
+  "license": "MIT",
+  "main": "./lib/index-node.js",
+  "name": "konva",
+  "prettier": {
+    "singleQuote": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/konvajs/konva.git"
+  },
+  "scripts": {
+    "build": "npm run compile && cp ./src/index-types.d.ts ./lib && gulp build && node ./rename-imports.mjs",
+    "clean": "rm -rf ./lib && rm -rf ./types && rm -rf ./cmj && rm -rf ./test-build",
+    "compile": "npm run clean && npm run tsc && cp ./src/index-types.d.ts ./lib/index-types.d.ts && npm run rollup && cp ./package-cmj.json ./cmj/package.json && cp ./src/index-types.d.ts ./cmj/index-types.d.ts",
+    "rollup": "rollup -c",
+    "size": "size-limit",
+    "start": "npm run test:watch",
+    "test": "npm run test:browser && npm run test:node",
+    "test:browser": "npm run test:build && mocha-headless-chrome -f ./test-build/unit-tests.html -a disable-web-security",
+    "test:build": "parcel build ./test/unit-tests.html --dist-dir test-build --target none --public-url ./ --no-source-maps",
+    "test:import": "npm run build  && node ./test/import-test.cjs &&node ./test/import-test.mjs",
+    "test:node": "env TS_NODE_PROJECT=\"./test/tsconfig.json\" mocha -r ts-node/register test/unit/**/*.ts --exit && npm run test:import",
+    "test:watch": "rm -rf ./parcel-cache && parcel serve ./test/unit-tests.html ./test/manual-tests.html ./test/sandbox.html",
+    "tsc": "tsc --removeComments && tsc --build ./tsconfig-cmj.json",
+    "watch": "rollup -c -w"
+  },
+  "size-limit": [
+    {
+      "limit": "45 KB",
+      "path": "./lib/index.js"
+    },
+    {
+      "limit": "26 KB",
+      "path": "./lib/Core.js"
+    },
+    {
+      "path": "./konva.min.js"
+    }
+  ],
+  "targets": {
+    "none": {}
+  },
+  "type": "module",
+  "typings": "./lib/index-types.d.ts",
+  "version": "8.2.3"
+}

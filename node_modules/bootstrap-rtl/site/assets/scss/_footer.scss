@@ -1,0 +1,40 @@
+//
+// Footer
+//
+
+.bd-footer {
+  @include font-size(.875rem);
+  text-align: center;
+  background-color: #f7f7f7;
+
+  a {
+    font-weight: 600;
+    color: $gray-700;
+
+    &:hover,
+    &:focus {
+      color: $link-color;
+    }
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  @include media-breakpoint-up(sm) {
+    text-align: right; //rtl
+  }
+}
+
+.bd-footer-links {
+  padding-right: 0; //rtl
+  margin-bottom: 1rem;
+
+  li {
+    display: inline-block;
+
+    + li {
+      margin-right: 1rem; //rtl
+    }
+  }
+}

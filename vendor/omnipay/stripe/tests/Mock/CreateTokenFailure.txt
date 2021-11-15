@@ -1,0 +1,22 @@
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Mon, 19 Jun 2017 00:29:43 GMT
+Content-Type: application/json
+Content-Length: 140
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET, POST, HEAD, OPTIONS, DELETE
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 300
+Cache-Control: no-cache, no-store
+Request-Id: req_Arxhy7yn9a1MsY
+Stripe-Account: acct_19jzyNJqXiFraDuL
+Stripe-Version: 2015-04-07
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such customer: cus_ArtrMQYPgb0QaUasd",
+    "param": "customer"
+  }
+}

@@ -1,0 +1,56 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php-cs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout repository
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Composer install
+        uses: ramsey/composer-install@v1
+        with:
+          dependency-versions: 'highest'
+
+      - name: Static Code Analysis
+        run: composer lint
+
+  test:
+    runs-on: ${{ matrix.operating-system }}
+    needs:
+      - php-cs
+    strategy:
+      fail-fast: true
+      matrix:
+        operating-system: [ ubuntu-latest ]
+        php: [ '7.2', '7.3', '7.4', '8.0' ]
+        dependencies: [ 'lowest', 'highest' ]
+
+    name: PHP ${{ matrix.php }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout repository
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: pcov
+
+      - name: Composer install
+        uses: ramsey/composer-install@v1
+        with:
+          dependency-versions: ${{ matrix.dependencies }}
+
+      - name: PHPUnit Tests
+        run: bin/phpunit --configuration phpunit.xml.dist --coverage-text

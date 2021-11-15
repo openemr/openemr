@@ -1,0 +1,180 @@
+name: CI
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    php-cs-fixer:
+        runs-on: ubuntu-latest
+        name: Coding Standards
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '7.4' # PHP CS Fixer isn't compatible with PHP 8 yet https://github.com/FriendsOfPHP/PHP-CS-Fixer/issues/4702
+                  tools: php-cs-fixer, cs2pr
+
+            - name: PHP Coding Standards Fixer
+              run: php-cs-fixer fix --dry-run --format checkstyle | cs2pr
+
+    phpstan:
+        runs-on: ubuntu-latest
+        name: Static Analysis
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.0'
+                  tools: phpstan
+
+            - name: Get composer cache directory
+              id: composercache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composercache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist
+
+            - name: Install PHPUnit dependencies
+              run: vendor/bin/simple-phpunit --version
+
+            - name: PHPStan
+              run: phpstan analyse --no-progress
+
+    phpunit:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php-versions: ['7.1', '7.2', '7.3', '7.4', '8.0']
+            fail-fast: false
+        name: PHP ${{ matrix.php-versions }} Test on ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+
+            - name: Get composer cache directory
+              id: composercache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composercache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist
+
+            - name: Run tests
+              run: vendor/bin/simple-phpunit
+
+    phpunit-lowest:
+        runs-on: ubuntu-latest
+        name: PHP 8.0 (lowest) Test on ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.0'
+
+            - name: Get composer cache directory
+              id: composercache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composercache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer update --prefer-dist --prefer-lowest
+
+            - name: Run tests
+              env:
+                  SYMFONY_DEPRECATIONS_HELPER: max[total]=9223372036854775807 # PHP_INT_MAX
+              run: vendor/bin/simple-phpunit
+
+    phpunit-windows:
+        runs-on: windows-latest
+        name: PHP 8.0 Test on windows-latest
+        env:
+            PANTHER_FIREFOX_BINARY: 'C:\Program Files\Mozilla Firefox\firefox.exe'
+            SKIP_FIREFOX: 1
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.0'
+
+            - name: Get composer cache directory
+              id: composercache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composercache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist
+
+            - name: Run tests
+              run: vendor/bin/simple-phpunit
+
+    phpunit-macos:
+        runs-on: macos-latest
+        name: PHP 8.0 Test on macos-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.0'
+
+            - name: Get composer cache directory
+              id: composercache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composercache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist
+
+            - name: Run tests
+              run: vendor/bin/simple-phpunit

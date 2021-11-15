@@ -1,0 +1,150 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 05 May 2013 08:51:15 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 997
+Connection: keep-alive
+Cache-Control: no-cache, no-store
+Access-Control-Max-Age: 300
+Access-Control-Allow-Credentials: true
+
+{
+	"id": "pi_1Ev0a2FSbr6xR4YAsGQmFF0X",
+	"object": "payment_intent",
+	"amount": 8000,
+	"amount_capturable": 8000,
+	"amount_received": 0,
+	"application": null,
+	"application_fee_amount": null,
+	"canceled_at": null,
+	"cancellation_reason": null,
+	"capture_method": "manual",
+	"charges": {
+		"object": "list",
+		"data": [{
+			"id": "ch_1Ev0a3FSbr6xR4YApjrlyFGi",
+			"object": "charge",
+			"amount": 8000,
+			"amount_refunded": 0,
+			"application": null,
+			"application_fee": null,
+			"application_fee_amount": null,
+			"balance_transaction": null,
+			"billing_details": {
+				"address": {
+					"city": null,
+					"country": null,
+					"line1": null,
+					"line2": null,
+					"postal_code": null,
+					"state": null
+				},
+				"email": "somebody@somewhere.net",
+				"name": "Jack Beanstalk",
+				"phone": null
+			},
+			"captured": false,
+			"created": 1562845015,
+			"currency": "usd",
+			"customer": null,
+			"description": "Order #182",
+			"destination": null,
+			"dispute": null,
+			"failure_code": null,
+			"failure_message": null,
+			"fraud_details": [],
+			"invoice": null,
+			"livemode": false,
+			"metadata": {
+				"order_id": "182",
+				"order_number": "936dd9e6904c4bb2a8f65837d1d6403c",
+				"transaction_reference": "09f0cd14d0594e76ca53b78e98f80414",
+				"client_ip": "::1"
+			},
+			"on_behalf_of": null,
+			"order": null,
+			"outcome": {
+				"network_status": "approved_by_network",
+				"reason": null,
+				"risk_level": "normal",
+				"risk_score": 17,
+				"seller_message": "Payment complete.",
+				"type": "authorized"
+			},
+			"paid": true,
+			"payment_intent": "pi_1Ev0a2FSbr6xR4YAsGQmFF0X",
+			"payment_method": "pm_1Ev0ZyFSbr6xR4YAX3vLBqEC",
+			"payment_method_details": {
+				"card": {
+					"brand": "amex",
+					"checks": {
+						"address_line1_check": null,
+						"address_postal_code_check": null,
+						"cvc_check": "pass"
+					},
+					"country": "US",
+					"exp_month": 12,
+					"exp_year": 2020,
+					"fingerprint": "fHKFepx6M3kreij5",
+					"funding": "credit",
+					"last4": "0005",
+					"three_d_secure": null,
+					"wallet": null
+				},
+				"type": "card"
+			},
+			"receipt_email": null,
+			"receipt_number": null,
+			"receipt_url": "https:\/\/pay.stripe.com\/receipts\/acct_1AjnbxFSbr6xR4YA\/ch_1Ev0a3FSbr6xR4YApjrlyFGi\/rcpt_FPqGKvHPhVfeinM9z4h2lTp3LleIV3c",
+			"refunded": false,
+			"refunds": {
+				"object": "list",
+				"data": [],
+				"has_more": false,
+				"total_count": 0,
+				"url": "\/v1\/charges\/ch_1Ev0a3FSbr6xR4YApjrlyFGi\/refunds"
+			},
+			"review": null,
+			"shipping": null,
+			"source": null,
+			"source_transfer": null,
+			"statement_descriptor": null,
+			"status": "succeeded",
+			"transfer_data": null,
+			"transfer_group": null
+		}],
+		"has_more": false,
+		"total_count": 1,
+		"url": "\/v1\/charges?payment_intent=pi_1Ev0a2FSbr6xR4YAsGQmFF0X"
+	},
+	"client_secret": "pi_1Ev0a2FSbr6xR4YAsGQmFF0X_secret_CWVHEZ8cOk21GTABOjWHBYLt0",
+	"confirmation_method": "manual",
+	"created": 1562845014,
+	"currency": "usd",
+	"customer": null,
+	"description": "Order #182",
+	"invoice": null,
+	"last_payment_error": null,
+	"livemode": false,
+	"metadata": {
+		"order_id": "182",
+		"order_number": "936dd9e6904c4bb2a8f65837d1d6403c",
+		"transaction_reference": "09f0cd14d0594e76ca53b78e98f80414",
+		"client_ip": "::1"
+	},
+	"next_action": null,
+	"on_behalf_of": null,
+	"payment_method": "pm_1Ev0ZyFSbr6xR4YAX3vLBqEC",
+	"payment_method_types": [
+		"card"
+	],
+	"receipt_email": null,
+	"review": null,
+	"setup_future_usage": null,
+	"shipping": null,
+	"source": null,
+	"statement_descriptor": null,
+	"status": "requires_capture",
+	"transfer_data": null,
+	"transfer_group": null
+}

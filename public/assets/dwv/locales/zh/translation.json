@@ -1,0 +1,236 @@
+{
+    "basics": {
+        "open": "打开",
+        "close": "关闭",
+        "help": "帮助",
+        "back": "返回",
+        "reset": "重置",
+        "apply": "应用",
+        "name": "名称",
+        "value": "值",
+        "dicomTags": "DICOM 标签",
+        "columns": "列",
+        "group": "组",
+        "element": "元素",
+        "vr": "VR",
+        "vl": "VL",
+        "presets": "预设",
+        "toolbox": "工具箱",
+        "history": "历史记录",
+        "image": "图像",
+        "info": "信息",
+        "downloadState": "下载状态",
+        "drawList": "注释",
+        "search": "搜索",
+        "id": "ID",
+        "slice": "切片",
+        "frame": "帧",
+        "type": "类型",
+        "color": "颜色",
+        "label": "标签",
+        "description": "描述",
+        "editMode": "编辑模式",
+        "deleteDraws": "删除所有",
+        "visible": "可见"
+    },
+    "colour": {
+        "Yellow": {
+            "name": "黄色"
+        },
+        "Red": {
+            "name": "红色"
+        },
+        "White": {
+            "name": "白色"
+        },
+        "Green": {
+            "name": "绿色"
+        },
+        "Blue": {
+            "name": "蓝色"
+        },
+        "Lime": {
+            "name": "绿黄色"
+        },
+        "Fuchsia": {
+            "name": "紫红色"
+        },
+        "Black": {
+            "name": "黑色"
+        }
+    },
+    "unit": {
+        "mm": "mm",
+        "cm2": "cm²",
+        "degree": "°"
+    },
+    "help": {
+        "intro": {
+            "p0": "DWV (DICOM Web Viewer) 是一个开源的医学影像浏览器。 它只使用了JavaScript与html5的编程代码, 意味着它能在任何提供了浏览器的平台上都能运行 (笔记本电脑, 平板, 手机以及某些TV)。 它能加载当地的或者远程Dicom格式的文件 (the standard for medical imaging data such as MR, CT, Echo, Mammo, NM...) 并提供标准工具对其进行操作如对比、缩放、拖动,可能吸引区域的阈值、锐化图像和影像过滤器.",
+            "p1": "所有的DICOM标签都能在这个表格中搜索到, 点击'tags'或者网格上的按钮。 你可以选择展示图像信息在一个小弹框中通过点击'info'按钮。"
+        },
+        "tool_intro": "每一个工具都定义了与用户交互的可能性。 以下是一些可用的工具:"
+    },
+    "tool": {
+        "WindowLevel": {
+            "name": "窗位/窗宽",
+            "brief": "改变图像的窗位和窗宽。",
+            "mouse_drag": "单鼠标按住拖动图像，沿水平方向改变窗宽，沿竖直方向改变窗位。",
+            "double_click": "双击影像，可将该点作为窗位窗宽中心值。",
+            "touch_drag": "触摸拖动，沿水平方向改变窗宽，沿竖直方向改变窗位。"
+        },
+        "ZoomAndPan": {
+            "name": "缩放/移动",
+            "brief": "缩放/移动 工具用于放大缩小和移动图像。",
+            "mouse_wheel": "鼠标滚轮用于缩放图像。",
+            "mouse_drag": "单鼠标按住拖动图像到想要的位置。",
+            "twotouch_pinch": "通过按压滑动对图像进行缩放。",
+            "touch_drag": "单触拖动图像到想要的位置。"
+        },
+        "Scroll": {
+            "name": "滑动浏览",
+            "brief": "使用滑动浏览模式，可以进行切片/图像帧的切换。",
+            "double_click": "双击切片图像开始自动切换模式，再次单击停止。自动切换模式下将逐帧切换显示切片。",
+            "tap_and_hold": "单击之后长按可开始自动切换模式，再次单击停止。自动切换模式下将逐帧切换显示切片。",
+            "mouse_drag": "使用鼠标在图像上进纵向滑动可切换切片，横向滑动则切换帧。同时按下键盘快捷键CTRL+或者下键可以切换切片，按CTRL+左或者右以切换帧。",
+            "touch_drag": "使用手指在图像上进行上下滑动可切换切片，左右滑动则切换帧。"
+        },
+        "Draw": {
+            "name": "绘制标注",
+            "brief": "在图像上画不同的形状。可从下拉菜单中选择形状和颜色。创建测量后，通过选中可以进行编辑。会出现角度，允许特定形状编辑。拖动顶端红色十字可将对象删除，所有操作可撤销。",
+            "mouse_drag": "用鼠标在图像上滑动来绘制图形标注。在使用量角器时，点击图像开始绘制，将线拉到足够的位置，停顿半秒以后会自动开始绘制第二条线以测量角度。",
+            "touch_drag": "可以直接触控图片来绘制想要的图形。在使用量角器时，先点击图片拖拽到想要的距离，停顿半秒以后开始绘制弧形以测量角度。"
+        },
+        "Filter": {
+            "name": "滤波器",
+            "brief": "一些简单的图像过滤器是可用的: 阈值滤波器限制图像强度之间的最大值和最小值, 锐化滤波器旋转图像锐化矩阵, Sobel滤波器得到的梯度图像在两个方向上。"
+        },
+        "Livewire": {
+            "name": "分割",
+            "brief": "Livewire工具是一个半自动分割工具, 在用户选择的路径之间， 根据图像强度做出分割。 点击第一次初始化然后移开鼠标看所点击的路径。 再一次点击确定您的图像轮廓, 如果您再次点击重复的点, 这个过程会停止。 注意: 这个过程可能会花费一些时间!"
+        },
+        "Floodfill": {
+            "name": "等值线",
+            "brief": "Floodfill工具是一个半自动化的分割工具，他能用来分割等值像素成类似的值",
+            "click": "点击像素根据其强度来创建等值线。",
+            "tap": "触摸像素根据其强度来创建等值线。"
+        },
+        "info": {
+            "position": "位置 = {{value}}",
+            "value": "值 = {{value}}",
+            "frame": "频谱 = {{value}}",
+            "window_center": "窗位/窗宽= {{value}}",
+            "window_width": "窗宽 = {{value}}"
+        }
+    },
+    "shape": {
+        "Line": {
+            "name": "直线"
+        },
+        "Ruler": {
+            "name": "测量尺"
+        },
+        "Protractor": {
+            "name": "量角器"
+        },
+        "Rectangle": {
+            "name": "矩形"
+        },
+        "Roi": {
+            "name": "标靶"
+        },
+        "Ellipse": {
+            "name": "椭圆"
+        },
+        "Arrow": {
+            "name": "箭头"
+        },
+        "FreeHand": {
+            "name": "手绘"
+        }
+    },
+    "io": {
+        "File": {
+            "name": "文件"
+        },
+        "Folder": {
+            "name": "卷宗"
+        },
+        "Url": {
+            "name": "链接"
+        },
+        "GoogleDrive": {
+            "name": "GoogleDrive",
+            "auth": {
+                "title": "Google Drive Authorization",
+                "body": "请授权DWV访问Google Drive。 \n这仅仅是在您首次连接时需要。",
+                "button": "授权"
+            }
+        },
+        "Dropbox": {
+            "name": "形状"
+        }
+    },
+    "filter": {
+        "Threshold": {
+            "name": "阈值"
+        },
+        "Sharpen": {
+            "name": "锐化"
+        },
+        "Sobel": {
+            "name": "sobel算子"
+        }
+    },
+    "colourmap": {
+        "plain": {
+            "name": "正常面"
+        },
+        "invplain": {
+            "name": "反转"
+        },
+        "rainbow": {
+            "name": "彩虹色"
+        },
+        "hot": {
+            "name": "火红"
+        },
+        "hotiron": {
+            "name": "金属红"
+        },
+        "pet": {
+            "name": "混合色"
+        },
+        "hotmetalblue": {
+            "name": "热金属蓝"
+        },
+        "pet20step": {
+            "name": "步幅20混合色"
+        }
+    },
+    "wl": {
+        "presets": {
+            "mediastinum": {
+                "name": "（胸腔）纵隔膜"
+            },
+            "lung": {
+                "name": "肺"
+            },
+            "bone": {
+                "name": "骨头"
+            },
+            "brain": {
+                "name": "脑"
+            },
+            "head": {
+                "name": "头"
+            },
+            "manual": {
+                "name": "指南"
+            },
+            "minmax": {
+                "name": "最小/最大"
+            }
+        }
+    }
+}

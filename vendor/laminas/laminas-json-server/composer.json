@@ -1,0 +1,66 @@
+{
+    "name": "laminas/laminas-json-server",
+    "description": "Laminas Json-Server is a JSON-RPC server implementation.",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "json",
+        "server",
+        "json-server"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-json-server/",
+        "issues": "https://github.com/laminas/laminas-json-server/issues",
+        "source": "https://github.com/laminas/laminas-json-server",
+        "rss": "https://github.com/laminas/laminas-json-server/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-http": "^2.7",
+        "laminas/laminas-json": "^2.6.1 || ^3.0",
+        "laminas/laminas-server": "^2.7",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "ext-json": "*",
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3.0"
+    },
+    "conflict": {
+        "laminas/laminas-stdlib": "<3.2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Json\\Server\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "files": [
+            "test/TestAsset/FooFunc.php"
+        ],
+        "psr-4": {
+            "LaminasTest\\Json\\Server\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-json-server": "^3.2.0"
+    }
+}

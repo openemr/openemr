@@ -1,0 +1,66 @@
+{
+    "name": "laminas/laminas-xmlrpc",
+    "description": "Fully-featured XML-RPC server and client implementations",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "xmlrpc"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-xmlrpc/",
+        "issues": "https://github.com/laminas/laminas-xmlrpc/issues",
+        "source": "https://github.com/laminas/laminas-xmlrpc",
+        "rss": "https://github.com/laminas/laminas-xmlrpc/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-http": "^2.5.4",
+        "laminas/laminas-math": "^3.3.0",
+        "laminas/laminas-server": "^2.9.1",
+        "laminas/laminas-stdlib": "^3.2.1",
+        "laminas/laminas-xml": "^1.0.2",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "suggest": {
+        "laminas/laminas-cache": "To support Laminas\\XmlRpc\\Server\\Cache usage"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\XmlRpc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\XmlRpc\\": "test/"
+        },
+        "files": [
+            "test/autoload.php",
+            "test/TestAsset/functions.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-xmlrpc": "^2.9.0"
+    }
+}

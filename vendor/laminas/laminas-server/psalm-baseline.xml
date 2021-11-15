@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.7.0@d4377c0baf3ffbf0b1ec6998e8d1be2a40971005">
+  <file src="src/AbstractServer.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>$class</code>
+    </ArgumentTypeCoercion>
+    <DeprecatedInterface occurrences="1">
+      <code>AbstractServer</code>
+    </DeprecatedInterface>
+    <DeprecatedMethod occurrences="2">
+      <code>_fixType</code>
+      <code>_fixType</code>
+    </DeprecatedMethod>
+    <ImplementedReturnTypeMismatch occurrences="1">
+      <code>Definition</code>
+    </ImplementedReturnTypeMismatch>
+    <InvalidStringClass occurrences="1">
+      <code>new $class</code>
+    </InvalidStringClass>
+    <MixedArgument occurrences="5">
+      <code>$method</code>
+      <code>$method</code>
+      <code>$reflection-&gt;getDeclaringClass()-&gt;getName()</code>
+      <code>$reflection-&gt;getName()</code>
+      <code>$reflection-&gt;getName()</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$invokeArgs</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="2">
+      <code>$method</code>
+      <code>$name</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="2">
+      <code>$method</code>
+      <code>$name</code>
+    </MixedOperand>
+    <PossiblyNullArgument occurrences="1">
+      <code>$class</code>
+    </PossiblyNullArgument>
+    <PossiblyNullFunctionCall occurrences="1">
+      <code>call_user_func_array($function, $params)</code>
+    </PossiblyNullFunctionCall>
+    <UndefinedClass occurrences="1">
+      <code>new $class</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/Cache.php">
+    <DeprecatedClass occurrences="2">
+      <code>\Laminas\Server\Server</code>
+      <code>\Laminas\Server\Server</code>
+    </DeprecatedClass>
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_string($filename)</code>
+      <code>! is_string($filename)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$dispatchArray</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$dispatchArray</code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Definition.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>$method instanceof Method\Definition</code>
+      <code>null === $name</code>
+    </DocblockTypeContradiction>
+    <FalsableReturnStatement occurrences="1">
+      <code>false</code>
+    </FalsableReturnStatement>
+    <ImplementedReturnTypeMismatch occurrences="1">
+      <code>Method\Definition</code>
+    </ImplementedReturnTypeMismatch>
+    <MixedArgument occurrences="1">
+      <code>$method</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="3">
+      <code>$method</code>
+      <code>$method</code>
+      <code>$methods[$key]</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>Method\Definition</code>
+      <code>Method\Definition</code>
+      <code>null|\Laminas\Server\Method\Definition</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>toArray</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;methods[$method]</code>
+      <code>current($this-&gt;methods)</code>
+      <code>next($this-&gt;methods)</code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Method/Callback.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_object($class)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$class</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="1">
+      <code>$value</code>
+    </MixedAssignment>
+    <PropertyNotSetInConstructor occurrences="4">
+      <code>$class</code>
+      <code>$function</code>
+      <code>$method</code>
+      <code>$type</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $function</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Method/Definition.php">
+    <DocblockTypeContradiction occurrences="3">
+      <code>! is_object($object)</code>
+      <code>$callback instanceof Callback</code>
+      <code>$prototype instanceof Prototype</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$prototype</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="4">
+      <code>$prototype</code>
+      <code>$prototype</code>
+      <code>$signatures[]</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>toArray</code>
+    </MixedMethodCall>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>$callback</code>
+      <code>$name</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(string) $methodHelp</code>
+      <code>(string) $name</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Method/Parameter.php">
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="1">
+      <code>$value</code>
+    </MixedAssignment>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$name</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="4">
+      <code>(bool) $flag</code>
+      <code>(string) $description</code>
+      <code>(string) $name</code>
+      <code>(string) $type</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Method/Prototype.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_string($index) &amp;&amp; ! is_numeric($index)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="2">
+      <code>$index</code>
+      <code>$parameter</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="5">
+      <code>$index</code>
+      <code>$parameter</code>
+      <code>$parameter</code>
+      <code>$types[]</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>null|\Laminas\Server\Method\Parameter</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>getType</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="1">
+      <code>$this-&gt;parameters[$index]</code>
+    </MixedReturnStatement>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $parameter</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Reflection.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_string($function)</code>
+    </DocblockTypeContradiction>
+  </file>
+  <file src="src/Reflection/AbstractFunction.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>$this-&gt;class</code>
+      <code>$this-&gt;name</code>
+    </ArgumentTypeCoercion>
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_string($namespace)</code>
+      <code>is_string($string)</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="4">
+      <code>$paramDesc</code>
+      <code>$returnDesc</code>
+      <code>$sigParams</code>
+      <code>$sigParamsDepth</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="6">
+      <code>$param</code>
+      <code>$returnDesc</code>
+      <code>$tmp</code>
+      <code>$type</code>
+      <code>array_shift($signature)</code>
+      <code>isset($this-&gt;paramDesc[$key]) ? $this-&gt;paramDesc[$key] : null</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="1">
+      <code>$this-&gt;sigParams[$level]</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="15">
+      <code>$name</code>
+      <code>$param</code>
+      <code>$paramDesc[]</code>
+      <code>$paramTypesTmp[]</code>
+      <code>$paramTypes[]</code>
+      <code>$returnDesc</code>
+      <code>$return[]</code>
+      <code>$root</code>
+      <code>$serializable[]</code>
+      <code>$tmp</code>
+      <code>$type</code>
+      <code>$type</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>getEndPoints</code>
+    </MixedMethodCall>
+    <MixedReturnTypeCoercion occurrences="4">
+      <code>$serializable</code>
+      <code>$this-&gt;prototypes</code>
+      <code>Prototype[]</code>
+      <code>string[]</code>
+    </MixedReturnTypeCoercion>
+    <PossiblyNullArgument occurrences="1">
+      <code>isset($this-&gt;paramDesc[$key]) ? $this-&gt;paramDesc[$key] : null</code>
+    </PossiblyNullArgument>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>$class</code>
+      <code>$namespace</code>
+    </PropertyNotSetInConstructor>
+    <RawObjectIteration occurrences="1">
+      <code>$this</code>
+    </RawObjectIteration>
+    <UndefinedInterfaceMethod occurrences="4">
+      <code>getDescription</code>
+      <code>getDescription</code>
+      <code>getTypes</code>
+      <code>getTypes</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Reflection/Node.php">
+    <MixedArgument occurrences="1">
+      <code>$childEndPoints</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="4">
+      <code>$child</code>
+      <code>$childEndPoints</code>
+      <code>$endPoints[]</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="4">
+      <code>getEndPoints</code>
+      <code>getValue</code>
+      <code>hasChildren</code>
+      <code>hasChildren</code>
+    </MixedMethodCall>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>null</code>
+    </PossiblyNullPropertyAssignmentValue>
+    <UnsafeInstantiation occurrences="1">
+      <code>new static($value, $this)</code>
+    </UnsafeInstantiation>
+  </file>
+  <file src="src/Reflection/Prototype.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>$param instanceof ReflectionParameter</code>
+    </DocblockTypeContradiction>
+    <MixedInferredReturnType occurrences="2">
+      <code>\Laminas\Server\Reflection\ReflectionReturnValue</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>getType</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;return</code>
+      <code>$this-&gt;return-&gt;getType()</code>
+    </MixedReturnStatement>
+    <UndefinedThisPropertyAssignment occurrences="1">
+      <code>$this-&gt;return</code>
+    </UndefinedThisPropertyAssignment>
+    <UndefinedThisPropertyFetch occurrences="2">
+      <code>$this-&gt;return</code>
+      <code>$this-&gt;return</code>
+    </UndefinedThisPropertyFetch>
+  </file>
+  <file src="src/Reflection/ReflectionClass.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>$this-&gt;name</code>
+    </ArgumentTypeCoercion>
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_string($namespace)</code>
+    </DocblockTypeContradiction>
+    <PossiblyNullArgument occurrences="1">
+      <code>$namespace</code>
+    </PossiblyNullArgument>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>null</code>
+    </PossiblyNullPropertyAssignmentValue>
+  </file>
+  <file src="src/Reflection/ReflectionFunction.php">
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>ReflectionFunction</code>
+      <code>ReflectionFunction</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="src/Reflection/ReflectionMethod.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>$this-&gt;class</code>
+    </ArgumentTypeCoercion>
+    <MixedArgument occurrences="2">
+      <code>$docComment</code>
+      <code>$this-&gt;classReflection-&gt;getName()</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="4">
+      <code>$docCommentList[]</code>
+      <code>$interfaceReflection</code>
+      <code>$interfaceReflectionList</code>
+      <code>$this-&gt;class</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="3">
+      <code>getDocComment</code>
+      <code>getMethod</code>
+      <code>hasMethod</code>
+    </MixedMethodCall>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$docComment</code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$this-&gt;classReflection</code>
+    </PossiblyInvalidArgument>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$docCommentList</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>ReflectionMethod</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="src/Reflection/ReflectionParameter.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_string($description) &amp;&amp; (null !== $description)</code>
+      <code>! is_string($type) &amp;&amp; (null !== $type)</code>
+    </DocblockTypeContradiction>
+    <PossiblyInvalidPropertyAssignmentValue occurrences="1"/>
+    <PossiblyNullPropertyAssignmentValue occurrences="2">
+      <code>$description</code>
+      <code>$type</code>
+    </PossiblyNullPropertyAssignmentValue>
+    <PossiblyNullReference occurrences="1">
+      <code>getName</code>
+    </PossiblyNullReference>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$position</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(int) $index</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Reflection/ReflectionReturnValue.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_string($description) &amp;&amp; (null !== $description)</code>
+      <code>! is_string($type) &amp;&amp; (null !== $type)</code>
+    </DocblockTypeContradiction>
+    <PossiblyNullPropertyAssignmentValue occurrences="2">
+      <code>$description</code>
+      <code>$type</code>
+    </PossiblyNullPropertyAssignmentValue>
+  </file>
+  <file src="src/Server.php">
+    <MissingParamType occurrences="1">
+      <code>$argv</code>
+    </MissingParamType>
+  </file>
+  <file src="test/CacheTest.php">
+    <DeprecatedClass occurrences="4">
+      <code>$this-&gt;createMock(Server::class)</code>
+      <code>$this-&gt;createMock(Server::class)</code>
+      <code>$this-&gt;createMock(Server::class)</code>
+      <code>$this-&gt;createMock(Server::class)</code>
+    </DeprecatedClass>
+    <InvalidArgument occurrences="1">
+      <code>Cache::class</code>
+    </InvalidArgument>
+    <MissingConstructor occurrences="1">
+      <code>$cacheFile</code>
+    </MissingConstructor>
+    <MixedAssignment occurrences="6">
+      <code>$actual[]</code>
+      <code>$data</code>
+      <code>$data</code>
+      <code>$data</code>
+      <code>$data</code>
+      <code>$method</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>getName</code>
+    </MixedMethodCall>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>null</code>
+    </PossiblyNullPropertyAssignmentValue>
+  </file>
+  <file src="test/DefinitionTest.php">
+    <MixedArrayAccess occurrences="8">
+      <code>$test['invokeArguments']</code>
+      <code>$test['invokeArguments']</code>
+      <code>$test['methodHelp']</code>
+      <code>$test['methodHelp']</code>
+      <code>$test['name']</code>
+      <code>$test['name']</code>
+      <code>$test['prototypes']</code>
+      <code>$test['prototypes']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="2">
+      <code>$test</code>
+      <code>$test</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Reflection/NodeTest.php">
+    <InvalidScalarArgument occurrences="3">
+      <code>1</code>
+      <code>1</code>
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MixedAssignment occurrences="4">
+      <code>$c</code>
+      <code>$endPoint</code>
+      <code>$endPointsArray[]</code>
+      <code>$types[]</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="2">
+      <code>getValue</code>
+      <code>getValue</code>
+    </MixedMethodCall>
+    <PossiblyNullArgument occurrences="1">
+      <code>var_export($types, 1)</code>
+    </PossiblyNullArgument>
+    <PossiblyNullOperand occurrences="2">
+      <code>var_export($endPointsArray, 1)</code>
+      <code>var_export($test, 1)</code>
+    </PossiblyNullOperand>
+    <UnusedVariable occurrences="5">
+      <code>$child1grand1</code>
+      <code>$child1grand2</code>
+      <code>$child2grand1</code>
+      <code>$child2grand2great1</code>
+      <code>$child2grand2great2</code>
+    </UnusedVariable>
+  </file>
+  <file src="test/Reflection/PrototypeTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'\Laminas\Server\Reflection'</code>
+    </ArgumentTypeCoercion>
+  </file>
+  <file src="test/Reflection/ReflectionFunctionTest.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MixedAssignment occurrences="1">
+      <code>$params</code>
+    </MixedAssignment>
+    <PossiblyNullArgument occurrences="1">
+      <code>var_export($param, 1)</code>
+    </PossiblyNullArgument>
+    <UnusedParam occurrences="2">
+      <code>$var1</code>
+      <code>$var1</code>
+    </UnusedParam>
+    <UnusedVariable occurrences="1">
+      <code>$params</code>
+    </UnusedVariable>
+  </file>
+  <file src="test/Reflection/ReflectionParameterTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'\Laminas\Server\Reflection\ReflectionParameter'</code>
+    </ArgumentTypeCoercion>
+  </file>
+  <file src="test/Reflection/TestAsset/ReflectionMethodInterface.php">
+    <MissingReturnType occurrences="1">
+      <code>testMethod</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/ReflectionTest.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>'string'</code>
+      <code>'string'</code>
+    </InvalidScalarArgument>
+    <PossiblyFalseArgument occurrences="2">
+      <code>false</code>
+      <code>false</code>
+    </PossiblyFalseArgument>
+  </file>
+  <file src="test/TestAsset/reflectionTestFunction.php">
+    <UndefinedDocblockClass occurrences="1">
+      <code>string|struct|false</code>
+    </UndefinedDocblockClass>
+  </file>
+</files>

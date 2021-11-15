@@ -1,0 +1,73 @@
+{
+  "_from": "datatables.net@1.11.3",
+  "_id": "datatables.net@1.11.3",
+  "_inBundle": false,
+  "_integrity": "sha512-VMj5qEaTebpNurySkM6jy6sGpl+s6onPK8xJhYr296R/vUBnz1+id16NVqNf9z5aR076OGcpGHCuiTuy4E05oQ==",
+  "_location": "/datatables.net",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "datatables.net@1.11.3",
+    "name": "datatables.net",
+    "escapedName": "datatables.net",
+    "rawSpec": "1.11.3",
+    "saveSpec": null,
+    "fetchSpec": "1.11.3"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/",
+    "/datatables.net-bs4",
+    "/datatables.net-colreorder",
+    "/datatables.net-scroller"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net/-/datatables.net-1.11.3.tgz",
+  "_shasum": "80e691036efcd62467558ee64c07dd566cb761b4",
+  "_spec": "datatables.net@1.11.3",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "jquery": ">=1.7"
+  },
+  "deprecated": false,
+  "description": "jQuery DataTables",
+  "files": [
+    "js/**/*.js",
+    "types/**/*.d.ts"
+  ],
+  "homepage": "https://datatables.net",
+  "ignore": [
+    "composer.json",
+    "datatables.json",
+    "package.json"
+  ],
+  "keywords": [
+    "Datatables",
+    "jQuery",
+    "table",
+    "filter",
+    "sort"
+  ],
+  "license": "MIT",
+  "main": "js/jquery.dataTables.js",
+  "moduleType": [
+    "globals",
+    "amd",
+    "node"
+  ],
+  "name": "datatables.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables.git"
+  },
+  "types": "./types/types.d.ts",
+  "version": "1.11.3"
+}

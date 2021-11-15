@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./vendor/autoload.php"
+         beStrictAboutTestsThatDoNotTestAnything="false"
+         colors="true">
+    <testsuites>
+        <testsuite name="All Tests">
+            <directory>../../tests</directory>
+            <exclude>../../tests/OAuth2SubscriberTest.php</exclude>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix="Test.php">.</directory>
+        </whitelist>
+    </filter>
+</phpunit>

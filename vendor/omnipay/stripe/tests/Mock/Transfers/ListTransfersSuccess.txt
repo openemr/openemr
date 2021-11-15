@@ -1,0 +1,90 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 29 Feb 2016 02:40:46 GMT
+Content-Type: application/json
+Content-Length: 6247
+Connection: keep-alive
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache, no-store
+
+{
+  "object": "list",
+  "url": "/v1/transfers",
+  "has_more": false,
+  "data": [
+    {
+      "id": "tr_164xRv2eZvKYlo2CZxJZWm1E",
+      "object": "transfer",
+      "amount": 200,
+      "amount_reversed": 100,
+      "balance_transaction": "txn_19XJJ02eZvKYlo2ClwuJ1rbA",
+      "created": 1432229235,
+      "currency": "usd",
+      "destination": "acct_164wxjKbnvuxQXGu",
+      "destination_payment": "py_164xRvKbnvuxQXGuVFV2pZo1",
+      "livemode": false,
+      "metadata": {
+      },
+      "reversals": {
+        "object": "list",
+        "data": [
+          {
+            "id": "trr_1AF3y32eZvKYlo2CtkDXeobp",
+            "object": "transfer_reversal",
+            "amount": 100,
+            "balance_transaction": "txn_1AF3y32eZvKYlo2CSgDInbEk",
+            "created": 1493742915,
+            "currency": "usd",
+            "metadata": {
+            },
+            "transfer": "tr_164xRv2eZvKYlo2CZxJZWm1E"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "url": "/v1/transfers/tr_164xRv2eZvKYlo2CZxJZWm1E/reversals"
+      },
+      "reversed": false,
+      "source_transaction": "ch_164xRv2eZvKYlo2Clu1sIJWB",
+      "source_type": "card",
+      "transfer_group": "group_ch_164xRv2eZvKYlo2Clu1sIJWB"
+    },
+    {
+      "id": "tr_164xRv2DKDJF832CZxJZWm1E",
+      "object": "transfer",
+      "amount": 250,
+      "amount_reversed": 100,
+      "balance_transaction": "txn_19XJJ02JDKDo2ClwuJ1rbA",
+      "created": 1432429235,
+      "currency": "usd",
+      "destination": "acct_164wxjKbnvuxQXGu",
+      "destination_payment": "py_164xRvKbnvuxKDUD3dVFV2pZo1",
+      "livemode": false,
+      "metadata": {
+      },
+      "reversals": {
+        "object": "list",
+        "data": [
+          {
+            "id": "trr_1AF3KDjdkddeZvKYlo2CtkDXeobp",
+            "object": "transfer_reversal",
+            "amount": 100,
+            "balance_transaction": "txn_DF8d3y32eZvKYlo2CSgDInbEk",
+            "created": 1492429235,
+            "currency": "usd",
+            "metadata": {
+            },
+            "transfer": "tr_164xRv2DKDJF832CZxJZWm1E"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "url": "/v1/transfers/tr_164xRv2DKDJF832CZxJZWm1E/reversals"
+      },
+      "reversed": false,
+      "source_transaction": "ch_264xDJD83ZvKYlo2Clu1sIJWB",
+      "source_type": "card",
+      "transfer_group": "group_ch_264xRv2eZvKYlo2Clu1sIJWB"
+    }
+  ]
+}

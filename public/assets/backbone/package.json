@@ -1,0 +1,82 @@
+{
+  "_args": [
+    [
+      "backbone@1.4.0",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "backbone@1.4.0",
+  "_id": "backbone@1.4.0",
+  "_inBundle": false,
+  "_integrity": "sha512-RLmDrRXkVdouTg38jcgHhyQ/2zjg7a8E6sz2zxfz21Hh17xDJYUHBZimVIt5fUyS8vbfpeSmTL3gUjTEvUV3qQ==",
+  "_location": "/backbone",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "backbone@1.4.0",
+    "name": "backbone",
+    "escapedName": "backbone",
+    "rawSpec": "1.4.0",
+    "saveSpec": null,
+    "fetchSpec": "1.4.0"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/backbone/-/backbone-1.4.0.tgz",
+  "_spec": "1.4.0",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Jeremy Ashkenas"
+  },
+  "bugs": {
+    "url": "https://github.com/jashkenas/backbone/issues"
+  },
+  "dependencies": {
+    "underscore": ">=1.8.3"
+  },
+  "description": "Give your JS App some Backbone with Models, Views, Collections, and Events.",
+  "devDependencies": {
+    "coffee-script": "1.7.1",
+    "docco": "0.7.0",
+    "eslint": "^2.11.0",
+    "karma": "^0.13.13",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-qunit": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.7",
+    "qunitjs": "^2.0.0",
+    "uglify-js": "^2.4.17"
+  },
+  "files": [
+    "backbone.js",
+    "backbone-min.js",
+    "backbone-min.map",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/jashkenas/backbone#readme",
+  "keywords": [
+    "model",
+    "view",
+    "controller",
+    "router",
+    "server",
+    "client",
+    "browser"
+  ],
+  "license": "MIT",
+  "main": "backbone.js",
+  "name": "backbone",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jashkenas/backbone.git"
+  },
+  "scripts": {
+    "build": "uglifyjs backbone.js --mangle --source-map backbone-min.map -o backbone-min.js",
+    "doc": "docco backbone.js && docco examples/todos/todos.js examples/backbone.localStorage.js",
+    "lint": "eslint backbone.js test/*.js",
+    "test": "karma start && coffee test/model.coffee && npm run lint"
+  },
+  "url": "http://backbonejs.org",
+  "version": "1.4.0"
+}

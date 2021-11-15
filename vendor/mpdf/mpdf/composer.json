@@ -1,0 +1,93 @@
+{
+
+	"name": "mpdf/mpdf",
+	"type": "library",
+
+	"description": "PHP library generating PDF files from UTF-8 encoded HTML",
+
+	"keywords": ["php", "pdf", "utf-8"],
+	"homepage": "https://mpdf.github.io",
+
+	"license": ["GPL-2.0-only"],
+
+	"authors": [
+		{
+			"name": "Matěj Humpál",
+			"role": "Developer, maintainer"
+		},
+		{
+			"name": "Ian Back",
+			"role": "Developer (retired)"
+		}
+	],
+
+	"support": {
+
+		"issues": "https://github.com/mpdf/mpdf/issues",
+		"source": "https://github.com/mpdf/mpdf",
+		"docs": "http://mpdf.github.io"
+
+	},
+
+	"require": {
+
+		"php": "^5.6 || ^7.0 || ~8.0.0",
+
+		"ext-gd": "*",
+		"ext-mbstring": "*",
+
+		"psr/log": "^1.0",
+		"setasign/fpdi": "^2.1",
+		"paragonie/random_compat": "^1.4|^2.0|^9.99.99",
+		"myclabs/deep-copy": "^1.7"
+
+	},
+
+	"require-dev": {
+
+		"phpunit/phpunit": "^5.7",
+		"mockery/mockery": "^1.3.0",
+		"squizlabs/php_codesniffer": "^3.5.0",
+		"tracy/tracy": "^2.4",
+		"mpdf/qrcode": "^1.1.0"
+
+	},
+
+	"suggest": {
+
+		"ext-bcmath": "Needed for generation of some types of barcodes",
+		"ext-zlib": "Needed for compression of embedded resources, such as fonts",
+		"ext-xml": "Needed mainly for SVG manipulation"
+
+	},
+
+	"autoload": {
+
+		"psr-4": {
+			"Mpdf\\": "src/"
+		}
+
+	},
+
+	"autoload-dev": {
+
+		"psr-4": {
+			"Mpdf\\": "tests/Mpdf"
+		},
+
+		"files": [
+			"src/functions-dev.php"
+		]
+
+	},
+
+	"scripts": {
+		"post-install-cmd": [
+			"php -r \"chmod('./tmp', 0777);\""
+		],
+		"cs": "@php vendor/bin/phpcs -v --report-width=160 --standard=ruleset.xml --severity=1 --warning-severity=0 --extensions=php src utils tests",
+		"test": "@php vendor/bin/phpunit",
+		"coverage": "@php vendor/bin/phpunit --coverage-text"
+	}
+
+}

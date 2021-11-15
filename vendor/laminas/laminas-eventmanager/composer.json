@@ -1,0 +1,67 @@
+{
+    "name": "laminas/laminas-eventmanager",
+    "description": "Trigger and listen to events within a PHP application",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "event",
+        "events",
+        "eventmanager"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-eventmanager/",
+        "issues": "https://github.com/laminas/laminas-eventmanager/issues",
+        "source": "https://github.com/laminas/laminas-eventmanager",
+        "rss": "https://github.com/laminas/laminas-eventmanager/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+    },
+    "require": {
+        "php": "^7.3 || ^8.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "container-interop/container-interop": "^1.1",
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-stdlib": "^2.7.3 || ^3.0",
+        "phpbench/phpbench": "^0.17.1",
+        "phpunit/phpunit": "^8.5.8"
+    },
+    "suggest": {
+        "container-interop/container-interop": "^1.1, to use the lazy listeners feature",
+        "laminas/laminas-stdlib": "^2.7.3 || ^3.0, to use the FilterChain feature"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\EventManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\EventManager\\": "test/",
+            "LaminasBench\\EventManager\\": "benchmarks/"
+        },
+        "files": [
+            "test/_autoload.php"
+        ]
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-eventmanager": "^3.2.1"
+    }
+}

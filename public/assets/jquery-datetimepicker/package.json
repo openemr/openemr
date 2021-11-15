@@ -1,0 +1,83 @@
+{
+  "_args": [
+    [
+      "jquery-datetimepicker@2.5.21",
+      "/home/ubuntu/openemr"
+    ]
+  ],
+  "_from": "jquery-datetimepicker@2.5.21",
+  "_id": "jquery-datetimepicker@2.5.21",
+  "_inBundle": false,
+  "_integrity": "sha512-wDTpZ4f1PWd1XGaIIE0n6jLynlm+akBJ7/NjaB1bk2UJSS593CHJPZ3+FNEXoyvNVUeBlBC0oX6WTfCyfUhX/w==",
+  "_location": "/jquery-datetimepicker",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "jquery-datetimepicker@2.5.21",
+    "name": "jquery-datetimepicker",
+    "escapedName": "jquery-datetimepicker",
+    "rawSpec": "2.5.21",
+    "saveSpec": null,
+    "fetchSpec": "2.5.21"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/jquery-datetimepicker/-/jquery-datetimepicker-2.5.21.tgz",
+  "_spec": "2.5.21",
+  "_where": "/home/ubuntu/openemr",
+  "author": {
+    "name": "Chupurnov",
+    "email": "chupurnov@gmail.com",
+    "url": "https://xdsoft.net/"
+  },
+  "bugs": {
+    "url": "https://github.com/xdan/datetimepicker/issues"
+  },
+  "dependencies": {
+    "jquery": ">= 1.7.2",
+    "jquery-mousewheel": ">= 3.1.13",
+    "php-date-formatter": "^1.3.4"
+  },
+  "description": "jQuery Plugin DateTimePicker it is DatePicker and TimePicker in one",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "concat": "github:azer/concat",
+    "concat-cli": "^4.0.0",
+    "karma": "^2.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "mocha": "^5.0.4",
+    "uglify-js": "^3.4.9",
+    "uglifycss": "^0.0.27"
+  },
+  "homepage": "https://github.com/xdan/datetimepicker",
+  "keywords": [
+    "jquery-plugin",
+    "calendar",
+    "date",
+    "time",
+    "datetime",
+    "datepicker",
+    "timepicker"
+  ],
+  "license": "MIT",
+  "main": "build/jquery.datetimepicker.full.min.js",
+  "name": "jquery-datetimepicker",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xdan/datetimepicker.git"
+  },
+  "scripts": {
+    "build": "npm run minify && npm run concat && npm run minifyconcat",
+    "concat": "concat-cli -f node_modules/php-date-formatter/js/php-date-formatter.min.js jquery.datetimepicker.js node_modules/jquery-mousewheel/jquery.mousewheel.js -o build/jquery.datetimepicker.full.js",
+    "github": "git add --all  && git commit -m \"New version %npm_package_version% \" && git tag %npm_package_version% && git push --tags origin HEAD:master && npm publish",
+    "minify": "uglifyjs jquery.datetimepicker.js -c -m -o build/jquery.datetimepicker.min.js && uglifycss jquery.datetimepicker.css > build/jquery.datetimepicker.min.css",
+    "minifyconcat": "uglifyjs build/jquery.datetimepicker.full.js -c -m -o build/jquery.datetimepicker.full.min.js",
+    "public": "npm run test && npm version patch --no-git-tag-version && npm run build && npm run github",
+    "test": "karma start --browsers Firefox karma.conf.js --single-run"
+  },
+  "version": "2.5.21"
+}

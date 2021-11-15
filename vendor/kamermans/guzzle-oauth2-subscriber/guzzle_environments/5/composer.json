@@ -1,0 +1,24 @@
+{
+    "name": "kamermans/unit-tests",
+    "authors": [
+        {
+            "name": "Steve Kamerman",
+            "email": "stevekamerman@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "guzzlehttp/guzzle": "~5",
+        "phpunit/phpunit": ">=4 <8",
+        "doctrine/cache": "~1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "kamermans\\OAuth2\\": "../../src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "kamermans\\OAuth2\\Tests\\": "../../tests"
+        }
+    }
+}

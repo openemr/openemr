@@ -1,0 +1,3406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.6.1@e93e532e4eaad6d68c4d7b606853800eaceccc72">
+  <file src="src/AbstractDateDropdown.php">
+    <InvalidArgument occurrences="1">
+      <code>$options</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="1">
+      <code>$value</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>filterable</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$expectedInputs</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="src/AbstractFilter.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_array($options) &amp;&amp; ! $options instanceof Traversable</code>
+    </DocblockTypeContradiction>
+    <InvalidThrow occurrences="1">
+      <code>Exception\ExceptionInterface</code>
+    </InvalidThrow>
+    <MixedArgument occurrences="4">
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+    </MixedArgument>
+    <MixedArrayOffset occurrences="1">
+      <code>$this-&gt;options[$key]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="2">
+      <code>$key</code>
+      <code>$value</code>
+    </MixedAssignment>
+  </file>
+  <file src="src/AbstractUnicode.php">
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$this-&gt;options['encoding']</code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/BaseName.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Blacklist.php">
+    <MissingReturnType occurrences="2">
+      <code>setList</code>
+      <code>setStrict</code>
+    </MissingReturnType>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(bool) $strict</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Boolean.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_array($translations) &amp;&amp; ! $translations instanceof Traversable</code>
+    </DocblockTypeContradiction>
+    <InvalidOperand occurrences="1">
+      <code>$found</code>
+    </InvalidOperand>
+    <MixedArrayAssignment occurrences="1">
+      <code>$this-&gt;options['translations'][$message]</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="1">
+      <code>$this-&gt;options['translations'][$message]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="3">
+      <code>$flag</code>
+      <code>$message</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>array</code>
+      <code>bool</code>
+      <code>int</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;options['casting']</code>
+      <code>$this-&gt;options['translations']</code>
+      <code>$this-&gt;options['type']</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullArgument occurrences="1">
+      <code>$type</code>
+    </PossiblyNullArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(bool) $flag</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Callback.php">
+    <InvalidArgument occurrences="1">
+      <code>$callbackOrOptions</code>
+    </InvalidArgument>
+    <MixedFunctionCall occurrences="1">
+      <code>call_user_func_array($this-&gt;options['callback'], $params)</code>
+    </MixedFunctionCall>
+    <MixedInferredReturnType occurrences="2">
+      <code>array</code>
+      <code>callable</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>new $callback()</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;options['callback']</code>
+      <code>$this-&gt;options['callback_params']</code>
+    </MixedReturnStatement>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$callbackOrOptions</code>
+    </PossiblyInvalidArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(array) $params</code>
+    </RedundantCastGivenDocblockType>
+    <TypeDoesNotContainType occurrences="1">
+      <code>is_string($callback) &amp;&amp; class_exists($callback)</code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="src/Compress.php">
+    <DocblockTypeContradiction occurrences="3">
+      <code>! is_array($options)</code>
+      <code>is_string($adapter)</code>
+      <code>is_string($value)</code>
+    </DocblockTypeContradiction>
+    <LessSpecificImplementedReturnType occurrences="1">
+      <code>mixed</code>
+    </LessSpecificImplementedReturnType>
+    <MissingPropertyType occurrences="2">
+      <code>$adapter</code>
+      <code>$adapterOptions</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="3">
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$this-&gt;adapter</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$key</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="2">
+      <code>$adapter</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>array</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>new $adapter($options)</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;adapterOptions</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="2">
+      <code>$options</code>
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>getOptions</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Compress/AbstractCompressionAlgorithm.php">
+    <MixedAssignment occurrences="1">
+      <code>$option</code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Compress/Bz2.php">
+    <InvalidReturnStatement occurrences="1">
+      <code>$compressed</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>string</code>
+    </InvalidReturnType>
+    <MixedInferredReturnType occurrences="2">
+      <code>int</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['blocksize']</code>
+    </MixedReturnStatement>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(int) $blocksize</code>
+      <code>(string) $archive</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Compress/Gz.php">
+    <InvalidReturnStatement occurrences="2">
+      <code>$compressed</code>
+      <code>$compressed</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="2">
+      <code>string</code>
+      <code>string</code>
+    </InvalidReturnType>
+    <MixedArgument occurrences="1">
+      <code>$size</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$size</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>int</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="1">
+      <code>$this-&gt;options['archive']</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['level']</code>
+      <code>$this-&gt;options['mode']</code>
+    </MixedReturnStatement>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(int) $level</code>
+      <code>(string) $archive</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Compress/Rar.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>$callback === null</code>
+    </DocblockTypeContradiction>
+    <ImplementedReturnTypeMismatch occurrences="1">
+      <code>bool</code>
+    </ImplementedReturnTypeMismatch>
+    <MixedArrayAccess occurrences="1">
+      <code>$options['callback']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="1">
+      <code>$options</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="5">
+      <code>bool</code>
+      <code>string</code>
+      <code>string</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="4">
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['callback']</code>
+      <code>$this-&gt;options['password']</code>
+      <code>$this-&gt;options['target']</code>
+    </MixedReturnStatement>
+    <RedundantCast occurrences="1">
+      <code>(string) $archive</code>
+    </RedundantCast>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(string) $password</code>
+      <code>(string) $target</code>
+    </RedundantCastGivenDocblockType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>$password !== null</code>
+    </RedundantConditionGivenDocblockType>
+    <TypeDoesNotContainType occurrences="2">
+      <code>$archive</code>
+      <code>$filelist</code>
+    </TypeDoesNotContainType>
+    <UndefinedClass occurrences="1">
+      <code>$filelist</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/Compress/Snappy.php">
+    <MixedAssignment occurrences="2">
+      <code>$compressed</code>
+      <code>$compressed</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="2">
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="2">
+      <code>$compressed</code>
+      <code>$compressed</code>
+    </MixedReturnStatement>
+    <UndefinedFunction occurrences="2">
+      <code>snappy_compress($content)</code>
+      <code>snappy_uncompress($content)</code>
+    </UndefinedFunction>
+  </file>
+  <file src="src/Compress/Tar.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>$result === false</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$content</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$file[]</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="4">
+      <code>$content</code>
+      <code>$directory</code>
+      <code>$file[]</code>
+      <code>$info</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>string</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>isFile</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['mode']</code>
+      <code>$this-&gt;options['target']</code>
+    </MixedReturnStatement>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$content</code>
+    </PossiblyInvalidArgument>
+    <PossiblyUndefinedVariable occurrences="2">
+      <code>$file</code>
+      <code>$file</code>
+    </PossiblyUndefinedVariable>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(string) $archive</code>
+      <code>(string) $target</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Compress/Zip.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>$res</code>
+      <code>$res</code>
+    </InvalidScalarArgument>
+    <MixedArgument occurrences="1">
+      <code>$res</code>
+    </MixedArgument>
+    <MixedInferredReturnType occurrences="3">
+      <code>string</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['archive']</code>
+      <code>$this-&gt;options['target']</code>
+    </MixedReturnStatement>
+    <PossiblyFalseArgument occurrences="3">
+      <code>$res</code>
+      <code>$res</code>
+      <code>$res</code>
+    </PossiblyFalseArgument>
+    <PossiblyFalseOperand occurrences="2">
+      <code>strrpos($content, DIRECTORY_SEPARATOR)</code>
+      <code>strrpos($content, DIRECTORY_SEPARATOR)</code>
+    </PossiblyFalseOperand>
+    <PossiblyNullReference occurrences="1">
+      <code>read</code>
+    </PossiblyNullReference>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(string) $archive</code>
+      <code>(string) $target</code>
+    </RedundantCastGivenDocblockType>
+    <TypeDoesNotContainType occurrences="1">
+      <code>$res !== true</code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="src/DataUnitFormatter.php">
+    <InvalidArgument occurrences="1">
+      <code>$prefix</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="3">
+      <code>$amount</code>
+      <code>$index</code>
+      <code>$precision</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="4">
+      <code>setMode</code>
+      <code>setPrecision</code>
+      <code>setPrefixes</code>
+      <code>setUnit</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$amount</code>
+    </MixedArgument>
+    <MixedArrayOffset occurrences="1">
+      <code>$prefixes[$index]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="1">
+      <code>$prefixes</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="5">
+      <code>array</code>
+      <code>int</code>
+      <code>string</code>
+      <code>string</code>
+      <code>string|null</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="6">
+      <code>$prefixes</code>
+      <code>$this-&gt;options['mode']</code>
+      <code>$this-&gt;options['precision']</code>
+      <code>$this-&gt;options['unit']</code>
+      <code>isset($prefixes[$index]) ? $prefixes[$index] : null</code>
+      <code>self::$standardizedPrefixes[$this-&gt;getMode()]</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <NullArgument occurrences="1">
+      <code>$prefix</code>
+    </NullArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $unit</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/DateTimeFormatter.php">
+    <DocblockTypeContradiction occurrences="4">
+      <code>! is_string($value) &amp;&amp; ! is_int($value) &amp;&amp; ! $value instanceof DateTime</code>
+      <code>$result === false</code>
+      <code>$value === null</code>
+      <code>$value === null</code>
+    </DocblockTypeContradiction>
+    <InvalidNullableReturnType occurrences="1">
+      <code>string</code>
+    </InvalidNullableReturnType>
+    <InvalidReturnStatement occurrences="1">
+      <code>$value</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>string</code>
+    </InvalidReturnType>
+    <InvalidScalarArgument occurrences="1">
+      <code>$e-&gt;getCode()</code>
+    </InvalidScalarArgument>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <NullableReturnStatement occurrences="1">
+      <code>$value</code>
+    </NullableReturnStatement>
+  </file>
+  <file src="src/Decompress.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_string($value)</code>
+    </DocblockTypeContradiction>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="2">
+      <code>$value</code>
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullArgument occurrences="1">
+      <code>$value</code>
+    </PossiblyNullArgument>
+  </file>
+  <file src="src/Decrypt.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($value)</code>
+    </DocblockTypeContradiction>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>decrypt</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;adapter-&gt;decrypt($value)</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Digits.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_float($value) &amp;&amp; ! is_string($value)</code>
+      <code>is_int($value)</code>
+    </DocblockTypeContradiction>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>! is_float($value)</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="src/Dir.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Encrypt.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_string($value)</code>
+    </DocblockTypeContradiction>
+    <InvalidStringClass occurrences="1">
+      <code>new $adapter($options)</code>
+    </InvalidStringClass>
+    <MissingPropertyType occurrences="1">
+      <code>$adapter</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="8">
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$adapter</code>
+      <code>$this-&gt;adapter</code>
+      <code>$this-&gt;adapter</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$adapter</code>
+      <code>$adapter</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="2">
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="3">
+      <code>encrypt</code>
+      <code>new $adapter($options)</code>
+      <code>toString</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;adapter-&gt;encrypt($value)</code>
+      <code>$this-&gt;adapter-&gt;toString()</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Encrypt/BlockCipher.php">
+    <DocblockTypeContradiction occurrences="3">
+      <code>is_array($options)</code>
+      <code>is_array($options)</code>
+      <code>is_string($this-&gt;compression)</code>
+    </DocblockTypeContradiction>
+    <InvalidPropertyAssignmentValue occurrences="1">
+      <code>CryptBlockCipher::factory($cipherType, $this-&gt;encryption)</code>
+    </InvalidPropertyAssignmentValue>
+    <MissingPropertyType occurrences="4">
+      <code>$encryption</code>
+      <code>$this-&gt;encryption</code>
+      <code>$this-&gt;encryption</code>
+      <code>$this-&gt;encryption</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="5">
+      <code>$options['compression']</code>
+      <code>$options['key']</code>
+      <code>$options['vector']</code>
+      <code>$this-&gt;encryption</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="9">
+      <code>$options['algorithm']</code>
+      <code>$options['algorithm']</code>
+      <code>$options['hash']</code>
+      <code>$options['hash']</code>
+      <code>$options['key']</code>
+      <code>$options['key_iteration']</code>
+      <code>$options['vector']</code>
+      <code>$this-&gt;encryption['key']</code>
+      <code>$this-&gt;encryption['vector']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="3">
+      <code>$this-&gt;encryption['key']</code>
+      <code>$this-&gt;encryption['key']</code>
+      <code>$this-&gt;encryption['vector']</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="1">
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>array</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="1">
+      <code>$this-&gt;encryption</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;encryption</code>
+      <code>$this-&gt;encryption['key']</code>
+      <code>$this-&gt;encryption['vector']</code>
+    </MixedReturnStatement>
+    <PossiblyInvalidPropertyAssignmentValue occurrences="1">
+      <code>$compression</code>
+    </PossiblyInvalidPropertyAssignmentValue>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$compression</code>
+    </PropertyNotSetInConstructor>
+    <UndefinedMethod occurrences="4">
+      <code>setCipherAlgorithm</code>
+      <code>setHashAlgorithm</code>
+      <code>setKeyIteration</code>
+      <code>setSalt</code>
+    </UndefinedMethod>
+  </file>
+  <file src="src/Encrypt/Openssl.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($this-&gt;compression)</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="5">
+      <code>$keys</code>
+      <code>$this-&gt;keys</code>
+      <code>$this-&gt;keys</code>
+      <code>$this-&gt;keys</code>
+      <code>$this-&gt;keys</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="23">
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$details['key']</code>
+      <code>$details['key']</code>
+      <code>$envKey</code>
+      <code>$envelope</code>
+      <code>$header['size']</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$keys</code>
+      <code>$keys</code>
+      <code>$length</code>
+      <code>$length</code>
+      <code>$length</code>
+      <code>$options['compression']</code>
+      <code>$options['package']</code>
+      <code>$options['passphrase']</code>
+      <code>$this-&gt;keys[$type]</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$keys</code>
+      <code>[$keys]</code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayAccess occurrences="11">
+      <code>$this-&gt;keys[$type]</code>
+      <code>$this-&gt;keys['envelope']</code>
+      <code>$this-&gt;keys['envelope']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['public']</code>
+      <code>$this-&gt;keys['public']</code>
+      <code>$this-&gt;keys['public']</code>
+      <code>$this-&gt;keys['public']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="4">
+      <code>$this-&gt;keys['envelope']</code>
+      <code>$this-&gt;keys['envelope']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['public']</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="4">
+      <code>$keys[$key]</code>
+      <code>$this-&gt;keys['envelope'][$key]</code>
+      <code>$this-&gt;keys['private'][$key]</code>
+      <code>$this-&gt;keys['public'][$key]</code>
+    </MixedArrayOffset>
+    <MixedArrayTypeCoercion occurrences="1">
+      <code>$fingerprints[$key]</code>
+    </MixedArrayTypeCoercion>
+    <MixedAssignment occurrences="17">
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$count</code>
+      <code>$envKey</code>
+      <code>$envelope</code>
+      <code>$i</code>
+      <code>$i</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$key['envelope']</code>
+      <code>$key['private']</code>
+      <code>$key['public']</code>
+      <code>$option</code>
+      <code>$option</code>
+      <code>$option</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>array</code>
+      <code>array</code>
+      <code>array</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="4">
+      <code>$envKey</code>
+      <code>$i</code>
+      <code>$length</code>
+      <code>$length</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;keys['envelope']</code>
+      <code>$this-&gt;keys['private']</code>
+      <code>$this-&gt;keys['public']</code>
+    </MixedReturnStatement>
+    <PossiblyInvalidPropertyAssignmentValue occurrences="1">
+      <code>$compression</code>
+    </PossiblyInvalidPropertyAssignmentValue>
+    <PossiblyUndefinedVariable occurrences="3">
+      <code>$keys</code>
+      <code>$keys</code>
+      <code>$keys</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>$compression</code>
+      <code>$passphrase</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(bool) $package</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/File/Decrypt.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <ImplementedReturnTypeMismatch occurrences="1">
+      <code>string|array</code>
+    </ImplementedReturnTypeMismatch>
+    <MixedArgument occurrences="5">
+      <code>$this-&gt;filename</code>
+      <code>$this-&gt;filename</code>
+      <code>$this-&gt;filename</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$uploadData['tmp_name']</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="3">
+      <code>$this-&gt;filename</code>
+      <code>$uploadData['tmp_name']</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;filename</code>
+      <code>$uploadData</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>$filename</code>
+    </PossiblyNullPropertyAssignmentValue>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$uploadData</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$filename</code>
+    </PropertyNotSetInConstructor>
+    <RedundantPropertyInitializationCheck occurrences="1">
+      <code>isset($this-&gt;filename)</code>
+    </RedundantPropertyInitializationCheck>
+  </file>
+  <file src="src/File/Encrypt.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <ImplementedReturnTypeMismatch occurrences="1">
+      <code>string|array</code>
+    </ImplementedReturnTypeMismatch>
+    <MixedArgument occurrences="5">
+      <code>$this-&gt;filename</code>
+      <code>$this-&gt;filename</code>
+      <code>$this-&gt;filename</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$uploadData['tmp_name']</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="3">
+      <code>$this-&gt;filename</code>
+      <code>$uploadData['tmp_name']</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;filename</code>
+      <code>$uploadData</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullPropertyAssignmentValue occurrences="1">
+      <code>$filename</code>
+    </PossiblyNullPropertyAssignmentValue>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$uploadData</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$filename</code>
+    </PropertyNotSetInConstructor>
+    <RedundantPropertyInitializationCheck occurrences="1">
+      <code>isset($this-&gt;filename)</code>
+    </RedundantPropertyInitializationCheck>
+  </file>
+  <file src="src/File/LowerCase.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="4">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$content</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$uploadData</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$uploadData</code>
+    </PossiblyUndefinedVariable>
+  </file>
+  <file src="src/File/Rename.php">
+    <DocblockTypeContradiction occurrences="3">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+      <code>is_array($options)</code>
+      <code>is_array($options)</code>
+    </DocblockTypeContradiction>
+    <InvalidArgument occurrences="2">
+      <code>$files['overwrite']</code>
+      <code>$files['randomize']</code>
+    </InvalidArgument>
+    <InvalidReturnStatement occurrences="4">
+      <code>$file</code>
+      <code>$rename</code>
+      <code>$this</code>
+      <code>$this</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="2">
+      <code>array</code>
+      <code>array|string</code>
+    </InvalidReturnType>
+    <MissingPropertyType occurrences="1">
+      <code>$files</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="14">
+      <code>$file['source']</code>
+      <code>$file['source']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$rename['source']</code>
+      <code>$rename['target']</code>
+      <code>$rename['target']</code>
+      <code>$rename['target']</code>
+      <code>$this-&gt;files</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="8">
+      <code>$file['source']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$rename['target'][strlen($rename['target']) - 1]</code>
+      <code>$value['source']</code>
+      <code>$value['source']</code>
+      <code>$value['source']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="4">
+      <code>$rename['source']</code>
+      <code>$this-&gt;files[$count]</code>
+      <code>$this-&gt;files[$key]</code>
+      <code>$uploadData['tmp_name']</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="1">
+      <code>$this-&gt;files[$key]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="10">
+      <code>$key</code>
+      <code>$last</code>
+      <code>$rename</code>
+      <code>$rename</code>
+      <code>$rename['target']</code>
+      <code>$uploadData['tmp_name']</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="3">
+      <code>array</code>
+      <code>string</code>
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="2">
+      <code>$rename['target']</code>
+      <code>$rename['target']</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="6">
+      <code>$file['target']</code>
+      <code>$file['target']</code>
+      <code>$this-&gt;files</code>
+      <code>$uploadData</code>
+      <code>$uploadData</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyUndefinedVariable occurrences="2">
+      <code>$uploadData</code>
+      <code>$uploadData</code>
+    </PossiblyUndefinedVariable>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>is_string($file)</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="src/File/RenameUpload.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>$target === null</code>
+      <code>is_string($target)</code>
+    </DocblockTypeContradiction>
+    <MissingParamType occurrences="2">
+      <code>$clientFileName</code>
+      <code>$source</code>
+    </MissingParamType>
+    <MixedArgument occurrences="12">
+      <code>$clientFileName</code>
+      <code>$clientFileName</code>
+      <code>$clientFileName</code>
+      <code>$source</code>
+      <code>$sourceFile</code>
+      <code>$sourceFile</code>
+      <code>$sourceFile</code>
+      <code>$target</code>
+      <code>$target</code>
+      <code>$target</code>
+      <code>$target</code>
+      <code>$target</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayAccess occurrences="1">
+      <code>$target[strlen($target) - 1]</code>
+    </MixedArrayAccess>
+    <MixedArrayOffset occurrences="5">
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="6">
+      <code>$clientFilename</code>
+      <code>$last</code>
+      <code>$sourceFile</code>
+      <code>$sourceFile</code>
+      <code>$target</code>
+      <code>$targetDir</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="10">
+      <code>UploadedFileInterface</code>
+      <code>array&lt;string, string&gt;</code>
+      <code>bool</code>
+      <code>bool</code>
+      <code>bool</code>
+      <code>bool</code>
+      <code>null|StreamFactoryInterface</code>
+      <code>null|UploadedFileFactoryInterface</code>
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="2">
+      <code>$targetDir</code>
+      <code>$targetDir</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="10">
+      <code>$this-&gt;alreadyFiltered[$fileName]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+      <code>$this-&gt;options['overwrite']</code>
+      <code>$this-&gt;options['randomize']</code>
+      <code>$this-&gt;options['stream_factory']</code>
+      <code>$this-&gt;options['target']</code>
+      <code>$this-&gt;options['upload_file_factory']</code>
+      <code>$this-&gt;options['use_upload_extension']</code>
+      <code>$this-&gt;options['use_upload_name']</code>
+    </MixedReturnStatement>
+    <MixedReturnTypeCoercion occurrences="2">
+      <code>$fileData</code>
+      <code>$this-&gt;alreadyFiltered[$sourceFile]</code>
+    </MixedReturnTypeCoercion>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$sourceFile</code>
+    </PossiblyInvalidArgument>
+    <PossiblyNullArrayOffset occurrences="1">
+      <code>$this-&gt;alreadyFiltered</code>
+    </PossiblyNullArrayOffset>
+    <RedundantCastGivenDocblockType occurrences="4">
+      <code>(bool) $flag</code>
+      <code>(bool) $flag</code>
+      <code>(bool) $flag</code>
+      <code>(bool) $flag</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/File/UpperCase.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="4">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$content</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$uploadData</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$uploadData</code>
+    </PossiblyUndefinedVariable>
+  </file>
+  <file src="src/FilterChain.php">
+    <DocblockTypeContradiction occurrences="3">
+      <code>! is_array($options) &amp;&amp; ! $options instanceof Traversable</code>
+      <code>$callback instanceof FilterInterface</code>
+      <code>$this-&gt;plugins</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="9">
+      <code>$callback</code>
+      <code>$filter</code>
+      <code>$item['data']</code>
+      <code>$item['priority']</code>
+      <code>$key</code>
+      <code>$name</code>
+      <code>$name</code>
+      <code>$priority</code>
+      <code>$priority</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="7">
+      <code>$item['data']</code>
+      <code>$item['priority']</code>
+      <code>$spec['callback']</code>
+      <code>$spec['name']</code>
+      <code>$spec['options']</code>
+      <code>$spec['priority']</code>
+      <code>$spec['priority']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="14">
+      <code>$callback</code>
+      <code>$filter</code>
+      <code>$filter</code>
+      <code>$item</code>
+      <code>$key</code>
+      <code>$name</code>
+      <code>$options</code>
+      <code>$priority</code>
+      <code>$priority</code>
+      <code>$spec</code>
+      <code>$spec</code>
+      <code>$value</code>
+      <code>$valueFiltered</code>
+      <code>$valueFiltered</code>
+    </MixedAssignment>
+    <MixedFunctionCall occurrences="1">
+      <code>call_user_func($filter, $valueFiltered)</code>
+    </MixedFunctionCall>
+    <MixedInferredReturnType occurrences="1">
+      <code>FilterInterface</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$plugins-&gt;get($name, $options)</code>
+    </MixedReturnStatement>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>$plugins</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="src/FilterPluginManager.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>gettype($plugin)</code>
+    </DocblockTypeContradiction>
+    <DuplicateArrayKey occurrences="2">
+      <code>ToInt::class                           =&gt; InvokableFactory::class</code>
+      <code>ToNull::class                          =&gt; InvokableFactory::class</code>
+    </DuplicateArrayKey>
+    <InvalidScalarArgument occurrences="1">
+      <code>$e-&gt;getCode()</code>
+    </InvalidScalarArgument>
+    <MixedArgument occurrences="1">
+      <code>$plugin</code>
+    </MixedArgument>
+    <NonInvariantDocblockPropertyType occurrences="1">
+      <code>$factories</code>
+    </NonInvariantDocblockPropertyType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>is_object($plugin)</code>
+    </RedundantConditionGivenDocblockType>
+    <UndefinedClass occurrences="26">
+      <code>Alnum</code>
+      <code>Alnum</code>
+      <code>Alnum</code>
+      <code>Alnum</code>
+      <code>Alnum</code>
+      <code>Alpha</code>
+      <code>Alpha</code>
+      <code>Alpha</code>
+      <code>Alpha</code>
+      <code>Alpha</code>
+      <code>NumberFormat</code>
+      <code>NumberFormat</code>
+      <code>NumberFormat</code>
+      <code>NumberFormat</code>
+      <code>NumberFormat</code>
+      <code>NumberFormat</code>
+      <code>NumberParse</code>
+      <code>NumberParse</code>
+      <code>NumberParse</code>
+      <code>NumberParse</code>
+      <code>NumberParse</code>
+      <code>NumberParse</code>
+      <code>\Zend\I18n\Filter\Alnum</code>
+      <code>\Zend\I18n\Filter\Alpha</code>
+      <code>\Zend\I18n\Filter\NumberFormat</code>
+      <code>\Zend\I18n\Filter\NumberParse</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/FilterPluginManagerFactory.php">
+    <DeprecatedInterface occurrences="1">
+      <code>FilterPluginManagerFactory</code>
+    </DeprecatedInterface>
+    <MissingParamType occurrences="3">
+      <code>$name</code>
+      <code>$name</code>
+      <code>$requestedName</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$creationOptions</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="2">
+      <code>$config['filters']</code>
+      <code>$this-&gt;creationOptions</code>
+    </MixedArgument>
+    <ParamNameMismatch occurrences="1">
+      <code>$container</code>
+    </ParamNameMismatch>
+  </file>
+  <file src="src/HtmlEntities.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>is_array($options)</code>
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="3">
+      <code>$options['doublequote']</code>
+      <code>$options['encoding']</code>
+      <code>$options['quotestyle']</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="3">
+      <code>$options['encoding']</code>
+      <code>$temp['charset']</code>
+      <code>$temp['quotestyle']</code>
+    </MixedAssignment>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$temp</code>
+    </PossiblyUndefinedVariable>
+    <RedundantCastGivenDocblockType occurrences="3">
+      <code>(bool) $doubleQuote</code>
+      <code>(string) $value</code>
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Inflector.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>$this-&gt;pluginManager instanceof FilterPluginManager</code>
+    </DocblockTypeContradiction>
+    <InvalidArrayAccess occurrences="1">
+      <code>$spec[0]</code>
+    </InvalidArrayAccess>
+    <InvalidArrayOffset occurrences="1">
+      <code>$source[ltrim($sourceName, ':')]</code>
+    </InvalidArrayOffset>
+    <InvalidScalarArgument occurrences="1">
+      <code>$options['pluginManager']</code>
+    </InvalidScalarArgument>
+    <MixedArgument occurrences="10">
+      <code>$options['pluginManager']</code>
+      <code>$options['rules']</code>
+      <code>$options['target']</code>
+      <code>$options['targetReplacementIdentifier']</code>
+      <code>$options['throwTargetExceptionsOn']</code>
+      <code>$processedPart</code>
+      <code>$rule</code>
+      <code>$rules[$spec]</code>
+      <code>$source[$ruleName]</code>
+      <code>$spec</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>$sourceName</code>
+      <code>$spec</code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayAssignment occurrences="1">
+      <code>$this-&gt;rules[$spec][]</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="11">
+      <code>$processedPart</code>
+      <code>$processedPart</code>
+      <code>$rule</code>
+      <code>$ruleFilter</code>
+      <code>$ruleValue</code>
+      <code>$sourceValue</code>
+      <code>$source[ltrim($sourceName, ':')]</code>
+      <code>$temp['rules']</code>
+      <code>$temp['target']</code>
+      <code>$temp['targetReplacementIdentifier']</code>
+      <code>$temp['throwTargetExceptionsOn']</code>
+    </MixedAssignment>
+    <MixedFunctionCall occurrences="1">
+      <code>$ruleFilter($processedPart)</code>
+    </MixedFunctionCall>
+    <MixedInferredReturnType occurrences="3">
+      <code>FilterInterface</code>
+      <code>FilterInterface|false</code>
+      <code>array|false</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="1">
+      <code>new $options['pluginManager']</code>
+    </MixedMethodCall>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;getPluginManager()-&gt;get($rule)</code>
+      <code>$this-&gt;rules[$spec]</code>
+      <code>$this-&gt;rules[$spec][$index]</code>
+    </MixedReturnStatement>
+    <MixedStringOffsetAssignment occurrences="1">
+      <code>$source[ltrim($sourceName, ':')]</code>
+    </MixedStringOffsetAssignment>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$source</code>
+    </MoreSpecificImplementedParamType>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>$pluginManager</code>
+      <code>$target</code>
+    </PropertyNotSetInConstructor>
+    <RedundantCastGivenDocblockType occurrences="6">
+      <code>(bool) $throwTargetExceptionsOn</code>
+      <code>(string) $rule</code>
+      <code>(string) $spec</code>
+      <code>(string) $target</code>
+      <code>(string) $targetReplacementIdentifier</code>
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Int.php">
+    <ReservedWord occurrences="1">
+      <code>Int</code>
+    </ReservedWord>
+  </file>
+  <file src="src/Module.php">
+    <MissingReturnType occurrences="1">
+      <code>getConfig</code>
+    </MissingReturnType>
+    <UndefinedDocblockClass occurrences="1">
+      <code>\Laminas\ModuleManager\ModuleManager</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="src/Null.php">
+    <ReservedWord occurrences="1">
+      <code>Null</code>
+    </ReservedWord>
+  </file>
+  <file src="src/PregReplace.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>! is_array($pattern) &amp;&amp; ! is_string($pattern)</code>
+      <code>! is_array($replacement) &amp;&amp; ! is_string($replacement)</code>
+    </DocblockTypeContradiction>
+    <InvalidNullableReturnType occurrences="1">
+      <code>bool</code>
+    </InvalidNullableReturnType>
+    <MixedArgument occurrences="5">
+      <code>$args[0]</code>
+      <code>$args[1]</code>
+      <code>$p</code>
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['replacement']</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayAccess occurrences="5">
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['replacement']</code>
+      <code>$this-&gt;options['replacement']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="2">
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['replacement']</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="3">
+      <code>$p</code>
+      <code>$this-&gt;options</code>
+      <code>$this-&gt;options</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="2">
+      <code>string|array</code>
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;options['pattern']</code>
+      <code>$this-&gt;options['replacement']</code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/RealPath.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($value)</code>
+    </DocblockTypeContradiction>
+    <MixedInferredReturnType occurrences="1">
+      <code>bool</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$this-&gt;options['exists']</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyInvalidArgument occurrences="2">
+      <code>$existsOrOptions</code>
+      <code>$existsOrOptions</code>
+    </PossiblyInvalidArgument>
+    <RedundantCast occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCast>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(bool) $flag</code>
+    </RedundantCastGivenDocblockType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>$existsOrOptions !== null</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="src/StaticFilter.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>null === static::$plugins</code>
+    </DocblockTypeContradiction>
+    <InvalidThrow occurrences="1">
+      <code>Exception\ExceptionInterface</code>
+    </InvalidThrow>
+    <MixedAssignment occurrences="1">
+      <code>$filter</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>filter</code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/StringPrefix.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($prefix)</code>
+    </DocblockTypeContradiction>
+    <NonInvariantDocblockPropertyType occurrences="1">
+      <code>$options</code>
+    </NonInvariantDocblockPropertyType>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$options</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="src/StringSuffix.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($suffix)</code>
+    </DocblockTypeContradiction>
+    <NonInvariantDocblockPropertyType occurrences="1">
+      <code>$options</code>
+    </NonInvariantDocblockPropertyType>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$options</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="src/StringToLower.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;options['encoding']</code>
+    </MixedArgument>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyInvalidArgument occurrences="2">
+      <code>$encodingOrOptions</code>
+      <code>$encodingOrOptions</code>
+    </PossiblyInvalidArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>null !== $this-&gt;getEncoding()</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="src/StringToUpper.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;options['encoding']</code>
+    </MixedArgument>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyInvalidArgument occurrences="2">
+      <code>$encodingOrOptions</code>
+      <code>$encodingOrOptions</code>
+    </PossiblyInvalidArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>null !== $this-&gt;getEncoding()</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="src/StringTrim.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($value)</code>
+    </DocblockTypeContradiction>
+    <InvalidArgument occurrences="1">
+      <code>$charlistOrOptions</code>
+    </InvalidArgument>
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;options['charlist']</code>
+    </MixedArgument>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|null</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="2">
+      <code>$this-&gt;options['charlist']</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <RedundantCast occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCast>
+  </file>
+  <file src="src/StripNewlines.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/StripTags.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="3">
+      <code>$options['allowAttribs']</code>
+      <code>$options['allowTags']</code>
+      <code>$this-&gt;tagsAllowed[$tagName]</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="6">
+      <code>$attribute</code>
+      <code>$attribute</code>
+      <code>$element</code>
+      <code>$temp['allowAttribs']</code>
+      <code>$temp['allowComments']</code>
+      <code>$temp['allowTags']</code>
+    </MixedAssignment>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$temp</code>
+    </PossiblyUndefinedVariable>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+    <RedundantCondition occurrences="1">
+      <code>is_array($options)</code>
+    </RedundantCondition>
+  </file>
+  <file src="src/ToNull.php">
+    <InvalidOperand occurrences="1">
+      <code>$found</code>
+    </InvalidOperand>
+    <MixedAssignment occurrences="1">
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>int</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$this-&gt;options['type']</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullArgument occurrences="1">
+      <code>$type</code>
+    </PossiblyNullArgument>
+  </file>
+  <file src="src/UpperCaseWords.php">
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;options['encoding']</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="2">
+      <code>$this-&gt;options['encoding']</code>
+      <code>$this-&gt;options['encoding']</code>
+    </MixedArrayAccess>
+    <PossiblyInvalidArgument occurrences="2">
+      <code>$encodingOrOptions</code>
+      <code>$encodingOrOptions</code>
+    </PossiblyInvalidArgument>
+    <RedundantCast occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCast>
+  </file>
+  <file src="src/UriNormalize.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_scalar($value)</code>
+    </DocblockTypeContradiction>
+    <InvalidCatch occurrences="1"/>
+    <MissingReturnType occurrences="1">
+      <code>enforceScheme</code>
+    </MissingReturnType>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <PossiblyNullArgument occurrences="3">
+      <code>$defaultScheme</code>
+      <code>$path</code>
+      <code>$path</code>
+    </PossiblyNullArgument>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(string) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Whitelist.php">
+    <MissingReturnType occurrences="2">
+      <code>setList</code>
+      <code>setStrict</code>
+    </MissingReturnType>
+    <RedundantCastGivenDocblockType occurrences="1">
+      <code>(bool) $strict</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Word/AbstractSeparator.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>is_string($separator)</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="1">
+      <code>$separator</code>
+    </MissingPropertyType>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="1">
+      <code>$separator</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>$this-&gt;separator</code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Word/CamelCaseToSeparator.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedOperand occurrences="4">
+      <code>$this-&gt;separator</code>
+      <code>$this-&gt;separator</code>
+      <code>$this-&gt;separator</code>
+      <code>$this-&gt;separator</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Word/DashToSeparator.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;separator</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Word/SeparatorToCamelCase.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <InvalidScalarArgument occurrences="1">
+      <code>$replacements[$index]</code>
+    </InvalidScalarArgument>
+    <MissingClosureParamType occurrences="6">
+      <code>$matches</code>
+      <code>$matches</code>
+      <code>$matches</code>
+      <code>$matches</code>
+      <code>$matches</code>
+      <code>$matches</code>
+    </MissingClosureParamType>
+    <MissingClosureReturnType occurrences="6">
+      <code>static function ($matches) {</code>
+      <code>static function ($matches) {</code>
+      <code>static function ($matches) {</code>
+      <code>static function ($matches) {</code>
+      <code>static function ($matches) {</code>
+      <code>static function ($matches) {</code>
+    </MissingClosureReturnType>
+    <MixedArgument occurrences="7">
+      <code>$matches[1]</code>
+      <code>$matches[1]</code>
+      <code>$matches[1]</code>
+      <code>$matches[2]</code>
+      <code>$matches[2]</code>
+      <code>$matches[2]</code>
+      <code>$this-&gt;separator</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$filtered</code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayAccess occurrences="6">
+      <code>$matches[1]</code>
+      <code>$matches[1]</code>
+      <code>$matches[1]</code>
+      <code>$matches[2]</code>
+      <code>$matches[2]</code>
+      <code>$matches[2]</code>
+    </MixedArrayAccess>
+    <MixedReturnStatement occurrences="1">
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Word/SeparatorToSeparator.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="2">
+      <code>$replacementSeparator</code>
+      <code>$searchSeparator</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="2">
+      <code>$this-&gt;replacementSeparator</code>
+      <code>$this-&gt;searchSeparator</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedInferredReturnType occurrences="2">
+      <code>string</code>
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="3">
+      <code>$this-&gt;replacementSeparator</code>
+      <code>$this-&gt;searchSeparator</code>
+      <code>$value</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Word/Service/SeparatorToSeparatorFactory.php">
+    <DeprecatedInterface occurrences="1">
+      <code>SeparatorToSeparatorFactory</code>
+    </DeprecatedInterface>
+    <MissingParamType occurrences="1">
+      <code>$creationOptions</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$creationOptions</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="1">
+      <code>setCreationOptions</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="3">
+      <code>$this-&gt;creationOptions</code>
+      <code>isset($options['replacement_separator']) ? $options['replacement_separator'] : '-'</code>
+      <code>isset($options['search_separator']) ? $options['search_separator'] : ' '</code>
+    </MixedArgument>
+  </file>
+  <file src="src/Word/UnderscoreToStudlyCase.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>! is_scalar($value) &amp;&amp; ! is_array($value)</code>
+    </DocblockTypeContradiction>
+    <MissingClosureParamType occurrences="1">
+      <code>$value</code>
+    </MissingClosureParamType>
+    <MissingClosureReturnType occurrences="1">
+      <code>static function ($value) {</code>
+    </MissingClosureReturnType>
+    <MixedArgument occurrences="3">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedInferredReturnType occurrences="1">
+      <code>string|array</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="2">
+      <code>$value</code>
+      <code>is_array($value) ? array_map($lowerCaseFirst, $value) : $lowerCaseFirst($value)</code>
+    </MixedReturnStatement>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="test/BaseNameTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/BlacklistTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'Laminas\Filter\Blacklist'</code>
+    </ArgumentTypeCoercion>
+    <InvalidScalarArgument occurrences="1">
+      <code>$strict</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$list</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="10">
+      <code>defaultTestProvider</code>
+      <code>listTestProvider</code>
+      <code>testConstructorDefaults</code>
+      <code>testConstructorOptions</code>
+      <code>testDefault</code>
+      <code>testList</code>
+      <code>testNullListShouldThrowException</code>
+      <code>testSetStrictShouldCastToBoolean</code>
+      <code>testTraversableConvertsToArray</code>
+      <code>testWithPluginManager</code>
+    </MissingReturnType>
+    <MixedArrayAccess occurrences="2">
+      <code>$expected</code>
+      <code>$value</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="3">
+      <code>$data</code>
+      <code>$filter</code>
+      <code>list($value, $expected)</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/BooleanTest.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>true</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$expected</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="15">
+      <code>combinedTypeTestProvider</code>
+      <code>defaultTestProvider</code>
+      <code>duplicateProvider</code>
+      <code>noCastingTestProvider</code>
+      <code>testCombinedTypes</code>
+      <code>testConstructorOptions</code>
+      <code>testConstructorParams</code>
+      <code>testDefault</code>
+      <code>testDuplicateTypesWorkProperly</code>
+      <code>testGettingDefaultType</code>
+      <code>testLocalized</code>
+      <code>testNoCasting</code>
+      <code>testSettingFalseType</code>
+      <code>testTypes</code>
+      <code>typeTestProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="4">
+      <code>$expected</code>
+      <code>$expected</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="5">
+      <code>$data</code>
+      <code>$data</code>
+      <code>$type</code>
+      <code>list($value, $expected)</code>
+      <code>list($value, $expected)</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/CallbackTest.php">
+    <InvalidArgument occurrences="2">
+      <code>'param'</code>
+      <code>'param'</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="5">
+      <code>$param</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="11">
+      <code>objectCallback</code>
+      <code>objectCallbackWithParams</code>
+      <code>staticCallback</code>
+      <code>testCallbackWithArrayParameters</code>
+      <code>testCallbackWithStringParameter</code>
+      <code>testConstructorWithOptions</code>
+      <code>testObjectCallback</code>
+      <code>testSettingDefaultOptions</code>
+      <code>testSettingDefaultOptionsAfterwards</code>
+      <code>testStaticCallback</code>
+      <code>testStringClassCallback</code>
+    </MissingReturnType>
+    <MixedOperand occurrences="5">
+      <code>$param</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedOperand>
+  </file>
+  <file src="test/Compress/Bz2Test.php">
+    <DocblockTypeContradiction occurrences="2">
+      <code>assertTrue</code>
+      <code>assertTrue</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="1">
+      <code>$target</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="7">
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$this-&gt;target</code>
+      <code>$this-&gt;target</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$archive</code>
+      <code>$archive</code>
+    </MixedAssignment>
+    <NullArgument occurrences="1">
+      <code>null</code>
+    </NullArgument>
+  </file>
+  <file src="test/Compress/GzTest.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>assertTrue</code>
+    </DocblockTypeContradiction>
+    <MissingPropertyType occurrences="1">
+      <code>$target</code>
+    </MissingPropertyType>
+    <MixedArgument occurrences="5">
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$archive</code>
+      <code>$this-&gt;target</code>
+      <code>$this-&gt;target</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$archive</code>
+    </MixedAssignment>
+    <NullArgument occurrences="1">
+      <code>null</code>
+    </NullArgument>
+  </file>
+  <file src="test/Compress/LzfTest.php">
+    <MixedAssignment occurrences="4">
+      <code>$compressed</code>
+      <code>$decompressed</code>
+      <code>$filter</code>
+      <code>$filter</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="3">
+      <code>compress</code>
+      <code>decompress</code>
+      <code>toString</code>
+    </MixedMethodCall>
+    <UndefinedClass occurrences="2">
+      <code>LlaminasCompression</code>
+      <code>LlaminasCompression</code>
+    </UndefinedClass>
+  </file>
+  <file src="test/Compress/RarTest.php">
+    <InvalidArgument occurrences="1">
+      <code>$callback</code>
+    </InvalidArgument>
+    <InvalidReturnStatement occurrences="1">
+      <code>true</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>unknown</code>
+    </InvalidReturnType>
+    <MissingPropertyType occurrences="1">
+      <code>$tmp</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="2">
+      <code>testSettingCallbackThrowsExceptionOnInvalidCallback</code>
+      <code>testSettingCallbackThrowsExceptionOnMissingCallback</code>
+    </MissingReturnType>
+    <MixedOperand occurrences="18">
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+    </MixedOperand>
+    <UndefinedDocblockClass occurrences="1">
+      <code>unknown</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="test/Compress/SnappyTest.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>assertNull</code>
+    </DocblockTypeContradiction>
+    <InvalidArgument occurrences="1">
+      <code>[]</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="2">
+      <code>$errno</code>
+      <code>$errstr</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>errorHandler</code>
+    </MissingReturnType>
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>[$this, 'errorHandler']</code>
+      <code>[$this, 'errorHandler']</code>
+    </MixedArgumentTypeCoercion>
+    <PossiblyFalseArgument occurrences="1">
+      <code>false</code>
+    </PossiblyFalseArgument>
+  </file>
+  <file src="test/Compress/TarLoadArchiveTarTest.php">
+    <MissingClosureParamType occurrences="2">
+      <code>$errno</code>
+      <code>$errstr</code>
+    </MissingClosureParamType>
+    <MissingReturnType occurrences="1">
+      <code>testArchiveTarNotLoaded</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/Compress/TarTest.php">
+    <MissingPropertyType occurrences="1">
+      <code>$tmp</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="2">
+      <code>testDecompressionDoesNotRequireArchive</code>
+      <code>testSetModeShouldWorkWithCaseInsensitive</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$target</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="33">
+      <code>$target</code>
+      <code>$target</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+    </MixedOperand>
+  </file>
+  <file src="test/Compress/ZipTest.php">
+    <MissingReturnType occurrences="2">
+      <code>testDecompressWhenNoArchieveInClass</code>
+      <code>testDecompressWillThrowExceptionWhenDecompressingWithNoTarget</code>
+    </MissingReturnType>
+    <MixedOperand occurrences="53">
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+    </MixedOperand>
+    <UndefinedThisPropertyAssignment occurrences="1">
+      <code>$this-&gt;tmp</code>
+    </UndefinedThisPropertyAssignment>
+    <UndefinedThisPropertyFetch occurrences="7">
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+      <code>$this-&gt;tmp</code>
+    </UndefinedThisPropertyFetch>
+  </file>
+  <file src="test/CompressTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'Laminas\Filter\Compress\CompressionAlgorithmInterface'</code>
+    </ArgumentTypeCoercion>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$tmpDir</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="5">
+      <code>$compressed</code>
+      <code>$content2</code>
+      <code>$content2</code>
+      <code>$content3</code>
+      <code>$decompressed</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="4">
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedOperand>
+    <UndefinedInterfaceMethod occurrences="4">
+      <code>getArchive</code>
+      <code>getArchive</code>
+      <code>getBlocksize</code>
+      <code>getBlocksize</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="test/DataUnitFormatterTest.php">
+    <InvalidScalarArgument occurrences="4">
+      <code>$value</code>
+      <code>$value</code>
+      <code>1500</code>
+      <code>1500</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="9">
+      <code>binaryBytesTestProvider</code>
+      <code>decimalBytesTestProvider</code>
+      <code>testBinaryBytes</code>
+      <code>testCustomPrefixes</code>
+      <code>testDecimalBytes</code>
+      <code>testPrecision</code>
+      <code>testSettingFalseMode</code>
+      <code>testSettingNoOptions</code>
+      <code>testSettingNoUnit</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/DateSelectTest.php">
+    <MissingParamType occurrences="3">
+      <code>$expected</code>
+      <code>$input</code>
+      <code>$options</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>provideFilter</code>
+      <code>testFilter</code>
+      <code>testInvalidInput</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$options</code>
+    </MixedArgument>
+  </file>
+  <file src="test/DateTimeFormatterTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$defaultTimezone</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="8">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testAcceptDateTimeValue</code>
+      <code>testDateTimeFormatted</code>
+      <code>testDateTimeFormattedWithAlternateTimezones</code>
+      <code>testFormatDateTimeFromTimestamp</code>
+      <code>testFormatterFormatsZero</code>
+      <code>testInvalidArgumentExceptionThrownOnInvalidInput</code>
+      <code>testSetFormat</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$this-&gt;defaultTimezone</code>
+    </MixedArgument>
+  </file>
+  <file src="test/DateTimeSelectTest.php">
+    <MissingParamType occurrences="3">
+      <code>$expected</code>
+      <code>$input</code>
+      <code>$options</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>provideFilter</code>
+      <code>testFilter</code>
+      <code>testInvalidInput</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$options</code>
+    </MixedArgument>
+  </file>
+  <file src="test/DecompressTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$tmpDir</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="2">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testFilterMethodProxiesToDecompress</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$compressed</code>
+      <code>$input</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$compressed</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="5">
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedOperand>
+    <NullArgument occurrences="1">
+      <code>null</code>
+    </NullArgument>
+  </file>
+  <file src="test/DecryptTest.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>'Laminas\Filter\Encrypt\EncryptionAlgorithmInterface'</code>
+      <code>'Laminas\Filter\Encrypt\EncryptionAlgorithmInterface'</code>
+    </ArgumentTypeCoercion>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="2">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testDecryptBlockCipher</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$input</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$enc</code>
+      <code>$key</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/DigitsTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$result</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/DirTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/Encrypt/BlockCipherTest.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>1234</code>
+      <code>1234</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="1">
+      <code>testWrongSizeVector</code>
+    </MissingReturnType>
+    <UndefinedMethod occurrences="2">
+      <code>fail</code>
+      <code>fail</code>
+    </UndefinedMethod>
+  </file>
+  <file src="test/Encrypt/OpensslTest.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>123</code>
+      <code>123</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="1">
+      <code>testPassCompressionConfigWillBeUnsetCorrectly</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$r-&gt;getValue($filter)</code>
+    </MixedArgument>
+  </file>
+  <file src="test/EncryptTest.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>'Laminas\Filter\Encrypt\EncryptionAlgorithmInterface'</code>
+      <code>'Laminas\Filter\Encrypt\EncryptionAlgorithmInterface'</code>
+    </ArgumentTypeCoercion>
+    <InvalidArrayOffset occurrences="1"/>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="2">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testEncryptBlockCipher</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$input</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="1">
+      <code>$enc['key']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="2">
+      <code>$enc</code>
+      <code>$key</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/File/DecryptTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="2">
+      <code>$fileToEncrypt</code>
+      <code>$tmpDir</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="2">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testEncryptionWithDecryption</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedArgument>
+    <MixedOperand occurrences="21">
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+      <code>$this-&gt;tmpDir</code>
+    </MixedOperand>
+  </file>
+  <file src="test/File/EncryptTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="3">
+      <code>$fileToEncrypt</code>
+      <code>$testDir</code>
+      <code>$testFile</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="2">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testEncryptionWithDecryption</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="16">
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;fileToEncrypt</code>
+      <code>$this-&gt;testDir</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+      <code>$this-&gt;testFile</code>
+    </MixedArgument>
+  </file>
+  <file src="test/File/LowerCaseTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingPropertyType occurrences="1">
+      <code>$testDir</code>
+    </MissingPropertyType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$this-&gt;testDir</code>
+      <code>$this-&gt;testDir</code>
+    </MixedArgument>
+  </file>
+  <file src="test/File/RenameTest.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>1234</code>
+      <code>1234</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/File/RenameUploadTest.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1234</code>
+    </InvalidScalarArgument>
+    <MissingClosureParamType occurrences="1">
+      <code>$args</code>
+    </MissingClosureParamType>
+    <MissingParamType occurrences="2">
+      <code>$dir</code>
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="4">
+      <code>removeDir</code>
+      <code>returnUnfilteredDataProvider</code>
+      <code>testGetFileWithOriginalExtension</code>
+      <code>testGetRandomizedFileWithOriginalExtension</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="9">
+      <code>$args</code>
+      <code>$dir</code>
+      <code>$dir</code>
+      <code>$filter($this-&gt;sourceFile)</code>
+      <code>$filter($this-&gt;sourceFile)</code>
+      <code>$filter($this-&gt;sourceFile)</code>
+      <code>$filter($this-&gt;sourceFile)</code>
+      <code>$firstResult</code>
+      <code>$targetFile</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>[$renamedStream, 'reveal']</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="2">
+      <code>$firstResult</code>
+      <code>$targetFile</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="1">
+      <code>$dir</code>
+    </MixedOperand>
+    <PossiblyUndefinedArrayOffset occurrences="2">
+      <code>$oldFilePathInfo['extension']</code>
+      <code>$oldFilePathInfo['extension']</code>
+    </PossiblyUndefinedArrayOffset>
+  </file>
+  <file src="test/File/UpperCaseTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/FilterChainTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'Laminas\Filter\FilterChain'</code>
+    </ArgumentTypeCoercion>
+    <MissingClosureParamType occurrences="2">
+      <code>$value</code>
+      <code>$value</code>
+    </MissingClosureParamType>
+    <MissingParamType occurrences="1">
+      <code>$value</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="15">
+      <code>getChainConfig</code>
+      <code>staticUcaseFilter</code>
+      <code>testAllowsConfiguringFilters</code>
+      <code>testAllowsConfiguringFiltersViaConstructor</code>
+      <code>testAllowsConnectingArbitraryCallbacks</code>
+      <code>testAllowsConnectingViaClassShortName</code>
+      <code>testCanAttachMultipleFiltersOfTheSameTypeAsDiscreteInstances</code>
+      <code>testCanRetrieveFilterWithUndefinedConstructor</code>
+      <code>testCanSerializeFilterChain</code>
+      <code>testClone</code>
+      <code>testConfigurationAllowsTraversableObjects</code>
+      <code>testEmptyFilterChainReturnsOriginalValue</code>
+      <code>testFiltersAreExecutedAccordingToPriority</code>
+      <code>testFiltersAreExecutedInFifoOrder</code>
+      <code>testMergingTwoFilterChainsKeepFiltersPriority</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="7">
+      <code>$config</code>
+      <code>$config</code>
+      <code>$config</code>
+      <code>$unserialized</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="7">
+      <code>$compare</code>
+      <code>$config</code>
+      <code>$config</code>
+      <code>$config</code>
+      <code>$filter</code>
+      <code>$filtered</code>
+      <code>$unserialized</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>filter</code>
+    </MixedMethodCall>
+  </file>
+  <file src="test/FilterPluginManagerCompatibilityTest.php">
+    <MissingReturnType occurrences="1">
+      <code>aliasProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$target</code>
+      <code>$target</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="3">
+      <code>$alias</code>
+      <code>$aliases</code>
+      <code>$target</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/FilterPluginManagerFactoryTest.php">
+    <DeprecatedMethod occurrences="1">
+      <code>getServiceLocator</code>
+    </DeprecatedMethod>
+    <MissingClosureParamType occurrences="4">
+      <code>$container</code>
+      <code>$container</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MissingClosureParamType>
+    <MissingClosureReturnType occurrences="4">
+      <code>function ($container) use ($filter) {</code>
+      <code>function ($container) use ($filter) {</code>
+      <code>function ($value) {</code>
+      <code>function ($value) {</code>
+    </MissingClosureReturnType>
+    <MissingReturnType occurrences="7">
+      <code>testConfiguresFilterServicesWhenFound</code>
+      <code>testDoesNotConfigureFilterServicesWhenConfigServiceDoesNotContainFiltersConfig</code>
+      <code>testDoesNotConfigureFilterServicesWhenConfigServiceNotPresent</code>
+      <code>testDoesNotConfigureFilterServicesWhenServiceListenerPresent</code>
+      <code>testFactoryConfiguresPluginManagerUnderContainerInterop</code>
+      <code>testFactoryConfiguresPluginManagerUnderServiceManagerV2</code>
+      <code>testFactoryReturnsPluginManager</code>
+    </MissingReturnType>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>method_exists($filters, 'configure')</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="test/FilterPluginManagerTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'Laminas\Filter\ToInt'</code>
+    </ArgumentTypeCoercion>
+    <MissingReturnType occurrences="6">
+      <code>getInvalidServiceException</code>
+      <code>testFilterSuccessfullyConstructed</code>
+      <code>testFilterSuccessfullyRetrieved</code>
+      <code>testFiltersConstructedAreDifferent</code>
+      <code>testLoadingInvalidFilterRaisesException</code>
+      <code>testRegisteringInvalidFilterRaisesException</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$this-&gt;getInvalidServiceException()</code>
+      <code>$this-&gt;getInvalidServiceException()</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="3">
+      <code>$filter</code>
+      <code>$filterOne</code>
+      <code>$filterTwo</code>
+    </MixedAssignment>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>method_exists($this-&gt;filters, 'configure')</code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="test/HtmlEntitiesTest.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>'Laminas\Filter\Exception\DomainException'</code>
+      <code>'Laminas\Filter\HtmlEntities'</code>
+    </ArgumentTypeCoercion>
+    <MissingParamType occurrences="3">
+      <code>$errno</code>
+      <code>$errstr</code>
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="7">
+      <code>errorHandler</code>
+      <code>returnUnfilteredDataProvider</code>
+      <code>testConfigObject</code>
+      <code>testCorrectsForEncodingMismatch</code>
+      <code>testFluentInterface</code>
+      <code>testRaisesExceptionIfEncodingMismatchDetectedAndFinalStringIsEmpty</code>
+      <code>testStripsUnknownCharactersWhenEncodingMismatchDetected</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="3">
+      <code>$input</code>
+      <code>$result</code>
+      <code>$result</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="3">
+      <code>[$this, 'errorHandler']</code>
+      <code>[$this, 'errorHandler']</code>
+      <code>[$this, 'errorHandler']</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="3">
+      <code>$result</code>
+      <code>$result</code>
+      <code>$result</code>
+    </MixedAssignment>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$result</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="test/InflectorTest.php">
+    <ArgumentTypeCoercion occurrences="7">
+      <code>'Laminas\Filter\FilterInterface'</code>
+      <code>'Laminas\Filter\FilterInterface'</code>
+      <code>'Laminas\Filter\FilterInterface'</code>
+      <code>'Laminas\Filter\FilterInterface'</code>
+      <code>'Laminas\Filter\FilterPluginManager'</code>
+      <code>'Laminas\Filter\FilterPluginManager'</code>
+      <code>'Laminas\Filter\StringToLower'</code>
+    </ArgumentTypeCoercion>
+    <MissingParamType occurrences="1">
+      <code>$inflector</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="33">
+      <code>_testOptions</code>
+      <code>getOptions</code>
+      <code>testAddFilterRuleAppendsRuleEntries</code>
+      <code>testAddFilterRuleMultipleTimes</code>
+      <code>testAddRulesCreatesAppropriateRuleEntries</code>
+      <code>testCheckInflectorWithPregBackreferenceLikeParts</code>
+      <code>testFilterTransformsStringAccordingToRules</code>
+      <code>testGetPluginManagerReturnsFilterManagerByDefault</code>
+      <code>testGetRule</code>
+      <code>testNoInflectableTarget</code>
+      <code>testPassingArrayToConstructorSetsStateAndRules</code>
+      <code>testPassingArrayToSetConfigSetsStateAndRules</code>
+      <code>testPassingConfigObjectToConstructorSetsStateAndRules</code>
+      <code>testPassingConfigObjectToSetConfigSetsStateAndRules</code>
+      <code>testPassingTargetToConstructorSetsTarget</code>
+      <code>testSetConfigSetsStateAndRules</code>
+      <code>testSetFilterRuleWithFilterObjectCreatesRuleEntryWithFilterObject</code>
+      <code>testSetFilterRuleWithStringRuleCreatesRuleEntryAndFilterObject</code>
+      <code>testSetPluginManagerAllowsSettingAlternatePluginManager</code>
+      <code>testSetRulesCreatesAppropriateRuleEntries</code>
+      <code>testSetStaticRuleCreatesScalarRuleEntry</code>
+      <code>testSetStaticRuleMultipleTimesOverwritesEntry</code>
+      <code>testSetStaticRuleReferenceAllowsUpdatingRuleByReference</code>
+      <code>testSetTargetByReferenceWorks</code>
+      <code>testTargetAccessorsWork</code>
+      <code>testTargetExceptionNotThrownOnIdentifierNotFollowedByCharacter</code>
+      <code>testTargetExceptionThrownWhenTargetSourceNotSatisfied</code>
+      <code>testTargetInitiallyNull</code>
+      <code>testTargetReplacementIdentiferAccessorsWork</code>
+      <code>testTargetReplacementIdentiferWorksWhenInflected</code>
+      <code>testTestForFalseInConstructorParams</code>
+      <code>testThrowTargetExceptionsAccessorsWork</code>
+      <code>testThrowTargetExceptionsOnAccessorsWork</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="11">
+      <code>$options</code>
+      <code>$options</code>
+      <code>$options</code>
+      <code>$options['rules'][':action']</code>
+      <code>$options['rules'][':controller']</code>
+      <code>$rule</code>
+      <code>$rule</code>
+      <code>$rules['action'][$key]</code>
+      <code>$rules['controller']</code>
+      <code>$rules['controller']</code>
+      <code>$rules['controller'][$key]</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="8">
+      <code>$options['rules']</code>
+      <code>$options['rules']</code>
+      <code>$options['rules']</code>
+      <code>$options['target']</code>
+      <code>$options['targetReplacementIdentifier']</code>
+      <code>$rules['action']</code>
+      <code>$rules['controller']</code>
+      <code>$rules['suffix']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="14">
+      <code>$broker</code>
+      <code>$filter</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$options</code>
+      <code>$options</code>
+      <code>$options</code>
+      <code>$options</code>
+      <code>$rule</code>
+      <code>$rule</code>
+      <code>$rules</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="5">
+      <code>getPluginManager</code>
+      <code>getRules</code>
+      <code>getTarget</code>
+      <code>getTargetReplacementIdentifier</code>
+      <code>isThrowTargetExceptionsOn</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="1">
+      <code>$rule</code>
+    </MixedOperand>
+    <PossiblyFalseArgument occurrences="17">
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+      <code>$rules</code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidArrayAccess occurrences="8">
+      <code>$rules['controller']</code>
+      <code>$rules['controller']</code>
+      <code>$rules['suffix']</code>
+      <code>$rules['suffix']</code>
+      <code>$rules[0]</code>
+      <code>$rules[0]</code>
+      <code>$rules[0]</code>
+      <code>$rules[1]</code>
+    </PossiblyInvalidArrayAccess>
+    <UndefinedThisPropertyAssignment occurrences="2">
+      <code>$this-&gt;_context</code>
+      <code>$this-&gt;_context</code>
+    </UndefinedThisPropertyAssignment>
+  </file>
+  <file src="test/IntTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'PHPUnit_Framework_Error_Deprecated'</code>
+    </ArgumentTypeCoercion>
+    <DeprecatedClass occurrences="1">
+      <code>new IntFilter()</code>
+    </DeprecatedClass>
+    <MissingReturnType occurrences="1">
+      <code>testRaisesNoticeOnInstantiation</code>
+    </MissingReturnType>
+    <ReservedWord occurrences="1">
+      <code>IntFilter</code>
+    </ReservedWord>
+    <UndefinedClass occurrences="1">
+      <code>'PHPUnit_Framework_Error_Deprecated'</code>
+    </UndefinedClass>
+  </file>
+  <file src="test/MonthSelectTest.php">
+    <MissingParamType occurrences="3">
+      <code>$expected</code>
+      <code>$input</code>
+      <code>$options</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>provideFilter</code>
+      <code>testFilter</code>
+      <code>testInvalidInput</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$options</code>
+    </MixedArgument>
+  </file>
+  <file src="test/NullTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'PHPUnit_Framework_Error_Deprecated'</code>
+    </ArgumentTypeCoercion>
+    <DeprecatedClass occurrences="1">
+      <code>new NullFilter()</code>
+    </DeprecatedClass>
+    <MissingReturnType occurrences="1">
+      <code>testRaisesNoticeOnInstantiation</code>
+    </MissingReturnType>
+    <ReservedWord occurrences="1">
+      <code>NullFilter</code>
+    </ReservedWord>
+    <UndefinedClass occurrences="1">
+      <code>'PHPUnit_Framework_Error_Deprecated'</code>
+    </UndefinedClass>
+  </file>
+  <file src="test/PregReplaceTest.php">
+    <DeprecatedMethod occurrences="1">
+      <code>PregReplaceFilter::hasPcreUnicodeSupport()</code>
+    </DeprecatedMethod>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="12">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testDetectsPcreUnicodeSupport</code>
+      <code>testFilterPerformsRegexReplacement</code>
+      <code>testFilterPerformsRegexReplacementWithArray</code>
+      <code>testFilterThrowsExceptionWhenNoMatchPatternPresent</code>
+      <code>testPassingPatternToConstructorSetsPattern</code>
+      <code>testPassingPatternWithExecModifierRaisesException</code>
+      <code>testPassingReplacementToConstructorSetsReplacement</code>
+      <code>testPatternAccessorsWork</code>
+      <code>testPatternIsNullByDefault</code>
+      <code>testReplacementAccessorsWork</code>
+      <code>testReplacementIsEmptyByDefault</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="3">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/RealPathTest.php">
+    <InvalidArgument occurrences="1">
+      <code>['unknown']</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$filter($this-&gt;_filesPath . DIRECTORY_SEPARATOR . $filename)</code>
+      <code>$input</code>
+    </MixedArgument>
+  </file>
+  <file src="test/StaticFilterTest.php">
+    <ArgumentTypeCoercion occurrences="2">
+      <code>'Laminas\Filter\FilterPluginManager'</code>
+      <code>'Laminas\Filter\FilterPluginManager'</code>
+    </ArgumentTypeCoercion>
+    <InvalidArgument occurrences="1">
+      <code>Exception\ExceptionInterface::class</code>
+    </InvalidArgument>
+    <MissingClosureParamType occurrences="2">
+      <code>$value</code>
+      <code>$value</code>
+    </MissingClosureParamType>
+    <MissingReturnType occurrences="7">
+      <code>testCanResetPluginManagerByPassingNull</code>
+      <code>testCanSpecifyCustomPluginManager</code>
+      <code>testStaticFactory</code>
+      <code>testStaticFactoryClassNotFound</code>
+      <code>testStaticFactoryWithConstructorArguments</code>
+      <code>testUsesDifferentConfigurationOnEachRequest</code>
+      <code>testUsesFilterPluginManagerByDefault</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="5">
+      <code>$filteredValue</code>
+      <code>$filteredValue</code>
+      <code>$filteredValue</code>
+      <code>$first</code>
+      <code>$second</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/StringPrefixTest.php">
+    <MissingReturnType occurrences="3">
+      <code>testInvalidPrefixes</code>
+      <code>testNonScalarInput</code>
+      <code>testWithoutPrefix</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$filter('sample')</code>
+      <code>$prefix</code>
+    </MixedArgument>
+    <MixedInferredReturnType occurrences="1">
+      <code>array</code>
+    </MixedInferredReturnType>
+  </file>
+  <file src="test/StringSuffixTest.php">
+    <MissingReturnType occurrences="3">
+      <code>testInvalidSuffixes</code>
+      <code>testNonScalarInput</code>
+      <code>testWithoutSuffix</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$filter('sample')</code>
+      <code>$suffix</code>
+    </MixedArgument>
+    <MixedInferredReturnType occurrences="1">
+      <code>array</code>
+    </MixedInferredReturnType>
+  </file>
+  <file src="test/StringToLowerTest.php">
+    <DeprecatedMethod occurrences="1">
+      <code>setMethods</code>
+    </DeprecatedMethod>
+    <InvalidArgument occurrences="3">
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="5">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testCaseInsensitiveEncoding</code>
+      <code>testDetectMbInternalEncoding</code>
+      <code>testFilterUsesGetEncodingMethod</code>
+      <code>testInitiationWithEncoding</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$input</code>
+    </MixedArgument>
+  </file>
+  <file src="test/StringToUpperTest.php">
+    <DeprecatedMethod occurrences="1">
+      <code>setMethods</code>
+    </DeprecatedMethod>
+    <InvalidArgument occurrences="3">
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+    </InvalidArgument>
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="5">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testCaseInsensitiveEncoding</code>
+      <code>testDetectMbInternalEncoding</code>
+      <code>testFilterUsesGetEncodingMethod</code>
+      <code>testInitiationWithEncoding</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$input</code>
+    </MixedArgument>
+  </file>
+  <file src="test/StringTrimTest.php">
+    <MissingParamType occurrences="1">
+      <code>$value</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="7">
+      <code>getNonStringValues</code>
+      <code>testEmptyCharList</code>
+      <code>testLaminas10891</code>
+      <code>testLaminas170</code>
+      <code>testLaminas7183</code>
+      <code>testLaminas7902</code>
+      <code>testShouldNotFilterNonStringValues</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$value</code>
+    </MixedArgument>
+  </file>
+  <file src="test/StripNewlinesTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/StripTagsTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="14">
+      <code>badCommentProvider</code>
+      <code>returnUnfilteredDataProvider</code>
+      <code>testAllowedAttributeValueMayEndWithEquals</code>
+      <code>testAttributeValueofZeroIsNotRemoved</code>
+      <code>testBadCommentTags</code>
+      <code>testCommentWithTagInSameLine</code>
+      <code>testDisallowedAttributesSplitOverMultipleLinesShouldBeStripped</code>
+      <code>testFilterCanAllowHyphenatedAttributeNames</code>
+      <code>testFilterIsoChars</code>
+      <code>testFilterIsoCharsInComment</code>
+      <code>testFilterSplitCommentTags</code>
+      <code>testMultiParamArray</code>
+      <code>testMultiQuoteInput</code>
+      <code>testNotClosedHtmlCommentAtEndOfString</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$filtered</code>
+      <code>$input</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/TestAsset/Alpha.php">
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="test/TestAsset/LowerCase.php">
+    <MixedArgument occurrences="1">
+      <code>$value</code>
+    </MixedArgument>
+  </file>
+  <file src="test/TestAsset/StripUpperCase.php">
+    <MixedArgument occurrences="1">
+      <code>$value</code>
+    </MixedArgument>
+  </file>
+  <file src="test/ToFloatTest.php">
+    <MissingReturnType occurrences="4">
+      <code>filterableValuesProvider</code>
+      <code>testCanFilterScalarValuesAsExpected</code>
+      <code>testReturnsUnfilterableInputVerbatim</code>
+      <code>unfilterableValuesProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/ToIntTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>returnUnfilteredDataProvider</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/ToNullTest.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>true</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="12">
+      <code>combinedTypeTestProvider</code>
+      <code>defaultTestProvider</code>
+      <code>duplicateTypeProvider</code>
+      <code>testCombinedTypes</code>
+      <code>testConstructorOptions</code>
+      <code>testConstructorParams</code>
+      <code>testDefault</code>
+      <code>testDuplicateInitializationResultsInCorrectType</code>
+      <code>testGettingDefaultType</code>
+      <code>testSettingFalseType</code>
+      <code>testTypes</code>
+      <code>typeTestProvider</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="3">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="4">
+      <code>$expected</code>
+      <code>$expected</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="5">
+      <code>$data</code>
+      <code>$data</code>
+      <code>$type</code>
+      <code>list($value, $expected)</code>
+      <code>list($value, $expected)</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/UpperCaseWordsTest.php">
+    <InvalidArgument occurrences="3">
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+      <code>$e-&gt;getMessage()</code>
+    </InvalidArgument>
+    <MissingReturnType occurrences="5">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testCaseInsensitiveEncoding</code>
+      <code>testDetectMbInternalEncoding</code>
+      <code>testInitiationWithEncoding</code>
+      <code>testReturnUnfiltered</code>
+    </MissingReturnType>
+  </file>
+  <file src="test/UriNormalizeTest.php">
+    <MissingParamType occurrences="6">
+      <code>$expected</code>
+      <code>$expected</code>
+      <code>$input</code>
+      <code>$input</code>
+      <code>$scheme</code>
+      <code>$url</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="6">
+      <code>abnormalUriProvider</code>
+      <code>enforcedSchemeTestcaseProvider</code>
+      <code>returnUnfilteredDataProvider</code>
+      <code>testDefaultSchemeAffectsNormalization</code>
+      <code>testEnforcedScheme</code>
+      <code>testUrisAreNormalized</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$input</code>
+      <code>$url</code>
+    </MixedArgument>
+  </file>
+  <file src="test/WhitelistTest.php">
+    <ArgumentTypeCoercion occurrences="1">
+      <code>'Laminas\Filter\Whitelist'</code>
+    </ArgumentTypeCoercion>
+    <InvalidScalarArgument occurrences="1">
+      <code>$strict</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$list</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="10">
+      <code>defaultTestProvider</code>
+      <code>listTestProvider</code>
+      <code>testConstructorDefaults</code>
+      <code>testConstructorOptions</code>
+      <code>testDefault</code>
+      <code>testList</code>
+      <code>testNullListShouldThrowException</code>
+      <code>testSetStrictShouldCastToBoolean</code>
+      <code>testTraversableConvertsToArray</code>
+      <code>testWithPluginManager</code>
+    </MissingReturnType>
+    <MixedArrayAccess occurrences="2">
+      <code>$expected</code>
+      <code>$value</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="3">
+      <code>$data</code>
+      <code>$filter</code>
+      <code>list($value, $expected)</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/CamelCaseToDashTest.php">
+    <MissingReturnType occurrences="1">
+      <code>testFilterSeparatesCamelCasedWordsWithDashes</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/CamelCaseToSeparatorNoPcreUnicodeTest.php">
+    <MissingPropertyType occurrences="1">
+      <code>$reflection</code>
+    </MissingPropertyType>
+    <MixedMethodCall occurrences="1">
+      <code>setValue</code>
+    </MixedMethodCall>
+  </file>
+  <file src="test/Word/CamelCaseToSeparatorTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="4">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testFilterSeparatesCamelCasedWordsWithProvidedSeparator</code>
+      <code>testFilterSeparatesCamelCasedWordsWithSpacesByDefault</code>
+      <code>testFilterSeperatesMultipleUppercasedLettersAndUnderscores</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="4">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/CamelCaseToUnderscoreTest.php">
+    <MissingReturnType occurrences="2">
+      <code>testFilterSeparatesCamelCasedWordsWithUnderscores</code>
+      <code>testFilterSeperatingNumbersToUnterscore</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="4">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/DashToCamelCaseTest.php">
+    <MissingReturnType occurrences="1">
+      <code>testFilterSeparatesCamelCasedWordsWithDashes</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/DashToSeparatorTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testFilterSeparatesDashedWordsWithDefaultSpaces</code>
+      <code>testFilterSeparatesDashedWordsWithSomeString</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="3">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/DashToUnderscoreTest.php">
+    <MissingReturnType occurrences="1">
+      <code>testFilterSeparatesCamelCasedWordsWithDashes</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/SeparatorToCamelCaseTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="6">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testFilterSeparatesCamelCasedNonAlphaWordsWithProvidedSeparator</code>
+      <code>testFilterSeparatesCamelCasedWordsWithProvidedSeparator</code>
+      <code>testFilterSeparatesCamelCasedWordsWithSpacesByDefault</code>
+      <code>testFilterSeparatesUniCodeCamelCasedUserWordsWithProvidedSeparator</code>
+      <code>testFilterSeparatesUniCodeCamelCasedWordsWithProvidedSeparator</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="6">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/SeparatorToDashTest.php">
+    <MissingReturnType occurrences="2">
+      <code>testFilterSeparatesDashedWordsWithDefaultSpaces</code>
+      <code>testFilterSeparatesDashedWordsWithSomeString</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="2">
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/SeparatorToSeparatorTest.php">
+    <MissingParamType occurrences="1">
+      <code>$input</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="5">
+      <code>returnUnfilteredDataProvider</code>
+      <code>testFilterSeparatesWordsByDefault</code>
+      <code>testFilterSeparatesWordsWithSearchAndReplacementSpecified</code>
+      <code>testFilterSeparatesWordsWithSearchSpecified</code>
+      <code>testFilterSupportArray</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="4">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/UnderscoreToCamelCaseTest.php">
+    <MissingReturnType occurrences="2">
+      <code>testFilterSeparatesCamelCasedWordsWithDashes</code>
+      <code>testSomeFilterValues</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="7">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/UnderscoreToDashTest.php">
+    <MissingReturnType occurrences="1">
+      <code>testFilterSeparatesCamelCasedWordsWithDashes</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/UnderscoreToSeparatorTest.php">
+    <MissingReturnType occurrences="2">
+      <code>testFilterSeparatesCamelCasedWordsDefaultSeparator</code>
+      <code>testFilterSeparatesCamelCasedWordsProvidedSeparator</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="2">
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/Word/UnderscoreToStudlyCaseTest.php">
+    <MissingReturnType occurrences="4">
+      <code>testFilterSeparatesStudlyCasedWordsWithDashes</code>
+      <code>testFiltersArray</code>
+      <code>testSomeFilterValues</code>
+      <code>testWithEmpties</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="10">
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+      <code>$filtered</code>
+    </MixedAssignment>
+  </file>
+  <file src="test/_files/TestNamespace/StringEquals.php">
+    <MixedAssignment occurrences="1">
+      <code>$element</code>
+    </MixedAssignment>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$value</code>
+    </MoreSpecificImplementedParamType>
+    <RedundantCastGivenDocblockType occurrences="2">
+      <code>(array) $value</code>
+      <code>(array) $value</code>
+    </RedundantCastGivenDocblockType>
+  </file>
+</files>
