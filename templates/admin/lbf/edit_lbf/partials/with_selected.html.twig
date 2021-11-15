@@ -1,0 +1,13 @@
+{% block withSelected %}
+{% set layoutID = true %}
+    {% if layoutID %}
+        <div class="with-selected mr-auto d-none border-left pl-2">
+            <span>{{ 'With selected'|xlt }}:&nbsp;</span>
+            <div class="btn-group btn-group-sm">
+                <button type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' disabled><i class="fa fa-angle-double-right"></i>&nbsp;{{ "Move"|xlt }}</button>
+                <button type="button" class="btn btn-secondary btn-sm" name="copyfields" id="copyfields" disabled><i class="fa fa-copy"></i>&nbsp;{{ "Copy"|xlt }}</button>
+                <button type='button' class='btn btn-secondary btn-sm btn-delete' name='deletefields' id='deletefields' disabled>{{ "Delete"|xlt }}</button>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

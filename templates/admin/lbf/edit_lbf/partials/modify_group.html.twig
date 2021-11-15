@@ -1,0 +1,37 @@
+<!-- template DIV that appears when user chooses to add a new group -->
+<div class="modal" id="{{ id }}group" tabindex="-1" aria-labelledby="{{ id }}GroupModal" aria-hidden="false">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                {% set modalTitle = (id == "rename") ? "Rename Group" : "Add New Group" %}
+                {% set btnSaveValue = (id == "rename") ? "Rename Group" : "Save New Group" %}
+                <h5 class="modal-title" id="{{ id }}GroupModal">{{ modalTitle|xlt }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'Close'|xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if id == "rename" %}
+                    <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
+                {% endif %}
+                <div class="form-group">
+                    <label for="{{ id }}groupname" class="form-label">{{ "Group Name"|xlt }}</label>
+                    <input type="text" size="20" maxlength="30" name="{{ id }}groupname" id="{{ id }}groupname" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="{{ id }}groupparent" class="form-label">{{ "Parent"|xlt }}</label>
+                    <select name="{{ id }}groupparent" class="select2 form-control" id="{{ id }}group_parent">
+                        <option value="">{{ "None{{group}}"|xlt }}</option>
+                        {% for group in groups %}
+                            <option value="{{ group.id|attr }}" {{ group.default }}>{{ group.title|text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link cancel{{ id }}group" data-dismiss="modal">{{ 'Cancel'|xl }}</button>
+                <button type="button" class="btn btn-primary btn-save save{{ id }}group">{{ btnSaveValue|xl }}</button>
+            </div>
+        </div>
+    </div>
+</div>

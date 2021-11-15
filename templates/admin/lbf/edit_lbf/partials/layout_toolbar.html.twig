@@ -1,0 +1,19 @@
+<div class="btn-toolbar ml-auto" role="toolbar" aria-label="{{ "Layout toolbar"|xla }}">
+    {% if layoutID %}
+    <div class="mr-2 btn-group btn-group-sm">
+        <button type="button" class="btn btn-secondary" onclick="edit_layout_props('')">
+            <i class="fa fa-cog"></i>&nbsp;{{ "Layout Properties"|xlt }}
+        </button>
+        <button type="button" class="btn btn-secondary btn-add" data-toggle="modal" data-target="#newgroup" onclidk="AddGroup()">{{ "Add Group"|xlt }}</button>
+        <button type="button" class="btn btn-primary btn-save" name="save" id="save">{{ "Save Changes"|xlt }}</button>
+    </div>
+    {% else %}
+    <div class="mr-2 btn-group btn-group-sm">
+        <button type="button" class="btn btn-primary btn-add btn-new" onclick="edit_layout_props('')">{{ "New Layout"|xlt }}</button>
+    </div>
+    {% endif %}
+    <div class="mr-2 btn-group btn-group-sm">
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#tips">{{ "Tips"|xlt }}</button>
+        <button type="button" class="btn btn-secondary" onclick="layoutLook();">{{ "Encounter Preview"|xlt }}</button>
+    </div>
+</div>

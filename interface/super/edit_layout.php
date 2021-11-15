@@ -20,7 +20,12 @@ require_once("$srcdir/layout.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+
+$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = $twigContainer->getTwig();
 
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
@@ -75,6 +80,49 @@ function nextGroupOrder($order)
     }
 
     return $order;
+}
+
+/**
+ * Return a multi-dimensional array of id and titles of the groups of the given $layoutID.
+ */
+function getLayouts($layoutID, $default = '') {
+    $sql = "SELECT grp_group_id, grp_title
+        FROM layout_group_properties
+        WHERE grp_form_id = ?
+        AND grp_group_id != ''
+        ORDER BY grp_group_id";
+
+    $res = sqlStatement($sql, [$layoutID]);
+    $layouts = [];
+    $arr = array();
+    $arrid = '';
+    while ($row = sqlFetchArray($res)) {
+        $thisid = $row['grp_group_id'];
+        $i = 0;
+        // Compute number of initial matching groups.
+        while ($i < strlen($thisid) && $i < strlen($arrid) && $thisid[$i] == $arrid[$i]) {
+            ++$i;
+        }
+        $arr = array_slice($arr, 0, $i); // discard the rest
+        while ($i < (strlen($arrid) - 1)) {
+            $arr[$i++] = '???'; // should not happen
+        }
+        $arr[$i] = $row['grp_title'];
+        $gval = '';
+        foreach ($arr as $part) {
+            if ($gval) {
+                $gval .= ' / ';
+            }
+            $gval .= $part;
+        }
+        $layouts[] = [
+            'id' => $thisid,
+            'title' => $gval,
+            'default' => ($thisid == $default) ? 'selected' : '',
+        ];
+    }
+
+    return $layouts;
 }
 
 // This returns HTML for a <select> that allows choice of a layout group.
@@ -703,28 +751,25 @@ function writeFieldLine($linedata)
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
 
-    //echo " <tr bgcolor='$bgcolor'>\n";
-    echo " <tr id='fld[" . attr($fld_line_no) . "]' class='" . ($fld_line_no % 2 ? 'even' : 'odd') . "'>\n";
+    echo " <tr id='fld[" . attr($fld_line_no) . "]'>\n";
 
     echo "  <td class='optcell'>";
     // tuck the group_name INPUT in here
-    echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][group]' value='" .
-         attr($linedata['group_id']) . "' class='optin' />";
+    echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][group]' value='" . attr($linedata['group_id']) . "' class='optin' />";
     // Original field ID.
-    echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" .
-         attr($linedata['field_id']) . "' />";
+    echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" . attr($linedata['field_id']) . "' />";
 
-    echo "<div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
+    echo "<div class='input-group input-group-sm'><div class='input-group-prepend'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
             "name='"  . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "id='"    . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "title='" . xla('Select field') . "' /></div></div>";
 
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][seq]' id='fld[" . attr($fld_line_no) . "][seq]' value='" .
-        attr($linedata['seq']) . "' size='2' maxlength='4' class='form-control optin' />";
+        attr($linedata['seq']) . "' size='2' maxlength='4' class='form-control form-control-sm optin' />";
     echo "</td></div>\n";
 
     echo "  <td class='text-center optcell' $lbfonly>";
-    echo "<select name='fld[" . attr($fld_line_no) . "][source]' class='form-control optin' $lbfonly>";
+    echo "<select name='fld[" . attr($fld_line_no) . "][source]' class='form-control form-control-sm optin' $lbfonly>";
     foreach ($sources as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['source']) {
@@ -740,12 +785,12 @@ function writeFieldLine($linedata)
     echo "  <td class='text-left optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][id]' value='" .
         attr($linedata['field_id']) . "' size='15' maxlength='31' " .
-         "class='form-control optin' onclick='FieldIDClicked(this)' />";
+         "class='form-control form-control-sm optin' onclick='FieldIDClicked(this)' />";
     echo "</td>\n";
 
     echo "  <td class='text-center optcell'>";
     echo "<input type='text' id='fld[" . attr($fld_line_no) . "][title]' name='fld[" . attr($fld_line_no) . "][title]' value='" .
-        attr($linedata['title']) . "' size='15' maxlength='3000' class='form-control optin' />";
+        attr($linedata['title']) . "' size='15' maxlength='3000' class='form-control form-control-sm optin' />";
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
@@ -754,7 +799,7 @@ function writeFieldLine($linedata)
     }
 
     echo "  <td class='text-center optcell'>";
-    echo "<select name='fld[" . attr($fld_line_no) . "][uor]' class='form-control optin'>";
+    echo "<select name='fld[" . attr($fld_line_no) . "][uor]' class='form-control form-control-sm optin'>";
     foreach ($UOR as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['uor']) {
@@ -767,7 +812,7 @@ function writeFieldLine($linedata)
     echo "</td>\n";
 
     echo "  <td class='text-center optcell'>";
-    echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
+    echo "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
     global $sorted_datatypes;
@@ -793,12 +838,12 @@ function writeFieldLine($linedata)
         // Show the width field
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value='" .
         attr($linedata['fld_length']) .
-        "' size='2' maxlength='10' class='form-control optin' title='" . xla('Width') . "' />";
+        "' size='2' maxlength='10' class='form-control form-control-sm optin' title='" . xla('Width') . "' />";
         if (in_array($linedata['data_type'], array(3, 40))) {
             // Show the height field
             echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='" .
             attr($linedata['fld_rows']) .
-            "' size='2' maxlength='10' class='form-control optin' title='" . xla('Height') . "' />";
+            "' size='2' maxlength='10' class='form-control form-control-sm optin' title='" . xla('Height') . "' />";
         } else {
             // Hide the height field
             echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][lengthHeight]' value='' />";
@@ -814,7 +859,7 @@ function writeFieldLine($linedata)
     echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][maxSize]' value='" .
       attr($linedata['max_length']) .
-      "' size='1' maxlength='10' class='form-control optin' " .
+      "' size='1' maxlength='10' class='form-control form-control-sm optin' " .
       "title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
     echo "</td>\n";
 
@@ -837,10 +882,10 @@ function writeFieldLine($linedata)
 
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_id]'  id='fld[" . attr($fld_line_no) . "][list_id]' value='" .
         attr($linedata['list_id']) . "' " . $type .
-        " size='6' maxlength='100' class='form-control optin listid' style='cursor: pointer;'" .
+        " size='6' maxlength='100' class='form-control form-control-sm optin listid' style='cursor: pointer;'" .
         "title='" . xla('Choose list') . "' />";
 
-        echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
+        echo "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
             $sel = '';
@@ -868,7 +913,7 @@ function writeFieldLine($linedata)
     ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .
-            "' size='3' maxlength='100' class='form-control optin listid' style='cursor:pointer;' />";
+            "' size='3' maxlength='100' class='form-control form-control-sm optin listid' style='cursor:pointer;' />";
     } else {
         echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='' />";
     }
@@ -878,12 +923,12 @@ function writeFieldLine($linedata)
 
     echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][titlecols]' value='" .
-         attr($linedata['titlecols']) . "' size='3' maxlength='10' class='form-control optin' />";
+         attr($linedata['titlecols']) . "' size='3' maxlength='10' class='form-control form-control-sm optin' />";
     echo "</td>\n";
 
     echo "  <td class='text-center optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][datacols]' value='" .
-         attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control optin' />";
+         attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control form-control-sm optin' />";
     echo "</td>\n";
     /* Below for compatibility with existing string modifiers. */
     if (!str_contains($linedata['edit_options'], ',') && isset($linedata['edit_options'])) {
@@ -894,12 +939,12 @@ function writeFieldLine($linedata)
         }
     }
     echo "  <td class='text-center optcell' title='" . xla("Add modifiers for this field type. You may select more than one.") . "'>";
-    echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons optin' size='3' multiple data-set='" .
+    echo "<select id='fld[" . attr($fld_line_no) . "][edit_options]' name='fld[" . attr($fld_line_no) . "][edit_options][]' class='typeAddons p-0 optin' size='3' multiple data-set='" .
     attr(trim($linedata['edit_options'])) . "' ></select></td>\n";
 
     if ($linedata['data_type'] == 31) {
         echo "  <td class='text-center optcell'>";
-        echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='form-control optin'>" .
+        echo "<textarea name='fld[" . attr($fld_line_no) . "][desc]' rows='3' cols='35' class='form-control form-control-sm optin'>" .
            text($linedata['description']) . "</textarea>";
         echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
          attr($linedata['default_value']) . "' />";
@@ -907,7 +952,7 @@ function writeFieldLine($linedata)
     } else {
         echo "  <td class='text-center optcell'>";
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][desc]' value='" .
-        attr($linedata['description']) . "' size='20' class='form-control optin' />";
+        attr($linedata['description']) . "' size='20' class='form-control form-control-sm optin' />";
         echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][default]' value='" .
         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
@@ -917,7 +962,7 @@ function writeFieldLine($linedata)
         }
     }
     echo "  <td class='text-center optcell'>";
-    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][codes]' id='codes_fld[" . attr($fld_line_no) . "][codes]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control optin' />";
+    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][codes]' id='codes_fld[" . attr($fld_line_no) . "][codes]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control form-control-sm optin' />";
     echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.
@@ -1118,7 +1163,7 @@ function genLayoutOptions($title = '?', $default = '')
   <title><?php echo xlt('Layout Editor'); ?></title>
   <style>
       .sticky-top {
-          top: 80px;
+          top: 43px;
           z-index: 999;
       }
 
@@ -1227,6 +1272,8 @@ function genLayoutOptions($title = '?', $default = '')
     .optin {
         color: var(--black) !important;
     }
+
+            {{ dump(layoutIDOpts)}}
   </style>
 <script>
 
@@ -1391,7 +1438,7 @@ function cidChanged(lino, seq) {
 function edit_layout_props(groupid) {
  var title = <?php echo xlj('Layout Properties');?>;
  dlgopen('edit_layout_props.php?layout_id=' + <?php echo js_url($layout_id); ?> + '&group_id=' + encodeURIComponent(groupid),
-  '_blank', 775, 550, "", title);
+  '_blank', 800, 800, "", title);
 }
 
 // callback from edit_layout_props.php:
@@ -1439,87 +1486,17 @@ function myChangeCheck() {
 
 </head>
 
-<body class="body_top admin-layout">
+<body class="body_top admin-layout m-0">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<input type="hidden" name="formaction" id="formaction" value="" />
-<!-- elements used to identify a field to delete -->
-<input type="hidden" name="deletefieldid" id="deletefieldid" value="" />
-<input type="hidden" name="deletefieldgroup" id="deletefieldgroup" value="" />
-<!-- elements used to identify a group to delete -->
-<input type="hidden" name="deletegroupid" id="deletegroupid" value="">
-<!-- elements used to change the group order -->
-<input type="hidden" name="movegroupname" id="movegroupname" value="" />
-<input type="hidden" name="movedirection" id="movedirection" value="" />
-<!-- elements used to select more than one field -->
-<input type="hidden" name="selectedfields" id="selectedfields" value="" />
-<input type="hidden" id="targetgroup" name="targetgroup" value="" />
-<input type="hidden" id="targetlayout" name="targetlayout" value="" />
-
-<div class="fixed-top py-2 px-1 bg-light text-dark">
-
-<strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
-<select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
-<?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
-</select>
-
-&nbsp;
-<label><input type='checkbox' name='form_inactive' value='1'
- title='<?php echo xla('This will abandon any edits!'); ?>'
- onclick='inactiveClicked()' <?php if ($form_inactive) {
-        echo 'checked';} ?> />
-<?php echo xlt('Include inactive'); ?></label>
-
-<?php if ($layout_id) { ?>
-<div class="btn-group ml-auto">
-    <button type='button' class='btn btn-secondary btn-sm' onclick='edit_layout_props("")'><?php echo xlt('Layout Properties'); ?></button>
-    <button type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup'><?php echo xlt('Add Group'); ?></button>
-    <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xlt('Save Changes'); ?></button>
-</div>
-<br>
-    <?php echo xlt('With selected');?>:&nbsp;
-<input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
-<input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
-<select id='copytolayout' class='form-control form-control-sm d-inline-block'
- style='width:20%;' disabled="disabled" onchange="CopyToLayout(this)">
-    <?php echo genLayoutOptions(xl('Copy to Layout...')); ?>
-</select>
-&nbsp;&nbsp;&nbsp;
-<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
-<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
-<?php } else { ?>
-<button type='button' class='btn btn-primary btn-sm btn-add btn-new' onclick='edit_layout_props("")'><?php echo xlt('New Layout'); ?></button>
-<?php } ?>
-
-<div id="tips" class="container tips">
-  <section class="card bg-light p-3">
-  <header class="card-heading">
-   <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
-  </header>
-  <div class="card-body">
-   <ul>
 <?php
-    echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after pull down activates allows search in options.") . "</li>";
-    echo "<li>" . xlt("The option Span Entire Row is useful when using Static Text in allowing text to wrap and span entire row regardless of column settings. Another use could be to create an empty row as spacer or add additional option Add Bottom Border to create a line break.Only Bottom Border Row is useful here.") . "</li>";
-    echo "<li>" . xlt("The options for Outline and Border will either wrap a row in thin border or add a border to the bottom of an item.") . "</li>";
-    echo "<li>" . xlt("If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.") . "</li>";
-    echo "<li>" . xlt("If a field's Data Col = 0 the data field will immediately follow its label field on the same line") . "</li>";
-    echo "<li>" . xlt("If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.") . "</li>";
-    echo "<li>" . xlt("Generally, the first field in a group should be Label Cols = 1 Data Cols = number of Layout columns from Group Properties.") . "</li>";
-    echo "<li>" . xlt("Make subsequent fields in the same row, Label = 0 Data = 0 and ensure enough columns are available from previous items to allow space for this new item. Otherwise result could be unpredictable") . "</li>";
-    echo "<li>" . xlt("The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics") . "</li>";
-    //echo "<li>" . xlt("") . "</li>";
-    echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
-?>
-   </ul>
-   <button class='btn btn-success btn-sm float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
-  </div>
-</section></div></div>
-<?php
+echo $twig->render('admin/lbf/edit_lbf/partials/hidden_fields.html.twig', ['csrf' => CsrfUtils::collectCsrfToken(),]);
+echo $twig->render("admin/lbf/edit_lbf/partials/main_menu.html.twig", [
+    "layoutID" => $layout_id,
+    "layoutIDOpts" => genLayoutOptions(xl('Select'), $layout_id),
+]);
 // Load array of properties for this layout and its groups.
 $grparr = array();
-$gres = sqlStatement("SELECT * FROM layout_group_properties WHERE grp_form_id = ? " .
-  "ORDER BY grp_group_id", array($layout_id));
+$gres = sqlStatement("SELECT * FROM layout_group_properties WHERE grp_form_id = ? ORDER BY grp_group_id", array($layout_id));
 while ($grow = sqlFetchArray($gres)) {
     $grparr[$grow['grp_group_id']] = $grow;
 }
@@ -1544,15 +1521,15 @@ if ($layout_id) {
         }
         if ($group_id != $prevgroup) {
             if ($firstgroup == false) {
-                echo "</tbody></table></div>\n";
+                echo "</tbody></table></div></div></div>\n";
                 echo "<div id='" . attr($group_id) . "' class='group'>";
             } else {
                 // making first group flag useful for maintaining top fixed nav bar.
-                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:80px'>";
+                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:43px'>";
             }
 
             // echo "<div id='" . $group_id . "' class='group'>";
-            echo "<div class='text bold layouts_title'>";
+            echo "<div class='text layouts_title'>";
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
@@ -1564,39 +1541,13 @@ if ($layout_id) {
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 
-            $group_id_attr = attr($group_id);
-            $group_id_attr_js = attr_js($group_id);
-            $t_vars = [
-                "xlt_add_field" => xlt("Add Field"),
-                "xlt_rename_group" => xlt("Rename Group"),
-                "xlt_delete_group" => xlt("Delete Group"),
-                "xlt_move_up" => xlt("Move Up"),
-                "xlt_move_down" => xlt("Move Down"),
-                "xlt_group_props" => xlt("Group Properties"),
-                'text_group_name' => text($gdispname),
-                'translate_group_name' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
-                'attr_gmyname' => attr($gmyname),
+            $viewVars = [
+                'groupID' => $group_id,
+                'displayName' => $gdispname,
+                'gMyName' => $gmyname,
+                'translateGroupName' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? $gdispname : "",
             ];
-            echo <<<HTML
-            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-                <span class="navbar-brand">{$t_vars['text_group_name']}&nbsp;<span class='text-success'>{$t_vars['translate_group_name']}</span></span>
-                <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
-                    <div class="btn-group mr-2" role="group" aria-label="Field Group">
-                        <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id_attr}">{$t_vars['xlt_add_field']}</button>
-                    </div>
-                    <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
-                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xlt_move_up']}</button>
-                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xlt_move_down']}</button>
-                    </div>
-                    <div class="btn-group mr-2" role="group" aria-label="Group Options">
-                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['attr_gmyname']}">{$t_vars['xlt_rename_group']}</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xlt_group_props']}</button>
-                        <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xlt_delete_group']}</button>
-                    </div>
-                </div>
-
-            </nav>
-            HTML;
+            echo $twig->render('admin/lbf/edit_lbf/partials/group_header.html.twig', $viewVars);
             $firstgroup = false;
             if (!empty($row['form_id'])) { // if this is not an empty group
                 ?>
@@ -1648,45 +1599,20 @@ if ($layout_id) {
 </tbody>
 </table>
 </div>
-
+</div>
 <?php echo $extra_html; ?>
 
 </form>
 
-<!-- template DIV that appears when user chooses to rename an existing group -->
-<div id="renamegroupdetail" class="bg-light p-3" style="border: 1px solid black; display: none; visibility: hidden;">
-<input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
-<div class="form-group">
-    <label for="renamegroupname"><?php echo xlt('Group Name'); ?>:</label>
-    <input type="text" class="form-control" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
-</div>
-<div class="form-group">
-    <label for="renamegroupparent"><?php echo xlt('Parent'); ?>:</label>
-    <?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
-</div>
-<div class="btn-group">
-    <input type="button" class="btn btn-primary btn-sm saverenamegroup btn-save" value="<?php echo xla('Rename Group'); ?>" />
-    <input type="button" class="btn btn-secondary btn-sm cancelrenamegroup" value="<?php echo xla('Cancel'); ?>" />
-</div>
-</div>
-
-<!-- template DIV that appears when user chooses to add a new group -->
-<div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
-<span class='font-weight-bold'>
-<?php echo xlt('Group Name'); ?>:
-<input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
-&nbsp;&nbsp;
-<?php echo xlt('Parent'); ?>:
-<?php echo genGroupSelector('newgroupparent', $layout_id); ?>
-<br />
-
-<input type="button" class="btn btn-primary btn-sm savenewgroup" value='<?php echo xla('Save New Group'); ?>' />
-<input type="button" class="btn btn-secondary btn-sm cancelnewgroup" value='<?php echo xla('Cancel'); ?>' />
-</span>
-</div>
+<?php
+// Reuse the modify_group template, injecting the rename or new id for easier management
+$viewVars = ['groups' => getLayouts($layout_id),];
+echo $twig->render("admin/lbf/edit_lbf/partials/modify_group.html.twig", array_merge(['id' => 'rename'], $viewVars));
+echo $twig->render("admin/lbf/edit_lbf/partials/modify_group.html.twig", array_merge(['id' => 'new'], $viewVars));
+?>
 
 <!-- template DIV that appears when user chooses to add a new field to a group -->
-<div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
+<div id="fielddetail" class="fielddetail" style="visibility:hidden; display:none;">
 <input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="" />
 <div class="table-responsive">
 <table class="table table-sm" style="border-collapse: collapse;">
@@ -1764,15 +1690,19 @@ foreach ($sorted_datatypes as $key => $value) {
    <td><input type='text' class='form-control' name="newcodes" id="newcodes" value="" onclick='select_clin_term_code(this)' size='10' maxlength='255' /> </td>
   </tr>
   <tr>
-   <td colspan="9">
-    <input type="button" class="btn btn-primary btn-sm savenewfield" value='<?php echo xla('Save New Field'); ?>' />
-    <input type="button" class="btn btn-secondary btn-sm cancelnewfield" value='<?php echo xla('Cancel'); ?>' />
+   <td colspan="15">
+       <div class="w-100 justify-content-end d-flex">
+           <button type="button" class="btn btn-link btn-sm cancelnewfield"><?php echo xla('Cancel'); ?></button>
+           <button type="button" class="btn btn-primary btn-save btn-sm savenewfield"><?php echo xla('Save New Field'); ?></button>
+       </div>
    </td>
   </tr>
  </tbody>
 </table>
 </div>
 </div>
+
+<?php echo $twig->render("admin/lbf/edit_lbf/partials/tips.html.twig", []); ?>
 
 <script>
 /* Field modifier objects - heading towards context based.
@@ -1821,6 +1751,52 @@ var selectedfield;
 
 // Support for beforeunload handler.
 var somethingChanged = false;
+
+/**
+ * @var The running number of selected boxes to make batch changes
+ */
+let selected_count = 0;
+
+/**
+ * Handle changes of the select checkboxes for show/hiding the "With Selected" box
+ */
+let selectField = {
+    // The number of selected fields
+    count: 0,
+
+    // Selector for container div of with selection options
+    withDiv: '.with-selected',
+
+    // Selector to attach the change listner to
+    inputSelector: 'input.selectfield',
+
+    updateCount: function(field) {
+        this.count = (field.checked) ? this.count + 1 : this.count - 1;
+        return selectField;
+    },
+
+    updateVisibility: function(field) {
+        let displayDiv = document.querySelector(this.withDiv);
+        if (this.count > 0) {
+            displayDiv.classList.toggle('d-block');
+            displayDiv.classList.toggle('d-none', false);
+        } else {
+            displayDiv.classList.toggle('d-block', false);
+            displayDiv.classList.toggle('d-none');
+        }
+        return selectField;
+    },
+
+    addEventListeners: function () {
+        document.querySelectorAll(this.inputSelector).forEach(i => {
+            i.addEventListener('change', e => { this.updateCount(e.target).updateVisibility(e.target); });
+        });
+    },
+}
+
+// Attach the "With selected" functionality to the DOM
+window.addEventListener('DOMContentLoaded', () => { selectField.addEventListeners(); });
+
 
 // Get the next logical sequence number for a field in the specified group.
 // Note it guesses and uses the existing increment value.
@@ -1994,13 +1970,6 @@ $(function () {
     var AddGroup = function(btnObj) {
         if (!myChangeCheck()) return;
         $("#save").attr("disabled", true);
-        // show the field details DIV
-        $('#groupdetail').css('visibility', 'visible');
-        $('#groupdetail').css('display', 'block');
-        $('#groupdetail').css('margin-top', '85px');
-        $(btnObj).parent().after($("#groupdetail"));
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        $('#groupdetail > #newgroupname').focus();
     };
 
     // save the new group to the form
@@ -2037,13 +2006,9 @@ $(function () {
 
     // just hide the new field DIV
     var CancelNewGroup = function(btnObj) {
-        // hide the field details DIV
-        $('#groupdetail').css('visibility', 'hidden');
-        $('#groupdetail').css('display', 'none');
         // reset the new group values to a default
         $('#groupdetail > #newgroupname').val("");
         $('#groupdetail > #newgroupparent').val("");
-        $("#save").attr("disabled", false);
     };
 
     // display the 'new field' DIV
@@ -2064,14 +2029,12 @@ $(function () {
     var RenameGroup = function(btnObj) {
         if (!myChangeCheck()) return;
         $("#save").attr("disabled", true);
-        $('#renamegroupdetail').css('visibility', 'visible');
-        $('#renamegroupdetail').css('display', 'block');
-        $(btnObj).parent().append($("#renamegroupdetail"));
         var parts = $(btnObj).attr("id").split("~");
         $('#renameoldgroupname').val(parts[0]); // this is actually the existing group ID
         $('#renamegroupname').val(parts[1]);    // the textual name of just this group
         var i = parts[0].length;
         $('[name=renamegroupparent]').val(i > 0 ? parts[0].substr(0, i-1) : ''); // parent ID
+        $("#renamegroup").modal('show')
     }
 
     // save the new group to the form
@@ -2117,7 +2080,7 @@ $(function () {
         // show the field details DIV
         $('#fielddetail').css('visibility', 'visible');
         $('#fielddetail').css('display', 'block');
-        $(btnObj).parent().append($("#fielddetail"));
+        $(btnObj).parents('.group-header').after($("#fielddetail"));
         // Assign a sensible default sequence number.
         $('#newseq').val(getNextSeq(groupid));
     };

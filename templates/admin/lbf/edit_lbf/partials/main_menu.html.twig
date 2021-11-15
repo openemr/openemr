@@ -1,0 +1,18 @@
+<div class="fixed-top p-1 bg-light text-dark">
+    <div class="d-flex">
+        <div class="mr-3">
+            {{ "Edit layout"|xlt }}&nbsp;
+            <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block w-50 mb-1'>
+                {{ layoutIDOpts }}
+            </select>
+            <label>
+                <input type='checkbox' name='form_inactive' value='1'
+                    title='{{ "This will abandon any edits!"|xla }}'
+                    onclick='inactiveClicked()' {{ (formInactive) ? "checked" : "" }} />
+                    {{ "Include inactive"|xlt }}
+            </label>
+        </div>
+        {{ include("admin/lbf/edit_lbf/partials/layout_toolbar.html.twig") }}
+        {{ include("admin/lbf/edit_lbf/partials/with_selected.html.twig") }}
+    </div>
+</div>
