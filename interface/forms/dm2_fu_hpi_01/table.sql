@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
 `authorized` tinyint(4) default 0,
 `activity` tinyint(4) default 0,
 `date_of_original_dm2_diagnosis` text,
-`subjective` text,
+`date_last_dm2_visit` text,
 `objective` text,
 `assessment` text,
 `plan` text,

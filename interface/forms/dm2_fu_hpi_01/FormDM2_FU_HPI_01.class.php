@@ -45,7 +45,7 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     var $authorized;
     var $activity;
     var $date_of_original_dm2_diagnosis;
-    var $subjective;
+    var $date_last_dm2_visit;
     var $objective;
     var $assessment;
     var $plan;
@@ -147,14 +147,14 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     {
         $this->date_of_original_dm2_diagnosis = $data;
     }
-    function get_subjective()
+    function get_date_last_dm2_visit()
     {
-        return $this->subjective;
+        return $this->date_last_dm2_visit;
     }
-    function set_subjective($data)
+    function set_date_last_dm2_visit($data)
     {
         if (!empty($data)) {
-            $this->subjective = $data;
+            $this->date_last_dm2_visit = $data;
         }
     }
     function get_objective()
