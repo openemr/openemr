@@ -46,7 +46,7 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     var $activity;
     var $date_of_original_dm2_diagnosis;
     var $date_last_dm2_visit;
-    var $objective;
+    var $dm2_mgmt_last_visit;
     var $assessment;
     var $plan;
 
@@ -157,14 +157,14 @@ class FormDM2_FU_HPI_01 extends ORDataObject
             $this->date_last_dm2_visit = $data;
         }
     }
-    function get_objective()
+    function get_dm2_mgmt_last_visit()
     {
-        return $this->objective;
+        return $this->dm2_mgmt_last_visit;
     }
-    function set_objective($data)
+    function set_dm2_mgmt_last_visit($data)
     {
         if (!empty($data)) {
-            $this->objective = $data;
+            $this->dm2_mgmt_last_visit = $data;
         }
     }
     function get_assessment()
