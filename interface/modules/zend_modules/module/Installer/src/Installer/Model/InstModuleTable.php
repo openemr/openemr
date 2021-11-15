@@ -16,11 +16,15 @@
 
 namespace Installer\Model;
 
+use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
 use Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
 {
@@ -43,6 +47,9 @@ class InstModuleTable
      */
     private $module_zend_path;
 
+    const MODULE_TYPE_ZEND = 1;
+    const MODULE_TYPE_CUSTOM = 0;
+
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
@@ -58,7 +65,7 @@ class InstModuleTable
     /**
      * Get All Modules Configuration Settings
      *
-     * @return type
+     * @return Result
      */
     public function getConfigSettings($id)
     {
@@ -74,12 +81,50 @@ class InstModuleTable
      * @param type $dir
      * @return boolean
      */
-    public function installSQL($dir)
+    public function installSQL($modId, $mod_type, $dir)
     {
-        $sqltext = (file_exists($dir . "/table.sql") ? $dir . "/table.sql" : $dir . "/install.sql");
+        // TODO: we will leave zend modules alone for now until we can come up with a mechanism to allow them to have
+        // backwards compatability to fix the sql line bug.
+        $installScript = $this->getInstallScript($dir);
+        if (empty($installScript)) {
+            error_log("install script does not exist. skipping InstModuleTable->installSQL for module");
+            return true; // no install so we skip this
+        }
+        if ($mod_type == self::MODULE_TYPE_ZEND) {
+            // first try with the sql folder then try w/o the sql folder
+            return $this->installSQLWithLineSplitter($installScript);
+        } else {
+            return $this->installSQLWithUpgradeService($installScript);
+        }
 
-        if (file_exists($sqltext)) {
-            if ($sqlarray = @file($sqltext)) {
+        return false;
+    }
+
+    private function getInstallScript($dir)
+    {
+        if (file_exists($dir . "/sql")) {
+            $fulldir = $dir . "/sql";
+            $sqltext = (file_exists($fulldir . "/table.sql") ? $fulldir . "/table.sql" : $fulldir . "/install.sql");
+
+            if (file_exists($sqltext)) {
+                return $sqltext;
+            }
+        }
+
+        if (file_exists($dir)) {
+            $sqltext = (file_exists($dir . "/table.sql") ? $dir . "/table.sql" : $dir . "/install.sql");
+
+            if (file_exists($sqltext)) {
+                return $sqltext;
+            }
+        }
+        return null;
+    }
+
+    private function installSQLWithLineSplitter($installScript)
+    {
+        if (file_exists($installScript)) {
+            if ($sqlarray = @file($installScript)) {
                 $sql = implode("", $sqlarray);
 
                 $specialPattern = '/#SpecialSql[\w\W]*#EndSpecialSql/sU';
@@ -87,6 +132,8 @@ class InstModuleTable
                 preg_match_all($specialPattern, $sql, $specialMatches);
                 //separate spacial sql and clean sql string
                 $sql = preg_replace($specialPattern, $specialReplacement, $sql);
+                // Note: this fails if there are any semicolon(;) characters in a string constant
+                // this is why we migrated to installSQLWithUpgradeService
                 $sqla = explode(";", $sql);
 
                 foreach ($sqla as $sqlq) {
@@ -114,10 +161,40 @@ class InstModuleTable
 
                 return true;
             } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private function installSQLWithUpgradeService($installScript)
+    {
+        if (file_exists($installScript)) {
+            try {
+                // TODO: do we want to display any kind of message of the statements that were executed like we do in
+                // sql_upgrade.php ??
+                $fileName = basename($installScript);
+                $dir = dirname($installScript);
+                $sqlUpgradeService = new SQLUpgradeService();
+                $sqlUpgradeService->setThrowExceptionOnError(true);
+                $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
+                $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
+            } catch (SqlQueryException $exception) {
+                (new SystemLogger())->errorLogCaller(
+                    "Error: " . $exception->getMessage(),
+                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+                );
+                return false;
+            } catch (\Exception $exception) {
+                (new SystemLogger())->errorLogCaller(
+                    "Error: " . $exception->getMessage(),
+                    ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+                );
+                return false;
             }
         } else {
-            return true;
+            return false;
         }
     }
 
@@ -199,23 +276,25 @@ class InstModuleTable
             }
 
             $section_id++;
+            $mod_type = self::MODULE_TYPE_ZEND;
             if ($base != "custom_modules") {
                 $added = "module/";
-
                 $sql = "INSERT INTO modules SET mod_id = ?,  mod_name = ?,
                                       mod_active = ?,
                                       mod_ui_name = ?,
                                       mod_relative_link = ?,
-                                      type=1,
                                       mod_directory = ?,
+                                      type=?,
                                       date=NOW()
                                       ";
             } else {
+                $mod_type = self::MODULE_TYPE_CUSTOM;
                 $sql = "INSERT INTO modules SET mod_id = ?,  mod_name = ?,
                                       mod_active = ?,
                                       mod_ui_name = ?,
                                       mod_relative_link = ?,
                                       mod_directory = ?,
+                                      type=?,
                                       date=NOW()
                                       ";
             }
@@ -227,6 +306,7 @@ class InstModuleTable
                 $uiname,
                 strtolower($rel_path),
                 $directory,
+                $mod_type
             );
 
             $result = $this->applicationTable->zQuery($sql, $params);
@@ -278,12 +358,12 @@ class InstModuleTable
 
     /**
      * @param int    $id
-     * @param string $cols
+     * @param string $cols -- This field is unused! TODO: remove this field
      * @return Ambigous <boolean, unknown>
      */
     function getRegistryEntry($id, $cols = "")
     {
-        $sql = "SELECT mod_directory, sql_version, acl_version FROM modules WHERE mod_id = ?";
+        $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
         $results = $this->applicationTable->zQuery($sql, array($id));
 
         $resultSet = new ResultSet();
@@ -359,8 +439,13 @@ class InstModuleTable
             $sql = "DELETE FROM modules WHERE mod_id = ?";
             $results = $this->applicationTable->zQuery($sql, array($id));
         }
-
-        return stripos($results, 'ERROR') !== false ? 'success' : 'failure';
+        if ($results == false) {
+            return 'failure';
+        } else if (is_string($results) && stripos($results, 'ERROR') !== false) {
+            return 'failure';
+        } else {
+            return 'success';
+        }
     }
 
     /**

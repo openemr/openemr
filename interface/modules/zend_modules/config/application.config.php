@@ -18,6 +18,7 @@ $core_modules = [
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
     'FHIR', // Handles FHIR mapped uuid population and other FHIR utility functions
+    'PatientFlowBoard', // Handle any functionality needed for the patient flow board
 ];
 
 /**

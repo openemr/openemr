@@ -1261,3 +1261,25 @@ UPDATE `layout_options` SET `codes` = 'SNOMED-CT:67822003' WHERE `form_id` = 'HI
 #IfNotRow3D layout_options form_id DEM field_id pubpid max_length 255
 UPDATE `layout_options` SET `max_length` = '255' WHERE `form_id` = 'DEM' AND `field_id` = 'pubpid';
 #EndIf
+
+#IfMissingColumn form_observation ob_status
+ALTER TABLE `form_observation` ADD `ob_status` VARCHAR(32) NULL;
+#EndIf
+#IfMissingColumn form_observation result_status
+ALTER TABLE `form_observation` ADD `result_status` VARCHAR(32) NULL;
+#EndIf
+#IfMissingColumn form_observation ob_reason_status
+ALTER TABLE `form_observation` ADD `ob_reason_status` VARCHAR(32) NULL;
+#EndIf
+#IfMissingColumn form_observation ob_reason_code
+ALTER TABLE `form_observation` ADD `ob_reason_code` VARCHAR(32) NULL;
+#EndIf
+#IfMissingColumn form_observation ob_reason_text
+ALTER TABLE `form_observation` ADD `ob_reason_text` TEXT;
+#EndIf
+#IfMissingColumn form_observation ob_documentationof_table
+ALTER TABLE `form_observation` ADD `ob_documentationof_table` VARCHAR(255) NULL;
+#EndIf
+#IfMissingColumn form_observation ob_documentationof_table_id
+ALTER TABLE `form_observation` ADD `ob_documentationof_table_id` BIGINT(21) NULL;
+#EndIf

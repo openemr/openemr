@@ -236,6 +236,8 @@
         elOptNew.text = text0 + seperator + text1;
         FromDateValue = document.getElementById(FromDate).value;
         ToDateValue = document.getElementById(ToDate).value;
+        // only require biller to enter from date
+        ToDateValue = (ToDateValue == '') ? FromDateValue : ToDateValue;
         if (Type == 'date') {
             elOptNew.value = value0 + "|between|" + FromDateValue + "|" + ToDateValue;
         }

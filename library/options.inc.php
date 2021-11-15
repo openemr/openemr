@@ -4,6 +4,7 @@
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 // Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (c) 2021 Robert Down <robertdown@live.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,6 +37,7 @@
 // P = Default to previous value when current value is not yet set
 // R = Distributor types only (address book)
 // T = Use description as default Text
+// DAP = Use description as placeholder
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
 // 0 = Read Only - the input element's "disabled" property is set
@@ -206,19 +208,19 @@ function generate_select_list(
             // do translate
             if ($GLOBALS['gb_how_sort_list'] == '0') {
                 // order by seq
-                $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
+                $order_by_sql = "lo.seq, title";
             } else { //$GLOBALS['gb_how_sort_list'] == '1'
                 // order by title
-                $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
+                $order_by_sql = "title, lo.seq";
             }
             $lres = sqlStatement(
                 "SELECT lo.option_id, lo.is_default, " .
-                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                "COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld " .
+                "WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? " .
+                "AND ld.definition IS NOT NULL AND ld.definition != '' " .
+                "LIMIT 1), lo.title) AS title " .
                 "FROM list_options AS lo " .
-                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
-                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                "ld.lang_id = ? " .
-                "WHERE lo.list_id = ?  AND lo.activity = ? " .
+                "WHERE lo.list_id = ? AND lo.activity = ? " .
                 "ORDER BY " . $order_by_sql,
                 array($lang_id, $list_id, $active)
             );
@@ -535,6 +537,9 @@ function generate_form_field($frow, $currvalue)
         $description = '';
     }
 
+    // Support using the description as a placeholder
+    $placeholder = (isOption($edit_options, 'DAP') === true) ? " placeholder='{$description}' " : '';
+
     // added 5-2009 by BM to allow modification of the 'empty' text title field.
     //  Can pass $frow['empty_title'] with this variable, otherwise
     //  will default to 'Unassigned'.
@@ -603,6 +608,7 @@ function generate_form_field($frow, $currvalue)
                 " id='form_text_" . attr($field_id) . "'" .
                 " size='" . attr($frow['fld_length']) . "'" .
                 " class='form-control'" .
+                $placeholder .
                 " " . ((!empty($frow['max_length'])) ? "maxlength='" . attr($frow['max_length']) . "'" : "") . " " .
                 " style='" . $display . "'" .
                 " value='" . attr($comment) . "'/>";
@@ -616,14 +622,15 @@ function generate_form_field($frow, $currvalue)
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'" .
-        " class='form-control$smallform'" .
-        " name='form_$field_id_esc'" .
-        " id='form_$field_id_esc'" .
-        " size='$fldlength'" .
-        " $string_maxlength" .
-        " title='$description'" .
-        " value='$currescaped'";
+        echo "<input type='text'
+            class='form-control{$smallform}'
+            name='form_{$field_id_esc}'
+            id='form_{$field_id_esc}'
+            size='{$fldlength}'
+            {$string_maxlength}
+            {$placeholder}
+            title='{$description}'
+            value='{$currescaped}'";
         $tmp = $lbfchange;
         if (isOption($edit_options, 'C') !== false) {
             $tmp .= "capitalizeMe(this);";
@@ -662,6 +669,7 @@ function generate_form_field($frow, $currvalue)
         " class='form-control$smallform'" .
         " id='form_$field_id_esc'" .
         " title='$description'" .
+        $placeholder .
         " cols='$textCols'" .
         " rows='$textRows' $lbfonchange $disabled" .
         ">" . $currescaped . "</textarea>";
@@ -1106,6 +1114,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
+            $placeholder .
             " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$optionValue'";
@@ -1554,7 +1563,7 @@ function generate_form_field($frow, $currvalue)
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div>"; // wrapper for myHideOrShow()
-        echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
+        echo "<div id='form_$field_id_esc' style='width:${mywidth}px; height:${myheight}px;'></div>";
         // Hidden form field exists to send updated data to the server at submit time.
         echo "<input type='hidden' name='form_$field_id_esc' value='' />";
         // Hidden image exists to support initialization of the canvas.
@@ -4876,7 +4885,7 @@ EOD;
  * @param string $test
  * @return boolean
  */
-function isOption($options, $test)
+function isOption($options, string $test): bool
 {
     if (empty($options) || !isset($test) || $options == "null") {
         return false; // why bother?
