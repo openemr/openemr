@@ -25,8 +25,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\UserService;
-
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -603,6 +604,15 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     }
 }
 
+if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
+    /**
+     * @var EventDispatcher
+     */
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $encounterMenuEvent = new EncounterMenuEvent($menuArray);
+    $dispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
+}
+
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 $t = $twig->getTwig();
 echo $t->render('encounter/forms/navbar.html.twig', [
@@ -610,7 +620,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
     'patientName' => $patientName,
     'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
     'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
-    'menuArray' => $menuArray,
+    'menuArray' => $encounterMenuEvent->getM,
     'moduleMenuArray' => $moduleMenuArray,
 ]);
 ?>
