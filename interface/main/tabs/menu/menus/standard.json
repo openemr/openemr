@@ -436,7 +436,7 @@
       {
         "label": "Billing Manager",
         "menu_id": "bil0",
-        "target": "bil",
+        "target": "bil0",
         "url": "/interface/billing/billing_report.php",
         "children": [],
         "requirement": 0,
