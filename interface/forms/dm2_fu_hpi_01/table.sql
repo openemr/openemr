@@ -11,5 +11,6 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
 `dm2_mgmt_last_visit` text,
 `intv_hx_chngs_bs_er_hosp` text,
 `severity_significance` text,
+`pt_diet_exercise` text,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;

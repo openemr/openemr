@@ -35,7 +35,7 @@
                         <legend>{xlt t='DM2 Management Actions at Last Visit'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="dm2_mgmt_last_visit" class="form-control" cols="60" rows="6"
+                                <textarea name="dm2_mgmt_last_visit" class="form-control" cols="60" rows="4"
                                           onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_mgmt_last_visit()|text}</textarea>
                             </div>
                         </div>
@@ -53,8 +53,17 @@
                         <legend>{xlt t='Severity and Significance of Symptoms, History, Observations'}</legend>
                         <div class="container">
                             <div class="form-group">
-                                <textarea name="severity_significance" class="form-control" cols="60" rows="6"
+                                <textarea name="severity_significance" class="form-control" cols="60" rows="2"
                                           onkeyup="top.isDM2FUEdit = true;">{$data->get_severity_significance()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Diet and Exercise'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="pt_diet_exercise" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_pt_diet_exercise()|text}</textarea>
                             </div>
                         </div>
                     </fieldset>

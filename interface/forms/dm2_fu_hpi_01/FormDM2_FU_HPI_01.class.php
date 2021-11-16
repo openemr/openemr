@@ -49,6 +49,7 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     var $dm2_mgmt_last_visit;
     var $intv_hx_chngs_bs_er_hosp;
     var $severity_significance;
+    var $pt_diet_exercise;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -185,6 +186,16 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     {
         if (!empty($data)) {
             $this->severity_significance = $data;
+        }
+    }
+    function get_pt_diet_exercise()
+    {
+        return $this->pt_diet_exercise;
+    }
+    function set_pt_diet_exercise($data)
+    {
+        if (!empty($data)) {
+            $this->pt_diet_exercise = $data;
         }
     }
 
