@@ -506,9 +506,10 @@ for ($cols = 2; $cols <= 12; ++$cols) {
 <?php } ?>
 
 </table>
-
-<input type='submit' class='btn btn-primary' name='form_submit' value='<?php echo xla('Submit'); ?>' />
-<input type='button' class='btn btn-secondary' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+<div class="d-flex w-100 justify-content-end">
+    <button type='button' class='btn btn-link' onclick='window.close()'><?php echo xla('Cancel'); ?></button>
+    <button type='submit' class='btn btn-primary btn-save' name='form_submit'><?php echo xla('Save'); ?></button>
+</div>
 </center>
 </form>
 <script>
