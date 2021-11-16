@@ -19,7 +19,6 @@ function dictation_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = formFetch("form_dictation", $id);
     if ($data) {
-        print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
                 $key == "id" || $key == "pid" || $key == "user" ||
@@ -34,15 +33,9 @@ function dictation_report($pid, $encounter, $cols, $id)
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
-            nl2br(text($value)) . "</span></td>";
-            $count++;
-            if ($count == $cols) {
-                $count = 0;
-                print "</tr><tr>\n";
-            }
+            print "<h3>" . xlt($key) . ": </h3>" .
+                "<p>" . nl2br(text($value)) . "</p>";
+            $count++;            
         }
     }
-
-    print "</tr></table>";
 }

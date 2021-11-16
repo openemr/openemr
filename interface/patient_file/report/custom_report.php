@@ -804,7 +804,6 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                             // call the report function for the form
                             ?>
-                            <div name="search_div" id="search_div_<?php echo attr($form_id) ?>_<?php echo attr($res[1]) ?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                                 <?php
                                 $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                                 if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
@@ -827,7 +826,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 }
                                 ?>
 
-                            </div>
                             <?php
 
                             if ($res[1] == 'newpatient') {

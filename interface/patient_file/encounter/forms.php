@@ -584,7 +584,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE pid = ? AND encounter = ? LIMIT 1", [$pid, $encounter]);
-    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
+    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || (!$authPostCalendarCategory ?? '')) {
         $pass_sens_squad = false;
     }
     // for therapy group

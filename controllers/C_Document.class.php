@@ -803,7 +803,7 @@ class C_Document extends Controller
                     header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
                     header("Content-Type: " . $d->get_mimetype());
                     header("Content-Length: " . strlen($filetext ?? ''));
-                    echo $filetext;
+                    echo $filetext ?? '';
                 }
                 exit;
             } else {

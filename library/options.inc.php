@@ -3511,7 +3511,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
             $currvalue  = '';
             $jump_new_row = isOption($frow['edit_options'], 'J');
             $prepend_blank_row = isOption($frow['edit_options'], 'K');
-            $portal_exclude = ($_SESSION["patient_portal_onsite_two"] && isOption($frow['edit_options'], 'EP')) ?? null;
+            $portal_exclude = ($_SESSION["patient_portal_onsite_two"] ?? '' && isOption($frow['edit_options'], 'EP')) ?? null;
 
             if (!empty($portal_exclude)) {
                 continue;
