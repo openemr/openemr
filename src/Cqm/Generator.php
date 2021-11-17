@@ -50,8 +50,8 @@ class Generator
         $extends = [];
         $hqmfOid_to_datatype_map = [];
         $root = $GLOBALS['fileroot'];
-        $oids_file = $root . '/node_modules/cqm-models/data/oids_qdm_5.5.json';
-        $modelinfo_file = $root . '/node_modules/cqm-models/modelinfo/qdm-modelinfo-5.5.xml';
+        $oids_file = __DIR__ . '/oids_qdm_5.5.json';
+        $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.5.xml';
         $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file));
         $oids = json_decode(file_get_contents($oids_file), true);
 

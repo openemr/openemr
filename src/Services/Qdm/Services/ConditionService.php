@@ -1,28 +1,17 @@
 <?php
 
-namespace OpenEMR\Services\Qdm;
+namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\Diagnosis;
-use OpenEMR\Services\ConditionService as BaseService;
-use OpenEMR\Services\Qdm\Interfaces\MakesQdmModelInterface;
-use OpenEMR\Services\Search\BasicSearchField;
-use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 
-class ConditionService extends BaseService implements MakesQdmModelInterface
+class ConditionService extends AbstractQdmService
 {
-    public function fetchAllByPid($pid)
+    public function executeQuery()
     {
-        $search = new TokenSearchField('pid', $pid, false);
-        $result = sqlQuery("SELECT uuid from patient_data where pid = ?", [$pid]);
-        $uuid = UuidRegistry::uuidToString($result['uuid']);
-        $processingResult = $this->getAll(['puuid' => new TokenSearchField('puuid', $uuid, true)]);
-        $records = $processingResult->getData();
-        return $records;
+
     }
 
     /**

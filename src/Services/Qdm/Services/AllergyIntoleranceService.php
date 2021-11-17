@@ -1,23 +1,17 @@
 <?php
 
-namespace OpenEMR\Services\Qdm;
+namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Cqm\Qdm\AllergyIntolerance;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
-use OpenEMR\Services\AllergyIntoleranceService as BaseService;
-use OpenEMR\Services\Qdm\Interfaces\MakesQdmModelInterface;
 use OpenEMR\Services\Search\TokenSearchField;
 
-class AllergyIntoleranceService extends BaseService implements MakesQdmModelInterface
+class AllergyIntoleranceService extends AbstractQdmService
 {
-    public function fetchAllByPid($pid)
+    public function fetch()
     {
-        $result = sqlQuery("SELECT uuid from patient_data where pid = ?", [$pid]);
-        $uuid = UuidRegistry::uuidToString($result['uuid']);
-        $processingResult = $this->getAll(['puuid' => new TokenSearchField('puuid', $uuid, true)]);
-        $records = $processingResult->getData();
-        return $records;
+
     }
 
     public function makeQdmModel(array $record)

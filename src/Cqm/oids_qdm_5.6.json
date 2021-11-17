@@ -1,0 +1,335 @@
+{
+    "adverse_event": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.120",
+        "qrda_oid": "",
+        "qdm_category": "adverse_event",
+        "qdm_status": ""
+    },
+    "allergy_intolerance": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.119",
+        "qrda_oid": "",
+        "qdm_category": "allergy",
+        "qdm_status": "intolerance"
+    },
+    "assessment_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.131",
+        "qrda_oid": "",
+        "qdm_category": "assessment",
+        "qdm_status": "order"
+    },
+    "assessment_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.117",
+        "qrda_oid": "",
+        "qdm_category": "assessment",
+        "qdm_status": "performed"
+    },
+    "assessment_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.118",
+        "qrda_oid": "",
+        "qdm_category": "assessment",
+        "qdm_status": "recommended"
+    },
+    "care_goal": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.7",
+        "qrda_oid": "",
+        "qdm_category": "care_goal",
+        "qdm_status": ""
+    },
+    "care_partner": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.134",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.160"
+    },
+    "communication_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.132",
+        "qrda_oid": "",
+        "qdm_category": "communication",
+        "qdm_status": "performed"
+    },
+    "device_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.15",
+        "qrda_oid": "",
+        "qdm_category": "device",
+        "qdm_status": "order"
+    },
+    "device_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.16",
+        "qrda_oid": "",
+        "qdm_category": "device",
+        "qdm_status": "recommended"
+    },
+    "diagnosis": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.110",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.135",
+        "qdm_category": "condition",
+        "qdm_status": ""
+    },
+    "diagnostic_study_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.22",
+        "qrda_oid": "",
+        "qdm_category": "diagnostic_study",
+        "qdm_status": "order"
+    },
+    "diagnostic_study_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.23",
+        "qrda_oid": "",
+        "qdm_category": "diagnostic_study",
+        "qdm_status": "performed"
+    },
+    "diagnostic_study_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.24",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.19",
+        "qdm_category": "diagnostic_study",
+        "qdm_status": "recommended"
+    },
+    "encounter_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.27",
+        "qrda_oid": "",
+        "qdm_category": "encounter",
+        "qdm_status": "order"
+    },
+    "encounter_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.5",
+        "qrda_oid": "",
+        "qdm_category": "encounter",
+        "qdm_status": "performed"
+    },
+    "encounter_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.28",
+        "qrda_oid": "",
+        "qdm_category": "encounter",
+        "qdm_status": "recommended"
+    },
+    "family_history": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.111",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.12",
+        "qdm_category": "family_history",
+        "qdm_status": ""
+    },
+    "immunization_administered": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.112",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.140",
+        "qdm_category": "immunization",
+        "qdm_status": "administered"
+    },
+    "immunization_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.113",
+        "qrda_oid": "",
+        "qdm_category": "immunization",
+        "qdm_status": "order"
+    },
+    "intervention_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.35",
+        "qrda_oid": "",
+        "qdm_category": "intervention",
+        "qdm_status": "order"
+    },
+    "intervention_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.36",
+        "qrda_oid": "",
+        "qdm_category": "intervention",
+        "qdm_status": "performed"
+    },
+    "intervention_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.37",
+        "qrda_oid": "",
+        "qdm_category": "intervention",
+        "qdm_status": "recommended"
+    },
+    "laboratory_test_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.41",
+        "qrda_oid": "",
+        "qdm_category": "laboratory_test",
+        "qdm_status": "order"
+    },
+    "laboratory_test_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.42",
+        "qrda_oid": "",
+        "qdm_category": "laboratory_test",
+        "qdm_status": "performed"
+    },
+    "laboratory_test_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.43",
+        "qrda_oid": "",
+        "qdm_category": "laboratory_test",
+        "qdm_status": "recommended"
+    },
+    "location": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.142",
+        "qrda_oid": ""
+    },
+    "medication_active": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.44",
+        "qrda_oid": "",
+        "qdm_category": "medication",
+        "qdm_status": "active"
+    },
+    "medication_administered": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.45",
+        "qrda_oid": "",
+        "qdm_category": "medication",
+        "qdm_status": "administered"
+    },
+    "medication_discharge": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.48",
+        "qrda_oid": "",
+        "qdm_category": "medication",
+        "qdm_status": "discharge"
+    },
+    "medication_dispensed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.49",
+        "qrda_oid": "",
+        "qdm_category": "medication",
+        "qdm_status": "dispensed"
+    },
+    "medication_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.51",
+        "qrda_oid": "",
+        "qdm_category": "medication",
+        "qdm_status": "order"
+    },
+    "organization": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.135",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.163"
+    },
+    "participation": {
+        "hqmf_title": "Program Participation",
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.130",
+        "qrda_oid": "",
+        "qdm_category": "participation",
+        "qdm_status": ""
+    },
+    "patient_care_experience": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.52",
+        "qrda_oid": "",
+        "qdm_category": "care_experience",
+        "qdm_status": ""
+    },
+    "patient_characteristic": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.53",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": ""
+    },
+    "patient_characteristic_birthdate": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.54",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "birthdate"
+    },
+    "patient_characteristic_clinical_trial_participant": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.6",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.51",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "clinical_trial_participant"
+    },
+    "patient_characteristic_ethnicity": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.56",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "ethnicity"
+    },
+    "patient_characteristic_expired": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.57",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "expired"
+    },
+    "patient_characteristic_payer": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.58",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "payer"
+    },
+    "patient_characteristic_race": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.59",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "race"
+    },
+    "patient_characteristic_sex": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.55",
+        "qrda_oid": "",
+        "qdm_category": "patient_characteristic",
+        "qdm_status": "gender"
+    },
+    "patient_entity": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.136",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.161"
+    },
+    "physical_exam_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.61",
+        "qrda_oid": "",
+        "qdm_category": "physical_exam",
+        "qdm_status": "order"
+    },
+    "physical_exam_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.62",
+        "qrda_oid": "",
+        "qdm_category": "physical_exam",
+        "qdm_status": "performed"
+    },
+    "physical_exam_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.63",
+        "qrda_oid": "",
+        "qdm_category": "physical_exam",
+        "qdm_status": "recommended"
+    },
+    "practitioner": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.137",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.162"
+    },
+    "procedure_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.66",
+        "qrda_oid": "",
+        "qdm_category": "procedure",
+        "qdm_status": "order"
+    },
+    "procedure_performed": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.67",
+        "qrda_oid": "",
+        "qdm_category": "procedure",
+        "qdm_status": "performed"
+    },
+    "procedure_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.68",
+        "qrda_oid": "",
+        "qdm_category": "procedure",
+        "qdm_status": "recommended"
+    },
+    "provider_care_experience": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.70",
+        "qrda_oid": "",
+        "qdm_category": "care_experience",
+        "qdm_status": ""
+    },
+    "related_person": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.141",
+        "qrda_oid": "",
+        "qdm_category": "related_person",
+        "qdm_status": ""
+    },
+    "substance_administered": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.73",
+        "qrda_oid": "",
+        "qdm_category": "substance",
+        "qdm_status": "administered"
+    },
+    "substance_order": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.77",
+        "qrda_oid": "",
+        "qdm_category": "substance",
+        "qdm_status": "order"
+    },
+    "substance_recommended": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.78",
+        "qrda_oid": "",
+        "qdm_category": "substance",
+        "qdm_status": "recommended"
+    },
+    "symptom": {
+        "hqmf_oid": "2.16.840.1.113883.10.20.28.4.116",
+        "qrda_oid": "2.16.840.1.113883.10.20.24.3.136",
+        "qdm_category": "symptom",
+        "qdm_status": ""
+    }
+}
