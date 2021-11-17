@@ -10,8 +10,9 @@ use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class AssessmentService extends AbstractQdmService
+class AssessmentService extends AbstractQdmService implements QdmServiceInterface
 {
     /**
      * Return the SQL query string that will retrieve these record types from the OpenEMR database
@@ -23,7 +24,7 @@ class AssessmentService extends AbstractQdmService
         $sql = "SELECT pid, encounter, `date`, code, code_type, ob_value, description, ob_code, ob_type, ob_status
                 FROM form_observation
                 WHERE ob_type = 'assessment'
-                AND pid IN ({$this->getRequest()->getPidString()})";
+                ";
         return $sql;
     }
 
