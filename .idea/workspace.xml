@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Initial draft of dm2_fu_ap_01 with fields.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/C_FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/C_FormDM2_FU_AP_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/FormDM2_FU_AP_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/info.txt" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/info.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/new.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/new.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/report.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/report.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/save.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/save.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/table.sql" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/table.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/templates/general_new.html" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/templates/general_new.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/view.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/view.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +17,11 @@
     <execution />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dm2fu_form" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -534,7 +530,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/dm2fu_form" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
