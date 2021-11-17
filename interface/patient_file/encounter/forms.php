@@ -529,7 +529,7 @@ if (
 
 // Convert the flat list of menu items into a multi-dimensional array based on the category
 // decide what will be displayed (name or nickname)
-$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function(EncounterMenuEvent $menuEvent) {
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
     $menuArray = $menuEvent->getMenuData();
     $reg = getFormsByCategory();
     foreach ($reg as $item) {
@@ -554,7 +554,7 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function(Encounte
 
 
 // Zend Module hooks
-$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function(EncounterMenuEvent $menuEvent) {
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
     $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
         FROM modules_hooks_settings AS msh
         LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
