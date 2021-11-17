@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory">
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/info.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/new.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/report.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/save.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/templates/general_new.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/view.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/info.txt" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/info.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/new.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/new.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/report.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/report.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/save.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/save.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/table.sql" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/table.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/templates/general_new.html" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/templates/general_new.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/view.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/view.php" afterDir="false" />
-    </list>
+    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -353,6 +334,7 @@
       <workItem from="1636940268401" duration="10838000" />
       <workItem from="1637116436802" duration="39000" />
       <workItem from="1637116481935" duration="779000" />
+      <workItem from="1637118925084" duration="297000" />
     </task>
     <task id="LOCAL-00001" summary="added contrib/forms/dm2fu and interface/forms/dm2fu based on soap_form">
       <created>1636220068147</created>
