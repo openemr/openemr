@@ -2,8 +2,9 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\QdmRequest;
 
 abstract class AbstractQdmService
 {
@@ -31,8 +32,8 @@ abstract class AbstractQdmService
     public function executeQuery()
     {
         $sql = $this->getSqlStatement();
-        $records = sqlStatement($sql);
-        return $records;
+        $result = sqlStatement($sql);
+        return $result;
     }
 
     /**
@@ -51,17 +52,26 @@ abstract class AbstractQdmService
     /**
      * Convert a code formatted in openEMR database style, ie: system:code
      * to a QDM Object
-     *
+     * 
      * @param $openEmrCode
-     * @return Code
+     * @return Code|null
+     * @throws \Exception
      */
     public function makeQdmCode($openEmrCode)
     {
+        $code = null;
         $res = explode(":", $openEmrCode); //split diagnosis type and code
-        return new Code([
-            'code' => $res[1],
-            'system' => $this->getSystemForCodeType($res[0])
-        ]);
+        if (
+            !empty($res[0]) &&
+            !empty($res[1])
+        ) {
+            $code = new Code([
+                'code' => $res[1],
+                'system' => $this->getSystemForCodeType($res[0])
+            ]);
+        }
+
+        return $code;
     }
 
     /**

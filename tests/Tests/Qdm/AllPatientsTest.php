@@ -16,13 +16,13 @@ class AllPatientsTest extends TestCase
         $builder = new QdmBuilder();
         $models = [];
         try {
-            $models = $builder->build(new QdmRequest([1, 2, 3]));
+            $models = $builder->build(new QdmRequest());
         } catch (\Exception $e) {
-
+            error_log($e->getMessage());
         }
 
         foreach ($models as $model) {
-            $filename = __DIR__ . '/output/' . uniqid() . '.json';
+            $filename = __DIR__ . '/output/' . date('Y-m-d_His') . '.json';
             file_put_contents($filename, json_encode($model));
         }
     }

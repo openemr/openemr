@@ -7,14 +7,15 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class PatientService extends AbstractQdmService
+class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement()
     {
         $sql = "SELECT pid, fname, lname, DOB
             FROM patient_data
-            WHERE pid IN ({$this->getRequest()->getPidString()})";
+            ";
         return $sql;
     }
 
@@ -23,8 +24,13 @@ class PatientService extends AbstractQdmService
         $qdmPatient = new Patient([
             'birthDatetime' => $record['DOB'],
             '_fullName' => $record['fname'] . ' ' . $record['lname'],
-            '_openEmrPid' => $record['pid']
+            '_pid' => $record['pid'],
+            '_id' => $record['pid']
         ]);
+
+        $qdmPatient->extendedData = [
+            'pid' => $record['pid']
+        ];
 
         return $qdmPatient;
     }

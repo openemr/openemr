@@ -5,11 +5,14 @@ namespace OpenEMR\Services\Qdm;
 
 
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Qdm\Services\AssessmentService;
 use OpenEMR\Services\Qdm\Services\ConditionService;
 use OpenEMR\Services\Qdm\Services\DiagnosticStudyService;
 use OpenEMR\Services\Qdm\Services\EncounterService;
+use OpenEMR\Services\Qdm\Services\MedicationService;
+use OpenEMR\Services\Qdm\Services\PatientService;
 
 class QdmBuilder
 {
@@ -17,7 +20,9 @@ class QdmBuilder
         AssessmentService::class,
         DiagnosticStudyService::class,
         EncounterService::class,
-        ConditionService::class,
+//        ConditionService::class,
+
+        MedicationService::class,
         AllergyIntoleranceService::class,
     ];
 
@@ -38,19 +43,25 @@ class QdmBuilder
         foreach ($this->services as $serviceClass) {
             // Create our service and make sure it implements required methods (inherits from AbstractQdmService).
             $service = new $serviceClass($request, new CodeTypesService());
-            if ($service instanceof AbstractQdmService) {
+            if ($service instanceof QdmServiceInterface) {
                 // Using the services, query all records for ALL patients in our QdmRequest object, which means we
                 // get all relevant models for all patients in one query for this particular service category.
-                $records = $service->executeQuery();
-                foreach ($records as $record) {
+                $result = $service->executeQuery();
+                while ($record = sqlFetchArray($result)) {
                     // Create a QDM record with the result. This makes sure we have required PID.
                     $qdmRecord = new QdmRecord($record, $record['pid']);
                     // Use the service to make a QDM model with the data from the query result
-                    $qdmModel = $service->makeQdmModel($qdmRecord->getData());
-                    // Using the PID map, find the patient this model belongs to and add this data element
-                    // to the correct patient's QDM model
-                    $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
-                    $qdmPatient->add_data_element($qdmModel);
+                    try {
+                        $qdmModel = $service->makeQdmModel($qdmRecord->getData());
+                        // Using the PID map, find the patient this model belongs to and add this data element
+                        // to the correct patient's QDM model
+                        $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
+                        $qdmPatient->add_data_element($qdmModel);
+                    } catch (\Exception $e) {
+                        // There was an error creating the model, such as passing a parameter that is not a member of a QDM Object
+                        // TODO improve error handling
+                        error_log($e->getMessage());
+                    }
                 }
             } else {
                 throw new \Exception("Service does not implement required contract for making QDM models");

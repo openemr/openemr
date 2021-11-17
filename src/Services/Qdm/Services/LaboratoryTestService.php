@@ -6,8 +6,9 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class LaboratoryTestService extends AbstractQdmService
+class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement()
     {

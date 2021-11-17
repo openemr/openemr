@@ -5,17 +5,19 @@ namespace OpenEMR\Services\Qdm\Services;
 
 
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\MedicationActive;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class MedicationService extends AbstractQdmService
+class MedicationService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement()
     {
-        $sql = "SELECT pid, drug, rxnorm_drugcode, dosage, unit, L.title AS drug_route, date_added, start_data, end_date
-                FORM prescriptions P
+        $sql = "SELECT patient_id AS pid, drug, rxnorm_drugcode, dosage, unit, L.title AS drug_route, `interval`, date_added, start_date, end_date
+                FROM prescriptions P
                 JOIN list_options L ON P.route = L.option_id AND L.list_id = 'drug_route'
                 ";
 
@@ -45,9 +47,9 @@ class MedicationService extends AbstractQdmService
             ]),
             'dosage' => new Quantity([]),
             'frequency' => new Code([
-                // TODO codes in list_options may not match exactly and do not have the actual SNOMED codes loaded
+                // TODO codes in list_options for frequency may not match exactly and do not have the actual SNOMED codes loaded
                 // https://browser.ihtsdotools.org/?perspective=full&conceptId1=396125000&edition=MAIN/2021-07-31&release=&languages=en
-                'code' => '',
+                'code' => $record['interval'],
                 'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
             ]),
             'route' => null // In sample files, route was null, probably doesn't mater for eCQM
@@ -57,5 +59,7 @@ class MedicationService extends AbstractQdmService
             'code' => $record['rxnorm_drugcode'],
             'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM)
         ]));
+
+        return $qdmModel;
     }
 }

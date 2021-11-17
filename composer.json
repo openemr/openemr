@@ -66,7 +66,8 @@
         "monolog/monolog": "2.3.5",
         "google/apiclient": "2.11.0",
         "stripe/stripe-php": "7.100.0",
-        "aranyasen/hl7": "2.1.2"
+        "aranyasen/hl7": "2.1.2",
+        "openemr/oe-module-cqm": "dev-main"
     },
     "config": {
         "platform": {
