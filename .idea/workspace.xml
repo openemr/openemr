@@ -5,8 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/openemr.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/C_FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/C_FormDM2_FU_AP_01.class.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/FormDM2_FU_AP_01.class.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/info.txt" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/info.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/new.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/new.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/report.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/report.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/save.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/save.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/table.sql" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/table.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/templates/general_new.html" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/templates/general_new.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/view.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_ap_01/view.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -247,11 +255,10 @@
     <property name="DatabaseDriversLRU" value="mariadb" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpCreateRemoteSdkForm" value="Docker" />
     <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpInplaceEditRemoteSdkForm" value="Docker" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/interface/forms" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/contrib/forms" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.stylelint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -269,8 +276,8 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/interface/forms" />
       <recent name="$PROJECT_DIR$/contrib/forms" />
+      <recent name="$PROJECT_DIR$/interface/forms" />
     </key>
   </component>
   <component name="RunManager" selected="Docker.development-easy: Compose Deployment">
@@ -339,7 +346,7 @@
       <workItem from="1636940268401" duration="10838000" />
       <workItem from="1637116436802" duration="39000" />
       <workItem from="1637116481935" duration="779000" />
-      <workItem from="1637118925084" duration="823000" />
+      <workItem from="1637118925084" duration="2805000" />
     </task>
     <task id="LOCAL-00001" summary="added contrib/forms/dm2fu and interface/forms/dm2fu based on soap_form">
       <created>1636220068147</created>
@@ -488,7 +495,35 @@
       <option name="project" value="LOCAL" />
       <updated>1637120889680</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <created>1637120983374</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1637120983374</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <created>1637120999369</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1637120999369</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <created>1637121044607</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1637121044607</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <created>1637121130262</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1637121130262</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

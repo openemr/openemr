@@ -1,7 +1,7 @@
 <?php
 
 /**
- * dm2_fu_hpi_01 form
+ * dm2_fu_ap_01 form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -15,11 +15,11 @@
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
-function dm2_fu_hpi_01_report($pid, $encounter, $cols, $id)
+function dm2_fu_ap_01_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column
     $count = 0;
-    $data = formFetch("form_dm2_fu_hpi_01", $id);
+    $data = formFetch("form_dm2_fu_ap_01", $id);
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
