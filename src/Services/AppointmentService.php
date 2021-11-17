@@ -299,14 +299,21 @@ class AppointmentService extends BaseService
         $appt = $this->getAppointment($eid);
         if (empty($appt)) {
             throw new \InvalidArgumentException("Appointment does not exist for eid " . $eid);
+        } else {
+            // TODO: Not sure why getAppointment returns an array of records instead of a single record
+            $appt = $appt[0];
         }
 
         $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ? WHERE pc_eid = ? ";
         $binds = [$status, $eid];
 
-
-        $trackerService = new PatientTrackerService();
-        $trackerService->manage_tracker_status($appt['pc_eventDate'], $appt['pc_startTime'], $eid, $appt['pid'], $user, $status, $appt['pc_room'], $encounter);
+        if (!empty($appt['pid'])) {
+            $trackerService = new PatientTrackerService();
+            $trackerService->manage_tracker_status($appt['pc_eventDate'], $appt['pc_startTime'], $eid, $appt['pid'], $user, $status, $appt['pc_room'], $encounter);
+        } else {
+            $this->getLogger()->error("AppointmentService->updateAppointmentStatus() failed to update manage_tracker_status"
+            . " as patient pid was empty", ['pc_eid' => $eid, 'status' => $status, 'user' => $user, 'encounter' => $encounter]);
+        }
         return QueryUtils::sqlStatementThrowException($sql, $binds);
     }
 
