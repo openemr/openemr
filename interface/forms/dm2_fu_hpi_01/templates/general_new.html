@@ -67,6 +67,24 @@
                             </div>
                         </div>
                     </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Diabetic Complications'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="dm_complications" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm_complications()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Preventatives: Vaccinations and Foot Care'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="preventatives" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_preventatives()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
                     <div class="form-group">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save" name="Submit">{xlt t='Save'}</button>

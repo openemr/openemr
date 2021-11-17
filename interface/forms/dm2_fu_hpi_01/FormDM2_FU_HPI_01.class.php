@@ -50,6 +50,8 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     var $intv_hx_chngs_bs_er_hosp;
     var $severity_significance;
     var $pt_diet_exercise;
+    var $dm_complications;
+    var $preventatives;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -196,6 +198,26 @@ class FormDM2_FU_HPI_01 extends ORDataObject
     {
         if (!empty($data)) {
             $this->pt_diet_exercise = $data;
+        }
+    }
+    function get_dm_complications()
+    {
+        return $this->dm_complications;
+    }
+    function set_dm_complications($data)
+    {
+        if (!empty($data)) {
+            $this->dm_complications = $data;
+        }
+    }
+    function get_preventatives()
+    {
+        return $this->preventatives;
+    }
+    function set_preventatives($data)
+    {
+        if (!empty($data)) {
+            $this->preventatives = $data;
         }
     }
 
