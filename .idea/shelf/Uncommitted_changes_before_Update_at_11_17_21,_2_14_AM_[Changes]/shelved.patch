@@ -1,0 +1,30 @@
+Index: .idea/sqldialects.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"SqlDialectMappings\">\n    <file url=\"file://$PROJECT_DIR$/interface/forms/ankleinjury/table.sql\" dialect=\"MariaDB\" />\n    <file url=\"file://$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql\" dialect=\"MariaDB\" />\n    <file url=\"file://$PROJECT_DIR$/interface/forms/dm2_fu_labs_01/table.sql\" dialect=\"MariaDB\" />\n  </component>\n</project>
+===================================================================
+diff --git a/.idea/sqldialects.xml b/.idea/sqldialects.xml
+--- a/.idea/sqldialects.xml	
++++ b/.idea/sqldialects.xml	
+@@ -2,7 +2,5 @@
+ <project version="4">
+   <component name="SqlDialectMappings">
+     <file url="file://$PROJECT_DIR$/interface/forms/ankleinjury/table.sql" dialect="MariaDB" />
+-    <file url="file://$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql" dialect="MariaDB" />
+-    <file url="file://$PROJECT_DIR$/interface/forms/dm2_fu_labs_01/table.sql" dialect="MariaDB" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Default ignored files\n/shelf/\n/workspace.xml\n# Datasource local storage ignored files\n/dataSources/\n/dataSources.local.xml\n# Editor-based HTTP Client requests\n/httpRequests/\n
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+--- a/.idea/.gitignore	
++++ b/.idea/.gitignore	
+@@ -6,3 +6,4 @@
+ /dataSources.local.xml
+ # Editor-based HTTP Client requests
+ /httpRequests/
++/.idea/sqldialects.xml

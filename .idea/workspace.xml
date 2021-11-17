@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory">
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/info.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/new.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/report.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/save.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/templates/general_new.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/view.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/FormDM2_FU_HPI_01.class.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/info.txt" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/info.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/new.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/new.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/report.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/report.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/save.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/save.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/table.sql" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/table.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/templates/general_new.html" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/templates/general_new.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/view.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/view.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.dom.d.ts" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/docker/development-easy/docker-compose.yml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/library/ajax/dated_reminders_counter.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/globals.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/library/classes/Controller.class.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Common/ORDataObject/ORDataObject.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../openemr-devops/utilities/openemr-monitor/grafana/provisioning/datasources/datasource.yml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/forms/soap/FormSOAP.class.php" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/patient_file/encounter/load_form.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/library/ajax/execute_background_services.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/main/dated_reminders/dated_reminders.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../phpinfo.txt" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="PhpDebugGeneral" listening_started="true" xdebug_force_break_when_no_path_mapping="false" xdebug_force_break_when_outside_project="false" />
+  <component name="PhpServers">
+    <servers>
+      <server host="localhost" id="b656b2a2-829b-44fa-8441-5cfe567b5905" name="localhost" port="8300" use_path_mappings="true">
+        <path_mappings>
+          <mapping local-root="$PROJECT_DIR$" remote-root="/var/www/localhost/htdocs/openemr" />
+          <mapping local-root="$PROJECT_DIR$/library/ajax" remote-root="/var/www/localhost/htdocs/openemr/library/ajax" />
+        </path_mappings>
+      </server>
+    </servers>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="openemr/openemr:flex">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/vendor/pear/archive_tar" />
+      <path value="$PROJECT_DIR$/vendor/php-webdriver/webdriver" />
+      <path value="$PROJECT_DIR$/vendor/mpdf/mpdf" />
+      <path value="$PROJECT_DIR$/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/vendor/markbaker/complex" />
+      <path value="$PROJECT_DIR$/vendor/markbaker/matrix" />
+      <path value="$PROJECT_DIR$/vendor/yubico/u2flib-server" />
+      <path value="$PROJECT_DIR$/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/vendor/phenx/php-svg-lib" />
+      <path value="$PROJECT_DIR$/vendor/phenx/php-font-lib" />
+      <path value="$PROJECT_DIR$/vendor/nyholm/psr7-server" />
+      <path value="$PROJECT_DIR$/vendor/nyholm/psr7" />
+      <path value="$PROJECT_DIR$/vendor/phpoffice/phpspreadsheet" />
+      <path value="$PROJECT_DIR$/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/vendor/aranyasen/hl7" />
+      <path value="$PROJECT_DIR$/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/vendor/brick/varexporter" />
+      <path value="$PROJECT_DIR$/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/vendor/container-interop/container-interop" />
+      <path value="$PROJECT_DIR$/vendor/sabberworm/php-css-parser" />
+      <path value="$PROJECT_DIR$/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/vendor/mobiledetect/mobiledetectlib" />
+      <path value="$PROJECT_DIR$/vendor/phpseclib/phpseclib" />
+      <path value="$PROJECT_DIR$/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/vendor/league/oauth2-server" />
+      <path value="$PROJECT_DIR$/vendor/league/event" />
+      <path value="$PROJECT_DIR$/vendor/moneyphp/money" />
+      <path value="$PROJECT_DIR$/vendor/academe/omnipay-authorizenetapi" />
+      <path value="$PROJECT_DIR$/vendor/academe/authorizenet-objects" />
+      <path value="$PROJECT_DIR$/vendor/pear/pear-core-minimal" />
+      <path value="$PROJECT_DIR$/vendor/pear/console_getopt" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/vendor/pear/pear_exception" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/vendor/omnipay/common" />
+      <path value="$PROJECT_DIR$/vendor/omnipay/stripe" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/annotations" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/vendor/ezyang/htmlpurifier" />
+      <path value="$PROJECT_DIR$/vendor/webimpress/safe-writer" />
+      <path value="$PROJECT_DIR$/vendor/maennchen/zipstream-php" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/vendor/bacon/bacon-qr-code" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/vendor/kamermans/guzzle-oauth2-subscriber" />
+      <path value="$PROJECT_DIR$/vendor/firebase/php-jwt" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/vendor/dompdf/dompdf" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-math" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-code" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-xml" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-http" />
+      <path value="$PROJECT_DIR$/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-json" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-mvc" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-json-server" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-zendframework-bridge" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-uri" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-servicemanager" />
+      <path value="$PROJECT_DIR$/vendor/setasign/fpdi" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-stdlib" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-xmlrpc" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-validator" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-view" />
+      <path value="$PROJECT_DIR$/vendor/phpmailer/phpmailer" />
+      <path value="$PROJECT_DIR$/vendor/google/auth" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-inputfilter" />
+      <path value="$PROJECT_DIR$/vendor/google/apiclient" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-mvc-console" />
+      <path value="$PROJECT_DIR$/vendor/google/apiclient-services" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-db" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-modulemanager" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-config" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-server" />
+      <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-loader" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-hydrator" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-mvc-i18n" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-router" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-filter" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-i18n" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-form" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-escaper" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-console" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-text" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-soap" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-eventmanager" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/vendor/symfony/dom-crawler" />
+      <path value="$PROJECT_DIR$/vendor/symfony/dependency-injection" />
+      <path value="$PROJECT_DIR$/vendor/symfony/property-access" />
+      <path value="$PROJECT_DIR$/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/vendor/symfony/browser-kit" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/vendor/symfony/panther" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/vendor/symfony/inflector" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client-contracts" />
+      <path value="$PROJECT_DIR$/vendor/paragonie/multi-factor" />
+      <path value="$PROJECT_DIR$/vendor/defuse/php-encryption" />
+      <path value="$PROJECT_DIR$/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php72" />
+      <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
+      <path value="$PROJECT_DIR$/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/vendor/paragonie/constant_time_encoding" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client" />
+      <path value="$PROJECT_DIR$/vendor/smarty/smarty" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/zircote/swagger-php" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/steverhoades/oauth2-openid-connect-server" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/vendor/waryway/php-traits-library" />
+      <path value="$PROJECT_DIR$/vendor/knplabs/knp-snappy" />
+      <path value="$PROJECT_DIR$/vendor/stripe/stripe-php" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/php-enum" />
+      <path value="$PROJECT_DIR$/vendor/php-http/message" />
+      <path value="$PROJECT_DIR$/vendor/php-http/promise" />
+      <path value="$PROJECT_DIR$/vendor/php-http/discovery" />
+      <path value="$PROJECT_DIR$/vendor/adodb/adodb-php" />
+      <path value="$PROJECT_DIR$/vendor/phpspec/prophecy" />
+      <path value="$PROJECT_DIR$/vendor/php-http/guzzle7-adapter" />
+      <path value="$PROJECT_DIR$/vendor/clue/stream-filter" />
+      <path value="$PROJECT_DIR$/vendor/php-http/message-factory" />
+      <path value="$PROJECT_DIR$/vendor/php-http/httplug" />
+      <path value="$PROJECT_DIR$/vendor/rospdf/pdf-php" />
+      <path value="$PROJECT_DIR$/vendor/particle/validator" />
+      <path value="$PROJECT_DIR$/vendor/lcobucci/jwt" />
+    </include_path>
+  </component>
+  <component name="PhpXdebugProxy" ide_key="PHPSTORM" host="localhost" port="9000" />
+  <component name="ProjectId" id="20KKY0qv2dDkfSttVSIsG4S45VC" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
+    <property name="DatabaseDriversLRU" value="mariadb" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpCreateRemoteSdkForm" value="Docker" />
+    <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpInplaceEditRemoteSdkForm" value="Docker" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/interface/forms" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/interface/forms/soap/C_FormSOAP.class.php" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/interface/forms" />
+      <recent name="$PROJECT_DIR$/contrib/forms" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.development-easy: Compose Deployment">
+    <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner scope="XML" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Docker Image" type="docker-deploy" factoryName="docker-image" server-name="Docker">
+      <deployment type="docker-image">
+        <settings>
+          <option name="imageTag" value="openemr/openemr" />
+          <option name="containerName" value="development-easy_openemr_1" />
+          <option name="portBindings">
+            <list>
+              <DockerPortBindingImpl>
+                <option name="containerPort" value="9000" />
+                <option name="hostIp" value="127.0.0.1" />
+                <option name="hostPort" value="9000" />
+              </DockerPortBindingImpl>
+            </list>
+          </option>
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="development-easy: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="sourceFilePath" value="docker/development-easy/docker-compose.yml" />
+          <option name="upAttachDependencies" value="true" />
+          <option name="upDetach" value="false" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.Docker Image" />
+      <item itemvalue="Docker.development-easy: Compose Deployment" />
+      <item itemvalue="PHPUnit.phpunit.xml" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.development-easy: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="" />
+      <created>1635787887454</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1635787887454</updated>
+      <workItem from="1635787891089" duration="11438000" />
+      <workItem from="1635902074986" duration="10140000" />
+      <workItem from="1636226047952" duration="1562000" />
+      <workItem from="1636227770168" duration="307000" />
+      <workItem from="1636228113461" duration="661000" />
+      <workItem from="1636229202778" duration="1761000" />
+      <workItem from="1636231073348" duration="51000" />
+      <workItem from="1636231158867" duration="418000" />
+      <workItem from="1636231614245" duration="41142000" />
+      <workItem from="1636767860533" duration="24527000" />
+      <workItem from="1636940268401" duration="10838000" />
+      <workItem from="1637116436802" duration="39000" />
+      <workItem from="1637116481935" duration="779000" />
+    </task>
+    <task id="LOCAL-00001" summary="added contrib/forms/dm2fu and interface/forms/dm2fu based on soap_form">
+      <created>1636220068147</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1636220068147</updated>
+    </task>
+    <task id="LOCAL-00002" summary="replaced non-working versions of dm2fu in contrib/forms and interface/forms with a working version dm2_fu_01 based on soap_form">
+      <created>1636290424456</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1636290424457</updated>
+    </task>
+    <task id="LOCAL-00003" summary="replaced non-working versions of dm2fu in contrib/forms and interface/forms with a working version dm2_fu_01 based on soap_form">
+      <created>1636915304809</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1636915304809</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Added dm2_fu_labs_01 form to track key labs for DM2 follow-up visits.">
+      <created>1636927611524</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1636927611524</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Corrected dm2_fu_labs_01 bugs in template related to get_egfr and similar.">
+      <created>1636928218295</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1636928218295</updated>
+    </task>
+    <task id="LOCAL-00006" summary="dm2_fu_labs_01 - adjusted row height to 1 of the input fields.">
+      <created>1636929130497</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1636929130497</updated>
+    </task>
+    <task id="LOCAL-00007" summary="renamed dm2_fu_01 to dm2_fu_hpi_01 and related renames to reflect the HPI only role of this form">
+      <created>1636931433951</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1636931433951</updated>
+    </task>
+    <task id="LOCAL-00008" summary="renamed dm2_fu_01 to dm2_fu_hpi_01 and related renames to reflect the HPI only role of this form">
+      <created>1636931458841</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1636931458841</updated>
+    </task>
+    <task id="LOCAL-00009" summary="dm2_fu_labs_01 - added a field for the previous labs and comments.">
+      <created>1636933882104</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1636933882104</updated>
+    </task>
+    <task id="LOCAL-00010" summary="dm2_fu_hpi_01 - changed the subjective field to date of last dm2 visit.">
+      <created>1636937702717</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1636937702717</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Synchronized with master">
+      <created>1636938365203</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1636938365203</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Replaced 'objective' filed in dm2_fu_hpi_01 form with dm2_mgmt_last_visit representing the diabetes management actions (changing medications, etc.)">
+      <created>1636940681439</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1636940681439</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Replaced 'assessment' field in dm2_fu_hpi_01 form with intv_hx_chngs_bs_er_hosp representing the interval history in terms of symptoms, blood sugars, ER visits, Hospitalization">
+      <created>1636941372339</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1636941372339</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Replaced 'assessment' field in dm2_fu_hpi_01 form with intv_hx_chngs_bs_er_hosp representing the interval history in terms of symptoms, blood sugars, ER visits, Hospitalization">
+      <created>1636942034096</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1636942034096</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Replaced 'plan' field in dm2_fu_hpi_01 form with severity_significance representing the severity and significance of symptoms etc.">
+      <created>1636943552440</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1636943552440</updated>
+    </task>
+    <task id="LOCAL-00016" summary="dm2_fu_hpi_01 form - added diet and exercise field.">
+      <created>1637027734800</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1637027734800</updated>
+    </task>
+    <task id="LOCAL-00017" summary="dm2_fu_hpi_01 form - added complications and preventatives fields.">
+      <created>1637113529458</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1637113529458</updated>
+    </task>
+    <task id="LOCAL-00018" summary="dm2_fu forms from the active form directory to the contrib directory where they would be in the release if accepted.">
+      <created>1637113964536</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1637113964536</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Diabetes Mellitus Type 2 Follow-up form contributions 2021-11-16 by Ralf Lukner">
+      <created>1637115237802</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1637115237802</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory">
+      <created>1637117255359</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1637117255359</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="added contrib/forms/dm2fu and interface/forms/dm2fu based on soap_form" />
+    <MESSAGE value="replaced non-working versions of dm2fu in contrib/forms and interface/forms with a working version dm2_fu_01 based on soap_form" />
+    <MESSAGE value="Incorporate changes from master.  Added dm2_fu_labs_01 form to track key labs for DM2 follow-up visits." />
+    <MESSAGE value="Added dm2_fu_labs_01 form to track key labs for DM2 follow-up visits." />
+    <MESSAGE value="Corrected dm2_fu_labs_01 bugs in template related to get_egfr and similar." />
+    <MESSAGE value="dm2_fu_labs_01 - adjusted row height to 1 of the input fields." />
+    <MESSAGE value="renamed dm2_fu_01 to dm2_fu_hpi_01 and related renames to reflect the HPI only role of this form" />
+    <MESSAGE value="dm2_fu_labs_01 - added a field for the previous labs and comments." />
+    <MESSAGE value="dm2_fu_hpi_01 - changed the subjective field to date of last dm2 visit." />
+    <MESSAGE value="Rebased with master." />
+    <MESSAGE value="Synchronized with master" />
+    <MESSAGE value="Replaced 'objective' filed in dm2_fu_hpi_01 form with dm2_mgmt_last_visit representing the diabetes management actions (changing medications, etc.)" />
+    <MESSAGE value="Replaced 'assessment' field in dm2_fu_hpi_01 form with intv_hx_chngs_bs_er_hosp representing the interval history in terms of symptoms, blood sugars, ER visits, Hospitalization" />
+    <MESSAGE value="Replaced 'plan' field in dm2_fu_hpi_01 form with severity_significance representing the severity and significance of symptoms etc." />
+    <MESSAGE value="dm2_fu_hpi_01 form - added diet and exercise field." />
+    <MESSAGE value="dm2_fu_hpi_01 form - added complications and preventatives fields." />
+    <MESSAGE value="dm2_fu forms from the active form directory to the contrib directory where they would be in the release if accepted." />
+    <MESSAGE value="Diabetes Mellitus Type 2 Follow-up form contributions 2021-11-16 by Ralf Lukner" />
+    <MESSAGE value="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory" />
+    <option name="LAST_COMMIT_MESSAGE" value="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu/FormDM2FU.class.php</url>
+          <line>66</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu/C_FormDM2FU.class.php</url>
+          <line>29</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu2/view.php</url>
+          <line>20</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/library/ajax/amc_misc_data.php</url>
+          <line>28</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu2/save.php</url>
+          <line>24</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu2/save.php</url>
+          <line>25</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/interface/forms/dm2fu2/view.php</url>
+          <line>19</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/interface/patient_file/encounter/encounter_top.php</url>
+          <line>47</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/interface/main/tabs/js/frame_proxies.js</url>
+          <line>91</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/library/js/CustomTemplateLoader.js</url>
+          <line>34</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+      </breakpoints>
+      <breakpoints-dialog>
+        <breakpoints-dialog>
+          <selected-grouping-rules>
+            <grouping-rule id="by-file" />
+          </selected-grouping-rules>
+        </breakpoints-dialog>
+      </breakpoints-dialog>
+      <default-breakpoints>
+        <breakpoint enabled="true" type="javascript-exception" />
+      </default-breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="load_form.php">
+        <watch expression="$GLOBALS['web_root']" language="PHP" />
+        <watch expression="$this" language="PHP" />
+        <watch expression="$GLOBALS" language="PHP" />
+        <watch expression="$form" language="PHP" />
+        <watch expression="$_GET[&quot;formname&quot;]" language="PHP" />
+        <watch expression="$incdir" language="PHP" />
+      </configuration>
+      <configuration name="dated_reminders_counter.php">
+        <watch expression="$portal_count" language="PHP" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
