@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
+CREATE TABLE IF NOT EXISTS `form_dm2_fu_ap_01` (
 `id` bigint(20) NOT NULL auto_increment,
 `date` datetime default NULL,
 `pid` bigint(20) default 0,
@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS `form_dm2_fu_hpi_01` (
 `groupname` varchar(255) default NULL,
 `authorized` tinyint(4) default 0,
 `activity` tinyint(4) default 0,
-`date_of_original_dm2_diagnosis` text,
-`date_last_dm2_visit` text,
-`dm2_mgmt_last_visit` text,
-`intv_hx_chngs_bs_er_hosp` text,
-`severity_significance` text,
+`dm2_mgmt_status` text,
+`dm2_medications` text,
+`dm2_referrals` text,
+`dm2_goals` text,
+`dm2_labs_procedures_ordered` text,
 `pt_diet_exercise` text,
 `dm_complications` text,
 `preventatives` text,
