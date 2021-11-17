@@ -4,25 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory">
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/info.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/new.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/report.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/save.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/templates/general_new.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/view.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/C_FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/C_FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/FormDM2_FU_HPI_01.class.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/FormDM2_FU_HPI_01.class.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/info.txt" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/info.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/new.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/new.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/report.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/report.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/save.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/save.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/table.sql" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/table.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/templates/general_new.html" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/templates/general_new.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_01/view.php" beforeDir="false" afterPath="$PROJECT_DIR$/contrib/forms/dm2_fu_hpi_02/view.php" afterDir="false" />
+    <list default="true" id="7cc501f4-ff32-4aa2-bbe4-e7223037a0be" name="Changes" comment="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/openemr.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,18 +29,16 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/library/ajax/execute_background_services.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/patient_file/encounter/load_form.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/library/classes/Controller.class.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/interface/globals.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.dom.d.ts" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/docker/development-easy/docker-compose.yml" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/library/ajax/dated_reminders_counter.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/interface/globals.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/library/classes/Controller.class.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Common/ORDataObject/ORDataObject.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/../openemr-devops/utilities/openemr-monitor/grafana/provisioning/datasources/datasource.yml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/library/ajax/dated_reminders_counter.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/interface/forms/soap/FormSOAP.class.php" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/interface/patient_file/encounter/load_form.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/library/ajax/execute_background_services.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/interface/main/dated_reminders/dated_reminders.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/../phpinfo.txt" root0="SKIP_INSPECTION" />
   </component>
   <component name="PhpDebugGeneral" listening_started="true" xdebug_force_break_when_no_path_mapping="false" xdebug_force_break_when_outside_project="false" />
   <component name="PhpServers">
@@ -261,16 +243,20 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="DatabaseDriversLRU" value="mariadb" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpCreateRemoteSdkForm" value="Docker" />
     <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpInplaceEditRemoteSdkForm" value="Docker" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/interface/forms" />
     <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.stylelint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.stylelint" value="$PROJECT_DIR$/node_modules/stylelint" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
@@ -353,6 +339,7 @@
       <workItem from="1636940268401" duration="10838000" />
       <workItem from="1637116436802" duration="39000" />
       <workItem from="1637116481935" duration="779000" />
+      <workItem from="1637118925084" duration="823000" />
     </task>
     <task id="LOCAL-00001" summary="added contrib/forms/dm2fu and interface/forms/dm2fu based on soap_form">
       <created>1636220068147</created>
@@ -494,7 +481,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637117255359</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory.">
+      <created>1637120889680</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1637120889680</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -533,7 +527,8 @@
     <MESSAGE value="dm2_fu forms from the active form directory to the contrib directory where they would be in the release if accepted." />
     <MESSAGE value="Diabetes Mellitus Type 2 Follow-up form contributions 2021-11-16 by Ralf Lukner" />
     <MESSAGE value="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory" />
-    <option name="LAST_COMMIT_MESSAGE" value="Prepare to add fields to dm2_fu_hpi_01 form by moving it into the interface/forms directory" />
+    <MESSAGE value="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory." />
+    <option name="LAST_COMMIT_MESSAGE" value="Prepare to make a contrib/dm2_fu_ap_01 form by copying the dm2_fu_hpi_01 directory." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
