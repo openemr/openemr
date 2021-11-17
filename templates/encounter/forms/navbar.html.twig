@@ -25,25 +25,7 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">{{ category|text }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            {% for category, details in moduleMenuArray %}
-                {% if details.children is iterable %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|attr }}" role="button" data-toggle="dropdown" aria-expanded="false">
-                            {{ category|text }}
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}">
-                            {% for item in details.children %}
-                                <a href="#" class="dropdown-item" onclick="openNewForm({{ item.href|attr_js }}, {{ item.menu_name|xlFormTitle|attr_js }})">{{ item.menu_name|xlFormTitle|text }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ category|text }}</a>
+                        <a class="nav-link" href="#" onclick="openNewForm({{ details.formURL|attr_js }}, {{ details.displayText|xlFormTitle|attr_js }})">{{ details.displayText|text }}</a>
                     </li>
                 {% endif %}
             {% endfor %}

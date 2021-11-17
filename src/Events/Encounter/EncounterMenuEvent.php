@@ -32,7 +32,7 @@ class EncounterMenuEvent extends Event
      *
      * @param array $menu
      */
-    public function __construct(array $menu)
+    public function __construct(array $menu = [])
     {
         $this->menu = $menu;
     }
