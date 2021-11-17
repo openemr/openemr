@@ -26,3 +26,5 @@ ccdaservice/node_modules
 
 # testing
 .phpunit.result.cache
+.idea/workspace.xml
+.idea/workspace.xml
