@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/interface/forms/ankleinjury/table.sql" dialect="MariaDB" />
-    <file url="file://$PROJECT_DIR$/interface/forms/dm2_fu_hpi_01/table.sql" dialect="MariaDB" />
-    <file url="file://$PROJECT_DIR$/interface/forms/dm2_fu_labs_01/table.sql" dialect="MariaDB" />
-  </component>
-</project>
