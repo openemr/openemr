@@ -98,7 +98,9 @@
     "select2": "4.0.13",
     "summernote": "0.8.20",
     "underscore": "1.13.1",
-    "validate.js": "0.13.1"
+    "validate.js": "0.13.1",
+    "oe-cqm-parsers": "github:openemr/oe-cqm-parsers",
+    "oe-cqm-service": "github:openemr/oe-cqm-service"
   },
   "napa": {
     "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d10bd73477b879e78a4f71874af18747d285b6e8.zip",
