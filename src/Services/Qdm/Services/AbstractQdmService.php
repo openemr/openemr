@@ -52,7 +52,7 @@ abstract class AbstractQdmService
     /**
      * Convert a code formatted in openEMR database style, ie: system:code
      * to a QDM Object
-     * 
+     *
      * @param $openEmrCode
      * @return Code|null
      * @throws \Exception
@@ -65,9 +65,11 @@ abstract class AbstractQdmService
             !empty($res[0]) &&
             !empty($res[1])
         ) {
+            // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
+            $systemName = str_replace(" ", "-", $res[0]);
             $code = new Code([
                 'code' => $res[1],
-                'system' => $this->getSystemForCodeType($res[0])
+                'system' => $this->getSystemForCodeType($systemName)
             ]);
         }
 
