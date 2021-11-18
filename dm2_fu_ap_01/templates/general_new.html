@@ -1,0 +1,131 @@
+ <html>
+<head>
+<title>{xlt t='DM2 Follow-up Assessment and Plan'}</title>
+{headerTemplate}
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{xlt t='DM2 Follow-up Assessment and Plan'}</h2>
+                <form name="dm2_fu_ap_01" method="post"
+                      action="{$FORM_ACTION}/interface/forms/dm2_fu_ap_01/save.php"
+                      onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
+                    <fieldset>
+                        <legend>{xlt t='Overall DM2 Managment Status (at goal/not)(improved/not)'}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="dm2_mgmt_status"
+                                          class="form-control" cols="60" rows="4"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_mgmt_status()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='DM2 Medications and Changes'}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="dm2_medications" class="form-control" cols="60" rows="4"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_medications()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Referrals'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="dm2_referrals" class="form-control" cols="60" rows="4"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_referrals()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Goals'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="dm2_goals" class="form-control" cols="60" rows="6"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_goals()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Labs and Procedures Ordered'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="dm2_labs_procedures_ordered" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm2_labs_procedures_ordered()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Diet and Exercise Goals'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="pt_diet_exercise" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_pt_diet_exercise()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Additional Diabetic Complications Management'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="dm_complications" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_dm_complications()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Preventatives: Vaccinations and Foot Care'}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="preventatives" class="form-control" cols="60" rows="2"
+                                          onkeyup="top.isDM2FUEdit = true;">{$data->get_preventatives()|text}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save" name="Submit">{xlt t='Save'}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel" id="btnClose">{xlt t='Cancel'}</button>
+                        </div>
+                        <input type="hidden" name="id" value="{$data->get_id()|attr}" />
+                        <input type="hidden" name="activity" value="{$data->get_activity()|attr}" />
+                        <input type="hidden" name="pid" value="{$data->get_pid()|attr}" />
+                        <input type="hidden" name="process" value="true" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {literal}
+    <script>
+        const close = function() {
+            if (top.isDM2FUEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">{/literal}{xla t='Warning'}{literal}</div>', {
+                    type: 'Alert',
+                    html: '<p>{/literal}{xla t='Do you want to close the tabs?'}{literal}</p>',
+                    buttons: [
+                        {text: '{/literal}{xla t='Cancel'}{literal}', close: true, style: 'default btn-sm'},
+                        {text: '{/literal}{xla t='Close'}{literal}', close: true, style: 'danger btn-sm', click: closeSoap},
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeSoap = function() {
+            top.isDM2FUEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+    </script>
+    {/literal}
+</body>
+</html>
