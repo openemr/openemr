@@ -11,6 +11,8 @@ use OpenEMR\Services\Qdm\Services\AssessmentService;
 use OpenEMR\Services\Qdm\Services\ConditionService;
 use OpenEMR\Services\Qdm\Services\DiagnosticStudyService;
 use OpenEMR\Services\Qdm\Services\EncounterService;
+use OpenEMR\Services\Qdm\Services\InterventionService;
+use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
 use OpenEMR\Services\Qdm\Services\MedicationService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 
@@ -20,6 +22,8 @@ class QdmBuilder
         AssessmentService::class,
         DiagnosticStudyService::class,
         EncounterService::class,
+        LaboratoryTestService::class,
+        InterventionService::class,
 //        ConditionService::class,
 
         MedicationService::class,

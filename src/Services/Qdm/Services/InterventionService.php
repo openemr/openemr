@@ -4,6 +4,8 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\InterventionPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class InterventionService extends AbstractQdmService implements QdmServiceInterface
@@ -11,11 +13,33 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
 
     public function getSqlStatement()
     {
-        // TODO: Implement getSqlStatement() method.
+        $sql = "SELECT
+                    O.patient_id AS pid,
+                    O.encounter_id AS encounter,
+                    O.procedure_order_type,
+                    O.date_ordered,
+                    OC.procedure_code
+                FROM procedure_order O
+                    JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                WHERE O.procedure_order_type = 'intervention'
+                ";
+
+        return $sql;
     }
 
     public function makeQdmModel(array $record)
     {
-        // TODO: Implement makeQdmModel() method.
+        $qdmModel = new InterventionPerformed([
+            'relevantDatetime' => new DateTime([
+                'date' => $record['date_ordered']
+            ]),
+        ]);
+
+        $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
+        foreach ($codes as $code) {
+            $qdmModel->addCode($code);
+        }
+
+        return $qdmModel;
     }
 }
