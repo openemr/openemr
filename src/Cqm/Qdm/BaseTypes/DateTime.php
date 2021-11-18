@@ -10,8 +10,7 @@ class DateTime extends AbstractType implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        return [
-            "\$date" => $this->date
-        ];
+        $formatted = gmdate('Y-m-d\TH:i:s\Z', date('U', strtotime($this->date)));
+        return $formatted;
     }
 }

@@ -16,9 +16,20 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
 {
     public function getSqlStatement()
     {
-        $sql = "SELECT patient_id AS pid, drug, rxnorm_drugcode, dosage, unit, L.title AS drug_route, `interval`, date_added, start_date, end_date
+        $sql = "SELECT
+                    patient_id AS pid,
+                    drug,
+                    rxnorm_drugcode,
+                    dosage,
+                    unit,
+                    RL.title AS drug_route,
+                    `interval`,
+                    date_added,
+                    start_date,
+                    end_date
                 FROM prescriptions P
-                JOIN list_options L ON P.route = L.option_id AND L.list_id = 'drug_route'
+                LEFT JOIN list_options RL ON P.route = RL.option_id AND RL.list_id = 'drug_route'
+                JOIN list_options FL ON P.interval = FL.option_id AND FL.list_id = 'drug_intervals'
                 ";
 
         return $sql;
@@ -45,7 +56,10 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
                 'lowClosed' => $start_date ? true : false,
                 'highClosed' => $end_date ? true : false
             ]),
-            'dosage' => new Quantity([]),
+            'dosage' => new Quantity([
+                'value' => $record['dosage'],
+                'unit' => $record['unit']
+            ]),
             'frequency' => new Code([
                 // TODO codes in list_options for frequency may not match exactly and do not have the actual SNOMED codes loaded
                 // https://browser.ihtsdotools.org/?perspective=full&conceptId1=396125000&edition=MAIN/2021-07-31&release=&languages=en

@@ -49,5 +49,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         foreach ($codes as $code) {
             $qdmModel->addCode($code);
         }
+
+        return $qdmModel;
     }
 }
