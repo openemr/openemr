@@ -15,7 +15,7 @@ class DiagnosticStudyService extends AbstractQdmService implements QdmServiceInt
     {
         $sql = "SELECT pid, `date`, encounter, code, code_type, ob_value, description, ob_code, ob_type, ob_status
                 FROM form_observation
-                WHERE ob_type = 'procedure_disgnostic'
+                WHERE ob_type = 'procedure_diagnostic'
                 ";
         return $sql;
     }
