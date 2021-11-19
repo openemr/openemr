@@ -12754,3 +12754,27 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');
+
+
+--
+-- Table structure for table `venom_codes`
+--
+
+DROP TABLE IF EXISTS `venom_codes`;
+CREATE TABLE `venom_codes` (
+  `dict_id` int,
+  `term` varchar(255),
+  `approved` int default NULL,
+  `active` int default NULL,
+  `subset_id` int default NULL,
+  `subset` varchar(255) default NULL,
+  `first_release` varchar(3) default NULL,
+  `top_level_model` text default NULL,
+  `large` tinyint default NULL,
+  `small` tinyint default NULL,
+  `farm` tinyint default NULL,
+  `exotic` tinyint default NULL,
+  `equine` tinyint default NULL,
+  `revision` int default 0,
+  PRIMARY KEY  (`dict_id`)
+) ENGINE=InnoDB;

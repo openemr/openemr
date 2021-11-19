@@ -17,6 +17,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
 function temp_copy($filename, $type)
@@ -631,6 +633,35 @@ function valueset_import($type)
     sqlStatementNoLog("COMMIT");
     sqlStatementNoLog("SET autocommit=1");
         return true;
+}
+
+function venom_import($db) {
+    $dir_venom = $GLOBALS['temporary_files_dir'] . "/" . $db . "/";
+    $dir = str_replace('\\', '/', $dir_venom);
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
+    if (is_dir($dir) && $handle = opendir($dir)) {
+        while (false !== ($filename = readdir($handle))) {
+            if (!stripos($filename, ".xlsx")) {
+                continue;
+            }
+            $xlsx = new Xlsx();
+            $spreadsheet = $xlsx->load("{$dir}{$filename}");
+            $dataArray = $spreadsheet->getActiveSheet()->toArray();
+            // Start at $i = 1 to avoid the header row
+            for ($i = 1; $i < count($dataArray); $i++) {
+                $sql = "INSERT INTO venom_codes SET dict_id = ?, term = ?, approved = ?, active = ?, subset_id = ?, subset = ?, first_release = ?, top_level_model = ?, large = ?, small = ?, farm = ?, exotic = ?, equine = ?";
+                sqlStatementNoLog($sql, $dataArray[$i]);
+            }
+        }
+    }
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("COMMIT");
+    sqlStatementNoLog("SET autocommit=1");
+    return true;
 }
 
 // Function to clean up temp files

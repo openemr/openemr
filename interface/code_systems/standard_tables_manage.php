@@ -95,6 +95,10 @@ if ($db == 'RXNORM') {
         temp_dir_cleanup($db);
         exit;
     }
+} elseif ($db == 'VENOM') {
+    if (!venom_import($db)) {
+        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+    }
 } else { //$db == 'ICD'
     if (!icd_import($db)) {
         echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";

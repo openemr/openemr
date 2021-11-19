@@ -130,7 +130,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     //
     // placemaker for when support DSMIV
     //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
+    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET", "VENOM");
     foreach ($db_list as $db) {
         ?>
         <div class="card">
@@ -182,7 +182,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 </div>
 
 <script>
-    const dbList = ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET'];
+    const dbList = ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET', 'VENOM'];
 
     dbList.forEach((dbName) => {
         $(`#collapse${dbName}`).on('show.bs.collapse', function () {
@@ -230,7 +230,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {
-                        $(this).prop("disabled", "disabled");
+                        // $(this).prop("disabled", "disabled");
                         const stg_load_id = `#${dbName}_stg_loading`;
                         $(stg_load_id).show();
                         let thisInterval;
