@@ -6,3 +6,33 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+# logs
+/logs
+
+# environment vars
+.env
+
+# vendor and assets
+node_modules
+/vendor/*
+/public/assets/*
+/public/themes/*
+!/public/assets/modified
+/.docs/.out/*
+
+# ccda service build
+ccdaservice/node_modules
+
+# dev editor configs
+/.idea/*
+/.vscode/*
+/nbproject/*
+.DS_Store
+.buildpath
+.project
+.settings
+
+# testing
+.phpunit.result.cache
+.idea/workspace.xml
+.idea/workspace.xml
