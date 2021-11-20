@@ -87,15 +87,32 @@ class DocumentTemplateService
 
     public function uploadTemplate($template_name, $category, $file, $pids = [])
     {
+        $mimetype = null;
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimetype = finfo_file($finfo, $file);
+            finfo_close($finfo);
+        } elseif (function_exists('mime_content_type')) {
+            $mimetype = mime_content_type($file);
+        } else {
+            if (stripos($file, '.pdf') !== false) {
+                $mimetype = 'application/pdf';
+            }
+        }
         $content = file_get_contents($file);
+        /*if ($mimetype === 'application/pdf') {
+            $content = "data:application/pdf;base64," . base64_encode($content);
+            $content = "<object data='$content' type='application/pdf' width='100%' height='600'></object>";
+        }*/
+
         $id = 0;
         foreach ($pids as $pid) {
-            $id = $this->insertTemplate($pid, $category, $template_name, $content);
+            $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);
         }
         return $id;
     }
 
-    public function insertTemplate($pid, $category, $template, $content): int
+    public function insertTemplate($pid, $category, $template, $content, $mimetype = null): int
     {
         $name = null;
         if (!empty($pid)) {
@@ -103,9 +120,11 @@ class DocumentTemplateService
         } elseif ($pid == -1) {
             $name = 'Repository';
         }
-        $sql = "INSERT INTO `document_templates` (`pid`, `provider`, `category`, `template_name`, `location`, `status`, `template_content`, `size`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)  ON DUPLICATE KEY UPDATE `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW()";
+        $sql = "INSERT INTO `document_templates` 
+            (`pid`, `provider`, `category`, `template_name`, `location`, `status`, `template_content`, `size`, `mime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
-        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, 'New', $content, strlen($content), ($_SESSION['authUserID'] ?? null), $content, strlen($content)));
+        return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), $category, $template, $name, 'New', $content, strlen($content), $mimetype, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype));
     }
 
     public function sendTemplate($pids, $templates, $category = null): int
@@ -141,9 +160,15 @@ class DocumentTemplateService
         return sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
     }
 
-    public function fetchTemplate($id)
+    public function fetchTemplate($id, $template_name = null)
     {
-        return sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
+        $return = null;
+        if (!empty($id)) {
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
+        } elseif (!empty($template_name)) {
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($template_name));
+        }
+        return $return;
     }
 
     public function getDefaultCategories(): array

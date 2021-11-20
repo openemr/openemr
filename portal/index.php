@@ -19,7 +19,7 @@
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php";
+require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
@@ -27,7 +27,7 @@ $ignoreAuth_onsite_portal = true;
 
 //includes
 require_once '../interface/globals.php';
-require_once dirname(__FILE__) . "/lib/appsql.class.php";
+require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
 use OpenEMR\Common\Crypto\CryptoGen;

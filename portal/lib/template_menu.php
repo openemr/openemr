@@ -24,7 +24,7 @@ function render_template_list($pid, $cuser)
     $category_list = $templateService->getFormattedCategories();
     $templates = $templateService->getTemplateListAllCategories();
     $patient_templates = $templateService->getTemplateCategoriesByPatient();
-    $templates = array_merge($templates, $patient_templates);
+    $templates = array_merge_recursive($templates, $patient_templates);
     foreach ($templates as $key => $file) {
         if (is_array($file)) {
             $is_category = $category_list[$key]['title'] ?? $key;
@@ -35,7 +35,7 @@ function render_template_list($pid, $cuser)
 
             $flag = false;
             foreach ($file as $filename) {
-                if ($filename['name'] == 'Help') {
+                if ($filename['template_name'] == 'Help') {
                     continue;
                 }
                 if ((int)$filename['pid'] !== 0 && (int)$filename['pid'] !== (int)$pid) {
@@ -46,7 +46,7 @@ function render_template_list($pid, $cuser)
                     echo "<li class='text-center'><h5 class='mb-0'>$cat_name</h5></li>\n";
                 }
                 $id = attr($filename['id']);
-                $btnname = text($filename['name']);
+                $btnname = text($filename['template_name']);
                 echo '<li class="nav-item mb-1"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . $id . '"' . ' href="#" onclick="page.newDocument(' . "'$pid','$cuser','$btnname', '$id')" . '"' . ">$btnname</a></li>\n";
             }
             if (!$flag) {

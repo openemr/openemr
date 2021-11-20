@@ -76,7 +76,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
@@ -121,6 +121,13 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 });
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
+
+                $('#showNav').on('click', () => {
+                    parent.document.getElementById('topNav').classList.toggle('collapse');
+                    var rect = parent.document.getElementById('patdocuments').getBoundingClientRect();
+                    var offsetTop = rect.top + parent.document.body.scrollTop;
+                    parent.window.scrollTo(0, offsetTop);
+                })
             }
             console.log('init done template');
 
@@ -272,7 +279,8 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
         }
     </script>
     <div class="container-fluid">
-        <nav id="verytop" class="nav navbar-light bg-light navbar-expand pt-2 m-0 sticky-top">
+        <nav id="verytop" class="nav navbar-light bg-light navbar-expand pt-4 pb-2 m-0 sticky-top">
+            <!--<a id='showNav' class='btn btn-secondary ml-auto' onclick='parent.document.getElementById("topNav").classList.toggle("collapse");'><?php /*echo xlt('View Mode'); */?></a>-->
             <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
             <div id="topmenu" class="mr-auto">
                 <ul class="navbar-nav mr-auto">
@@ -301,12 +309,12 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                         </ul>
                     </div>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><i class='fa fa-toggle-on mr-1' aria-hidden='true'></i><?php echo xlt('History') ?>
+                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"></i><?php echo xlt('History') ?>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
-                            <a id="Help" class="nav-link text-primary btn btn-outline-primary" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
+                            <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
                         <!-- future popout-->
                         <!--<li class="nav-item mb-1">
@@ -317,16 +325,18 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <li class='nav-item nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span>
-                        </a>
+                    <li class='nav-item mb-1'>
+                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                    </li>
+                    <li class='nav-item mb-1'>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon'></span><?php /*echo xlt('Top Menu'); */?></a>
                     </li>
                 </ul>
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-start">
             <!-- Pending documents menu left -->
-            <div class="align-self-start" id="topnav">
+            <div class="align-self-start sticky-top" id="topnav">
                 <ul class="nav flex-column nav-pills nav-pills-ovr">
                     <div class="navbar-header mt-3">
                         <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
@@ -369,9 +379,9 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <input type="hidden" name="status" id="status" value="Open" />
                         </form>
                         <div class="clearfix">
-            <span>
-                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
-            </span>
+                            <span>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                            </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>

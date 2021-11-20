@@ -73,7 +73,7 @@
         * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
         */
         function popUp( url, data, name, width, height) {
-            width = width || '60%'; height = height || '90%';
+            width = width || '80%'; height = height || '85%';
 
             if ( typeof width == 'string' && width.length > 1 && width.substr( width.length - 1, 1 ) === '%') {
                 width = parseInt(window.screen.width * parseInt(width, 10) / 100, 10);
@@ -510,7 +510,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful values are init, shown, show, confirm, alert and closed which coincide with dialog events.
+        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and closed which coincide with dialog events.
     };
 
     if (!opts) {

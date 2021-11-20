@@ -53,9 +53,9 @@ function getAuthUsers()
     <script>
         let currentEdit = "";
         let editor;
-        let templateEdit = function (id) {
+        let templateEdit = function (id, flag = '') {
             currentEdit = id;
-            handleTemplate(id, 'get', '');
+            handleTemplate(id, 'get', '', flag);
             return false;
         };
 
@@ -126,7 +126,7 @@ function getAuthUsers()
             });
         }
 
-        function handleTemplate(id, mode, content) {
+        function handleTemplate(id, mode, content = '', isDocument = '') {
             top.restoreSession();
             let libUrl = 'import_template.php';
             let renderUrl = 'import_template.php?mode=editor_render_html&docid=' + id;
@@ -135,7 +135,24 @@ function getAuthUsers()
                 dialog.popUp(renderUrl, null, 'edit' + id);
                 return false;
             }
-
+            if (isDocument == true) {
+                dialog.popUp(renderUrl, null, ('edit' + id));
+                return false;
+            }
+            if (mode == 'get') {
+                renderUrl += '&dialog=true';
+                dlgopen(renderUrl, 'pop-editor', 'modal-lg', 850, '', '', {
+                    /*buttons: [
+                        {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: templateSave},
+                        {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
+                    ],*/
+                    resolvePromiseOn: 'show',
+                    allowDrag: false,
+                    allowResize: true,
+                    sizeHeight: 'full',
+                    //onClosed: 'reload'
+                });
+            }
             $.ajax({
                 type: "POST",
                 url: libUrl,
@@ -145,51 +162,7 @@ function getAuthUsers()
                     alert(<?php echo xlj("File Error") ?> +"\n" + id)
                 },
                 success: function (templateHtml, textStatus, jqXHR) {
-                    if (mode == 'get') {
-                        let url = 'import_template.php?templateHtml=' + encodeURIComponent(templateHtml);
-                        let editHtml = '<textarea rows="1" cols="120" id="templateContent" contenteditable="true">' + (templateHtml) + '</textarea>';
-
-                        dlgopen(url, 'pop-editor', 'modal-lg', 850, '', '', {
-                            buttons: [
-                                {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: templateSave},
-                                {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
-                            ],
-                            resolvePromiseOn: 'show',
-                            allowDrag: false,
-                            allowResize: false,
-                            sizeHeight: 'full',
-                            onClosed: 'reload',
-                            html: editHtml,
-                            //frameContent: editHtml,
-                            type: 'alert'
-                        }).then(rtn => rtn.text()).then((rtn) => {
-                            editor = CKEDITOR.instances['templateContent'];
-                            if (editor) {
-                                editor.destroy(true);
-                            }
-                            /*CKEDITOR.config.extraPlugins = 'autogrow';
-                            CKEDITOR.config.autoGrow_onStartup = true;
-                            CKEDITOR.config.autoGrow_minWidth = '200px';
-                            CKEDITOR.config.autoGrow_maxWidth = '100%';
-                            CKEDITOR.config.autoGrow_minHeight = 200;
-                            CKEDITOR.config.autoGrow_maxHeight = 575;
-                            CKEDITOR.config.autoGrow_bottomSpace = 0;*/
-                            editor = CKEDITOR.replace('templateContent', {
-                                //extraPlugins: 'docprops',
-                                //removePlugins: 'resize',
-                                removeButtons: 'PasteFromWord',
-                                width: '100%',
-                                height: 375,
-                                resize_dir: 'both',
-                                //resize_minWidth: 300,
-                                //resize_maxWidth: '100%',
-                                //resize_minHeight: 200,
-                                //resize_maxHeight: 375,
-                                fullPage: true,
-                                allowedContent: true,
-                            });
-                        });
-                    } else if (mode === 'save') {
+                    if (mode === 'save') {
                         location.reload();
                     } else if (mode === 'delete') {
                         location.reload();
@@ -211,7 +184,7 @@ function getAuthUsers()
                 minimumResultsForSearch: 15,
                 theme: 'bootstrap4',
                 width: 'resolve',
-                //closeOnSelect: false,
+                closeOnSelect: false,
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
 
@@ -243,7 +216,7 @@ function getAuthUsers()
             });
             $('#upload-nav').on('show.bs.collapse', function () {
                 $('#upload-nav-value').val('show');
-                $('#edit_form').submit();
+                //$('#edit_form').submit();
             });
 
             $("#template_category").change(function () {
@@ -328,6 +301,7 @@ function getAuthUsers()
                             }
                             ?>
                         </select>
+                        <a class='btn-refresh ml-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
                         <?php
                         $select_cat_options = '<option value="">' . xlt('General')  . "</option>\n";
                         foreach ($category_list as $option_category) {
@@ -372,7 +346,7 @@ function getAuthUsers()
                         <hr />
                         <div class='col'>
                             <div id='upload_scope_category'></div>
-                            <div class="mb-2" id='upload_scope'></div>
+                            <div class='mb-2' id='upload_scope'></div>
                         </div>
                         <div class='form-group col'>
                             <div class='form-group'>
@@ -422,6 +396,7 @@ function getAuthUsers()
                         foreach ($files as $file) {
                             $template_id = $file['id'];
                             $this_cat = $file['category'];
+                            $notify_flag = false;
                             $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                             foreach ($category_list as $option_category) {
                                 if (stripos($option_category['option_id'], 'repository') !== false) {
@@ -434,13 +409,20 @@ function getAuthUsers()
                                 }
                             }
                             echo "<tr>";
-                            echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";
-                            echo '<td><select class="form-control form-control-sm" id="category_table' . attr($template_id) .
-                                '" onchange="updateCategory(' . attr_js($template_id) .  ')" value="' . attr($this_cat) . '">' .
-                                $select_cat_options  .  '</select></td>';
+                            if ($file['mime'] == 'application/pdf') {
+                                $this_cat = xlt('PDF Document');
+                                $notify_flag = true;
+                                echo '<td>' . '*' . '</td>';
+                                echo "<td>" . $this_cat . " Id: " . attr($template_id) . "</td>";
+                            } else {
+                                echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";
+                                echo '<td><select class="form-control form-control-sm" id="category_table' . attr($template_id) .
+                                    '" onchange="updateCategory(' . attr_js($template_id) . ')" value="' . attr($this_cat) . '">' .
+                                    $select_cat_options . '</select></td>';
+                            }
                             echo '<td>' .
                                 '<button id="templateEdit' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/'</button>' .
+                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ',' . attr_js($notify_flag) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/'</button>' .
                                 '<button id="templateDelete' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") .
                                 '</button></td>';

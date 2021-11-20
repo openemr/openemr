@@ -63,7 +63,7 @@ while ($file = sqlFetchArray($fres)) {
         $pos = strpos(substr($file['name'], -5), '.');
         // check if has an extension or find it from the mimetype
         if ($pos === false) {
-            $file['name'] = $file['name'] . get_extension($file['mimetype']);
+            $file['name'] .= get_extension($file['mimetype']);
         }
 
         $dest = $tmp . "/" . $pid . "/" . $path . "/" . convert_safe_file_dir_name($file['name']);

@@ -154,9 +154,30 @@ function doSubs($s)
             $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
+            global $templateService;
+            $keyLength = strlen($matches[0]);
+            $formname = $matches[2];
+            $form_id = null;
+            if (is_numeric($formname)) {
+                $form_id = $formname;
+                $formname = '';
+            }
+            $formtitle = text($formname . ' ' . $matches[3]);
+            $content = $templateService->fetchTemplate($form_id, $formname)['template_content'];
+            $content = 'data:application/pdf;base64,' . base64_encode($content);
+            $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
+            $sigfld .= "<div class='d-none' id='showPdf'>\n";
+            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='450px'></object>\n";
+            $sigfld .= '</div>';
+            $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
+            $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{ParseAsHTML}')) {
             $html_flag = true;
             $s = keyReplace($s, "");
+        } elseif (keySearch($s, '{ParseAsText}')) {
+            $html_flag = false;
+            $s = keyReplace($s, '');
         } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[2];
             $keyLength = strlen($matches[0]);
@@ -381,7 +402,7 @@ function doSubs($s)
                 }
             }
             $s = keyReplace($s, dataFixup($data, $title));
-        } elseif (preg_match('/^{CurrentDate:?.*}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^{(CurrentDate):(.*?)}/', substr($s, $keyLocation), $matches)) {
             /* defaults to ISO standard date format yyyy-mm-dd
              * modified by string following ':' as follows
              * 'global' will use the global date format setting

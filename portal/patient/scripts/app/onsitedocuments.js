@@ -196,6 +196,7 @@ var page = {
             if (!isPortal) {
                 $("#signTemplate").hide();
                 $("#Help").hide();
+                $("#showNav").hide();
                 if (page.isCharted || page.isLocked) {
                     $("#chartTemplate").hide();
                     $("#chartHistory").hide();
@@ -532,6 +533,7 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
+        parent.document.getElementById("topNav").classList.add("collapse");
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
@@ -600,7 +602,6 @@ var page = {
                         // lbf has own signer instance. no binding here.
                         // page.lbfFormName & page.isFrameForm is set from template directive
                         $(function () {
-
                             bindFetch();
                             // an iframe in <form><iframe src=???></iframe> this page.
                             if (page.isFrameForm) {
