@@ -488,7 +488,7 @@ if ($_POST['form_action'] != "") {
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
     $_SESSION['whereto'] = 'appointmentcard';
-    header('Location:./home.php#appointmentpanel');
+    header('Location:./home.php#appointmentcard');
     exit();
 }
 
@@ -796,9 +796,21 @@ if ($userid) {
                 f.form_minute.value = minutes;
             }
 
+            function get_form_category_value()
+            {
+                var catid = 0;
+                var f = document.forms.namedItem("theaddform");
+                var s = f.form_category;
+                if (s.selectedIndex >= 0) {
+                    catid = s.options[s.selectedIndex].value;
+                }
+                return catid;
+            }
+
             // Invoke the find-available popup.
             function find_available() {
                 // when making an appointment for a specific provider
+                var catId = get_form_category_value() || 5;
                 var se = document.getElementById('form_provider_ae');
                 <?php if ($userid != 0) { ?>
                 s = se.value;
@@ -806,7 +818,8 @@ if ($userid) {
                 s = se.options[se.selectedIndex].value;
                 <?php }?>
                 var formDate = document.getElementById('form_date');
-                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
+                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=' + encodeURIComponent(catId)
+                    + '&startdate=' + encodeURIComponent(formDate.value);
                 var params = {
                     buttons: [
                         {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
