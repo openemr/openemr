@@ -5011,7 +5011,7 @@ INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '464.51'
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.0', '', 'Acute laryngopharyngitis' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.8', '', 'Acute upper respiratory infections of other multiple sites' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.9', '', 'Acute upper respiratory infections of unspecified site' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.0', '', 'Acute bronchitis' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.0', '', 'Acute bronchitis_01' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.11', '', 'Acute bronchiolitis due to respiratory syncytial virus (rsv)' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.19', '', 'Acute bronchiolitis due to other infectious organisms' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '470', '', 'Deviated nasal septum' );
@@ -5111,13 +5111,13 @@ INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '487.8',
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '488.0', '', 'Influenza due to identified avian influenza virus' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '488.1', '', 'Influenza due to identified novel h1n1 influenza virus' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '490', '', 'Bronchitis not specified as acute or chronic' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.0', '', 'Simple chronic bronchitis' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.1', '', 'Mucopurulent chronic bronchitis' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.20', '', 'Obstructive chronic bronchitis without exacerbation' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.21', '', 'Obstructive chronic bronchitis with (acute) exacerbation' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.22', '', 'Chronic bronchitis with acute bronchitis' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.8', '', 'Other chronic bronchitis' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.9', '', 'Unspecified chronic bronchitis' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.0', '', 'Simple chronic bronchitis_01' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.1', '', 'Mucopurulent chronic bronchitis_01' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.20', '', 'Obstructive chronic bronchitis_01 without exacerbation' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.21', '', 'Obstructive chronic bronchitis_01 with (acute) exacerbation' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.22', '', 'Chronic bronchitis_01 with acute bronchitis_01' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.8', '', 'Other chronic bronchitis_01' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.9', '', 'Unspecified chronic bronchitis_01' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '492.0', '', 'Emphysematous bleb' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '492.8', '', 'Other emphysema' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '493.00', '', 'Extrinsic asthma unspecified' );
@@ -14237,7 +14237,7 @@ INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V80.3',
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.0', '', 'Screening for ischemic heart disease' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.1', '', 'Screening for hypertension' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.2', '', 'Screening for other and unspecified cardiovascular conditions' );
-INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.3', '', 'Screening for chronic bronchitis and emphysema' );
+INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.3', '', 'Screening for chronic bronchitis_01 and emphysema' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.4', '', 'Screening for other and unspecified respiratory conditions' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.5', '', 'Screening for nephropathy' );
 INSERT INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.6', '', 'Screening for other and unspecified genitourinary conditions' );

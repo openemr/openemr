@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bronchitis report.php
+ * bronchitis_01 report.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

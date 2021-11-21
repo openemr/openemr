@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bronchitis new.php
+ * bronchitis_01 new.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -22,7 +22,7 @@ require_once("$srcdir/api.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-formHeader("Form: bronchitis");
+formHeader("Form: bronchitis_01");
 $returnurl = 'encounter_top.php';
 ?>
 <html><head>

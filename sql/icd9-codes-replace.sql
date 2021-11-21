@@ -5011,7 +5011,7 @@ REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '464.51
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.0', '', 'Acute laryngopharyngitis' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.8', '', 'Acute upper respiratory infections of other multiple sites' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '465.9', '', 'Acute upper respiratory infections of unspecified site' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.0', '', 'Acute bronchitis' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.0', '', 'Acute bronchitis_01' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.11', '', 'Acute bronchiolitis due to respiratory syncytial virus (rsv)' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '466.19', '', 'Acute bronchiolitis due to other infectious organisms' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '470', '', 'Deviated nasal septum' );
@@ -5111,13 +5111,13 @@ REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '487.8'
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '488.0', '', 'Influenza due to identified avian influenza virus' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '488.1', '', 'Influenza due to identified novel h1n1 influenza virus' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '490', '', 'Bronchitis not specified as acute or chronic' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.0', '', 'Simple chronic bronchitis' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.1', '', 'Mucopurulent chronic bronchitis' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.20', '', 'Obstructive chronic bronchitis without exacerbation' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.21', '', 'Obstructive chronic bronchitis with (acute) exacerbation' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.22', '', 'Chronic bronchitis with acute bronchitis' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.8', '', 'Other chronic bronchitis' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.9', '', 'Unspecified chronic bronchitis' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.0', '', 'Simple chronic bronchitis_01' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.1', '', 'Mucopurulent chronic bronchitis_01' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.20', '', 'Obstructive chronic bronchitis_01 without exacerbation' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.21', '', 'Obstructive chronic bronchitis_01 with (acute) exacerbation' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.22', '', 'Chronic bronchitis_01 with acute bronchitis_01' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.8', '', 'Other chronic bronchitis_01' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '491.9', '', 'Unspecified chronic bronchitis_01' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '492.0', '', 'Emphysematous bleb' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '492.8', '', 'Other emphysema' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, '493.00', '', 'Extrinsic asthma unspecified' );
@@ -14237,7 +14237,7 @@ REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V80.3'
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.0', '', 'Screening for ischemic heart disease' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.1', '', 'Screening for hypertension' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.2', '', 'Screening for other and unspecified cardiovascular conditions' );
-REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.3', '', 'Screening for chronic bronchitis and emphysema' );
+REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.3', '', 'Screening for chronic bronchitis_01 and emphysema' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.4', '', 'Screening for other and unspecified respiratory conditions' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.5', '', 'Screening for nephropathy' );
 REPLACE INTO codes ( code_type, code, modifier, code_text  ) VALUES ( 2, 'V81.6', '', 'Screening for other and unspecified genitourinary conditions' );

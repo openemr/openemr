@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bronchitis report.php
+ * bronchitis_01 report.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -28,7 +28,7 @@ if ($encounter == "") {
 
 if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_bronchitis", $_POST, $_GET["id"], $userauthorized);
-    addForm($encounter, "Bronchitis Form", $newid, "bronchitis", $pid, $userauthorized);
+    addForm($encounter, "Bronchitis Form", $newid, "bronchitis_01", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
         "update form_bronchitis set pid = ?,
