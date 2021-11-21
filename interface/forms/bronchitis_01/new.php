@@ -29,9 +29,7 @@ $returnurl = 'encounter_top.php';
 ?>
 <html><head>
 <script>
-<!--
-
-   function onset_check (form)   {
+    function onset_check (form)   {
 
     var d, s = "Today's date is: "; //Declare variables.
     d = new Date(); //Create Date object.
@@ -50,7 +48,7 @@ $returnurl = 'encounter_top.php';
      alert("Your date should be 10 characters");
     return;
       }
-    alert("OK, Bye!!!");
+    alert("Date of onset can be read as follows: $s");
     return;
    }
 </script>
