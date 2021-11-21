@@ -151,7 +151,7 @@ function getAuthUsers()
                         {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
                     ],*/
                     resolvePromiseOn: 'show',
-                    allowDrag: false,
+                    allowDrag: true,
                     allowResize: true,
                     sizeHeight: 'full',
                     //onClosed: 'reload'
@@ -307,7 +307,7 @@ function getAuthUsers()
                             if ($category === $option_category['option_id']) {
                                 $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
                             } else {
-                                $select_cat_options .= "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                                $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
                             }
                         }
                         ?>
@@ -332,11 +332,11 @@ function getAuthUsers()
                             <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
                         </label>
                     </div>
-                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo $_REQUEST['upload-nav-value'] ?? 'hidden' ?>' />
+                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo attr($_REQUEST['upload-nav-value']) ?? 'hidden' ?>' />
                 </form>
             </nav>
             <!-- Upload -->
-            <nav class="collapse my-2 <?php echo $_REQUEST['upload-nav-value'] ?>" id="upload-nav">
+            <nav class="collapse my-2 <?php echo attr($_REQUEST['upload-nav-value']) ?>" id="upload-nav">
                 <div class='col col-12'>
                     <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
                         <hr />
@@ -350,7 +350,7 @@ function getAuthUsers()
                                 <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit'><i class='fa fa-upload' aria-hidden='true'></i></button>
                             </div>
                         </div>
-                        <input type='hidden' name='upload_pid' value='<?php echo json_encode($patient); ?>' />
+                        <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode($patient)); ?>' />
                         <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
                     </form>
                 </div>
@@ -401,7 +401,7 @@ function getAuthUsers()
                                 if ($this_cat === $option_category['option_id']) {
                                     $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
                                 } else {
-                                    $select_cat_options .= "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                                    $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
                                 }
                             }
                             echo "<tr>";

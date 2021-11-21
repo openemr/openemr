@@ -74,7 +74,7 @@ if ($_POST['mode'] === 'get') {
 } elseif ($_POST['mode'] === 'update_category') {
     if ($_POST['docid']) {
         $template = $templateService->updateTemplateCategory($_POST['docid'], $_POST['category']);
-        echo xlt('Template Category successfully changed to new Category') . ' ' . $_POST['category'];
+        echo xlt('Template Category successfully changed to new Category') . ' ' . text($_POST['category']);
         exit;
     }
     die(xlt('Invalid Request Parameters'));
@@ -116,7 +116,6 @@ if ($_REQUEST['mode'] === 'editor_render_html') {
         $content = $templateService->fetchTemplate($_REQUEST['docid']);
         $template_content = $content['template_content'];
         if ($content['mime'] == 'application/pdf') {
-            //$template_content = 'data:application/pdf;base64,' . base64_encode($template_content);
             $content = "<iframe width='100%' height='100%' src='data:application/pdf;base64, " .
                 attr(base64_encode($template_content)) . "'></iframe>";
             echo $content;
@@ -154,14 +153,14 @@ function renderEditorHtml($template_id, $content)
       }
     </style>
     <body>
-        <div class="container-fluid mt-2">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-10 px-1">
                     <form class="sticky-top" action='./import_template.php' method='post'>
-                        <input type="hidden" name="docid" value="<?php echo $template_id ?>">
+                        <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
-                        <textarea class='inline-editor' contenteditable='true' cols='80' rows='10' id='templateContent' name='content'><?php echo $content ?></textarea>
+                        <textarea class='inline-editor' contenteditable='true' cols='80' rows='10' id='templateContent' name='content'><?php echo text($content) ?></textarea>
                         <div class="row btn-group mt-1 float-right">
                             <div class='col btn-group mt-1 float-right'>
                                 <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
@@ -175,12 +174,13 @@ function renderEditorHtml($template_id, $content)
                     <ul class='list-group list-group-flush pl-1 mb-5'>
                         <?php
                         foreach ($lists as $list) {
-                            echo "<input class='list-group-item p-1' value='$list'>";
+                            echo '<input class="list-group-item p-1" value="' . attr($list) . '">';
                         }
                         ?>
                     </ul>
                 </div>
             </div>
+        </div>
     </body>
     <script>
         let isDialog = false;
@@ -204,35 +204,35 @@ function renderEditorHtml($template_id, $content)
             if (editor) {
                 editor.destroy(true);
             }
-            //CKEDITOR.config.height = '900';
-            //CKEDITOR.config.width = '100%';
             /*
             CKEDITOR.config.autoGrow_onStartup = true;
             CKEDITOR.config.autoGrow_maxWidth = '100%';
             CKEDITOR.config.autoGrow_minHeight = 200;
             CKEDITOR.config.autoGrow_maxHeight = 580;
             CKEDITOR.config.autoGrow_bottomSpace = 10;
+            CKEDITOR.config.autoParagraph = false;
+            CKEDITOR.config.forceEnterMode = true;
+            CKEDITOR.config.extraPlugins = 'sourcearea';
+            CKEDITOR.config. removePlugins = 'sourcedialog';
+            CKEDITOR.config.removeButtons = 'PasteFromWord';
+            CKEDITOR.config. = ;
             */
-            //CKEDITOR.config.forceEnterMode = true;
-            //CKEDITOR.disableAutoInline = true;
-            //CKEDITOR.config.extraPlugins = 'bgimage';
-            CKEDITOR.config.allowedContent = 'div{*}';
-            CKEDITOR.config.extraPlugins = "preview,save,docprops,justify,bgimage";
-            //CKEDITOR.config.autoParagraph = false;
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.extraPlugins = "preview,save,docprops,justify";
+            CKEDITOR.config.allowedContent = true;
+            CKEDITOR.config.fullPage = true;
+            CKEDITOR.config.height = height;
+            CKEDITOR.config.width = '100%';
+            CKEDITOR.config.resize_dir = 'both';
+            CKEDITOR.config.resize_minHeight = max/2;
+            CKEDITOR.config.resize_maxHeight = max;
+            CKEDITOR.config.resize_minWidth = '50%';
+            CKEDITOR.config.resize_maxWidth = '100%';
+
             editor = CKEDITOR.replace('templateContent', {
-                /*extraPlugins: 'sourcedialog',
-                removePlugins: 'sourcearea',*/
-                width: '100%',
-                height: height,
-                resize_dir: 'both',
-                resize_minWidth: '50%',
-                resize_maxWidth: '100%',
-                //resize_maxHeight: max,
-                removeButtons: 'PasteFromWord',
-                fullPage: true,
-                allowedContent: true,
+                removeButtons: 'PasteFromWord'
             });
-        })
+        });
     </script>
     </html>
 <?php }

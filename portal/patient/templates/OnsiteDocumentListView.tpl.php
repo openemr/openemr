@@ -127,7 +127,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     var rect = parent.document.getElementById('patdocuments').getBoundingClientRect();
                     var offsetTop = rect.top + parent.document.body.scrollTop;
                     parent.window.scrollTo(0, offsetTop);
-                })
+                });
             }
             console.log('init done template');
 

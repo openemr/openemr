@@ -45,9 +45,9 @@ function render_template_list($pid, $cuser)
                     $flag = true;
                     echo "<li class='text-center'><h5 class='mb-0'>$cat_name</h5></li>\n";
                 }
-                $id = attr($filename['id']);
-                $btnname = text($filename['template_name']);
-                echo '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . $id . '"' . ' href="#" onclick="page.newDocument(' . "'$pid','$cuser','$btnname', '$id')" . '"' . ">$btnname</a></li>\n";
+                $id = $filename['id'];
+                $btnname = $filename['template_name'];
+                echo '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($pid) . ', ' . attr_js($cuser) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) , "</a></li>\n";
             }
             if (!$flag) {
                 echo '<strong><hr class="mb-2 mt-1" /></strong>';
