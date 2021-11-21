@@ -1,14 +1,16 @@
 <?php
 
 /**
- * bronchitis report.php
+ * bronchitis_01 report.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ralf Lukner MD PhD <lukner@gmail.com>
  * @copyright Copyright (c) 2004 Nikolai Vitsyn
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ralf Lukner <lukner@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,11 +29,11 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_bronchitis", $_POST, $_GET["id"], $userauthorized);
-    addForm($encounter, "Bronchitis Form", $newid, "bronchitis", $pid, $userauthorized);
+    $newid = formSubmit("form_bronchitis_01", $_POST, $_GET["id"], $userauthorized);
+    addForm($encounter, "Bronchitis Form Revision 01", $newid, "bronchitis_01", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
-        "update form_bronchitis set pid = ?,
+        "update form_bronchitis_01 set pid = ?,
             groupname = ?,
             user = ?,
             authorized = ?,

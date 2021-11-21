@@ -31,10 +31,10 @@ $returnurl = 'encounter_top.php';
 include_once("$srcdir/api.inc");
 $obj = formFetch("form_bronchitis", $_GET["id"]);
 ?>
-<form method=post action="<?php echo $rootdir?>/forms/bronchitis/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/bronchitis_01/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt('Bronchitis Form'); ?></span><br /><br />
+<span class="title"><?php echo xlt('Bronchitis Form Revision 01'); ?></span><br /><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bronchitis new.php
+ * bronchitis_01 new.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -9,10 +9,12 @@
  * @author    cfapress <cfapress>
  * @author    Robert Down <robertdown@live.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ralf Lukner MD PhD <lukner@gmail.com>
  * @copyright Copyright (c) 2004 Nikolai Vitsyn
  * @copyright Copyright (c) 2008 cfapress <cfapress>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ralf Lukner <lukner@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,7 @@ require_once("$srcdir/api.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-formHeader("Form: bronchitis");
+formHeader("Form: bronchitis_01");
 $returnurl = 'encounter_top.php';
 ?>
 <html><head>
@@ -57,7 +59,7 @@ $returnurl = 'encounter_top.php';
 </head>
 <body class="body_top">
 
-<form method=post action="<?php echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
+<form method=post action="<?php echo $rootdir;?>/forms/bronchitis_01/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <br /><br />

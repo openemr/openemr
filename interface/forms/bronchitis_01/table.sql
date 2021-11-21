@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `form_bronchitis` (
+CREATE TABLE IF NOT EXISTS `form_bronchitis_01` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
