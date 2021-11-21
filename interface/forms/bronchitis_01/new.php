@@ -370,16 +370,39 @@ $returnurl = 'encounter_top.php';
 <table><tr>
    <td>
    <select name="diagnosis1_bronchitis_form" >
-      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
-      <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
-      <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
-      <option value="493.92, Astma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
-      <option value="491.8, Bronchitis, Chronic"><?php echo xlt('491.8, Bronchitis, Chronic'); ?></option>
-      <option value="496.0, COPD"><?php echo xlt('496.0, COPD'); ?></option>
-      <option value="491.21,COPD Exacerbation"><?php echo xlt('491.21, COPD Exacerbation'); ?></option>
-      <option value="486.0, Pneumonia, Acute"><?php echo xlt('486.0, Pneumonia, Acute'); ?></option>
-      <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
-      <br /><br />
+       <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
+       <option value="J06.9, Acute upper respiratory infection, unspecified"><?php
+           echo xlt('J06.9, Acute upper respiratory infection, unspecified'); ?></option>
+       <option value="J20.9, Acute bronchitis, unspecified"><?php
+           echo xlt('J20.9, Acute bronchitis, unspecified'); ?></option>
+       <option value="J45.21, Mild intermittent asthma with (acute) exacerbation"><?php
+           echo xlt('J45.21, Mild intermittent asthma with (acute) exacerbation'); ?></option>
+       <option value="J45.41, Moderate persistent asthma with (acute) exacerbation"><?php
+           echo xlt('J45.41, Moderate persistent asthma with (acute) exacerbation'); ?></option>
+       <option value="J45.51, Severe persistent asthma with (acute) exacerbation"><?php
+           echo xlt('J45.51, Severe persistent asthma with (acute) exacerbation'); ?></option>
+       <option value="J45.901, Unspecified asthma with (acute) exacerbation"><?php
+           echo xlt('J45.901, Unspecified asthma with (acute) exacerbation'); ?></option>
+       <option value="J41.0, Simple chronic bronchitis"><?php
+           echo xlt('J41.0, Simple chronic bronchitis'); ?></option>
+       <option value="J41.1, Mucopurulent chronic bronchitis"><?php
+           echo xlt('J41.1, Mucopurulent chronic bronchitis'); ?></option>
+       <option value="J42, Unspecified chronic bronchitis"><?php
+           echo xlt('J42, Unspecified chronic bronchitis'); ?></option>
+       <option value="J44.0, Chronic obstructive pulmonary disease with (acute) lower respiratory infection"><?php
+           echo xlt('J44.0, Chronic obstructive pulmonary disease with (acute) lower respiratory infection'); ?></option>
+       <option value="J44.1, Chronic obstructive pulmonary disease with (acute) exacerbation"><?php
+           echo xlt('J44.1, Chronic obstructive pulmonary disease with (acute) exacerbation'); ?></option>
+       <option value="J44.9, Chronic obstructive pulmonary disease, unspecified"><?php
+           echo xlt('J44.9, Chronic obstructive pulmonary disease, unspecified'); ?></option>
+       <option value="J18.0, Bronchopneumonia, unspecified organism"><?php
+           echo xlt('J18.0, Bronchopneumonia, unspecified organism'); ?></option>
+       <option value="J18.1, Lobar pneumonia, unspecified organism"><?php
+           echo xlt('J18.1, Lobar pneumonia, unspecified organism'); ?></option>
+       <option value="J18.8, Other pneumonia, unspecified organism"><?php
+           echo xlt('J18.8, Other pneumonia, unspecified organism'); ?></option>
+       <option value="519.7, Bronchospasm"><?php echo xlt('519.7, Bronchospasm'); ?></option>
+       <br /><br />
    </select>
    </td>
 </tr>
