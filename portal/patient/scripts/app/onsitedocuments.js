@@ -108,7 +108,9 @@ var page = {
                 page.showDetailDialog(m);
                 $('html,body').animate({scrollTop:0},500);*/
             });
-
+            $('.template-item').unbind().on('click', function (e) {
+                parent.document.getElementById('topNav').classList.add('collapse');
+            });
             page.isInitialized = true;
             page.isInitializing = false;
             // if dashboard let's open first doc for review.
@@ -533,7 +535,6 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
-        parent.document.getElementById("topNav").classList.add("collapse");
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');

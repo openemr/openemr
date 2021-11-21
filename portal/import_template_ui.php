@@ -94,8 +94,10 @@ function getAuthUsers()
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
-                dialog.alert(xl('Result Message') + ': ' + rtn).then((rtn) => {
-                    document.edit_form.submit();
+                (async (time) => {
+                    await asyncAlertMsg(rtn, time, 'success', 'lg');
+                })(2000).then(rtn => {
+                    //document.edit_form.submit();
                 });
             }).catch((error) => {
                 console.error('Error:', error);
@@ -118,8 +120,10 @@ function getAuthUsers()
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
-                dialog.alert(rtn).then((rtn) => {
-                    $('#edit_form').submit();
+                (async (time) => {
+                    await asyncAlertMsg(rtn, time, 'success', 'lg');
+                })(1000).then(rtn => {
+                    document.edit_form.submit();
                 });
             }).catch((error) => {
                 console.error('Error:', error);
@@ -201,12 +205,12 @@ function getAuthUsers()
 
             let select_focus = false;
             /* Can't use if we want multi selects for locations. so ??? */
-           /* $('#selected_patients').change(function () {
-                if (checkCategory()) {
-                    select_focus = true;
-                    $('#edit_form').submit();
-                }
-            });*/
+            /* $('#selected_patients').change(function () {
+                 if (checkCategory()) {
+                     select_focus = true;
+                     $('#edit_form').submit();
+                 }
+             });*/
             $('#selected_patients').on('select2:close', function (e) {
                 $('#edit_form').submit();
             });
@@ -273,15 +277,7 @@ function getAuthUsers()
                         </div>
                 </span>
             </div>
-            <div class='card col-8 offset-2 border-0 mb-2'>
-                <div id='help-panel' class='card-block border-2 bg-dark text-light collapse'>
-                    <div class='card-title bg-light text-dark text-center'><?php echo xlt('Template Help'); ?></div>
-                    <div class='card-text p-2'>
-                        <?php echo xlt('Select a text or html template and upload for selected patient or all portal patients.'); ?><br /><?php echo xlt('Files base name becomes a pending document selection in Portal Documents.'); ?><br />
-                        <em><?php echo xlt('For example: Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents.'); ?></em>
-                    </div>
-                </div>
-            </div>
+            <?php include_once('./../Documentation/help_files/template_maintenace_help.php'); ?>
             <hr />
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-light bg-light sticky-top'>
@@ -303,23 +299,23 @@ function getAuthUsers()
                         </select>
                         <a class='btn-refresh ml-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
                         <?php
-                        $select_cat_options = '<option value="">' . xlt('General')  . "</option>\n";
+                        $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                         foreach ($category_list as $option_category) {
                             if (stripos($option_category['option_id'], 'repository') !== false) {
                                 continue;
                             }
                             if ($category === $option_category['option_id']) {
-                                $select_cat_options .=  "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
+                                $select_cat_options .= "<option value='" . attr($option_category['option_id']) . "' selected>" . text($option_category['title']) . "</option>\n";
                             } else {
-                                $select_cat_options .=  "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
+                                $select_cat_options .= "<option value='" . text($option_category['option_id']) . "'>" . text($option_category['title']) . "</option>\n";
                             }
                         }
                         ?>
                         <div class="form-group" id="category_group">
-                        <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
-                        <select class="form-control" id="template_category" name="template_category">
-                            <?php echo $select_cat_options ?>
-                        </select>
+                            <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
+                            <select class="form-control" id="template_category" name="template_category">
+                                <?php echo $select_cat_options ?>
+                            </select>
                         </div>
                     </div>
                     <div class='btn-group ml-1'>
@@ -333,7 +329,7 @@ function getAuthUsers()
                     </div>
                     <div class="ml-auto">
                         <label class="form-check"><?php echo xlt('Use Popout Editor'); ?>
-                            <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' />
+                            <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
                         </label>
                     </div>
                     <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo $_REQUEST['upload-nav-value'] ?? 'hidden' ?>' />
@@ -422,7 +418,8 @@ function getAuthUsers()
                             }
                             echo '<td>' .
                                 '<button id="templateEdit' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ',' . attr_js($notify_flag) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/'</button>' .
+                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ',' . attr_js($notify_flag) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/
+                                '</button>' .
                                 '<button id="templateDelete' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") .
                                 '</button></td>';

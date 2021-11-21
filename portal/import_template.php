@@ -234,6 +234,5 @@ function renderEditorHtml($template_id, $content)
             });
         })
     </script>
-    </body>
     </html>
 <?php }
