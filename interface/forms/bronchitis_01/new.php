@@ -35,7 +35,7 @@ $returnurl = 'encounter_top.php';
     d = new Date(); //Create Date object.
     s += (d.getMonth() + 1) + "-"; //Get month
     s += d.getDate() + "-"; //Get day
-    s += d.getYear(); //Get year.
+    s += d.getFullYear(); //Get year.
 
     onset_str = form.bronchitis_date_of_illness.value;
     if (onset_str == "") {
@@ -48,7 +48,8 @@ $returnurl = 'encounter_top.php';
      alert("Your date should be 10 characters");
     return;
       }
-    alert("Date of onset can be read as follows: $s");
+    alert_string = "Date of onset can be read as follows: " + onset_str;
+    alert(s);
     return;
    }
 </script>
