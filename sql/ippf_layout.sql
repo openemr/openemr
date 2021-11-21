@@ -1124,7 +1124,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_va
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','hep'   ,'Active viral hepatitis'                                    ,21,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','iron'  ,'Iron deficiency anaemia'                                   ,22,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','asi'   ,'Local abdominal skin infection'                            ,23,0,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','brpn'  ,'Acute bronchitis_01 or pneumonia'                             ,24,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','brpn'  ,'Acute bronchitis or pneumonia'                             ,24,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','sig'   ,'Systemic infection or gastroenteritis'                     ,25,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('sur_contra','absur' ,'Sterilization concurrent with abdominal surgery'           ,26,0,0);
 

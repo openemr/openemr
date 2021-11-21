@@ -146,7 +146,7 @@ INSERT INTO `form_CAMOS_subcategory` VALUES (175,NULL,NULL,'drleeds',NULL,NULL,N
 
 
 INSERT INTO `form_CAMOS_item` VALUES (12,NULL,NULL,NULL,NULL,NULL,NULL,'azithromycin 500mg 3 day','Azithromycin 500mg Three Day Pack\r\n\r\n#3/three tablets.  \r\n\r\nTake one tablet once daily for three days.',6);
-INSERT INTO `form_CAMOS_item` VALUES (3,NULL,NULL,NULL,NULL,NULL,NULL,'chest pa and lat','chest x-ray\r\n\r\nPA and Lateral\r\n\r\nDx: bronchitis_01',2);
+INSERT INTO `form_CAMOS_item` VALUES (3,NULL,NULL,NULL,NULL,NULL,NULL,'chest pa and lat','chest x-ray\r\n\r\nPA and Lateral\r\n\r\nDx: bronchitis',2);
 INSERT INTO `form_CAMOS_item` VALUES (4,NULL,NULL,NULL,NULL,NULL,NULL,'zmax','Zmax \r\n(azithromycin extended release) \r\noral suspension\r\n\r\ndrink liquid as single dose.  review patient instructions provided with product.',6);
 INSERT INTO `form_CAMOS_item` VALUES (7,NULL,NULL,NULL,NULL,NULL,NULL,'cephalexin 500mg','cephalexin 500mg\r\n\r\n#40/forty capsules.\r\n\r\nOne capsule po q6hrs x 10 days.',6);
 INSERT INTO `form_CAMOS_item` VALUES (10,NULL,NULL,NULL,NULL,NULL,NULL,'lunesta','Lunesta 3mg\r\n\r\n#7/seven tablets.  \r\n\r\none tablet by mouth at bedtime as needed for sleep.',8);
@@ -159,7 +159,7 @@ INSERT INTO `form_CAMOS_item` VALUES (18,NULL,NULL,NULL,NULL,NULL,NULL,'lomotil 
 INSERT INTO `form_CAMOS_item` VALUES (20,NULL,NULL,NULL,NULL,NULL,NULL,'viagra','Viagra 50mg\r\n\r\n#6/six tablets.  \r\n\r\nOne half to one tablet by mouth once daily as needed for sexual activity. \r\n \r\n5 additional refills.',10);
 INSERT INTO `form_CAMOS_item` VALUES (391,NULL,NULL,NULL,NULL,NULL,NULL,'phenergan','phenergan 25mg\r\n\r\n#30/thirty\r\n\r\none tablet q8 hours prn nausea',111);
 INSERT INTO `form_CAMOS_item` VALUES (22,NULL,NULL,NULL,NULL,NULL,NULL,'maxzide','Mazide 37.5/25mg\r\n\r\n#30/thirty capsules\r\n\r\nOne capsule by mouth every morning for high blood pressure.',11);
-INSERT INTO `form_CAMOS_item` VALUES (214,NULL,NULL,NULL,NULL,NULL,NULL,'bronchitis_01','Subjective:\r\n\r\nComplains of productive cough for several days.\r\n\r\nObjective:\r\n\r\nvital  signs: stable.\r\nHEENT: unremarkable\r\nheart: rrr\r\nlungs: bilateral expiratory wheezing noted.\r\n\r\nAssessment:\r\n\r\nbronchitis_01\r\n\r\nPlan:\r\n',73);
+INSERT INTO `form_CAMOS_item` VALUES (214,NULL,NULL,NULL,NULL,NULL,NULL,'bronchitis','Subjective:\r\n\r\nComplains of productive cough for several days.\r\n\r\nObjective:\r\n\r\nvital  signs: stable.\r\nHEENT: unremarkable\r\nheart: rrr\r\nlungs: bilateral expiratory wheezing noted.\r\n\r\nAssessment:\r\n\r\nbronchitis\r\n\r\nPlan:\r\n',73);
 INSERT INTO `form_CAMOS_item` VALUES (28,NULL,NULL,NULL,NULL,NULL,NULL,'albuterol mdi','Albuterol HFA Inhaler\r\n\r\none unit\r\n\r\n2 inhalations every four to six hours as needed for shortness of breath.',18);
 INSERT INTO `form_CAMOS_item` VALUES (29,NULL,NULL,NULL,NULL,NULL,NULL,'flonase nasal spray','Flonase Nasal Spray\r\n\r\n2 sprays in each nostril once daily for allergies.  \r\n\r\n2 additional refills.',19);
 INSERT INTO `form_CAMOS_item` VALUES (30,NULL,NULL,NULL,NULL,NULL,NULL,'tussionex','Tussionex Cough Syrup\r\n\r\n2/two ounces.  \r\n\r\n1 tspn q12hrs prn cough.',20);
@@ -414,7 +414,7 @@ INSERT INTO `form_CAMOS_item` VALUES (452,NULL,NULL,NULL,NULL,NULL,NULL,'ranitid
 INSERT INTO `form_CAMOS_item` VALUES (453,NULL,NULL,NULL,NULL,NULL,NULL,'tricor','Tricor 145mg\r\n\r\n#30/thirty.  \r\n\r\nOne tablet by mouth once daily, at bedtime.\r\n\r\n2 additional refills.',29);
 INSERT INTO `form_CAMOS_item` VALUES (454,NULL,NULL,NULL,NULL,NULL,NULL,'tazorac','',44);
 INSERT INTO `form_CAMOS_item` VALUES (455,NULL,NULL,NULL,NULL,NULL,NULL,'avandaryl','Avandaryl 4/2mg\r\n\r\n#60/sixty\r\n\r\none tablet twice daily for diabetes.\r\n\r\n5 additional refills.',30);
-INSERT INTO `form_CAMOS_item` VALUES (456,NULL,NULL,NULL,NULL,NULL,NULL,'sinus','chest x-ray\r\n\r\nPA and Lateral\r\n\r\nDx: bronchitis_01',2);
+INSERT INTO `form_CAMOS_item` VALUES (456,NULL,NULL,NULL,NULL,NULL,NULL,'sinus','chest x-ray\r\n\r\nPA and Lateral\r\n\r\nDx: bronchitis',2);
 INSERT INTO `form_CAMOS_item` VALUES (458,NULL,NULL,NULL,NULL,NULL,NULL,'clobetasol cream','clobetasol cream 0.05%\r\n\r\n15 gram tube\r\n\r\napply qd as directed',44);
 INSERT INTO `form_CAMOS_item` VALUES (459,NULL,NULL,NULL,NULL,NULL,NULL,'erythromycin','erythromycin 500mg\r\n\r\n#40/forty capsules.\r\n\r\nOne capsule po q6hrs x 10 days.',6);
 INSERT INTO `form_CAMOS_item` VALUES (462,NULL,NULL,NULL,NULL,NULL,NULL,'aderall xr','Aderall XR 30mg\r\n\r\n#60/sixty\r\n\r\nOne capsule twice daily.',55);
