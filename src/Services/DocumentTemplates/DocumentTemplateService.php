@@ -109,12 +109,8 @@ class DocumentTemplateService
                 $mimetype = 'application/pdf';
             }
         }
-        $content = file_get_contents($file);
-        /*if ($mimetype === 'application/pdf') {
-            $content = "data:application/pdf;base64," . base64_encode($content);
-            $content = "<object data='$content' type='application/pdf' width='100%' height='600'></object>";
-        }*/
 
+        $content = file_get_contents($file);
         $id = 0;
         foreach ($pids as $pid) {
             $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);

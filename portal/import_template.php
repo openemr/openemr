@@ -220,7 +220,7 @@ function renderEditorHtml($template_id, $content)
             CKEDITOR.disableAutoInline = true;
             CKEDITOR.config.extraPlugins = "preview,save,docprops,justify";
             CKEDITOR.config.allowedContent = true;
-            CKEDITOR.config.fullPage = true;
+            //CKEDITOR.config.fullPage = true;
             CKEDITOR.config.height = height;
             CKEDITOR.config.width = '100%';
             CKEDITOR.config.resize_dir = 'both';

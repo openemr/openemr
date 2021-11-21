@@ -268,19 +268,19 @@ function getAuthUsers()
             <div class='ml-0 mt-2'><span class="title"><?php echo xlt('Template Maintenance'); ?></span>
                 <span>
                     <div class='btn-group ml-1'>
-                            <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
-                                <?php echo xlt('Help') ?>
-                            </button>
-                            <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
-                                <?php echo xlt('Dashboard'); ?>
-                            </button>
-                        </div>
+                        <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
+                            <?php echo xlt('Help') ?>
+                        </button>
+                        <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
+                            <?php echo xlt('Dashboard'); ?>
+                        </button>
+                    </div>
                 </span>
             </div>
             <?php include_once('./../Documentation/help_files/template_maintenace_help.php'); ?>
             <hr />
             <!-- Actions Scope to act on -->
-            <nav class='navbar navbar-light bg-light sticky-top'>
+            <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
                     <a class='navbar-brand ml-1'><?php echo xlt('Scope'); ?></a>
                     <div class="form-group">
@@ -319,8 +319,8 @@ function getAuthUsers()
                         </div>
                     </div>
                     <div class='btn-group ml-1'>
-                        <button type='submit' class='btn btn-search btn-secondary'><?php /*echo xlt('Refresh'); */ ?></button>
-                        <button type='button' id="send-button" class='btn btn-transmit btn-outline-primary d-none' onclick="return sendTemplate()">
+                        <button type='submit' class='btn btn-search btn-light'><?php /*echo xlt('Refresh'); */ ?></button>
+                        <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                             <?php echo xlt('Send'); ?>
                         </button>
                         <button type='button' id="upload-nav-button" name='upload-nav-button' class='btn btn-primary' data-toggle='collapse' data-target='#upload-nav'>
@@ -358,7 +358,7 @@ function getAuthUsers()
             <hr />
             <div class='row'>
                 <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse'>
-                    <h5><i class='fa fa-eye-slash mr-1' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?></h5>
+                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?></h5>
                 </div>
                 <!-- Repository table -->
                 <div class='col col-12 table-responsive collapse show' id="repository-collapse">
@@ -440,7 +440,7 @@ function getAuthUsers()
             </div>
             <div class='row'>
                 <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
-                    <h5><i class='fa fa-eye-slash mr-1' role='button' title="<?php echo xlt('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('All Patient Templates') . '' ?></h5>
+                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('All Patient Templates') . '' ?></h5>
                 </div>
                 <div class='col col-12 table-responsive collapse show' id='template-collapse'>
                     <?php
