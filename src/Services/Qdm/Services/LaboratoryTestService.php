@@ -39,8 +39,6 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     public function makeQdmModel(array $record)
     {
         $qdmModel = new LaboratoryTestPerformed([
-            '_pid' => $record['pid'],
-            '_encounter' => $record['encounter'],
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),

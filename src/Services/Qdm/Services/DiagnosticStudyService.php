@@ -23,8 +23,6 @@ class DiagnosticStudyService extends AbstractQdmService implements QdmServiceInt
     public function makeQdmModel(array $record)
     {
         $qdmModel = new DiagnosticStudyPerformed([
-            '_pid' => $record['pid'],
-            '_encounter' => $record['encounter'],
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),

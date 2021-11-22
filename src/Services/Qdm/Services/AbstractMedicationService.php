@@ -12,8 +12,10 @@ use OpenEMR\Cqm\Qdm\MedicationActive;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class MedicationService extends AbstractQdmService implements QdmServiceInterface
+abstract class AbstractMedicationService extends AbstractQdmService implements QdmServiceInterface
 {
+    abstract function getModelClass();
+
     public function getSqlStatement()
     {
         $sql = "SELECT
@@ -29,7 +31,7 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
                     end_date
                 FROM prescriptions P
                 LEFT JOIN list_options RL ON P.route = RL.option_id AND RL.list_id = 'drug_route'
-                JOIN list_options FL ON P.interval = FL.option_id AND FL.list_id = 'drug_intervals'
+                LEFT JOIN list_options FL ON P.interval = FL.option_id AND FL.list_id = 'drug_intervals'
                 ";
 
         return $sql;
@@ -49,8 +51,9 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
         // If no end date, use a null
         $end_date = !empty($record['end_date']) ? $record['end_date'] : null;
 
-        $qdmModel = new MedicationActive([
-            '_pid' => $record['pid'],
+        $modelClass = $this->getModelClass();
+
+        $qdmModel = new $modelClass([
             'relevantPeriod' => new Interval([
                 'low' =>  new DateTime([
                     'date' => $start_date
@@ -63,13 +66,13 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
             ]),
             'dosage' => new Quantity([
                 'value' => $record['dosage'],
-                'unit' => $record['unit']
+                'unit' => !empty($record['unit']) ? $record['unit'] : '1' // TODO Unit shouldn't be "0" but was on import, so if not set, make "1"
             ]),
             'frequency' => new Code([
                 // TODO codes in list_options for frequency may not match exactly and do not have the actual SNOMED codes loaded
                 // https://browser.ihtsdotools.org/?perspective=full&conceptId1=396125000&edition=MAIN/2021-07-31&release=&languages=en
-                'code' => $record['interval'],
-                'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
+                'code' => '396125000', // $record['interval'],
+                'system' => '2.16.840.1.113883.6.96' // $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
             ]),
             'route' => null // In sample files, route was null, probably doesn't mater for eCQM
         ]);

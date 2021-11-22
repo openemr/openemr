@@ -38,8 +38,6 @@ class AssessmentService extends AbstractQdmService implements QdmServiceInterfac
     public function makeQdmModel(array $record)
     {
         $qdmModel = new AssessmentPerformed([
-            '_pid' => $record['pid'],
-            '_encounter' => $record['encounter'],
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),

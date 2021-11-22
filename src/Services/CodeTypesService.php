@@ -199,7 +199,7 @@ class CodeTypesService
             } elseif (self::CODE_TYPE_RXCUI == $codeType || self::CODE_TYPE_RXNORM == $codeType) {
                 $system = '2.16.840.1.113883.6.88';
             } elseif (self::CODE_TYPE_CPT == $codeType) {
-                $system = '2.16.840.1.113883.6.88';
+                $system = '2.16.840.1.113883.6.12';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {

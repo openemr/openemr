@@ -6,9 +6,6 @@ use Exception;
 
 abstract class AbstractType implements \JsonSerializable
 {
-    public $_pid = '';
-    public $_encounter = '';
-
     public function __construct(array $properties = [])
     {
         foreach ($properties as $property => $value) {
