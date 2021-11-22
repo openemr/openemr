@@ -33,15 +33,14 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         $start_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date']);
         // DateTime->modify() modifies the calling object, so we need to copy our start date
         $start = clone $start_tmp;
-        $end = $start_tmp->modify('+' . $record['pc_duration'] . 'second');
+        $duration = 3600; // $record['pc_duration'];
+        $end = $start_tmp->modify('+' . $duration . 'second');
 
         // Get the difference in days for the length of stay (will usually be 0)
         // Format string "%a" is literal days https://www.php.net/manual/en/dateinterval.format.php
         $days = $end->diff($start)->format("%a");
 
         $qdmRecord = new EncounterPerformed([
-            '_pid' => $record['pid'],
-            '_encounter' => $record['encounter'],
             'relevantPeriod' => new Interval([
                 'low' =>  new DateTime([
                     'date' => $start->format('Y-m-d H:i:s')

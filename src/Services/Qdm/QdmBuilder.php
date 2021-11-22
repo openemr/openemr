@@ -14,7 +14,8 @@ use OpenEMR\Services\Qdm\Services\DiagnosticStudyService;
 use OpenEMR\Services\Qdm\Services\EncounterService;
 use OpenEMR\Services\Qdm\Services\InterventionService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
-use OpenEMR\Services\Qdm\Services\MedicationService;
+use OpenEMR\Services\Qdm\Services\MedicationActiveService;
+use OpenEMR\Services\Qdm\Services\MedicationOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 
 class QdmBuilder
@@ -25,10 +26,10 @@ class QdmBuilder
         EncounterService::class,
         LaboratoryTestService::class,
         InterventionService::class,
-//        ConditionService::class,
-
-        MedicationService::class,
+        MedicationOrderService::class,
+        MedicationActiveService::class,
         AllergyIntoleranceService::class,
+//        ConditionService::class,
     ];
 
     public function build(QdmRequestInterface $request) : array

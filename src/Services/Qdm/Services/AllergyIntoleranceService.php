@@ -24,7 +24,6 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
     public function makeQdmModel(array $record)
     {
         $qdmModel = new AllergyIntolerance([
-            '_pid' => $record['pid'],
             'prevalencePeriod' => new Interval([
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
