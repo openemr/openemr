@@ -5,6 +5,7 @@ namespace OpenEMR\Services\Qdm;
 
 
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Qdm\Services\AssessmentService;
@@ -30,7 +31,7 @@ class QdmBuilder
         AllergyIntoleranceService::class,
     ];
 
-    public function build(QdmRequest $request) : array
+    public function build(QdmRequestInterface $request) : array
     {
         // Create the patient service
         $patientService = new PatientService($request, new CodeTypesService());

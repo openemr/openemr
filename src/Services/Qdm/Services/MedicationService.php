@@ -35,6 +35,11 @@ class MedicationService extends AbstractQdmService implements QdmServiceInterfac
         return $sql;
     }
 
+    public function getPatientIdColumn()
+    {
+        return 'patient_id';
+    }
+
     public function makeQdmModel(array $record)
     {
         // If we don't have a start date, use date added

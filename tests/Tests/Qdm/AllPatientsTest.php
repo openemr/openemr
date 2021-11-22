@@ -5,7 +5,7 @@ namespace OpenEMR\Tests\Qdm;
 
 
 use OpenEMR\Services\Qdm\QdmBuilder;
-use OpenEMR\Services\Qdm\QdmRequest;
+use OpenEMR\Services\Qdm\QdmRequestAll;
 use PHPUnit\Framework\TestCase;
 
 class AllPatientsTest extends TestCase
@@ -16,7 +16,7 @@ class AllPatientsTest extends TestCase
         $builder = new QdmBuilder();
         $models = [];
         try {
-            $models = $builder->build(new QdmRequest());
+            $models = $builder->build(new QdmRequestAll());
         } catch (\Exception $e) {
             error_log($e->getMessage());
         }

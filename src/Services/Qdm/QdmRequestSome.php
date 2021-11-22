@@ -4,7 +4,9 @@
 namespace OpenEMR\Services\Qdm;
 
 
-class QdmRequestSome
+use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+
+class QdmRequestSome implements QdmRequestInterface
 {
    public $pids = [];
 
@@ -45,4 +47,8 @@ class QdmRequestSome
     }
 
 
+    public function getFilter()
+    {
+        // TODO: Implement getFilter() method.
+    }
 }
