@@ -271,7 +271,7 @@ class ParseERA
                 // self::parseERA2100() which will later plug in a payment reversal
                 // amount that offsets these adjustments.
                 $i = 0; // if present, the dummy service item will be first.
-                if (!$out['svc'][$i]) {
+                if (!($out['svc'][$i] ?? '')) {
                     $out['svc'][$i] = array();
                     $out['svc'][$i]['code'] = 'Claim';
                     $out['svc'][$i]['mod'] = '';
@@ -281,7 +281,7 @@ class ParseERA
                 }
 
                 for ($k = 2; $k < 20; $k += 3) {
-                    if (!$seg[$k]) {
+                    if (!($seg[$k] ?? '')) {
                         break;
                     }
 
@@ -294,8 +294,8 @@ class ParseERA
             } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
                 $out['patient_fname'] = trim($seg[4]);
-                $out['patient_mname'] = trim($seg[5]);
-                $out['patient_member_id'] = trim($seg[9]);
+                $out['patient_mname'] = trim($seg[5] ?? '');
+                $out['patient_member_id'] = trim($seg[9] ?? '');
             } elseif ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') { // IL = Insured or Subscriber
                 $out['subscriber_lname'] = trim($seg[3]);
                 $out['subscriber_fname'] = trim($seg[4]);
@@ -310,7 +310,7 @@ class ParseERA
                 $out['crossover'] = 1; //Claim automatic forward case.
             } elseif ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') { // 74 = Corrected Insured
                 $out['corrected'] = 1; // Updated policy number case.
-                $out['corrected_mbi'] = trim($seg[9]); // Usually MBI from Medicare
+                $out['corrected_mbi'] = trim($seg[9] ?? ''); // Usually MBI from Medicare
             } elseif ($segid == 'NM1' && $out['loopid'] == '2100') { // PR = Corrected Payer
                 // $out['warnings'] .= "NM1 segment at claim level ignored.\n";
             } elseif ($segid == 'MOA' && $out['loopid'] == '2100') {

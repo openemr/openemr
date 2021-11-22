@@ -391,6 +391,8 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                     $evtClass = "event_appointment";
                     break;
             }
+            // eventViewClass allows the event class to override the template (such as from a dispatched system event).
+            $evtClass = $event['eventViewClass'] ?? $evtClass;
 
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
@@ -524,7 +526,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $divTitle .= "\n(double click to edit)";
 
             // output the DIV and content
-            echo "<div class='" . attr($evtClass) . " event' style='background-color:".$event["catcolor"].
+            echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='background-color:".$event["catcolor"].
                     "' ".
                     " id='" . attr($eventdate ?? '') . "-" . attr($eventid) . "'".
                     ">";

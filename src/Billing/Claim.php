@@ -607,7 +607,7 @@ class Claim
 //***MS Add - since we are a TPA we need to include this
     public function x12_submitter_name()
     {
-        $tmp = $this->x12_partner['x12_submitter_name'];
+        $tmp = $this->x12_partner['x12_submitter_name'] ?? '';
         while (strlen($tmp) < 15) {
             $tmp .= " ";
         }
@@ -629,7 +629,6 @@ class Claim
     {
         return ($this->x12_partner['x12_isa05'] ?? '');
     }
-//adding in public functions for isa 01 - isa 04
 
     public function x12gsisa01()
     {
@@ -650,7 +649,6 @@ class Claim
         return ($this->x12_partner['x12_isa04'] ?? '');
     }
 
-/////////
     public function x12gsisa07()
     {
         return ($this->x12_partner['x12_isa07'] ?? '');
@@ -747,7 +745,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['attn']));
         } else {
             $query = "SELECT organization FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
             return $this->x12Clean(trim($ores['organization'] ?? ''));
         }
     }
@@ -758,7 +756,7 @@ class Claim
             $tmp_phone = $this->x12Clean(trim($this->billing_facility['phone']));
         } else {
             $query = "SELECT phonew1 FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
             $tmp_phone = $this->x12Clean(trim($ores['phonew1'] ?? ''));
         }
 
@@ -781,7 +779,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['email']));
         } else {
             $query = "SELECT email FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number']));
+            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
             return $this->x12Clean(trim($ores['email'] ?? ''));
         }
     }

@@ -177,7 +177,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         // test if a QRDA QDM CAT I document type from header OIDs
-        $qrda = $xml['templateId'][2]['root'];
+        $qrda = $xml['templateId'][2]['root'] ?? null;
         if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = true;
             // Offset to Patient Data section
@@ -348,7 +348,7 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         foreach ($res as $row) {
-            $this->is_qrda_import = $row['is_qrda_document'];
+            $this->is_qrda_import = $row['is_qrda_document'] ?? false;
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
@@ -683,12 +683,17 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_observation_preformed['observation_preformed'][$h]['observation'] = $newdata['observation_preformed']['observation'];
                 $arr_observation_preformed['observation_preformed'][$h]['observation_type'] = $newdata['observation_preformed']['observation_type'];
+                $arr_observation_preformed['observation_preformed'][$h]['observation_status'] = $newdata['observation_preformed']['observation_status'];
 
                 $arr_observation_preformed['observation_preformed'][$h]['code'] = $newdata['observation_preformed']['code'];
                 $arr_observation_preformed['observation_preformed'][$h]['code_text'] = $newdata['observation_preformed']['code_text'];
 
+                $arr_observation_preformed['observation_preformed'][$h]['result_status'] = $newdata['observation_preformed']['result_status'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code'] = $newdata['observation_preformed']['result_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code_text'] = $newdata['observation_preformed']['result_code_text'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_status'] = $newdata['observation_preformed']['reason_status'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_code'] = $newdata['observation_preformed']['reason_code'];
+                $arr_observation_preformed['observation_preformed'][$h]['reason_code_text'] = $newdata['observation_preformed']['reason_code_text'];
                 $h++;
             }
         }

@@ -16,6 +16,9 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Services\Globals\GlobalsService;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
@@ -23,12 +26,32 @@ use Twig\TwigFunction;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
+    protected $globals;
+
+    /**
+     * @var Kernel
+     */
+    protected $kernel;
+
+    /**
+     * TwigExtension constructor.
+     * @param GlobalsService $globals
+     * @param Kernel|null $kernel
+     */
+    public function __construct(GlobalsService $globals, ?Kernel $kernel)
+    {
+        $this->globals = $globals->getGlobalsMetadata();
+        $this->kernel = $kernel;
+    }
+
     public function getGlobals(): array
     {
         return [
-            'assets_dir' => $GLOBALS['assets_static_relative'],
-            'srcdir' => $GLOBALS['srcdir'],
-            'rootdir' => $GLOBALS['rootdir']
+            'assets_dir' => $this->globals['assets_static_relative'],
+            'srcdir' => $this->globals['srcdir'],
+            'rootdir' => $this->globals['rootdir'],
+            'webroot' => $this->globals['webroot'],
+            'assetVersion' => $this->globals['v_js_includes'],
         ];
     }
 
@@ -80,6 +103,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
+            new TwigFunction(
+                'fireEvent',
+                function ($eventName, $eventData = array()) {
+                    if (empty($this->kernel)) {
+                        return '';
+                    }
+                    ob_start();
+                    $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
+                    return ob_get_clean();
+                }
+            )
         ];
     }
 
@@ -168,6 +202,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'xlDocCategory',
                 function ($string) {
                     return xl_document_category($string);
+                }
+            ),
+
+            new TwigFilter(
+                'xlFormTitle',
+                function ($string) {
+                    return xl_form_title($string);
                 }
             )
         ];

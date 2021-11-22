@@ -154,7 +154,8 @@ function &pcVarPrepForDisplay($s)
 }
 function &pcVarPrepHTMLDisplay($s)
 {
-    return pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
+    $postcalendarRemoveScriptTags = pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
+    return $postcalendarRemoveScriptTags;
 }
 function pcGetTopicName($topicid)
 {
@@ -164,7 +165,8 @@ function pcGetTopicName($topicid)
 function &postcalendar_makeValidURL($s)
 {
     if (empty($s)) {
-        return '';
+        $s = '';
+        return $s;
     }
 
     if (!preg_match('|^http[s]?:\/\/|i', $s)) {

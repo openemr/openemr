@@ -28,6 +28,7 @@ $customDir = $GLOBALS['customModDir'];
 $zendModDir = $GLOBALS['zendModDir'];
 
 $depObj = $this->dependencyObject;
+$coreModules = $this->coreModules ?? [];
 
 ?>
 <h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title ?? ''); ?></h1>
@@ -284,7 +285,7 @@ $depObj = $this->dependencyObject;
             $dp = opendir($dpath);
             $inDir = array();
             for ($i = 0; false != ($fname = readdir($dp)); $i++) {
-                if ($fname != "." && $fname != ".." && ($fname != "Application" && $fname != "Acl" && $fname != "Installer") && is_dir($dpath . "/" . $fname))
+                if ($fname != "." && $fname != ".." && (array_search($fname, $coreModules) === false) && is_dir($dpath . "/" . $fname))
                     $inDir[$i] = $fname;
             }
             if (sizeof($InstallersExisting) > 0) {

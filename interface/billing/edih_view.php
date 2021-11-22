@@ -492,6 +492,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         e.stopPropagation();
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
             .load($(this).attr('href')).appendTo('#tbcsvhist');
+    });
+
 /* #csvTable  ****  */
     $('#tblshow').on('click', 'a', function(e) {
         e.preventDefault();
