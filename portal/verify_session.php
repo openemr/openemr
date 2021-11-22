@@ -22,11 +22,11 @@
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
 //
 
 // kick out if patient not authenticated

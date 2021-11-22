@@ -11,13 +11,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc");
@@ -476,8 +476,8 @@ if ($_POST['form_action'] == "save") {
     }
 }
 
-if ($_POST['form_action'] != "") {
-// Leave
+if (!empty($_POST['form_action'])) {
+    // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
     $note .= $_SESSION['ptName'] . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
@@ -487,8 +487,8 @@ if ($_POST['form_action'] != "") {
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = 'appointmentcard';
-    header('Location:./home.php#appointmentpanel');
+    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#appointmentcard');
+    header('Location:./home.php');
     exit();
 }
 
