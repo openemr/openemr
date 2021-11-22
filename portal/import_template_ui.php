@@ -277,8 +277,8 @@ function getAuthUsers()
                     </div>
                 </span>
             </div>
-            <?php include_once('./../Documentation/help_files/template_maintenace_help.php'); ?>
             <hr />
+            <?php include_once('./../Documentation/help_files/template_maintenace_help.php'); ?>
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
