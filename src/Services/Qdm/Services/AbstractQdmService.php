@@ -2,9 +2,10 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\Qdm\QdmRequest;
+use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 abstract class AbstractQdmService
 {
@@ -16,13 +17,18 @@ abstract class AbstractQdmService
      * because we want to pass in a standard set of dependencies.
      *
      * AbstractQdmService constructor.
-     * @param QdmRequest $request
+     * @param QdmRequestInterface $request
      * @param CodeTypesService $codeTypesService
      */
-    final public function __construct(QdmRequest $request, CodeTypesService $codeTypesService)
+    final public function __construct(QdmRequestInterface $request, CodeTypesService $codeTypesService)
     {
         $this->request = $request;
         $this->codeTypesService = $codeTypesService;
+    }
+
+    public function getPatientIdColumn()
+    {
+        return 'pid';
     }
 
     public abstract function getSqlStatement();
@@ -32,14 +38,40 @@ abstract class AbstractQdmService
     public function executeQuery()
     {
         $sql = $this->getSqlStatement();
-        $result = sqlStatement($sql);
+
+        $filterClause = $this->request->getFilter()->getFilterClause();
+        if ($this->getPatientIdColumn() !== 'pid') {
+            $filterClause = str_replace('pid', $this->getPatientIdColumn(), $filterClause);
+        }
+
+        // Apply the filter based on request type
+        // If there's already a "WHERE" clause, then add an "AND" otherwise add our WHERE clause.
+        if (strpos(strtolower($sql), 'where')) {
+            $sql .= " AND ( " . $filterClause . " )";
+        } else {
+            $sql .= " WHERE ( " . $filterClause . " )";
+        }
+
+        // By default, we have no bound values
+        $binds = false;
+        if (is_array($this->request->getFilter()->getBoundValues())) {
+            $binds = $this->request->getFilter()->getBoundValues();
+        }
+
+        try {
+            $result = sqlStatementThrowException($sql, $binds);
+        } catch(SqlQueryException $exception) {
+            error_log($exception->getMessage());
+            throw new \Exception("There is likely an error in Service query, must contain a patient ID. 'pid' not found and getPatientIdColumn() not implemented.");
+        }
+
         return $result;
     }
 
     /**
-     * @return QdmRequest
+     * @return QdmRequestInterface
      */
-    public function getRequest(): QdmRequest
+    public function getRequest(): QdmRequestInterface
     {
         return $this->request;
     }

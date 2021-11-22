@@ -68,8 +68,6 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
 
         $qdmPatient->add_data_element($patientCharacteristic);
 
-
-
         return $qdmPatient;
     }
 
