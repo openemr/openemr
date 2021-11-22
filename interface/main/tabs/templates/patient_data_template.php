@@ -46,6 +46,12 @@ switch ($search_any_type) {
 
 ?>
 <script type="text/html" id="patient-data-template">
+    <style>
+        label {
+        padding-left:20px;
+
+        }
+    </style>
     <div class="d-lg-inline-flex w-100">
         <div class="flex-fill">
             <div class="float-left mx-2">
@@ -63,7 +69,7 @@ switch ($search_any_type) {
                 </span>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                <label><?php echo xlt("Patient"); ?>: </label>
+                <label><b><?php echo xlt("Patient"); ?></b>: </label>
                 <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
                     <span data-bind="text: pname()"></span>
                     (<span data-bind="text: pubpid"></span>)
@@ -71,8 +77,22 @@ switch ($search_any_type) {
                 <a href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                     <i class="fa fa-times"></i>
                 </a>
+                <label><b><?php echo xlt("Preferred Pronouns"); ?></b>:</label>
+                <span data-bind="text:patient().pref_pronoun()"></span>
                 <div>
+                    <label><b><?php echo xlt("DOB"); ?></b>:</label>
                     <span data-bind="text:patient().str_dob()"></span>
+
+                    <label><b><?php echo xlt("Age"); ?></b>:</label>
+                    <span data-bind="text:patient().str_age()"></span>
+
+                </div>
+                <div>
+                    <label><b><?php echo xlt("Weight (kg)"); ?></b>:</label>
+                    <span data-bind="text:patient().weight_str()"></span>
+                    <label><b><?php echo xlt("Last Weight Recorded"); ?></b>:</label>
+                    <span data-bind="text:patient().weight_date()"></span>
+
                 </div>
                 <!-- /ko -->
             </div>

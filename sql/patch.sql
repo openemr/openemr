@@ -47,3 +47,19 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotRow list_options list_id Preferred_Pronoun
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES  ('Preferred_Pronoun', 'he', 'He / Him', 0, 0, 0, '', '', '', 0, 0, 1, '', 1, ''),
+        ('Preferred_Pronoun', 'she', 'She / Her', 0, 0, 0, '', '', '', 0, 0, 1, '', 1, ''),
+        ('Preferred_Pronoun', 'they', 'They /Them', 0, 0, 0, '', '', '', 0, 0, 1, '', 1, '');
+#EndIf
+
+#IfMissingColumn patient_data pref_pronoun
+ALTER TABLE `patient_data` ADD `pref_pronoun` text DEFAULT NULL;
+#EndIf
+
+#IfNotRow layout_options field_id pref_pronoun
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`)
+VALUES ('DEM', 'pref_pronoun', '1', 'Preferred Pronoun', '75', '26', '1', '0', '255', 'Preferred_Pronoun', '1', '1', '', '', '', '0', '', 'F', NULL, NULL)
+#EndIf

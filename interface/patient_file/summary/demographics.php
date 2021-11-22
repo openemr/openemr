@@ -459,7 +459,9 @@ require_once("$srcdir/options.js.php");
         placeHtml("patient_reminders_fragment.php", "patient_reminders_ps_expand", false, true);
         <?php } // end prw?>
 
+
         <?php
+
         // Initialize for each applicable LBF form.
         $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
             "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
@@ -610,11 +612,34 @@ require_once("$srcdir/options.js.php");
             if (!empty($date_of_death)) {
                 $date_of_death = $date_of_death['date_deceased'];
             }
+
+            //***SPEDIATRICS ADD - fetch weight in kgs, shows last weight recorded
+            $vital_result = sqlStatement("select weight, DATE_FORMAT(date, '%Y-%m-%d' ) as lastdate from form_vitals where weight > 0 and pid = ? order by date Desc", array($pid));
+            if (sqlNumRows($vital_result) > 0) {
+                $weight_query = sqlFetchArray($vital_result);
+                $weight = round($weight_query['weight']/2.204, 2) ?? "None Recorded";
+                $weight_date = $weight_query['lastdate'] ?? "X";
+            } else {
+                $weight = $weight_date = '';
+            }
+            $pronoun = sqlQuery("select lo.title from patient_data pd " .
+                " join list_options lo on pd.pref_pronoun = lo.option_id and lo.list_id = ?  " .
+                " where pid = ?", array("Preferred_Pronoun", $pid))['title'];
+
+            $pronoun = $pronoun ?? "None Specified";
+            //***SPEDIATRICS ADD END
             ?>
-        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
-                "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
+
+        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," .
+                  js_escape($pid) . "," .
+                  js_escape($result['pubpid']) . "," .
+                   "'' , ";
         if (empty($date_of_death)) {
-            echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
+            echo js_escape(oeFormatShortDate($result['DOB_YMD'])) . "," .
+            js_escape(getPatientAgeDisplay($result['DOB_YMD']))   . "," .
+            js_escape($weight)       . "," .
+            js_escape($weight_date) . ","  .
+            js_escape($pronoun);
         } else {
             echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
         }?>);

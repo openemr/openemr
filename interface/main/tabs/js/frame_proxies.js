@@ -24,17 +24,21 @@ var left_nav = {
 
 };
 
-left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
+left_nav.setPatient = function (pname, pid, pubpid, frname, str_dob, str_age, weight_str, weight_date, pref_pronoun )
 {
     if((app_view_model.application_data.patient()!==null) && (pid===app_view_model.application_data.patient().pid()))
     {
         app_view_model.application_data.patient().pname(pname);
         app_view_model.application_data.patient().pubpid(pubpid);
         app_view_model.application_data.patient().str_dob(str_dob);
+        app_view_model.application_data.patient().str_age(str_age);
+        app_view_model.application_data.patient().weight_str(weight_str);
+        app_view_model.application_data.patient().weight_date(weight_date);
+        app_view_model.application_data.patient().weight_date(pref_pronoun);
 
         return;
     }
-    var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob);
+    var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob, str_age, weight_str,weight_date, pref_pronoun);
     app_view_model.application_data.patient(new_patient);
     app_view_model.application_data.therapy_group(null);
     navigateTab(webroot_url+"/interface/patient_file/history/encounters.php","enc", function () {
