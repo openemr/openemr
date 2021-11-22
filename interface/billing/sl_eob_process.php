@@ -439,24 +439,7 @@ function era_callback(&$out)
             $class = $error ? 'errdetail' : 'newdetail';
 
             // Report Allowed Amount.
-            if ($svc['allowed']) {
-                // A problem here is that some payers will include an adjustment
-                // reflecting the allowed amount, others not.  So here we need to
-                // check if the adjustment exists, and if not then create it.  We
-                // assume that any nonzero CO (Contractual Obligation) or PI
-            // (Payer Initiated) adjustment is good enough.
-                $contract_adj = sprintf("%.2f", $svc['chg'] - $svc['allowed']);
-                foreach ($svc['adj'] as $adj) {
-                    if (($adj['group_code'] == 'CO' || $adj['group_code'] == 'PI') && $adj['amount'] != 0) {
-                        $contract_adj = 0;
-                    }
-                }
-
-                if ($contract_adj > 0) {
-                    $svc['adj'][] = array('group_code' => 'CO', 'reason_code' => 'A2',
-                    'amount' => $contract_adj);
-                }
-
+            if ($svc['allowed'] ?? '') {
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
@@ -465,7 +448,7 @@ function era_callback(&$out)
             }
 
             // Report miscellaneous remarks.
-            if ($svc['remark']) {
+            if ($svc['remark'] ?? '') {
                 $rmk = $svc['remark'];
                 writeMessageLine($bgcolor, 'infdetail', "$rmk: " .
                     BillingUtilities::REMITTANCE_ADVICE_REMARK_CODES[$rmk]);
@@ -474,7 +457,7 @@ function era_callback(&$out)
             // Post and report the payment for this service item from the ERA.
             // By the way a 'Claim' level payment is probably going to be negative,
             // i.e. a payment reversal.
-            if ($svc['paid']) {
+            if ($svc['paid'] ?? '') {
                 if (!$error && !$debug) {
                     SLEOB::arPostPayment(
                         $pid,

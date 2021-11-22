@@ -23,9 +23,11 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\UserService;
-
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -42,6 +44,15 @@ $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
 if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, array('view','write'))) {
     echo xlt("access not allowed");
     exit();
+}
+
+if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
+    /**
+     * @var EventDispatcher
+     */
+    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+} else {
+    throw new Exception("Could not get EventDispatcher from kernel", 1);
 }
 
 ?>
@@ -352,7 +363,6 @@ function refreshVisitDisplay() {
     div.formname {
         float: left;
         min-width: 160px;
-        font-weight: bold;
         padding: 0;
         margin: 0;
     }
@@ -516,208 +526,151 @@ if (
     }
 }
 
-if (!empty($reg)) {
-    $StringEcho = '<ul>';
-    if ($encounterLocked === false) {
-        foreach ($reg as $entry) {
-          // Check permission to create forms of this type.
-            $tmp = explode('|', $entry['aco_spec']);
-            if (!empty($tmp[1])) {
-                if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-                    continue;
-                }
-            }
-            $new_category = trim($entry['category']);
-            $new_nickname = trim($entry['nickname']);
-            if ($new_category == '') {
-                $new_category = xl('Miscellaneous');
-            } else {
-                $new_category = xl($new_category);
-            }
-            if ($new_nickname != '') {
-                $nickname = $new_nickname;
-            } else {
-                $nickname = trim($entry['name']);
-            }
-            if ($old_category != $new_category) {
-                $new_category_ = $new_category;
-                $new_category_ = str_replace(' ', '_', $new_category_);
-                if ($old_category != '') {
-                    $StringEcho .= "</div>\n";
-                    $StringEcho .= '</div>';
-                }
-                $StringEcho .= "<div class='dropdown d-inline'>\n";
-                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" . text($new_category) . "</button>\n";
-                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
-                $old_category = $new_category;
-                $DivId++;
-            }
 
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
-            attr_js($rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($entry['directory'])) .
-            ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
-            text(xl_form_title($nickname)) . "</button>\n";
+// Convert the flat list of menu items into a multi-dimensional array based on the category
+// decide what will be displayed (name or nickname)
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+    $menuArray = $menuEvent->getMenuData();
+    $reg = getFormsByCategory();
+    foreach ($reg as $item) {
+        $tmp = explode('|', $item['aco_spec']);
+        if (!empty($tmp[1])) {
+            if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
+                continue;
+            }
         }
+
+        $_cat = trim($item['category']);
+        $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
+        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        unset($item['category']);
+        unset($item['name']);
+        unset($item['nickname']);
+        $menuArray[$_cat]['children'][] = $item;
     }
-    $StringEcho .= "</div>\n";
-    $StringEcho .= '</div>';
-}
+    $menuEvent->setMenuData($menuArray);
+    return $menuEvent;
+});
 
-if ($StringEcho) {
-    $StringEcho2 = '<div class="clearfix"></div>';
-} else {
-    $StringEcho2 = "";
-}
-?>
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-    $module_query = sqlStatement(
-        "SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh " .
-        "LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id " .
-        "LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id " .
-        "WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id"
-    );
-    $DivId = 'mod_installer';
-    if (sqlNumRows($module_query)) {
-        if (!$StringEcho) {
-            $StringEcho = '<ul>';
+
+// Zend Module hooks
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+    $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
+        FROM modules_hooks_settings AS msh
+        LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+        LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+        WHERE fld_type=3
+            AND mod_active=1
+            AND sql_run=1
+            AND attached_to='encounter'
+        ORDER BY mod_id");
+
+    $menuData = $menuEvent->getMenuData();
+
+    while ($row = sqlFetchArray($module_query)) {
+        $_cat = $row['mod_ui_name'];
+        if ($row['type'] == 0) {
+            $modulePath = $GLOBALS['customModDir'];
+            $added = "";
+        } else {
+            $modulePath = $GLOBALS['zendModDir'];
+            $added = "index";
         }
-        $jid = 0;
-        $modid = '';
-        while ($modulerow = sqlFetchArray($module_query)) {
-            $DivId = 'mod_' . $modulerow['mod_id'];
-            $new_category = $modulerow['mod_ui_name'];
-            $modulePath = "";
-            $added      = "";
-            if ($modulerow['type'] == 0) {
-                $modulePath = $GLOBALS['customModDir'];
-                $added      = "";
-            } else {
-                $added      = "index";
-                $modulePath = $GLOBALS['zendModDir'];
-            }
-            $relative_link = "../../modules/" . $modulePath . "/public/" . $modulerow['path'];
-            $nickname = $modulerow['menu_name'] ?: 'Noname';
-            if ($jid == 0 || ($modid != $modulerow['mod_id'])) {
-                if ($jid !== 0) {
-                    $StringEcho .= "</div>\n";
-                    $StringEcho .= '</div>';
-                }
-                $StringEcho .= "<div class='dropdown d-inline'>\n";
-                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" . text($new_category) . "</button>\n";
-                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
-            }
-            $jid++;
-            $modid = $modulerow['mod_id'];
-            $StringEcho .= "<button class='dropdown-item' onclick='openNewForm(" .
-            attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")'>" . text(xl_form_title($nickname)) . "</button>\n";
-        }
-        $StringEcho .= "</div>\n";
-        $StringEcho .= '</div>';
+
+        $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
+        $row['menu_name'] = $row['menu_name'] ?: "No_Name";
+        $row['href'] = $relativeLink;
+        $menuData[$_cat]['children'][] = $row;
     }
-    ?>
-<!-- DISPLAYING HOOKS ENDS HERE -->
-<?php
-if ($StringEcho) {
-    $StringEcho .= "</ul>" . $StringEcho2;
-}
-?>
-<!--
-    This table shouldn't add the Bootstrap classes, it will mess up the navbar.
-    The comment: https://git.io/JJMBE
- -->
-<table class="mx-auto">
-  <tr>
-    <td class="align-top"><?php echo $StringEcho; ?></td>
-  </tr>
-</table>
-</nav>
-<!-- Form menu stop -->
-<!-- *************** -->
 
-<div id="encounter_forms" class="mx-1">
+    $menuEvent->setMenuData($menuData);
+    return $menuEvent;
+});
 
-<?php
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres, false);
-?>
-
-<div class='encounter-summary-container'>
-<div class='encounter-summary-column'>
-<div>
-<?php
-$pass_sens_squad = true;
-
-//fetch acl for category of given encounter
-$pc_catid = fetchCategoryIdByEncounter($encounter);
-$postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
-if ($postCalendarCategoryACO) {
-    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-    $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
-    $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
-} else { // if no aco is set for category
-    $authPostCalendarCategory = true;
-    $authPostCalendarCategoryWrite = true;
-}
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
-    echo '<span class="title">' . text(oeFormatShortDate($encounter_date)) . " " . xlt("Encounter") . '</span>';
+    $groupEncounter = false;
 
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo " " . xlt('for') . " " . text($result['fname']) . " " . text($result['lname']);
-    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
+    $patientName = getPatientFullNameAsString($pid);
+
+    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
 
     // Check for no access to the encounter's sensitivity level.
-    $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
-                        "pid = ? AND encounter = ? LIMIT 1", array($pid, $encounter));
+    $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE pid = ? AND encounter = ? LIMIT 1", [$pid, $encounter]);
     if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
     // for therapy group
 } else {
-    echo '<span class="title">' . text(oeFormatShortDate($encounter_date)) . " " . xlt("Group Encounter") . '</span>';
+    $groupEncounter = true;
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
-    echo " " . xlt('for') . " " . text($result['group_name']);
-    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
+    $patientName = $result['group_name'];
+    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
-    $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
-        "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
+    $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE group_id = ? AND encounter = ? LIMIT 1", [$groupId, $encounter]);
     if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
 }
-?>
-</div>
-<div style='margin-top: 8px;'>
-<?php
-// ESign for entire encounter
-$esign = $esignApi->createEncounterESign($encounter);
-if ($esign->isButtonViewable()) {
-    echo $esign->buttonHtml();
-}
-?>
-<div class='btn-group' role="group">
-<?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-    <a href='#' class='btn btn-danger btn-sm btn-delete' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
-<?php } ?>
 
-<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
-    <a href='#' class='btn btn-primary btn-sm' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
-<?php } ?>
-<button type="button" onClick="$('.collapse').collapse('hide');" class="btn btn-primary btn-sm"><?php echo xlt('Collapse All'); ?></button>
-<button type="button" onClick="$('.collapse').collapse('show');" class="btn btn-primary btn-sm"><?php echo xlt('Expand All'); ?></button>
-</div>
-</div>
-</div>
+$encounterMenuEvent = new EncounterMenuEvent();
+$menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$t = $twig->getTwig();
+echo $t->render('encounter/forms/navbar.html.twig', [
+    'encounterDate' => oeFormatShortDate($encounter_date),
+    'patientName' => $patientName,
+    'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
+    'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
+    'menuArray' => $menu->getMenuData(),
+]);
+?>
+
+<div id="encounter_forms" class="mx-1">
+<div class='encounter-summary-container'>
+    <div class='encounter-summary-column'>
+        <div>
+            <?php
+            $pass_sens_squad = true;
+
+            //fetch acl for category of given encounter
+            $pc_catid = fetchCategoryIdByEncounter($encounter);
+            $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
+            if ($postCalendarCategoryACO) {
+                $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+                $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+            } else { // if no aco is set for category
+                $authPostCalendarCategory = true;
+                $authPostCalendarCategoryWrite = true;
+            }
+
+
+            ?>
+        </div>
+        <div style='margin-top: 8px;'>
+            <?php
+            // ESign for entire encounter
+            $esign = $esignApi->createEncounterESign($encounter);
+            if ($esign->isButtonViewable()) {
+                echo $esign->buttonHtml();
+            }
+            ?>
+
+        </div>
+    </div>
 <div class='encounter-summary-column'>
 <?php if ($esign->isLogViewable()) {
     $esign->renderLog();
@@ -959,24 +912,31 @@ if (
         } else {
             $form_author = ($user['fname'] ?? '') . "  " . ($user['lname'] ?? '');
         }
-        echo "<div class='form_header'>";
-        echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .
-          "<div class='formname' title='" . xla('Expand/Collapse this form') . "'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
-          "</a>";
-        echo "</div>";
-
-        // a link to edit the form
-        echo "<div class='form_header_controls btn-group' role='group'>";
+        $div_nums_attr = attr($divnos);
+        $title = xla("Expand/Collapse this form");
+        $display = text($form_name) . " " . xlt("by") . " " . text($form_author);
+        $author_text = text($form_author);
+        $by_text = xlt("by");
+        $form_text = text($form_name);
+        echo <<<HTML
+        <div class="form_header">
+            <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
+                <h5>{$form_text}</h5>
+                {$by_text} {$author_text}
+            </a>
+        </div>
+        <div class='form_header_controls btn-group' role='group'>
+        HTML;
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
-                 echo "<a href=# class='btn btn-primary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'>" . xlt('Locked') . "</a>";
+                 echo "<a href='#' class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
         } else {
             if (
                 (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
                 or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
             ) {
-                echo "<a class='btn btn-primary btn-sm form-edit-button btn-edit' " .
+                echo "<a class='btn btn-secondary btn-sm form-edit-button btn-edit' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
@@ -1000,7 +960,7 @@ if (
             "&formid="    . attr_url($iter['form_id']) .
             "&visitid="   . attr_url($encounter)       .
             "&patientid=" . attr_url($pid)             .
-            "' class='btn btn-primary btn-sm' title='" . xla('Print this form') .
+            "' class='btn btn-secondary btn-sm' title='" . xla('Print this form') .
             "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
         }
 
@@ -1018,7 +978,7 @@ if (
             }
         }
 
-        echo "<a class='btn btn-primary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+        echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";

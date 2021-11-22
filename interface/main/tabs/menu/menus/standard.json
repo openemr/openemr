@@ -436,7 +436,7 @@
       {
         "label": "Billing Manager",
         "menu_id": "bil0",
-        "target": "bil",
+        "target": "bil0",
         "url": "/interface/billing/billing_report.php",
         "children": [],
         "requirement": 0,
@@ -1294,6 +1294,14 @@
           "admin",
           "super"
         ]
+      },
+      {
+        "label": "About",
+        "menu_id": "abo0",
+        "target": "msc",
+        "url": "/interface/main/about_page.php",
+        "children": [],
+        "requirement": 0
       }
     ],
     "requirement": 0,
@@ -2340,14 +2348,6 @@
         "global_req": "addr_label_type"
       }
     ],
-    "requirement": 0
-  },
-  {
-    "label": "About",
-    "menu_id": "abo0",
-    "target": "msc",
-    "url": "/interface/main/about_page.php",
-    "children": [],
     "requirement": 0
   }
 ]
