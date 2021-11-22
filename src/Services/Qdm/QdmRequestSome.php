@@ -1,8 +1,13 @@
 <?php
-
+/**
+ * @package OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ */
 
 namespace OpenEMR\Services\Qdm;
-
 
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
@@ -49,6 +54,6 @@ class QdmRequestSome implements QdmRequestInterface
 
     public function getFilter()
     {
-        // TODO: Implement getFilter() method.
+        // TODO: Implement getFilter() method. We don't have a use-case for some patients yet.
     }
 }
