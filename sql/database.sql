@@ -12751,7 +12751,7 @@ CREATE TABLE `jwt_grant_history` (
 
 DROP TABLE IF EXISTS `document_templates`;
 CREATE TABLE `document_templates` (
-  `id` bigint(21) UNSIGNED NOT NULL,
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) DEFAULT NULL,
   `provider` int(11) UNSIGNED DEFAULT NULL,
   `encounter` int(11) UNSIGNED DEFAULT NULL,
