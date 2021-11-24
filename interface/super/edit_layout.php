@@ -401,7 +401,7 @@ $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 $layout_tbl = tableNameFromLayout($layout_id);
 // Setup alert for table layouts
 $layout_alert = "";
-if ($layout_tbl == "") {
+if (($layout_id !== "") && ($layout_tbl !== "")) {
     $layout_alert = sprintf(
         '<div class="alert alert-warning alert-dismissible fade show" role="alert">
             <strong>%s!</strong> "%s" %s.
