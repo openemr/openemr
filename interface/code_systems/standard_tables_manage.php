@@ -98,6 +98,8 @@ if ($db == 'RXNORM') {
 } elseif ($db == 'VENOM') {
     if (!venom_import($db)) {
         echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+        temp_dir_cleanup($db);
+        exit;
     }
 } else { //$db == 'ICD'
     if (!icd_import($db)) {

@@ -689,6 +689,9 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
     } elseif ($type == 'CQM_VALUESET') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum));
         return true;
+    } elseif ($type == 'VENOM') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'VENOM',?,?,?)", array($revision, $version, $file_checksum));
+    }
     } else { // $type == 'ICD10')
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum));
         return true;

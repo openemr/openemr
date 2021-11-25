@@ -168,6 +168,9 @@ define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_cod
 
 define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', array(), '');
 
+// VeNom Coding Group
+define_external_table($code_external_tables, 14, 'venom_codes', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
+
 /**
  * This array stores the external table options. See above for $code_types array
  * 'external' attribute  for explanation of the option listings.
@@ -186,7 +189,8 @@ $ct_external_options = array(
   '10' => xl('SNOMED (RF2) Diagnosis'),
   '11' => xl('SNOMED (RF2) Clinical Term'),
   '12' => xl('SNOMED (RF2) Procedure'),
-  '13' => xl('CQM (Mixed Types) Value Set')
+  '13' => xl('CQM (Mixed Types) Value Set'),
+  '14' => xl('VeNom Coding'),
 );
 
 /**
