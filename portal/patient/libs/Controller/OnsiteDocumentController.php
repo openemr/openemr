@@ -45,12 +45,14 @@ class OnsiteDocumentController extends AppBasePortalController
         $is_module = $catid = 0;
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
+        // get latest help template id
+        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC', array('Help'))['id'];
 
         if (isset($_GET['pid'])) {
             $pid = (int) $_GET['pid'];
         }
 
-        // only allow patient to see themself
+        // only allow patient to see themselves
         if (!empty($GLOBALS['bootstrap_pid'])) {
             $pid = $GLOBALS['bootstrap_pid'];
         }
@@ -82,6 +84,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $new_filename = $_GET['new'];
         }
         $this->Assign('recid', $recid);
+        $this->Assign('help_id', $help_id);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
         $this->Assign('encounter', $encounter);
