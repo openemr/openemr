@@ -660,11 +660,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <td>
                                             <div><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
                                             attr_url($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
-                                            text($patient) . "</a></div>
+                                            text($patient) . "</a>
+                                            <a href='../../patient_file/summary/demographics.php?set_pid=$patient' onclick=\"top.restoreSession()\"><i id=\"just-mine-tooltip\" class=\"fa fa-user fa-lg text-body\" aria-hidden=\"true\" title=\"\" data-toggle=\"tooltip\" data-placement=\"bottom\" data-original-title=\"Click open patient's chart\"></i></a>
+                                            </div>
                                         </td>
                                         <td>
-                                            <div>" .
-                                                xlt($myrow['title']) . "</div>
+                                            <div>
+                                                " . xlt($myrow['title']) . "
+                                            </div>
                                         <td>
                                             <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
                                         </td>
@@ -915,7 +918,7 @@ if (!empty($_REQUEST['go'])) { ?>
         })
 
         $(function () {
-            
+
             $("#newnote").click(function (event) {
                 NewNote(event);
             });
