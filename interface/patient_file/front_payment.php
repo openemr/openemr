@@ -195,7 +195,8 @@ if (!empty($_POST['form_save'])) {
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = 0 + $payment) {
+            $payment = floatval($payment);
+            if ($amount = $payment) {
                  $zero_enc = $enc;
                 if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance') {
                     if (!$enc) {
@@ -996,7 +997,7 @@ function make_insurance() {
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
-                                $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
+                                $query1112 = "SELECT * FROM list_options where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));
                                 while ($brow1112 = sqlFetchArray($bres1112)) {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {

@@ -23,7 +23,8 @@ use OpenEMR\Core\Header;
 $info_msg = "";
 
  // If we are searching, search.
- //
+ // first set $result to empty
+$result = "";
 if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
     $searchby = $_REQUEST['searchby'];
     $searchparm = trim($_REQUEST['searchparm']);
@@ -153,7 +154,7 @@ if (isset($_GET["res"])) {
 
 <?php if (! isset($_REQUEST['searchparm'])) : ?>
 <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) == 0) : ?>
+<?php elseif (! is_countable($result)) : ?>
 <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br />
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
@@ -185,33 +186,35 @@ if (isset($_GET["res"])) {
 </thead>
 <tbody id="searchResults">
     <?php
-    foreach ($result as $iter) {
-        $iterpid   = $iter['pid'];
-        $iterlname = $iter['lname'];
-        $iterfname = $iter['fname'];
-        $itermname = $iter['mname'];
-        $iterdob   = $iter['DOB'];
+    if (is_countable($result)) {
+        foreach ($result as $iter) {
+            $iterpid   = $iter['pid'];
+            $iterlname = $iter['lname'];
+            $iterfname = $iter['fname'];
+            $itermname = $iter['mname'];
+            $iterdob   = $iter['DOB'];
 
-        // If billing note exists, then it gets special coloring and an extra line of output
-        // in the 'name' column.
-        $trClass = "oneresult";
-        if (!empty($iter['billing_note'])) {
-            $trClass .= " billing";
+            // If billing note exists, then it gets special coloring and an extra line of output
+            // in the 'name' column.
+            $trClass = "oneresult";
+            if (!empty($iter['billing_note'])) {
+                $trClass .= " billing";
+            }
+
+            echo " <tr class='" . $trClass . "' id='" .
+            htmlspecialchars($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob, ENT_QUOTES) . "'>";
+            echo "  <td class='srName'>" . htmlspecialchars($iterlname . ", " . $iterfname . " " . $itermname, ENT_NOQUOTES);
+            if (!empty($iter['billing_note'])) {
+                echo "<br />" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
+            }
+
+            echo "</td>\n";
+            echo "  <td class='srPhone'>" . htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
+            echo "  <td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>\n";
+            echo "  <td class='srDOB'>" . htmlspecialchars($iter['DOB'], ENT_NOQUOTES) . "</td>\n";
+            echo "  <td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>\n";
+            echo " </tr>";
         }
-
-        echo " <tr class='" . $trClass . "' id='" .
-        htmlspecialchars($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob, ENT_QUOTES) . "'>";
-        echo "  <td class='srName'>" . htmlspecialchars($iterlname . ", " . $iterfname . " " . $itermname, ENT_NOQUOTES);
-        if (!empty($iter['billing_note'])) {
-            echo "<br />" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
-        }
-
-        echo "</td>\n";
-        echo "  <td class='srPhone'>" . htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
-        echo "  <td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>\n";
-        echo "  <td class='srDOB'>" . htmlspecialchars($iter['DOB'], ENT_NOQUOTES) . "</td>\n";
-        echo "  <td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>\n";
-        echo " </tr>";
     }
     ?>
 </tbody>

@@ -4,6 +4,9 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -18,6 +21,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Immunization Service
@@ -29,8 +33,11 @@ use OpenEMR\Services\Search\ServiceField;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
 
     /**
      * @var ImmunizationService
@@ -52,7 +59,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
+            'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -87,7 +94,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
             $statusReason = new FHIRCodeableConcept();
             $statusReasonCoding = new FHIRCoding();
-            $statusReasonCoding->setSystem(FhirCodeSystemUris::IMMUNIZATION_OBJECTION_REASON);
+            $statusReasonCoding->setSystem(FhirCodeSystemConstants::IMMUNIZATION_OBJECTION_REASON);
             $statusReasonCoding->setCode("PATOBJ");
             $statusReasonCoding->setDisplay("patient objection");
             $statusReason->addCoding($statusReasonCoding);
@@ -152,9 +159,13 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         if (!empty($dataRecord['administration_site'])) {
             $doseQuantity = new FHIRQuantity();
             $doseQuantity->setValue($dataRecord['amount_administered']);
-            $doseQuantity->setSystem(FhirCodeSystemUris::IMMUNIZATION_UNIT_AMOUNT);
+            $doseQuantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
             $doseQuantity->setCode($dataRecord['amount_administered_unit']);
             $immunizationResource->setDoseQuantity($doseQuantity);
+        }
+
+        if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
+            $immunizationResource->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
@@ -174,48 +185,13 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     }
 
     /**
-     * Parses a FHIR Immunization Resource, returning the equivalent OpenEMR immunization record.
-     *
-     * @param array $fhirResource The source FHIR resource
-     * @return array a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
-    /**
-     * Inserts an OpenEMR record into the system.
-     *
-     * @param array $openEmrRecord OpenEMR immunization record
-     * @return ProcessingResult
-     */
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // return $this->immunizationService->insert($openEmrRecord);
-    }
-
-
-    /**
-     * Updates an existing OpenEMR record.
-     *
-     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
-     * @return ProcessingResult
-     */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // $processingResult = $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord);
-        // return $processingResult;
-    }
-
-    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array openEMRSearchParameters OpenEMR search fields
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->immunizationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
@@ -225,7 +201,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        $performer = null;
+        if (!empty($dataRecord->getPerformer())) {
+            $performer = current($dataRecord->getPerformer());
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {
@@ -243,5 +223,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     public function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

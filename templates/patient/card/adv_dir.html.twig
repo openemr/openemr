@@ -1,0 +1,20 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+{% if counterFlag %}
+<div class="list-group list-group-flush">
+    {% for a in advDirArr %}
+        <div class="list-group-item p-1">
+            <div class="d-flex w-100 justify-content-between">
+                <a href='{{ webroot|attr }}/controller.php?document&retrieve&patient_id={{ a.pid|attr_url }}document_id={{ a.docID|attr_url }}&as_file=true' onclick='top.restoreSession()'>{{ a.docName|xlDocCategory|text }}</a>
+                {{ a.docDate|shortDate|text }}
+            </div>
+        </div>
+    {% endfor %}
+    {{ a }}
+</div>
+{% else %}
+    {{ "None{{Advanced_Directives}}"|xlt }}
+{% endif %}
+
+{% endblock %}

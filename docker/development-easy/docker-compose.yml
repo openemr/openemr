@@ -2,7 +2,7 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.5
+    image: mariadb:10.6
     command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - 8320:3306
@@ -65,7 +65,6 @@ services:
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
-      CARE_COORDINATION_MODULE_ON: 1
     depends_on:
     - mysql
   phpmyadmin:

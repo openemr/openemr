@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
+// TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
 {
 
@@ -56,7 +57,7 @@ class ListService
 
     public function getOptionsByListName($list_name, $search = array())
     {
-        $sql = "SELECT * FROM list_options WHERE list_id = ?";
+        $sql = "SELECT * FROM list_options WHERE list_id = ? ";
         $binding = [$list_name];
 
 
@@ -69,6 +70,7 @@ class ListService
                 $binding[] = $search[$column];
             }
         }
+        $sql .= " ORDER BY `seq` ";
 
         $statementResults = sqlStatementThrowException($sql, $binding);
 

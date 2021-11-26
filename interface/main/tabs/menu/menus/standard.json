@@ -436,7 +436,7 @@
       {
         "label": "Billing Manager",
         "menu_id": "bil0",
-        "target": "bil",
+        "target": "bil0",
         "url": "/interface/billing/billing_report.php",
         "children": [],
         "requirement": 0,
@@ -848,6 +848,18 @@
             "menu_id": "adm0",
             "target": "adm",
             "url": "/interface/patient_file/merge_patients.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
+          },
+          {
+            "label": "Manage Duplicates",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/patient_file/manage_dup_patients.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
@@ -1282,6 +1294,14 @@
           "admin",
           "super"
         ]
+      },
+      {
+        "label": "About",
+        "menu_id": "abo0",
+        "target": "msc",
+        "url": "/interface/main/about_page.php",
+        "children": [],
+        "requirement": 0
       }
     ],
     "requirement": 0,
@@ -1756,107 +1776,6 @@
             "menu_id": "rep0",
             "target": "rep",
             "url": "/interface/reports/svc_code_financial_report.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
-          },
-          {
-            "label": "Peachtree Export",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/export_accounting_transactions.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
-          },
-          {
-            "label": "NetSuite Export",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/netsuite_export.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_netsuite"
-          },
-          {
-            "label": "NetSuite Mapping",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/netsuite_mapping.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_netsuite"
-          },
-          {
-            "label": "Projects",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/restricted_projects_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_projects"
-          },
-          {
-            "label": "LOBI Insurers Report",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/surinam_insurance_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_surinam_insurance"
-          },
-          {
-            "label": "LOBI SZF Report",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/surinam_szf_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ],
-            "global_req": "gbl_menu_surinam_insurance"
-          },
-          {
-            "label": "Visit Voids and Changes",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/reopened_visits_report.php?form=0",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "acct",
-              "rep_a"
-            ]
-          },
-          {
-            "label": "Visit Voids and Changes",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/reopened_visits_report.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
@@ -2429,14 +2348,6 @@
         "global_req": "addr_label_type"
       }
     ],
-    "requirement": 0
-  },
-  {
-    "label": "About",
-    "menu_id": "abo0",
-    "target": "msc",
-    "url": "/interface/main/about_page.php",
-    "children": [],
     "requirement": 0
   }
 ]

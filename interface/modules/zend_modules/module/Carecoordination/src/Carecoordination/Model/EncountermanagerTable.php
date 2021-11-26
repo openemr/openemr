@@ -87,15 +87,16 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function getStatus($data)
     {
+        $pid = '';
         foreach ($data as $row) {
-            if ($pid) {
+            if (!empty($pid)) {
                 $pid .= ',';
             }
 
-            $pid    .= $row['pid'];
+            $pid    .= ($row['pid'] ?? '');
         }
 
-        if (!$pid) {
+        if (empty($pid)) {
             $pid = "''";
         }
 

@@ -132,6 +132,19 @@ $restRequest->setIsLocalApi($isLocalApi);
 $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
+// we now can check the database to see if the token is revoked
+if (!empty($tokenId)) {
+    $result = $gbl::validateAccessTokenRevoked($tokenId);
+    if ($result instanceof ResponseInterface) {
+        $logger->error("dispatch.php access token was revoked", ["resource" => $resource]);
+        // failed token verify
+        // not a request object so send the error as response obj
+        $gbl::emitResponse($result);
+        exit;
+    }
+}
+
+
 // recollect this so the DEBUG global can be used if set
 $logger = new SystemLogger();
 
@@ -236,7 +249,7 @@ if ($isLocalApi) {
     } elseif ($userRole === 'system' && ($gbl::is_fhir_request($resource))) {
         $logger->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
     } else {
-        $logger->error("OpenEMR Error: api failed because user role does not have access to the resource");
+        $logger->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
         $gbl::destroySession();
         http_response_code(401);
         exit();

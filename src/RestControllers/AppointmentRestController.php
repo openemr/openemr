@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -44,6 +45,7 @@ class AppointmentRestController
 
     public function post($pid, $data)
     {
+        $data['pid'] = $pid;
         $validationResult = $this->appointmentService->validate($data);
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
@@ -57,7 +59,12 @@ class AppointmentRestController
 
     public function delete($eid)
     {
-        $serviceResult = $this->appointmentService->delete($eid);
+        try {
+            $serviceResult = $this->appointmentService->delete($eid);
+        } catch (\Exception $exception) {
+            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'eid' => $eid]);
+            return RestControllerHelper::responseHandler(['message' => 'Failed to delete appointment'], null, 500);
+        }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

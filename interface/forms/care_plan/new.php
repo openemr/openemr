@@ -24,8 +24,17 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
-if ($formid) {
+$formid = (int)($_GET['id'] ?? 0);
+if (empty($formid)) {
+    $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'care_plan' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
+    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
+    if (!empty($formid)) {
+        echo "<script>var message=" .
+            js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .
+            "</script>";
+    }
+}
+if (!empty($formid)) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -92,21 +101,28 @@ endforeach;
 
             function deleteRow(rowId) {
                 if (rowId != 'tb_row_1') {
-                    var elem = document.getElementById(rowId);
+                    let elem = document.getElementById(rowId);
                     elem.parentNode.removeChild(elem);
                 }
             }
 
             function sel_code(id) {
                 id = id.split('tb_row_');
-                var checkId = '_' + id[1];
+                let checkId = '_' + id[1];
+                if (typeof checkId === 'undefined') {
+                    checkId = 1;
+                }
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?default=SNOMED-CT', '_blank', 700, 400);
             }
 
             function set_related(codetype, code, selector, codedesc) {
-                var checkId = document.getElementById('clickId').value;
-                document.getElementById("code" + checkId).value = (codetype + ":" + code);
+                let checkId = document.getElementById('clickId').value;
+                if (codetype !== "") {
+                    document.getElementById("code" + checkId).value = (codetype + ":" + code);
+                } else {
+                    document.getElementById("code" + checkId).value = "";
+                }
                 document.getElementById("codetext" + checkId).value = codedesc;
                 document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
             }
@@ -122,6 +138,9 @@ endforeach;
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                     });
                 });
+                if (typeof message !== 'undefined') {
+                    alert(message);
+                }
             });
         </script>
     </head>
@@ -191,7 +210,7 @@ endforeach;
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.parentElement.id);'>
+                                                <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id || "");'>
                                                 <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                                 <span id="displaytext_1"  class="displaytext help-block"></span>
                                                 <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">

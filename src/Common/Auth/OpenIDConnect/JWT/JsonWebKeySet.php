@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
@@ -20,8 +21,18 @@ use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
-class JsonWebKeySet extends Key
+class JsonWebKeySet implements Key
 {
+    /**
+     * @var string
+     */
+    private $content;
+
+    /**
+     * @var string
+     */
+    private $passphrase;
+
     /**
      * @var ClientInterface
      */
@@ -58,7 +69,8 @@ class JsonWebKeySet extends Key
         }
         $this->jwks = $jwks->keys;
 
-        parent::__construct($content, $passphrase);
+        $this->content = $content;
+        $this->passphrase = $passphrase;
     }
     /**
      * Returns a JWK that matches the given key id and algorithm in the JWK Set.
@@ -101,8 +113,23 @@ class JsonWebKeySet extends Key
             $body = $this->httpClient->sendRequest($request)->getBody();
             $json = $body->getContents();
             return $json;
-        } catch (RequestException $exception) {
+        } catch (RequestException | ConnectException $exception) {
+            throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
+        } catch (\Exception $exception) {
+            (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }
+    }
+
+    /** @return string */
+    public function contents(): string
+    {
+        return $this->content;
+    }
+
+    /** @return string */
+    public function passphrase(): string
+    {
+        return $this->passphrase;
     }
 }

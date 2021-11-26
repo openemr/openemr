@@ -54,7 +54,30 @@ class EncounterServiceTest extends TestCase
         $uuidString = UuidRegistry::uuidToString($uuid);
         // getOne
         $actualResult = $this->service->getEncounter($uuidString);
+        $this->assertNotNull($actualResult, "Processing result should be returned");
         $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
+    }
+
+    /**
+     * Ran into a bug where the bound patient id was not being checked correctly.  This test case verifies that the patient
+     * binding for the uuid on the service is correctly set and returns valid data.
+     * @cover ::search
+     */
+    public function testSearchWithBoundPatientUUID()
+    {
+        $this->fixtureManager->installFixtures();
+
+        // attempt to verify the uuid surrogate key is working correctly
+        $uuid = QueryUtils::fetchSingleValue("SELECT `pd`.`uuid` FROM `form_encounter` fe "
+        . " JOIN `patient_data` `pd` ON `fe`.pid = `pd`.`pid`", "uuid");
+        $uuidString = UuidRegistry::uuidToString($uuid);
+        // getOne
+        $actualResult = $this->service->search([], true, $uuidString);
+        $this->assertNotNull($actualResult, "Processing result should be returned");
+        $this->assertNotEmpty($actualResult->getData(), "Search result should have returned a result");
+        $resultData = $actualResult->getData()[0];
+        $this->assertNotNull($resultData);
+        $this->assertEquals($uuidString, $resultData['puuid'], "Patient uuid should match bound patient");
     }
 }

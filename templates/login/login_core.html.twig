@@ -1,0 +1,267 @@
+{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if displayGoogleSignin %}
+        <meta name="google-signin-client_id" content="{{ googleSigninClientID|attr }}">
+    {% endif %}
+    <title>{{ title|text }} {{ "Login"|xlt }}</title>
+    {% block head %}{% endblock %}
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
+    {{ setupHeader() }}
+    <script type="text/javascript">
+        const registrationTranslations = {{ regTranslations }};
+        const registrationConstants = {{ regConstants }};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('authUser').focus();
+        });
+
+        $(document).ready(init());
+
+        function init() {
+            var productRegistrationController = new ProductRegistrationController();
+            productRegistrationController.getProductRegistrationStatus(function (err, data) {
+                if (err) { return; }
+
+                if (data.statusAsString === 'UNREGISTERED') {
+                    productRegistrationController.showProductRegistrationModal();
+                }
+            });
+        }
+
+        function transmit_form(element) {
+            // disable submit button to insert a notification of working
+            element.disabled = true;
+            // nothing fancy. mainly for mobile.
+            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="sr-only">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
+            {% if hasSession %}
+            document.cookie = {{ cookieText }};
+            {% endif %}
+            document.forms[0].submit();
+            return true;
+        }
+    </script>
+</head>
+<body class="login">
+    <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">
+        <div class="{{ loginRow|attr }}">
+            <div class="{{ formArea|attr }}">
+                <input type="hidden" name="new_login_session_management" value="1">
+                <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
+
+                {% if relogin == 1 %}
+                <div class="alert alert-info m-1 font-weight-bold">
+                    {{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}
+                </div>
+                {% endif %}
+
+                {% if loginFail == 1 %}
+                <div class="bg-danger text-light py-2 px-3 login-failure mb-3 font-weight-bold">
+                    {{ "Invalid username or password"|xlt }}
+                </div>
+                {% endif %}
+
+                <div id="standard-auth-username" class="form-group">
+                    <label for="authUser" class="text-right {{ srOnly }}">{{ "Username"|xlt }}</label>
+                    <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ "Username"|xla }}">
+                </div>
+
+                <div id="standard-auth-password" class="form-group">
+                    <label for="clearPass" class="text-right {{ srOnly }}">{{ "Password"|xlt }}</label>
+                    <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="{{ "Password"|xla }}">
+                </div>
+
+                {{ divApp }}
+
+                {% if displayLanguage %}
+                <div class="form-group">
+                    <label for="language" class="text-right">{{ "Language"|xlt }}</label>
+                    <div>
+                        <select class="form-control" name="languageChoice" size="1">
+                            <option value="{{ defaultLangID|attr }}" selected>{{ "Default"|xlt }} - {{ defaultLangName|xlt }}</option>
+                            {% for l in languageList %}
+                                <option value="{{ l.lang_id|attr }}">{{ l.trans_lang_description|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if displayFacilities %}
+                <div class="form-group">
+                    <label for="facility" class="text-right">{{ "Facility"|xlt }}</label>
+                    <div>
+                        <select class="form-control" name="facility" size="1">
+                            <option value="user_default">{{ "My default facility"|xlt }}</option>
+                            {% for f in facilityList %}
+                                <option value="{{ f.id|attr }}" {{ facilitySelected == f.id ? "selected" : "" }}>{{ f.name|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-group d-flex justify-content-end">
+                    <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
+                </div>
+
+                <div class="form-group">
+                    {% if displayGoogleSignin %}
+                    <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+                    <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+                    <div id="google-signin" onclick="return do_google_signin();">
+                        <!-- This message is displayed if the google platform API cannot render the button -->
+                        <span id="google-signin-service-unreachable-alert" style="display:none;">
+                            {{ "Google Sign-In is enabled but the service is unreachable."|xlt }}
+                        </span>
+                    </div>
+                    <div id="google-signout">
+                        <a href="#" onclick="signOut();">{{ "Sign out"|xlt }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="{{ logoArea|attr }}">
+                {% if displayExtraLogo %}
+                <div class="text-center">
+                    <span class="d-inline-block w-40">
+                        {{ primaryLogoSrc|raw }}
+                    </span>
+                    <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
+                    <span class="d-inline-block w-40">
+                        {{ logocode }}
+                    </span>
+                </div>
+                {% else %}
+                <div class="mx-auto m-4 w-75">
+                    {{ primaryLogoSrc|raw }}
+                </div>
+                {% endif %}
+
+                {% if displayLoginLabel %}
+                <div class="text-center login-title-label">
+                        {{ title|text }}
+                    </div>
+                {% endif %}
+
+                {% if displayTinyLogo == 1 %}
+                    {{ tinyLogo1 }}
+                {% endif %}
+                {% if displayTinyLogo == 2 %}
+                    {{ tinyLogo2 }}
+                {% endif %}
+                {% if displayTinyLogo == 3 %}
+                    <div class="row mb-3">
+                        <div class="col-sm-6">{{ tinyLogo1 }}</div>
+                        <div class="col-sm-6">{{ tinyLogo2 }}</div>
+                    </div>
+                {% endif %}
+
+                {% if displayTagline %}
+                    <p class="text-center text-white lead">{{ tagline|xlt }}</p>
+                {% endif %}
+
+                {% if displayAck %}
+                    <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="text-white" target="main">{{ "Acknowledgments, Licensing and Certification"|xlt }}</a></p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="product-registration-modal modal fade">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"></div>
+                    <div class="modal-body">
+                        <p class="context">
+                            {{ "Register your installation with OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
+                        </p>
+                        <input placeholder="{{ "email"|xla }}" type="email" class="email w-100 text-body form-control" />
+                        <p class="message font-italic"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary submit">{{ "Submit"|xlt }}</button>
+                        <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
+{% if displayGoogleSignin %}
+<script type="text/javascript">
+    // This variable controls whether we should login to OpenEMR
+    // so we only login if "Sign in with Google button" was clicked
+    let google_signin = false;
+
+    // Hide the google signout link unless we are signed-in
+    // This isn't really ever displayed, because once we sign-in with google,
+    // we automatically log into the app
+    $('#google-signout').hide();
+
+    // Click-handler for signin button
+    function do_google_signin() {
+        google_signin = true;
+    }
+
+    // When Google sign-in successful, sign in to the app, but only
+    // if the button was clicked (otherwise we would automatically login)
+    function onSignInSuccess(googleUser) {
+        if (google_signin === true) {
+            const auth_response = googleUser.getAuthResponse();
+            const id_token = auth_response.id_token;
+            $('.login-failure').hide();
+            $('#used-google-signin').val(true);
+            $('#google-signin-token').val(id_token);
+            $('#google-signout').show();
+            $('#standard-auth-username, #standard-auth-password').hide();
+            var element = document.getElementById('login-button');
+            transmit_form(element);
+        }
+    }
+
+    function onSignInFailure(error) {
+        $('.login-failure').show();
+    }
+
+    function renderButton() {
+        gapi.signin2.render('google-signin', {
+            'prompt': 'select_account',
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSignInSuccess,
+            'onfailure': onSignInFailure
+        });
+    }
+
+    function signOut() {
+        google_signin = false;
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            $('#used-google-signin').val('');
+            $('#google-signin-token').val('');
+            $('#google-signout').hide();
+            $('#standard-auth-username, #standard-auth-password').show();
+        });
+    }
+
+    $.getScript('https://apis.google.com/js/platform.js', function (data, textStatus, jqxh) {
+        // When the auth2 library is loaded, log out so the user has to sign into google
+        gapi.load('auth2', function () {
+            gapi.auth2.init().then(function () {
+                signOut();
+            });
+        });
+
+        // Render the "Sign in with Google" button
+        renderButton();
+    }).fail(function (jqxhr, settings, exception) {
+        $('#google-signin-service-unreachable-alert').show();
+    });
+</script>
+{% endif %}

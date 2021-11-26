@@ -39,17 +39,20 @@ class C_Document extends Controller
         $this->patientService = new PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "document&");
 
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        if (php_sapi_name() !== 'cli') {
+            // skip when this is being called via command line for the ccda importing
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
 
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
 
-        $this->_args = array("patient_id" => $_GET['patient_id']);
+        $this->_args = array("patient_id" => ($_GET['patient_id'] ?? null));
 
         $this->assign("STYLE", $GLOBALS['style']);
         $t = new CategoryTree(1);
@@ -539,7 +542,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
 
         //pass an empty array because we don't want the documents for each category showing up in this list box
-        $rnode = $this->_array_recurse($this->tree->tree, array());
+        $rnode = $this->array_recurse($this->tree->tree, array());
         $menu->addItem($rnode);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 
@@ -778,7 +781,9 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
-                    $filetext = file_get_contents($url);
+                    if (!is_dir($url)) {
+                        $filetext = file_get_contents($url);
+                    }
                 }
                 if ($disable_exit == true) {
                     return $filetext;
@@ -797,7 +802,7 @@ class C_Document extends Controller
                 } else {
                     header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
                     header("Content-Type: " . $d->get_mimetype());
-                    header("Content-Length: " . strlen($filetext));
+                    header("Content-Length: " . strlen($filetext ?? ''));
                     echo $filetext;
                 }
                 exit;
@@ -1047,7 +1052,7 @@ class C_Document extends Controller
         //print_r($categories_list);
 
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->_array_recurse($this->tree->tree, $categories_list);
+        $rnode = $this->array_recurse($this->tree->tree, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
@@ -1070,7 +1075,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    public function &_array_recurse($array, $categories = array())
+    public function &array_recurse($array, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1093,7 +1098,7 @@ class C_Document extends Controller
                     $current_node = &$this->_last_node;
                 }
 
-                $this->_array_recurse($ar, $categories);
+                $this->array_recurse($ar, $categories);
             } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
@@ -1330,6 +1335,7 @@ class C_Document extends Controller
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
+        // TODO: This should be moved into a service so we can handle things such as uuid generation....
         if ($encounter != 0) {
             $ep = sqlQuery("select u.username as assigned_to from form_encounter inner join users u on u.id = provider_id where encounter = ?", array($encounter));
         } elseif ($image_procedure_id != 0) {

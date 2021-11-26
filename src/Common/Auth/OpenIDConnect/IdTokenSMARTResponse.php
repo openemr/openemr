@@ -13,7 +13,9 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
-use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Token\Builder;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
@@ -166,7 +168,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private function getSmartStyleURL()
     {
-        return $GLOBALS['site_addr_oath'] . "/public/smart-styles/smart-light.json";
+        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/public/smart-styles/smart-light.json";
     }
 
     /**
@@ -230,8 +232,11 @@ class IdTokenSMARTResponse extends IdTokenResponse
 
     protected function getBuilder(AccessTokenEntityInterface $accessToken, UserEntityInterface $userEntity): Builder
     {
+        $claimsFormatter = ChainedFormatter::withUnixTimestampDates();
+        $builder = new Builder(new JoseEncoder(), $claimsFormatter);
+
         // Add required id_token claims
-        return (new Builder())
+        return $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
             ->issuedBy($GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/oauth2/" . $_SESSION['site_id'])
             ->issuedAt(new \DateTimeImmutable('@' . time()))

@@ -45,7 +45,7 @@ exports.socialHistoryObservation = {
         }
     ],
     existsWhen: function (input) {
-        return (!input.value) || input.value.indexOf("smoke") < 0;
+        return (!input.value) || input.value.indexOf("smoke")  > -1;
     }
 };
 

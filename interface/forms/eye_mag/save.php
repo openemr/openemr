@@ -702,6 +702,7 @@ if ($_REQUEST["mode"] == "new") {
                 }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
+                    // TODO: @adunsulag do we need to have the eye-form use the PatientIssuesService?
                     $query = "UPDATE lists SET " .
                         "type = '" . add_escape_custom($form_type) . "', " .
                         "title = '" . add_escape_custom($_REQUEST['form_title']) . "', " .

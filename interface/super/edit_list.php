@@ -112,9 +112,9 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         for ($lino = 1; isset($opt["$lino"]['ct_key']); ++$lino) {
             $iter = $opt["$lino"];
             $ct_key = trim($iter['ct_key']);
-            $ct_id = trim($iter['ct_id']) + 0;
-            $ct_seq = trim($iter['ct_seq']) + 0;
-            $ct_mod = trim($iter['ct_mod']) + 0;
+            $ct_id = (int)trim($iter['ct_id']);
+            $ct_seq = (int)trim($iter['ct_seq']);
+            $ct_mod = (int)trim($iter['ct_mod']);
             $ct_just = trim($iter['ct_just']);
             $ct_mask = trim($iter['ct_mask']);
             $ct_fee = empty($iter['ct_fee']) ? 0 : 1;
@@ -123,7 +123,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
             $ct_diag = empty($iter['ct_diag']) ? 0 : 1;
             $ct_active = empty($iter['ct_active']) ? 0 : 1;
             $ct_label = trim($iter['ct_label']);
-            $ct_external = trim($iter['ct_external']) + 0;
+            $ct_external = (int)trim($iter['ct_external']);
             $ct_claim = empty($iter['ct_claim']) ? 0 : 1;
             $ct_proc = empty($iter['ct_proc']) ? 0 : 1;
             $ct_term = empty($iter['ct_term']) ? 0 : 1;
@@ -191,7 +191,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
 
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
-            $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
+            $value = empty($iter['value']) ? 0 : (trim($iter['value']));
             $id = trim($iter['id']);
             $real_id = trim($iter['real_id']);
 
@@ -552,7 +552,7 @@ function writeOptionLine(
 
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][codes]' title='" .
-        xla('Clinical Term Code(s)') . "' value='" .
+        xla('Code(s)') . "' value='" .
         attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin' />";
     echo "</td>\n";
 
@@ -882,7 +882,9 @@ function writeITLine($it_array)
                 }
             }
         });
-
+        $(document).on('select2:open', () => {
+            document.querySelector('.select2-search__field').focus();
+        });
         // Keeping track of code picker requests.
         var current_lino = 0;
         var current_sel_name = '';
@@ -967,11 +969,10 @@ function writeITLine($it_array)
         }
 
         // This invokes the find-code popup.
-        // For CVX/immunization code administration.
         function select_clin_term_code(e) {
             current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("clinical_term", "csv")); ?>, '_blank', 900, 600);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.

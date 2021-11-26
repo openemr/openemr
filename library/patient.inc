@@ -8,15 +8,20 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SocialHistoryService;
+
+require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
 $facilityService = new FacilityService();
 
@@ -70,7 +75,7 @@ function getInsuranceProvider($ins_id)
 
     $sql = "select name from insurance_companies where id=?";
     $row = sqlQuery($sql, array($ins_id));
-    return $row['name'];
+    return $row['name'] ?? '';
 }
 
 function getInsuranceProviders()
@@ -109,7 +114,7 @@ function getInsuranceProvidersExtra()
     $returnval = array();
     // add a global and if for where to allow inactive inscompanies
 
-    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id, 
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, insurance_companies.cms_id,
             addresses.line1, addresses.line2, addresses.city, addresses.state, addresses.zip
             FROM insurance_companies, addresses
             WHERE addresses.foreign_id = insurance_companies.id
@@ -202,12 +207,12 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
     $s .= "  <td class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
-        $s .= "<b>" . text($r['name']) . "</b>\n";
-        if ($r['street']) {
+        $s .= "<b>" . text($r['name'] ?? '') . "</b>\n";
+        if (!empty($r['street'])) {
             $s .= "<br />" . text($r['street']) . "\n";
         }
 
-        if ($r['city'] || $r['state'] || $r['postal_code']) {
+        if (!empty($r['city']) || !empty($r['state']) || !empty($r['postal_code'])) {
             $s .= "<br />";
             if ($r['city']) {
                 $s .= text($r['city']);
@@ -228,11 +233,11 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = '')
             $s .= "\n";
         }
 
-        if ($r['country_code']) {
+        if (!empty($r['country_code'])) {
             $s .= "<br />" . text($r['country_code']) . "\n";
         }
 
-        if (preg_match('/[1-9]/', $r['phone'])) {
+        if (preg_match('/[1-9]/', ($r['phone'] ?? ''))) {
             $s .= "<br />" . text($r['phone']) . "\n";
         }
     }
@@ -293,8 +298,9 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         $command = "like";
     }
 
+// removing active from query since is checked above with $providers_only argument
     $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
-        "from users where username != '' and active = 1 and id $command '" .
+        "from users where username != '' and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
@@ -313,14 +319,14 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         }
     }
 
-    return $returnval;
+    return ($returnval ?? null);
 }
 
 function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
-    if (strlen($pi[0]["lname"]) > 0) {
-        if (strlen($pi[0]["suffix"]) > 0) {
+    if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
+        if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
         }
 
@@ -700,7 +706,7 @@ function getByPatientDemographicsFilter(
 function getPatientPID($args)
 {
     $pid = "%";
-    $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+    $given = "pid, id, lname, fname, mname, suffix, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
     $orderby = "lname ASC, fname ASC";
     $limit = "all";
     $start = "0";
@@ -764,6 +770,40 @@ function getPatientName($pid)
 
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
+}
+
+/**
+ * Get a patient's first name, middle name, last name and suffix if applicable.
+ *
+ * Returns a properly formatted, complete name when applicable. Example name
+ * would be "John B Doe Jr". No additional punctuation is added. Spaces are
+ * correctly omitted if the middle name of suffix does not apply.
+ *
+ * @var $pid int The Patient ID
+ * @returns string The Full Name
+ */
+function getPatientFullNameAsString(int $pid): string
+{
+    $ptData = getPatientPID(["pid" => $pid]);
+    $pt = $ptData[0];
+
+    if (empty($pt['lname'])) {
+        return "";
+    }
+
+    $name = $pt['fname'];
+
+    if ($pt['mname']) {
+        $name .= " {$pt['mname']}";
+    }
+
+    $name .= " {$pt['lname']}";
+
+    if ($pt['suffix']) {
+        $name .= " {$pt['suffix']}";
+    }
+
+    return $name;
 }
 
 /* return a patient's name in the format FIRST LAST */
@@ -1073,6 +1113,7 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
+        updateDupScore($result['pid']);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
@@ -1140,7 +1181,7 @@ function updateEmployerData($pid, $new, $create = false)
             return sqlInsert("INSERT INTO employer_data SET $set");
         }
 
-        return $old['id'];
+        return ($old['id'] ?? '');
     }
 }
 
@@ -1370,40 +1411,21 @@ function updateInsuranceData($id, $new)
 
 function newHistoryData($pid, $new = false)
 {
-    $arraySqlBind = array();
-    $sql = "insert into history_data set pid = ?, date = NOW()";
-    array_push($arraySqlBind, $pid);
-    if ($new) {
-        foreach ($new as $key => $value) {
-            array_push($arraySqlBind, $value);
-            $sql .= ", `$key` = ?";
-        }
-    }
+    $socialHistoryService = new SocialHistoryService();
 
-    return sqlInsert($sql, $arraySqlBind);
+    $insertionRecord = $new;
+    if (!is_array(($insertionRecord))) {
+        $insertionRecord = [
+            'pid' => $pid
+        ];
+    }
+    $socialHistoryService->create($insertionRecord);
 }
 
 function updateHistoryData($pid, $new)
 {
-    $real = getHistoryData($pid);
-    foreach ($new as $key => $value) {
-        $real[$key] = $value;
-    }
-
-    $real['id'] = "";
-    // need to unset date, so can reset it below
-    unset($real['date']);
-
-    $arraySqlBind = array();
-    $sql = "insert into history_data set `date` = NOW(), ";
-    foreach ($real as $key => $value) {
-        array_push($arraySqlBind, $value);
-        $sql .= "`$key` = ?, ";
-    }
-
-    $sql = substr($sql, 0, -2);
-
-    return sqlInsert($sql, $arraySqlBind);
+    $socialHistoryService = new SocialHistoryService();
+    return $socialHistoryService->updateHistoryDataForPatientPid($pid, $new);
 }
 
 // Returns Age
@@ -1413,49 +1435,8 @@ function updateHistoryData($pid, $new)
 // (optional) nowYMD is a date in YYYYMMDD format
 function getPatientAge($dobYMD, $nowYMD = null)
 {
-    if (empty($dobYMD)) {
-        return '';
-    }
-    // strip any dashes from the DOB
-    $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD, 6, 2);
-    $dobMonth = substr($dobYMD, 4, 2);
-    $dobYear = (int) substr($dobYMD, 0, 4);
-
-    // set the 'now' date values
-    if ($nowYMD == null) {
-        $nowDay = date("d");
-        $nowMonth = date("m");
-        $nowYear = date("Y");
-    } else {
-        $nowDay = substr($nowYMD, 6, 2);
-        $nowMonth = substr($nowYMD, 4, 2);
-        $nowYear = substr($nowYMD, 0, 4);
-    }
-
-    $dayDiff = $nowDay - $dobDay;
-    $monthDiff = $nowMonth - $dobMonth;
-    $yearDiff = $nowYear - $dobYear;
-
-    $ageInMonths = (($nowYear * 12) + $nowMonth) - (($dobYear * 12) + $dobMonth);
-
-    // We want the age in FULL months, so if the current date is less than the numerical day of birth, subtract a month
-    if ($dayDiff < 0) {
-        $ageInMonths -= 1;
-    }
-
-    if ($ageInMonths > 24) {
-        $age = $yearDiff;
-        if (($monthDiff == 0) && ($dayDiff < 0)) {
-            $age -= 1;
-        } elseif ($monthDiff < 0) {
-            $age -= 1;
-        }
-    } else {
-        $age = "$ageInMonths " . xl('month');
-    }
-
-    return $age;
+    $patientService = new PatientService();
+    return $patientService->getPatientAge($dobYMD, $nowYMD);
 }
 
 /**
@@ -1490,77 +1471,8 @@ function parseAgeInfo($dob, $target)
  */
 function getPatientAgeYMD($dob, $date = null)
 {
-
-    if ($date == null) {
-        $daynow = date("d");
-        $monthnow = date("m");
-        $yearnow = date("Y");
-        $datenow = $yearnow . $monthnow . $daynow;
-    } else {
-        $datenow = preg_replace("/-/", "", $date);
-        $yearnow = substr($datenow, 0, 4);
-        $monthnow = substr($datenow, 4, 2);
-        $daynow = substr($datenow, 6, 2);
-        $datenow = $yearnow . $monthnow . $daynow;
-    }
-
-    $dob = preg_replace("/-/", "", $dob);
-    $dobyear = substr($dob, 0, 4);
-    $dobmonth = substr($dob, 4, 2);
-    $dobday = substr($dob, 6, 2);
-    $dob = $dobyear . $dobmonth . $dobday;
-
-    //to compensate for 30, 31, 28, 29 days/month
-    $mo = $monthnow; //to avoid confusion with later calculation
-
-    if ($mo == 05 or $mo == 07 or $mo == 10 or $mo == 12) {  // determined by monthnow-1
-        $nd = 30; // nd = number of days in a month, if monthnow is 5, 7, 9, 12 then
-    } elseif ($mo == 03) { // look at April, June, September, November for calculation.  These months only have 30 days.
-        // for march, look to the month of February for calculation, check for leap year
-        $check_leap_Y = $yearnow / 4; // To check if this is a leap year.
-        if (is_int($check_leap_Y)) { // If it true then this is the leap year
-            $nd = 29;
-        } else { // otherwise, it is not a leap year.
-            $nd = 28;
-        }
-    } else { // other months have 31 days
-        $nd = 31;
-    }
-
-    $bdthisyear = $yearnow . $dobmonth . $dobday; //Date current year's birthday falls on
-    if ($datenow < $bdthisyear) { // if patient hasn't had birthday yet this year
-        $age_year = $yearnow - $dobyear - 1;
-        if ($daynow < $dobday) {
-            $months_since_birthday = 12 - $dobmonth + $monthnow - 1;
-            $days_since_dobday = $nd - $dobday + $daynow; //did not take into account for month with 31 days
-        } else {
-            $months_since_birthday = 12 - $dobmonth + $monthnow;
-            $days_since_dobday = $daynow - $dobday;
-        }
-    } else // if patient has had birthday this calandar year
-    {
-        $age_year = $yearnow - $dobyear;
-        if ($daynow < $dobday) {
-            $months_since_birthday = $monthnow - $dobmonth - 1;
-            $days_since_dobday = $nd - $dobday + $daynow;
-        } else {
-            $months_since_birthday = $monthnow - $dobmonth;
-            $days_since_dobday = $daynow - $dobday;
-        }
-    }
-
-    $day_as_month_decimal = $days_since_dobday / 30;
-    $months_since_birthday_float = $months_since_birthday + $day_as_month_decimal;
-    $month_as_year_decimal = $months_since_birthday_float / 12;
-    $age_float = $age_year + $month_as_year_decimal;
-
-    $age_in_months = $age_year * 12 + $months_since_birthday_float;
-    $age_in_months = round($age_in_months, 2);  //round the months to xx.xx 2 floating points
-    $age = round($age_float, 2);
-
-    // round the years to 2 floating points
-    $ageinYMD = $age_year . "y " . $months_since_birthday . "m " . $days_since_dobday . "d";
-    return compact('age', 'age_in_months', 'ageinYMD');
+    $service = new PatientService();
+    return $service->getPatientAgeYMD($dob, $date);
 }
 
 // Returns Age in days
@@ -1606,16 +1518,8 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
  */
 function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 {
-    if ($GLOBALS['age_display_format'] == '1') {
-        $ageYMD = getPatientAgeYMD($dobYMD, $asOfYMD);
-        if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
-            return $ageYMD['ageinYMD'];
-        } else {
-            return getPatientAge($dobYMD, $asOfYMD);
-        }
-    } else {
-        return getPatientAge($dobYMD, $asOfYMD);
-    }
+    $service = new PatientService();
+    return $service->getPatientAgeDisplay($dobYMD, $asOfYMD);
 }
 function dateToDB($date)
 {
@@ -1721,6 +1625,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
             // going to comment this out for now since computing future copays doesn't
             // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
             // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            $copay = 0;
 
             $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
             $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
@@ -1812,4 +1717,22 @@ function is_patient_deceased($pid, $date = '')
 
         return $results;
     }
+}
+
+// This computes, sets and returns the dup score for the given patient.
+//
+function updateDupScore($pid)
+{
+    $row = sqlQuery(
+        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+        "p1.pid = ? AND p2.pid < p1.pid",
+        array($pid)
+    );
+    $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
+    sqlStatement(
+        "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
+        array($dupscore, $pid)
+    );
+    return $dupscore;
 }

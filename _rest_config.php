@@ -214,6 +214,21 @@ class RestConfig
         return $raw;
     }
 
+    /**
+     * Returns true if the access token for the given token id is valid.  Otherwise returns the access denied response.
+     * @param $tokenId
+     * @return bool|ResponseInterface
+     */
+    public static function validateAccessTokenRevoked($tokenId)
+    {
+        $repository = new AccessTokenRepository();
+        if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
+            $response = self::createServerResponse();
+            return OAuthServerException::accessDenied('Access token has been revoked')->generateHttpResponse($response);
+        }
+        return true;
+    }
+
     public static function isTrustedUser($clientId, $userId)
     {
         $trustedUserService = new TrustedUserService();
@@ -307,7 +322,7 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
-                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope]);
+                (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => $GLOBALS['oauth_scopes']]);
                 http_response_code(401);
                 exit;
             }

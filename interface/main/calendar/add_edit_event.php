@@ -21,6 +21,7 @@
  * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * Copyright (C) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,6 +53,8 @@ require_once($GLOBALS['srcdir'] . '/group.inc');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
+use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
@@ -100,6 +103,13 @@ $startampm = '';
 $info_msg = "";
 $g_edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');
 $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
+
+
+/**
+ * @var EventDispatcherInterface $eventDispatcher
+ */
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -727,12 +737,20 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
         // EVENTS TO FACILITIES
         $e2f = (int)$eid;
+        //Tell subscribers that a new multi appointment has been set
+        $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
+        $patientAppointmentSetEvent->eid = $e2f;  //setting the appointment id to an object
+        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
     } else {
         /* =======================================================
      *                    INSERT NEW EVENT(S)
      * ======================================================*/
 
         $eid = InsertEventFull();
+        //Tell subscribers that a new single appointment has been set
+        $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
+        $patientAppointmentSetEvent->eid = $eid;  //setting the appointment id to an object
+        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
     }
 
         // done with EVENT insert/update statements
@@ -1072,6 +1090,11 @@ function sel_patient() {
     dlgopen('find_patient_popup.php', 'findPatient', 650, 300, '', title);
 }
 
+// This invokes javascript listener.
+<?php
+$eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_JAVASCRIPT, new AppointmentRenderEvent($row), 10);
+?>
+
 // This is for callback by the find-group popup.
 function setgroup(gid, name, end_date) {
     var f = document.forms[0];
@@ -1317,7 +1340,7 @@ function find_available(extra) {
         '&facility=' + f +
         '&startdate=' + formDate.value +
         '&evdur=' + document.forms[0].form_duration.value +
-        '&eid=<?php echo 0 + $eid; ?>' + extra,
+        '&eid=<?php echo (int)$eid; ?>' + extra,
         '', 725, 200, '', title);
 }
 </script>
@@ -1332,7 +1355,7 @@ function find_available(extra) {
     }
 </style>
 </head>
-<body>
+<body class="add-edit-event">
 <div class="container-fluid">
 <nav class='mb-3'>
     <?php
@@ -1354,7 +1377,7 @@ function find_available(extra) {
             $starth = $_REQUEST["starttimeh"] ?? null;
             $uid = $_REQUEST["userid"] ?? null;
             $starttm = $_REQUEST["starttimem"] ?? null;
-            $dt = $_REQUEST["date"];
+            $dt = $_REQUEST["date"] ?? null;
             $cid = $_REQUEST["catid"] ?? null;
         ?>
         <li class="nav-item">
@@ -1460,6 +1483,10 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
         ?>
         </span>
             </div>
+            <?php
+                // This invokes render below patient listener.
+                $eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_BELOW_PATIENT, new AppointmentRenderEvent($row), 10);
+            ?>
         </div>
     </div> <!-- End Jumbotron !-->
     <?php

@@ -19,6 +19,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirCareTeamRestController
 {
+    /**
+     * @var FhirCareTeamService
+     */
     private $fhirCareTeamService;
     private $fhirService;
 

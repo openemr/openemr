@@ -255,9 +255,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
     $facility = $facilityService->getPrimaryBillingLocation();
     ?>
 <p>
-<h2><?php echo text($facility['name'])?></h2>
-    <?php echo text($facility['street'])?><br />
-    <?php echo text($facility['city'])?>, <?php echo text($facility['state'])?> <?php echo text($facility['postal_code'])?><br />
+<h2><?php echo text($facility['name'] ?? '')?></h2>
+    <?php echo text($facility['street'] ?? '')?><br />
+    <?php echo text($facility['city'] ?? '')?>, <?php echo text($facility['state'] ?? '')?> <?php echo text($facility['postal_code'] ?? '')?><br />
 
 </p>
     <?php

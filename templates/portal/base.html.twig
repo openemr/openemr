@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		{% block head %}
+            {{ setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']) }}
+		{% endblock %}
+		<title>
+			{% block pagetitle %}Index{% endblock %}
+		</title>
+	</head>
+	<body>
+		{% block header %}{% endblock %}
+		<div class="container-fluid">
+			{% block content %}{% endblock %}
+			{% block footer %}{% endblock %}
+			{% block scripts %}{% endblock %}
+		</div>
+		</body>
+	</html>

@@ -95,10 +95,10 @@ class CommonPlugin extends AbstractPlugin
   * @param    var   Array   Details parsed from the CCR xml file
   * @return   audit_master_id   Integer   ID from audit_master table
   */
-    public static function insert_ccr_into_audit_data($var)
+    public static function insert_ccr_into_audit_data($var, $isQrdaDocument = false)
     {
         $appTable = new ApplicationTable();
-        $audit_master_id_to_delete = $var['audit_master_id_to_delete'];
+        $audit_master_id_to_delete = $var['audit_master_id_to_delete'] ?? null;
         $approval_status = $var['approval_status'];
         $type = $var['type'];
         $ip_address = $var['ip_address'];
@@ -113,8 +113,8 @@ class CommonPlugin extends AbstractPlugin
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
 
-        $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?";
-        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type));
+        $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?, is_qrda_document = ?";
+        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type, $isQrdaDocument));
         $audit_master_id = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = array();
@@ -125,17 +125,17 @@ class CommonPlugin extends AbstractPlugin
                     $detail_query_array[] = $key;
                     $detail_query_array[] = trim($field_name);
                     if (is_array($field_value)) {
-                        if ($field_value['status'] || $field_value['enddate']) {
-                            $detail_query_array[] = trim($field_value['value']) . "|" . trim($field_value['status']) . "|" . trim($field_value['begdate']);
+                        if (!empty($field_value['status']) || !empty($field_value['enddate'])) {
+                            $detail_query_array[] = trim($field_value['value'] ?? '') . "|" . trim($field_value['status'] ?? '') . "|" . trim($field_value['begdate'] ?? '');
                         } else {
-                            $detail_query_array[] = trim($field_value['value']);
+                            $detail_query_array[] = trim($field_value['value'] ?? '');
                         }
                     } else {
                         $detail_query_array[] = trim($field_value);
                     }
 
                     $detail_query_array[] = $audit_master_id;
-                    $detail_query_array[] = trim($entry_identification_array[$key][$cnt]);
+                    $detail_query_array[] = trim($entry_identification_array[$key][$cnt] ?? '');
                 }
             }
         }

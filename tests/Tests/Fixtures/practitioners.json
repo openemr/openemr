@@ -27,7 +27,8 @@
     "phonew1": "{619} 555-7822",
     "phonecell": "{619} 555-7821",
     "notes": null,
-    "state_license_number": "123456"
+    "state_license_number": "123456",
+    "username": "kperez"
 }, {
     "id": "-2",
     "title": "Mrs.",
@@ -57,7 +58,8 @@
     "phonew1": "(619) 555-2222",
     "phonecell": "(619) 555-3333",
     "notes": null,
-    "state_license_number": "123456"
+    "state_license_number": "123456",
+    "username": "lcohen"
 }, {
     "id": "-3",
     "title": "Mr.",
@@ -87,7 +89,8 @@
     "phonew1": "(567) 789-7891",
     "phonecell": "(567) 789-1235",
     "notes": null,
-    "state_license_number": "123456"
+    "state_license_number": "123456",
+    "username": "jmoses"
 }, {
     "id": "-4",
     "title": "Mr.",
@@ -117,7 +120,8 @@
     "phonew1": "(323) 555-4444",
     "phonecell": "(909) 555-6768",
     "notes": null,
-    "state_license_number": "123456"
+    "state_license_number": "123456",
+    "username": "cjones"
 }, {
     "id": "-5",
     "title": "Mr.",
@@ -147,5 +151,6 @@
     "phonew1": "(213) 555-5555",
     "phonecell": "(213) 555-4444",
     "notes": null,
-    "state_license_number": "123456"
+    "state_license_number": "123456",
+    "username": "ajenane"
 }]

@@ -49,6 +49,8 @@ if ($GLOBALS['medex_enable'] == '1') {
         exit();
     }
     $logged_in = $MedEx->login();
+} else {
+    $logged_in = null;
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -59,8 +61,8 @@ $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
 if (
-    ($_POST['setting_bootstrap_submenu']) ||
-    ($_POST['rcb_selectors'])
+    (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
+    (array_key_exists('rcb_selectors', $_POST))
 ) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
@@ -244,7 +246,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         ?>
                         <div class="oe-margin-b-20">
                             <span class="title"><?php echo text($messages); ?></span>
-                            <a class='more' href="<?php echo $lnkvar; ?>" <?php echo $lnkattributes; ?>><?php echo $otherstuff; ?></a>
+                            <a class='more' href="<?php echo $lnkvar ?? ''; ?>" <?php echo $lnkattributes ?? ''; ?>><?php echo $otherstuff ?? ''; ?></a>
                         </div>
                         <div class="oe-margin-b-10">
                             <?php
@@ -270,6 +272,12 @@ if (!empty($_REQUEST['go'])) { ?>
                             <?php } ?>
                         </div>
                         <?php
+                        $note = '';
+                        $noteid = '';
+                        $title = '';
+                        $form_message_status = '';
+                        $reply_to = '';
+                        $patientname = '';
                         switch ($task) {
                             case "add":
                                 // Add a new message for a specific patient; the message is documented in Patient Notes.
@@ -351,6 +359,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                                 break;
                         }
+                        // This is for sorting the records.
+                        $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+                        $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
+                        $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
+                        $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+
                         if ($task == "addnew" or $task == "edit") {
                             // Display the Messages page layout.
                             echo "<form name='form_patient' id='new_note'
@@ -552,12 +566,6 @@ if (!empty($_REQUEST['go'])) { ?>
                             </form>
                             <?php
                         } else {
-                            // This is for sorting the records.
-                            $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
-                            $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
-                            $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
-                            $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
-
                             for ($i = 0; $i < count($sort); $i++) {
                                 $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                             }
@@ -907,20 +915,25 @@ if (!empty($_REQUEST['go'])) { ?>
         })
 
         $(function () {
+            
             $("#newnote").click(function (event) {
                 NewNote(event);
             });
+
             $("#printnote").click(function () {
                 PrintNote();
             });
+
             var obj = $("#form_message_status");
             obj.onchange = function () {
                 SaveNote();
             };
+
             $("#cancel").click(function () {
                 CancelNote();
             });
-            $("#note").focus();
+
+            $("#form_patient").focus();
 
             //clear button in messages
             $("#clear_user").click(function(){
@@ -958,8 +971,11 @@ if (!empty($_REQUEST['go'])) { ?>
             }
         };
         var PrintNote = function () {
+            <?php if ($noteid) { ?>
             top.restoreSession();
             window.open('../../patient_file/summary/pnotes_print.php?noteid=' + <?php echo js_url($noteid); ?>, '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+            <?php } ?>
+
         };
 
         var SaveNote = function () {

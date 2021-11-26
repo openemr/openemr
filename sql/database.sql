@@ -113,10 +113,26 @@ CREATE TABLE `api_token` (
   `expiry` datetime DEFAULT NULL,
   `client_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
+  `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
 
+--
+-- Table structure for table `api_refresh_token`
+--
+DROP TABLE IF EXISTS `api_refresh_token`;
+CREATE TABLE `api_refresh_token` (
+ `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+ `user_id` VARCHAR(40) DEFAULT NULL,
+ `client_id` VARCHAR(80) DEFAULT NULL,
+ `token` VARCHAR(128) NOT NULL,
+ `expiry` DATETIME DEFAULT NULL,
+ `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY (`token`),
+ INDEX `api_refresh_token_usr_client_idx` (`client_id`, `user_id`)
+) ENGINE = InnoDB COMMENT = 'Holds information about api refresh tokens.';
 -- --------------------------------------------------------
 
 --
@@ -134,6 +150,7 @@ CREATE TABLE `audit_master` (
   `modified_time` datetime NOT NULL,
   `ip_address` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
+  `is_qrda_document` BOOLEAN NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -1197,6 +1214,7 @@ CREATE TABLE `direct_message_log` (
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
+  `uuid` binary(16) DEFAULT NULL,
   `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
@@ -1230,6 +1248,7 @@ CREATE TABLE `documents` (
   `foreign_reference_table` VARCHAR(40) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `drive_uuid` (`drive_uuid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `foreign_reference` (`foreign_reference_id`, `foreign_reference_table`),
@@ -1735,7 +1754,9 @@ INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive'
 
 DROP TABLE IF EXISTS `form_clinical_notes`;
 CREATE TABLE `form_clinical_notes` (
-    `id` bigint(20) NOT NULL,
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `form_id` bigint(20) NOT NULL,
+    `uuid` binary(16) DEFAULT NULL,
     `date` DATE DEFAULT NULL,
     `pid` bigint(20) DEFAULT NULL,
     `encounter` varchar(255) DEFAULT NULL,
@@ -1748,7 +1769,10 @@ CREATE TABLE `form_clinical_notes` (
     `description` text,
     `external_id` VARCHAR(30) DEFAULT NULL,
     `clinical_notes_type` varchar(100) DEFAULT NULL,
-    `note_related_to` text
+    `clinical_notes_category` varchar(100) DEFAULT NULL,
+    `note_related_to` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -1806,6 +1830,9 @@ CREATE TABLE `form_encounter` (
   `class_code` VARCHAR(10) NOT NULL DEFAULT "AMB",
   `shift` varchar(31) NOT NULL DEFAULT '',
   `voucher_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'also called referral number',
+  `discharge_disposition` varchar(100) NULL DEFAULT NULL,
+  `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
+  `encounter_type_description` TEXT,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -2166,6 +2193,7 @@ CREATE TABLE `form_soap` (
 DROP TABLE IF EXISTS `form_vitals`;
 CREATE TABLE `form_vitals` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` BINARY(16) DEFAULT NULL,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
   `user` varchar(255) default NULL,
@@ -2188,8 +2216,13 @@ CREATE TABLE `form_vitals` (
   `oxygen_saturation` float(5,2) default '0.00',
   `oxygen_flow_rate` float(5,2) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `ped_weight_height` float(4,1) default '0.00',
+  `ped_bmi` float(4,1) default '0.00',
+  `ped_head_circ` float(4,1) default '0.00',
+  `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -2657,6 +2690,7 @@ CREATE TABLE `groups` (
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) DEFAULT NULL,
   `coffee` longtext,
   `tobacco` longtext,
   `alcohol` longtext,
@@ -2746,7 +2780,8 @@ CREATE TABLE `history_data` (
   `userarea11` text,
   `userarea12` text,
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -3021,7 +3056,7 @@ CREATE TABLE `insurance_companies` (
   `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
-  `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
+  `alt_cms_id` varchar(15) default NULL,
   `inactive` int(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
@@ -3091,6 +3126,51 @@ CREATE TABLE `insurance_numbers` (
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `insurance_type_codes`
+--
+
+DROP TABLE IF EXISTS `insurance_type_codes`;
+CREATE TABLE `insurance_type_codes` (
+  `id` int(2) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `claim_type` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `insurance_type_codes`
+--
+
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
 
 -- --------------------------------------------------------
 
@@ -3315,6 +3395,7 @@ CREATE TABLE `layout_options` (
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
   `conditions` text COMMENT 'serialized array of skip conditions',
   `validation` varchar(100) default NULL,
+  `codes` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=InnoDB;
 
@@ -3322,28 +3403,30 @@ CREATE TABLE `layout_options` (
 -- Inserting data for table `layout_options`
 --
 
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 1, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 5, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', '1', 'Birth Name', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', '1', '', 7, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', '1', '', 8, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 9, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 10, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 11, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 12, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 13, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 14, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 15, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 16, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 17, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 18, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 19, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 20, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 21, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 22, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 10, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 20, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 30, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 40, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', 1, '', 45, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 50, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', '1', 'Birth Name', 60, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', '1', '', 70, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', '1', '', 80, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 90, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 100, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 110, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 120, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 130, 2, 1, 10, 255, '', 1, 1, '', 'ND', 'External identifier', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 140, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 150, 1, 1, 0, 0, 'marital', 1, 1, '', '', 'Marital Status', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 160, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 170, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 180, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 190, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 200, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 210, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 220, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history','1','Previous Names',230,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
@@ -3379,7 +3462,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'protect_indicator'  , '3', 'Protection Indicator'  ,19, 1, 1,1,0, 'yesno', 1, 1, '', '', 'Protection Indicator', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,20, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 45, 1, 0, 0, '', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_status', '3', 'Care Team Status', 22, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 23, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 1, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
@@ -3400,7 +3484,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 3, '', '', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '', 'Patient Religion', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'usertext1', '6', 'User Defined Text 1', 3, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined', 0);
@@ -3452,17 +3536,17 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTphreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTlegal','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTbill' ,'body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','usertext11'       ,'1'       ,'Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','exams'            ,'1'       ,'Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_father'   ,'2','Father'                 , 1, 2,1,20,  0,'',1,1,'','' ,'', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','usertext11'       ,'1'       ,'Risk Factors',1,21,1,0,0,'riskfactors',1,3,'','' ,'Risk Factors', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','exams'            ,'1'       ,'Exams/Tests' ,2,23,1,0,0,'exams'      ,1,3,'','' ,'Exam and test results', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`codes`) VALUES ('HIS','history_father'   ,'2','Father'                 , 1, 2,1,20,  0,'',1,1,'','' ,'', 0,'SNOMED-CT:66839005');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_father'        ,'2','Diagnosis Code'         , 2,15,1, 0,255,'',1,1,'','', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_mother'   ,'2','Mother'                 , 3, 2,1,20,  0,'',1,1,'','' ,'', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`codes`) VALUES ('HIS','history_mother'   ,'2','Mother'                 , 3, 2,1,20,  0,'',1,1,'','' ,'', 0,'SNOMED-CT:72705000');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_mother'        ,'2','Diagnosis Code'         , 4,15,1, 0,255,'',1,1,'','', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_siblings' ,'2','Siblings'               , 5, 2,1,20,  0,'',1,1,'','' ,'', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`codes`) VALUES ('HIS','history_siblings' ,'2','Siblings'               , 5, 2,1,20,  0,'',1,1,'','' ,'', 0,'SNOMED-CT:82101005');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_siblings'      ,'2','Diagnosis Code'         , 6,15,1, 0,255,'',1,1,'','', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_spouse'   ,'2','Spouse'                 , 7, 2,1,20,  0,'',1,1,'','' ,'', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`codes`) VALUES ('HIS','history_spouse'   ,'2','Spouse'                 , 7, 2,1,20,  0,'',1,1,'','' ,'', 0,'SNOMED-CT:127848009');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_spouse'        ,'2','Diagnosis Code'         , 8,15,1, 0,255,'',1,1,'','', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','history_offspring','2','Offspring'              , 9, 2,1,20,  0,'',1,1,'','' ,'', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`codes`) VALUES ('HIS','history_offspring','2','Offspring'              , 9, 2,1,20,  0,'',1,1,'','' ,'', 0,'SNOMED-CT:67822003');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','dc_offspring'     ,'2','Diagnosis Code'         ,10,15,1, 0,255,'',1,1,'','', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','relatives_cancer'             ,'3','Cancer'             ,1, 2,1,20,0,'',1,1,'','' ,'', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('HIS','relatives_tuberculosis'       ,'3','Tuberculosis'       ,2, 2,1,20,0,'',1,1,'','' ,'', 0);
@@ -6425,13 +6509,38 @@ INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`,
 INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','comment_OTH','Additional gender category or other, please specify',60,0,0,'HL7:OTH');
 INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`) VALUES ('gender_identity','ASKU','Choose not to disclose',70,0,0,'HL7:ASKU');
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','active','Active',10,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','inactive','Inactive',20,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','suspended','Suspended',30,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','proposed','Proposed',40,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Care_Team_Status','entered-in-error','Entered In Error',50,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`) VALUES ('lists', 'Care_Team_Status', 'Care Team Status', '1', 'This list originally comes from http://hl7.org/fhir/R4/valueset-care-team-status.html');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'active', 'Active', 20, 1, 0, 'The care team is currently participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'inactive', 'Inactive', 40, 0, 0, 'The care team was, but is no longer, participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'suspended', 'Suspended', 30, 0, 0, 'The care team is temporarily on hold or suspended and not participating in the coordination and delivery of care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'proposed', 'Proposed', 10, 0, 0, 'The care team has been drafted and proposed, but not yet participating in the coordination and delivery of patient care.');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('Care_Team_Status', 'entered-in-error', 'Entered In Error', 50, 0, 0, 'The care team should have never existed.');
 
+-- Vitals Interpretation Values
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','vitals-interpretation','Observation Interpretation',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','N','Normal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','H','High',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','L','Low',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','A','Abnormal',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','AA','Critical abnormal',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HH','Critical high',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LL','Critical low',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','HU','Significantly high',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
+
+-- Discharge Disposition (for encounters and eventually appointments)
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','discharge-disposition','Discharge Disposition',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','home','Home',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','alt-home','Alternative Home',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','other-hcf','Other healthcare facility',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','hosp','Hospice',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','long','Long-term care',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','aadvice','Left against advice',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','exp','Expired',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','psy','Psychiatric hospital',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','rehab','Rehabilitation',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','snf','Skilled nursing facility',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','oth','Other',110,0,1);
 -- --------------------------------------------------------
 
 --
@@ -6481,6 +6590,23 @@ CREATE TABLE `lists` (
   KEY `type` (`type`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `lists_medication`;
+CREATE TABLE `lists_medication` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `list_id` BIGINT(20) NULL COMMENT 'FK Reference to lists.id'
+    , `drug_dosage_instructions` LONGTEXT COMMENT 'Free text dosage instructions for taking the drug'
+    , `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category'
+    , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
+    , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
+    , `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent'
+    , PRIMARY KEY (`id`)
+    , INDEX `lists_med_usage_category_idx`(`usage_category`)
+    , INDEX `lists_med_request_intent_idx`(`request_intent`)
+    , INDEX `lists_medication_list_idx` (`list_id`)
+) ENGINE = InnoDB COMMENT = 'Holds additional data about patient medications.';
 
 -- --------------------------------------------------------
 
@@ -6538,7 +6664,7 @@ CREATE TABLE `modules` (
   `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  `mod_ui_name` VARCHAR(20) NOT NULL DEFAULT '''',
+  `mod_ui_name` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
   `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
   `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
@@ -6554,6 +6680,16 @@ CREATE TABLE `modules` (
   `acl_version` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `modules`
+--
+
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (1, 'Immunization', 'Immunization', '', '', 1, 'Immunization', 'public/immunization/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (2, 'Syndromicsurveillance', 'Syndromicsurveillance', '', '', 1, 'Syndromicsurveillance', 'public/syndromicsurveillance/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (3, 'Documents', 'Documents', '', '', 1, 'Documents', 'public/documents/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (4, 'Ccr', 'Ccr', '', '', 1, 'Ccr', 'public/ccr/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
+INSERT INTO `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`, `sql_version`, `acl_version`) VALUES (5, 'Carecoordination', 'Carecoordination', '', '', 1, 'Carecoordination', 'public/carecoordination/', 0, 0, '', '', '', NULL, '', NOW(), 1, 1, '0', '');
 
 -- --------------------------------------------------------
 
@@ -6584,6 +6720,16 @@ CREATE TABLE `module_acl_sections` (
   `section_identifier` varchar(50) DEFAULT NULL,
   `module_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB;
+
+--
+-- Inserting data for table `module_acl_sections`
+--
+
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (1, 'Immunization', 0, 'immunization', 1);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (2, 'Syndromicsurveillance', 0, 'syndromicsurveillance', 2);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (3, 'Documents', 0, 'documents', 3);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (4, 'Ccr', 0, 'ccr', 4);
+INSERT INTO `module_acl_sections` (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (5, 'Carecoordination', 0, 'carecoordination', 5);
 
 -- --------------------------------------------------------
 
@@ -7125,6 +7271,7 @@ CREATE TABLE `patient_data` (
   `cmsportal_login` varchar(60) NOT NULL default '',
   `care_team_provider` TEXT,
   `care_team_facility` TEXT,
+  `care_team_status` TEXT,
   `county` varchar(40) NOT NULL default '',
   `industry` TEXT,
   `imm_reg_status` TEXT,
@@ -7148,12 +7295,35 @@ CREATE TABLE `patient_data` (
   `birth_fname` TEXT,
   `birth_lname` TEXT,
   `birth_mname` TEXT,
+  `dupscore` INT NOT NULL default -9,
+  `name_history` TINYTEXT,
+  `suffix` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `patient_history` that is a dependent table on `patient_data`
+DROP TABLE IF EXISTS `patient_history`;
+CREATE TABLE `patient_history` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT
+    , `uuid` BINARY(16) NULL
+    , `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , `care_team_provider` TEXT
+    , `care_team_facility` TEXT
+    , `pid` BIGINT(20) NOT NULL
+    , `history_type_key` varchar(36) DEFAULT NULL
+    , `previous_name_prefix` TEXT
+    , `previous_name_first` TEXT
+    , `previous_name_middle` TEXT
+    , `previous_name_last` TEXT
+    , `previous_name_suffix` TEXT
+    , `previous_name_enddate` date DEFAULT NULL
+    , PRIMARY KEY (`id`)
+    , UNIQUE `uuid` (`uuid`)
+) ENGINE = InnoDB;
 --
 -- Table structure for table `patient_portal_menu`
 --
@@ -7397,6 +7567,11 @@ CREATE TABLE `prescriptions` (
   `ntx` INT(2) DEFAULT NULL,
   `rtx` INT(2) DEFAULT NULL,
   `txDate` DATE NOT NULL,
+  `usage_category` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-usage-category',
+  `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category',
+  `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
+  `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
+  `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE INDEX `uuid` (`uuid`)
@@ -8348,6 +8523,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2020-10-01', 'Code-Descriptions.zip', 'f22e7201fa662689d85b926a32359701');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2020-10-01', 'Zip File 5 2021 ICD-10-PCS Order File (Long and Abbreviated Titles).zip', '6a61cee7a8f774e23412ca1330980bbb');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('CQM_VALUESET', 'NIH_VSAC', '2020-05-07', 'ep_ec_only_cms_20200507.xml.zip', '02dc0b497da979e336c24b0b5c6e1ccb');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+( 'CQM_VALUESET', 'NIH_VSAC', '2021-05-06', 'ep_ec_eh_cms_20210506.xml.zip', '6455da86e269edb6d33288e72b467373');
 -- --------------------------------------------------------
 
 --
@@ -8435,8 +8614,11 @@ CREATE TABLE `users` (
   `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard',
   `portal_user` tinyint(1) NOT NULL DEFAULT '0',
   `supervisor_id` int(11) NOT NULL DEFAULT '0',
-    UNIQUE KEY `uuid` (`uuid`),
-  PRIMARY KEY  (`id`)
+  `billing_facility` TEXT,
+  `billing_facility_id` INT(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `abook_type` (`abook_type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 --
@@ -8519,6 +8701,7 @@ CREATE TABLE `uuid_mapping` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `resource` varchar(255) NOT NULL DEFAULT '',
+  `resource_path` VARCHAR(255) DEFAULT NULL,
   `table` varchar(255) NOT NULL DEFAULT '',
   `target_uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,
@@ -8829,6 +9012,7 @@ CREATE TABLE gprelations (
 DROP TABLE IF EXISTS `procedure_providers`;
 CREATE TABLE `procedure_providers` (
   `ppid`         bigint(20)   NOT NULL auto_increment,
+  `uuid`         binary(16)   DEFAULT NULL,
   `name`         varchar(255) NOT NULL DEFAULT '',
   `npi`          varchar(15)  NOT NULL DEFAULT '',
   `send_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
@@ -8847,7 +9031,8 @@ CREATE TABLE `procedure_providers` (
   `lab_director` bigint(20)   NOT NULL DEFAULT '0',
   `active`       tinyint(1)   NOT NULL DEFAULT '1',
   `type`         varchar(31)  DEFAULT NULL,
-  PRIMARY KEY (`ppid`)
+  PRIMARY KEY (`ppid`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -8877,8 +9062,10 @@ CREATE TABLE `procedure_type` (
   `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
   `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
   `transport`           varchar(31)  DEFAULT NULL,
+  `procedure_type_name` varchar(64)  NULL,
   PRIMARY KEY (`procedure_type_id`),
-  KEY parent (parent)
+  KEY parent (parent),
+  KEY `ptype_procedure_code` (`procedure_code`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -8994,6 +9181,7 @@ CREATE TABLE `procedure_answers` (
 DROP TABLE IF EXISTS `procedure_report`;
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
+  `uuid`                binary(16)     DEFAULT NULL,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
@@ -9006,7 +9194,8 @@ CREATE TABLE `procedure_report` (
   `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',
   `report_notes`        text           COMMENT 'notes from the lab',
   PRIMARY KEY (`procedure_report_id`),
-  KEY procedure_order_id (procedure_order_id)
+  KEY procedure_order_id (procedure_order_id),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------------------------------
@@ -9096,6 +9285,7 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('LOINC', 110, 110, 0, '', 0, 0, 1, 0, 1, 'LOINC', 0, 0, 0, 0, 0);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('PHIN Questions', 111, 111, 0, '', 0, 0, 1, 0, 1, 'PHIN Questions', 0, 0, 0, 0, 0);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('NCI-CONCEPT-ID', 112, 112, 0, '', 0, 0, 1, 0, 1, 'NCI CONCEPT ID', 0, 0, 0, 0, 0);
+INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('VALUESET', '113', '113', '0', '', '', '1', '1', '0', '1', '1', 'CQM Valueset', '13', '1', '1', '1', '1', '1');
 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 
@@ -10063,7 +10253,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{"form_group":{"presence": true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}, "note":{"presence": {"message": "Please enter a note"}}}', 1);
 
 -- void reasons list
 
@@ -10710,6 +10900,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
@@ -10737,11 +10928,39 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','general_note','General Note',40,0,0,'','LOINC:34109-9','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','discharge_summary','Discharge Summary Note',50,0,0,'','LOINC:18842-5','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','procedure_note','Procedure Note',60,0,0,'','LOINC:28570-0','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:81222-2','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:11488-4','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','LOINC:11502-2','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+                           , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
+VALUES
+    ('lists','Clinical_Note_Category','Clinical Note Category',1,0,0,'','',0,0,0,1,'',1);
+INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
+    , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES
+    ('Clinical_Note_Category','cardiology','Cardiology',10,0,0,'','LOINC:LP29708-2',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','pathology','Pathology',20,0,0,'','LOINC:LP7839-6',0,0,0,1,'',1,NOW()),
+    ('Clinical_Note_Category','radiology','Radiology',30,0,0,'','LOINC:LP29684-5',0,0,0,1,'',1,NOW());
+
+-- Insert Medication Usage Intent
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-usage-category','Medication Usage Category',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-category.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','inpatient','Inpatient',10,0,1, 'Includes requests for medications to be administered or consumed in an inpatient or acute care setting');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','outpatient','Outpatient',20,0,1, 'Includes requests for medications to be administered or consumed in an outpatient setting (for example, Emergency Department, Outpatient Clinic, Outpatient Surgery, Doctor''s office)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','community','Home/Community',30,1,1, 'Includes requests for medications to be administered or consumed by the patient in their home (this would include long term care or nursing homes, hospices, etc.)');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-usage-category','discharge','Discharge',40,0,1, 'Includes requests for medications created when the patient is being released from a facility');
+
+-- Insert Medication Request Intent
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value, notes) VALUES ('lists','medication-request-intent','Medication Request Intent',0, 1, 0, 'Values taken from http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','proposal','Proposal',10,0,1, 'The request is a suggestion made by someone/something that doesn''t have an intention to ensure it occurs and without providing an authorization to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','plan','Plan',20,0,1, 'The request represents an intention to ensure something occurs without providing an authorization for others to act.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','order','Order',30,1,1, 'The request represents a request/demand and authorization for action');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','original-order','Original Order',40,0,1, 'The request represents the original authorization for the medication request.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','reflex-order','Reflex Order',50,0,1, 'The request represents an automatically generated supplemental authorization for action based on a parent authorization together with initial results of the action taken against that parent authorization.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','filler-order','Filler Order',60,0,1, 'The request represents the view of an authorization instantiated by a fulfilling system representing the details of the fulfiller''s intention to act upon a submitted order.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','instance-order','Instance Order',70,0,1, 'The request represents an instance for the particular order, for example a medication administration record.');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, notes) VALUES ('medication-request-intent','option','Option',80,0,1, 'The request represents a component or option for a RequestGroup that establishes timing, conditionality and/or other constraints among a set of requests.');
 -- --------------------------------------------------------
 
 --
@@ -11110,7 +11329,8 @@ CREATE TABLE `external_procedures` (
   `ep_code_text` longtext,
   `ep_facility_id` varchar(255) DEFAULT NULL,
   `ep_external_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ep_id`)
+  PRIMARY KEY (`ep_id`),
+  KEY `ep_pid` (`ep_pid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -11199,7 +11419,16 @@ CREATE TABLE `form_observation` (
   `ob_unit` varchar(255),
   `description` varchar(255),
   `code_type` varchar(255),
-  `table_code` varchar(255)
+  `table_code` varchar(255),
+  `ob_code` VARCHAR(31) DEFAULT NULL,
+  `ob_type` VARCHAR(31) DEFAULT NULL,
+  `ob_status` varchar(32) DEFAULT NULL,
+  `result_status` varchar(32) DEFAULT NULL,
+  `ob_reason_status` varchar(32) DEFAULT NULL,
+  `ob_reason_code` varchar(255) DEFAULT NULL,
+  `ob_reason_text` text,
+  `ob_documentationof_table` varchar(255) DEFAULT NULL,
+  `ob_documentationof_table_id` bigint(21) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -12494,3 +12723,65 @@ CREATE TABLE `export_job` (
   UNIQUE (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB COMMENT='fhir export jobs';
+
+DROP TABLE IF EXISTS `form_vital_details`;
+CREATE TABLE `form_vital_details` (
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`form_id` bigint(20) NOT NULL COMMENT 'FK to vital_forms.id',
+`vitals_column` varchar(64) NOT NULL COMMENT 'Column name from form_vitals',
+`interpretation_list_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.list_id for observation_interpretation',
+`interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
+`interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
+`interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+PRIMARY KEY (`id`),
+KEY `fk_form_id` (`form_id`),
+KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
+) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
+
+DROP TABLE IF EXISTS `jwt`;
+CREATE TABLE `jwt_grant_history` (
+`id` INT NOT NULL AUTO_INCREMENT
+ , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
+ , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
+ , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
+ , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
+ , PRIMARY KEY (`id`)
+ , KEY `jti` (`jti`)
+) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
+
+DROP TABLE IF EXISTS `document_templates`;
+CREATE TABLE `document_templates` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) DEFAULT NULL,
+  `provider` int(11) UNSIGNED DEFAULT NULL,
+  `encounter` int(11) UNSIGNED DEFAULT NULL,
+  `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `profile` varchar(31) DEFAULT NULL,
+  `category` varchar(63) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `template_name` varchar(255) DEFAULT NULL,
+  `status` varchar(31) DEFAULT NULL,
+  `exclude_portal` tinyint(1) NOT NULL DEFAULT 0,
+  `exclude_dashboard` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `size` int(11) NOT NULL DEFAULT 0,
+  `template_content` mediumblob DEFAULT NULL,
+  `mime` varchar(31) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `location` (`pid`,`category`,`template_name`,`status`)
+) ENGINE=InnoDB;
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(1, 0, 18, NULL, '2021-11-21 16:09:14', NULL, '', NULL, 'Help', 'New', 0, 0, 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(2, -1, 18, NULL, '2021-11-21 16:08:55', NULL, '', NULL, 'Help', 'New', 0, 0, 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(3, 0, 18, NULL, '2021-11-21 15:51:40', NULL, '', NULL, 'Hipaa Document', 'New', 0, 0, 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e207769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(4, -1, 18, NULL, '2021-11-21 15:51:40', NULL, '', NULL, 'Hipaa Document', 'New', 0, 0, 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e7769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(5, 0, 18, NULL, '2021-11-21 18:22:25', NULL, '', NULL, 'Insurance Info', 'New', 0, 0, 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(6, -1, 18, NULL, '2021-11-21 18:22:52', NULL, '', NULL, 'Insurance Info', 'New', 0, 0, 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(7, 0, 18, NULL, '2021-11-21 15:51:41', NULL, '', NULL, 'Medical History', 'New', 0, 0, 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(8, -1, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Medical History', 'New', 0, 0, 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(9, 0, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Privacy Document', 'New', 0, 0, 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(10, -1, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Privacy Document', 'New', 0, 0, 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
+
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', '2022-Code Descriptions.zip', '11d1d725c84e55d52ef6633da88aa137');
+
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');

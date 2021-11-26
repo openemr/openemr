@@ -98,10 +98,17 @@ exports.deepInputProperty = function (deepProperty, defaultValue, plus = "") {
         if (typeof value !== 'string') {
             value = value.toString();
         }
+        if (value === '' || value === 'NaN') {
+            return defaultValue;
+        }
         if (plus) {
             let valuePlus = bbuo.deepValue(input, plus);
+            valuePlus = valuePlus ? valuePlus : defaultValue;
             if (typeof valuePlus !== 'string') {
                 valuePlus = valuePlus.toString();
+            }
+            if (valuePlus === '' || valuePlus === 'NaN') {
+                return "";
             }
             value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value;
         }

@@ -128,4 +128,17 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals('$export', $parsedRoute->getOperation());
         $this->assertEquals('Patient', $parsedRoute->getResource());
     }
+
+    public function testGetRouteWithRouteParamSpecialCharacter()
+    {
+        $request = '/fhir/Patient/unique-id:with:colons';
+        $definition = 'GET /fhir/Patient/:uid';
+
+        $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
+        $this->assertTrue($parsedRoute->isValid(), "route should match definition");
+
+        $params = $parsedRoute->getRouteParams();
+        $this->assertNotEmpty($params, "Params should be populated");
+        $this->assertEquals('unique-id:with:colons', $params[0]);
+    }
 }

@@ -18,9 +18,9 @@
 
 <script type="text/html" id="user-data-template">
     <!-- ko with: user -->
-        <div id="username" class="appMenu">
+        <div id="username" class="appMenu ml-1">
                 <div class='menuLabel dropdown' id="username" title="<?php echo xla('Current user') ?>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div><i class="fa fa-2x fa-user oe-show" aria-hidden="true" id="user_icon"></i></div>
+                    <i class="fa fa-user mr-1" aria-hidden="true" id="user_icon"></i>
                     <span data-bind="text:fname"></span>
                     <span data-bind="text:lname"></span>
                 <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-right menu-shadow-ovr rounded-0 border-0">

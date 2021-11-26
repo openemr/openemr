@@ -369,7 +369,7 @@ function edih_271_transaction_html($obj271, $bht03)
                 if (isset($sar[13]) && strpos($sar[13], $ds)) {                                     // composite procedure ID
                     $eb13ar = explode($ds, $sar[13]);
                     reset($eb13ar);
-                    while (list($k, $v) = each($eb13ar)) {
+                    foreach ($eb13ar as $k => $v) {
                         if ($k == 0) {
                             $eb13 = text($cd271->get_271_code('EB13', $v));
                         } else {

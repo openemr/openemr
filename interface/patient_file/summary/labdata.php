@@ -45,7 +45,7 @@ $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";
 
 
 // is this the printable HTML-option?
-$printable = $_POST['print'];
+$printable = $_POST['print'] ?? null;
 
 
 // main db-spell
@@ -160,7 +160,7 @@ function checkAll(bx) {
                                         // What items are there for patient $pid?
                                         // -----------------------------------------------
                                         $value_list = array();
-                                        $value_select = $_POST['value_code']; // what items are checkedboxed?
+                                        $value_select = $_POST['value_code'] ?? null; // what items are checkedboxed?
                                         $tab = 0;
                                         echo "<td>";
 
@@ -207,7 +207,7 @@ function checkAll(bx) {
                             <div class="form-check form-check-inline">
                                 <?php
                                 echo "<td><input type='radio' name='mode' ";
-                                $mode = $_POST['mode'];
+                                $mode = $_POST['mode'] ?? null;
                                 if ($mode == 'list') {
                                     echo "checked='checked' ";
                                 }
@@ -235,8 +235,8 @@ function checkAll(bx) {
                 <?php
                 // print results of patient's items
                 //-------------------------------------------
-                $mode = $_POST['mode'];
-                $value_select = $_POST['value_code'];
+                $mode = $_POST['mode'] ?? null;
+                $value_select = $_POST['value_code'] ?? null;
                 // are some Items selected?
                 if ($value_select) {
                     // print in List-Mode

@@ -60,12 +60,6 @@ class C_X12Partner extends Controller
     {
 
         $x = new X12Partner();
-        //$x->set_name("Medi-Cal");
-        //$x->set_x12_sender_id("123454");
-        //$x->set_x12_receiver_id("123454");
-        //$x->persist();
-        //$x->populate();
-
         $this->assign("partners", $x->x12_partner_factory());
         return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_list.html");
     }

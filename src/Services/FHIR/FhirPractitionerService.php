@@ -4,7 +4,10 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -13,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Practitioner Service
@@ -26,8 +30,11 @@ use OpenEMR\Services\Search\ServiceField;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPractitionerService extends FhirServiceBase
+class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     /**
      * @var PractitionerService
      */
@@ -80,6 +87,10 @@ class FhirPractitionerService extends FhirServiceBase
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
 
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $practitionerResource->setId($id);
+
         $narrativeText = '';
         if (isset($dataRecord['fname'])) {
             $narrativeText = $dataRecord['fname'];
@@ -87,17 +98,18 @@ class FhirPractitionerService extends FhirServiceBase
         if (isset($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        $text = array(
-            'status' => 'generated',
-            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
-        $practitionerResource->setText($text);
+        // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
+        if (empty(trim($narrativeText))) {
+            $practitionerResource->addName(UtilsService::createDataMissingExtension());
+        } else {
+            $text = array(
+                'status' => 'generated',
+                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+            );
+            $practitionerResource->setText($text);
 
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $practitionerResource->setId($id);
-
-        $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+            $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
+        }
         $address = UtilsService::createAddressFromRecord($dataRecord);
         if (isset($address)) {
             $practitionerResource->addAddress($address);
@@ -137,7 +149,7 @@ class FhirPractitionerService extends FhirServiceBase
 
         if (!empty($dataRecord['npi'])) {
             $identifier = new FHIRIdentifier();
-            $identifier->setSystem(FhirCodeSystemUris::PROVIDER_NPI);
+            $identifier->setSystem(FhirCodeSystemConstants::PROVIDER_NPI);
             $identifier->setValue($dataRecord['npi']);
             $practitionerResource->addIdentifier($identifier);
         } else {
@@ -157,83 +169,86 @@ class FhirPractitionerService extends FhirServiceBase
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
     {
-        $data = array();
-
-        if (isset($fhirResource['id'])) {
-            $data['uuid'] = $fhirResource['id'];
+        if (!$fhirResource instanceof FHIRPractitioner) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        if (isset($fhirResource['name'])) {
-            $name = [];
-            foreach ($fhirResource['name'] as $sub_name) {
-                if ($sub_name['use'] === 'official') {
+        $data = array();
+        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+
+        if (!empty($fhirResource->getName())) {
+            $name = new FHIRHumanName();
+            foreach ($fhirResource->getName() as $sub_name) {
+                if ((string)$sub_name->getUse() === 'official') {
                     $name = $sub_name;
                     break;
                 }
             }
-            if (isset($name['family'])) {
-                $data['lname'] = $name['family'];
-            }
-            if ($name['given'][0]) {
-                $data['fname'] = $name['given'][0];
-            }
-            if (isset($name['given'][1])) {
-                $data['mname'] = $name['given'][1];
-            }
-            if (isset($name['prefix'][0])) {
-                $data['title'] = $name['prefix'][0];
-            }
+            $data['lname'] = (string)$name->getFamily() ?? null;
+
+            $given = $name->getGiven() ?? [];
+            // we cast due to the way FHIRString works
+            $data['fname'] = (string)($given[0] ?? null);
+            $data['mname'] = (string)($given[1] ?? null);
+
+            $prefix = $name->getPrefix() ?? [];
+            // we don't support updating the title right now, it requires updating another table which is breaking
+            // the service class.  As far as I can tell, this was never tested and never worked.
+//            $data['title'] = $prefix[0] ?? null;
         }
-        if (isset($fhirResource['address'])) {
-            if (isset($fhirResource['address'][0]['line'][0])) {
-                $data['street'] = $fhirResource['address'][0]['line'][0];
+        // we don't support updating the user's sex right now, as far as I can tell there is no column for this on the
+        // user level.  As far as I can tell, this was never tested and never worked.
+//        $data['sex'] = (string)$fhirResource->getGender() ?? null;
+
+        $addresses = $fhirResource->getAddress();
+        if (!empty($addresses)) {
+            $activeAddress = $addresses[0];
+            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
+            foreach ($fhirResource->getAddress() as $address) {
+                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
+                if (empty($addressPeriod['end'])) {
+                    $activeAddress = $address;
+                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                    // if our current period is more recent than our most recent address we want to grab that one
+                    $mostRecentPeriods = $addressPeriod;
+                    $activeAddress = $address;
+                }
             }
-            if (isset($fhirResource['address'][0]['postalCode'][0])) {
-                $data['zip'] = $fhirResource['address'][0]['postalCode'];
-            }
-            if (isset($fhirResource['address'][0]['city'][0])) {
-                $data['city'] = $fhirResource['address'][0]['city'];
-            }
-            if (isset($fhirResource['address'][0]['state'][0])) {
-                $data['state'] = $fhirResource['address'][0]['state'];
-            }
+
+            $lineValues = array_map(function ($val) {
+                return (string)$val;
+            }, $activeAddress->getLine() ?? []);
+            $data['street'] = implode("\n", $lineValues) ?? null;
+            $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
+            $data['city'] = (string)$activeAddress->getCity() ?? null;
+            $data['state'] = (string)$activeAddress->getState() ?? null;
         }
-        if (isset($fhirResource['telecom'])) {
-            foreach ($fhirResource['telecom'] as $telecom) {
-                switch ($telecom['system']) {
-                    case 'phone':
-                        switch ($telecom['use']) {
-                            case 'mobile':
-                                $data['phonecell'] = $telecom['value'];
-                                break;
-                            case 'home':
-                                $data['phone'] = $telecom['value'];
-                                break;
-                            case 'work':
-                                $data['phonew1'] = $telecom['value'];
-                                break;
-                        }
-                        break;
-                    case 'email':
-                        $data['email'] = $telecom['value'];
-                        break;
-                    default:
-                        //Should give Error for incapability
-                        break;
+
+        $telecom = $fhirResource->getTelecom();
+        if (!empty($telecom)) {
+            foreach ($telecom as $contactPoint) {
+                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $contactValue = (string)$contactPoint->getValue();
+                if ($systemValue === 'email') {
+                    $data[$systemValue] = (string)$contactValue;
+                } else if ($systemValue == "phone") {
+                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
+                    if (isset($useMapping[$use])) {
+                        $data[$useMapping[$use]] = $contactValue;
+                    }
                 }
             }
         }
-        if (isset($fhirResource['gender'])) {
-            $data['sex'] = $fhirResource['gender'];
-        }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
-            if ($identifier['system'] == "http://hl7.org/fhir/sid/us-npi") {
-                $data['npi'] = $identifier['value'];
+        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+            if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
+                $data['npi'] = (string)$identifier->getValue() ?? null;
             }
         }
+
         return $data;
     }
 
@@ -245,6 +260,12 @@ class FhirPractitionerService extends FhirServiceBase
      */
     public function insertOpenEMRRecord($openEmrRecord)
     {
+        // practitioners HAVE to have a username
+        if (!isset($openEmrRecord['username'])) {
+            $username = $openEmrRecord['lname'] ?? '';
+            $username .= $openEmrRecord['fname'] ?? '';
+            $openEmrRecord['username'] = uniqid($username);
+        }
         return $this->practitionerService->insert($openEmrRecord);
     }
 
@@ -269,7 +290,7 @@ class FhirPractitionerService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }

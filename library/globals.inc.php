@@ -11,6 +11,7 @@
  * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -262,13 +263,6 @@ $GLOBALS_METADATA = array(
             xl('Width in pixels of the left navigation frame in frame based layout.')
         ),
 
-        'openemr_name' => array(
-            xl('Application Title'),
-            'text',
-            'OpenEMR',
-            xl('Application name for login page and main window title.')
-        ),
-
         'enable_group_therapy' => array(
             xl('Enable Group Therapy'),
             'bool',                           // data type
@@ -372,20 +366,6 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
         ),
-        //
-        'online_support_link' => array(
-            xl('Online Support Link'),
-            'text',                           // data type
-            'http://open-emr.org/',
-            xl('URL for OpenEMR support.')
-        ),
-
-        'support_phone_number' => array(
-            xl('Support Phone Number'),
-            'text',
-            '',
-            xl('Phone Number for Vendor Support that Appears on the About Page.')
-        ),
 
         'encounter_page_size' => array(
             xl('Encounter Page Size'),
@@ -448,6 +428,97 @@ $GLOBALS_METADATA = array(
             xl('What kind of sorting will be in the drop lists.')
         ),
 
+        'prevent_browser_refresh' => array(
+            xl('Prevent Web Browser Refresh') . '*',
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
+    ),
+
+    'Branding' => [
+        'openemr_name' => array(
+            xl('Application Title'),
+            'text',
+            'OpenEMR',
+            xl('Application name used throughout the user interface.')
+        ),
+
+        'display_main_menu_logo' => [
+            xl('Display main menu logo'),
+            'bool',
+            '1',
+            xl('Dislay main menu logo'),
+        ],
+
+        'online_support_link' => array(
+            xl('Online Support Link'),
+            'text',                           // data type
+            'http://open-emr.org/',
+            xl('URL to a support page.')
+        ),
+
+        'user_manual_link' => [
+            xl('User Manual Link Override'),
+            'text',
+            '',
+            xl("Point to a custom user manual. Leave blank for the default, auto-generated URL for specific version of application"),
+        ],
+
+        'support_phone_number' => array(
+            xl('Support Phone Number'),
+            'text',
+            '',
+            xl('Phone Number for Vendor Support that Appears on the About Page.')
+        ),
+
+        'display_acknowledgements' => [
+            xl('Display links to the acknowledgements page'),
+            'bool',
+            '1',
+            xl('Used on the login and about pages'),
+        ],
+
+        'display_review_link' => [
+            xl('Display the Review link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Review link on the About page'),
+        ],
+
+        'display_donations_link' => [
+            xl('Display the Donations link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Donations link on the About page'),
+        ],
+
+        'show_tagline_on_login' => [
+            xl('Show Tagline on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show the tagline from the login screen'),
+        ],
+
+        'login_tagline_text' => [
+            xl('Login Page Tagline') . "*",
+            'text',
+            xl("The most popular open-source Electronic Health Record and Medical Practice Management solution."),
+            xl("Tagline text on the login page")
+        ],
+
+        'show_labels_on_login_form' => [
+            xl('Show Username and Password Labels on Login Page') . "*",
+            'bool',
+            '1',
+            xl('Show labels on the login form'),
+        ],
+
         'show_label_login' => array(
             xl('Show Title on Login'),
             'bool',                           // data type
@@ -475,19 +546,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Mini Logo 2')
         ),
-
-        'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh') . '*',
-            array(
-                '0' => xl('Do not warn or prevent web browser refresh'),
-                '1' => xl('Warn, but do not prevent web browser refresh'),
-                '2' => xl('Warn and prevent web browser refresh')
-            ),
-            '2',                              // default = true
-            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
-        ),
-
-    ),
+    ],
 
     // Locale Tab
     //
@@ -856,6 +915,13 @@ $GLOBALS_METADATA = array(
             xl('A referral source may be specified for each visit.')
         ),
 
+        'gbl_visit_onset_date' => array(
+            xl('Onset/Hosp Date for Encounters'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('An onset/hospitalization date may be specified for each visit.')
+        ),
+
         'gbl_form_save_close' => array(
             xl('Display Save and Close Visit button in LBFs'),
             'bool',                           // data type
@@ -1143,6 +1209,13 @@ $GLOBALS_METADATA = array(
             xl('Turn off auto calculations of adjustments in EOB')
         ),
 
+        'force_claim_balancing' => array(
+            xl('Force claim balancing in EOB Posting'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Force claim balancing in EOB Posting')
+        ),
+
         'show_payment_history' => array(
             xl('Show all payment history in Patient Ledger'),
             'bool',                           // data type
@@ -1162,6 +1235,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
+        ),
+
+        'include_inactive_providers' => array(
+            xl('Include inactive providers in the fee sheet'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Include inactive providers in the fee sheet.')
         ),
 
         'replicate_justification' => array(
@@ -1423,6 +1503,13 @@ $GLOBALS_METADATA = array(
             xl('This will give the user the option to lock (separate locking and signing)')
         ),
 
+        'esign_report_show_only_signed' => array(
+            xl('Only Include E-Signed Forms On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any encounter forms not E-Signed on the patient report')
+        ),
+
         'esign_report_hide_empty_sig' => array(
             xl('Hide Empty E-Sign Logs On Report'),
             'bool',                           // data type
@@ -1430,6 +1517,12 @@ $GLOBALS_METADATA = array(
             xl('This will hide empty e-sign logs on the patient report')
         ),
 
+        'esign_report_hide_all_sig' => array(
+            xl('Exclude All E-Sign Logs On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any e-sign logs on the patient report')
+        ),
     ),
     //Documents Tab
     'Documents' => array(
@@ -2967,10 +3060,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address (required for OAuth2 and FHIR)'),
+            xl('Site Address Override (if needed for OAuth2, FHIR or CCDA)'),
             'text',
             '',
-            xl('Site Address (required for OAuth2 and FHIR). Example is') . ' https://localhost:8300 .'
+            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR or CCDA. Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_api' => array(

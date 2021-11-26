@@ -128,6 +128,12 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "General Status"
         },
+        "HealthConcernSection": {
+            "code": "75310-3",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Health Concerns Document"
+        },
         "HistoryOfPastIllnessSection": {
             "code": "11348-0",
             "code_system": "2.16.840.1.113883.6.1",
@@ -282,7 +288,7 @@ var sections_entries_codes = {
             "code": "18776-5",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Plan of Care"
+            "name": "Treatment Plan"
         },
         "GoalSection": {
             "code": "61146-7",
@@ -402,13 +408,13 @@ var sections_entries_codes = {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ResultsSection": {
             "code": "30954-2",
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
-            "name": "Relevant diagnostic tests and/or laboratory data"
+            "name": "Relevant Dx tests/lab data"
         },
         "ReviewOfSystemsSection": {
             "code": "10187-3",
@@ -475,6 +481,11 @@ var sections_entries_codes = {
             "code_system": "2.16.840.1.113883.6.1",
             "code_system_name": "LOINC",
             "name": "Allergies, adverse reactions, alerts"
+        },
+        "AllergyConcernAct": {
+            "code": "CONC",
+            "code_system": "2.16.840.1.113883.5.6",
+            "name": "Concerns"
         },
         "AllergyStatusObservation": {
             "code": "33999-4",

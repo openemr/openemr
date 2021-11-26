@@ -25,8 +25,8 @@ date_sub($curdate, date_interval_create_from_date_string("7 days"));
 $sub_date = date_format($curdate, 'Y-m-d');
 
 // Set the default dates for Lab document search
-$form_from_doc_date = ( $_GET['form_from_doc_date'] ) ? $_GET['form_from_doc_date'] : oeFormatShortDate($sub_date);
-$form_to_doc_date = ( $_GET['form_to_doc_date'] ) ? $_GET['form_to_doc_date'] : oeFormatShortDate(date("Y-m-d"));
+$form_from_doc_date = ($_GET['form_from_doc_date'] ?? oeFormatShortDate($sub_date));
+$form_to_doc_date = ($_GET['form_to_doc_date'] ?? oeFormatShortDate(date("Y-m-d")));
 
 if ($GLOBALS['date_display_format'] == 1) {
     $title_tooltip = "MM/DD/YYYY";

@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -74,9 +74,9 @@ function recursive_writable_directory_test($dir)
         foreach ($resultsNegative as $failedDir) {
             if (basename($failedDir) ==  basename($dir)) {
                 // need to reorder output so the main directory is at the top of the list
-                $mainDirTest = "<span class='text-danger'>UNABLE</span> to open directory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
+                $mainDirTest = "<span class='text-danger'>UNABLE</span> to open directory '" . text(realpath($failedDir)) . "' for writing by web server.<br />\r\n";
             } else {
-                $outputs[] = "<span class='text-danger'>UNABLE</span> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br />\r\n";
+                $outputs[] = "<span class='text-danger'>UNABLE</span> to open subdirectory '" . text(realpath($failedDir)) . "' for writing by web server.<br />\r\n";
             }
         }
         if ($mainDirTest) {
@@ -89,7 +89,7 @@ function recursive_writable_directory_test($dir)
         echo "(configure directory permissions; see below for further instructions)</p>\r\n";
         return 1;
     } else {
-        echo "<code class='ml-5'>" . realpath($dir) . "</code> directory and its subdirectories are <span class='text-success font-weight-bold'>ready</span>.<br /><br />\r\n";
+        echo "<code class='ml-5'>" . text(realpath($dir)) . "</code> directory and its subdirectories are <span class='text-success font-weight-bold'>ready</span>.<br /><br />\r\n";
         return 0;
     }
 }
@@ -217,7 +217,7 @@ if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
 
 // Die if site ID is empty or has invalid characters.
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
-    die("Site ID '" . htmlspecialchars($site_id, ENT_NOQUOTES) . "' contains invalid characters.");
+    die("Site ID '" . text($site_id) . "' contains invalid characters.");
 }
 
 // If multisite is turned off, then only allow default for site.
@@ -405,7 +405,7 @@ function cloneClicked() {
             <ul>
                 <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
                     OpenEMR's admin->acl menu.</li>
-                <li>Reviewing <code> <?php echo $OE_SITE_DIR; ?>/config.php </code> is a good idea. This file
+                <li>Reviewing <code> <?php echo text($OE_SITE_DIR); ?>/config.php </code> is a good idea. This file
                     contains some settings that you may want to change.</li>
                 <li>There's much information and many extra tools bundled within the OpenEMR installation directory.
                     Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
@@ -419,9 +419,9 @@ function cloneClicked() {
                 echo "<p> The selected theme is :</p>";
                 $installer->displayNewThemeDiv();
                 if (empty($installer->clone_database)) {
-                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'" . $installer->iuser . "'</span> and the password is <span class='text-primary'>'" . $installer->iuserpass . "'</span></b></p>";
+                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'" . text($installer->iuser) . "'</span> and the password is <span class='text-primary'>'" . text($installer->iuserpass) . "'</span></b></p>";
                 } else {
-                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'" . $installer->source_site_id . "'</span></b></p>";
+                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'" . text($installer->source_site_id) . "'</span></b></p>";
                 }
                 echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
                 echo "<p>In Linux use the following command:</p>";
@@ -431,7 +431,7 @@ function cloneClicked() {
             <p>Click to start using OpenEMR.</p>
             <div class="row">
                 <div class="col-12">
-                    <a href='./?site=<?php echo $site_id; ?>' class='btn btn-primary'>
+                    <a href='./?site=<?php echo attr_url($site_id); ?>' class='btn btn-primary'>
                         <i class="fas fa-chevron-right"></i> Start
                     </a>
                 </div>
@@ -460,12 +460,14 @@ ENDDIV;
             $inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
 
             if (($config == 1) && ($state < 4)) {
-                echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $installer->conffile (change the 'config' variable to 0), and re-run this script.<br />\n";
+                echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit " . text($installer->conffile) . " (change the 'config' variable to 0), and re-run this script.<br />\n";
             } else {
                 switch ($state) {
                     case 1:
+                        $state_esc = text($state);
+                        $site_id_esc = attr($site_id);
                         $step1 = <<<STP1
-                        <h3 class="mb-3 border-bottom">Step $state - Select Database Setup</h3>
+                        <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
                         <div class="jumbotron p-5">
                             <p>Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use. For me to create the database, you will need to supply the MySQL root password.</p>
                             <br />
@@ -473,7 +475,7 @@ ENDDIV;
                             <br />
                             <form method='post'>
                                 <input name='state' type='hidden' value='2' />
-                                <input name='site' type='hidden' value='$site_id' />
+                                <input name='site' type='hidden' value='$site_id_esc' />
                                 <div class="form-check">
                                     <input checked class='form-check-input' id='inst1' name='inst' type='radio' value='1' />
                                     <label class="form-check-label" for="inst1">
@@ -502,8 +504,11 @@ STP1;
                         break;
 
                     case 2:
+                        $state_esc = text($state);
+                        $site_id_esc = attr($site_id);
+                        $inst_esc = attr($inst);
                         $step2top = <<<STP2TOP
-                        <h3 class="mb-3 border-bottom">Step $state - Database and OpenEMR Initial User Setup Details</h3>
+                        <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
                         <div class="jumbotron p-5">
                             <p>Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the
                                 <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u>
@@ -511,8 +516,8 @@ STP1;
                             </p>
                             <form method='post' id='myform'>
                                 <input name='state' type='hidden' value='3' />
-                                <input name='site' type='hidden' value='$site_id' />
-                                <input name='inst' type='hidden' value='$inst' />
+                                <input name='site' type='hidden' value='$site_id_esc' />
+                                <input name='inst' type='hidden' value='$inst_esc' />
 STP2TOP;
                         echo $step2top . "\r\n";
 
@@ -755,7 +760,7 @@ STP2TBLTOP2;
                         // and group stuff below.
                         $dh = opendir($OE_SITES_BASE);
                         if (!$dh) {
-                            die("Cannot read directory '$OE_SITES_BASE'.");
+                            die("Cannot read directory '" . text($OE_SITES_BASE) . "'.");
                         }
 
                         $siteslist = array();
@@ -801,12 +806,12 @@ STP2TBLTOP2;
 SOURCESITETOP;
                                                 echo $source_site_top . "\r\n";
                             foreach ($siteslist as $sfname) {
-                                echo "<option value='$sfname'";
+                                echo "<option value='" . attr($sfname) . "'";
                                 if ($sfname == 'default') {
                                     echo " selected";
                                 }
 
-                                echo ">$sfname</option>";
+                                echo ">" . text($sfname) . "</option>";
                             }
                                         $source_site_bot = <<<SOURCESITEBOT
                                         </select>
@@ -858,6 +863,8 @@ SOURCESITEBOT;
                             $disableCheckbox = "disabled";
                         }
 
+                        $randomsecret_esc = attr($randomsecret);
+                        $randomusername_esc = attr($randomusername);
                         $step2tablebot = <<<STP2TBLBOT
                     </fieldset>
                     <br />
@@ -870,7 +877,7 @@ SOURCESITEBOT;
                                         <label class="font-weight-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
-                                        <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername' minlength='12' />
+                                        <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername_esc' minlength='12' />
                                     </div>
                                 </div>
                                 <div id="iuser_info" class="collapse">
@@ -956,7 +963,7 @@ SOURCESITEBOT;
                                     </div>
                                     <div>
                                         <input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA
-                                        <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
+                                        <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret_esc' />
                                     </div>
                                 </div>
                                 <div id="i2fa_info" class="collapse">
@@ -1068,7 +1075,7 @@ STP2TBLBOT;
                             break;
                         }
 
-                                    echo "<h3 class='mb-3 border-bottom'>Step $state - Creating Database and First User</h3>";
+                                    echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Creating Database and First User</h3>";
                                     echo "<div class='jumbotron p-5'>";
 
                                     // Skip below if database shell has already been created.
@@ -1077,7 +1084,7 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->root_database_connection()) {
                                 echo "$error.  Check your login credentials.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 echo "$ok.<br />\n";
@@ -1090,7 +1097,7 @@ STP2TBLBOT;
                             echo "Dumping source database...";
                             flush();
                             if (! $installer->create_dumpfiles()) {
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 echo "$ok.<br />\n";
@@ -1102,7 +1109,7 @@ STP2TBLBOT;
                         if (! empty($installer->source_site_id)) {
                             echo "Creating site directory...";
                             if (! $installer->create_site_directory()) {
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 echo "$ok.<br />";
@@ -1116,7 +1123,7 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->create_database()) {
                                 echo "$error.  Check your login credentials.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 echo "$ok.<br />\n";
@@ -1128,14 +1135,14 @@ STP2TBLBOT;
                             $user_mysql_error = true;
                             if (! $installer->create_database_user()) {
                                 echo "$error when creating specified user.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 $user_mysql_error = false;
                             }
                             if (! $installer->grant_privileges()) {
                                 echo "$error when granting privileges to the specified user.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 $user_mysql_error = false;
@@ -1154,7 +1161,7 @@ STP2TBLBOT;
 
                         if (! $installer->user_database_connection()) {
                             echo "$error.  Check your login credentials.\n";
-                            echo $installer->error_message;
+                            echo text($installer->error_message);
                             break;
                         } else {
                             echo "$ok.<br />\n";
@@ -1165,7 +1172,7 @@ STP2TBLBOT;
                                       $dump_results = $installer->load_dumpfiles();
                         if (! $dump_results) {
                             echo "$error.\n";
-                            echo $installer->error_message;
+                            echo text($installer->error_message);
                             break;
                         } else {
                             echo $dump_results;
@@ -1176,7 +1183,7 @@ STP2TBLBOT;
                                       flush();
                         if (! $installer->write_configuration_file()) {
                             echo "$error.\n";
-                            echo $installer->error_message;
+                            echo text($installer->error_message);
                             break;
                         } else {
                             echo "$ok.<br />\n";
@@ -1189,7 +1196,7 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->add_version_info()) {
                                 echo "$error.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 ;
                                 break;
                             } else {
@@ -1201,7 +1208,7 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->insert_globals()) {
                                 echo "$error.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 ;
                                 break;
                             } else {
@@ -1213,7 +1220,7 @@ STP2TBLBOT;
                             require("$OE_SITE_DIR/sqlconf.php");
                             if (! $installer->install_gacl()) {
                                 echo "$error -.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             } else {
                                 echo "$ok<br />\n";
@@ -1225,7 +1232,7 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->add_initial_user()) {
                                 echo "$error.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
                                 break;
                             }
                             echo "$ok<br />\n";
@@ -1235,7 +1242,17 @@ STP2TBLBOT;
                             flush();
                             if (! $installer->install_additional_users()) {
                                 echo "$error.\n";
-                                echo $installer->error_message;
+                                echo text($installer->error_message);
+                                break;
+                            }
+                            echo "$ok<br />\n";
+                            flush();
+
+                            echo "Configuring Care Coordination Module...\n";
+                            flush();
+                            if (! $installer->on_care_coordination()) {
+                                echo "$error.\n";
+                                echo text($installer->error_message);
                                 break;
                             }
                             echo "$ok<br />\n";
@@ -1244,6 +1261,7 @@ STP2TBLBOT;
 
                         // If user has selected to set MFA App Based 2FA, display QR code to scan
                         $qr = $installer->get_initial_user_2fa_qr();
+                        $qr_esc = attr($qr);
                         if ($qr) {
                             $qrDisplay = <<<TOTP
                                         <br />
@@ -1252,7 +1270,7 @@ STP2TBLBOT;
                                                 <td>
                                                     <strong class='text-danger'>IMPORTANT!!</strong>
                                                     <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
-                                                    <img src='$qr' width="150" />
+                                                    <img src='$qr_esc' width="150" />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -1276,42 +1294,41 @@ TOTP;
                             $btn_text = 'Proceed to Select a Theme';
                             echo "<br />";
                             echo "<p>The database was cloned, access control list exists therefore skipping ACL setup</p>";
-                            echo "<p class='p-1 bg-warning'>Click <b>$btn_text</b> for further instructions.</p>";
+                            echo "<p class='p-1 bg-warning'>Click <b>" . text($btn_text) . "</b> for further instructions.</p>";
                             $next_state = 7;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br />";
-                            echo "<p><b>Granted user <span class='text-primary'>$installer->iuser</span> administrator access control (password is <span class='text-primary'>$installer->iuserpass</span>).</b></p>";
+                            echo "<p><b>Granted user <span class='text-primary'>" . text($installer->iuser) . "</span> administrator access control (password is <span class='text-primary'>" . text($installer->iuserpass) . "</span>).</b></p>";
                             echo "<p>The next step will configure php.</p>";
-                            echo "<p class='mark'>Click <strong>$btn_text</strong> to continue.</p>";
+                            echo "<p class='mark'>Click <strong>" . text($btn_text) . "</strong> to continue.</p>";
                             $next_state = 4;
                         }
 
-                                    $form_top = <<<FRMTOP
-                                    <form method='post'>
-                                        <input name='state' type='hidden' value='$next_state' />
-                                        <input name='site' type='hidden' value='$site_id' />
-                                        <input name='iuser' type='hidden' value='{$installer->iuser}' />
-                                        <input name='iuserpass' type='hidden' value='{$installer->iuserpass}' />
-                                        <input name='iuname' type='hidden' value='{$installer->iuname}' />
-                                        <input name='iufname' type='hidden' value='{$installer->iufname}' />
-                                        <input name='login' type='hidden' value='{$installer->login}' />
-                                        <input name='pass' type='hidden' value='{$installer->pass}' />
-                                        <input name='server' type='hidden' value='{$installer->server}' />
-                                        <input name='port' type='hidden' value='{$installer->port}' />
-                                        <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
-                                        <input name='dbname' type='hidden' value='{$installer->dbname}' />
-FRMTOP;
-                                    echo $form_top . "\r\n";
+                        echo "<form method='post'>
+                              <input name='state' type='hidden' value='" . attr($next_state) . "' />
+                              <input name='site' type='hidden' value='" . attr($site_id) . "' />
+                              <input name='iuser' type='hidden' value='" . attr($installer->iuser) . "' />
+                              <input name='iuserpass' type='hidden' value='" . attr($installer->iuserpass) . "' />
+                              <input name='iuname' type='hidden' value='" . attr($installer->iuname) . "' />
+                              <input name='iufname' type='hidden' value='" . attr($installer->iufname) . "' />
+                              <input name='login' type='hidden' value='" . attr($installer->login) . "' />
+                              <input name='pass' type='hidden' value='" . attr($installer->pass) . "' />
+                              <input name='server' type='hidden' value='" . attr($installer->server) . "' />
+                              <input name='port' type='hidden' value='" . attr($installer->port) . "' />
+                              <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
+                              <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />\r\n";
+
                         if ($allow_cloning_setup) {
-                            echo "<input type='hidden' name='clone_database' value='$installer->clone_database' />";
-                            echo "<input name='source_site_id' type='hidden' value='$installer->source_site_id' />";
+                            echo "<input type='hidden' name='clone_database' value='" . attr($installer->clone_database) . "' />";
+                            echo "<input name='source_site_id' type='hidden' value='" . attr($installer->source_site_id) . "' />";
                         }
+                                    $btn_text_esc = text($btn_text);
                                     $form_bottom = <<<FRMBOT
                                     <div class="form-row">
                                         <div class="col-12">
                                             <button type='submit' id='step-4-btn' class="btn btn-primary" value='Continue'>
-                                                <i class="fas fa-chevron-right"></i>  $btn_text
+                                                <i class="fas fa-chevron-right"></i>  $btn_text_esc
                                             </button>
                                         </div>
                                     </div>
@@ -1322,8 +1339,9 @@ FRMBOT;
                         break;
 
                     case 4:
+                        $state_esc = text($state);
                         $step4_top = <<<STP4TOP
-                        <h3 class="mb-3 border-bottom">Step $state - Configure PHP</h3>
+                        <h3 class="mb-3 border-bottom">Step $state_esc - Configure PHP</h3>
                         <div class="jumbotron p-5">
                         <p>Configuration of PHP...</p>
                         <p>We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:</p>
@@ -1334,7 +1352,7 @@ STP4TOP;
                         $gotFileFlag = 0;
                         $phpINIfile  = php_ini_loaded_file();
                         if ($phpINIfile) {
-                            echo "<li><span class='text-success'>Your php.ini file can be found at " . $phpINIfile . "</span></li>\n";
+                            echo "<li><span class='text-success'>Your php.ini file can be found at " . text($phpINIfile) . "</span></li>\n";
                             $gotFileFlag = 1;
                         }
 
@@ -1357,8 +1375,7 @@ STP4TOP;
                         $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
                         $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
-                        $step4_table = <<<STP4TAB
-                            <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
+                        echo   "<li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
                                 <table class='phpset'>
                                     <tr>
                                         <th>Setting</th>
@@ -1368,178 +1385,167 @@ STP4TOP;
                                     <tr>
                                         <td>short_open_tag</td>
                                         <td>Off</td>
-                                        <td class='$short_tag_style'>$short_tag</td>
+                                        <td class='" . attr($short_tag_style) . "'>" . text($short_tag) . "</td>
                                     </tr>
                                     <tr>
                                         <td>display_errors</td>
                                         <td>Off</td>
-                                        <td class='$display_errors_style'>$display_errors</td>
+                                        <td class='" . attr($display_errors_style) . "'>" . text($display_errors) . "</td>
                                     </tr>
                                     <tr>
                                         <td>register_globals</td>
                                         <td>Off</td>
-                                        <td class='$register_globals_style'>$register_globals</td>
+                                        <td class='" . attr($register_globals_style) . "'>" . text($register_globals) . "</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_vars</td>
                                         <td>at least 3000</td>
-                                        <td class='$max_input_vars_style'>$max_input_vars</td>
+                                        <td class='" . attr($max_input_vars_style) . "'>" . text($max_input_vars) . "</td>
                                     </tr>
                                     <tr>
                                         <td>max_execution_time</td>
                                         <td>at least 60</td>
-                                        <td class='$max_execution_time_style'>$max_execution_time</td>
+                                        <td class='" . attr($max_execution_time_style) . "'>" . text($max_execution_time) . "</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_time</td>
                                         <td>-1</td>
-                                        <td class='$max_input_time_style'>$max_input_time</td>
+                                        <td class='" . attr($max_input_time_style) . "'>" . text($max_input_time) . "</td>
                                     </tr>
                                     <tr>
                                         <td>post_max_size</td>
                                         <td>at least 30M</td>
-                                        <td class='$post_max_size_style'>$post_max_size</td>
+                                        <td class='" . attr($post_max_size_style) . "'>" . text($post_max_size) . "</td>
                                     </tr>
                                     <tr>
                                         <td>memory_limit</td>
                                         <td>at least 256M</td>
-                                        <td class='$memory_limit_style'>$memory_limit</td>
+                                        <td class='" . attr($memory_limit_style) . "'>" . text($memory_limit) . "</td>
                                     </tr>
                                     <tr>
                                         <td>mysqli.allow_local_infile</td>
                                         <td>On</td>
-                                        <td class='$mysqli_allow_local_infile_style'>$mysqli_allow_local_infile</td>
+                                        <td class='" . attr($mysqli_allow_local_infile_style) . "'>" . text($mysqli_allow_local_infile) . "</td>
                                     </tr>
                                 </table>
                             </li>
-                            <li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include "file_uploads = On", that "upload_max_filesize" is appropriate for your use and that "upload_tmp_dir" is set to a correct value that will work on your system.
-                            </li>
-STP4TAB;
-                        echo $step4_table . "\r\n";
+                            <li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.
+                            </li>\r\n";
 
                         if (!$gotFileFlag) {
                             echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</li>\n";
                         }
 
                         $btn_text = 'Proceed to Step 5';
-                        $step4_bottom = <<<STP4BOT
-                        </ul>
+                        echo "</ul>
 
                         <p>We recommend you print these instructions for future reference.</p>
                         <p>The next step will configure the Apache web server.</p>
-                        <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
+                        <p class='mark'>Click <strong>" . text($btn_text) . "</strong> to continue.</p>
                         <br />
                         <form method='post'>
                             <input type='hidden' name='state' value='5' />
-                            <input type='hidden' name='site' value='$site_id' />
-                            <input type='hidden' name='iuser' value='{$installer->iuser}' />
-                            <input type='hidden' name='iuserpass' value='{$installer->iuserpass}' />
-                            <input name='login' type='hidden' value='{$installer->login}' />
-                            <input name='pass' type='hidden' value='{$installer->pass}' />
-                            <input name='server' type='hidden' value='{$installer->server}' />
-                            <input name='port' type='hidden' value='{$installer->port}' />
-                            <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
-                            <input name='dbname' type='hidden' value='{$installer->dbname}' />
-                            <div class="form-row">
-                                <div class="col-12">
+                            <input type='hidden' name='site' value='" . attr($site_id) . "' />
+                            <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
+                            <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
+                            <input name='login' type='hidden' value='" . attr($installer->login) . "' />
+                            <input name='pass' type='hidden' value='" . attr($installer->pass) . "' />
+                            <input name='server' type='hidden' value='" . attr($installer->server) . "' />
+                            <input name='port' type='hidden' value='" . attr($installer->port) . "' />
+                            <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
+                            <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
+                            <div class='form-row'>
+                                <div class='col-12'>
                                     <button type='submit' class='btn btn-primary' value='Continue'>
-                                        <i class="fas fa-chevron-right"></i>  $btn_text
+                                        <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
                                     </button>
                                 </div>
                             </div>
                         </form>
-                        </div>
-STP4BOT;
-                        echo $step4_bottom . "\r\n";
+                        </div>\r\n";
                         break;
 
                     case 5:
-                        echo "<h3 class='mb-3 border-bottom'>Step $state - Configure Apache Web Server</h3>";
+                        echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Apache Web Server</h3>";
                         echo "<div class='jumbotron p-5'>";
                         echo "<p>Configuration of Apache web server...</p><br />\n";
-                        echo "The <code>\"" . preg_replace("/${site_id}/", "*", realpath($docsDirectory)) . "\"</code> directory contain patient information, and
+                        echo "The <code>\"" . text(preg_replace("/${site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                        &nbsp;&nbsp;<code>&lt;Directory \"" . realpath(dirname(__FILE__)) . "\"&gt;<br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
                         &nbsp;&nbsp;<code>&lt;/Directory&gt;</code><br />
-                        &nbsp;&nbsp;&lt;Directory \"" . realpath(dirname(__FILE__)) . "/sites\"&gt;<br />
+                        &nbsp;&nbsp;&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "/sites\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
-                        &nbsp;&nbsp;<code>&lt;Directory \"" . preg_replace("/${site_id}/", "*", realpath($docsDirectory)) . "\"&gt;<br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/${site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />";
 
                         $btn_text = 'Proceed to Select a Theme';
-                        $step5_bottom = <<<STP5BOT
-                        <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
+                        echo "<p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
                         <p>We recommend you print these instructions for future reference.</p>
-                        <p class='mark'>Click <strong>'$btn_text'</strong> to select a theme.</p>
+                        <p class='mark'>Click <strong>'" . text($btn_text) . "'</strong> to select a theme.</p>
                         <br />
                         <form method='post'>
                             <input type='hidden' name='state' value='6' />
-                            <input type='hidden' name='site' value='$site_id' />
-                            <input type='hidden' name='iuser' value='{$installer->iuser}' />
-                            <input type='hidden' name='iuserpass' value='{$installer->iuserpass}' />
-                            <input name='login' type='hidden' value='{$installer->login}' />
-                            <input name='pass' type='hidden' value='{$installer->pass}' />
-                            <input name='server' type='hidden' value='{$installer->server}' />
-                            <input name='port' type='hidden' value='{$installer->port}' />
-                            <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
-                            <input name='dbname' type='hidden' value='{$installer->dbname}' />
-                            <div class="form-row">
-                                <div class="col-12">
+                            <input type='hidden' name='site' value='" . attr($site_id) . "' />
+                            <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
+                            <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
+                            <input name='login' type='hidden' value='" . attr($installer->login) . "' />
+                            <input name='pass' type='hidden' value='" . attr($installer->pass) . "' />
+                            <input name='server' type='hidden' value='" . attr($installer->server) . "' />
+                            <input name='port' type='hidden' value='" . attr($installer->port) . "' />
+                            <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
+                            <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
+                            <div class='form-row'>
+                                <div class='col-12'>
                                     <button type='submit' class='btn btn-primary' value='Continue'>
-                                        <i class="fas fa-chevron-right"></i>  $btn_text
+                                        <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
                                     </button>
                                 </div>
                             </div>
                         </form>
-                        <div>
-STP5BOT;
-                        echo $step5_bottom . "\r\n";
+                        <div>\r\n";
                         break;
 
                     case 6:
-                        echo "<h3 class='mb-3 border-bottom'>Step $state - Select a Theme</h3>";
+                        echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Select a Theme</h3>";
                         echo "<div class='jumbotron p-5'>";
                         echo "<p>Select a theme for OpenEMR...</p>\n";
                         $btn_text = "Proceed to Final Step";
                         $installer->displaySelectedThemeDiv();
-                        $theme_form = <<<TMF
-                        <div class='row'>
-                        <div class="col-12">
+                        echo "<div class='row'>
+                        <div class='col-12'>
                             <form method='post'>
                                 <input type='hidden' name='state' value='7' />
-                                <input type='hidden' name='site' value='$site_id' />
-                                <input type='hidden' name='iuser' value='{$installer->iuser}' />
-                                <input type='hidden' name='iuserpass' value='{$installer->iuserpass}' />
-                                <input name='login' type='hidden' value='{$installer->login}' />
-                                <input name='pass' type='hidden' value='{$installer->pass}' />
-                                <input name='server' type='hidden' value='{$installer->server}' />
-                                <input name='port' type='hidden' value='{$installer->port}' />
-                                <input name='loginhost' type='hidden' value='{$installer->loginhost}' />
-                                <input name='dbname' type='hidden' value='{$installer->dbname}' />
-                                <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}' />
-                                <input name='clone_database' type='hidden' value='{$installer->clone_database}' />
-                                <input name='source_site_id' type='hidden' value='{$installer->source_site_id}' />
+                                <input type='hidden' name='site' value='" . attr($site_id) . "' />
+                                <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
+                                <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
+                                <input name='login' type='hidden' value='" . attr($installer->login) . "' />
+                                <input name='pass' type='hidden' value='" . attr($installer->pass) . "' />
+                                <input name='server' type='hidden' value='" . attr($installer->server) . "' />
+                                <input name='port' type='hidden' value='" . attr($installer->port) . "' />
+                                <input name='loginhost' type='hidden' value='" . attr($installer->loginhost) . "' />
+                                <input name='dbname' type='hidden' value='" . attr($installer->dbname) . "' />
+                                <input type='hidden' name='new_theme' id = 'new_theme' value='" . attr($installer->getCurrentTheme()) . "' />
+                                <input name='clone_database' type='hidden' value='" . attr($installer->clone_database) . "' />
+                                <input name='source_site_id' type='hidden' value='" . attr($installer->source_site_id) . "' />
                             <h4>Select One:</h4>
-                                <div class="checkbox">
-                                  <label><input type="checkbox" class="check" value="show_theme" />Show More Themes</label>
+                                <div class='checkbox'>
+                                  <label><input type='checkbox' class='check' value='show_theme' />Show More Themes</label>
                                 </div>
-                                <div class="checkbox">
-                                  <label><input type="checkbox" class="check" value="keep_current" />Keep Current</label>
+                                <div class='checkbox'>
+                                  <label><input type='checkbox' class='check' value='keep_current' />Keep Current</label>
                                 </div>
-                                <div class='hide_button' style="display:none;">
+                                <div class='hide_button' style='display:none;'>
                                     <button type='submit' class='btn btn-primary' value='Continue' id='continue'>
-                                        <i class="fas fa-chevron-right"></i>  {$btn_text}
+                                        <i class='fas fa-chevron-right'></i>  " . text($btn_text) . "
                                     </button>
                                 </div>
                             </form>
                         </div>
-					</div>
-TMF;
-                        echo $theme_form . "\r\n";
+					</div>\r\n";
                         echo '<div class="row hideaway" style="display:none;">' . "\r\n";
                         echo '<div class="col-12">' . "\r\n";
                         echo '    <h4>Select New Theme: <h5>(scroll down to view all)</h5></h4>' . "\r\n";
@@ -1575,22 +1581,23 @@ TOP;
                             $errorWritable = 0;
                             foreach ($writableFileList as $tempFile) {
                                 if (is_writable($tempFile)) {
-                                        echo "<code class='ml-5'>" . realpath($tempFile) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
+                                        echo "<code class='ml-5'>" . text(realpath($tempFile)) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
                                 } else {
-                                        echo "<p><span class='text-danger'>UNABLE</span> to open file '" . realpath($tempFile) . "' for writing.<br />\n";
+                                        echo "<p><span class='text-danger'>UNABLE</span> to open file '" . text(realpath($tempFile)) . "' for writing.<br />\n";
                                         echo "(configure file permissions; see below for further instructions)</p>\n";
                                         $errorWritable = 1;
                                 }
                             }
 
                             if ($errorWritable) {
+                                $site_id_esc = attr($site_id);
                                 $check_file = <<<CHKFILE
                                             <p class="text-danger">You can't proceed until all above files are ready (world-writable).</p>
                                             <p>In linux, recommend changing file permissions with the <strong>'chmod 666 filename'</strong> command.</p>
                                             <p class='p-1 bg-danger text-white'>Fix above file permissions and then click the <strong>'Check Again'</strong> button to re-check files.</p>
                                             <br />
                                             <form method='post'>
-                                                <input type='hidden' name='site' value='$site_id' />
+                                                <input type='hidden' name='site' value='$site_id_esc' />
                                                 <button type='submit' class='btn btn-primary' value='check again'>Check Again</button>
                                             </form>
 CHKFILE;
@@ -1600,18 +1607,19 @@ CHKFILE;
 
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                echo "<p class='text-success m-0'>Ensuring the <code>" . realpath($tempDir) . "</code> directory and its subdirectories have proper permissions...</p>\n";
+                                echo "<p class='text-success m-0'>Ensuring the <code>" . text(realpath($tempDir)) . "</code> directory and its subdirectories have proper permissions...</p>\n";
                                 $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
                             if ($errorWritable) {
+                                $site_id_esc = attr($site_id);
                                 $check_directory = <<<CHKDIR
                                             <p class="text-danger">You can't proceed until all directories and subdirectories are ready.</p>
                                             <p>In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command <strong>'chown -R apache:apache directory_name'</strong> command.</p>
                                             <p class='p-1 bg-warning'>Fix above directory permissions and then click the <strong>'Check Again'</strong> button to re-check directories.</p>
                                             <br />
                                             <form method='post'>
-                                                <input type='hidden' name='site' value='$site_id' />
+                                                <input type='hidden' name='site' value='$site_id_esc' />
                                                 <button type='submit' value='check again'><b>Check Again</b></button>
                                             </form>
 CHKDIR;
@@ -1620,6 +1628,7 @@ CHKDIR;
                             }
 
                             //RP_CHECK_LOGIC
+                            $site_id_esc = attr($site_id);
                             $form = <<<FRM
                                         <p>All required files and directories have been verified.</p>
                                         <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
@@ -1627,7 +1636,7 @@ CHKDIR;
                                         <br />
                                         <form method='post'>
                                             <input name='state' type='hidden' value='1' />
-                                            <input name='site' type='hidden' value='$site_id' />
+                                            <input name='site' type='hidden' value='$site_id_esc' />
                                             <div class="form-group">
                                                 <div class="col">
                                                     <button type='submit' class='btn btn-primary' value='Continue'>
@@ -1639,15 +1648,16 @@ CHKDIR;
 FRM;
                             echo $form . "\r\n";
                         } else {
+                            $site_id_esc = attr($site_id);
                             $form = <<<FRM
                                         <br />
-                                        <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id .</p>
+                                        <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
                                         <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                         <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
                                         <br />
                                         <form method='post'>
                                             <input name='state' type='hidden' value='1'>
-                                            <input name='site' type='hidden' value='$site_id'>
+                                            <input name='site' type='hidden' value='$site_id_esc'>
                                             <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                         </form>
 FRM;

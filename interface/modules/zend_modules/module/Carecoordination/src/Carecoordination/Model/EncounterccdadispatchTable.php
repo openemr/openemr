@@ -13,11 +13,13 @@
 
 namespace Carecoordination\Model;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use CouchDB;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
+use Matrix\Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -39,9 +41,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getPatientdata($pid, $encounter)
     {
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion, l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
-                        from patient_data
-                        left join list_options as l1 on l1.list_id=? AND l1.option_id=race
-                        left join list_options as l2 on l2.list_id=? AND l2.option_id=ethnicity
+            from patient_data
+            left join list_options as l1 on l1.list_id=? AND l1.option_id=race
+            left join list_options as l2 on l2.list_id=? AND l2.option_id=ethnicity
 			left join list_options AS l3 ON l3.list_id=? AND l3.option_id=religion
 			left join list_options AS l4 ON l4.list_id=? AND l4.option_id=language
                         where pid=?";
@@ -56,6 +58,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <fname>" . xmlEscape($result['fname']) . "</fname>
             <mname>" . xmlEscape($result['mname']) . "</mname>
             <lname>" . xmlEscape($result['lname']) . "</lname>
+            <suffix>" . xmlEscape($result['suffix']) . "</suffix>
             <birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
             <birth_mname>" . xmlEscape($result['birth_mname']) . "</birth_mname>
             <birth_lname>" . xmlEscape($result['birth_lname']) . "</birth_lname>
@@ -64,21 +67,22 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <state>" . xmlEscape($result['state']) . "</state>
             <postalCode>" . xmlEscape($result['postal_code']) . "</postalCode>
             <country>" . xmlEscape($result['country_code']) . "</country>
-            <ssn>" . xmlEscape($result['ss'] ? $result['ss'] : 0) . "</ssn>
+            <ssn>" . xmlEscape($result['ss'] ?: '') . "</ssn>
             <dob>" . xmlEscape(str_replace('-', '', $result['DOB'])) . "</dob>
             <gender>" . xmlEscape($result['sex']) . "</gender>
             <gender_code>" . xmlEscape(strtoupper(substr($result['sex'], 0, 1))) . "</gender_code>
-            <status>" . xmlEscape($result['status'] ? $result['status'] : 'NULL') . "</status>
+            <status>" . xmlEscape($result['status'] ?: "") . "</status>
             <status_code>" . xmlEscape($result['status'] ? strtoupper(substr($result['status'], 0, 1)) : 0) . "</status_code>
-            <phone_home>" . xmlEscape(($result['phone_home'] ? $result['phone_home'] : 0)) . "</phone_home>
-            <phone_mobile>" . xmlEscape(($result['phone_home'] ? $result['phone_cell'] : 0)) . "</phone_mobile>
-            <religion>" . xmlEscape(\Application\Listener\Listener::z_xlt($result['religion'] ? $result['religion'] : 'NULL')) . "</religion>
-            <religion_code>" . xmlEscape($result['religion_code'] ? $result['religion_code'] : 0) . "</religion_code>
-            <race>" . xmlEscape(\Application\Listener\Listener::z_xlt($result['race_title'])) . "</race>
+            <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
+            <phone_mobile>" . xmlEscape(($result['phone_home'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <email>" . xmlEscape(($result['email'] ?: '')) . "</email>
+            <religion>" . xmlEscape(Listener::z_xlt($result['religion'] ?: "")) . "</religion>
+            <religion_code>" . xmlEscape($result['religion_code'] ?: '') . "</religion_code>
+            <race>" . xmlEscape(Listener::z_xlt($result['race_title'])) . "</race>
             <race_code>" . xmlEscape($result['race_code']) . "</race_code>
-            <ethnicity>" . xmlEscape(\Application\Listener\Listener::z_xlt($result['ethnicity_title'])) . "</ethnicity>
+            <ethnicity>" . xmlEscape(Listener::z_xlt($result['ethnicity_title'])) . "</ethnicity>
             <ethnicity_code>" . xmlEscape($result['ethnicity_code']) . "</ethnicity_code>
-            <language>" . xmlEscape(\Application\Listener\Listener::z_xlt($result['language_title'])) . "</language>
+            <language>" . xmlEscape(Listener::z_xlt($result['language_title'])) . "</language>
             <language_code>" . xmlEscape($result['language_code']) . "</language_code>
             </patient>
 		<guardian>
@@ -436,20 +440,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <sha_id>" . xmlEscape("36e3e930-7b14-11db-9fe1-0800200c9a66") . "</sha_id>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
                 <diagnosis_code>" . xmlEscape(($code ? $code : 0)) . "</diagnosis_code>
-                <diagnosis>" . xmlEscape(($code_text ? \Application\Listener\Listener::z_xlt($code_text) : 'NULL')) . "</diagnosis>
+                <diagnosis>" . xmlEscape(($code_text ? Listener::z_xlt($code_text) : "")) . "</diagnosis>
                 <rxnorm_code>" . xmlEscape(($code_rx ? $code_rx : 0)) . "</rxnorm_code>
-                <rxnorm_code_text>" . xmlEscape(($code_text_rx ? \Application\Listener\Listener::z_xlt($code_text_rx) : 'NULL')) . "</rxnorm_code_text>
+                <rxnorm_code_text>" . xmlEscape(($code_text_rx ? Listener::z_xlt($code_text_rx) : "")) . "</rxnorm_code_text>
                 <snomed_code>" . xmlEscape(($code_snomed ? $code_snomed : 0)) . "</snomed_code>
-                <snomed_code_text>" . xmlEscape(($code_text_snomed ? \Application\Listener\Listener::z_xlt($code_text_snomed) : 'NULL')) . "</snomed_code_text>
-                <status_table>" . ($status_table ? xmlEscape($status_table) : 'NULL') . "</status_table>
-                <status>" . ($active ? xmlEscape($active) : 'NULL') . "</status>
-                <allergy_status>" . ($allergy_status ? xmlEscape($allergy_status) : 'NULL') . "</allergy_status>
+                <snomed_code_text>" . xmlEscape(($code_text_snomed ? Listener::z_xlt($code_text_snomed) : "")) . "</snomed_code_text>
+                <status_table>" . ($status_table ? xmlEscape($status_table) : "") . "</status_table>
+                <status>" . ($active ? xmlEscape($active) : "") . "</status>
+                <allergy_status>" . ($allergy_status ? xmlEscape($allergy_status) : "") . "</allergy_status>
                 <status_code>" . ($status_code ? xmlEscape($status_code) : 0) . "</status_code>
-                <outcome>" . xmlEscape(($row['observation'] ? \Application\Listener\Listener::z_xlt($row['observation']) : 'NULL')) . "</outcome>
+                <outcome>" . xmlEscape(($row['observation'] ? Listener::z_xlt($row['observation']) : "")) . "</outcome>
                 <outcome_code>" . xmlEscape(($row['observation_code'] ? $row['observation_code'] : 0)) . "</outcome_code>
                 <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', $row['begdate']) : "00000000") . "</startdate>
                 <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', $row['enddate']) : "00000000") . "</enddate>
-                <reaction_text>" . xmlEscape($reaction_text ? \Application\Listener\Listener::z_xlt($reaction_text) : 'NULL') . "</reaction_text>
+                <reaction_text>" . xmlEscape($reaction_text ? Listener::z_xlt($reaction_text) : "") . "</reaction_text>
                 <reaction_code>" . xmlEscape($reaction_code[1] ?: '') . "</reaction_code>
                 <reaction_code_type>" . xmlEscape(str_replace('-', ' ', $reaction_code[0]) ?: '') . "</reaction_code_type>
                 <RxNormCode>" . xmlEscape($code_rx) . "</RxNormCode>
@@ -465,7 +469,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getMedications($pid, $encounter)
     {
         $medications = '';
-        $query = "select l.id, l.date_added, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
+        $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
                        l.rxnorm_drugcode, l1.title as unit, l1.codes as unit_code,l2.title as form,SUBSTRING(l2.codes, LOCATE(':',l2.codes)+1, LENGTH(l2.codes)) AS form_code, l3.title as route, l4.title as `interval`,
                        u.title, u.fname, u.lname, u.mname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1, l.note
                        from prescriptions as l
@@ -487,10 +491,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $unit = $str = $active = '';
 
             if ($row['size'] > 0) {
-                $unit = $row['size'] . " " . \Application\Listener\Listener::z_xlt($row['unit']) . " ";
+                $unit = $row['size'] . " " . Listener::z_xlt($row['unit']) . " ";
             }
 
-            $str = $unit . " " . \Application\Listener\Listener::z_xlt($row['route']) . " " . $row['dosage'] . " " . \Application\Listener\Listener::z_xlt($row['form'] . " " . $row['interval']);
+            $str = $unit . " " . Listener::z_xlt($row['route']) . " " . $row['dosage'] . " " . Listener::z_xlt($row['form'] . " " . $row['interval']);
 
             if ($row['active'] > 0) {
                 $active = 'active';
@@ -498,9 +502,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $active = 'completed';
             }
 
-            if ($row['date_added']) {
-                $start_date = str_replace('-', '', $row['date_added']);
-                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['date_added'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+            if ($row['start_date']) {
+                $start_date = str_replace('-', '', $row['start_date']);
+                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
                 ;
             }
 
@@ -523,18 +527,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <direction>" . xmlEscape($str) . "</direction>
     <dosage>" . xmlEscape($row['dosage']) . "</dosage>
     <size>" . xmlEscape(($row['size'] ? $row['size'] : 0)) . "</size>
-    <unit>" . xmlEscape(($row['unit'] ? preg_replace('/\s*/', '', \Application\Listener\Listener::z_xlt($row['unit'])) : '')) . "</unit>
+    <unit>" . xmlEscape(($row['unit'] ? preg_replace('/\s*/', '', Listener::z_xlt($row['unit'])) : '')) . "</unit>
     <unit_code>" . xmlEscape(($row['unit_code'] ? $row['unit_code'] : 0)) . "</unit_code>
-    <form>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['form'])) . "</form>
-    <form_code>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['form_code'])) . "</form_code>
-    <route_code>" . xmlEscape($row['route_code']) . "</route_code>
+    <form>" . xmlEscape(Listener::z_xlt($row['form'])) . "</form>
+    <form_code>" . xmlEscape(Listener::z_xlt($row['form_code'])) . "</form_code>
+    <route_code>" . xmlEscape($row['route_code'] ?: $row['route']) . "</route_code>
     <route>" . xmlEscape($row['route']) . "</route>
-    <interval>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['interval'])) . "</interval>
+    <interval>" . xmlEscape(Listener::z_xlt($row['interval'])) . "</interval>
     <start_date>" . xmlEscape($start_date) . "</start_date>
-    <start_date_formatted>" . xmlEscape($row['date_added']) . "</start_date_formatted>
-    <end_date>" . xmlEscape('00000000') . "</end_date>
+    <start_date_formatted>" . xmlEscape($row['start_date']) . "</start_date_formatted>
+    <end_date>" . xmlEscape('') . "</end_date>
     <status>" . xmlEscape($active) . "</status>
-    <indications>" . xmlEscape(($row['pres_erx_diagnosis_name'] ? $row['pres_erx_diagnosis_name'] : 'NULL')) . "</indications>
+    <indications>" . xmlEscape(($row['pres_erx_diagnosis_name'] ? $row['pres_erx_diagnosis_name'] : "")) . "</indications>
     <indications_code>" . xmlEscape(($row['pres_erx_diagnosis'] ? $row['pres_erx_diagnosis'] : 0)) . "</indications_code>
     <instructions>" . xmlEscape($row['note']) . "</instructions>
     <rxnorm>" . xmlEscape($row['rxnorm_drugcode']) . "</rxnorm>
@@ -549,6 +553,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getProblemList($pid, $encounter)
     {
+        UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
         $query = "select l.*, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
     from lists AS l
@@ -559,6 +564,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $problem_lists .= '<problem_lists>';
         foreach ($res as $row) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $split_codes = explode(';', $row['code']);
             foreach ($split_codes as $key => $single_code) {
                 $get_code_details = explode(':', $single_code);
@@ -589,24 +595,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $observation = $row['observation'];
                 $observation_code = explode(':', $row['observation_code']);
                 $observation_code = $observation_code[1];
-
                 $problem_lists .= "<problem>
-						<extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
-						<sha_extension>" . xmlEscape("ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7") . "</sha_extension>
-						<title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
-						<code>" . ($code ? xmlEscape($code) : 0) . "</code>
-						<code_type>" . ($code ? xmlEscape($code_type) : 0) . "</code_type>
-						<code_text>" . xmlEscape(($code_text ? $code_text : 'NULL')) . "</code_text>
-						<age>" . xmlEscape($age) . "</age>
-						<start_date_table>" . xmlEscape($row['begdate']) . "</start_date_table>
-						<start_date>" . xmlEscape($start_date) . "</start_date>
-						<end_date>" . xmlEscape($end_date) . "</end_date>
-						<status>" . xmlEscape($status) . "</status>
-						<status_table>" . xmlEscape($status_table) . "</status_table>
-						<status_code>" . xmlEscape($status_code) . "</status_code>
-						<observation>" . xmlEscape(($observation ? \Application\Listener\Listener::z_xlt($observation) : 'NULL')) . "</observation>
-						<observation_code>" . xmlEscape(($observation_code ? $observation_code : 0)) . "</observation_code>
-						<diagnosis>" . xmlEscape($code ? $code : 0) . "</diagnosis>
+                <problem_id>" . ($code ? xmlEscape($row['$id']) : '') . "</problem_id>
+                <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
+                <sha_extension>" . xmlEscape($row['uuid']) . "</sha_extension>
+                <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
+                <code>" . ($code ? xmlEscape($code) : '') . "</code>
+                <code_type>" . ($code ? xmlEscape($code_type) : '') . "</code_type>
+                <code_text>" . xmlEscape(($code_text ?: '')) . "</code_text>
+                <age>" . xmlEscape($age) . "</age>
+                <start_date_table>" . xmlEscape($row['begdate']) . "</start_date_table>
+                <start_date>" . xmlEscape($start_date) . "</start_date>
+                <end_date>" . xmlEscape($end_date) . "</end_date>
+                <status>" . xmlEscape($status) . "</status>
+                <status_table>" . xmlEscape($status_table) . "</status_table>
+                <status_code>" . xmlEscape($status_code) . "</status_code>
+                <observation>" . xmlEscape(($observation ? Listener::z_xlt($observation) : "")) . "</observation>
+                <observation_code>" . xmlEscape(($observation_code ?: '')) . "</observation_code>
+                <diagnosis>" . xmlEscape($code ?: '') . "</diagnosis>
 					</problem>";
             }
         }
@@ -671,7 +677,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <status>" . xmlEscape($status) . "</status>
                 <status_table>" . xmlEscape($status_table) . "</status_table>
                 <status_code>" . xmlEscape($status_code) . "</status_code>
-                <observation>" . xmlEscape(($observation ? \Application\Listener\Listener::z_xlt($observation) : 'NULL')) . "</observation>
+                <observation>" . xmlEscape(($observation ? Listener::z_xlt($observation) : "")) . "</observation>
                 <observation_code>" . xmlEscape(($observation_code ?: '')) . "</observation_code>
                 <diagnosis>" . xmlEscape($code ?: '') . "</diagnosis>
                 </device>";
@@ -695,7 +701,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		    LEFT JOIN list_options AS lo ON lo.list_id = 'drug_route' AND lo.option_id = im.route
 		    LEFT JOIN users AS u ON u.id = im.administered_by_id
 		    LEFT JOIN facility AS f ON f.id = u.facility_id
-		    WHERE im.patient_id=?";
+		    WHERE im.patient_id=? AND added_erroneously = 0";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($pid));
 
@@ -723,7 +729,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<administered_on>" . xmlEscape($row['administered_date']) . "</administered_on>
 		<administered_formatted>" . xmlEscape($row['administered_formatted']) . "</administered_formatted>
 		<note>" . xmlEscape($row['note']) . "</note>
-		<route_of_administration>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['route_of_administration'])) . "</route_of_administration>
+		<route_of_administration>" . xmlEscape(Listener::z_xlt($row['route_of_administration'])) . "</route_of_administration>
 		<route_code>" . xmlEscape($row['route_code']) . "</route_code>
 		<status>completed</status>
 		<facility_name>" . xmlEscape($row['name']) . "</facility_name>
@@ -817,10 +823,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $results_list = array();
         foreach ($res as $row) {
+            if (empty($row['result_code']) && empty($row['abnormal_flag'])) {
+                continue;
+            }
             $results_list[$row['test_code']]['test_code'] = $row['test_code'];
             $results_list[$row['test_code']]['order_title'] = $row['order_title'];
             $results_list[$row['test_code']]['order_status'] = $row['order_status'];
-            $results_list[$row['test_code']]['date_ordered'] = substr(preg_replace('/-/', '', $row['date_ordered']), 0, 8);
+            $results_list[$row['test_code']]['date_ordered'] = substr(str_replace("-", '', $row['date_ordered']), 0, 8);
             $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
             $results_list[$row['test_code']]['procedure_code'] = $row['procedure_code'];
             $results_list[$row['test_code']]['procedure_name'] = $row['procedure_name'];
@@ -901,7 +910,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $results = "";
         $query = "SELECT fe.date, fe.encounter,fe.reason,
 	    f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone, f.facility_npi as fnpi,
-	    f.facility_code as foid, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, u.phonew1, cat.pc_catname, lo.title, lo.codes AS physician_type_code,
+	    f.facility_code as foid, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, u.phonew1, cat.pc_catname, lo.title AS physician_type, lo.codes AS physician_type_code,
 	    SUBSTRING(ll.diagnosis, LENGTH('SNOMED-CT:')+1, LENGTH(ll.diagnosis)) AS encounter_diagnosis, ll.diagnosis as raw_diagnosis,  ll.title, ll.begdate, ll.enddate
 	    FROM form_encounter AS fe
 	    LEFT JOIN facility AS f ON f.id=fe.facility_id
@@ -917,6 +926,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $results = "<encounter_list>";
         foreach ($res as $row) {
+            $tmp = explode(":", $row['physician_type_code']);
+            $physician_code_type = str_replace('-', ' ', $tmp[0]);
+            $row['physician_type_code'] = $tmp[1];
             $encounter_reason = '';
             if ($row['reason'] !== '') {
                 $encounter_reason = "<encounter_reason>" . xmlEscape($this->date_format(substr($row['date'], 0, 10)) . " - " . $row['reason']) . "</encounter_reason>";
@@ -937,27 +949,28 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <text>" . xmlEscape($row_procedures['code_text']) . "</text>
                 </procedures>";
             }
-
+            $encounter_diagnosis = "";
             if ($row['encounter_diagnosis']) {
                 $tmp = explode(":", $row['raw_diagnosis']);
                 $code_type = str_replace('-', ' ', $tmp[0]);
                 $encounter_activity = '';
-                if ($row['enddate'] != '') {
+                if ($row['enddate'] !== '') {
                     $encounter_activity = 'Completed';
                 } else {
                     $encounter_activity = 'Active';
                 }
-
-                $codes .= "
+                // this just duplicates in all procedures.
+                // from problem attached to encounter
+                $encounter_diagnosis = "
                 <encounter_diagnosis>
-                <code>" . xmlEscape($row['encounter_diagnosis']) . "</code>
+                <code>" . xmlEscape($tmp[1]) . "</code>
                 <code_type>" . xmlEscape($code_type) . "</code_type>
-                <text>" . xmlEscape(\Application\Listener\Listener::z_xlt($row['title'])) . "</text>
+                <text>" . xmlEscape(Listener::z_xlt($row['title'])) . "</text>
                 <status>" . xmlEscape($encounter_activity) . "</status>
                 </encounter_diagnosis>";
+                $codes .= $encounter_diagnosis;
             }
-
-            $location_details = ($row['name'] != '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
+            $location_details = ($row['name'] !== '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
             $results .= "
 	    <encounter>
 		<extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
@@ -966,7 +979,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<visit_category>" . xmlEscape($row['pc_catname']) . "</visit_category>
 		<performer>" . xmlEscape($row['fname'] . " " . $row['mname'] . " " . $row['lname']) . "</performer>
 		<physician_type_code>" . xmlEscape($row['physician_type_code']) . "</physician_type_code>
-		<physician_type>" . xmlEscape($row['title']) . "</physician_type>
+		<physician_type>" . xmlEscape($row['physician_type']) . "</physician_type>
+        <physician_code_type>" . xmlEscape($physician_code_type) . "</physician_code_type>
 		<npi>" . xmlEscape($row['npi']) . "</npi>
 		<fname>" . xmlEscape($row['fname']) . "</fname>
 		<mname>" . xmlEscape($row['mname']) . "</mname>
@@ -979,7 +993,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<location>" . xmlEscape($row['name']) . "</location>
         <location_details>" . xmlEscape($location_details) . "</location_details>
 		<date>" . xmlEscape($this->date_format(substr($row['date'], 0, 10))) . "</date>
-		<date_formatted>" . xmlEscape(preg_replace('/-/', '', substr($row['date'], 0, 10))) . "</date_formatted>
+		<date_formatted>" . xmlEscape(str_replace("-", '', substr($row['date'], 0, 10))) . "</date_formatted>
 		<facility_extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['fid'])) . "</facility_extension>
 		<facility_sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['fid'])) . "</facility_sha_extension>
 		<facility_npi>" . xmlEscape($row['fnpi']) . "</facility_npi>
@@ -992,7 +1006,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<facility_zip>" . xmlEscape($row['fzip']) . "</facility_zip>
 		<facility_phone>" . xmlEscape($row['fphone']) . "</facility_phone>
 		<encounter_procedures>$codes</encounter_procedures>
-                $encounter_reason
+		$encounter_diagnosis
+        $encounter_reason
 	    </encounter>";
         }
 
@@ -1461,11 +1476,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $vitals = '';
-        $query = "SELECT DATE(fe.date) AS date, fv.id, temperature, bpd, bps, head_circ, pulse, height, respiration, BMI_status,  oxygen_saturation, weight, BMI FROM forms AS f
+        $query = "SELECT DATE(fe.date) AS date, fv.id, fv.* FROM forms AS f
                 JOIN form_encounter AS fe ON fe.encounter = f.encounter AND fe.pid = f.pid
                 JOIN form_vitals AS fv ON fv.id = f.form_id
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
-                ORDER BY fe.date DESC";
+                ORDER BY fe.date DESC LIMIT 1";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($pid));
 
@@ -1485,43 +1500,53 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             } else {
                 $temp = US_weight($row['weight'], 1);
                 $tempArr = explode(" ", $temp);
-                $weight_value = $tempArr[0];
+                $weight_value = (float)$tempArr[0];
                 $weight_unit = 'lb';
-                $height_value = $row['height'];
+                $height_value = (float)$row['height'];
                 $height_unit = 'in';
-                $temp_value = $row['temperature'];
+                $temp_value = (float)$row['temperature'];
                 $temp_unit = 'degF';
             }
 
             $vitals .= "<vitals>
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
             <sha_extension>" . xmlEscape("c6f88321-67ad-11db-bd13-0800200c9a66") . "</sha_extension>
-            <date>" . xmlEscape($this->date_format($row['date'])) . "</date>
-            <effectivetime>" . xmlEscape(preg_replace('/-/', '', $row['date'])) . "000000</effectivetime>
-            <temperature>" . xmlEscape($temp_value) . "</temperature>
-            <unit_temperature>" . xmlEscape($temp_unit) . "</unit_temperature>
+            <date>" . xmlEscape(date('Y-m-d', strtotime($row['date'])) ?: '') . "</date>
+            <effectivetime>" . xmlEscape(date('Y-m-d H:i:s', strtotime($row['date']))) . "</effectivetime>
+            <temperature>" . xmlEscape($temp_value ?: '') . "</temperature>
+            <unit_temperature>" . xmlEscape($temp_unit ?: '') . "</unit_temperature>
             <extension_temperature>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'temperature')) . "</extension_temperature>
-            <bpd>" . xmlEscape(($row['bpd'] ?: 0)) . "</bpd>
+            <bpd>" . xmlEscape(($row['bpd'] ?: '')) . "</bpd>
             <extension_bpd>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bpd')) . "</extension_bpd>
-            <bps>" . xmlEscape(($row['bps'] ?: 0)) . "</bps>
+            <bps>" . xmlEscape(($row['bps'] ?: '')) . "</bps>
             <extension_bps>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bps')) . "</extension_bps>
-            <head_circ>" . xmlEscape(($row['head_circ'] ?: 0)) . "</head_circ>
+            <head_circ>" . xmlEscape(((float)$row['head_circ'] ?: '')) . "</head_circ>
             <extension_head_circ>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'head_circ')) . "</extension_head_circ>
-            <pulse>" . xmlEscape(($row['pulse'] ?: 0)) . "</pulse>
+            <pulse>" . xmlEscape(((float)$row['pulse'] ?: '')) . "</pulse>
             <extension_pulse>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'pulse')) . "</extension_pulse>
-            <height>" . xmlEscape($height_value) . "</height>
+            <height>" . xmlEscape($height_value ?: '') . "</height>
             <extension_height>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'height')) . "</extension_height>
-            <unit_height>" . xmlEscape($height_unit) . "</unit_height>
-            <oxygen_saturation>" . xmlEscape(($row['oxygen_saturation'] ?: 0)) . "</oxygen_saturation>
+            <unit_height>" . xmlEscape($height_unit ?: '') . "</unit_height>
+            <oxygen_saturation>" . xmlEscape(((float)$row['oxygen_saturation'] ?: '')) . "</oxygen_saturation>
             <extension_oxygen_saturation>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'oxygen_saturation')) . "</extension_oxygen_saturation>
-            <breath>" . xmlEscape(($row['respiration'] ?: 0)) . "</breath>
+            <breath>" . xmlEscape(((float)$row['respiration'] ?: '')) . "</breath>
             <extension_breath>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'breath')) . "</extension_breath>
-            <weight>" . xmlEscape($weight_value) . "</weight>
+            <weight>" . xmlEscape($weight_value ?: '') . "</weight>
             <extension_weight>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'weight')) . "</extension_weight>
-            <unit_weight>" . xmlEscape($weight_unit) . "</unit_weight>
-            <BMI>" . xmlEscape(($row['BMI'] ?: 0)) . "</BMI>
+            <unit_weight>" . xmlEscape($weight_unit ?: '') . "</unit_weight>
+            <BMI>" . xmlEscape(((float)$row['BMI'] ?: '')) . "</BMI>
             <extension_BMI>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'BMI')) . "</extension_BMI>
-            <BMI_status>" . xmlEscape(($row['BMI_status'] ?: 0)) . "</BMI_status>
+            <BMI_status>" . xmlEscape(($row['BMI_status'] ?: '')) . "</BMI_status>
+            <extension_oxygen_flow_rate>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'oxygen_flow_rate')) . "</extension_oxygen_flow_rate>
+            <oxygen_flow_rate>" . xmlEscape(((float)$row['oxygen_flow_rate'] ?: '')) . "</oxygen_flow_rate>
+            <extension_ped_weight_height>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_weight_height')) . "</extension_ped_weight_height>
+            <ped_weight_height>" . xmlEscape(((float)$row['ped_weight_height'] ?: '')) . "</ped_weight_height>
+            <extension_ped_bmi>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_bmi')) . "</extension_ped_bmi>
+            <ped_bmi>" . xmlEscape(((float)$row['ped_bmi'] ?: '')) . "</ped_bmi>
+            <extension_ped_head_circ>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'ped_head_circ')) . "</extension_ped_head_circ>
+            <ped_head_circ>" . xmlEscape(((float)$row['ped_head_circ'] ?: '')) . "</ped_head_circ>
+            <extension_inhaled_oxygen_concentration>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'inhaled_oxygen_concentration')) . "</extension_inhaled_oxygen_concentration>
+            <inhaled_oxygen_concentration>" . xmlEscape(((float)$row['inhaled_oxygen_concentration'] ?: '')) . "</inhaled_oxygen_concentration>
             </vitals>";
         }
 
@@ -1599,11 +1624,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <sha_extension>" . xmlEscape("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1") . "</sha_extension>
                                   <element>" . xmlEscape('Smoking') . "</element>
                                   <description>" . xmlEscape((new CarecoordinationTable())->getListTitle($tobacco[3], 'smoking_status')) . "</description>
-                                  <status_code>" . xmlEscape(($status_code ? $status_code : 0)) . "</status_code>
-                                  <status>" . xmlEscape(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : 'NULL')) . "</status>
-                                  <date>" . ($tobacco[2] ? xmlEscape($this->date_format($tobacco[2])) : 0) . "</date>
-                                  <date_formatted>" . ($tobacco[2] ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : 0) . "</date_formatted>
-                                  <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : 0)) . "</code>
+                                  <status_code>" . xmlEscape(($status_code ? $status_code : '')) . "</status_code>
+                                  <status>" . xmlEscape(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : "")) . "</status>
+                                  <date>" . ($tobacco[2] ? xmlEscape($this->date_format($tobacco[2])) : '') . "</date>
+                                  <date_formatted>" . ($tobacco[2] ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : '') . "</date_formatted>
+                                  <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : '')) . "</code>
                             </history_element>";
             $alcohol = explode('|', $row['alcohol']);
             $social_history .= "<history_element>
@@ -1611,10 +1636,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <sha_extension>" . xmlEscape("37f76c51-6411-4e1d-8a37-957fd49d2cef") . "</sha_extension>
                                   <element>" . xmlEscape('Alcohol') . "</element>
                                   <description>" . xmlEscape($alcohol[0]) . "</description>
-                                  <status_code>" . xmlEscape(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0)) . "</status_code>
+                                  <status_code>" . xmlEscape(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : '')) . "</status_code>
                                   <status>" . xmlEscape(($alcohol_status[$alcohol[1]] ? $alcohol_status[$alcohol[1]] : 'completed')) . "</status>
-                                  <date>" . ($alcohol[2] ? xmlEscape($this->date_format($alcohol[2])) : 0) . "</date>
-                                  <date_formatted>" . ($alcohol[2] ? xmlEscape(preg_replace('/-/', '', $alcohol[2])) : 0) . "</date_formatted>
+                                  <date>" . ($alcohol[2] ? xmlEscape($this->date_format($alcohol[2])) : '') . "</date>
+                                  <date_formatted>" . ($alcohol[2] ? xmlEscape(preg_replace('/-/', '', $alcohol[2])) : '') . "</date_formatted>
                                   <code>" . xmlEscape($arr['alcohol']) . "</code>
                             </history_element>";
         }
@@ -1700,9 +1725,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getRepresentedOrganization()
     {
-        $query = "select * from facility where primary_business_entity = 1";
+        $query = "select * from facility where primary_business_entity = ?";
         $appTable = new ApplicationTable();
-        $res = $appTable->zQuery($query, array($pid));
+        $res = $appTable->zQuery($query, array(1));
 
         $records = array();
         foreach ($res as $row) {
@@ -1727,7 +1752,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             where ccda_component = ? and ccda_component_section = ? and user_id = ? and deleted = 0";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($ccda_component, $ccda_section, $user_id));
-
+        $field_names_type3 = '';
         $ret = array();
         $field_names_type1 = '';
         $field_names_type2 = '';
@@ -1771,6 +1796,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     public function fetchFormValues($pid, $encounter, $formTables)
     {
+        if (empty($encounter)) {
+            return "";
+        }
         $res = array();
         $count_folder = 0;
         foreach ($formTables as $formTables_details) {
@@ -2103,7 +2131,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
             if (!is_dir($file_path)) {
                 if (!mkdir($file_path, 0777, true) && !is_dir($file_path)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $file_path));
+                    // php Exception extends RunTimeException
+                    throw new Exception(sprintf('Directory "%s" was not created', $file_path));
                 }
             }
 
@@ -2149,7 +2178,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return;
         }
 
-        $format = $format ? $format : 'm/d/y';
+        $format = $format ?: 'm/d/y';
         $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
         $date = str_replace('/', '-', $date);
@@ -2251,7 +2280,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $appTable = new ApplicationTable();
         if ($encounter) {
-            $query = "SELECT form_id FROM forms  WHERE pid = ? AND formdir = ? AND deleted = 0 ORDER BY date DESC LIMIT 1";
+            $query = "SELECT form_id, encounter FROM forms  WHERE pid = ? AND formdir = ? AND deleted = 0 ORDER BY date DESC LIMIT 1";
             $result = $appTable->zQuery($query, array($pid, 'care_plan'));
             foreach ($result as $row) {
                 $form_id = $row['form_id'];
@@ -2262,9 +2291,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         }
 
-        $care_plan_query_data = ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid];
+        UuidRegistry::createMissingUuidsForTables(['lists']);
 
-        $query = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type
+        $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
             FROM forms AS f
             LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
             LEFT JOIN codes AS c ON c.code = fcp.code
@@ -2272,7 +2301,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
             WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
             UNION
-            SELECT 'referal' AS source,'' AS CODE,'' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' moodCode,'' care_plan_type
+            SELECT 'referral' AS source,'' encounter,'' AS CODE,'' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' moodCode,'' care_plan_type, '' note_issues
             FROM transactions AS t
             LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
             LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
@@ -2284,36 +2313,72 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $status_entry = 'active';
         $planofcare = '<planofcare>';
         $goals = '<goals>';
-        $concern = '';
+        $concerns = '<health_concerns>';
         foreach ($res as $row) {
+            $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
-            if ($row['care_plan_type'] == 'health_concern') {
-                $concern .= $row['date'] . " " . $row['description'] . "\r\n";
-                continue;
+            if ($row['source'] === 'referral') {
+                if (empty($row['code'])) {
+                    continue;
+                }
+                $row['care_plan_type'] = 'referral';
             }
-            if ($row['care_plan_type'] == 'goal') {
+            if ($row['care_plan_type'] === 'health_concern') {
+                $issue_uuid = "<issues>\n";
+                if (!empty($row['note_issues'])) {
+                    $issues = json_decode($row['note_issues'], true);
+                    foreach ($issues as $issue) {
+                        $q = "Select uuid from lists Where id = ?";
+                        $uuid = sqlQuery($q, array($issue))['uuid'];
+                        if (empty($uuid)) {
+                            continue;
+                        }
+                        $uuid_problem = UuidRegistry::uuidToString($uuid);
+                        $issue_uuid .= "<issue_uuid>" . xmlEscape($uuid_problem) . "</issue_uuid>\n";
+                    }
+                }
+                $concerns .= "<concern>" .
+                $issue_uuid . "</issues>" .
+                "<encounter>" . xmlEscape($row['encounter']) . "</encounter>
+                <extension>" . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . "</extension>
+                <sha_extension>" . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . "</sha_extension>
+                <text>" . xmlEscape($row['date'] . " " . $row['description']) . '</text>
+                <code>' . xmlEscape($code) . '</code>
+                <code_type>' . xmlEscape($code_type) . '</code_type>
+                <code_text>' . xmlEscape($row['codetext']) . '</code_text>
+                <date>' . xmlEscape($row['date']) . '</date>
+                <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+                </concern>';
+            }
+            if ($row['care_plan_type'] === 'goal') {
                 $goals .= '<item>
+                <extension>' . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . '</extension>
+                <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
+                <encounter>' . xmlEscape($row['encounter']) . '</encounter>
                 <code>' . xmlEscape($code) . '</code>
                 <code_text>' . xmlEscape($row['codetext']) . '</code_text>
                 <description>' . xmlEscape($row['description']) . '</description>
                 <date>' . xmlEscape($row['date']) . '</date>
-                <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+                <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
                 <status>' . xmlEscape($status) . '</status>
                 <status_entry>' . xmlEscape($status_entry) . '</status_entry>
                 <code_type>' . xmlEscape($code_type) . '</code_type>
                 <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
                 </item>';
-            } else {
+            } elseif ($row['care_plan_type'] !== 'health_concern') {
                 $planofcare .= '<item>
+                <extension>' . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . '</extension>
+                <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
+                <encounter>' . xmlEscape($row['encounter']) . '</encounter>
                 <code>' . xmlEscape($code) . '</code>
                 <code_text>' . xmlEscape($row['codetext']) . '</code_text>
                 <description>' . xmlEscape($row['description']) . '</description>
                 <date>' . xmlEscape($row['date']) . '</date>
-                <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+                <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
                 <status>' . xmlEscape($status) . '</status>
                 <status_entry>' . xmlEscape($status_entry) . '</status_entry>
                 <code_type>' . xmlEscape($code_type) . '</code_type>
@@ -2324,7 +2389,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $planofcare .= '</planofcare>';
         $goals .= '</goals>';
-        $concerns = "<health_concerns><text>" . xmlEscape($concern) . "</text></health_concerns>";
+        $concerns .= '</health_concerns>';
         return $planofcare . $goals . $concerns;
     }
 
@@ -2358,7 +2423,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $cognitive_status .= '<item>
         <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
         <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-        <description>' . xmlEscape($row['description']) . '</description>
+        <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
         <date>' . xmlEscape($row['date']) . '</date>
         <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
         <status>' . xmlEscape('completed') . '</status>
@@ -2368,7 +2433,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $functional_status .= '<item>
         <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
         <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-        <description>' . xmlEscape($row['description']) . '</description>
+        <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
         <date>' . xmlEscape($row['date']) . '</date>
         <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
         <status>' . xmlEscape('completed') . '</status>
@@ -2391,15 +2456,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $clinical_notes = '';
-        $query = "SELECT fnote.* FROM forms AS f
-                LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`id` = f.`form_id`
-                WHERE $wherCon f.`pid` = ? AND f.`formdir` = ? AND f.`deleted` = ? Order By fnote.`encounter`, fnote.`date`, fnote.`clinical_notes_type`";
+        $query = "SELECT fnote.*, u.*, fac.* FROM forms AS f
+                LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`form_id` = f.`form_id`
+                LEFT JOIN users as u on u.username = fnote.user
+                LEFT JOIN facility as fac on fac.id = u.facility_id
+                WHERE $wherCon f.`pid` = ? AND f.`formdir` = ? AND f.`deleted` = ? Order By fnote.`encounter`, fnote.`date`, fnote.`clinical_notes_type` DESC";
         array_push($sqlBindArray, $pid, 'clinical_notes', 0);
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
         $clinical_notes .= '<clinical_notes>';
         foreach ($res as $row) {
+            if (empty($row['clinical_notes_type'])) {
+                continue;
+            }
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
@@ -2407,11 +2477,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $clinical_notes .= "<$clt>" .
             '<clinical_notes_type>' . $clt . '</clinical_notes_type>
             <encounter>' . xmlEscape($row['encounter']) . '</encounter>
+            <author_title>' . xmlEscape($row['title']) . '</author_title>
+            <author_first>' . xmlEscape($row['fname']) . '</author_first>
+            <author_last>' . xmlEscape($row['lname']) . '</author_last>
+            <author_npi>' . xmlEscape($row['npi']) . '</author_npi>
+            <facility_name>' . xmlEscape($row['name']) . '</facility_name>
+            <facility_npi>' . xmlEscape($row['facility_npi']) . '</facility_npi>
+            <facility_oid>' . xmlEscape($row['facility_oid']) . '</facility_oid>
             <code>' . xmlEscape($code) . '</code>
             <code_text>' . xmlEscape($row['codetext']) . '</code_text>
             <description>' . xmlEscape($row['description']) . '</description>
             <date>' . xmlEscape($row['date']) . '</date>
-            <date_formatted>' . xmlEscape(preg_replace('/-/', '', $row['date'])) . '</date_formatted>
+            <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
             <code_type>' . xmlEscape($code_type) . "</code_type>
             </$clt>";
         }

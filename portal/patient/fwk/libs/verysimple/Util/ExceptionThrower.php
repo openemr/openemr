@@ -73,7 +73,7 @@ class ExceptionThrower
      * @param string $line
      * @param string $context
      */
-    static function HandleError($code, $string, $file, $line, $context)
+    static function HandleError($code, $string, $file, $line, $context = '')
     {
         // ignore supressed errors
         if (error_reporting() == 0) {

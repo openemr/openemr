@@ -79,12 +79,14 @@ var page = {
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
                 var m = page.onsiteDocuments.get(this.id);
                 page.showDetailDialog(m);
-                $('html,body').animate({scrollTop:0},500);
             });
             // make the headers clickable for sorting
-            $('table.collection thead tr th').on('click', function (e) {
+            $('table.collection thead tr th').unbind().on('click', function (e) {
                 e.preventDefault();
                 var prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
@@ -100,13 +102,15 @@ var page = {
                 page.fetchOnsiteDocuments(page.fetchParams);
             });
             // Let's scroll to document editor on selection.
-            $('.history-btn').on('click', function (e) {
+            $('.history-btn').unbind().on('click', function (e) {
                 /*e.preventDefault();
                 var m = page.onsiteDocuments.get(this.offsetParent.parentElement.id);
                 page.showDetailDialog(m);
                 $('html,body').animate({scrollTop:0},500);*/
             });
-
+            $('.template-item').unbind().on('click', function (e) {
+                parent.document.getElementById('topNav').classList.add('collapse');
+            });
             page.isInitialized = true;
             page.isInitializing = false;
             // if dashboard let's open first doc for review.
@@ -164,17 +168,12 @@ var page = {
                 });
             });
 
-            $('.sidebar-expand button').on('click', function () {
-                $(this).toggleClass("flip-y");
-                $('.nav-sidebar, .main-full, .main-added').toggleClass("active");
-            });
-
             docid = page.onsiteDocument.get('docType');
             page.isLocked = (page.onsiteDocument.get('denialReason') === 'Locked');
             (page.isLocked) ? $("#printTemplate").show() : $("#printTemplate").hide();
             $("#chartHistory").hide();
 
-            page.getDocument(page.onsiteDocument.get('docType'), cpid);
+            page.getDocument(page.onsiteDocument.get('docType'), cpid, page.onsiteDocument.get('filePath'));
             if (page.isDashboard) { // review
                 flattenDocument();
             }
@@ -199,6 +198,7 @@ var page = {
             if (!isPortal) {
                 $("#signTemplate").hide();
                 $("#Help").hide();
+                $("#showNav").hide();
                 if (page.isCharted || page.isLocked) {
                     $("#chartTemplate").hide();
                     $("#chartHistory").hide();
@@ -216,7 +216,7 @@ var page = {
                 isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
                 (page.lbfFormName === 'HIS' && !page.isLocked) ? $("#chartHistory").show() : $("#chartHistory").hide();
 
-                $("#chartTemplate").on('click', function (e) {
+                $("#chartTemplate").unbind().on('click', function (e) {
                     e.preventDefault();
                     if (page.isFrameForm) {
                         let formFrame = document.getElementById('lbfForm');
@@ -261,7 +261,7 @@ var page = {
                     }
                 });
 
-                $("#downloadTemplate").on('click', function (e) {
+                $("#downloadTemplate").unbind().on('click', function (e) {
                     // just render the existing model and not save template.
                     // For downloads we just want to give user a chance to dispose/view rendered
                     // document and leave template intact for further edits before charting.
@@ -337,7 +337,7 @@ var page = {
                 page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
             }
 
-            $("#saveTemplate").on('click', function (e) {
+            $("#saveTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
@@ -356,7 +356,7 @@ var page = {
                             pageAudit.onsitePortalActivity.set('status', 'editing');
                         }
                         // save lbf iframe template
-                        page.updateModel();
+                        page.updateModel(true);
                     });
                     // post to submit and save content remote form.
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
@@ -366,12 +366,12 @@ var page = {
                     } else {
                         pageAudit.onsitePortalActivity.set('status', 'editing');
                     }
-                    page.updateModel();
+                    page.updateModel(true);
                 }
             });
 
             // send to review and save current
-            $("#sendTemplate").on('click', function (e) {
+            $("#sendTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
@@ -402,7 +402,7 @@ var page = {
             });
 
             // download from portal
-            $("#submitTemplate").on('click', function () {
+            $("#submitTemplate").unbind().on('click', function () {
                 if (page.onsiteDocument.get('denialReason') === 'In Review') {
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
                 } else {
@@ -418,7 +418,7 @@ var page = {
                 page.updateModel();
             });
 
-            $("#chartHistory").on('click', function () {
+            $("#chartHistory").unbind().on('click', function () {
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('lbfForm');
                     page.lbfFormId = 0;
@@ -437,7 +437,7 @@ var page = {
         });
 
         if (newFilename) { // auto load new on init. once only.
-            page.newDocument(cpid, cuser, newFilename);
+            page.newDocument(cpid, cuser, newFilename, id);
             newFilename = '';
         }
 
@@ -518,21 +518,26 @@ var page = {
         });
     },
 
-    newDocument: function (pid, user, templateName) {
+    newDocument: function (pid, user, templateName, template_id) {
         docid = templateName;
         cuser = user;
         cpid = pid;
         isNewDoc = true;
         m = new model.OnsiteDocumentModel();
         m.set('docType', docid);
+        m.set('filePath', template_id);
         m.set('denialReason', 'New');
         $('#docid').val('docid');
+        $('#template_id').val('template_id');
         $('#status').val('New');
         page.showDetailDialog(m); // saved in rendered event
     },
 
-    getDocument: function (templateName, pid) {
+    getDocument: function (templateName, pid, template_id) {
+        $(".helpHide").removeClass("d-none");
         let currentName = page.onsiteDocument.get('docType');
+        let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
+        currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -575,7 +580,7 @@ var page = {
             $.ajax({
                 type: "POST",
                 url: liburl,
-                data: {docid: templateName, pid: pid, isModule: isModule},
+                data: {template_id: template_id, docid: templateName, pid: pid, isModule: isModule},
                 error: function (qXHR, textStatus, errorThrow) {
                     console.log("There was an error: Get Document");
                 },
@@ -594,11 +599,11 @@ var page = {
                         } else if (!isModule) {
                             $('#patientSignature').css('cursor', 'default').off();
                         }
-                        bindFetch();
                         // new encounter form
                         // lbf has own signer instance. no binding here.
                         // page.lbfFormName & page.isFrameForm is set from template directive
                         $(function () {
+                            bindFetch();
                             // an iframe in <form><iframe src=???></iframe> this page.
                             if (page.isFrameForm) {
                                 // a layout form
@@ -623,8 +628,14 @@ var page = {
         if (cnt !== -1) {
             cdate = cdate.toString().substring(0, cnt);
         }
-        $('#docPanelHeader').append(' : ' + currentName + ' Dated: ' + cdate + ' Status: ' + status);
-    },
+        $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
+            jsText(' Dated: ' + cdate + ' Status: ' + status));
+
+        /*$("html, body").animate({
+            scrollTop: 0
+        }, "slow");*/
+    }
+    ,
     /**
      * show the doc for editing
      * @param model
@@ -704,7 +715,7 @@ var page = {
             page.onsiteDocument.set('denialReason', 'Open');
             app.showProgress('modelLoader');
         }
-        var isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1;
+        let isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1;
         if (isLink !== -1) {
             $('#patientSignature').attr('src', signhere);
         }

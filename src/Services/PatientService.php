@@ -16,11 +16,13 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -31,7 +33,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
-    const TABLE_NAME = 'patient_data';
+    public const TABLE_NAME = 'patient_data';
+    private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
      * In the case where a patient doesn't have a picture uploaded,
@@ -43,11 +46,17 @@ class PatientService extends BaseService
     private $patientValidator;
 
     /**
+     * Key of translated suffix values that can be in a patient's name.
+     * @var array|null
+     */
+    private $patientSuffixKeys = null;
+
+    /**
      * Default constructor.
      */
-    public function __construct()
+    public function __construct($base_table = null)
     {
-        parent::__construct(self::TABLE_NAME);
+        parent::__construct($base_table ?? self::TABLE_NAME);
         $this->patientValidator = new PatientValidator();
     }
 
@@ -140,6 +149,7 @@ class PatientService extends BaseService
             $sql,
             $query['bind']
         );
+        $data['id'] = $results;
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
@@ -214,6 +224,14 @@ class PatientService extends BaseService
 
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (
+            $dataBeforeUpdate['care_team_provider'] != $data['care_team_provider']
+            || $dataBeforeUpdate['care_team_facility'] != $data['care_team_facility']
+        ) {
+            // need to save off our care team
+            $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
+        }
 
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
@@ -311,8 +329,89 @@ class PatientService extends BaseService
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
                 }
             }
+            // for backwards compatability, we will make sure we do exact matches on the keys using string comparisons if no object is used
+            foreach ($search as $field => $key) {
+                if (!isset($querySearch[$field]) && !($key instanceof ISearchField)) {
+                    $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::EXACT, $isAndCondition);
+                }
+            }
         }
         return $this->search($querySearch, $isAndCondition);
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT 
+                    patient_data.*
+                    ,patient_history_type_key
+                    ,previous_name_first
+                    ,previous_name_prefix
+                    ,previous_name_first
+                    ,previous_name_middle
+                    ,previous_name_last
+                    ,previous_name_suffix
+                    ,previous_name_enddate
+                FROM patient_data
+                LEFT JOIN (
+                    SELECT 
+                    pid AS patient_history_pid
+                    ,history_type_key AS patient_history_type_key
+                    ,previous_name_prefix
+                    ,previous_name_first
+                    ,previous_name_middle
+                    ,previous_name_last
+                    ,previous_name_suffix
+                    ,previous_name_enddate
+                    ,`date` AS previous_creation_date
+                    ,uuid AS patient_history_uuid
+                    FROM patient_history
+                ) patient_history ON patient_data.pid = patient_history.patient_history_pid";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+        return $processingResult;
+    }
+
+    private function hydrateSearchResultsFromQueryResource($queryResource)
+    {
+        $processingResult = new ProcessingResult();
+        $patientsByUuid = [];
+        $patientFields = array_combine($this->getFields(), $this->getFields());
+        $previousNameColumns = ['previous_name_prefix', 'previous_name_first', 'previous_name_middle'
+            , 'previous_name_last', 'previous_name_suffix', 'previous_name_enddate'];
+        $previousNamesFields = array_combine($previousNameColumns, $previousNameColumns);
+        $patientOrderedList = [];
+        while ($row = sqlFetchArray($queryResource)) {
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $patientUuid = $record['uuid'];
+            if (!isset($patientsByUuid[$patientUuid])) {
+                $patient = array_intersect_key($record, $patientFields);
+                $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
+                $patient['previous_names'] = [];
+                $patientOrderedList[] = $patientUuid;
+            } else {
+                $patient = $patientsByUuid[$patientUuid];
+            }
+            if (!empty($record['patient_history_type_key'])) {
+                if ($record['patient_history_type_key'] == 'name_history') {
+                    $previousName = array_intersect_key($record, $previousNamesFields);
+                    $previousName['formatted_name'] = $this->formatPreviousName($previousName);
+                    $patient['previous_names'][] = $previousName;
+                }
+            }
+
+            // now let's grab our history
+            $patientsByUuid[$patientUuid] = $patient;
+        }
+        foreach ($patientOrderedList as $uuid) {
+            $patient = $patientsByUuid[$uuid];
+            $processingResult->addData($patient);
+        }
+        return $processingResult;
     }
 
     /**
@@ -386,5 +485,299 @@ class PatientService extends BaseService
     public function getUuid($pid)
     {
         return self::getUuidById($pid, self::TABLE_NAME, 'pid');
+    }
+
+    private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)
+    {
+        $careTeamService = new CareTeamService();
+        $careTeamService->createCareTeamHistory($patientData['pid'], $oldProviders, $oldFacilities);
+    }
+
+    public function getPatientNameHistory($pid)
+    {
+        $sql = "SELECT pid,
+            id,
+            previous_name_prefix,
+            previous_name_first,
+            previous_name_middle,
+            previous_name_last,
+            previous_name_suffix,
+            previous_name_enddate
+            FROM patient_history
+            WHERE pid = ? AND history_type_key = ?";
+        $results =  QueryUtils::sqlStatementThrowException($sql, array($pid, 'name_history'));
+        $rows = [];
+        while ($row = sqlFetchArray($results)) {
+            $row['formatted_name'] = $this->formatPreviousName($row);
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    public function deletePatientNameHistoryById($id)
+    {
+        $sql = "DELETE FROM patient_history WHERE id = ?";
+        return sqlQuery($sql, array($id));
+    }
+
+    public function getPatientNameHistoryById($pid, $id)
+    {
+        $sql = "SELECT pid,
+            id,
+            previous_name_prefix,
+            previous_name_first,
+            previous_name_middle,
+            previous_name_last,
+            previous_name_suffix,
+            previous_name_enddate
+            FROM patient_history
+            WHERE pid = ? AND id = ? AND history_type_key = ?";
+        $result =  sqlQuery($sql, array($pid, $id, 'name_history'));
+        $result['formatted_name'] = $this->formatPreviousName($result);
+
+        return $result;
+    }
+
+    /**
+     * Create a previous patient name history
+     * Updates not allowed for this history feature.
+     *
+     * @param string $pid patient internal id
+     * @param array $record array values to insert
+     * @return int | false new id or false if name already exist
+     */
+    public function createPatientNameHistory($pid, $record)
+    {
+        $insertData = [
+            'pid' => $pid,
+            'history_type_key' => 'name_history',
+            'previous_name_prefix' => $record['previous_name_prefix'],
+            'previous_name_first' => $record['previous_name_first'],
+            'previous_name_middle' => $record['previous_name_middle'],
+            'previous_name_last' => $record['previous_name_last'],
+            'previous_name_suffix' => $record['previous_name_suffix'],
+            'previous_name_enddate' => $record['previous_name_enddate']
+        ];
+        $sql = "SELECT pid FROM " . self::PATIENT_HISTORY_TABLE . " WHERE
+            pid = ? AND
+            history_type_key = ? AND
+            previous_name_prefix = ? AND
+            previous_name_first = ? AND
+            previous_name_middle = ? AND
+            previous_name_last = ? AND
+            previous_name_suffix = ? AND
+            previous_name_enddate = ?
+        ";
+        $go_flag = QueryUtils::fetchSingleValue($sql, 'pid', $insertData);
+        // return false which calling routine should understand as existing name record
+        if (!empty($go_flag)) {
+            return false;
+        }
+        // finish up the insert
+        $insertData['uuid'] = UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid();
+        $insert = $this->buildInsertColumns($insertData);
+        $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
+
+        return QueryUtils::sqlInsert($sql, $insert['bind']);
+    }
+
+    public function formatPreviousName($item)
+    {
+        if (
+            $item['previous_name_enddate'] === '0000-00-00'
+            || $item['previous_name_enddate'] === '00/00/0000'
+        ) {
+            $item['previous_name_enddate'] = '';
+        }
+        $item['previous_name_enddate'] = oeFormatShortDate($item['previous_name_enddate']);
+        $name = ($item['previous_name_prefix'] ? $item['previous_name_prefix'] . " " : "") .
+            $item['previous_name_first'] .
+            ($item['previous_name_middle'] ? " " . $item['previous_name_middle'] . " " : " ") .
+            $item['previous_name_last'] .
+            ($item['previous_name_suffix'] ? " " . $item['previous_name_suffix'] : "") .
+            ($item['previous_name_enddate'] ? " " . $item['previous_name_enddate'] : "");
+
+        return text($name);
+    }
+
+    /**
+     * Returns a string to be used to display a patient's age
+     *
+     * @param type $dobYMD
+     * @param type $asOfYMD
+     * @return string suitable for displaying patient's age based on preferences
+     */
+    public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
+    {
+        if ($GLOBALS['age_display_format'] == '1') {
+            $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
+            if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
+                return $ageYMD['ageinYMD'];
+            } else {
+                return $this->getPatientAge($dobYMD, $asOfYMD);
+            }
+        } else {
+            return $this->getPatientAge($dobYMD, $asOfYMD);
+        }
+    }
+
+    // Returns Age
+    //   in months if < 2 years old
+    //   in years  if > 2 years old
+    // given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
+    // (optional) nowYMD is a date in YYYYMMDD format
+    public function getPatientAge($dobYMD, $nowYMD = null)
+    {
+        if (empty($dobYMD)) {
+            return '';
+        }
+        // strip any dashes from the DOB
+        $dobYMD = preg_replace("/-/", "", $dobYMD);
+        $dobDay = substr($dobYMD, 6, 2);
+        $dobMonth = substr($dobYMD, 4, 2);
+        $dobYear = (int) substr($dobYMD, 0, 4);
+
+        // set the 'now' date values
+        if ($nowYMD == null) {
+            $nowDay = date("d");
+            $nowMonth = date("m");
+            $nowYear = date("Y");
+        } else {
+            $nowDay = substr($nowYMD, 6, 2);
+            $nowMonth = substr($nowYMD, 4, 2);
+            $nowYear = substr($nowYMD, 0, 4);
+        }
+
+        $dayDiff = $nowDay - $dobDay;
+        $monthDiff = $nowMonth - $dobMonth;
+        $yearDiff = $nowYear - $dobYear;
+
+        $ageInMonths = (($nowYear * 12) + $nowMonth) - (($dobYear * 12) + $dobMonth);
+
+        // We want the age in FULL months, so if the current date is less than the numerical day of birth, subtract a month
+        if ($dayDiff < 0) {
+            $ageInMonths -= 1;
+        }
+
+        if ($ageInMonths > 24) {
+            $age = $yearDiff;
+            if (($monthDiff == 0) && ($dayDiff < 0)) {
+                $age -= 1;
+            } elseif ($monthDiff < 0) {
+                $age -= 1;
+            }
+        } else {
+            $age = "$ageInMonths " . xl('month');
+        }
+
+        return $age;
+    }
+
+
+    /**
+     *
+     * @param type $dob
+     * @param type $date
+     * @return array containing
+     *      age - decimal age in years
+     *      age_in_months - decimal age in months
+     *      ageinYMD - formatted string #y #m #d
+     */
+    public function getPatientAgeYMD($dob, $date = null)
+    {
+        if ($date == null) {
+            $daynow = date("d");
+            $monthnow = date("m");
+            $yearnow = date("Y");
+            $datenow = $yearnow . $monthnow . $daynow;
+        } else {
+            $datenow = preg_replace("/-/", "", $date);
+            $yearnow = substr($datenow, 0, 4);
+            $monthnow = substr($datenow, 4, 2);
+            $daynow = substr($datenow, 6, 2);
+            $datenow = $yearnow . $monthnow . $daynow;
+        }
+
+        $dob = preg_replace("/-/", "", $dob);
+        $dobyear = substr($dob, 0, 4);
+        $dobmonth = substr($dob, 4, 2);
+        $dobday = substr($dob, 6, 2);
+        $dob = $dobyear . $dobmonth . $dobday;
+
+        //to compensate for 30, 31, 28, 29 days/month
+        $mo = $monthnow; //to avoid confusion with later calculation
+
+        if ($mo == 05 or $mo == 07 or $mo == 10 or $mo == 12) {  // determined by monthnow-1
+            $nd = 30; // nd = number of days in a month, if monthnow is 5, 7, 9, 12 then
+        } elseif ($mo == 03) { // look at April, June, September, November for calculation.  These months only have 30 days.
+            // for march, look to the month of February for calculation, check for leap year
+            $check_leap_Y = $yearnow / 4; // To check if this is a leap year.
+            if (is_int($check_leap_Y)) { // If it true then this is the leap year
+                $nd = 29;
+            } else { // otherwise, it is not a leap year.
+                $nd = 28;
+            }
+        } else { // other months have 31 days
+            $nd = 31;
+        }
+
+        $bdthisyear = $yearnow . $dobmonth . $dobday; //Date current year's birthday falls on
+        if ($datenow < $bdthisyear) { // if patient hasn't had birthday yet this year
+            $age_year = $yearnow - $dobyear - 1;
+            if ($daynow < $dobday) {
+                $months_since_birthday = 12 - $dobmonth + $monthnow - 1;
+                $days_since_dobday = $nd - $dobday + $daynow; //did not take into account for month with 31 days
+            } else {
+                $months_since_birthday = 12 - $dobmonth + $monthnow;
+                $days_since_dobday = $daynow - $dobday;
+            }
+        } else // if patient has had birthday this calandar year
+        {
+            $age_year = $yearnow - $dobyear;
+            if ($daynow < $dobday) {
+                $months_since_birthday = $monthnow - $dobmonth - 1;
+                $days_since_dobday = $nd - $dobday + $daynow;
+            } else {
+                $months_since_birthday = $monthnow - $dobmonth;
+                $days_since_dobday = $daynow - $dobday;
+            }
+        }
+
+        $day_as_month_decimal = $days_since_dobday / 30;
+        $months_since_birthday_float = $months_since_birthday + $day_as_month_decimal;
+        $month_as_year_decimal = $months_since_birthday_float / 12;
+        $age_float = $age_year + $month_as_year_decimal;
+
+        $age_in_months = $age_year * 12 + $months_since_birthday_float;
+        $age_in_months = round($age_in_months, 2);  //round the months to xx.xx 2 floating points
+        $age = round($age_float, 2);
+
+        // round the years to 2 floating points
+        $ageinYMD = $age_year . "y " . $months_since_birthday . "m " . $days_since_dobday . "d";
+        return compact('age', 'age_in_months', 'ageinYMD');
+    }
+
+    private function parseSuffixForPatientRecord($patientRecord)
+    {
+        // parse suffix from last name. saves messing with LBF
+        $suffixes = $this->getPatientSuffixKeys();
+        $suffix = null;
+        foreach ($suffixes as $s) {
+            if (stripos($patientRecord['lname'], $s) !== false) {
+                $suffix = $s;
+                $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
+                break;
+            }
+        }
+        return $suffix;
+    }
+
+    private function getPatientSuffixKeys()
+    {
+        if (!isset($this->patientSuffixKeys)) {
+            $this->patientSuffixKeys = array(xl('Jr.'), xl(' Jr'), xl('Sr.'), xl(' Sr'), xl('II'), xl('III'), xl('IV'));
+        }
+        return $this->patientSuffixKeys;
     }
 }

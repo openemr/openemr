@@ -14,12 +14,15 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Model\EncounterccdadispatchTable;
+use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\System\System;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Carecoordination\Controller\EncountermanagerController;
 use Exception;
+use XSLTProcessor;
 
 class EncounterccdadispatchController extends AbstractActionController
 {
@@ -46,10 +49,9 @@ class EncounterccdadispatchController extends AbstractActionController
     protected $latest_ccda;
 
     public function __construct(
-        \Carecoordination\Model\EncounterccdadispatchTable $encounterccdadispatchTable
+        EncounterccdadispatchTable $encounterccdadispatchTable
     ) {
-
-        $this->listenerObject   = new Listener();
+        $this->listenerObject = new Listener();
         $this->encounterccdadispatchTable = $encounterccdadispatchTable;
     }
 
@@ -74,19 +76,28 @@ class EncounterccdadispatchController extends AbstractActionController
         $combination        = $this->getRequest()->getQuery('combination');
         $this->sections     = $this->getRequest()->getQuery('sections');
         $sent_by            = $this->getRequest()->getQuery('sent_by');
-        $send               = $this->getRequest()->getQuery('send') ? $this->getRequest()->getQuery('send') : 0;
-        $view               = $this->getRequest()->getQuery('view') ? $this->getRequest()->getQuery('view') : 0;
-        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ? $this->getRequest()->getQuery('emr_transfer') : 0;
+        $send               = $this->getRequest()->getQuery('send') ?: 0;
+        $view               = $this->getRequest()->getQuery('view') ?: 0;
+        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ?: 0;
         $this->recipients   = $this->getRequest()->getQuery('recipient');
         $this->params       = $this->getRequest()->getQuery('param');
         $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
-        $this->components       = $this->getRequest()->getQuery('components') ? $this->getRequest()->getQuery('components') : $this->params('components');
+        $this->components       = $this->getRequest()->getQuery('components') ?: $this->params('components');
         $downloadccda           = $this->params('downloadccda');
-        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ? $this->getRequest()->getQuery('latest_ccda') : $this->params('latest_ccda');
-        $hie_hook     = $this->getRequest()->getQuery('hiehook') ? $this->getRequest()->getQuery('hiehook') : 0;
-        if ($downloadccda == 'download_ccda') {
+        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
+        $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
+        if ($downloadccda === 'download_ccda') {
             $combination      = $this->params('pids');
             $view             = $this->params('view');
+        }
+        if ($_POST['sent_by_app'] === 'portal') {
+            $downloadccda = $this->getRequest()->getPost('downloadccda');
+            if ($downloadccda === 'download_ccda') {
+                $combination      = $this->getRequest()->getPost('combination');
+                $view             = $this->getRequest()->getPost('view');
+                $this->latest_ccda      = $this->getRequest()->getPost('latest_ccda');
+                $this->components       = $this->getRequest()->getPost('components');
+            }
         }
 
         if ($sent_by != '') {
@@ -133,7 +144,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $content = $this->socket_get($this->data);
 
                 if ($content == 'Authentication Failure') {
-                    echo $this->listenerObject->z_xlt($content);
+                    echo $this->listenerObject::z_xlt($content);
                     die();
                 }
 
@@ -144,16 +155,18 @@ class EncounterccdadispatchController extends AbstractActionController
                     if ($hie_hook) {
                         echo $content;
                     } else {
-                        echo $this->listenerObject->z_xlt("Queued for Transfer");
+                        echo $this->listenerObject::z_xlt("Queued for Transfer");
                     }
                 }
             }
 
             if ($view && !$downloadccda) {
                 $xml = simplexml_load_string($content);
-                $xsl = new \DOMDocument();
-                $xsl->load(__DIR__ . '/../../../../../public/xsl/ccda.xsl');
-                $proc = new \XSLTProcessor();
+                $xsl = new DOMDocument();
+                // cda.xsl is self contained with bootstrap and jquery.
+                // cda-web.xsl is used when referencing styles from internet.
+                $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
+                $proc = new XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
                 $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
                 $proc->transformToURI($xml, $outputFile);
@@ -163,15 +176,15 @@ class EncounterccdadispatchController extends AbstractActionController
             }
 
             if ($downloadccda) {
-                $this->forward()->dispatch(EncountermanagerController::class, array('action'    => 'downloadall',
-                                                            'pids'      => $this->params('pids')));
+                $pids = $this->params('pids') ?? $combination;
+                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
             } else {
                 die;
             }
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
-            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
-            $content            = $this->socket_get($this->data);
+            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, '');
+            $content = $this->socket_get($this->data);
 
             $content = trim($content);
             $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
@@ -181,6 +194,10 @@ class EncounterccdadispatchController extends AbstractActionController
 
         try {
             ob_clean();
+            if ($_POST['sent_by_app'] === 'portal') {
+                echo $content;
+                exit;
+            }
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
             header("Content-Disposition: attachment; filename=" . $practice_filename);
@@ -201,7 +218,7 @@ class EncounterccdadispatchController extends AbstractActionController
         // Create a TCP Stream Socket
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($socket === false) {
-            throw new \Exception("Socket Creation Failed");
+            throw new Exception("Socket Creation Failed");
         }
         // Let's check if server is already running
         $server_active = socket_connect($socket, "localhost", "6661");
@@ -230,7 +247,7 @@ class EncounterccdadispatchController extends AbstractActionController
                             $command = 'node';
                         } else {
                             error_log("Node is not installed on the system.  Connection failed");
-                            throw new \Exception('Connection Failed.');
+                            throw new Exception('Connection Failed.');
                         }
                     }
                     $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
@@ -240,11 +257,11 @@ class EncounterccdadispatchController extends AbstractActionController
                 $result = socket_connect($socket, "localhost", "6661");
                 if ($result === false) { // hmm something is amiss with service. user will likely try again.
                     error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                    throw new \Exception("Connection Failed");
+                    throw new Exception("Connection Failed");
                 }
             } else {
                 error_log("C-CDA Service is not enabled in Global Settings");
-                throw new \Exception("Please Enable C-CDA Alternate Service in Global Settings");
+                throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
 
@@ -277,6 +294,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $components_list = explode('|', $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
+        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
@@ -621,10 +639,9 @@ class EncounterccdadispatchController extends AbstractActionController
             $result = $this->getEncounterccdadispatchTable()->signOff($row['pid'], $row['encounter']);
         }
 
-        $view               =  new ViewModel(array(
-            'encounter'     => $result,
-        'listenerObject' => $this->listenerObject,
-        ));
+        $view = new ViewModel(
+            array('encounter' => $result, 'listenerObject' => $this->listenerObject)
+        );
         $view->setTerminal(true);
         return $view;
     }

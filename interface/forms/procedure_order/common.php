@@ -48,13 +48,14 @@ global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 
 function get_lab_name($id): string
 {
-    global $gbl_lab_title, $gbl_lab, $gbl_client_acct;
+    global $gbl_lab_title, $gbl_lab, $gbl_client_acct, $gbl_use_codes;
     $tmp = sqlQuery("SELECT name, send_fac_id as clientid, npi FROM procedure_providers Where ppid = ?", array($id));
     $gbl_lab = stripos($tmp['name'], 'quest') !== false ? 'quest' : 'ammon';
     $gbl_lab = stripos($tmp['name'], 'labcorp') !== false ? 'labcorp' : $gbl_lab;
     $gbl_lab = stripos($tmp['name'], 'clarity') !== false ? 'clarity' : $gbl_lab;
     $gbl_lab_title = trim($tmp['name']);
     $gbl_client_acct = trim($tmp['clientid']);
+
     return $gbl_lab;
 }
 
@@ -189,14 +190,16 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
         $set_array_temp[] = $formid;
         sqlStatement($query, $set_array_temp);
         $gbl_lab = get_lab_name($ppid);
-        $lab_title = $gbl_lab_title . "-$formid";
+        $tmp = $_POST['procedure_type_names'] ?: $formid;
+        $lab_title = $gbl_lab_title . "-$tmp";
         $query = "UPDATE forms SET form_name = ? WHERE encounter = ? AND form_id = ? AND formdir = ?";
         sqlStatement($query, array($lab_title, $encounter, $formid, 'procedure_order'));
     } else {
         $query = "INSERT INTO procedure_order SET $sets";
         $formid = sqlInsert($query, $set_array);
         $gbl_lab = get_lab_name($ppid);
-        $lab_title = $gbl_lab_title . "-$formid";
+        $tmp = $_POST['procedure_type_names'] ?: $formid;
+        $lab_title = $gbl_lab_title . "-$tmp";
         addForm($encounter, $lab_title, $formid, "procedure_order", $pid, $userauthorized);
         $mode = 'update';
         $viewmode = true;
@@ -219,9 +222,26 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
     );
 
     for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
-        $ptid = $_POST['form_proc_type'][$i] + 0;
-        if ($ptid <= 0) {
+        $ptid = (int)$_POST['form_proc_type'][$i];
+        if ($ptid <= 0 && $ptid !== -2) {
             continue;
+        }
+        if ($ptid === -2) {
+            // insert a compendium type for new code from picker.
+            $query_select_pt = 'SELECT * FROM procedure_type WHERE procedure_code = ? AND lab_id = ?';
+            $result_types = sqlQuery($query_select_pt, array($_POST['form_proc_code'][$i], $_POST['form_lab_id']));
+            $ptid = (int)($result_types['procedure_type_id'] ?? 0);
+            if ($ptid === 0) {
+                //procedure_type
+                $query_insert = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
+                $ptid = sqlInsert(
+                    $query_insert,
+                    array(
+                        $_POST['form_proc_type_desc'][$i], $_POST['form_lab_id'], $_POST['form_proc_code'][$i], 'ord', 1, $_POST['procedure_type_names'])
+                );
+                $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
+                sqlQuery($query_update_pt, array($ptid, $ptid));
+            }
         }
 
         $prefix = "ans$i" . "_";
@@ -236,6 +256,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
             "transport = ?, " .
             "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
             "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
+            "procedure_type = ?, " .
             "procedure_order_seq = ? ",
             array(
                 $formid,
@@ -244,6 +265,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
                 trim($_POST['form_transport'][$i]),
                 $ptid,
                 $ptid,
+                trim($_POST['form_procedure_type'][$i] ?: $_POST['procedure_type_names'] ?? ''),
                 $procedure_order_seq['increment']
             )
         );
@@ -304,7 +326,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
         formHeader("Redirecting....");
         if ($alertmsg) {
             $msg = xl('Transmit failed') . ': ' . $alertmsg;
-            echo "\n<script>alert("  . js_escape($msg) . ")</script>\n";
+            echo "\n<script>alert(" . js_escape($msg) . ")</script>\n";
         }
         formJump();
         formFooter();
@@ -377,7 +399,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
                     if ($_POST['form_order_psc']) {
                         if ($gbl_lab === 'labcorp') {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
-                            xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
+                                xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
                             ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
                         }
                     }
@@ -443,7 +465,7 @@ if (!empty($row['lab_id'])) {
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $log_file));
+            throw new Exception(sprintf('Directory "%s" was not created', $log_file));
         }
     }
 // filename
@@ -458,391 +480,426 @@ if (!empty($row['lab_id'])) {
 <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
 
-<script>
-// Some JS Globals that will be useful.
-var gbl_formseq;
-var currentLabId = <?php echo js_escape($row['lab_id']); ?>;
-var currentLab = <?php echo js_escape($gbl_lab); ?>;
-var currentLabTitle = <?php echo js_escape($gbl_lab_title); ?>;
-var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
-var refreshForm = <?php echo js_escape($reload_url); ?>;
+    <script>
+        // Some JS Globals that will be useful.
+        var gbl_formseq;
+        var currentLabId = <?php echo js_escape($row['lab_id']); ?>;
+        var currentLab = <?php echo js_escape($gbl_lab); ?>;
+        var currentLabTitle = <?php echo js_escape($gbl_lab_title); ?>;
+        var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
+        var refreshForm = <?php echo js_escape($reload_url); ?>;
 
-function processSubmit(od) { // not used yet
-    $("#form_order_abn").val(od.order_abn);
-    $("#bn_save").click();
-}
-
-function initCalendars() {
-    var datepicker = {
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    };
-    var datetimepicker = {
-        <?php $datetimepicker_timepicker = true; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    };
-    $('.datepicker').datetimepicker(datepicker);
-    $('.datetimepicker').datetimepicker(datetimepicker);
-}
-
-function initDeletes() {
-    $(".itemDelete").on("click", function (event) {
-        deleteRow(event);
-    });
-}
-
-function deleteRow(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    let target = $(event.currentTarget).closest('tr').find("input[name^='form_proc_type_desc']").val();
-    let yn = true;
-    if (target)
-        yn = confirm(<?php echo xlj("Confirm to remove item") ?> + "\n" + target);
-    if (yn)
-        $(event.currentTarget).closest(".proc-table").remove();
-}
-
-// This invokes the find-procedure-type popup.
-// formseq = 0-relative index in the form.
-function sel_proc_type(formseq) {
-    let f = document.forms[0];
-    gbl_formseq = formseq;
-    let ptvarname = 'form_proc_type[' + formseq + ']';
-
-    let title = <?php echo xlj("Find Procedure Order"); ?>;
-// This replaces the previous search for an easier/faster order picker tool.
-    dlgopen('../../orders/find_order_popup.php' +
-    '?labid=' + encodeURIComponent(f.form_lab_id.value) +
-    '&order=' + encodeURIComponent(f[ptvarname].value) +
-    '&formid=' + <?php echo js_url($formid); ?> +
-        '&formseq=' + encodeURIComponent(formseq),
-        '_blank', 850, 500, '', title);
-}
-
-// This is for callback by the find-procedure-type popup.
-// Sets both the selected type ID and its descriptive name.
-// Also set diagnosis if supplied in configuration and custom test groups.
-function set_proc_type(typeid, typename, diagcodes = '', temptype, typetitle, testid, newCnt = 0) {
-    let f = document.forms[0];
-    let ptvarname = 'form_proc_type[' + gbl_formseq + ']';
-    let ptdescname = 'form_proc_type_desc[' + gbl_formseq + ']';
-    let ptcodes = 'form_proc_type_diag[' + gbl_formseq + ']';
-    let pttransport = 'form_transport[' + gbl_formseq + ']';
-    let ptproccode = 'form_proc_code[' + gbl_formseq + ']';
-    let ptproctypename = 'form_proc_order_title[' + gbl_formseq + ']';
-    let psc = '';
-
-    f[pttransport].value = temptype;
-    f[ptvarname].value = typeid;
-    f[ptdescname].value = typename;
-    f[ptproccode].value = testid;
-    f[ptproctypename].value = typetitle ? typetitle : 'procedure';
-    if (diagcodes)
-        f[ptcodes].value = diagcodes;
-    if (newCnt > 1) {
-        gbl_formseq = addProcLine(true);
-    }
-}
-
-// This is also for callback by the find-procedure-type popup.
-// Sets the contents of the table containing the form fields for questions.
-function set_proc_html(s, js) {
-    document.getElementById('qoetable[' + gbl_formseq + ']').innerHTML = s;
-    initCalendars();
-}
-
-// New lab selected so clear all procedures and questions from the form.
-function lab_id_changed(el) {
-    if (viewmode) {
-        let msg = "Changing Labs will clear this order.\nAre you sure you want to continue?";
-        if (!confirm(msg)) {
-            $("#form_lab_id").val(currentLabId);
-            return false;
+        function processSubmit(od) { // not used yet
+            $("#form_order_abn").val(od.order_abn);
+            $("#bn_save").click();
         }
-    }
-    top.restoreSession();
-    let lab = $("#form_lab_id option:selected").text();
-    if (lab.toLowerCase().indexOf('quest') !== -1) currentLab = 'quest';
-    if (lab.toLowerCase().indexOf('ammon') !== -1) currentLab = 'ammon';
-    if (lab.toLowerCase().indexOf('labcorp') !== -1) currentLab = 'labcorp';
-    if (lab.toLowerCase().indexOf('clarity') !== -1) currentLab = 'clarity';
 
-    let f = document.forms[0];
-    for (let i = 0; true; ++i) {
-        let ix = '[' + i + ']';
-        if (!f['form_proc_type' + ix]) break;
-        let target = '#procedures_item_' + i;
-        $(target).closest(".proc-table").remove();
-    }
+        function initCalendars() {
+            var datepicker = {
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            };
+            var datetimepicker = {
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            };
+            $('.datepicker').datetimepicker(datepicker);
+            $('.datetimepicker').datetimepicker(datetimepicker);
+        }
 
-    if (viewmode) {
-        $("#bn_save").click();
-    } else {
-        addProcLine(false);
-    }
-}
+        function initDeletes() {
+            $(".itemDelete").on("click", function (event) {
+                deleteRow(event);
+            });
+        }
 
-function addProcedure() {
-    $(".procedure-order-container").append($(".procedure-order").clone());
-    let newOrder = $(".procedure-order-container .procedure-order:last");
-    $(newOrder + " label:first").append("1");
-}
+        function deleteRow(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            let target = $(event.currentTarget).closest('tr').find("input[name^='form_proc_type_desc']").val();
+            let yn = true;
+            if (target)
+                yn = confirm(<?php echo xlj("Confirm to remove item") ?> +"\n" + target);
+            if (yn)
+                $(event.currentTarget).closest(".proc-table").remove();
+        }
 
-function addProcLine(flag = false) {
-    let f = document.forms[0];
-    let i = 0;
-    for (; f['form_proc_type[' + i + ']']; ++i) ;
-    // build new item html.. a hidden html block to clone may be better here.
-    let cell = "<table class='table table-sm proc-table'><tr>" +
-        "<input type='hidden' name='form_proc_code[" + i + "]' value= />" +
-        "<td onclick='deleteRow(event)' class='itemDelete'><i class='fa fa-trash'></i></td>" +
-        "<td class='itemTransport quest'><input readonly class='itemTransport form-control' type='text' onclick='getDetails(event, " + i + ")' name='form_transport[" + i + "]' value=''></td>" +
-        "<td class='procedure-div'><input type='hidden' name='form_proc_order_title[" + i + "]' value=procedure>" +
-        "<input type='text' class='form-control c-hand' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
-        "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' readonly /> " +
-        "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' /></td>" +
-        "<td class='diagnosis-div input-group'>" +
-        "<div class='input-group-prepend'><span class='btn btn-secondary input-group-text'>" +
-        "<i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span></div>" +
-        "<input type='text' class='form-control c-hand' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
-        "title='<?php echo xla('Click to add diagnosis for this test'); ?>' onfocus='this.blur()' readonly /></td>" +
-        "<td><div class='table-responsive' id='qoetable[" + i + "]'></div></td></tr></table>";
+        // This invokes the find-procedure-type popup.
+        // formseq = 0-relative index in the form.
+        function sel_proc_type(formseq) {
+            let f = document.forms[0];
+            gbl_formseq = formseq;
+            let ptvarname = 'form_proc_type[' + formseq + ']';
 
-    $(".procedure-order-container").append(cell); // add the new item to procedures list
+            let title = <?php echo xlj("Find Procedure Order"); ?>;
+// This replaces the previous search for an easier/faster order picker tool.
+            dlgopen('../../orders/find_order_popup.php' +
+                '?labid=' + encodeURIComponent(f.form_lab_id.value) +
+                '&order=' + encodeURIComponent(f[ptvarname].value) +
+                '&formid=' + <?php echo js_url($formid); ?> +
+                    '&formseq=' + encodeURIComponent(formseq),
+                '_blank', 850, 500, '', title);
+        }
 
-    initForm();
+        // This is for callback by the find-procedure-type popup.
+        // Sets both the selected type ID and its descriptive name.
+        // Also set diagnosis if supplied in configuration and custom test groups.
+        function set_proc_type(typeid, typename, diagcodes = '', temptype, typetitle, testid, newCnt = 0) {
+            let f = document.forms[0];
+            let ptvarname = 'form_proc_type[' + gbl_formseq + ']';
+            let ptdescname = 'form_proc_type_desc[' + gbl_formseq + ']';
+            let ptcodes = 'form_proc_type_diag[' + gbl_formseq + ']';
+            let pttransport = 'form_transport[' + gbl_formseq + ']';
+            let ptproccode = 'form_proc_code[' + gbl_formseq + ']';
+            let ptproctypename = 'form_proc_order_title[' + gbl_formseq + ']';
+            let psc = '';
 
-    if (!flag) {// flag true indicates add procedure item from custom group callback with current index.
-        sel_proc_type(i);
-        return false;
-    } else {
-        return i;
-    }
-}
+            f[pttransport].value = temptype;
+            f[ptvarname].value = typeid;
+            f[ptdescname].value = typename;
+            f[ptproccode].value = testid;
+            f[ptproctypename].value = typetitle ? typetitle : 'procedure';
+            if (diagcodes)
+                f[ptcodes].value = diagcodes;
+            if (newCnt > 1) {
+                gbl_formseq = addProcLine(true);
+            }
+        }
 
-// The name of the form field for find-code popup results.
-var rcvarname, targetElement, targetProcedure;
+        // This is also for callback by the find-procedure-type popup.
+        // Sets the contents of the table containing the form fields for questions.
+        function set_proc_html(s, js) {
+            document.getElementById('qoetable[' + gbl_formseq + ']').innerHTML = s;
+            initCalendars();
+        }
 
-function current_diagnoses(whereElement) {
-    targetProcedure = whereElement.parentElement.parentElement.parentElement.previousElementSibling;
-    targetElement = whereElement.parentElement.parentElement.nextElementSibling;
-    let title = <?php echo xlj("Diagnosis Codes History"); ?>;
-    dlgopen('find_code_history.php', 'dxDialog', 'modal-mlg', 450, '', title, {
-        buttons: [
-            {text: '<?php echo xla('Save'); ?>', id: 'saveDx', style: 'primary btn-save'},
-            {text: '<?php echo xla('Help'); ?>', id: 'showTips', style: 'primary btn-show'},
-            {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'secondary btn-cancel'},
-        ],
-        type: 'iframe'
-    });
-}
-// This is for callback by the find-code popup.
-// Appends to or erases the current list of related codes.
-function set_related(codetype, code, selector, codedesc) {
-    var f = document.forms[0];
-    var s = f[rcvarname].value;
-    if (code) {
-        if (s.length > 0) s += ';';
-        s += codetype + ':' + code;
-    } else {
-        s = '';
-    }
-    f[rcvarname].value = s;
-}
+        // New lab selected so clear all procedures and questions from the form.
+        function lab_id_changed(el) {
+            if (viewmode) {
+                let msg = "Changing Labs will clear this order. Are you sure you want to continue?";
+                if (!confirm(msg)) {
+                    $("#form_lab_id").val(currentLabId);
+                    return false;
+                }
+            }
+            top.restoreSession();
+            let lab = $("#form_lab_id option:selected").text();
+            if (lab.toLowerCase().indexOf('quest') !== -1) currentLab = 'quest';
+            if (lab.toLowerCase().indexOf('ammon') !== -1) currentLab = 'ammon';
+            if (lab.toLowerCase().indexOf('labcorp') !== -1) currentLab = 'labcorp';
+            if (lab.toLowerCase().indexOf('clarity') !== -1) currentLab = 'clarity';
 
-// This invokes the find-code popup.
-function sel_related(varname) {
-    rcvarname = varname;
+            let f = document.forms[0];
+            for (let i = 0; true; ++i) {
+                let ix = '[' + i + ']';
+                if (!f['form_proc_type' + ix]) break;
+                let target = '#procedures_item_' + i;
+                $(target).closest(".proc-table").remove();
+            }
+
+            if (viewmode) {
+                $("#bn_save").click();
+            } else {
+                addProcLine(false);
+            }
+        }
+
+        function addProcedure() {
+            $(".procedure-order-container").append($(".procedure-order").clone());
+            let newOrder = $(".procedure-order-container .procedure-order:last");
+            $(newOrder + " label:first").append("1");
+        }
+
+        function addProcLine(flag = false) {
+            let f = document.forms[0];
+            let i = 0;
+            for (; f['form_proc_type[' + i + ']']; ++i) ;
+            // build new item html.. a hidden html block to clone may be better here.
+            let cell = "<table class='table table-sm proc-table'><tr>" +
+                "<input type='hidden' name='form_proc_code[" + i + "]' value= />" +
+                "<td onclick='deleteRow(event)' class='itemDelete'><i class='fa fa-trash'></i></td>" +
+                "<td class='itemTransport quest'><input readonly class='itemTransport form-control' type='text' onclick='getDetails(event, " + i + ")' name='form_transport[" + i + "]' value=''></td>" +
+                "<td class='procedure-div'><input type='hidden' name='form_proc_order_title[" + i + "]' value=procedure>" +
+                "<div class='input-group-prepend'><button type='button' class='btn btn-secondary btn-search' onclick='selectProcedureCode(" + i + ")' title='<?php echo xla('Click to use procedure code from code popup'); ?>'></button>" +
+                "<input type='hidden' name='form_procedure_type[" + i + "]' value='' />" +
+                "<input type='text' class='form-control c-hand' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
+                "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' readonly /> " +
+                "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' /></div></td>" +
+                "<td class='diagnosis-div input-group'>" +
+                "<div class='input-group-prepend'><span class='btn btn-secondary input-group-text'>" +
+                "<i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span></div>" +
+                "<input type='text' class='form-control c-hand' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
+                "title='<?php echo xla('Click to add diagnosis for this test'); ?>' onfocus='this.blur()' readonly /></td>" +
+                "<td><div class='table-responsive' id='qoetable[" + i + "]'></div></td></tr></table>";
+
+            $(".procedure-order-container").append(cell); // add the new item to procedures list
+
+            initForm();
+
+            if (!flag) {// flag true indicates add procedure item from custom group callback with current index.
+                sel_proc_type(i);
+                return false;
+            } else {
+                return i;
+            }
+        }
+
+        // The name of the form field for find-code popup results.
+        var rcvarname, targetElement, targetProcedure, promiseData;
+
+        /*
+        * I could have used a callback like set_related_target but I wanted
+        * to show an example of a dialog promise. Handy for cleanup or showing
+        * an dialog.alert etc..
+        *
+        * */
+        function selectProcedureCode(offset) {
+            let f = document.forms[0];
+            rcvarname = f.elements['form_proc_code[' + offset + ']'].name;
+            codes = f.elements['form_proc_code[' + offset + ']'].value;
+            targetProcedure = f.elements['form_proc_code[' + offset + ']'];
+            targetElement = f.elements['form_proc_type_desc[' + offset + ']'];
+            let title = <?php echo xlj('Select Procedure Code'); ?>;
+            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=LOINC,SNOMED-CT,SNOMED,RXCUI,CPT4,VALUESET&singleCodeSelection=1';
+            dlgopen(url, '_blank', 985, 750, '', title, {
+                resolvePromiseOn: 'close'
+            }).then(dialogObject => {
+                let codeData = JSON.parse(promiseData);
+                let codes = codeData.codetype + ':' + codeData.code;
+                targetProcedure.value = codes;
+                targetElement.value = codeData.codedesc;
+                let type = f.elements['procedure_type_names'].value ?? '';
+                if (type !== '') {
+                    f.elements['form_procedure_type[' + offset + ']'].value = type;
+                }
+                f.elements['form_proc_type[' + offset + ']'].value = -2; // lookup type id on save.
+            });
+        }
+
+        function current_diagnoses(whereElement) {
+            targetProcedure = whereElement.parentElement.parentElement.parentElement.previousElementSibling;
+            targetElement = whereElement.parentElement.parentElement.nextElementSibling;
+            let title = <?php echo xlj("Diagnosis Codes History"); ?>;
+            dlgopen('find_code_history.php', 'dxDialog', 'modal-mlg', 450, '', title, {
+                buttons: [
+                    {text: '<?php echo xla('Save'); ?>', id: 'saveDx', style: 'primary btn-save'},
+                    {text: '<?php echo xla('Help'); ?>', id: 'showTips', style: 'primary btn-show'},
+                    {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'secondary btn-cancel'},
+                ],
+                type: 'iframe'
+            });
+        }
+
+        // This is for callback by the find-code popup.
+        // Appends to or erases the current list of related codes.
+        function set_related(codetype, code, selector, codedesc) {
+            let f = document.forms[0];
+            let s = f[rcvarname].value;
+            if (code) {
+                if (s.length > 0) s += ';';
+                s += codetype + ':' + code;
+            } else {
+                s = '';
+            }
+            f[rcvarname].value = s;
+        }
+
+        // This invokes the find-code popup.
+        function sel_related(varname) {
+            rcvarname = varname;
 // codetype is just to make things easier and avoid mistakes.
 // Might be nice to have a lab parameter for acceptable code types.
 // Also note the controlling script here runs from interface/patient_file/encounter/.
-    let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
-    <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
-    dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=ICD10', '_blank', 985, 750, '', title);
-}
-
-// This is for callback by the find-code popup.
-// Returns the array of currently selected codes with each element in codetype:code format.
-function get_related() {
-    return document.forms[0][rcvarname].value.split(';');
-}
-
-// This is for callback by the find-code popup.
-// Deletes the specified codetype:code from the currently selected list.
-function del_related(s) {
-    my_del_related(s, document.forms[0][rcvarname], false);
-}
-
-var transmitting = false;
-
-// Issue a Cancel/OK warning if a previously transmitted order is being transmitted again.
-function validate(f, e) {
-    <?php if (!empty($row['date_transmitted'])) { ?>
-    if (transmitting) {
-    if (!confirm(<?php echo xlj('This order was already transmitted on') ?> + ' ' +
-        <?php echo js_escape($row['date_transmitted']) ?> + '. ' +
-        <?php echo xlj('Are you sure you want to transmit it again?'); ?>)) {
-            return false;
+            let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
+            <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
+            dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php', '_blank', 985, 750, '', title);
         }
-    }
-    <?php } ?>
-    $(".wait").removeClass('d-none');
-    top.restoreSession();
-    return true;
-}
 
-$(function () {
-    // calendars need to be available to init dynamically for procedure item adds.
-    initCalendars();
-    initDeletes();
-    initForm();
-    $(function () {
-        $.ajaxSetup({
-            error: function (jqXHR, exception) {
-                if (jqXHR.status === 0) {
-                    alert('Not connected to network.');
-                } else if (jqXHR.status == 404) {
-                    alert('Requested page not found. [404]');
-                } else if (jqXHR.status == 500) {
-                    alert('Internal Server Error [500].');
-                } else if (exception === 'parsererror') {
-                    alert('Requested JSON parse failed.');
-                } else if (exception === 'timeout') {
-                    alert('Time out error.');
-                } else if (exception === 'abort') {
-                    alert('Ajax request aborted.');
-                } else {
-                    alert('Uncaught Error.\n' + jqXHR.responseText);
+        // This is for callback by the find-code popup.
+        // Returns the array of currently selected codes with each element in codetype:code format.
+        function get_related() {
+            return document.forms[0][rcvarname].value.split(';');
+        }
+
+        // This is for callback by the find-code popup.
+        // Deletes the specified codetype:code from the currently selected list.
+        function del_related(s) {
+            my_del_related(s, document.forms[0][rcvarname], false);
+            if (targetElement != '') {
+                targetElement.value = '';
+            }
+        }
+
+        var transmitting = false;
+
+        // Issue a Cancel/OK warning if a previously transmitted order is being transmitted again.
+        function validate(f, e) {
+            <?php if (!empty($row['date_transmitted'])) { ?>
+            if (transmitting) {
+                if (!confirm(<?php echo xlj('This order was already transmitted on') ?> +' ' +
+                    <?php echo js_escape($row['date_transmitted']) ?> +'. ' +
+                    <?php echo xlj('Are you sure you want to transmit it again?'); ?>)) {
+                    return false;
                 }
             }
-        })
-        return false;
-    });
-    <?php if ($row['date_transmitted']) { ?>
-    $("#summary").collapse("toggle");
-    <?php } ?>
-});
-
-function getDetails(e, id) {
-    top.restoreSession();
-    let f = document.forms[0];
-    let codeattr = 'form_proc_code[' + id + ']';
-    let codetitle = 'form_proc_type_desc[' + id + ']';
-    let code = f[codeattr].value;
-    let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-    url += "?action=code_detail)&code=" + encodeURIComponent(code) +
-        "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-    let title = <?php echo xlj("Test") ?> + ": " + code + " " + f[codetitle].value;
-    dlgopen(url, 'details', 'modal-md', 200, '', title, {
-        buttons: [
-            {text: '<?php echo xla('Got It'); ?>', close: true, style: 'secondary btn-sm'}
-        ]
-    });
-}
-
-function initForm(reload = false) {
-    if (reload) {
-        location.reload();
-    }
-    $(".ammon").hide();
-    $(".quest").hide();
-    $(".labcorp").hide();
-    $(".clarity").hide();
-    $(".defaultProcedure").hide();
-
-    if (currentLab === 'ammon') {
-        $(".ammon").show();
-    } else if (currentLab === 'quest') {
-        $(".quest").show();
-    } else if (currentLab === 'labcorp') {
-        $(".labcorp").show();
-    } else if (currentLab === 'clarity') {
-        $(".clarity").show();
-    } else if (currentLab === '') {
-        $(".defaultProcedure").show();
-    }
-}
-
-function createLabels(e) {
-    e.preventDefault();
-    let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
-        "\n" . xla("Each test in order gets a label.")); ?>;
-    let count = prompt(prmt, '1');
-    if (!count) return false;
-    let tarray = "";
-    let f = document.forms[0];
-    let transport = '';
-    let i = 0;
-    for (; f['form_transport[' + i + ']']; ++i) {
-        transport = f['form_transport[' + i + ']'].value;
-        transport = transport > '' ? transport : 'none';
-        tarray += transport + ";";
-    }
-    let printer = 'file';
-    let acctid = <?php echo js_escape($gbl_client_acct); ?>;
-    let order = f.id.value;
-    let patient = <?php echo js_escape($patient['lname'] . ', ' . $patient['fname'] . ' ' . $patient['mname']); ?>;
-    let pid = <?php echo js_escape($patient['pid']);  ?>;
-    let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-    // this escapes above
-    let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
-        "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
-        "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-
-    // retrieve the labels
-    dlgopen(url + uri, 'pdf', 'modal-md', 750, '');
-}
-
-function doWait(e){
-    $(".wait").removeClass('d-none');
-    return true;
-}
-</script>
-<style>
-    @media only screen and (max-width: 768px) {
-        [class*="col-"] {
-            width: 100%;
-            text-align: left !important;
+            <?php } ?>
+            $(".wait").removeClass('d-none');
+            top.restoreSession();
+            return true;
         }
-    }
 
-    .qoe-table {
+        $(function () {
+            // calendars need to be available to init dynamically for procedure item adds.
+            initCalendars();
+            initDeletes();
+            initForm();
+            $(function () {
+                $.ajaxSetup({
+                    error: function (jqXHR, exception) {
+                        if (jqXHR.status === 0) {
+                            alert('Not connected to network.');
+                        } else if (jqXHR.status == 404) {
+                            alert('Requested page not found. [404]');
+                        } else if (jqXHR.status == 500) {
+                            alert('Internal Server Error [500].');
+                        } else if (exception === 'parsererror') {
+                            alert('Requested JSON parse failed.');
+                        } else if (exception === 'timeout') {
+                            alert('Time out error.');
+                        } else if (exception === 'abort') {
+                            alert('Ajax request aborted.');
+                        } else {
+                            alert('Uncaught Error.\n' + jqXHR.responseText);
+                        }
+                    }
+                })
+                return false;
+            });
+            <?php if ($row['date_transmitted']) { ?>
+            $("#summary").collapse("toggle");
+            <?php } ?>
+        });
+
+        function getDetails(e, id) {
+            top.restoreSession();
+            let f = document.forms[0];
+            let codeattr = 'form_proc_code[' + id + ']';
+            let codetitle = 'form_proc_type_desc[' + id + ']';
+            let code = f[codeattr].value;
+            let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
+            url += "?action=code_detail)&code=" + encodeURIComponent(code) +
+                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
+            dlgopen(url, 'details', 'modal-md', 200, '', title, {
+                buttons: [
+                    {text: '<?php echo xla('Got It'); ?>', close: true, style: 'secondary btn-sm'}
+                ]
+            });
+        }
+
+        function initForm(reload = false) {
+            if (reload) {
+                location.reload();
+            }
+            $(".ammon").hide();
+            $(".quest").hide();
+            $(".labcorp").hide();
+            $(".clarity").hide();
+            $(".defaultProcedure").hide();
+
+            if (currentLab === 'ammon') {
+                $(".ammon").show();
+            } else if (currentLab === 'quest') {
+                $(".quest").show();
+            } else if (currentLab === 'labcorp') {
+                $(".labcorp").show();
+            } else if (currentLab === 'clarity') {
+                $(".clarity").show();
+            } else if (currentLab === '') {
+                $(".defaultProcedure").show();
+            }
+        }
+
+        function createLabels(e) {
+            e.preventDefault();
+            let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
+                "\n" . xla("Each test in order gets a label.")); ?>;
+            let count = prompt(prmt, '1');
+            if (!count) return false;
+            let tarray = "";
+            let f = document.forms[0];
+            let transport = '';
+            let i = 0;
+            for (; f['form_transport[' + i + ']']; ++i) {
+                transport = f['form_transport[' + i + ']'].value;
+                transport = transport > '' ? transport : 'none';
+                tarray += transport + ";";
+            }
+            let printer = 'file';
+            let acctid = <?php echo js_escape($gbl_client_acct); ?>;
+            let order = f.id.value;
+            let patient = <?php echo js_escape($patient['lname'] . ', ' . $patient['fname'] . ' ' . $patient['mname']); ?>;
+            let pid = <?php echo js_escape($patient['pid']);  ?>;
+            let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
+            // this escapes above
+            let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
+                "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
+                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+
+            // retrieve the labels
+            dlgopen(url + uri, 'pdf', 'modal-md', 750, '');
+        }
+
+        function doWait(e) {
+            $(".wait").removeClass('d-none');
+            return true;
+        }
+    </script>
+    <style>
+      @media only screen and (max-width: 768px) {
+        [class*="col-"] {
+          width: 100%;
+          text-align: left !important;
+        }
+      }
+
+      .qoe-table {
         margin-bottom: 0px;
-    }
+      }
 
-    .proc-table {
+      .proc-table {
         margin-bottom: 5px;
-    }
+      }
 
-    .proc-table .itemDelete {
+      .proc-table .itemDelete {
         width: 25px;
         color: var(--danger);
         cursor: pointer;
-    }
+      }
 
-    .proc-table .itemTransport {
+      .proc-table .itemTransport {
         width: 45px;
         margin: 5px 2px;
         padding: 2px 2px;
         cursor: hand;
-    }
+      }
 
-    .proc-table .procedure-div {
+      .proc-table .procedure-div {
         min-width: 40%;
-    }
+      }
 
-    .proc-table .diagnosis-div {
+      .proc-table .diagnosis-div {
         min-width: 20%;
-    }
+      }
 
-    .c-hand {
+      .c-hand {
         cursor: pointer;
-    }
-</style>
+      }
+    </style>
 </head>
 <?php
 $name = $enrow['fname'] . ' ';
@@ -1009,22 +1066,22 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group form-row">
-                            <label for="form_clinical_hx" class="col-form-label col-md-1"><?php echo xlt('Clinical History'); ?></label>
-                            <div class="col-md-5">
-                                <textarea name="form_clinical_hx" id="form_clinical_hx"
-                                class="text" rows="2" cols="60" wrap="hard"><?php echo text($row['clinical_hx']); ?></textarea>
+                            <div class="col-md-6">
+                                <label for='form_clinical_hx' class='col-form-label'><?php echo xlt('Clinical History'); ?></label>
+                                <textarea class='form-control text' rows='2' cols='60' wrap='hard'
+                                    name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx']); ?></textarea>
                             </div>
-                            <label for="form_data_ordered" class="col-form-label col-md-1"><?php echo xlt('Patient Instructions'); ?></label>
-                            <div class="col-md-5">
-                            <textarea rows='2' cols="60" wrap="hard" id='form_patient_instructions'
-                                name='form_patient_instructions' class='text'><?php echo text($row['patient_instructions']) ?></textarea>
+                            <div class="col-md-6">
+                                <label for='form_data_ordered' class='col-form-label'><?php echo xlt('Patient Instructions'); ?></label>
+                                <textarea class='form-control text' rows='2' cols="60" wrap="hard" id='form_patient_instructions'
+                                    name='form_patient_instructions'><?php echo text($row['patient_instructions']) ?></textarea>
                             </div>
                         </div>
                     </div>
                 </fieldset>
                 <fieldset class="row">
-                     <legend><?php $t = "<span>" .
-                        ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
+                    <legend><?php $t = "<span>" .
+                            ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
                         echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
                     <?php if ($order_data) { ?>
@@ -1061,9 +1118,8 @@ $title = array(xl('Order for'), $name, $date);
                                     title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
                                     readonly onfocus='this.blur()' />
                             </div>
-                            <!-- @TODO keep for future use -->
-                            <label for="procedure_type_names" class="col-form-label d-none"><?php echo xlt('Default Procedure Type'); ?></label>
-                            <div class="col-md-4 d-none">
+                            <label for="procedure_type_names" class="col-form-label"><?php echo xlt('Default Procedure Type'); ?></label>
+                            <div class="col-md-4">
                                 <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
                                 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
                                     <?php foreach ($procedure_order_type as $ordered_types) { ?>
@@ -1097,7 +1153,7 @@ $title = array(xl('Order for'), $name, $date);
                             $opres = sqlStatement(
                                 "SELECT " .
                                 "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
-                                "pc.diagnoses, pc.procedure_order_title, pc.transport," .
+                                "pc.diagnoses, pc.procedure_order_title, pc.transport, pc.procedure_type, " .
                                 // In case of duplicate procedure codes this gets just one.
                                 "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
                                 "(pt.procedure_type LIKE 'ord%' OR pt.procedure_type LIKE 'for%' OR pt.procedure_type LIKE 'pro%') AND pt.lab_id = ? AND " .
@@ -1115,6 +1171,7 @@ $title = array(xl('Order for'), $name, $date);
                                 "Select id, url, documentationOf From documents where foreign_id = ? And list_id = ? Order By id",
                                 array($pid, $formid)
                             );
+                            $req = array();
                             while ($oprow = sqlFetchArray($reqres)) {
                                 $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
                                 if ($gbl_lab === "labcorp") {
@@ -1169,14 +1226,20 @@ $title = array(xl('Order for'), $name, $date);
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_order_title']) ?>'>
                                         <?php endif; ?>
-                                        <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
-                                            value='<?php echo attr($oprow['procedure_name']) ?>'
-                                            onclick="sel_proc_type(<?php echo $i; ?>)"
-                                            onfocus='this.blur()'
-                                            title='<?php echo xla('Click to select the desired procedure'); ?>'
-                                            placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
-                                            class='form-control c-hand' readonly />
-                                        <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo attr($ptid); ?>' />
+                                        <div class='input-group-prepend'>
+                                            <button type="button" class='btn btn-secondary btn-search' onclick='selectProcedureCode(<?php echo $i; ?>)' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
+                                            </button>
+                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type']); ?>' />
+                                            <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
+                                                value='<?php echo attr($oprow['procedure_name']) ?>'
+                                                onclick="sel_proc_type(<?php echo $i; ?>)"
+                                                onfocus='this.blur()'
+                                                title='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                class='form-control c-hand' readonly />
+                                            <!-- the configuration type id -->
+                                            <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo attr($ptid); ?>' />
+                                        </div>
                                     </td>
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-prepend'>
@@ -1211,7 +1274,7 @@ $title = array(xl('Order for'), $name, $date);
                         }
                         ?>
                     </div>
-                    <div class="ml-4">
+                    <div class="btn=group ml-4">
                         <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?>
                         </button>
                     </div>
@@ -1236,10 +1299,10 @@ $title = array(xl('Order for'), $name, $date);
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
                                     if ($gbl_lab === "labcorp") { ?>
-                                    <button type="submit" class="btn btn-outline-primary btn-save"
-                                        name='bn_save_ereq' id='bn_save_ereq' value="save_ereq"
-                                        onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
-                                    </button>
+                                        <button type="submit" class="btn btn-outline-primary btn-save"
+                                            name='bn_save_ereq' id='bn_save_ereq' value="save_ereq"
+                                            onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
+                                        </button>
                                     <?php } elseif ($gbl_lab === 'clarity') {
                                         echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
                                     }
@@ -1249,7 +1312,7 @@ $title = array(xl('Order for'), $name, $date);
                         </div>
                         <div class="col-md-12">
                             <legend class="bg-dark text-light"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height:500px;">
+                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
                                 <?php
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;

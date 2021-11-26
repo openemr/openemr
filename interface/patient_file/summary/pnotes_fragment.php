@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,21 +33,16 @@ if (isset($_GET['docUpdateId'])) {
 }
 
 ?>
-<div class='tabContainer' >
-  <div class='tab current' >
+<div class='tabContainer'>
+  <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = $GLOBALS['num_of_messages_displayed']; ?>
-
-    <br/>
-
-    <?php
-
-     $has_note = 0;
-     $thisauth = AclMain::aclCheckCore('patients', 'notes');
+    $N = $GLOBALS['num_of_messages_displayed'];
+    $has_note = 0;
+    $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
         $tmp = getPatientData($pid, "squad");
-        if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
+        if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
             $thisauth = 0;
         }
     }
@@ -53,9 +50,8 @@ if (isset($_GET['docUpdateId'])) {
     if (!$thisauth) {
         echo "<p>(" . xlt('Notes not authorized') . ")</p>\n";
     } else { ?>
-        <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
+        <table class="table table-sm table-hover">
         <?php
-
         $pres = getPatientData($pid, "lname, fname");
         $patientname = $pres['lname'] . ", " . $pres['fname'];
         //retrieve all active notes
@@ -72,42 +68,41 @@ if (isset($_GET['docUpdateId'])) {
 
         if ($result != null) {
             $notes_count = 0;//number of notes so far displayed
-            echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
-            echo "<td valign='top' class='text' ><b>" . xlt('From') . "</b></td>\n";
-            echo "<td valign='top' class='text' ><b>" . xlt('To{{Destination}}') . "</b></td>\n";
+            echo "<thead>\n<tr>";
+            echo "<th class='text' >" . xlt('From') . "</th>\n";
+            echo "<th class='text' >" . xlt('To{{Destination}}') . "</th>\n";
             if ($GLOBALS['messages_due_date']) {
-                echo "<td valign='top' class='text' ><b>" . xlt('Due date') . "</b></td>\n";
+                echo "<th class='text' >" . xlt('Due date') . "</th>\n";
             } else {
-                echo "<td valign='top' class='text' ><b>" . xlt('Date') . "</b></td>\n";
+                echo "<th class='text' >" . xlt('Date') . "</th>\n";
             }
-            echo "<td valign='top' class='text' ><b>" . xlt('Subject') . "</b></td>\n";
-            echo "<td valign='top' class='text' ><b>" . xlt('Content') . "</b></td>\n";
-            echo "<td valign='top' class='text' ></td>\n";
-            echo "</tr>\n";
+            echo "<th class='text' >" . xlt('Subject') . "</th>\n";
+            echo "<th class='text' >" . xlt('Content') . "</th>\n";
+            echo "<th class='text' ></th>\n";
+            echo "</thead>\n</tr>\n<tbody>\n";
             foreach ($result as $iter) {
                 $has_note = 1;
 
                 $body = $iter['body'];
                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-                echo " <tr class='text' id='" . text($iter['id']) . "' style='border-bottom:1px dashed;height:30px;' >\n";
+                echo " <tr class='text' id=" . text($iter['id']) . ">\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                echo "<td valign='top' class='text'>" . text($iter['user']) . "</td>\n";
-                echo "<td valign='top' class='text'>" . text($iter['assigned_to']) . "</td>\n";
-                echo "<td valign='top' class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
-                echo "  <td valign='top' class='text'><b>";
+                echo "<td class='text'>" . text($iter['user']) . "</td>\n";
+                echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
+                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
+                echo "  <td class='text'><b>";
                 echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
-                echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
-                echo "<td valign='top' class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn'>" . xlt('Completed') . "</button></td>\n";
-                echo " </tr>\n";
+                echo "  <td class='text'>" . text($body) . "</td>\n";
+                echo "<td class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn btn btn-sm btn-secondary'>" . xlt('Completed') . "</button></td>\n";
+                echo " </tr>\n</tbody>\n";
 
                 $notes_count++;
             }
         } ?>
-
         </table>
 
         <?php
@@ -128,8 +123,7 @@ if (isset($_GET['docUpdateId'])) {
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
             <b><?php echo text($N);?></b><br />
-            <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
-            <?php echo xlt('Click here to view them all.'); ?></a>
+            <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
         } ?>
 
@@ -138,34 +132,3 @@ if (isset($_GET['docUpdateId'])) {
     } ?>
     </div>
 </div>
-
-<script>
-// jQuery stuff to make the page a little easier to use
-
-tabbify();
-
-$(function () {
-    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-
-    //Ajax call for type 2 note widget
-    $(".complete_btn").on("click", function(){
-        //console.log($(this).attr('data-id'));
-        var btn = $(this);
-        $.ajax({
-            method: "POST",
-            url: "pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
-            data: {
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-            }
-        })
-        .done(function() {
-            btn.prop("disabled",true);
-            btn.unbind('mouseenter mouseleave');
-            btn.css('background-color', 'gray');
-        });
-    });
-
-});
-
-</script>

@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
+use OpenEMR\Services\PatientIssuesService;
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
@@ -230,86 +231,49 @@ if (!empty($_POST['form_save'])) {
         }
     }
 
-    $form_begin = ($_POST['form_begin']) ? DateToYYYYMMDD($_POST['form_begin']) : '';
-    $form_end   = ($_POST['form_end']) ? DateToYYYYMMDD($_POST['form_end']) : '';
+    $form_begin = !empty($_POST['form_begin']) ? DateToYYYYMMDD($_POST['form_begin']) : null;
+    $form_end   = !empty($_POST['form_end']) ? DateToYYYYMMDD($_POST['form_end']) : null;
+    $form_return = !empty($_POST['form_return']) ? DateToYYYYMMDD($_POST['form_return']) : null;
 
     $form_injury_part = $_POST['form_medical_system'] ?? '';
     $form_injury_type = $_POST['form_medical_type'] ?? '';
 
-    if ($issue) {
-        $query = "UPDATE lists SET " .
-            "type = '"        . add_escape_custom($text_type)                  . "', " .
-            "title = '"       . add_escape_custom($_POST['form_title'])        . "', " .
-            "udi = '"         . add_escape_custom($_POST['form_udi'])               . "', " .
-            "udi_data = '"    . add_escape_custom($_POST['udi_data'])          . "', " .
-            "comments = '"    . add_escape_custom($_POST['form_comments'])     . "', " .
-            "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
-            "enddate = "      . QuotedOrNull($form_end)     . ", "  .
-            "returndate = "   . QuotedOrNull($form_return ?? null)  . ", "  .
-            "diagnosis = '"   . add_escape_custom($_POST['form_diagnosis'])    . "', " .
-            "occurrence = '"  . add_escape_custom($_POST['form_occur'])        . "', " .
-            "classification = '" . add_escape_custom($_POST['form_classification']) . "', " .
-            "reinjury_id = '" . add_escape_custom($_POST['form_reinjury_id'] ?? '')  . "', " .
-            "referredby = '"  . add_escape_custom($_POST['form_referredby'])   . "', " .
-            "injury_grade = '" . add_escape_custom($_POST['form_injury_grade'] ?? '') . "', " .
-            "injury_part = '" . add_escape_custom($form_injury_part)           . "', " .
-            "injury_type = '" . add_escape_custom($form_injury_type)           . "', " .
-            "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
-            "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
-            "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
-            "verification ='"     . add_escape_custom($_POST['form_verification'])     . "', " .
-            "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
-            "list_option_id ='"     . add_escape_custom($_POST['form_title_id'])     . "', " .
-            "erx_uploaded = '0', " .
-            "modifydate = NOW() " .
-            "WHERE id = '" . add_escape_custom($issue) . "'";
-        sqlStatement($query);
-        if ($text_type == "medication" && $form_end != '') {
-            sqlStatement(
-                'UPDATE prescriptions SET '
-                . 'medication = 0 where patient_id = ? '
-                . " and upper(trim(drug)) = ? "
-                . ' and medication = 1',
-                array($thispid, strtoupper($_POST['form_title']))
-            );
+    $issueRecord = [
+        'type' => $text_type
+        // I don't like how these date columns use this quasi 'NULL' value but its how the underlying service works...
+        ,'begdate' => $form_begin ?? "NULL"
+        ,'enddate' => $form_end ?? "NULL"
+        ,'returndate' => $form_return ?? "NULL"
+        ,'erx_uploaded' => '0'
+        ,'id' => $issue ?? null
+        ,'pid' => $thispid
+    ];
+    // TODO: we could simplify this array by just adding 'form_' onto everything but not all of the fields precisely match so that would need to be fixed up
+    $issue_form_fields = ['title' => 'form_title', 'udi' => 'form_udi', 'udi_data' => 'udi_data', 'form_comments' => 'comments'
+        , 'diagnosis' => 'form_diagnosis', 'occurrence' => 'form_occur', 'classification' => 'form_classification'
+        , 'reinjury_id' => 'form_reinjury_id', 'referredby' => 'form_referredby', 'injury_grade' => 'form_injury_grade'
+        , 'outcome' => 'form_outcome', 'destination' => 'form_destination', 'reaction' => 'form_reaction'
+        , 'verification' => 'form_verification', 'severity_al' => 'form_severity_id', 'list_option_id' => 'form_title_id'];
+    foreach ($issue_form_fields as $field => $form_field) {
+        if (isset($_POST[$form_field])) {
+            $issueRecord[$field] = $_POST[$form_field];
         }
+    }
+
+    // now populate medication
+    if (isset($_POST['form_medication'])) {
+        $issueRecord['medication'] = $_POST['form_medication'];
+    }
+
+    $patientIssuesService = new PatientIssuesService();
+    if ($issue) {
+        $patientIssuesService->updateIssue($issueRecord);
     } else {
-        $issue = sqlInsert(
-            "INSERT INTO lists ( " .
-            "date, pid, type, title, udi, udi_data, activity, comments, begdate, enddate, returndate, " .
-            "diagnosis, occurrence, classification, referredby, user, groupname, " .
-            "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-            "reaction, verification, severity_al, list_option_id " .
-            ") VALUES ( " .
-            "NOW(), " .
-            "'" . add_escape_custom($thispid) . "', " .
-            "'" . add_escape_custom($text_type)                 . "', " .
-            "'" . add_escape_custom($_POST['form_title'])       . "', " .
-            "'" . add_escape_custom($_POST['form_udi'])              . "', " .
-            "'" . add_escape_custom($_POST['udi_data'])         . "', " .
-            "1, "                            .
-            "'" . add_escape_custom($_POST['form_comments'])    . "', " .
-            QuotedOrNull($form_begin)        . ", "  .
-            QuotedOrNull($form_end)        . ", "  .
-            QuotedOrNull($form_return ?? null)       . ", "  .
-            "'" . add_escape_custom($_POST['form_diagnosis'])   . "', " .
-            "'" . add_escape_custom($_POST['form_occur'])       . "', " .
-            "'" . add_escape_custom($_POST['form_classification']) . "', " .
-            "'" . add_escape_custom($_POST['form_referredby'])  . "', " .
-            "'" . add_escape_custom($_SESSION['authUser'])     . "', " .
-            "'" . add_escape_custom($_SESSION['authProvider']) . "', " .
-            "'" . add_escape_custom($_POST['form_outcome'])     . "', " .
-            "'" . add_escape_custom($_POST['form_destination']) . "', " .
-            "'" . add_escape_custom($_POST['form_reinjury_id'] ?? '') . "', " .
-            "'" . add_escape_custom($_POST['form_injury_grade'] ?? '') . "', " .
-            "'" . add_escape_custom($form_injury_part)          . "', " .
-            "'" . add_escape_custom($form_injury_type)          . "', " .
-            "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
-            "'" . add_escape_custom($_POST['form_verification'])         . "', " .
-            "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
-            "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
-            ")"
-        );
+        $issueRecord["date"] = date("Y-m-d H:m:s");
+        $issueRecord['activity'] = 1;
+        $issueRecord['user'] = $_SESSION['authUser'];
+        $issueRecord['groupname'] = $_SESSION['authProvider'];
+        $patientIssuesService->createIssue($issueRecord);
     }
 
     // For record/reporting purposes, place entry in lists_touch table.
@@ -353,7 +317,8 @@ if (!empty($_POST['form_save'])) {
 
 $irow = array();
 if ($issue) {
-    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
+    $patientIssuesService = new PatientIssuesService();
+    $irow = $patientIssuesService->getOneById($issue);
     if (!AclMain::aclCheckIssue($irow['type'], '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
@@ -965,6 +930,12 @@ function getCodeText($code)
                                 <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
                             <?php } ?>
                         </div>
+
+                        <?php if ($irow['type'] == 'medication') : ?>
+                            <!-- any medication specific issue information goes here -->
+                            <?php include "add_edit_issue_medication_fragment.php"; ?>
+                        <?php endif; ?>
+
                         <br />
                         <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets
                         ?>

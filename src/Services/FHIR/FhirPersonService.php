@@ -18,13 +18,18 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirPersonService extends FhirServiceBase
+class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService
 {
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
+
     const RESOURCE_NAME = 'Person';
 
     /**
@@ -221,27 +226,6 @@ class FhirPersonService extends FhirServiceBase
     }
 
     /**
-     * Performs a FHIR Practitioner Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId //The OpenEMR record's FHIR Practitioner Resource ID.
-     */
-    public function getOne($fhirResourceId, $puuidBind = null)
-    {
-        $user = $this->userService->getUserByUUID($fhirResourceId);
-        $processingResult = new ProcessingResult();
-        if (empty($user)) {
-            $validationMessages = [
-                'uuid' => ["invalid or nonexisting value" => " value " . $fhirResourceId]
-            ];
-            $processingResult->setValidationMessages($validationMessages);
-            return $processingResult;
-        }
-        $fhirRecord = $this->parseOpenEMRRecord($user);
-        $processingResult->setData([]);
-        $processingResult->addData($fhirRecord);
-        return $processingResult;
-    }
-
-    /**
      * Inserts an OpenEMR record into the sytem.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
@@ -274,7 +258,7 @@ class FhirPersonService extends FhirServiceBase
      * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    public function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null)
+    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         $records = $this->userService->getAll($openEMRSearchParameters, false);
         $records = empty($records) ? [] : $records;

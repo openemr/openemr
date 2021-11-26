@@ -178,7 +178,8 @@ function snomed_import($us_extension = false)
             `InitialCapitalStatus` tinyint(1) NOT NULL,
             `DescriptionType` int(11) NOT NULL,
             `LanguageCode` varchar(8) NOT NULL,
-            PRIMARY KEY (`DescriptionId`)
+            PRIMARY KEY (`DescriptionId`),
+            KEY `idx_concept_id` (`ConceptId`)
             ) ENGINE=InnoDB",
         "sct_relationships_drop" => "DROP TABLE IF EXISTS `sct_relationships`",
         "sct_relationships_structure" => "CREATE TABLE IF NOT EXISTS `sct_relationships` (
@@ -323,7 +324,8 @@ function snomedRF2_import()
             `typeId` bigint(25) NOT NULL,
             `term` varchar(255) NOT NULL,
             `caseSignificanceId` bigint(25) NOT NULL,
-             PRIMARY KEY (`id`, `active`, `conceptId`)
+             PRIMARY KEY (`id`, `active`, `conceptId`),
+             KEY `idx_concept_id` (`conceptId`)
             ) ENGINE=InnoDB",
         "sct2_identifier_drop" => "DROP TABLE IF EXISTS `sct2_identifier`",
         "sct2_identifier_structure" => "CREATE TABLE IF NOT EXISTS `sct2_identifier` (

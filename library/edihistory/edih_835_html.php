@@ -3,24 +3,13 @@
 /*
  * new_edih_835_html.php
  *
- * Copyright 2016 Kevin McCormick <kevin@kt61p>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- *
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
+ * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -37,7 +26,7 @@
  */
 function edih_round_cb(&$v, $k)
 {
-    $v = round($v, 2);
+    $v = round((int)$v, 2);
 }
 /**
  * Create summary html string for an x12 835 claim payment
@@ -714,7 +703,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     if (strpos($sar[1], $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
-                        while (list($key, $val) = each($scda)) {
+                        foreach ($scda as $key => $val) {
                             if ($key == 0 && $val) {
                                 $svc01 = $cd27x->get_271_code('EB13', $val);
                             } else {
@@ -738,7 +727,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     if (strpos($sar[6], $ds)) {
                         $scda = explode($ds, $sar[6]);
                         reset($scda);
-                        while (list($key, $val) = each($scda)) {
+                        foreach ($scda as $key => $val) {
                             if ($key == 0 && $val) {
                                 $svc06 = $cd27x->get_271_code('EB13', $val) . " ";
                             } else {

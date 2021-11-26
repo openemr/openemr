@@ -20,6 +20,7 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -170,6 +171,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <br/>
                                 <br/>
                                 <button type="button" class="viewCCD btn btn-primary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                                <button type="button" class="viewNewCCD btn btn-primary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate New Report'); ?></button>
                                 <button type="button" class="viewCCD_download btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                                 <?php
                                 if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
@@ -381,7 +383,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($result["form_name"] == "New Patient Encounter") {
                                                 if ($isfirst == 0) {
                                                     foreach ($registry_form_name as $var) {
-                                                        if ($toprint = $html_strings[$var]) {
+                                                        if ($toprint = ($html_strings[$var] ?? '')) {
                                                             foreach ($toprint as $var) {
                                                                 print $var;
                                                             }
@@ -620,6 +622,23 @@ $(function () {
         top.restoreSession();
         $("#ccr_form").submit();
     });
+    $(".viewNewCCD").click(function() {
+        // there's a lot of ways to do this but for now, we'll go with this!
+        top.restoreSession();
+        let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
+            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken() ?>");
+        fetch(url, {
+            credentials: 'same-origin',
+            method: 'GET',
+        })
+        .then(response => response.text())
+        .then(response => {
+            let view = window.open('about:blank', '_blank');
+            view.document.write(response);
+            view.document.close();
+            return false;
+        })
+    });
     $(".viewCCD").click(function() {
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'viewccd';
@@ -762,7 +781,7 @@ var SelectForms = function (selectedEncounter) {
 // When an issue is checked, auto-check all the related encounters and forms
 function issueClick(issue) {
     // do nothing when unchecked
-    if (! $(issue).attr("checked")) return;
+    if (! $(issue).prop("checked")) return;
 
     $("#report_form :checkbox").each(function(i, obj) {
         if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {

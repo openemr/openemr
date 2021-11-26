@@ -15,35 +15,73 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class UtilsService
 {
-    public static function createRelativeReference($type, $uuid)
+    const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
+    const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
+
+    public static function createRelativeReference($type, $uuid, $displayName = null)
     {
         $reference = new FHIRReference();
         $reference->setType($type);
         $reference->setReference($type . "/" . $uuid);
+        if (!empty($displayName) && is_string($displayName)) {
+            $reference->setDisplay($displayName);
+        }
         return $reference;
     }
 
-    public static function createCodeableConcept(array $diagnosisCodes, $codeSystem): FHIRCodeableConcept
+    public static function getUuidFromReference(FHIRReference $reference)
     {
-        $diagnosisCoding = new FHIRCoding();
+        $uuid = null;
+        if (!empty($reference->getReference())) {
+            $parts = explode("/", $reference->getReference());
+            $uuid = $parts[1] ?? null;
+        }
+        return $uuid;
+    }
+
+    public static function createQuantity($value, $unit, $code)
+    {
+        $quantity = new FHIRQuantity();
+        $quantity->setCode($code);
+        $quantity->setValue($value);
+        $quantity->setUnit($unit);
+        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+    }
+
+    public static function createCoding($code, $display, $system): FHIRCoding
+    {
+        if (!is_string($code)) {
+            $code = "$code"; // FHIR expects a string
+        }
+        $coding = new FHIRCoding();
+        $coding->setCode($code);
+        $coding->setDisplay($display);
+        $coding->setSystem($system);
+        return $coding;
+    }
+
+    public static function createCodeableConcept(array $diagnosisCodes, $defaultCodeSystem = "", $defaultDisplay = ""): FHIRCodeableConcept
+    {
         $diagnosisCode = new FHIRCodeableConcept();
-        foreach ($diagnosisCodes as $code => $display) {
-            if (!is_string($code)) {
-                $code = "$code"; // FHIR expects a string
+        foreach ($diagnosisCodes as $code => $codeValues) {
+            $codeSystem = $codeValues['system'] ?? $defaultCodeSystem;
+            if (!empty($codeValues['description'])) {
+                $diagnosisCode->addCoding(self::createCoding($code, $codeValues['description'], $codeSystem));
+            } else {
+                $diagnosisCode->addCoding(self::createCoding($code, $defaultDisplay, $codeSystem));
             }
-            $diagnosisCoding->setCode($code);
-            $diagnosisCoding->setDisplay($display);
-            $diagnosisCoding->setSystem($codeSystem);
-            $diagnosisCode->addCoding($diagnosisCoding);
         }
         return $diagnosisCode;
     }
@@ -54,11 +92,20 @@ class UtilsService
         // for some reason in order to get this to work we have to wrap our inner exception
         // into an outer exception.  This might be just a PHPism with the way JSON encodes things
         $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemUris::DATA_ABSENT_REASON);
+        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
         $outerExtension->addExtension($extension);
         return $outerExtension;
+    }
+
+    public static function createContactPoint($value, $system, $use): FHIRContactPoint
+    {
+        $fhirContactPoint = new FHIRContactPoint();
+        $fhirContactPoint->setSystem($system);
+        $fhirContactPoint->setValue($value);
+        $fhirContactPoint->setUse($use);
+        return $fhirContactPoint;
     }
 
     public static function createAddressFromRecord($dataRecord): ?FHIRAddress
@@ -81,6 +128,11 @@ class UtilsService
             $address->addLine($dataRecord['street']);
             $hasAddress = true;
         }
+
+        if (!empty($dataRecord['line2'])) {
+            $address->addLine($dataRecord['line2']);
+        }
+
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
             $hasAddress = true;
@@ -132,5 +184,62 @@ class UtilsService
             $name->addGiven($dataRecord['mname']);
         }
         return $name;
+    }
+
+    public static function createNullFlavorUnknownCodeableConcept()
+    {
+        return self::createCodeableConcept([
+            self::UNKNOWNABLE_CODE_NULL_FLAVOR => [
+                'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
+                ,'description' => 'unknown'
+                ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
+            ]]);
+    }
+
+    public static function createDataAbsentUnknownCodeableConcept()
+    {
+        return self::createCodeableConcept(
+            [self::UNKNOWNABLE_CODE_DATA_ABSENT => [
+                'code' => self::UNKNOWNABLE_CODE_DATA_ABSENT
+                , 'description' => 'Unknown'
+                , 'system' => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM
+            ]]
+        );
+    }
+
+    /**
+     * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
+     * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.
+     * If the start has no value or if the end period has no value it will return null values for the properties.
+     * @param FHIRPeriod $period  The object representing the period interval.
+     * @return array Containing two keys of 'start' and 'end' representing the period.
+     */
+    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    {
+        $end = null;
+        $start = null;
+        if ($period !== null) {
+            if (!empty($period->getEnd())) {
+                $end = strtotime($period->getEnd()->getValue());
+            }
+            if (!empty($period->getStart())) {
+                $start = strtotime($period->getStart()->getValue());
+            }
+        }
+        return [
+            'start' => $start,
+            'end' => $end
+        ];
+    }
+
+    public static function createNarrative($message, $status = "generated"): FHIRNarrative
+    {
+        $div = "<div xmlns='http://www.w3.org/1999/xhtml'>" . $message . "</div>";
+        $narrative = new FHIRNarrative();
+        $code = new FHIRCode();
+        $code->setValue($status);
+        $narrative->setStatus($code);
+        $narrative->setDiv($div);
+        return $narrative;
     }
 }

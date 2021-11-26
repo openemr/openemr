@@ -52,15 +52,15 @@ var vitalSignObservation = {
             required: true
         }, {
             key: "interpretationCode",
-            attributes: {"nullFlavor": "NI"}, //leafLevel.codeFromName("2.16.840.1.113883.5.83"),
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.5.83"),
             dataKey: "interpretations"
-        }
+        },
+        fieldLevel.author
     ],
     notImplemented: [
         "constant statusCode",
         "methodCode",
-        "targetSiteCode",
-        "author"
+        "targetSiteCode"
     ]
 };
 
@@ -97,6 +97,7 @@ exports.vitalSignsOrganizer = {
             key: "component",
             content: vitalSignObservation,
             dataKey: "vital_list",
+            existsWhen: condition.propertyNotEmpty("value"),
             required: true
         }]
     ],

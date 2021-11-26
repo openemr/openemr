@@ -231,7 +231,7 @@ function issue_diagnoses($pid, $encounter)
         $codes = explode(";", $res['diagnosis']);
         foreach ($codes as $code_key) {
             $diagnosis = explode(":", $code_key);
-            $code = $diagnosis[1];
+            $code = $diagnosis[1] ?? '';
             $code_type = $diagnosis[0];
             $new_info = new code_info($code, $code_type, $title, $res['selected'] != 0);
 

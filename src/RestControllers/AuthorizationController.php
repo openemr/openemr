@@ -17,6 +17,7 @@ namespace OpenEMR\RestControllers;
 require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 
 use DateInterval;
+use DateTimeImmutable;
 use Exception;
 use GuzzleHttp\Client;
 use Lcobucci\JWT\Parser;
@@ -25,6 +26,7 @@ use Lcobucci\JWT\ValidationData;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -32,13 +34,17 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
+use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
+use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -71,6 +77,7 @@ class AuthorizationController
 
     const GRANT_TYPE_PASSWORD = 'password';
     const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
+    const OFFLINE_ACCESS_SCOPE = 'offline_access';
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -120,9 +127,8 @@ class AuthorizationController
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
         // verify and/or setup our key pairs.
-        $this->privateKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oaprivate.key';
-        $this->publicKey = $GLOBALS['OE_SITE_DIR'] . '/documents/certificates/oapublic.key';
         $this->configKeyPairs();
+
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
 
@@ -140,96 +146,17 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
         try {
-            // encryption key
-            $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
-            if (!empty($eKey['name']) && ($eKey['name'] === 'oauth2key')) {
-                // collect the encryption key from database
-                $this->oaEncryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
-                if (empty($this->oaEncryptionKey)) {
-                    // if decrypted key is empty, then critical error and must exit
-                    $this->logger->error("OpenEMR error - oauth2 key was blank after it was decrypted, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-            } else {
-                // create a encryption key and store it in database
-                $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
-                if (empty($this->oaEncryptionKey)) {
-                    // if empty, then force exit
-                    $this->logger->error("OpenEMR error - random generator broken during oauth2 encryption key generation, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-                $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
-                if (empty($this->oaEncryptionKey)) {
-                    // if empty, then force exit
-                    $this->logger->error("OpenEMR error - base64 encoding broken during oauth2 encryption key generation, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-                sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
-            }
-            // private key
-            if (!file_exists($this->privateKey)) {
-                // create the private/public key pair (store in filesystem) with a random passphrase (store in database)
-                // first, create the passphrase (removing any prior passphrases)
-                sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2passphrase'");
-                $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-                if (empty($this->passphrase)) {
-                    // if empty, then force exit
-                    $this->logger->error("OpenEMR error - random generator broken during oauth2 key passphrase generation, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-                // second, create and store the private/public key pair
-                $keysConfig = [
-                    "default_md" => "sha256",
-                    "private_key_type" => OPENSSL_KEYTYPE_RSA,
-                    "private_key_bits" => 2048,
-                    "encrypt_key" => true,
-                    "encrypt_key_cipher" => OPENSSL_CIPHER_AES_256_CBC
-                ];
-                $keys = \openssl_pkey_new($keysConfig);
-                if ($keys === false) {
-                    // if unable to create keys, then force exit
-                    $this->logger->error("OpenEMR error - key generation broken during oauth2, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-                $privkey = '';
-                openssl_pkey_export($keys, $privkey, $this->passphrase, $keysConfig);
-                $pubkey = openssl_pkey_get_details($keys);
-                $pubkey = $pubkey["key"];
-                if (empty($privkey) || empty($pubkey)) {
-                    // if unable to construct keys, then force exit
-                    $this->logger->error("OpenEMR error - key construction broken during oauth2, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-                // third, store the keys on drive and store the passphrase in the database
-                file_put_contents($this->privateKey, $privkey);
-                chmod($this->privateKey, 0640);
-                file_put_contents($this->publicKey, $pubkey);
-                chmod($this->publicKey, 0660);
-                sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
-            }
-            // confirm existence of passphrase
-            $pkey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2passphrase'");
-            if (!empty($pkey['name']) && ($pkey['name'] == 'oauth2passphrase')) {
-                $this->passphrase = $this->cryptoGen->decryptStandard($pkey['value']);
-                if (empty($this->passphrase)) {
-                    // if decrypted pssphrase is empty, then critical error and must exit
-                    $this->logger->error("OpenEMR error - oauth2 passphrase was blank after it was decrypted, so forced exit");
-                    throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-                }
-            } else {
-                // oauth2passphrase is missing so must exit
-                $this->logger->error("OpenEMR error - oauth2 passphrase is missing, so forced exit");
-                throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-            }
-            // confirm existence of key pair
-            if (!file_exists($this->privateKey) || !file_exists($this->publicKey)) {
-                // key pair is missing so must exit
-                $this->logger->error("OpenEMR error - oauth2 keypair is missing, so forced exit");
-                throw OAuthServerException::serverError("Security error - problem with authorization server keys.");
-            }
-        } catch (OAuthServerException $exception) {
+            $oauth2KeyConfig = new OAuth2KeyConfig($GLOBALS['OE_SITE_DIR']);
+            $oauth2KeyConfig->configKeyPairs();
+            $this->privateKey = $oauth2KeyConfig->getPrivateKeyLocation();
+            $this->publicKey = $oauth2KeyConfig->getPublicKeyLocation();
+            $this->oaEncryptionKey = $oauth2KeyConfig->getEncryptionKey();
+            $this->passphrase = $oauth2KeyConfig->getPassPhrase();
+        } catch (OAuth2KeyException $exception) {
+            $this->logger->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
+            $serverException = OAuthServerException::serverError("Security error - problem with authorization server keys.", $exception);
             SessionUtil::oauthSessionCookieDestroy();
-            $this->emitResponse($exception->generateHttpResponse($response));
+            $this->emitResponse($serverException->generateHttpResponse($response));
             exit;
         }
     }
@@ -306,12 +233,13 @@ class AuthorizationController
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
-            // don't allow user & system scopes for public apps
+            // don't allow user, system scopes, and offline_access for public apps
             } else if (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
+                || strpos($data['scope'], self::OFFLINE_ACCESS_SCOPE) !== false
             ) {
-                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
+                throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             $this->validateScopesAgainstServerApprovedScopes($data['scope']);
 
@@ -624,7 +552,16 @@ class AuthorizationController
         }
     }
 
-    public function getAuthorizationServer(): AuthorizationServer
+    /**
+     * Retrieve the authorization server with all of the grants configured
+     * TODO: @adunsulag is there a better way to handle skipping the refresh token on the authorization grant?
+     * Due to the way the server is created and the fact we have to skip the refresh token when an offline_scope is passed
+     * for authorization_grant/password_grant.  We ignore offline_scope for custom_credentials
+     * @param bool $includeAuthGrantRefreshToken Whether the authorization server should issue a refresh token for an authorization grant.
+     * @return AuthorizationServer
+     * @throws Exception
+     */
+    public function getAuthorizationServer($includeAuthGrantRefreshToken = true): AuthorizationServer
     {
         $protectedClaims = ['profile', 'email', 'address', 'phone'];
         $scopeRepository = new ScopeRepository($this->restConfig);
@@ -666,10 +603,20 @@ class AuthorizationController
 
         $this->logger->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
-            $grant = new AuthCodeGrant(
+            $this->logger->debug(
+                "logging global params",
+                ['site_addr_oath' => $GLOBALS['site_addr_oath'], 'web_root' => $GLOBALS['web_root'], 'site_id' => $_SESSION['site_id']]
+            );
+            $expectedAudience = [
+                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir",
+                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/api",
+                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/portal",
+            ];
+            $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
-                new RefreshTokenRepository(),
-                new \DateInterval('PT1M') // auth code. should be short turn around.
+                new RefreshTokenRepository($includeAuthGrantRefreshToken),
+                new \DateInterval('PT1M'), // auth code. should be short turn around.
+                $expectedAudience
             );
 
             // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
@@ -684,7 +631,7 @@ class AuthorizationController
             );
         }
         if ($this->grantType === 'refresh_token') {
-            $grant = new CustomRefreshTokenGrant(new refreshTokenRepository());
+            $grant = new CustomRefreshTokenGrant(new RefreshTokenRepository());
             $grant->setRefreshTokenTTL(new \DateInterval('P3M'));
             $authServer->enableGrantType(
                 $grant,
@@ -695,7 +642,7 @@ class AuthorizationController
         if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
             $grant = new CustomPasswordGrant(
                 new UserRepository(),
-                new RefreshTokenRepository()
+                new RefreshTokenRepository($includeAuthGrantRefreshToken)
             );
             $grant->setRefreshTokenTTL(new DateInterval('P3M'));
             $authServer->enableGrantType(
@@ -846,10 +793,30 @@ class AuthorizationController
 
     public function scopeAuthorizeConfirm()
     {
+        // TODO: @adunsulag if there are no scopes or claims here we probably want to show an error...
+
+        // TODO: @adunsulag this is also where we want to show a special message if the offline scope is present.
 
         // show our scope auth piece
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
+        $scopeString = $_SESSION['scopes'] ?? '';
+        // check for offline_access
+
+        $scopesList = explode(' ', $scopeString);
+        $offline_requested = false;
+        $scopes = [];
+        foreach ($scopesList as $scope) {
+            if ($scope !== self::OFFLINE_ACCESS_SCOPE) {
+                $scopes[] = $scope;
+            } else {
+                $offline_requested = true;
+            }
+        }
+        $offline_access_date = (new DateTimeImmutable())->add(new \DateInterval("P3M"))->format("Y-m-d");
+
+
+        $claims = $_SESSION['claims'] ?? [];
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
 
@@ -901,11 +868,11 @@ class AuthorizationController
     {
         switch ($userRole) {
             case 'users':
-                (new UuidRegistry(['table_name' => 'users']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['users']);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                (new UuidRegistry(['table_name' => 'patient_data']))->createMissingUuids();
+                UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:
@@ -913,10 +880,12 @@ class AuthorizationController
         }
         $id = sqlQueryNoLog($account_sql, array($userId))['uuid'];
 
-        $uuidRegistry = new UuidRegistry();
-        return $uuidRegistry::uuidToString($id);
+        return UuidRegistry::uuidToString($id);
     }
 
+    /**
+     * Note this corresponds with the /auth/code endpoint
+     */
     public function authorizeUser(): void
     {
         $this->logger->debug("AuthorizationController->authorizeUser() starting authorization");
@@ -924,7 +893,8 @@ class AuthorizationController
         $authRequest = $this->deserializeUserSession();
         try {
             $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $_POST['scope']);
-            $server = $this->getAuthorizationServer();
+            $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
+            $server = $this->getAuthorizationServer($include_refresh_token);
             $user = new UserEntity();
             $user->setIdentifier($_SESSION['user_id']);
             $authRequest->setUser($user);
@@ -970,8 +940,25 @@ class AuthorizationController
         }
     }
 
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     */
+    private function shouldIncludeRefreshTokenForScopes(array $scopes)
+    {
+        foreach ($scopes as $scope) {
+            if ($scope->getIdentifier() == self::OFFLINE_ACCESS_SCOPE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes)
     {
+        $this->logger->debug(
+            "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
+            ['userApprovedScopes' => $approvedScopes ]
+        );
         $requestScopes = $request->getScopes();
         $scopeUpdates = [];
         // we only allow scopes from the original session request, if user approved scope it will show up here.
@@ -1024,6 +1011,9 @@ class AuthorizationController
         return $authRequest;
     }
 
+    /**
+     * Note this corresponds with the /token endpoint
+     */
     public function oauthAuthorizeToken(): void
     {
         $this->logger->debug("AuthorizationController->oauthAuthorizeToken() starting request");
@@ -1035,10 +1025,12 @@ class AuthorizationController
         $code = $request->getParsedBody()['code'] ?? null;
         // grantType could be authorization_code, password or refresh_token.
         $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->logger->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             $_SESSION = json_decode($ssbc['session_cache'], true);
+            $this->logger->debug("AuthorizationController->oauthAuthorizeToken() restored session user from code ", ['session' => $_SESSION]);
         }
         // TODO: explore why we create the request again...
         if ($this->grantType === 'refresh_token') {
@@ -1180,15 +1172,10 @@ class AuthorizationController
                     throw new OAuthServerException('Client failed security', 0, 'invalid_request', 401);
                 }
             }
+            $jsonWebKeyParser = new JsonWebKeyParser($this->oaEncryptionKey, $this->publicKey);
             // will try hard to go on if missing token hint. this is to help with universal conformance.
             if (empty($token_hint)) {
-                // determine if access or refresh.
-                $access_parts = explode(".", $rawToken);
-                if (count($access_parts) === 3) {
-                    $token_hint = 'access_token';
-                } else {
-                    $token_hint = 'refresh_token';
-                }
+                $token_hint = $jsonWebKeyParser->getTokenHintFromToken($rawToken);
             } elseif (($token_hint !== 'access_token' && $token_hint !== 'refresh_token') || empty($rawToken)) {
                 throw new OAuthServerException('Missing token or unsupported hint.', 0, 'invalid_request', 400);
             }
@@ -1196,39 +1183,24 @@ class AuthorizationController
             // are we there yet! client's okay but, is token?
             if ($token_hint === 'access_token') {
                 try {
-                    // Attempt to parse and validate the JWT
-                    $token = (new Parser())->parse($rawToken);
-                    // defaults
-                    $result = array(
-                        'active' => true,
-                        'status' => 'active',
-                        'scope' => implode(" ", $token->getClaim('scopes')),
-                        'client_id' => $clientId,
-                        'exp' => $token->getClaim('exp'),
-                        'sub' => $token->getClaim('sub'), // user_id
-                    );
-                    try {
-                        if ($token->verify(new Sha256(), 'file://' . $this->publicKey) === false) {
-                            $result['active'] = false;
-                            $result['status'] = 'failed_verification';
-                        }
-                    } catch (Exception $exception) {
-                        $result['active'] = false;
-                        $result['status'] = 'invalid_signature';
-                    }
-                    // Ensure access token hasn't expired
-                    $data = new ValidationData();
-                    $data->setCurrentTime(\time());
-                    if ($token->validate($data) === false) {
-                        $result['active'] = false;
-                        $result['status'] = 'expired';
-                    }
+                    $result = $jsonWebKeyParser->parseAccessToken($rawToken);
+                    $result['client_id'] = $clientId;
                     $trusted = $this->trustedUser($result['client_id'], $result['sub']);
                     if (empty($trusted['id'])) {
                         $result['active'] = false;
                         $result['status'] = 'revoked';
                     }
-                    if ($token->getClaim('aud') !== $clientId) {
+                    $tokenRepository = new AccessTokenRepository();
+                    if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti'])) {
+                        $result['active'] = false;
+                        $result['status'] = 'revoked';
+                    }
+                    $audience = $result['aud'];
+                    if (!empty($audience)) {
+                        // audience is an array... we will only validate against the first item
+                        $audience = current($audience);
+                    }
+                    if ($audience !== $clientId) {
                         // return no info in this case. possible Phishing
                         $result = array('active' => false);
                     }
@@ -1243,10 +1215,8 @@ class AuthorizationController
             }
             if ($token_hint === 'refresh_token') {
                 try {
-                    // Validate refresh token
-                    $this->setEncryptionKey($this->oaEncryptionKey);
-                    $refreshToken = $this->decrypt($rawToken);
-                    $refreshTokenData = \json_decode($refreshToken, true);
+                    $result = $jsonWebKeyParser->parseRefreshToken($rawToken);
+                    $result['client_id'] = $clientId;
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
@@ -1254,24 +1224,17 @@ class AuthorizationController
                     $this->emitResponse($response->withStatus(400)->withBody($body));
                     exit();
                 }
-                $result = array(
-                    'active' => true,
-                    'status' => 'active',
-                    'scope' => implode(" ", $refreshTokenData['scopes']),
-                    'client_id' => $clientId,
-                    'exp' => $refreshTokenData['expire_time'],
-                    'sub' => $refreshTokenData['user_id'],
-                );
-                if ($refreshTokenData['expire_time'] < \time()) {
-                    $result['active'] = false;
-                    $result['status'] = 'expired';
-                }
-                $trusted = $this->trustedUser($refreshTokenData['client_id'], $result['sub']);
+                $trusted = $this->trustedUser($result['client_id'], $result['sub']);
                 if (empty($trusted['id'])) {
                     $result['active'] = false;
                     $result['status'] = 'revoked';
                 }
-                if ($refreshTokenData['client_id'] !== $clientId) {
+                $tokenRepository = new RefreshTokenRepository();
+                if ($tokenRepository->isRefreshTokenRevoked($result['jti'])) {
+                    $result['active'] = false;
+                    $result['status'] = 'revoked';
+                }
+                if ($result['client_id'] !== $clientId) {
                     // return no info in this case. possible Phishing
                     $result = array('active' => false);
                 }

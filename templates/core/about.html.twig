@@ -1,0 +1,119 @@
+<html>
+<head>
+    {{ setupHeader() }}
+    <title>{{ "About"|xlt }} {{ applicationTitle|text }}</title>
+    <script>
+        var registrationTranslations = {{ registrationTranslations }}
+        var registrationConstants = {
+            "webroot": {{ webroot|js_escape }}
+        }
+    </script>
+
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
+
+    <script>
+        $(function () {
+            var productRegistrationController = new ProductRegistrationController();
+            productRegistrationController.getProductRegistrationStatus(function (err, data) {
+                if (err) { return; }
+
+                if (data.statusAsString === 'UNREGISTERED') {
+                    productRegistrationController.showProductRegistrationModal();
+                } else if (data.statusAsString === 'REGISTERED') {
+                    productRegistrationController.displayRegistrationInformationIfDivExists(data);
+                }
+            });
+        });
+    </script>
+</head>
+<body class="body_top">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-lg-8 offset-lg-2 mt-5">
+                <h1 class="text-center">{{ "About"|xlt }} {{ applicationTitle|text }}</h1>
+
+                <span class="product-registration">
+                    <span class="email"></span>
+                </span>
+
+                <div class="version-info d-flex justify-content-between">
+                    <p>{{ "Version Number"|xlt }}</p>
+                    <strong>{{ versionNumber|text }}</strong>
+                </div>
+
+                <div class="uuid-info d-flex justify-content-between">
+                    <p>{{ "Unique Installation UUID"|xlt }}</p>
+                    <strong>{{ theUUID|text }}</strong>
+                </div>
+
+                {% if supportPhoneNumber %}
+                <div class="phone d-flex justify-content-between">
+                    <p>{{ "Support Phone Number"|xlt }}</p>
+                    <strong><a href="tel:{{ supportPhoneNumber|attr }}" target="_blank">{{ supportPhoneNumber|text }}</a></strong>
+                </div>
+                {% endif %}
+
+                {% if onlineSupportHref %}
+                <div class="online-support d-flex justify-content-between">
+                    <p>{{" Online Support"|xlt }}</p>
+                    <strong><a href="{{ onlineSupportHref|attr }}" target="_blank" rel="noopener">{{ onlineSupportHref|text }}</a></strong>
+
+                </div>
+                {% endif %}
+
+                {% if userManualHref %}
+                <div class="user-manual mt-3">
+                    <a href="{{ userManualHref|attr }}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                        <i class="fa fa-fw fa-book fa-lg"></i>&nbsp;{{ "User Manual"|xlt }}
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if displayAcknowledgements %}
+                <div class="ack mt-3">
+                    <a href="../../acknowledge_license_cert.html" target="_blank" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                        <i class="fa fa-fw fa-certificate fa-lg"></i>&nbsp;{{ "Acknowledgments, Licensing and Certification"|xlt }}
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if displayReview %}
+                <div class="review mt-3">
+                    <a href="https://www.softwareadvice.com/medical/openemr-review/?step=1" target="_blank" rel="noopener" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                        <i class="fa fa-fw fa-thumbs-up fa-lg"></i>&nbsp;{{ "Write a Review"|xlt }}
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if displayDonations %}
+                <div class="donations mt-3">
+                    <a href="https://www.open-emr.org/donate" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-danger btn-lg">
+                        <i class="fa fa-fw fa-heart fa-lg"></i>&nbsp;{{ "Donate Now"|xlt }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="product-registration-modal modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"></div>
+                <div class="modal-body">
+                    <p class="context">
+                        {{ "Register your installation with the OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
+                    </p>
+                    <input placeholder="{{ 'email'|xla }}" type="email" class="email w-100 text-body form-control">
+                    <p class="message font-italic"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary submit">{{ "Submit"|xlt }}</button>
+                    <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+{% if amendments|length > 0 %}
+    {% for a in amendments %}
+        <a href="{{ webroot|attr }}/interface/patient_file/summary/add_edit_amendments.php?id={{ a.amendment_id|attr_url }}" onclick="top.restoreSession()" class="{{ btnClass }}">{{ a.amendment_date|text }}&nbsp;{{ a.amendment_desc|text }}</a><br>
+    {% endfor %}
+{% else %}
+<p>{{ "None{{Amendment}}"|xlt }}</p>
+{% endif %}
+{% endblock %}

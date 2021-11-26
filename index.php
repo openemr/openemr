@@ -9,8 +9,8 @@
 
 if (!empty($_GET['site'])) {
     $site_id = $_GET['site'];
-} elseif (is_dir("sites/" . $_SERVER['HTTP_HOST'])) {
-    $site_id = $_SERVER['HTTP_HOST'];
+} elseif (is_dir("sites/" . $_SERVER['HTTP_HOST'] ?? '')) {
+    $site_id = $_SERVER['HTTP_HOST'] ?? '';
 } else {
     $site_id = 'default';
 }
