@@ -264,6 +264,7 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
   f.i<?php echo attr($i); ?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo attr($i); ?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo attr($i); ?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo attr($i); ?>subscriber_suite.value=f.form_suite.value;
   f.i<?php echo attr($i); ?>subscriber_city.value=f.form_city.value;
   f.form_i<?php echo attr($i); ?>subscriber_state.value=f.form_state.value;
   f.i<?php echo attr($i); ?>subscriber_postal_code.value=f.form_postal_code.value;
@@ -840,6 +841,18 @@ if (! $GLOBALS['simplified_demographics']) {
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
                name='i<?php echo attr($i); ?>subscriber_street'
                value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>"
+               onchange="capitalizeMe(this);" />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pt-1">
+              <span class='label_custom required'><?php echo xlt('Subscriber Apt/Suite'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
+               name='i<?php echo attr($i); ?>subscriber_suite'
+               value="<?php echo attr($result3["subscriber_suite"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
             </div>
           </div><!-- end nested row -->

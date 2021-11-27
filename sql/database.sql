@@ -3103,6 +3103,7 @@ CREATE TABLE `insurance_data` (
   `subscriber_sex` varchar(25) default NULL,
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
   `policy_type` varchar(25) NOT NULL default '',
+  `subscriber_suite` TINYTEXT default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
@@ -7298,6 +7299,7 @@ CREATE TABLE `patient_data` (
   `dupscore` INT NOT NULL default -9,
   `name_history` TINYTEXT,
   `suffix` TINYTEXT,
+  `suite` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)

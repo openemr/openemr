@@ -1027,6 +1027,7 @@ SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='lname' AND 
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='lname' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', @group_id, '', @seq_add_to+5, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
+#EndIf
 
 #IfNotTable jwt_grant_history
 CREATE TABLE `jwt_grant_history` (
@@ -1320,3 +1321,19 @@ SET @ai_exist =(SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME
 SET @query = IF (@ai_exist = 0, 'ALTER TABLE `document_templates` CHANGE `id` `id` BIGINT(21) UNSIGNED NOT NULL AUTO_INCREMENT', '');
 PREPARE statement FROM @query;
 EXECUTE statement;
+
+#IfMissingColumn patient_data suite
+ALTER TABLE patient_data ADD suite TINYTEXT;
+#EndIf
+
+#IfMissingColumn insurance_data subscriber_suite
+ALTER TABLE insurance_data ADD subscriber_suite TINYTEXT default NULL;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id suite
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='street' AND form_id='DEM');
+UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='street' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
+VALUES ('DEM', 'suite', @group_id, 'Apt/Suite/Other', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Apt/Suite/Other', 0);
+#EndIf
