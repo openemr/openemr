@@ -14,7 +14,7 @@
 
 <div id='help-panel' class='container-fluid border-0 my-2 collapse'>
     <div class='card'>
-        <div class='card-block bg-light px-2'>
+        <div class='card-block bg-light px-2 resizable'>
             <div class='card-title'><h5><?php echo xlt('In General'); ?></h5></div>
             <div class='card-text px-1'>
                 <ul>
