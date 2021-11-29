@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +21,7 @@ class ChatController extends ChatDispatcher
 
     public function __construct()
     {
-        $this->setModel('OpenEMR\PatientPortal\Chat\ChatModel');
+        $this->setModel(ChatModel::class);
         parent::__construct();
     }
 
@@ -77,18 +77,17 @@ class ChatController extends ChatDispatcher
 
     private function _isAdmin($username)
     {
-        return IS_DASHBOARD ? true : false;
-        //return preg_match('/^'.ADMIN_USERNAME_PREFIX.'/', $username);
+        return (bool)IS_DASHBOARD;
     }
 
     private function _parseAdminCommand($message)
     {
-        if (strpos($message, '/clear') !== false) {
+        if (str_contains($message, '/clear')) {
             $this->getModel()->removeMessages();
             return true;
         }
 
-        if (strpos($message, '/online') !== false) {
+        if (str_contains($message, '/online')) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {
@@ -129,7 +128,6 @@ class ChatController extends ChatDispatcher
 
         $this->getModel()->updateOnline($hash, $ip, $user, $userid);
         $this->getModel()->clearOffline();
-        // $this->getModel()->removeOldMessages(); // @todo For soft delete when I decide. DO NOT REMOVE
 
         $onlines = $this->getModel()->getOnline();
 
