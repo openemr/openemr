@@ -329,7 +329,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                         <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
                     <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon'></span><?php /*echo xlt('Top Menu'); */?></a>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
                     </li>
                 </ul>
             </div>

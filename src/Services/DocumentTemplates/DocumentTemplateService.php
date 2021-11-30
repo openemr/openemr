@@ -163,7 +163,9 @@ class DocumentTemplateService
 
     public function deleteTemplate($id)
     {
-        return sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
+        $profile_delete = sqlQuery('DELETE FROM `document_template_profiles` WHERE `template_id` = ?', array($id));
+        $delete = sqlQuery('DELETE FROM `document_templates` WHERE `id` = ?', array($id));
+        return ($delete && $profile_delete);
     }
 
     public function fetchTemplate($id, $template_name = null)
@@ -177,12 +179,54 @@ class DocumentTemplateService
         return $return;
     }
 
+    public function saveProfileTemplate($id, $profile, $template_name, $category)
+    {
+        $q = sqlInsert('INSERT INTO `document_template_profiles` (`template_id`, `profile`, `template_name`, `category`, `provider`) 
+            VALUES (?, ?, ?, ?, ?)', array($id, $profile, $template_name, $category, ($_SESSION['authUserID'] ?? null)));
+    }
+
+    public function saveAllProfileTemplates($profiles_array)
+    {
+        sqlQuery("TRUNCATE `document_template_profiles`");
+        $rtn = false;
+        foreach ($profiles_array as $profile_array) {
+            $rtn = sqlInsert(
+                "INSERT INTO `document_template_profiles` (`template_id`, `profile`, `template_name`, `category`, `provider`) 
+            VALUES (?, ?, ?, ?, ?)",
+                array($profile_array->id, $profile_array->profile, $profile_array->name, $profile_array->category, ($_SESSION['authUserID'] ?? null))
+            );
+        }
+        return $rtn;
+    }
+
     public function getDefaultCategories(): array
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
         while ($row = sqlFetchArray($rtn)) {
-            $category_list[] = $row;
+            $category_list[$row['option_id']] = $row;
+        }
+        return $category_list;
+    }
+
+    public function getProfileListByProfile($profile): array
+    {
+        $rtn = sqlStatement('SELECT * FROM `document_template_profiles` WHERE `profile` = ?', array($profile));
+        $profile_list = array();
+        $fetched_row = [];
+        while ($row = sqlFetchArray($rtn)) {
+            $fetched_row = $this->fetchTemplate($row['template_id']);
+            $profile_list[$row['category']][] = $fetched_row;
+        }
+        return $profile_list;
+    }
+
+    public function getDefaultProfiles(): array
+    {
+        $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Profiles'));
+        $category_list = array();
+        while ($row = sqlFetchArray($rtn)) {
+            $category_list[$row['option_id']] = $row;
         }
         return $category_list;
     }

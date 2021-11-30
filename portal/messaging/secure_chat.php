@@ -48,16 +48,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 use OpenEMR\Core\Header;
 use OpenEMR\PatientPortal\Chat\ChatController;
 
-define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
-
-if (isset($_REQUEST['fullscreen'])) {
-    \OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#messagescard');
-    define('IS_FULLSCREEN', true);
-} else {
-    \OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#messagescard');
-    define('IS_FULLSCREEN', false);
-}
-
+define('C_USER', IS_PORTAL ?: IS_DASHBOARD);
 define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
@@ -139,7 +130,6 @@ $msgApp = new ChatController();
         $scope.user = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
         $scope.userid = <?php echo IS_PORTAL ? js_escape($_SESSION['pid']) : js_escape($_SESSION['authUser']); ?>;
         $scope.isPortal = "<?php echo IS_PORTAL;?>";
-        $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
         $scope.noRecipError = <?php echo xlj("Please Select a Recipient for Message.") ?>;
@@ -583,7 +573,6 @@ $msgApp = new ChatController();
                         <div class="clearfix btn-group ml-2">
                             <a class='btn btn-primary' href='./../patient/provider' ng-show='!isPortal'><?php echo xlt('Home'); ?></a>
                             <a class="btn btn-secondary" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
-                            <a class="btn btn-sm btn-success" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
                         </div>
                     </div>
                     <div class="card-body">
