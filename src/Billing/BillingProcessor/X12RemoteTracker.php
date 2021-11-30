@@ -145,7 +145,7 @@ class X12RemoteTracker extends BaseService
 
     public function insert($fields)
     {
-        $setQueryPart = $this->buildInsertColumns($fields);
+        $setQueryPart = $this->buildInsertColumns($this->onlyRealFields($fields));
         $sql = " INSERT INTO x12_remote_tracker SET ";
         $sql .= $setQueryPart['set'];
 
@@ -163,7 +163,7 @@ class X12RemoteTracker extends BaseService
             $fields['messages'] = json_encode($fields['messages']);
         }
         $fields['updated_at'] = date('Y-m-d h:i:s');
-        $query = $this->buildUpdateColumns($fields);
+        $query = $this->buildUpdateColumns($this->onlyRealFields($fields));
         $sql = "UPDATE x12_remote_tracker SET ";
         $sql .= $query['set'];
         $sql .= "WHERE id = ?";
@@ -181,17 +181,7 @@ class X12RemoteTracker extends BaseService
             }
         }
         return $realFields;
-    }
-
-    protected function buildInsertColumns($passed_in = array(), $options = [])
-    {
-        return parent::buildInsertColumns($this->onlyRealFields($passed_in));
-    }
-
-    protected function buildUpdateColumns($passed_in = array(), $options = [])
-    {
-        return parent::buildUpdateColumns($this->onlyRealFields($passed_in));
-    }
+    }      
 
     /**
      * Get the remote tracking entries by their status with the newest first
