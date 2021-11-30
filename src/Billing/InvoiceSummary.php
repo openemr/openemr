@@ -253,4 +253,21 @@ class InvoiceSummary
 
         return -1;
     }
+
+    // This determines the last statement date
+    // Returns: a date.
+    //
+    public static function arGetLastStatementDate($patient_id, $encounter_id)
+    {
+        $row = sqlQuery("SELECT last_statement_date " .
+            "FROM form_encounter WHERE " .
+            "pid = ? AND encounter = ? " .
+            "ORDER BY id DESC LIMIT 1", array($patient_id, $encounter_id));
+
+        if (empty($row)) {
+            return null;
+        }
+
+        return $row['last_statement_date'];
+    }
 }

@@ -183,12 +183,12 @@ class X12RemoteTracker extends BaseService
         return $realFields;
     }
 
-    protected function buildInsertColumns($passed_in = array())
+    protected function buildInsertColumns($passed_in = array(), $options = [])
     {
         return parent::buildInsertColumns($this->onlyRealFields($passed_in));
     }
 
-    protected function buildUpdateColumns($passed_in = array())
+    protected function buildUpdateColumns($passed_in = array(), $options = [])
     {
         return parent::buildUpdateColumns($this->onlyRealFields($passed_in));
     }
