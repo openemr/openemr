@@ -476,7 +476,7 @@ function getAuthUsers()
             <div class='row'>
                 <div class='col col-12'>
                     <div class="h5">
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#profile_send_collapse' role='button' title="<?php echo xlt('Click to expand or collapse Send Profile panel.'); ?>"></i><?php echo xlt('Send Profiles') ?>
+                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#profile_send_collapse' role='button' title="<?php echo xla('Click to expand or collapse Send Profile panel.'); ?>"></i><?php echo xlt('Send Profiles') ?>
                         <span class="mx-auto"><button class="btn btn-sm btn-primary mb-1" onclick="return popProfileDialog()"><?php echo xlt('Manage Profiles') ?></button></span>
                     </div>
                 </div>
@@ -510,7 +510,7 @@ function getAuthUsers()
                         echo "<td><input type='checkbox' class='form-check-inline' name='send' data-send_profile='yes' value='" . $profile_esc . "' /></td>";
                         echo '<td>' . text($profiles['title']) . '</td>';
                         echo '<td>' . text($template_list) . '</td>';
-                        echo '<td>' . attr($total) . '</td>';
+                        echo '<td>' . text($total) . '</td>';
                         echo '</tr>';
                     }
                     if (empty($profile_list)) {
