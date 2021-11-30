@@ -181,7 +181,7 @@ class X12RemoteTracker extends BaseService
             }
         }
         return $realFields;
-    }      
+    }
 
     /**
      * Get the remote tracking entries by their status with the newest first
