@@ -1,0 +1,33 @@
+# docker-compose.yml for travis ci testing
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mariadb:10.6
+    command: ['mysqld','--character-set-server=utf8mb4']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    restart: always
+    image: openemr/dev-php-fpm:8.2
+    environment:
+      OPENEMR_BASE_URL_API: "https://nginx"
+      OPENEMR_BASE_URL_E2E: "http://nginx"
+    volumes:
+    - ../../:/usr/share/nginx/html/openemr
+    - ./php.ini:/usr/local/etc/php/php.ini:ro
+    depends_on:
+    - mysql
+  nginx:
+    restart: always
+    image: openemr/dev-nginx
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ../../:/usr/share/nginx/html/openemr
+    - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ../nginx/dummy-cert:/etc/nginx/dummy-cert:ro
+    - ../nginx/dummy-key:/etc/nginx/dummy-key:ro
+    depends_on:
+    - openemr
