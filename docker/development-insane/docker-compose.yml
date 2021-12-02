@@ -9,86 +9,42 @@
 #   1. go to contrib/util/docker directory
 #   2. docker-compose up -d
 #   3. Choose one of any of the following links:
-#        http://localhost:8070 (with Alpine 3.7 (Apache and PHP 7.1))
-#        http://localhost:8071 (with Alpine 3.9 (Apache and PHP 7.2))
-#        http://localhost:8072 (with Alpine 3.11 (Apache and PHP 7.3))
-#        http://localhost:8073 (with Alpine 3.12 (Apache and PHP 7.3))
-#        http://localhost:8074 (with Alpine 3.13 (Apache and PHP 7.4))
-#        http://localhost:8075 (with Alpine 3.13 (Apache and PHP 8.0))
-#        http://localhost:8076 (with Alpine 3.14 (Apache and PHP 7.4))
-#        http://localhost:8077 (with Alpine 3.14 (Apache and PHP 8.0))
-#        http://localhost:8078 (with Alpine 3.15 (Apache and PHP 7.4))
-#        http://localhost:8079 (with Alpine 3.15 (Apache and PHP 8.0))
-#        http://localhost:8080 (with Alpine Edge (Apache and now PHP 8.0))
-#        http://localhost:8081 (with Alpine 3.7 (Apache and PHP 7.1) with redis)
-#        http://localhost:8082 (with Alpine 3.9 (Apache and PHP 7.2) with redis)
-#        http://localhost:8083 (with Alpine 3.11 (Apache and PHP 7.3) with redis)
-#        http://localhost:8084 (with Alpine 3.12 (Apache and PHP 7.3) with redis)
-#        http://localhost:8085 (with Alpine 3.13 (Apache and PHP 7.4) with redis)
-#        http://localhost:8086 (with Alpine 3.13 (Apache and PHP 8.0) with redis)
-#        http://localhost:8087 (with Alpine 3.14 (Apache and PHP 7.4) with redis)
-#        http://localhost:8088 (with Alpine 3.14 (Apache and PHP 8.0) with redis)
-#        http://localhost:8089 (with Alpine 3.15 (Apache and PHP 7.4) with redis)
-#        http://localhost:8090 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
-#        http://localhost:8091 (with Alpine Edge (Apache and now PHP 8.0) with redis)
-#        http://localhost:8100 (with Nginx and PHP-FPM 5.6)
-#        http://localhost:8101 (with Nginx and PHP-FPM 7.0)
-#        http://localhost:8102 (with Nginx and PHP-FPM 7.1)
-#        http://localhost:8103 (with Nginx and PHP-FPM 7.2)
-#        http://localhost:8104 (with Nginx and PHP-FPM 7.3)
-#        http://localhost:8105 (with Nginx and PHP-FPM 7.4)
-#        http://localhost:8106 (with Nginx and PHP-FPM 8.0)
-#        http://localhost:8107 (with Nginx and PHP-FPM 8.1)
-#        http://localhost:8108 (with Nginx and PHP-FPM 8.2)
-#        http://localhost:8150 (with Nginx and PHP-FPM 5.6 with redis)
-#        http://localhost:8151 (with Nginx and PHP-FPM 7.0 with redis)
-#        http://localhost:8152 (with Nginx and PHP-FPM 7.1 with redis)
-#        http://localhost:8153 (with Nginx and PHP-FPM 7.2 with redis)
-#        http://localhost:8154 (with Nginx and PHP-FPM 7.3 with redis)
-#        http://localhost:8155 (with Nginx and PHP-FPM 7.4 with redis)
-#        http://localhost:8156 (with Nginx and PHP-FPM 8.0 with redis)
-#        http://localhost:8157 (with Nginx and PHP-FPM 8.1 with redis)
-#        http://localhost:8158 (with Nginx and PHP-FPM 8.2 with redis)
-#        https://localhost:9070 with SSL and Alpine 3.7 (with Apache and PHP 7.1)
-#        https://localhost:9071 with SSL and Alpine 3.9 (with Apache and PHP 7.2)
-#        https://localhost:9072 with SSL and Alpine 3.11 (with Apache and PHP 7.3)
-#        https://localhost:9073 with SSL and Alpine 3.12 (with Apache and PHP 7.3)
-#        https://localhost:9074 with SSL and Alpine 3.13 (with Apache and PHP 7.4)
-#        https://localhost:9075 with SSL and Alpine 3.13 (with Apache and PHP 8.0)
-#        https://localhost:9076 with SSL and Alpine 3.14 (with Apache and PHP 7.4)
-#        https://localhost:9077 with SSL and Alpine 3.14 (with Apache and PHP 8.0)
-#        https://localhost:9078 with SSL and Alpine 3.15 (with Apache and PHP 7.4)
-#        https://localhost:9079 with SSL and Alpine 3.15 (with Apache and PHP 8.0)
-#        https://localhost:9080 with SSL and Alpine Edge (with Apache and now PHP 9.0)
-#        https://localhost:9081 with SSL and Alpine 3.7 (with Apache and PHP 7.1 with redis)
-#        https://localhost:9082 with SSL and Alpine 3.9 (with Apache and PHP 7.2 with redis)
-#        https://localhost:9083 with SSL and Alpine 3.11 (with Apache and PHP 7.3 with redis)
-#        https://localhost:9084 with SSL and Alpine 3.12 (with Apache and PHP 7.3 with redis)
-#        https://localhost:9085 with SSL and Alpine 3.13 (with Apache and PHP 7.4 with redis)
-#        https://localhost:9086 with SSL and Alpine 3.13 (with Apache and PHP 8.0 with redis)
-#        https://localhost:9087 with SSL and Alpine 3.14 (with Apache and PHP 7.4 with redis)
-#        https://localhost:9088 with SSL and Alpine 3.14 (with Apache and PHP 8.0 with redis)
-#        https://localhost:9089 with SSL and Alpine 3.15 (with Apache and PHP 7.4 with redis)
-#        https://localhost:9090 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
-#        https://localhost:9091 with SSL and Alpine Edge (with Apache and now PHP 8.0 with redis)
-#        https://localhost:9100 with SSL (with Nginx and PHP-FPM 5.6)
-#        https://localhost:9101 with SSL (with Nginx and PHP-FPM 7.0)
-#        https://localhost:9102 with SSL (with Nginx and PHP-FPM 7.1)
-#        https://localhost:9103 with SSL (with Nginx and PHP-FPM 7.2)
-#        https://localhost:9104 with SSL (with Nginx and PHP-FPM 7.3)
-#        https://localhost:9105 with SSL (with Nginx and PHP-FPM 7.4)
-#        https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.0)
-#        https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.1)
-#        https://localhost:9108 with SSL (with Nginx and PHP-FPM 8.2)
-#        https://localhost:9150 with SSL (with Nginx and PHP-FPM 5.6 with redis)
-#        https://localhost:9151 with SSL (with Nginx and PHP-FPM 7.0 with redis)
-#        https://localhost:9152 with SSL (with Nginx and PHP-FPM 7.1 with redis)
-#        https://localhost:9153 with SSL (with Nginx and PHP-FPM 7.2 with redis)
-#        https://localhost:9154 with SSL (with Nginx and PHP-FPM 7.3 with redis)
-#        https://localhost:9155 with SSL (with Nginx and PHP-FPM 7.4 with redis)
-#        https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.0 with redis)
-#        https://localhost:9157 with SSL (with Nginx and PHP-FPM 8.1 with redis)
-#        https://localhost:9158 with SSL (with Nginx and PHP-FPM 8.2 with redis)
+#        http://localhost:8080 (with Alpine 3.12 (Apache and PHP 7.3))
+#        http://localhost:8081 (with Alpine 3.15 (Apache and PHP 7.4))
+#        http://localhost:8082 (with Alpine 3.15 (Apache and PHP 8.0))
+#        http://localhost:8083 (with Alpine Edge (Apache and now PHP 8.0))
+#        http://localhost:8090 (with Alpine 3.12 (Apache and PHP 7.3) with redis)
+#        http://localhost:8091 (with Alpine 3.15 (Apache and PHP 7.4) with redis)
+#        http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
+#        http://localhost:8093 (with Alpine Edge (Apache and now PHP 8.0) with redis)
+#        http://localhost:8100 (with Nginx and PHP-FPM 7.3)
+#        http://localhost:8101 (with Nginx and PHP-FPM 7.4)
+#        http://localhost:8102 (with Nginx and PHP-FPM 8.0)
+#        http://localhost:8103 (with Nginx and PHP-FPM 8.1)
+#        http://localhost:8104 (with Nginx and PHP-FPM 8.2)
+#        http://localhost:8150 (with Nginx and PHP-FPM 7.3 with redis)
+#        http://localhost:8151 (with Nginx and PHP-FPM 7.4 with redis)
+#        http://localhost:8152 (with Nginx and PHP-FPM 8.0 with redis)
+#        http://localhost:8153 (with Nginx and PHP-FPM 8.1 with redis)
+#        http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
+#        https://localhost:9080 with SSL and Alpine 3.12 (with Apache and PHP 7.3)
+#        https://localhost:9081 with SSL and Alpine 3.15 (with Apache and PHP 7.4)
+#        https://localhost:9082 with SSL and Alpine 3.15 (with Apache and PHP 8.0)
+#        https://localhost:9083 with SSL and Alpine Edge (with Apache and now PHP 9.0)
+#        https://localhost:9090 with SSL and Alpine 3.12 (with Apache and PHP 7.3 with redis)
+#        https://localhost:9091 with SSL and Alpine 3.15 (with Apache and PHP 7.4 with redis)
+#        https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
+#        https://localhost:9093 with SSL and Alpine Edge (with Apache and now PHP 8.0 with redis)
+#        https://localhost:9100 with SSL (with Nginx and PHP-FPM 7.3)
+#        https://localhost:9101 with SSL (with Nginx and PHP-FPM 7.4)
+#        https://localhost:9102 with SSL (with Nginx and PHP-FPM 8.0)
+#        https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
+#        https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
+#        https://localhost:9150 with SSL (with Nginx and PHP-FPM 7.3 with redis)
+#        https://localhost:9151 with SSL (with Nginx and PHP-FPM 7.4 with redis)
+#        https://localhost:9152 with SSL (with Nginx and PHP-FPM 8.0 with redis)
+#        https://localhost:9153 with SSL (with Nginx and PHP-FPM 8.1 with redis)
+#        https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 
 #
 #    On the main setup input screen:
@@ -102,117 +58,12 @@
 #
 version: '3.1'
 services:
-  openemr-7-1:
-    restart: always
-    image: openemr/openemr:flex-3.7
-    ports:
-    - 8070:80
-    - 9070:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-7-2:
-    restart: always
-    image: openemr/openemr:flex-3.9
-    ports:
-    - 8071:80
-    - 9071:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-7-3-311:
-    restart: always
-    image: openemr/openemr:flex-3.11
-    ports:
-    - 8072:80
-    - 9072:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
   openemr-7-3-312:
     restart: always
     image: openemr/openemr:flex-3.12
     ports:
-    - 8073:80
-    - 9073:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-7-4-313:
-    restart: always
-    image: openemr/openemr:flex-3.13
-    ports:
-    - 8074:80
-    - 9074:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-8-0-313:
-    restart: always
-    image: openemr/openemr:flex-3.13-8
-    ports:
-    - 8075:80
-    - 9075:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-7-4-314:
-    restart: always
-    image: openemr/openemr:flex-3.14
-    ports:
-    - 8076:80
-    - 9076:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-8-0-314:
-    restart: always
-    image: openemr/openemr:flex-3.14-8
-    ports:
-    - 8077:80
-    - 9077:443
+    - 8080:80
+    - 9080:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -226,8 +77,8 @@ services:
     restart: always
     image: openemr/openemr:flex-3.15
     ports:
-    - 8078:80
-    - 9078:443
+    - 8081:80
+    - 9081:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -241,8 +92,8 @@ services:
     restart: always
     image: openemr/openemr:flex-3.15-8
     ports:
-    - 8079:80
-    - 9079:443
+    - 8082:80
+    - 9082:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
@@ -282,53 +133,6 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8080:80
-    - 9080:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-  openemr-7-1-redis:
-    restart: always
-    image: openemr/openemr:flex-3.7
-    ports:
-    - 8081:80
-    - 9081:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-7-2-redis:
-    restart: always
-    image: openemr/openemr:flex-3.9
-    ports:
-    - 8082:80
-    - 9082:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-7-3-redis-311:
-    restart: always
-    image: openemr/openemr:flex-3.11
-    ports:
     - 8083:80
     - 9083:443
     volumes:
@@ -339,78 +143,13 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
       EMPTY: "yes"
   openemr-7-3-redis-312:
     restart: always
     image: openemr/openemr:flex-3.12
     ports:
-    - 8084:80
-    - 9084:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-7-4-redis-313:
-    restart: always
-    image: openemr/openemr:flex-3.13
-    ports:
-    - 8085:80
-    - 9085:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-8-0-redis-313:
-    restart: always
-    image: openemr/openemr:flex-3.13-8
-    ports:
-    - 8086:80
-    - 9086:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-7-4-redis-314:
-    restart: always
-    image: openemr/openemr:flex-3.14
-    ports:
-    - 8087:80
-    - 9087:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      DEBUG_COLORS: "true"
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: "yes"
-      REDIS_SERVER: "redis"
-      EMPTY: "yes"
-  openemr-8-0-redis-314:
-    restart: always
-    image: openemr/openemr:flex-3.14-8
-    ports:
-    - 8088:80
-    - 9088:443
+    - 8090:80
+    - 9090:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -425,8 +164,8 @@ services:
     restart: always
     image: openemr/openemr:flex-3.15
     ports:
-    - 8089:80
-    - 9089:443
+    - 8091:80
+    - 9091:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -441,8 +180,8 @@ services:
     restart: always
     image: openemr/openemr:flex-3.15-8
     ports:
-    - 8090:80
-    - 9090:443
+    - 8092:80
+    - 9092:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -457,8 +196,8 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8091:80
-    - 9091:443
+    - 8093:80
+    - 9093:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -567,14 +306,6 @@ services:
     - 9103:443
     - 8104:84
     - 9104:444
-    - 8105:85
-    - 9105:445
-    - 8106:86
-    - 9106:446
-    - 8107:87
-    - 9107:447
-    - 8108:88
-    - 9108:448
     - 8150:90
     - 9150:450
     - 8151:91
@@ -585,68 +316,22 @@ services:
     - 9153:453
     - 8154:94
     - 9154:454
-    - 8155:95
-    - 9155:455
-    - 8156:96
-    - 9156:456
-    - 8157:97
-    - 9157:457
-    - 8158:98
-    - 9158:458
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     - ../library/dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
     - ../library/dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
-    - dev-php-fpm-5-6
-    - dev-php-fpm-7-0
-    - dev-php-fpm-7-1
-    - dev-php-fpm-7-2
     - dev-php-fpm-7-3
+    - dev-php-fpm-7-4
     - dev-php-fpm-8-0
     - dev-php-fpm-8-1
     - dev-php-fpm-8-2
-    - dev-php-fpm-5-6-redis
-    - dev-php-fpm-7-0-redis
-    - dev-php-fpm-7-1-redis
-    - dev-php-fpm-7-2-redis
     - dev-php-fpm-7-3-redis
+    - dev-php-fpm-7-4-redis
     - dev-php-fpm-8-0-redis
     - dev-php-fpm-8-1-redis
     - dev-php-fpm-8-2-redis
-  dev-php-fpm-5-6:
-    restart: always
-    image: openemr/dev-php-fpm:5.6
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-0:
-    restart: always
-    image: openemr/dev-php-fpm:7.0
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-1:
-    restart: always
-    image: openemr/dev-php-fpm:7.1
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-1/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-2:
-    restart: always
-    image: openemr/dev-php-fpm:7.2
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3:
     restart: always
     image: openemr/dev-php-fpm:7.3
@@ -685,38 +370,6 @@ services:
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-5-6-redis:
-    restart: always
-    image: openemr/dev-php-fpm:5.6-redis
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-0-redis:
-    restart: always
-    image: openemr/dev-php-fpm:7.0-redis
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-1-redis:
-    restart: always
-    image: openemr/dev-php-fpm:7.1-redis
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-7-2-redis:
-    restart: always
-    image: openemr/dev-php-fpm:7.2-redis
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-7-3-redis:
