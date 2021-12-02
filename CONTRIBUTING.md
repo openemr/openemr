@@ -136,7 +136,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools register-oauth2-client-demo https://eleven.openemr.io/a/openemr'
           ```
 3. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 8.0. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 7.4 , then just need to change it to `image: openemr/openemr:flex-3.14`. To use PHP 7.3 requires 2 changes; change image to `image: openemr/openemr:flex-3.12` and then add the following environment setting to the openemr service: `XDEBUG_IDE_KEY: PHPSTORM`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.0. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 7.4 , then just need to change it to `image: openemr/openemr:flex-3.15`.
 4. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
