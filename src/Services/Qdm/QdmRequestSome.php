@@ -54,6 +54,6 @@ class QdmRequestSome implements QdmRequestInterface
 
     public function getFilter()
     {
-        // TODO: Implement getFilter() method. We don't have a use-case for some patients yet.
+        // TODO: Implement getFilter() method.
     }
 }
