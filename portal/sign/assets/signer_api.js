@@ -597,7 +597,7 @@ function initSignerApi() {
         }
 
         // for our dynamically added modal
-        $("#openSignModal").on('show.bs.modal', function (e) {
+        $("#openSignModal").on('shown.bs.modal', function (e) {
             let type = $('#openSignModal #signatureModal').data('type');
             if (type) {
                 if (type === "admin-signature") {

@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,19 +17,19 @@
 namespace PatientPortal;
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 \OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 } else {
     \OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -48,15 +48,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 use OpenEMR\Core\Header;
 use OpenEMR\PatientPortal\Chat\ChatController;
 
-define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
-
-if (isset($_REQUEST['fullscreen'])) {
-    $_SESSION['whereto'] = '#messagescard';
-    define('IS_FULLSCREEN', true);
-} else {
-    define('IS_FULLSCREEN', false);
-}
-
+define('C_USER', IS_PORTAL ?: IS_DASHBOARD);
 define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
@@ -69,15 +61,14 @@ $msgApp = new ChatController();
 <head>
     <meta charset="utf-8" />
     <?php
-        Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']);
+        Header::setupHeader(['no_main-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
     ?>
-    <title><?php echo xlt('Secure Patient Chat'); ?></title>
+    <title><?php echo xlt('Secure Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />
-
 </head>
 <script>
 (function() {
-    var MsgApp = angular.module('MsgApp',['ngSanitize','summernote',"checklist-model"]);
+    var MsgApp = angular.module('MsgApp',['ngSanitize', "checklist-model"]);
     MsgApp.config(function( $compileProvider ) {
             $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|ftp|blob):|data:image\//);
           }
@@ -139,7 +130,6 @@ $msgApp = new ChatController();
         $scope.user = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
         $scope.userid = <?php echo IS_PORTAL ? js_escape($_SESSION['pid']) : js_escape($_SESSION['authUser']); ?>;
         $scope.isPortal = "<?php echo IS_PORTAL;?>";
-        $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
         $scope.noRecipError = <?php echo xlj("Please Select a Recipient for Message.") ?>;
@@ -148,25 +138,6 @@ $msgApp = new ChatController();
             message: null,
             sender_id: $scope.userid,
             recip_id: 0
-        };
-        $scope.options =  {
-            height: 200,
-            focus: true,
-            placeholder: 'Start typing your message...',
-            //direction: 'rtl',
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link','picture', 'video', 'hr']],
-                ['view', ['fullscreen', 'codeview']]
-            ],
-            popover: {
-                image: [],
-                link: [],
-                air: []
-            }
         };
        $scope.checkAll = function() {
            $scope.pusers = [];
@@ -193,7 +164,7 @@ $msgApp = new ChatController();
                 var self = this;
                 if (! self.vars.status) {
                     self.vars.interval = window.setInterval(function() {
-                        window.document.title = (self.vars.originalTitle == window.document.title) ?
+                        window.document.title = (self.vars.originalTitle === window.document.title) ?
                         title : self.vars.originalTitle;
                     },  intervalSpeed || 500);
                     self.vars.status = 1;
@@ -206,16 +177,24 @@ $msgApp = new ChatController();
             }
         };
 
+        $scope.editor = '';
         $scope.editmsg = function() {
-            $('.summernote').summernote();
+            $scope.editor = CKEDITOR.instances['messageContent'];
+            if ($scope.editor) {
+                $scope.editor.destroy(true);
+            }
+            $scope.editor = CKEDITOR.replace('messageContent', {
+                removeButtons: 'PasteFromWord',
+                height: 250,
+                width: '100%',
+                resize_maxHeight: 650
+            });
         };
 
         $scope.saveedit = function() {
-             var makrup = $('.summernote').summernote('code');
-            $scope.me.message = makrup;
+            $scope.me.message = CKEDITOR.instances.messageContent.getData();
             $scope.saveMessage();
-            $('.summernote').summernote('code', ''); //add this options to reset editor or not-default is persistent content
-            //$('.summernote').summernote('destroy');
+            $scope.editor.destroy(true);
         };
 
         $scope.saveMessage = function(form, callback) {
@@ -258,7 +237,7 @@ $msgApp = new ChatController();
             }
             window.Notification.requestPermission(function (permission) {
                 var lastMessage = $scope.getLastMessage();
-                if (permission == 'granted' && lastMessage && lastMessage.username) {
+                if (permission === 'granted' && lastMessage && lastMessage.username) {
                     var notify = new window.Notification('Message notification from ' + lastMessage.username + ' : ', {
                         body: 'New message' //lastMessage.message
                     });
@@ -268,10 +247,10 @@ $msgApp = new ChatController();
                     notify.onclose = function() {
                         $scope.pageTitleNotificator.off();
                     };
-                    var timmer = setInterval(function() {
+                    let timer = setInterval(function() {
                         notify && notify.close();
-                        typeof timmer !== 'undefined' && window.clearInterval(timmer);
-                    }, 60000);
+                        typeof timer !== 'undefined' && window.clearInterval(timer);
+                    }, 100000);
                 }
             });
         };
@@ -345,8 +324,8 @@ $msgApp = new ChatController();
 
         $scope.init = function() {
             $scope.listMessages();
-            $scope.pidMessages = window.setInterval($scope.listMessages, 12000);
-            $scope.pidPingServer = window.setInterval($scope.pingServer, 20000);
+            $scope.pidMessages = window.setInterval($scope.listMessages, 3000);
+            $scope.pidPingServer = window.setInterval($scope.pingServer, 5000);
             $scope.getAuthUsers();
             $("#popeditor").on("show.bs.modal", function() {
               var height = $(window).height() - 200;
@@ -371,7 +350,7 @@ $msgApp = new ChatController();
 
         $scope.openModal = function(e) {
             var mi = $('#popeditor').modal({backdrop: "static"});
-           //$scope.editmsg();
+           $scope.editmsg();
         };
 
         $scope.playAudio = function() {
@@ -590,11 +569,10 @@ $msgApp = new ChatController();
             </div>
             <div class="col-md-8 fixed-panel">
                 <div class="card direct-chat direct-chat-warning">
-                    <div class="card-heading">
-                        <div class="clearfix">
-                            <a class="btn btn-sm btn-primary ml10" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
-                            <a class="btn btn-sm btn-success float-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
-                            <a class="btn btn-sm btn-success float-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
+                    <div class="card-heading bg-dark text-light py-2">
+                        <div class="clearfix btn-group ml-2">
+                            <a class='btn btn-primary' href='./../patient/provider' ng-show='!isPortal'><?php echo xlt('Home'); ?></a>
+                            <a class="btn btn-secondary" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -641,14 +619,14 @@ $msgApp = new ChatController();
             <div class="modal-content">
                 <form>
                     <div class="modal-header">
+                        <h5 class='modal-title'><?php echo xlt('You may send Message with Image or Video'); ?></h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
                             <span class="sr-only"><?php echo xlt('Close'); ?></span>
                         </button>
-                        <h4 class="modal-title"><?php echo xlt('Style your messsage and/or add Image/Video'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <summernote config="options"></summernote>
+                        <textarea cols='80' rows='10' id='messageContent' name='content'></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>

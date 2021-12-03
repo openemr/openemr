@@ -166,6 +166,7 @@ class AppointmentService extends BaseService
                        pce.pc_eventDate,
                        pce.pc_startTime,
                        pce.pc_endTime,
+                       pce.pc_duration,
               	       pce.pc_facility,
                        pce.pc_billing_location,
                        pce.pc_catid,
@@ -288,11 +289,37 @@ class AppointmentService extends BaseService
     }
 
     /**
+     * Returns a list of appointment statuses (also used with encounters).
+     * @return array
+     */
+    public function getAppointmentStatuses()
+    {
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);
+        return $options;
+    }
+
+    /**
+     * Checks to see if the passed in status is a valid appointment status for calendar appointments.
+     * @param $status_option_id The status to check if its a valid appointment status
+     * @return bool True if its valid, false otherwise
+     */
+    public function isValidAppointmentStatus($status_option_id)
+    {
+        $listService = new ListService();
+        $option = $listService->getListOption('apptstat', $status_option_id);
+        if (!empty($option)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Updates the status for an appointment.  TODO: should be refactored at some point to update the entire record
-     * @param $eid The id of the appointment event
-     * @param $status The status the appointment event should be set to.
-     * @param $user The user performing the update
-     * @param $encounter The encounter of the appointment
+     * @param $eid number The id of the appointment event
+     * @param $status string The status the appointment event should be set to.
+     * @param $user number The user performing the update
+     * @param $encounter number The encounter of the appointment
      */
     public function updateAppointmentStatus($eid, $status, $user, $encounter = '')
     {

@@ -17,6 +17,7 @@ use OpenEMR\Core\Header;
 $pid = $this->cpid;
 $recid = $this->recid;
 $docid = $this->docid;
+$help_id = $this->help_id;
 $is_module = $this->is_module;
 $is_portal = $this->is_portal;
 $is_dashboard = (empty($is_module) && empty($is_portal));
@@ -43,7 +44,7 @@ if ($category) {
 $catname = $catname ?: xlt("Onsite Portal Reviewed");
 
 if (!$docid) {
-    $docid = 'Privacy_Document';
+    $docid = 'Privacy Document';
 }
 
 $isnew = false;
@@ -68,14 +69,14 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
@@ -120,6 +121,13 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 });
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
+
+                $('#showNav').on('click', () => {
+                    parent.document.getElementById('topNav').classList.toggle('collapse');
+                    var rect = parent.document.getElementById('patdocuments').getBoundingClientRect();
+                    var offsetTop = rect.top + parent.document.body.scrollTop;
+                    parent.window.scrollTo(0, offsetTop);
+                });
             }
             console.log('init done template');
 
@@ -271,7 +279,8 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
         }
     </script>
     <div class="container-fluid">
-        <nav id="verytop" class="nav navbar-light bg-light navbar-expand p-1 m-1 sticky-top">
+        <nav id="verytop" class="nav navbar-light bg-light navbar-expand pt-4 pb-2 m-0 sticky-top">
+            <!--<a id='showNav' class='btn btn-secondary ml-auto' onclick='parent.document.getElementById("topNav").classList.toggle("collapse");'><?php /*echo xlt('View Mode'); */?></a>-->
             <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
             <div id="topmenu" class="mr-auto">
                 <ul class="navbar-nav mr-auto">
@@ -279,7 +288,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     <div class='nav helpHide d-none'>
                         <!--<a id='docTitle' class='navbar-brand' href='#'><?php /*echo xlt('Form Actions') */ ?></a>-->
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
@@ -300,12 +309,12 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                         </ul>
                     </div>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><i class='fa fa-toggle-on mr-1' aria-hidden='true'></i><?php echo xlt('History') ?>
+                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"></i><?php echo xlt('History') ?>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
-                            <a id="Help" class="nav-link text-primary btn btn-outline-primary" onclick='page.newDocument(cpid, cuser, "Help.tpl");'><?php echo xlt('Help'); ?></a>
+                            <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
                         <!-- future popout-->
                         <!--<li class="nav-item mb-1">
@@ -316,9 +325,11 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <li class='nav-item nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span>
-                        </a>
+                    <li class='nav-item mb-1'>
+                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                    </li>
+                    <li class='nav-item mb-1'>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -346,7 +357,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 <div id="collectionAlert"></div>
             </div><!-- close left pending -->
             <!-- Right editor container -->
-            <div class="flex-column col-md-9 col-lg-10">
+            <div class="flex-column col-md-10 col-lg-10">
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card p-2 m-1" id="docpanel">
@@ -363,13 +374,14 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />
+                            <input type='hidden' name='template_id' id='template_id' value='' />
                             <input type="hidden" name="handler" id="handler" value="download" />
                             <input type="hidden" name="status" id="status" value="Open" />
                         </form>
                         <div class="clearfix">
-            <span>
-                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
-            </span>
+                            <span>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                            </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
@@ -416,7 +428,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
-                            <button class='btn btn-outline-success history-btn'><%= _.escape(item.get('docType').slice(0, -4).replace(/_/g, ' ') || '') %></button>
+                            <button class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
                         </td>
                         <td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
                         <td><%if (item.get('reviewDate') > '1969-12-31 24') { %><%= item.get('reviewDate') %><% } else { %>Pending<% } %></td>
@@ -437,5 +449,5 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
     </div>
     <?php
     // footer close body html
-    $this->display('_Footer.tpl.php');
+    //$this->display('_Footer.tpl.php');
     ?>
