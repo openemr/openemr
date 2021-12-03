@@ -2100,7 +2100,8 @@
         ],
         "global_req": [
           "enable_hylafax",
-          "enable_scanner"
+          "enable_scanner",
+          "oedocumofax_enable"
         ]
       },
       {
