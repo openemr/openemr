@@ -544,7 +544,13 @@ class Gacl {
                                                 if ( isset($single_row[1]) AND $single_row[1] == 1 ) {
                                                         $allow = TRUE;
                                                 }
-                                                $retarr[] = array('acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow);
+                                                if ($retarr === false) {
+                                                    // PHP 8.1 deprecates Autovivification on false and it will break in PHP 9.0, so need to set the
+                                                    //  array explicitly
+                                                    $retarr = [['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow]];
+                                                } else {
+                                                    $retarr[] = array('acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow);
+                                                }
                                         }
                                 }
                                 else {
