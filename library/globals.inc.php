@@ -2919,7 +2919,7 @@ $GLOBALS_METADATA = array(
         'MedicareReferrerIsRenderer' => array(
             xl('Medicare Referrer Is Renderer'),
             'bool',                           // data type
-            '0',                              // default = true
+            '0',                              // default = false
             xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
         ),
 
