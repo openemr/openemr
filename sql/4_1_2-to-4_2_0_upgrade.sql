@@ -2792,7 +2792,7 @@ ALTER TABLE `clinical_rules` ADD COLUMN `amc_2014_flag` tinyint(1) COMMENT '2014
 #EndIf
 
 #IfMissingColumn clinical_rules amc_code_2014
-ALTER TABLE `clinical_rules` ADD COLUMN `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)';
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)';
 #EndIf
 
 #IfMissingColumn clinical_rules cqm_2011_flag
