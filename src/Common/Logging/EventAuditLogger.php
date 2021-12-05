@@ -18,10 +18,11 @@ use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
 use Waryway\PhpTraitsLibrary\Singleton;
 
-#[AllowDynamicProperties]
 class EventAuditLogger
 {
     use Singleton;
+
+    private $cryptoGen = null;
 
     /**
      * Event action codes indicate whether the event is read/write.
@@ -511,9 +512,8 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-
         // Set up crypto object that will be used by this singleton class for encryption/decryption (if not set up already)
-        if (!isset($this->cryptoGen)) {
+        if (is_null($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
         }
 
@@ -734,7 +734,7 @@ MSG;
         }
 
         // Encrypt if applicable
-        if (!isset($this->cryptoGen)) {
+        if (is_null($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
         }
         $encrypt = 'No';
