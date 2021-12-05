@@ -22,7 +22,7 @@ class EventAuditLogger
 {
     use Singleton;
 
-    private $cryptoGen = null;
+    private $cryptoGen;
 
     /**
      * Event action codes indicate whether the event is read/write.
@@ -513,7 +513,8 @@ MSG;
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
         // Set up crypto object that will be used by this singleton class for encryption/decryption (if not set up already)
-        if (is_null($this->cryptoGen)) {
+        if (!isset($this->cryptoGen)) {
+            error_log("DEBUG1");
             $this->cryptoGen = new CryptoGen();
         }
 
@@ -734,7 +735,7 @@ MSG;
         }
 
         // Encrypt if applicable
-        if (is_null($this->cryptoGen)) {
+        if (!isset($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
         }
         $encrypt = 'No';
