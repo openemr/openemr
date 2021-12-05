@@ -514,7 +514,6 @@ MSG;
     {
         // Set up crypto object that will be used by this singleton class for encryption/decryption (if not set up already)
         if (!isset($this->cryptoGen)) {
-            error_log("DEBUG1");
             $this->cryptoGen = new CryptoGen();
         }
 
