@@ -59,15 +59,9 @@ class Claim
         $this->pay_to_provider = ''; // will populate from facility someday :)
         $this->x12_partner = $this->getX12Partner($this->procs[0]['x12_partner_id']);
         $this->provider = (new UserService())->getUser($this->encounter['provider_id']);
-
-        // Selecting the billing facility assigned to the encounter. If none,
-        // try the first (and hopefully only) facility marked as a billing location.
-        if (empty($this->encounter['billing_facility'])) {
-              $this->billing_facility = $this->facilityService->getPrimaryBillingLocation();
-        } else {
-              $this->billing_facility = $this->facilityService->getById($this->encounter['billing_facility']);
-        }
-
+        $this->billing_facility = empty($this->encounter['billing_facility']) ?
+            $this->facilityService->getPrimaryBillingLocation() :
+            $this->facilityService->getById($this->encounter['billing_facility']);
         $this->insurance_numbers = $this->getInsuranceNumbers($this->procs[0]['payer_id'], $this->encounter['provider_id']);
         $this->patient_data = (new PatientService())->findByPid($this->pid);
         $this->billing_options = $this->getMiscBillingOptions($this->pid, $this->encounter_id);
