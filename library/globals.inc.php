@@ -1277,6 +1277,13 @@ $GLOBALS_METADATA = array(
             xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ),
 
+        'MedicareReferrerIsRenderer' => array(
+            xl('Medicare Referrer Is Renderer'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
+        ),
+
         'statement_logo' => array(
             xl('Statement Logo GIF Filename'),
             'text',                           // data type
@@ -2914,13 +2921,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             '',
             xl('You may put text here as the default complaint in the New Patient Encounter form.')
-        ),
-
-        'MedicareReferrerIsRenderer' => array(
-            xl('Medicare Referrer Is Renderer'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
         ),
 
         'post_to_date_benchmark' => array(
