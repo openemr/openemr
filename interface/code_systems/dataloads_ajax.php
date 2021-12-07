@@ -10,9 +10,11 @@
  * @author    Rohit Kumar <pandit.rohit@netsity.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
  * @copyright Copyright (c) 2012 Patient Healthcare Analytics, Inc.
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,10 +65,10 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         padding: 20px;
         background-color: var(--gray200);
     }
-    <!-- Keeping empty classes for jquery hooks -->    
-    .inst_dets {               
+    <!-- Keeping empty classes for jquery hooks -->
+    .inst_dets {
     }
-    .stg_dets {        
+    .stg_dets {
     }
     .stg {
         font-size: 0.8rem;
@@ -130,7 +132,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     //
     // placemaker for when support DSMIV
     //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
+    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET", "VENOM");
     foreach ($db_list as $db) {
         ?>
         <div class="card">
@@ -182,7 +184,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 </div>
 
 <script>
-    const dbList = ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET'];
+    const dbList = ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET', 'VENOM'];
 
     dbList.forEach((dbName) => {
         $(`#collapse${dbName}`).on('show.bs.collapse', function () {

@@ -44,8 +44,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -165,6 +167,13 @@ define_external_table($code_external_tables, 1, 'icd10_dx_order_code', 'formatte
 define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_code', 'long_desc', 'short_desc', array("active='1'","valid_for_coding = '1'"), 'revision DESC');
 //**** End ICD 10 Definitions
 
+define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', array(), '');
+
+// VeNom Coding Group
+define_external_table($code_external_tables, 14, 'venom_dx', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
+define_external_table($code_external_tables, 15, 'venom_dx_test', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
+define_external_table($code_external_tables, 16, 'venom_proc', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
+
 /**
  * This array stores the external table options. See above for $code_types array
  * 'external' attribute  for explanation of the option listings.
@@ -182,7 +191,11 @@ $ct_external_options = array(
   '9' => xl('SNOMED (RF1) Procedure'),
   '10' => xl('SNOMED (RF2) Diagnosis'),
   '11' => xl('SNOMED (RF2) Clinical Term'),
-  '12' => xl('SNOMED (RF2) Procedure')
+  '12' => xl('SNOMED (RF2) Procedure'),
+  '13' => xl('CQM (Mixed Types) Value Set'),
+  '14' => xl('VeNom Diagnosis'),
+  '15' => xl('VeNom Diagnostic Tests'),
+  '16' => xl('VeNom Procedures'),
 );
 
 /**

@@ -11,11 +11,15 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
@@ -631,6 +635,58 @@ function valueset_import($type)
         return true;
 }
 
+function venom_import($db) {
+    $dir_venom = $GLOBALS['temporary_files_dir'] . "/" . $db . "/";
+    $dir = str_replace('\\', '/', $dir_venom);
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
+    if (is_dir($dir) && $handle = opendir($dir)) {
+        while (false !== ($filename = readdir($handle))) {
+            if (!stripos($filename, ".xlsx")) {
+                continue;
+            }
+            $xlsx = new Xlsx();
+            $spreadsheet = $xlsx->load("{$dir}{$filename}");
+            $dataArray = $spreadsheet->getActiveSheet()->toArray();
+            // Start at $i = 1 to avoid the header row
+            for ($i = 1; $i < count($dataArray); $i++) {
+                if ($dataArray[$i][3] == "0") {
+                    continue; // Ignore inactive codes
+                }
+
+                if ($dataArray[$i][8] == "0" && $dataArray[$i][9] == "0") {
+                    continue; // Ignore the row if not applicable to small or large animals
+                }
+
+                if ($dataArray[$i][5] == "Ignore") {
+                    continue; // Ignore rows with a subset of Ignore
+                }
+
+                $tableName = false;
+                if ($dataArray[$i][4] == "14") {
+                    $tableName = "venom_dx";
+                } elseif ($dataArray[$i][4] == "11") {
+                    $tableName = "venom_dx_test";
+                } elseif ($dataArray[$i][4] == "4") {
+                    $tableName = "venom_proc";
+                }
+
+                if ($tableName) {
+                    $sql = "INSERT INTO $tableName SET dict_id = ?, term = ?, approved = ?, active = ?, subset_id = ?, subset = ?, first_release = ?, top_level_model = ?, large = ?, small = ?, farm = ?, exotic = ?, equine = ?";
+                    sqlStatementNoLog($sql, $dataArray[$i]);
+                }
+            }
+        }
+    }
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("COMMIT");
+    sqlStatementNoLog("SET autocommit=1");
+    return true;
+}
+
 // Function to clean up temp files
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type)
@@ -656,6 +712,8 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
     } elseif ($type == 'CQM_VALUESET') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum));
         return true;
+    } elseif ($type == 'VENOM') {
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'VENOM',?,?,?)", array($revision, $version, $file_checksum));
     } else { // $type == 'ICD10')
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum));
         return true;
