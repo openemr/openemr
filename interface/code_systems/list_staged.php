@@ -93,7 +93,6 @@ if (is_dir($mainPATH)) {
         $i++;
         $file = $mainPATH . "/" . $file;
         if (is_file($file)) {
-
             if (strpos($file, "README") !== false) {
                 $allow_file = false;
                 continue;

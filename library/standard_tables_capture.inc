@@ -635,7 +635,8 @@ function valueset_import($type)
         return true;
 }
 
-function venom_import($db) {
+function venom_import($db)
+{
     $dir_venom = $GLOBALS['temporary_files_dir'] . "/" . $db . "/";
     $dir = str_replace('\\', '/', $dir_venom);
 
