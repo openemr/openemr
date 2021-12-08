@@ -25,8 +25,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\UserService;
-
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -43,6 +44,15 @@ $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
 if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, array('view','write'))) {
     echo xlt("access not allowed");
     exit();
+}
+
+if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
+    /**
+     * @var EventDispatcher
+     */
+    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+} else {
+    throw new Exception("Could not get EventDispatcher from kernel", 1);
 }
 
 ?>
@@ -519,26 +529,33 @@ if (
 
 // Convert the flat list of menu items into a multi-dimensional array based on the category
 // decide what will be displayed (name or nickname)
-$menuArray = [];
-foreach ($reg as $item) {
-    $tmp = explode('|', $item['aco_spec']);
-    if (!empty($tmp[1])) {
-        if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-            continue;
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+    $menuArray = $menuEvent->getMenuData();
+    $reg = getFormsByCategory();
+    foreach ($reg as $item) {
+        $tmp = explode('|', $item['aco_spec']);
+        if (!empty($tmp[1])) {
+            if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
+                continue;
+            }
         }
+
+        $_cat = trim($item['category']);
+        $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
+        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        unset($item['category']);
+        unset($item['name']);
+        unset($item['nickname']);
+        $menuArray[$_cat]['children'][] = $item;
     }
+    $menuEvent->setMenuData($menuArray);
+    return $menuEvent;
+});
 
-    $_cat = trim($item['category']);
-    $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-    $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
-    unset($item['category']);
-    unset($item['name']);
-    unset($item['nickname']);
-    $menuArray[$_cat]['children'][] = $item;
-}
 
-// Module hooks
-$module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
+// Zend Module hooks
+$eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
+    $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
         FROM modules_hooks_settings AS msh
         LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
         LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
@@ -548,23 +565,27 @@ $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name
             AND attached_to='encounter'
         ORDER BY mod_id");
 
-$moduleMenuArray = [];
+    $menuData = $menuEvent->getMenuData();
 
-while ($row = sqlFetchArray($module_query)) {
-    $_cat = $row['mod_ui_name'];
-    if ($row['type'] == 0) {
-        $modulePath = $GLOBALS['customModDir'];
-        $added = "";
-    } else {
-        $modulePath = $GLOBALS['zendModDir'];
-        $added = "index";
+    while ($row = sqlFetchArray($module_query)) {
+        $_cat = $row['mod_ui_name'];
+        if ($row['type'] == 0) {
+            $modulePath = $GLOBALS['customModDir'];
+            $added = "";
+        } else {
+            $modulePath = $GLOBALS['zendModDir'];
+            $added = "index";
+        }
+
+        $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
+        $row['menu_name'] = $row['menu_name'] ?: "No_Name";
+        $row['href'] = $relativeLink;
+        $menuData[$_cat]['children'][] = $row;
     }
 
-    $relativeLink = "../../modules/{$modulePath}/public/{$row['path']}";
-    $row['menu_name'] = $row['menu_name'] ?: "No_Name";
-    $row['href'] = $relativeLink;
-    $moduleMenuArray[$_cat]['children'][] = $row;
-}
+    $menuEvent->setMenuData($menuData);
+    return $menuEvent;
+});
 
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
@@ -603,6 +624,9 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     }
 }
 
+$encounterMenuEvent = new EncounterMenuEvent();
+$menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
+
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 $t = $twig->getTwig();
 echo $t->render('encounter/forms/navbar.html.twig', [
@@ -610,8 +634,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
     'patientName' => $patientName,
     'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
     'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
-    'menuArray' => $menuArray,
-    'moduleMenuArray' => $moduleMenuArray,
+    'menuArray' => $menu->getMenuData(),
 ]);
 ?>
 

@@ -227,14 +227,14 @@ function generate_select_list(
         }
 
         while ($lrow = sqlFetchArray($lres)) {
-            $selectedValues = explode("|", $currvalue);
+            $selectedValues = explode("|", $currvalue ?? '');
 
             $optionValue = attr($lrow ['option_id']);
             $s .= "<option value='$optionValue'";
 
             if (
-                (strlen($currvalue) == 0 && $lrow ['is_default'] && !$ignore_default) ||
-                (strlen($currvalue) > 0 && in_array($lrow ['option_id'], $selectedValues))
+                (strlen($currvalue ?? '') == 0 && $lrow ['is_default'] && !$ignore_default) ||
+                (strlen($currvalue ?? '') > 0 && in_array($lrow ['option_id'], $selectedValues))
             ) {
                 $s .= " selected";
                 $got_selected = true;
@@ -254,7 +254,7 @@ function generate_select_list(
     /*
       To show the inactive item in the list if the value is saved to database
       */
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && strlen($currvalue ?? '') > 0) {
         $lres_inactive = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
         $lrow_inactive = sqlFetchArray($lres_inactive);
@@ -265,7 +265,7 @@ function generate_select_list(
         }
     }
 
-    if (!$got_selected && strlen($currvalue) > 0 && !$multiple) {
+    if (!$got_selected && strlen($currvalue ?? '') > 0 && !$multiple) {
         $list_id = $backup_list;
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue));
 
@@ -280,7 +280,7 @@ function generate_select_list(
             $fontText = xlt('Fix this');
             $s .= " <span class='text-danger' title='$fontTitle'>$fontText!</span>";
         }
-    } elseif (!$got_selected && strlen($currvalue) > 0 && $multiple) {
+    } elseif (!$got_selected && strlen($currvalue ?? '') > 0 && $multiple) {
         //if not found in main list, display all selected values that exist in backup list
         $list_id = $backup_list;
 
@@ -503,7 +503,7 @@ function generate_form_field($frow, $currvalue)
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
 
-    $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
+    $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
 
     $data_type   = $frow['data_type'];
     $field_id    = $frow['field_id'];
@@ -3511,7 +3511,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
             $currvalue  = '';
             $jump_new_row = isOption($frow['edit_options'], 'J');
             $prepend_blank_row = isOption($frow['edit_options'], 'K');
-            $portal_exclude = ($_SESSION["patient_portal_onsite_two"] ?? '' && isOption($frow['edit_options'], 'EP')) ?? null;
+            $portal_exclude = (!empty($_SESSION["patient_portal_onsite_two"]) && isOption($frow['edit_options'], 'EP')) ?? null;
 
             if (!empty($portal_exclude)) {
                 continue;

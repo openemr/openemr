@@ -219,7 +219,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         $content .= "PID|" .
         "1|" . // 1. Set id
         "|" .
-        $r['patientid'] . "^^^^MR" . "|" . // 3. (R) Patient indentifier list
+        $r['patientid'] . "^^^^MR" . "|" . // 3. (R) Patient identifier list
         "|" . // 4. (B) Alternate PID
         "^^^^^^~^^^^^^S" . "|" . // 5.R. Name
         "|" . // 6. Mather Maiden Name

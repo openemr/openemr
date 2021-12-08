@@ -317,9 +317,9 @@ function insuranceSelect()
 {
     global $ins_co_name;
     $insurancei = getInsuranceProviders();
-    if ($_POST['form_csvexport']) {
+    if (!empty($_POST['form_csvexport'])) {
         foreach ($insurancei as $iid => $iname) {
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 $ins_co_name = $iname;
             }
         }
@@ -329,11 +329,11 @@ function insuranceSelect()
          echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
         foreach ($insurancei as $iid => $iname) {
             echo "<option value='" . attr($iid) . "'";
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 echo " selected";
             }
             echo ">" . text($iname) . "</option>\n";
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 $ins_co_name = $iname;
             }
         }

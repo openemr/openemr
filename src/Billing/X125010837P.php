@@ -891,9 +891,8 @@ class X125010837P
             } else {
                 $log .= "*** Performing provider has no taxonomy code.\n";
             }
-        } else {
-            $log .= "*** Rendering provider is billing under a group.\n";
         }
+
         if (!$claim->providerNPIValid()) {
             // If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
             $log .= "*** Skipping 2310B because " . $claim->providerLastName() . "," . $claim->providerFirstName() . " has invalid NPI.\n";
@@ -1545,7 +1544,7 @@ class X125010837P
      * @param  $HLBillingPayToProvider Place-holder for utilizing multiple billing providers
      * @return string|string[]|null
      */
-    public static function gen_x12_837_tr3($pid, $encounter, &$log, $encounter_claim = false, $SEFLAG, $HLcount, &$edicount, $HLBillingPayToProvider = 1)
+    public static function gen_x12_837_tr3($pid, $encounter, &$log, $encounter_claim, $SEFLAG, $HLcount, &$edicount, $HLBillingPayToProvider = 1)
     {
         $today = time();
         $out = '';
