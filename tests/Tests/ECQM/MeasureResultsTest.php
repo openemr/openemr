@@ -82,7 +82,7 @@ class MeasureResultsTest extends TestCase
 
             // If we didn't find a patient, print an error and move on, don't kill test
             if ($patient === null) {
-                echo "Patient with pubpid = `{$measureResult['pubpid']}` Not found. You may need to import the XML file.";
+                echo "Patient with pubpid = `{$measureResult['pubpid']}` Not found. You may need to import the XML file `{$measureResult['qrda_file']}`.";
                 continue;
             }
 

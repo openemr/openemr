@@ -20,7 +20,7 @@ class PhysicalExamService extends AbstractQdmService implements QdmServiceInterf
 {
     protected $code_maping = [
         'bmi' => [
-            'code' => '8462-4',
+            'code' => '39156-5',
             'system' => '2.16.840.1.113883.6.1'
         ],
         'sbp' => [
