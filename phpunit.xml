@@ -19,8 +19,8 @@
       <directory>tests/Tests/RestControllers</directory>
       <directory>tests/Tests/Common</directory>
     </testsuite>
-      <testsuite name="Qdm">
-          <directory>tests/Tests/Qdm</directory>
+      <testsuite name="ECQM">
+          <directory>tests/Tests/ECQM</directory>
       </testsuite>
     <testsuite name="unit">
       <directory>tests/Tests/Unit</directory>

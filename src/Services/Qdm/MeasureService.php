@@ -14,7 +14,7 @@ class MeasureService
         return self::$measure_sources;
     }
 
-    public static function fetchMeasureOptions($source)
+    public static function fetchMeasureOptions()
     {
         $s = 'openemr/oe-cqm-parsers';
         $measureSourcePath = self::$measure_sources[$s];
