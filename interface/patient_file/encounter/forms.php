@@ -593,25 +593,20 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres, false);
 
+// Check for group encounter
 if ($attendant_type == 'pid' && is_numeric($pid)) {
     $groupEncounter = false;
-
-    // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     $patientName = getPatientFullNameAsString($pid);
-
-    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        $pass_sens_squad = false;
-    }
-    // for therapy group
 } else {
     $groupEncounter = true;
-    // Check for no access to the patient's squad.
     $result = getGroup($groupId);
     $patientName = $result['group_name'];
-    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        $pass_sens_squad = false;
-    }
+}
+
+// Check for no access to the patient's squad.
+if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
+    $pass_sens_squad = false;
 }
 
 $encounterMenuEvent = new EncounterMenuEvent();
