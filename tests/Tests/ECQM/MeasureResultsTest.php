@@ -23,7 +23,6 @@ class MeasureResultsTest extends TestCase
 {
     protected $client;
     protected $measureOptions = [];
-    protected $config = [];
     protected $measure_result_map = [];
 
     public function setUp(): void
@@ -37,8 +36,6 @@ class MeasureResultsTest extends TestCase
         }
 
         $this->measureOptions = MeasureService::fetchMeasureOptions();
-
-        $this->config = json_decode(file_get_contents(__DIR__ . "/config.json"), true);
 
         if (($handle = fopen(__DIR__ . "/measure_result_map.csv", "r")) !== false) {
 
@@ -98,8 +95,8 @@ class MeasureResultsTest extends TestCase
 
             $pid = $patient['pid'];
 
-            $effectiveDate = $this->config['effectiveDate'];
-            $effectiveEndDate = $this->config['effectiveEndDate'];
+            $effectiveDate = $measureResult['effectiveDate'];
+            $effectiveEndDate = $measureResult['effectiveEndDate'];
 
             // We're going to build a request for a single PID
             $request = new QdmRequestOne($pid);
