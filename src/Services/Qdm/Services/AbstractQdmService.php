@@ -99,20 +99,34 @@ abstract class AbstractQdmService
     public function makeQdmCode($openEmrCode)
     {
         $code = null;
+        $system = null;
         $res = explode(":", $openEmrCode); //split diagnosis type and code
+
+        // TODO For some reason, the import imports allergy codes like this: 'RXNORM:CVX:135' OR 'RXNORM:CVX:135' so we have
+        // to account for the case where there are three parts to our exploded code
+        if (count($res) == 3) {
+            $code = $res[2];
+            $system = $res[1];
+        } else if (count($res) == 2) {
+            $code = $res[1];
+            $system = $res[0];
+        }
+
+        $codeModel = null;
+
         if (
-            !empty($res[0]) &&
-            !empty($res[1])
+            !empty($code) &&
+            !empty($system)
         ) {
             // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
-            $systemName = str_replace(" ", "-", $res[0]);
-            $code = new Code([
-                'code' => $res[1],
+            $systemName = str_replace(" ", "-", $system);
+            $codeModel = new Code([
+                'code' => $code,
                 'system' => $this->getSystemForCodeType($systemName)
             ]);
         }
 
-        return $code;
+        return $codeModel;
     }
 
     /**
