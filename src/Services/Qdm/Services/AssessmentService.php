@@ -10,6 +10,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\AssessmentPerformed;
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -23,7 +24,7 @@ class AssessmentService extends AbstractQdmService implements QdmServiceInterfac
      */
     public function getSqlStatement()
     {
-        $sql = "SELECT pid, encounter, `date`, code, code_type, ob_value, description, ob_code, ob_type, ob_status
+        $sql = "SELECT pid, encounter, `date`, code, code_type, ob_value, description, ob_code, ob_type, ob_status, ob_reason_code
                 FROM form_observation
                 WHERE ob_type = 'assessment'
                 ";
@@ -46,7 +47,8 @@ class AssessmentService extends AbstractQdmService implements QdmServiceInterfac
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
             ]),
-            'result' => $this->makeQdmCode($record['ob_code'])
+            'result' => $this->makeQdmCode($record['ob_code']),
+            'negationRationale' => $this->makeQdmCode($record['ob_reason_code'])
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['code']);

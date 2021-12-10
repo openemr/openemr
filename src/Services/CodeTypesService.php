@@ -32,6 +32,7 @@ class CodeTypesService
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
     const CODE_TYPE_CPT = 'CPT';
+    const CODE_TYPE_CVX = 'CVX';
     const CODE_TYPE_OID = array(
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
         '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
@@ -200,6 +201,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.88';
             } elseif (self::CODE_TYPE_CPT == $codeType) {
                 $system = '2.16.840.1.113883.6.12';
+            } elseif (self::CODE_TYPE_CVX == $codeType) {
+                $system = '2.16.840.1.113883.12.292';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {

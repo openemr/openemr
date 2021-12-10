@@ -16,6 +16,7 @@ use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestAll;
 use OpenEMR\Services\Qdm\QdmRequestOne;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
 class MeasureResultsTest extends TestCase
@@ -47,8 +48,8 @@ class MeasureResultsTest extends TestCase
                 // Make sure we have a pubpid, could be a blank line
                 if (
                     count($data) == count($head) &&
-                    isset($data[0]) &&
-                    strlen($data[0]) > 1
+                    isset($data[1]) &&
+                    strlen($data[1]) > 1
                 ) {
                     $column = array_combine($head, $data);
                     $this->measure_result_map [] = $column;
@@ -58,14 +59,23 @@ class MeasureResultsTest extends TestCase
             fclose($handle);
 
         } else {
-            throw new \Exception("Could not open measure result file measure_result_map.csv");
+            throw new \Exception("Could not open measure result file measure_result_map.csv\n");
         }
 
     }
 
     public function testAllPatients()
     {
+        $failures = [];
         foreach ($this->measure_result_map as $measureResult) {
+
+            $measure = $measureResult['measure'];
+
+            if ($measureResult['skip'] == 1) {
+                echo "SKIPPING QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` MEASURE=`$measure`\n";
+                continue;
+            }
+
             // Find the PIDs of the patient in the file
             $result = sqlStatement(
                 "SELECT pid, pubpid, fname, lname, DOB FROM patient_data WHERE pubpid = ? ORDER BY id DESC LIMIT 1",
@@ -82,12 +92,12 @@ class MeasureResultsTest extends TestCase
 
             // If we didn't find a patient, print an error and move on, don't kill test
             if ($patient === null) {
-                echo "Patient with pubpid = `{$measureResult['pubpid']}` Not found. You may need to import the XML file `{$measureResult['qrda_file']}`.";
+                echo "Patient with pubpid = `{$measureResult['pubpid']}` Not found. You may need to import the XML file `{$measureResult['qrda_file']}`.\n";
                 continue;
             }
 
             $pid = $patient['pid'];
-            $measure = $measureResult['measure'];
+
             $effectiveDate = $this->config['effectiveDate'];
             $effectiveEndDate = $this->config['effectiveEndDate'];
 
@@ -131,19 +141,28 @@ class MeasureResultsTest extends TestCase
                             $populationSet['NUMEX'] = 0;
                         }
 
-                        $this->assertEquals($populationSet['IPP'], $measureResult['IPP'], "IPP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                        $this->assertEquals($populationSet['NUMER'], $measureResult['NUMER'], "NUMER Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                        $this->assertEquals($populationSet['DENOM'], $measureResult['DENOM'], "DENOM Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                        $this->assertEquals($populationSet['NUMEX'], $measureResult['NUMEX'], "NUMEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                        $this->assertEquals($populationSet['DENEX'], $measureResult['DENEX'], "DENEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                        $this->assertEquals($populationSet['DENEXCEP'], $measureResult['DENEXCEP'], "DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                        try {
+                            $this->assertEquals($populationSet['IPP'], $measureResult['IPP'], "IPP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($populationSet['NUMER'], $measureResult['NUMER'], "NUMER Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($populationSet['DENOM'], $measureResult['DENOM'], "DENOM Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($populationSet['NUMEX'], $measureResult['NUMEX'], "NUMEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($populationSet['DENEX'], $measureResult['DENEX'], "DENEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($populationSet['DENEXCEP'], $measureResult['DENEXCEP'], "DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                        } catch (ExpectationFailedException $e) {
+                            $failures[]= $e->getMessage();
+                        }
                     }
                 }
             }
-
         }
 
-
+        if (count($failures)) {
+            $count = 1;
+            foreach ($failures as $failure) {
+                echo "$count.) $failure\n";
+                $count++;
+            }
+            throw new ExpectationFailedException(count($failures) . " failures");
+        }
     }
-
 }
