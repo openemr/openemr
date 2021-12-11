@@ -1322,6 +1322,20 @@ SET @query = IF (@ai_exist = 0, 'ALTER TABLE `document_templates` CHANGE `id` `i
 PREPARE statement FROM @query;
 EXECUTE statement;
 
+#IfNotTable document_template_profiles
+CREATE TABLE `document_template_profiles` (
+  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `template_id` bigint(21) UNSIGNED NOT NULL,
+  `profile` varchar(64) DEFAULT NULL,
+  `template_name` varchar(255) DEFAULT NULL,
+  `category` varchar(63) DEFAULT NULL,
+  `provider` int(11) UNSIGNED DEFAULT NULL,
+  `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `location` (`profile`,`template_name`,`template_id`)
+) ENGINE=InnoDB;
+#EndIf
+
 #IfNotRow2D list_options list_id lists option_id Document_Template_Profiles
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Document_Template_Profiles','Document Template Profiles',0,1,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_1','Defaults',10,0,0);
@@ -1346,16 +1360,4 @@ UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='street' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
 VALUES ('DEM', 'suite', @group_id, 'Apt/Suite/Other', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Apt/Suite/Other', 0);
-#IfNotTable document_template_profiles
-CREATE TABLE `document_template_profiles` (
-  `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `template_id` bigint(21) UNSIGNED NOT NULL,
-  `profile` varchar(64) DEFAULT NULL,
-  `template_name` varchar(255) DEFAULT NULL,
-  `category` varchar(63) DEFAULT NULL,
-  `provider` int(11) UNSIGNED DEFAULT NULL,
-  `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `location` (`profile`,`template_name`,`template_id`)
-) ENGINE=InnoDB;
-#EndIf
+#Endif
