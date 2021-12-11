@@ -24,6 +24,7 @@ $patient = $patient ?: ($_REQUEST['upload_pid'] ?? 0);
 
 $category = $_REQUEST['template_category'] ?? '';
 $category_list = $templateService->getDefaultCategories();
+$profile_list = $templateService->getDefaultProfiles();
 
 $none_message = xlt("Nothing to show for current actions.");
 
@@ -49,8 +50,8 @@ function getAuthUsers()
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php Header::setupHeader(['datetime-picker', 'select2', 'ckeditor']); ?>
-
     <script>
+        const profiles = <?php echo js_escape($profile_list); ?>;
         let currentEdit = "";
         let editor;
         let templateEdit = function (id, flag = '') {
@@ -60,7 +61,6 @@ function getAuthUsers()
         };
 
         let templateSave = function () {
-            //let editor = CKEDITOR.instances.templateContent;
             let markup = CKEDITOR.instances.templateContent.getData();
             handleTemplate(currentEdit, 'save', markup);
         };
@@ -77,8 +77,14 @@ function getAuthUsers()
         function getSendChecks() {
             let checked = [];
             $('input:checked[name=send]:checked').each(function () {
-                checked.push($(this).val());
+                let isProfile = this.dataset.send_profile;
+                if (isProfile == 'yes') {
+                    checked.push([$(this).val(),true]);
+                } else {
+                    checked.push($(this).val());
+                }
             });
+            console.log(checked)
             return checked;
         }
 
@@ -135,7 +141,7 @@ function getAuthUsers()
             let libUrl = 'import_template.php';
             let renderUrl = 'import_template.php?mode=editor_render_html&docid=' + id;
 
-            if (document.getElementById('is_modal').checked) {
+            if (document.getElementById('is_modal').checked && mode === 'get') {
                 dialog.popUp(renderUrl, null, 'edit' + id);
                 return false;
             }
@@ -203,20 +209,16 @@ function getAuthUsers()
                 }
             });
 
-            let select_focus = false;
-            /* Can't use if we want multi selects for locations. so ??? */
-            /* $('#selected_patients').change(function () {
-                 if (checkCategory()) {
-                     select_focus = true;
-                     $('#edit_form').submit();
-                 }
-             });*/
             $('#selected_patients').on('select2:close', function (e) {
+                let checked = getSendChecks();
+                if (checked.length > 0) {
+                    return false;
+                }
                 $('#edit_form').submit();
             });
 
             $('#upload-nav').on('hidden.bs.collapse', function () {
-                $('#upload-nav-value').val('hidden');
+                $('#upload-nav-value').val('collapse');
             });
             $('#upload-nav').on('show.bs.collapse', function () {
                 $('#upload-nav-value').val('show');
@@ -227,6 +229,29 @@ function getAuthUsers()
                 if (checkCategory()) {
                     $("#edit_form").submit();
                 }
+            });
+
+            $('#template-collapse').on('show.bs.collapse', function (e) {
+                $('#repository-collapse').collapse('hide');
+                $('#profile_send_collapse').collapse('hide');
+                $('#edit_form #all_state').val('show');
+            });
+            $('#template-collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #all_state').val('collapse');
+            });
+
+            $('#profile_send_collapse').on('show.bs.collapse', function (e) {
+                $('#edit_form #profile_send_state').val('show');
+            });
+            $('#profile_send_collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #profile_send_state').val('collapse');
+            });
+
+            $('#repository-collapse').on('show.bs.collapse', function (e) {
+                $('#edit_form #repository_send_state').val('show');
+            });
+            $('#repository-collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #repository_send_state').val('collapse');
             });
 
             let selText = '';
@@ -242,21 +267,27 @@ function getAuthUsers()
                 let patient = $("#selected_patients").val();
                 return true;
             }
+
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
         });
 
-        $(document).on('select2:open', () => {
-            document.querySelector('.select2-search__field').focus();
-        });
+        function popProfileDialog() {
+            top.restoreSession();
+            let url = './import_template.php?mode=renderProfile';
+            dlgopen(url, 'pop-profile', 'modal-lg', 850, '', '', {
+                allowDrag: true,
+                allowResize: true,
+                sizeHeight: 'full',
+            });
+        }
     </script>
     <style>
-      .modal.modal-wide .modal-dialog {
-        width: 55%;
+      .draggable {
+        touch-action: none;
+        user-select: none;
       }
-
-      .modal-wide .modal-body {
-        overflow-y: auto;
-      }
-
       caption {
         caption-side: top !important;
       }
@@ -264,21 +295,22 @@ function getAuthUsers()
 </head>
 <body class="body-top">
     <div class='container'>
+        <nav class='nav navbar bg-light text-dark sticky-top'>
+            <span class='title'><?php echo xlt('Template Maintenance'); ?></span>
+            <span>
+                <div class='btn-group ml-1'>
+                    <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
+                        <?php echo xlt('Help') ?>
+                    </button>
+                    <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
+                        <?php echo xlt('Dashboard'); ?>
+                    </button>
+                </div>
+            </span>
+        </nav>
         <div class='col col-12'>
-            <div class='ml-0 mt-2'><span class="title"><?php echo xlt('Template Maintenance'); ?></span>
-                <span>
-                    <div class='btn-group ml-1'>
-                        <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
-                            <?php echo xlt('Help') ?>
-                        </button>
-                        <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
-                            <?php echo xlt('Dashboard'); ?>
-                        </button>
-                    </div>
-                </span>
-            </div>
             <hr />
-            <?php include_once('./../Documentation/help_files/template_maintenace_help.php'); ?>
+            <?php include_once('./../Documentation/help_files/template_maintenance_help.php'); ?>
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
@@ -332,7 +364,11 @@ function getAuthUsers()
                             <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
                         </label>
                     </div>
-                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo attr($_REQUEST['upload-nav-value']) ?? 'hidden' ?>' />
+                    <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo attr($_REQUEST['upload-nav-value'] ?? 'collapse') ?>' />
+                    <input type='hidden' id='persist_checks' name='persist_checks' value='' />
+                    <input type='hidden' id='all_state' name='all_state' value='<?php echo attr($_REQUEST['all_state'] ?? 'collapse') ?>' />
+                    <input type='hidden' id='profile_send_state' name='profile_send_state' value='<?php echo attr($_REQUEST['profile_send_state'] ?? 'collapse') ?>' />
+                    <input type='hidden' id='repository_send_state' name='repository_send_state' value='<?php echo attr($_REQUEST['repository_send_state'] ?? 'collapse') ?>' />
                 </form>
             </nav>
             <!-- Upload -->
@@ -356,28 +392,25 @@ function getAuthUsers()
                 </div>
             </nav>
             <hr />
+            <!-- Repository -->
             <div class='row'>
-                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse'>
-                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?></h5>
+                <div class='col col-12'>
+                    <h5><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?></h5>
                 </div>
                 <!-- Repository table -->
-                <div class='col col-12 table-responsive collapse show' id="repository-collapse">
+                <div class='col col-12 table-responsive <?php echo attr($_REQUEST['repository_send_state'] ?? 'collapse') ?>' id="repository-collapse">
                     <?php
                     $templates = [];
                     $show_cat_flag = false;
                     if (!empty($category)) {
                         $templates = $templateService->getTemplateListByCategory($category, -1);
-                        //$templates = $templateService->getTemplateListAllCategories(-1);
                     } else {
                         $templates = $templateService->getTemplateListAllCategories(-1);
                     }
                     echo "<table class='table table-sm table-striped table-bordered'>\n";
-                    /* echo '<caption role="button" data-toggle="collapse" data-target="#repository-collapse" title="' .
-                         xlt('Click to expand or collapse Repository templates panel.') .
-                         '"><h5>' . xlt('Repository Available Templates') . '</h5></caption>';*/
                     echo "<thead>\n";
                     echo "<tr>\n" .
-                        "<th>" . xlt('Send') . "</th>" .
+                        "<th style='width:5%'>" . xlt('Send') . "</th>" .
                         '<th>' . xlt('Category') . '</th>' .
                         "<th>" . xlt("Template Actions") . "</th>" .
                         "<th>" . xlt("Size") . "</th>" .
@@ -411,14 +444,14 @@ function getAuthUsers()
                                 echo '<td>' . '*' . '</td>';
                                 echo "<td>" . $this_cat . " Id: " . attr($template_id) . "</td>";
                             } else {
-                                echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";
+                                echo "<td><input type='checkbox' class='form-check-inline' name='send' value='" . attr($template_id) . "' /></td>";
                                 echo '<td><select class="form-control form-control-sm" id="category_table' . attr($template_id) .
                                     '" onchange="updateCategory(' . attr_js($template_id) . ')" value="' . attr($this_cat) . '">' .
                                     $select_cat_options . '</select></td>';
                             }
                             echo '<td>' .
                                 '<button id="templateEdit' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ',' . attr_js($notify_flag) . ')" type="button">' . text($file['template_name']) . /*' '. attr($template_id) .*/
+                                '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ',' . attr_js($notify_flag) . ')" type="button">' . text($file['template_name']) .
                                 '</button>' .
                                 '<button id="templateDelete' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt("Delete") .
@@ -431,18 +464,69 @@ function getAuthUsers()
                         }
                     }
                     if (empty($template_id)) {
-                        echo '<tr><td>' . $none_message . "</td></tr>\n";
+                        echo '<tr><td></td><td>' . $none_message . "</td></tr>\n";
                     }
                     echo "</tbody>\n";
                     echo "</table>\n";
                     ?>
                 </div>
             </div>
+            <hr />
+            <!-- Send Profiles -->
+            <div class='row'>
+                <div class='col col-12'>
+                    <div class="h5">
+                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#profile_send_collapse' role='button' title="<?php echo xla('Click to expand or collapse Send Profile panel.'); ?>"></i><?php echo xlt('Send Profiles') ?>
+                        <span class="mx-auto"><button class="btn btn-sm btn-primary mb-1" onclick="return popProfileDialog()"><?php echo xlt('Manage Profiles') ?></button></span>
+                    </div>
+                </div>
+                <!-- Send Profiles table -->
+                <div class='col col-12 table-responsive <?php echo attr($_REQUEST['profile_send_state'] ?: 'collapse') ?>' id="profile_send_collapse">
+                    <?php
+                    echo "<table class='table table-sm table-striped table-bordered'>\n";
+                    echo "<thead>\n";
+                    echo "<tr>\n" .
+                        "<th style='width: 5%'>" . xlt('Send') . '</th>' .
+                        '<th style="min-width: 25%">' . xlt('Profile') . '</th>' .
+                        '<th style="max-width: 65%">' . xlt('Assigned Templates') . '</th>' .
+                        '<th>' . xlt('Total') . '</th>' .
+                        "</tr>\n";
+                    echo "</thead>\n";
+                    foreach ($profile_list as $profile => $profiles) {
+                        $template_list = '';
+                        $profile_items_list = $templateService->getProfileListByProfile($profile);
+                        if (empty($profile_items_list)) {
+                            continue;
+                        }
+                        $total = 0;
+                        foreach ($profile_items_list as $key => $files) {
+                            $total += count($files ?? []);
+                            foreach ($files as $file) {
+                                $template_list .= $file['template_name'] . '; ';
+                            }
+                        }
+                        $profile_esc = attr($profile);
+                        echo '<tr>';
+                        echo "<td><input type='checkbox' class='form-check-inline' name='send' data-send_profile='yes' value='" . $profile_esc . "' /></td>";
+                        echo '<td>' . text($profiles['title']) . '</td>';
+                        echo '<td>' . text($template_list) . '</td>';
+                        echo '<td>' . text($total) . '</td>';
+                        echo '</tr>';
+                    }
+                    if (empty($profile_list)) {
+                        echo '<tr><td></td><td>' . $none_message . "</td></tr>\n";
+                    }
+                    echo "</tbody>\n";
+                    echo "</table>\n";
+                    ?>
+                </div>
+            </div>
+            <hr />
             <div class='row'>
                 <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
                     <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('All Patient Templates') . '' ?></h5>
                 </div>
-                <div class='col col-12 table-responsive collapse show' id='template-collapse'>
+                <div class='col col-12 table-responsive <?php echo attr($_REQUEST['all_state'] ?: 'collapse') ?>' id='template-collapse'>
                     <?php
                     $templates = [];
                     $show_cat_flag = false;
@@ -476,8 +560,6 @@ function getAuthUsers()
                             echo '<td>' . text(ucwords($cat)) . '</td><td>';
                             echo '<button id="templateEdit' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . '</button>' .
-                                /*'<button id="sendTemplate' . attr($template_id) .
-                                '" class="btn btn-sm btn-outline-success" onclick="templateSend(' . attr_js($template_id) . ')" type="button">' . xlt('Send') . '</button>' .*/
                                 '<button id="templateDelete' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt('Delete') . '</button>';
                             echo '<td>' . text($file['size']) . '</td>';
@@ -495,6 +577,7 @@ function getAuthUsers()
                     ?>
                 </div>
             </div>
+            <hr />
             <div class='row'>
                 <div class='col col-12 table-responsive'>
                     <?php
@@ -502,7 +585,7 @@ function getAuthUsers()
                     $templates = [];
                     $show_cat_flag = false;
 
-                    // Category selected so get all of them for pids
+                    // Category selected so get all of them for pid's
                     if (!empty($category) && !empty($patient)) {
                         $templates = $templateService->getTemplateCategoriesByPids($patient, $category);
                     } elseif (empty($patient)) {// All templates for all patients
@@ -551,6 +634,7 @@ function getAuthUsers()
                     ?>
                 </div>
             </div>
+            <hr />
         </div>
     </div>
 </body>

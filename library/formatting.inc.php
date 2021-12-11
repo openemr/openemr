@@ -34,7 +34,7 @@ function oeFormatShortDate($date = 'today', $showYear = true)
         $date = date('Y-m-d');
     }
 
-    if (strlen($date) >= 10) {
+    if (strlen($date ?? '') >= 10) {
         // assume input is yyyy-mm-dd
         if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
             $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
@@ -201,7 +201,7 @@ function DateToYYYYMMDD($DateValue)
     //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
     //But in database the date can be stored only in the yyyy-mm-dd format.
     //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
-    if (trim($DateValue) == '') {
+    if (trim($DateValue ?? '') == '') {
         return '';
     }
 

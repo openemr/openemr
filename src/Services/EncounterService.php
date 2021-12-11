@@ -75,7 +75,7 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Returns a list of encounters matching the encounter indentifier.
+     * Returns a list of encounters matching the encounter identifier.
      *
      * @param  $euuid     The encounter identifier of particular encounter
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
@@ -88,6 +88,21 @@ class EncounterService extends BaseService
         return $this->search($search, true, $puuidBind);
     }
 
+    /**
+     * Returns an encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return array         first row of encounter data
+     */
+    public function getOneByPidEid($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0];
+        }
+        return [];
+    }
 
     public function getUuidFields(): array
     {

@@ -35,7 +35,7 @@ class ProductRegistrationService
         }
 
         if (empty($row)) {
-            $row['statusAsString'] = 'UNREGISTERED';
+            $row = ['statusAsString' => 'UNREGISTERED'];
         } elseif (!empty($email)) {
             $row['statusAsString'] = 'REGISTERED';
         } elseif (!empty($optOut) && $optOut == 1) {

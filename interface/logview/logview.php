@@ -162,7 +162,7 @@ if (!empty($_GET)) {
                                     <?php
                                     echo " <option value=''>" . xlt('All') . "</option>\n";
                                     while ($urow = sqlFetchArray($ures)) {
-                                        if (!trim($urow['username'])) {
+                                        if (empty(trim($urow['username'] ?? ''))) {
                                             continue;
                                         }
 
