@@ -11,9 +11,9 @@
  *}
 
 <script>
- {if !empty($GLOBALS.oefax_enable)}
+
  {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
- {/if}
+
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -132,9 +132,7 @@ function tagProcedure() {literal}{{/literal}
               </div>
             <span class="float-right">
             <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};</script>
-            {if !empty($GLOBALS.oefax_enable)}
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
-            {/if}
             <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
             <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
@@ -263,19 +261,19 @@ function tagProcedure() {literal}{{/literal}
 	<tr id="DocContents" class="h-100">
 		<td>
       {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
-			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
+			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
+			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
       <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
       {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-      <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>
