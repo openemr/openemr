@@ -10,6 +10,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -25,6 +26,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     OC.procedure_code,
                     RES.result_code,
                     RES.result,
+                    RES.units,
                     RES.date
                 FROM procedure_result RES
                     JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
@@ -43,11 +45,19 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
 
     public function makeQdmModel(array $record)
     {
+        $result = 'Negative';
+        if (!empty($record['result'])) {
+            $result = new Quantity([
+                'value' => $record['result'],
+                'unit' => $record['units']
+            ]);
+        }
+
         $qdmModel = new LaboratoryTestPerformed([
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),
-            'result' => !empty($record['result']) ? $record['result'] : 'Negative',
+            'result' => $result,
             'resultDatetime' => new DateTime([
                 'date' => $record['date']
             ])
