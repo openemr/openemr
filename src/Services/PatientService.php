@@ -226,7 +226,7 @@ class PatientService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (
-            $dataBeforeUpdate['care_team_provider'] != $data['care_team_provider']
+            $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
             || $dataBeforeUpdate['care_team_facility'] != $data['care_team_facility']
         ) {
             // need to save off our care team
