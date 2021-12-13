@@ -963,7 +963,7 @@ ALTER TABLE `patient_history` ADD `history_type_key` VARCHAR(36) NULL, ADD `prev
 SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='billing_note' AND form_id='DEM');
 SET @backup_group_id = (SELECT group_id FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
 SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_id = COALESCE(@group_id,@backup_group_id) AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history', COALESCE(@group_id,@backup_group_id),'Previous Names',@seq+1,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous names',0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','name_history', COALESCE(@group_id,@backup_group_id),'Previous Names',@seq+1,52,1,0,80,'',1,3,'','[\"EP\"]','Patient Previous Names',0);
 #EndIf
 
 #IfNotColumnType modules mod_ui_name varchar(64)
