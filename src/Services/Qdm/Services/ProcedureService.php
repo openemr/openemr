@@ -10,12 +10,13 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
-use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
+use OpenEMR\Cqm\Qdm\InterventionPerformed;
+use OpenEMR\Cqm\Qdm\ProcedurePerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
+class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 {
+
     public function getSqlStatement()
     {
         $sql = "SELECT
@@ -23,16 +24,10 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     O.encounter_id AS encounter,
                     O.procedure_order_type,
                     O.date_ordered,
-                    OC.procedure_code,
-                    RES.result_code,
-                    RES.result,
-                    RES.units,
-                    RES.date
-                FROM procedure_result RES
-                    JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
-                    JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
+                    OC.procedure_code
+                FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                WHERE O.procedure_order_type = 'laboratory_test'
+                WHERE O.procedure_order_type = 'order'
                 ";
 
         return $sql;
@@ -45,25 +40,10 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
 
     public function makeQdmModel(array $record)
     {
-        $result = 'Negative';
-        if (
-            !empty($record['result']) &&
-            $record['result'] != 'Negative'
-        ) {
-            $result = new Quantity([
-                'value' => $record['result'],
-                'unit' => $record['units']
-            ]);
-        }
-
-        $qdmModel = new LaboratoryTestPerformed([
+        $qdmModel = new ProcedurePerformed([
             'relevantDatetime' => new DateTime([
-                'date' => $record['date']
+                'date' => $record['date_ordered']
             ]),
-            'result' => $result,
-            'resultDatetime' => new DateTime([
-                'date' => $record['date']
-            ])
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);

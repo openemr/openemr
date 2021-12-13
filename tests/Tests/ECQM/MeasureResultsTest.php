@@ -14,7 +14,6 @@ use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
-use OpenEMR\Services\Qdm\QdmRequestAll;
 use OpenEMR\Services\Qdm\QdmRequestOne;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
@@ -131,6 +130,9 @@ class MeasureResultsTest extends TestCase
                     $setNumber = $parts[1];
                     // Only check results if the population set is correct
                     if ($measureResult['pop_set'] == $setNumber) {
+                        if (!isset($populationSet['DENEXCEP'])) {
+                            $populationSet['DENEXCEP'] = 0;
+                        }
                         if (!isset($populationSet['DENEX'])) {
                             $populationSet['DENEX'] = 0;
                         }
@@ -139,12 +141,12 @@ class MeasureResultsTest extends TestCase
                         }
 
                         try {
-                            $this->assertEquals($populationSet['IPP'], $measureResult['IPP'], "IPP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($populationSet['NUMER'], $measureResult['NUMER'], "NUMER Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($populationSet['DENOM'], $measureResult['DENOM'], "DENOM Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($populationSet['NUMEX'], $measureResult['NUMEX'], "NUMEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($populationSet['DENEX'], $measureResult['DENEX'], "DENEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($populationSet['DENEXCEP'], $measureResult['DENEXCEP'], "DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['IPP'], $populationSet['IPP'], "IPP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['NUMER'], $populationSet['NUMER'], "NUMER Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['DENOM'], $populationSet['DENOM'], "DENOM Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['NUMEX'], $populationSet['NUMEX'], "NUMEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['DENEX'], $populationSet['DENEX'], "DENEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['DENEXCEP'], $populationSet['DENEXCEP'],"DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
                         } catch (ExpectationFailedException $e) {
                             $failures[]= $e->getMessage();
                         }

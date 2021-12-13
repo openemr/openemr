@@ -15,9 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 class AllPatientsTest extends TestCase
 {
+    /**
+     * Not really a test.
+     *
+     * Builds JSON QDM models for all patients in the database.
+     */
     public function testAllPatients()
     {
-        $this->assertEquals(0, 0);
         $builder = new QdmBuilder();
         $models = [];
         try {
