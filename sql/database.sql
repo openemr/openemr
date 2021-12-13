@@ -7303,7 +7303,7 @@ CREATE TABLE `patient_data` (
   `dupscore` INT NOT NULL default -9,
   `name_history` TINYTEXT,
   `suffix` TINYTEXT,
-  `suite` TINYTEXT,
+  `street_line_2` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
