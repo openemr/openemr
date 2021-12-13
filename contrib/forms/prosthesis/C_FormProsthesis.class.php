@@ -7,7 +7,6 @@ use OpenEMR\Billing\BillingUtilities;
 
 class C_FormProsthesis extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

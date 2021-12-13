@@ -16,7 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 class ExportJobTest extends TestCase
 {
-
     public function testSetStatus()
     {
         $statii = ExportJob::ALLOWED_STATII;

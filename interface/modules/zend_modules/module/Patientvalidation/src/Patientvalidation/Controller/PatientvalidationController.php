@@ -29,7 +29,6 @@ use Error;
 
 class PatientvalidationController extends BaseController
 {
-
     /**
      * @var PatientDataTable
      */

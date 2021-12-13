@@ -14,7 +14,6 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 class eRxGlobals
 {
-
     private $configuration;
 
     /**

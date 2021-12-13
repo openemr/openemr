@@ -18,7 +18,6 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class ProcessingResultTest extends TestCase
 {
-
     private $processingResult;
 
     protected function setUp(): void

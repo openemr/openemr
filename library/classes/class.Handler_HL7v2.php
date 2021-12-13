@@ -5,7 +5,6 @@
 
 class Handler_HL7v2
 {
-
     var $parser;
 
     function __construct($parser)

@@ -23,7 +23,6 @@ use OpenEMR\Common\Acl\AclMain;
 
 class MenuRole
 {
-
     /**
      * Constructor
      */

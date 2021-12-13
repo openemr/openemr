@@ -14,7 +14,6 @@
  */
 class Auth401
 {
-
     /**
      * Send 401 headers to the browser
      *

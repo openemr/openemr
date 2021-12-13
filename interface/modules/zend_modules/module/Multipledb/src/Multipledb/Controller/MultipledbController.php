@@ -31,7 +31,6 @@ use Error;
 
 class MultipledbController extends BaseController
 {
-
     /**
      * TableGateway for the Multipledb data.
      * @var MultipledbTable

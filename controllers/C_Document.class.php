@@ -20,7 +20,6 @@ use OpenEMR\Services\PatientService;
 
 class C_Document extends Controller
 {
-
     public $template_mod;
     public $documents;
     public $document_categories;

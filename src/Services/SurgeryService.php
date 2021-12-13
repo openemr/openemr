@@ -22,7 +22,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class SurgeryService extends BaseService
 {
-
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const SURGERY_LIST_PATIENT = "lists";

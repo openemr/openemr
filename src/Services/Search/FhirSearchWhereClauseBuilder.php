@@ -13,7 +13,6 @@ namespace OpenEMR\Services\Search;
 
 class FhirSearchWhereClauseBuilder
 {
-
     /**
      * Given a list of ISearchField objects it constructs a WHERE clause query that can be used in a query statement
      *

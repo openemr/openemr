@@ -11,7 +11,6 @@ require_once("FormLegLength.class.php");
 
 class C_FormLegLength extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

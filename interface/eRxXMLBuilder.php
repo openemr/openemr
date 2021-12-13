@@ -15,7 +15,6 @@ require_once(__DIR__ . "/../library/patient.inc");
 
 class eRxXMLBuilder
 {
-
     private $globals;
     private $store;
 

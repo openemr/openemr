@@ -23,8 +23,6 @@ use Laminas\ModuleManager\ModuleManager;
 
 class Module
 {
-
-
     public function getAutoloaderConfig()
     {
         return array(

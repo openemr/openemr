@@ -18,7 +18,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Provider extends ORDataObject
 {
-
         var $id;
         var $lname;
         var $fname;

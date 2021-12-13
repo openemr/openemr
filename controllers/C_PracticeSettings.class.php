@@ -2,7 +2,6 @@
 
 class C_PracticeSettings extends Controller
 {
-
     var $template_mod;
 
     var $direction;

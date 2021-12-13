@@ -26,7 +26,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class ProcedureService extends BaseService
 {
-
     private const PROCEDURE_TABLE = "procedure_order";
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";

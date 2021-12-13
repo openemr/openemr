@@ -8,7 +8,6 @@ use OpenEMR\ORDataObject\ORDataObject;
  */
 class FormProsthesis extends ORDataObject
 {
-
     /**
      *
      * @access public

@@ -28,7 +28,6 @@ require_once("Model/Patient.php");
  */
 class PortalPatientController extends AppBasePortalController
 {
-
     /**
      * Override here for any controller-specific functionality
      *

@@ -17,7 +17,6 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  */
 class FhirOrganizationRestControllerTest extends TestCase
 {
-
     /**
      * @var FhirOrganizationRestController
      */

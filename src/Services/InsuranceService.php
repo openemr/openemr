@@ -22,7 +22,6 @@ use Particle\Validator\Validator;
 
 class InsuranceService extends BaseService
 {
-
     private const COVERAGE_TABLE = "insurance_data";
     private const PATIENT_TABLE = "patient_data";
     private const INSURANCE_TABLE = "insurance_companies";

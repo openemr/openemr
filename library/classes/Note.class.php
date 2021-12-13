@@ -10,7 +10,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Note extends ORDataObject
 {
-
     /*
     *   Database unique identifier
     *   @var id

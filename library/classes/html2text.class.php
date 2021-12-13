@@ -110,7 +110,6 @@
  */
 class html2text
 {
-
     /**
      *  Contains the HTML content to convert.
      *

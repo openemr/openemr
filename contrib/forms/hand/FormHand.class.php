@@ -20,7 +20,6 @@ define("EVENT_OTHER", 4);
  */
 class FormHand extends ORDataObject
 {
-
     /**
      *
      * @access public

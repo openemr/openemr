@@ -14,7 +14,6 @@ define("EVENT_OTHER", 4);
  */
 class FormHpTjePrimary extends ORDataObject
 {
-
     /**
      *
      * @access public

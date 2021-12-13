@@ -24,7 +24,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class C_Prescription extends Controller
 {
-
     var $template_mod;
     var $pconfig;
     var $providerid = 0;

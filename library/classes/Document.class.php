@@ -26,7 +26,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Document extends ORDataObject
 {
-
     /**
      * Use the native filesystem to store files at
      */

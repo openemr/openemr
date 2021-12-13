@@ -43,7 +43,6 @@ define('CHECKSUM_LOGGING', true);
 
 class FeeSheet
 {
-
     public $pid;                                // patient id
     public $encounter;                          // encounter id
     public $got_warehouses = false;             // if there is more than 1 warehouse

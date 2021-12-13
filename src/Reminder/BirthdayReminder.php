@@ -16,7 +16,6 @@ namespace OpenEMR\Reminder;
 
 class BirthdayReminder
 {
-
     private $pid;
 
     private $user_id;
