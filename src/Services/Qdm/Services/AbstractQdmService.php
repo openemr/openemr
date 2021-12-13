@@ -85,7 +85,16 @@ abstract class AbstractQdmService
 
     public function getSystemForCodeType($codeType)
     {
-        return $this->codeTypesService->getSystemForCodeType($codeType, true);
+        // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
+        $codeType = str_replace(" ", "-", $codeType);
+
+        if ($codeType == 'HCPCS-Level-II') {
+            $system = '2.16.840.1.113883.6.285';
+        } else {
+            $system = $this->codeTypesService->getSystemForCodeType($codeType, true);
+        }
+
+        return $system;
     }
 
     /**
@@ -118,11 +127,9 @@ abstract class AbstractQdmService
             !empty($code) &&
             !empty($system)
         ) {
-            // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
-            $systemName = str_replace(" ", "-", $system);
             $codeModel = new Code([
                 'code' => $code,
-                'system' => $this->getSystemForCodeType($systemName)
+                'system' => $this->getSystemForCodeType($system)
             ]);
         }
 

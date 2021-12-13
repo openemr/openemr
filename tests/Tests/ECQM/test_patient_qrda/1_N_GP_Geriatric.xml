@@ -21,18 +21,18 @@
 <!-- CMS QRDA templateId -->
 <templateId root="2.16.840.1.113883.10.20.24.1.3" extension="2020-02-01"/>
 <!-- This is the globally unique identifier for this QRDA document -->
-<id root="25069010-bb26-0139-606d-0eca209bc306"/>
+<id root="29168f10-bb26-0139-606d-0eca209bc306"/>
 <!-- QRDA document type code -->
 <code code="55182-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Quality Measure Report"/>
 <title>QRDA Incidence Report</title>
 <!-- This is the document creation time -->
-<effectiveTime value="20210629163657"/>
+<effectiveTime value="20210629163704"/>
 <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
 <languageCode code="en"/>
 <!-- reported patient -->
 <recordTarget>
   <patientRole>
-    <id extension="604f648adfe4bd03c5e797ea" root="1.3.6.1.4.1.115" />
+    <id extension="604f648ddfe4bd03c5e79881" root="1.3.6.1.4.1.115" />
       <addr use="HP">
           <streetAddressLine>202 Burlington Rd.</streetAddressLine>
         <city>Bedford</city>
@@ -43,13 +43,13 @@
       <telecom use="HP" value="tel:555-555-2003"/>
     <patient>
         <name>
-          <given>Z4 N</given>
-          <family>GP Adult</family>
+          <given>1 N</given>
+          <family>GP Geriatric</family>
         </name>
           <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
-        <birthTime value='19970308153000'/>
-          <raceCode code="1002-5" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
-          <ethnicGroupCode code="2135-2" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
+        <birthTime value='19490510153000'/>
+          <raceCode code="2054-5" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
+          <ethnicGroupCode code="2186-5" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
       <languageCommunication>
         <templateId root="2.16.840.1.113883.3.88.11.83.2" assigningAuthorityName="HITSP/C83"/>
         <templateId root="1.3.6.1.4.1.19376.1.5.3.1.2.1" assigningAuthorityName="IHE/PCC"/>
@@ -59,7 +59,7 @@
   </patientRole>
 </recordTarget>
 <author>
-  <time value="20210629163657"/>
+  <time value="20210629163704"/>
   <assignedAuthor>
     <!-- NPI -->
       <id extension="1982671962" root="2.16.840.1.113883.4.6"/>
@@ -93,7 +93,7 @@
   </assignedCustodian>
 </custodian>
 <legalAuthenticator>
-  <time value="20210629163657"/>
+  <time value="20210629163704"/>
   <signatureCode code="S"/>
   <assignedEntity>
     <id root="bc01a5d1-3a34-4286-82cc-43eb04c972a7"/>
@@ -509,7 +509,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763980-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29843d00-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -530,7 +530,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763b20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29843eb0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -551,7 +551,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763bb0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29843f50-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -572,7 +572,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763c40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29843ff0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -593,7 +593,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763cc0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844190-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -614,7 +614,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763d40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844230-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -635,7 +635,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763dc0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298442b0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -661,7 +661,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763e40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844340-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -682,7 +682,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763ed0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298443e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -703,7 +703,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25763f40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844460-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -724,7 +724,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764030-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298444d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -745,7 +745,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257640a0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298445d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -766,7 +766,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764110-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844650-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -787,7 +787,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764190-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298446c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -808,7 +808,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764200-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844740-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -829,7 +829,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764280-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298447c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -850,7 +850,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257642f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844840-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -871,7 +871,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764370-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298448c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -892,7 +892,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257643e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844930-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -913,7 +913,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764460-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298449b0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -934,7 +934,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764540-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844a30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -955,7 +955,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257645b0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844b20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -976,7 +976,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764620-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844ba0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -997,7 +997,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257646a0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844c20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1018,7 +1018,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764710-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844ca0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1041,7 +1041,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764790-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844d20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1062,7 +1062,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764880-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844e50-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1083,7 +1083,7 @@ c. Percentage of patients aged 18 years and older who were screened for tobacco 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764900-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844ed0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1106,7 +1106,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764980-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844f50-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1127,7 +1127,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257649f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29844fd0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1148,7 +1148,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764a60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845040-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1169,7 +1169,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764af0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298450c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1190,7 +1190,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764b60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845140-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1211,7 +1211,7 @@ b. Percentage of patients who remained on an antidepressant medication for at le
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764be0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298451c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1234,7 +1234,7 @@ The measure is reported as an overall rate which includes all newborns that were
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764cb0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845240-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1255,7 +1255,7 @@ The measure is reported as an overall rate which includes all newborns that were
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764d20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298452c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1276,7 +1276,7 @@ The measure is reported as an overall rate which includes all newborns that were
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764da0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845330-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1300,7 +1300,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764e10-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845450-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1321,7 +1321,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764f40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298454d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1342,7 +1342,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25764fc0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845540-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1363,7 +1363,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765030-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298455c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1384,7 +1384,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257650a0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845630-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1405,7 +1405,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765110-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298456a0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1426,7 +1426,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765180-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845860-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1447,7 +1447,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257651f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298458d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1468,7 +1468,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765270-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845950-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1489,7 +1489,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257652e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298459c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1510,7 +1510,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765350-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845a40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1531,7 +1531,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765460-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845ac0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1552,7 +1552,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257654e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845b30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1573,7 +1573,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765550-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845ba0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1598,7 +1598,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257655c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845c20-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1619,7 +1619,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765640-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845c90-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1640,7 +1640,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257656b0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845d10-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1661,7 +1661,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765720-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845e30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1685,7 +1685,7 @@ b. Percentage of patients who engaged in ongoing treatment including two additio
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="257657a0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845eb0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1708,7 +1708,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
             <!-- This is the templateId for eMeasure Reference QDM -->
             <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
-            <id extension="25765810-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="29845f30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <statusCode code="completed"/>
             <!-- Containing isBranch external references -->
             <reference typeCode="REFR">
@@ -1737,7 +1737,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
             <!-- This is the templateId for Reporting Parameteres Act -->
             <templateId root="2.16.840.1.113883.10.20.17.3.8"/>
             <templateId extension="2016-03-01" root="2.16.840.1.113883.10.20.17.3.8.1"/>
-            <id extension="25766cc0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <id extension="298475b0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
             <code code="252116004" codeSystem="2.16.840.1.113883.6.96" displayName="Observation Parameters"/>
             <effectiveTime>
               <low value="20190101000000"/>
@@ -1758,42 +1758,38 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
           <text/>
 
 
-            <entry>
-              <observation classCode="OBS" moodCode="EVN">
-                <!-- Conforms to C-CDA R2.1 Substance or Device Allergy - Intolerance Observation (V2) -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.90" extension="2014-06-09"/>
-                <!-- Allergy Intolerance -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.147" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797dd"/>
-                <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
-                <statusCode code="completed" />
-                <effectiveTime><low value='20140303080000'/><high nullFlavor='UNK'/></effectiveTime>
-                <value xsi:type="CD" code="419199007" displayName="Allergy to substance" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
-                <participant typeCode="CSM">
-                  <participantRole classCode="MANU">
-                    <playingEntity classCode="MMAT">
-                      <!-- QDM Attribute: Code -->
-                        <code code="135" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX"/>
-                      <name></name>
-                    </playingEntity>
-                  </participantRole>
-                </participant>
-              </observation>
-            </entry>
+
 
             <entry>
-              <observation classCode="OBS" moodCode="EVN" negationInd="true">
+              <observation classCode="OBS" moodCode="EVN" >
                 <!-- Assessment Performed -->
                 <templateId root="2.16.840.1.113883.10.20.24.3.144" extension="2019-12-01" />
-                <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797de"/>
-                  <code code="39240-7" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e7986f"/>
+                  <code code="73830-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
                 <text></text>
                 <statusCode code="completed"/>
-                <effectiveTime value='20190116083000'/>
+                <effectiveTime value='20190623110000'/>
                   <!-- QDM Attribute: Author dateTime -->
                   <author>
                     <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
-                    <time value='20190116083000'/>
+                    <time value='20190623110000'/>
+                    <assignedAuthor>
+                          <id nullFlavor="NA"/>
+                    </assignedAuthor>
+                  </author>              </observation>
+            </entry>            <entry>
+              <observation classCode="OBS" moodCode="EVN" negationInd="true">
+                <!-- Assessment Performed -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.144" extension="2019-12-01" />
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79870"/>
+                  <code code="58151-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                <text></text>
+                <statusCode code="completed"/>
+                <effectiveTime value='20190701110000'/>
+                  <!-- QDM Attribute: Author dateTime -->
+                  <author>
+                    <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
+                    <time value='20190701110000'/>
                     <assignedAuthor>
                           <id nullFlavor="NA"/>
                     </assignedAuthor>
@@ -1802,7 +1798,7 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
                     <observation classCode="OBS" moodCode="EVN">
                       <templateId root="2.16.840.1.113883.10.20.24.3.88" extension="2017-08-01"/>
                       <code code="77301-0" codeSystem="2.16.840.1.113883.6.1" displayName="reason" codeSystemName="LOINC"/>
-                      <value code="183932001" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT" xsi:type="CD"/>
+                      <value code="105480006" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT" xsi:type="CD"/>
                     </observation>
                   </entryRelationship>              </observation>
             </entry>
@@ -1814,24 +1810,26 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
                 <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
                 <!-- Diagnosis Concern Act -->
                 <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797df"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79871"/>
                 <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
-                <statusCode code="completed" />
-                <effectiveTime><low value='20140303080000'/><high value='20190306083000'/></effectiveTime>
+                <statusCode code="active" />
+                <effectiveTime><low value='20170422070000'/><high nullFlavor='UNK'/></effectiveTime>
                 <entryRelationship typeCode="SUBJ">
                   <observation classCode="OBS" moodCode="EVN">
                     <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
                     <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
                     <!-- Diagnosis template -->
                     <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
-                    <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797df"/>
+                    <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79871"/>
                     <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
                       <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
                     </code>
                     <statusCode code="completed" />
-                    <effectiveTime><low value='20140303080000'/><high value='20190306083000'/></effectiveTime>
+                    <effectiveTime><low value='20170422070000'/><high nullFlavor='UNK'/></effectiveTime>
                     <!-- QDM Attribute: Code -->
-                      <value xsi:type="CD" code="293112000" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                      <value xsi:type="CD" code="52448006" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="F03.90" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
+                      </value>
                   </observation>
                 </entryRelationship>
               </act>
@@ -1842,25 +1840,113 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
                 <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
                 <!-- Diagnosis Concern Act -->
                 <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797e0"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79872"/>
                 <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
                 <statusCode code="active" />
-                <effectiveTime><low value='20181002080000'/><high nullFlavor='UNK'/></effectiveTime>
+                <effectiveTime><low value='20170422070000'/><high nullFlavor='UNK'/></effectiveTime>
                 <entryRelationship typeCode="SUBJ">
                   <observation classCode="OBS" moodCode="EVN">
                     <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
                     <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
                     <!-- Diagnosis template -->
                     <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
-                    <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797e0"/>
+                    <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79872"/>
                     <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
                       <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
                     </code>
                     <statusCode code="completed" />
-                    <effectiveTime><low value='20181002080000'/><high nullFlavor='UNK'/></effectiveTime>
+                    <effectiveTime><low value='20170422070000'/><high nullFlavor='UNK'/></effectiveTime>
                     <!-- QDM Attribute: Code -->
-                      <value xsi:type="CD" code="A60.00" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM">
-                      <translation code="33839006" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                      <value xsi:type="CD" code="I50.9" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM">
+                      <translation code="84114007" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                      </value>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79873"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="active" />
+                <effectiveTime><low value='20180422070000'/><high nullFlavor='UNK'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79873"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20180422070000'/><high nullFlavor='UNK'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="428351000124105" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79874"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="completed" />
+                <effectiveTime><low value='20181222070000'/><high value='20190319071500'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79874"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20181222070000'/><high value='20190319071500'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="208150008" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="S32.401A" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
+                      </value>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79875"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="completed" />
+                <effectiveTime><low value='20181222070000'/><high value='20190319071500'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79875"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20181222070000'/><high value='20190319071500'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="447395005" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="S82.409A" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
                       </value>
                   </observation>
                 </entryRelationship>
@@ -1870,150 +1956,187 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
 
 
 
-            <entry>
-              <observation classCode="OBS" moodCode="RQO" >
-              <!-- Consolidated Plan of Care Activity Observation
-                   templateId (Implied Template) -->
-              <templateId root="2.16.840.1.113883.10.20.22.4.44" extension="2014-06-09"/>
-              <!-- Diagnostic Study, Order template -->
-              <templateId root="2.16.840.1.113883.10.20.24.3.17" extension="2019-12-01"/>
-              <id root="1.3.6.1.4.1.115" extension="604f6489dfe4bd03c5e797e1"/>
-                <code code="37256-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
-              <text></text>
-              <statusCode code="active"/>
-                <!-- QDM Attribute: Author dateTime -->
-                <author>
-                  <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
-                  <time value='20190303083000'/>
-                  <assignedAuthor>
-                        <id nullFlavor="NA"/>
-                  </assignedAuthor>
-                </author>            </observation>
-            </entry>
-
-
-
 
             <entry>
-              <act classCode="ACT" moodCode="EVN" >
-                <!--Encounter performed Act -->
-                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
-                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
-                <entryRelationship typeCode="SUBJ">
-                  <encounter classCode="ENC" moodCode="EVN">
-                    <!--  Encounter activities template -->
-                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
-                    <!-- Encounter performed template -->
-                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
-                    <id extension="604f648adfe4bd03c5e797e2" root="1.3.6.1.4.1.115"/>
-                    <!-- QDM Attribute: Code -->
-                      <code code="99395" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
-                    <text></text>
-                    <statusCode code="completed"/>
-                      <!-- QDM Attribute: Relevant Period -->
-                      <effectiveTime><low value='20190116080000'/><high value='20190116083000'/></effectiveTime>
-                  </encounter>
-                </entryRelationship>
-              </act>
-            </entry>            <entry>
-              <act classCode="ACT" moodCode="EVN" >
-                <!--Encounter performed Act -->
-                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
-                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
-                <entryRelationship typeCode="SUBJ">
-                  <encounter classCode="ENC" moodCode="EVN">
-                    <!--  Encounter activities template -->
-                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
-                    <!-- Encounter performed template -->
-                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
-                    <id extension="604f648adfe4bd03c5e797e3" root="1.3.6.1.4.1.115"/>
-                    <!-- QDM Attribute: Code -->
-                      <code code="99202" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
-                    <text></text>
-                    <statusCode code="completed"/>
-                      <!-- QDM Attribute: Relevant Period -->
-                      <effectiveTime><low value='20190303080000'/><high value='20190303083000'/></effectiveTime>
-                  </encounter>
-                </entryRelationship>
-              </act>
-            </entry>            <entry>
-              <act classCode="ACT" moodCode="EVN" >
-                <!--Encounter performed Act -->
-                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
-                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
-                <entryRelationship typeCode="SUBJ">
-                  <encounter classCode="ENC" moodCode="EVN">
-                    <!--  Encounter activities template -->
-                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
-                    <!-- Encounter performed template -->
-                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
-                    <id extension="604f648adfe4bd03c5e797e4" root="1.3.6.1.4.1.115"/>
-                    <!-- QDM Attribute: Code -->
-                      <code code="99213" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
-                    <text></text>
-                    <statusCode code="completed"/>
-                      <!-- QDM Attribute: Relevant Period -->
-                      <effectiveTime><low value='20190306080000'/><high value='20190306083000'/></effectiveTime>
-                  </encounter>
-                </entryRelationship>
-              </act>
-            </entry>
-
-
-            <entry>
-                  <substanceAdministration classCode="SBADM" moodCode="EVN" negationInd="false">
-                <!-- C-CDA R2 Immunization Activity -->
-                <templateId root="2.16.840.1.113883.10.20.22.4.52" extension="2015-08-01"/>
-                <!-- Immunization Administered -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.140" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f648adfe4bd03c5e797e5"/>
-                <code code="416118004" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="Administration"/>
+              <observation classCode="OBS" moodCode="EVN" >
+                <!-- Consolidated Procedure Activity Observation templateId
+                   (Implied Template) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.13" extension="2014-06-09"/>
+                <!-- Diagnostic Study, Performed template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.18" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79876"/>
+                  <code code="10230-1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                <text></text>
                 <statusCode code="completed"/>
-                  <!-- QDM Attribute: Relevant dateTime -->
-                  <effectiveTime value='20190116083000'/>
-                <consumable>
-                  <manufacturedProduct classCode="MANU">
-                    <!-- Immunization Information (consolidation) template -->
-                    <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
-                    <id root="257a5790-bb26-0139-606d-0eca209bc306"/>
-                    <manufacturedMaterial>
-                        <code code="135" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX"/>
-                      <lotNumberText>1</lotNumberText>
-                    </manufacturedMaterial>
-                  </manufacturedProduct>
-                </consumable>
-                  <!-- QDM Attribute: Author dateTime -->
-                  <author>
-                    <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
-                    <time value='20190116083000'/>
-                    <assignedAuthor>
-                          <id nullFlavor="NA"/>
-                    </assignedAuthor>
-                  </author>              </substanceAdministration>
+                <effectiveTime value='20190303081500'/>
+                <value nullFlavor="NA" xsi:type="CD" />
+                  <!-- QDM Attribute: Result -->
+                  <entryRelationship typeCode="REFR">
+                   <observation classCode="OBS" moodCode="EVN">
+                      <!-- Conforms to C-CDA R2 Result Observation (V2) -->
+                      <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                      <!-- Conforms Result (V4) -->
+                      <templateId root="2.16.840.1.113883.10.20.24.3.87" extension="2019-12-01"/>
+                      <id root="1.3.6.1.4.1.115" extension="29871550-bb26-0139-606d-0eca209bc306"/>
+                        <code code="10230-1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                      <statusCode code="completed"/>
+                        <effectiveTime value='20190303081500'/>
+                      <value xsi:type="PQ" value="38.0" unit="%"/>
+                   </observation>
+                  </entryRelationship>
+
+              </observation>
             </entry>
+
+
+            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f648bdfe4bd03c5e79877" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="99024" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190103080000'/><high value='20190103081500'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f648bdfe4bd03c5e79878" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="99203" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190303080000'/><high value='20190303090000'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f648bdfe4bd03c5e79879" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="99201" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190619080000'/><high value='20190619081500'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f648bdfe4bd03c5e7987a" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="97165" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190701110000'/><high value='20190701114500'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f648bdfe4bd03c5e7987b" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="99243" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190829080000'/><high value='20190829083000'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>
+
 
 
 
 
             <entry>
-              <observation classCode="OBS" moodCode="RQO" >
-                <!-- Consolidation Plan of Care Activity Observation -->
-                <templateId root="2.16.840.1.113883.10.20.22.4.44" extension="2014-06-09"/>
-                <!-- Laboratory Test, Order (V4) -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.37" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f648adfe4bd03c5e797e6"/>
-                  <code code="19080-1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <act classCode="ACT" moodCode="EVN" negationInd="true">
+                <!-- Consolidation CDA: Procedure Activity Act template -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.12" extension="2014-06-09"/>
+                <!-- Intervention Performed Template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.32" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e7987c"/>
+                  <code code="113024001" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
                 <text></text>
-                <statusCode code="active"/>
+                <statusCode code="completed"/>
+                <effectiveTime value='20190701110000'/>
                   <!-- QDM Attribute: Author dateTime -->
                   <author>
                     <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
-                    <time value='20190303083000'/>
+                    <time value='20190701110000'/>
                     <assignedAuthor>
                           <id nullFlavor="NA"/>
                     </assignedAuthor>
-                  </author>              </observation>
+                  </author>                  <!-- QDM Attribute: Negation Rationale -->
+                  <entryRelationship typeCode="RSON">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.24.3.88" extension="2017-08-01"/>
+                      <code code="77301-0" codeSystem="2.16.840.1.113883.6.1" displayName="reason" codeSystemName="LOINC"/>
+                      <value code="105480006" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT" xsi:type="CD"/>
+                    </observation>
+                  </entryRelationship>              </act>
             </entry>
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2022,46 +2145,73 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
 
 
             <entry>
-              <!--Medication Order -->
-              <substanceAdministration classCode="SBADM" moodCode="RQO" >
-                <templateId root="2.16.840.1.113883.10.20.22.4.42" extension="2014-06-09"/>
-                <!-- Medication, Order template -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.47" extension="2019-12-01"/>
-                <id root="1.3.6.1.4.1.115" extension="604f648adfe4bd03c5e797e7"/>
+              <procedure classCode="PROC" moodCode="EVN" >
+                <!--  Procedure performed template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.64" extension="2019-12-01"/>
+                <!-- Procedure Activity Procedure-->
+                <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e7987e"/>
+                  <code code="G0104" codeSystem="2.16.840.1.113883.6.285" codeSystemName="HCPCS">
+                  <translation code="396226005" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/><translation code="45331" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                  </code>
                 <text></text>
-                <statusCode code="active"/>
-                  <!-- QDM Attribute: Relevant Period -->
-                  <effectiveTime xsi:type="IVL_TS"><low value='20190306083000'/><high value='20190306083000'/></effectiveTime>
-                <!--  QDM Attribute: Frequency -->
-                <effectiveTime xsi:type='PIVL_TS' operator='A'><period value='24' unit='h'/></effectiveTime>
-                <!--  QDM Attribute: Dosage -->
-                <doseQuantity nullFlavor="UNK"/>
-                <consumable>
-                  <manufacturedProduct classCode="MANU">
-                    <!-- Medication Information (consolidation) template -->
-                    <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
-                    <id root="257ba760-bb26-0139-606d-0eca209bc306"/>
-                    <manufacturedMaterial>
-                      <!--  QDM Attribute: Code -->
-                        <code code="197844" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RXNORM"/>
-                    </manufacturedMaterial>
-                  </manufacturedProduct>
-                </consumable>
-                  <!-- QDM Attribute: Author dateTime -->
-                  <author>
-                    <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
-                    <time value='20190306083000'/>
-                    <assignedAuthor>
-                            <id nullFlavor="NA"/>
-                    </assignedAuthor>
-                  </author>              </substanceAdministration>
+                <statusCode code="completed"/>
+                <effectiveTime value='20170818080000'/>
+                  <!-- QDM Attribute: Rank -->
+                  <entryRelationship typeCode="REFR">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.24.3.166" extension="2019-12-01"/>
+                      <code code="263486008" displayName="Rank" codeSystem="2.16.840.1.113883.6.96"/>
+                      <value xsi:type="INT" value="1"/>
+                    </observation>
+                  </entryRelationship>              </procedure>
             </entry>
 
+            <entry>
+              <procedure classCode="PROC" moodCode="EVN" >
+                <!--  Procedure performed template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.64" extension="2019-12-01"/>
+                <!-- Procedure Activity Procedure-->
+                <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e7987f"/>
+                  <code code="27130" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT">
+                  <translation code="S2118" codeSystem="2.16.840.1.113883.6.285" codeSystemName="HCPCS"/><translation code="179304004" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                  </code>
+                <text></text>
+                <statusCode code="completed"/>
+                <effectiveTime><low value='20181222080000'/><high value='20181222101500'/></effectiveTime>
+                  <!-- QDM Attribute: Rank -->
+                  <entryRelationship typeCode="REFR">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.24.3.166" extension="2019-12-01"/>
+                      <code code="263486008" displayName="Rank" codeSystem="2.16.840.1.113883.6.96"/>
+                      <value xsi:type="INT" value="1"/>
+                    </observation>
+                  </entryRelationship>              </procedure>
+            </entry>
 
-
-
-
-
+            <entry>
+              <procedure classCode="PROC" moodCode="EVN" >
+                <!--  Procedure performed template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.64" extension="2019-12-01"/>
+                <!-- Procedure Activity Procedure-->
+                <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+                <id root="1.3.6.1.4.1.115" extension="604f648bdfe4bd03c5e79880"/>
+                  <code code="12866006" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                  <translation code="90670" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                  </code>
+                <text></text>
+                <statusCode code="completed"/>
+                <effectiveTime value='20190929080000'/>
+                  <!-- QDM Attribute: Rank -->
+                  <entryRelationship typeCode="REFR">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.24.3.166" extension="2019-12-01"/>
+                      <code code="263486008" displayName="Rank" codeSystem="2.16.840.1.113883.6.96"/>
+                      <value xsi:type="INT" value="1"/>
+                    </observation>
+                  </entryRelationship>              </procedure>
+            </entry>
 
 
 
@@ -2076,11 +2226,11 @@ b. Percentage of children who remained on ADHD medication for at least 210 days 
               <!-- Patient Characteristic Payer -->
               <observation classCode="OBS" moodCode="EVN">
                 <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
-                <id root="257c4fd0-bb26-0139-606d-0eca209bc306"/>
+                <id root="298a14d0-bb26-0139-606d-0eca209bc306"/>
                 <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/>
                 <statusCode code="completed"/>
                   <!-- QDM Attribute: Relevant Period -->
-                  <effectiveTime><low value='19970308153000'/><high nullFlavor='UNK'/></effectiveTime>
+                  <effectiveTime><low value='19490510153000'/><high nullFlavor='UNK'/></effectiveTime>
                   <value xsi:type="CD" code="1" codeSystem="2.16.840.1.113883.3.221.5" codeSystemName="Source of Payment Typology"/>
               </observation>
             </entry>

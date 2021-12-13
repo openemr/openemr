@@ -25,6 +25,7 @@ use OpenEMR\Services\Qdm\Services\MedicationActiveService;
 use OpenEMR\Services\Qdm\Services\MedicationOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
+use OpenEMR\Services\Qdm\Services\ProcedureService;
 
 class QdmBuilder
 {
@@ -40,7 +41,7 @@ class QdmBuilder
         DiagnosisService::class,
         PhysicalExamService::class,
         ImmunizationAdministeredService::class,
-//        ConditionService::class,
+        ProcedureService::class,
     ];
 
     public function build(QdmRequestInterface $request) : array
