@@ -1346,18 +1346,34 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_6','Acknowledgement Documents',60,0,0);
 #EndIf
 
-#IfMissingColumn patient_data suite
-ALTER TABLE patient_data ADD suite TINYTEXT;
+#IfMissingColumn patient_data street_line_2
+ALTER TABLE patient_data ADD street_line_2 TINYTEXT;
 #EndIf
 
-#IfMissingColumn insurance_data subscriber_suite
-ALTER TABLE insurance_data ADD subscriber_suite TINYTEXT default NULL;
+#IfMissingColumn employer_data street_line_2
+ALTER TABLE employer_data ADD street_line_2 TINYTEXT;
 #EndIf
 
-#IfNotRow2D layout_options form_id DEM field_id suite
+#IfMissingColumn insurance_data subscriber_street_line_2
+ALTER TABLE insurance_data ADD subscriber_street_line_2 TINYTEXT default NULL;
+#EndIf
+
+#IfMissingColumn insurance_data subscriber_employer_street_line_2
+ALTER TABLE insurance_data ADD subscriber_employer_street_line_2 TINYTEXT default NULL;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id street_line_2
 SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='street' AND form_id='DEM');
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='street' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
-VALUES ('DEM', 'suite', @group_id, 'Apt/Suite/Other', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Apt/Suite/Other', 0);
+VALUES ('DEM', 'street_line_2', @group_id, 'Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
+#Endif
+
+#IfNotRow2D layout_options form_id DEM field_id em_street_line_2
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='em_street' AND form_id='DEM');
+UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_street' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
+VALUES ('DEM', 'em_street_line_2', @group_id, 'Employer Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
 #Endif

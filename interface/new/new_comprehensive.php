@@ -136,7 +136,7 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
-  f.i<?php echo $i?>subscriber_suite.value=f.form_suite.value;
+  f.i<?php echo $i?>subscriber_street_line_2.value=f.form_street_line_2.value;
   f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
   f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
   f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
@@ -689,13 +689,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                               <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 1'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Apt/Suite/Other'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 2'); ?>:</label>
                           <div class="col-md-5 mb-2">
-                            <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_suite' value="<?php echo attr($result3["subscriber_suite"] ?? ''); ?>" onchange="capitalizeMe(this);" />
+                            <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street_line_2' value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE City'); ?>:</label>
