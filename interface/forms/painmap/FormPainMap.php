@@ -19,7 +19,6 @@ require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.p
  */
 class FormPainMap extends AbstractClickmapModel
 {
-
     /**
      * The database table to place form data in/read form data from.
      *

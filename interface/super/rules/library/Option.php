@@ -14,7 +14,6 @@
  */
 class Option
 {
-
     var $id;
     var $label;
 

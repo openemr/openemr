@@ -12,7 +12,6 @@
 
 class PQRIXml extends XmlWriterOemr
 {
-
     function __construct($indent = '  ')
     {
         parent::__construct($indent);

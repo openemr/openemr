@@ -23,7 +23,6 @@
 
 class Thumbnail
 {
-
     //max size of thumbnail
     const MAX_SIZE = 100;
     public $thumbnail_type = 'jpg';

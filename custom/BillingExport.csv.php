@@ -18,7 +18,6 @@
 
 class BillingExport
 {
-
   // You should customize these paths.  They must share the same
   // physical disk partition so that the final rename will be an
   // atomic operation.

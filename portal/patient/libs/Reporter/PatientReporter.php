@@ -26,7 +26,6 @@ require_once("verysimple/Phreeze/Reporter.php");
  */
 class PatientReporter extends Reporter
 {
-
     // the properties in this class must match the columns returned by GetCustomQuery().
     public $Id;
     public $Title;

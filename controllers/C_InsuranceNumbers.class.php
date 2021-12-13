@@ -13,7 +13,6 @@
 
 class C_InsuranceNumbers extends Controller
 {
-
         var $template_mod;
         var $providers;
         var $insurance_numbers;

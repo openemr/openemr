@@ -26,7 +26,6 @@ use Ramsey\Uuid\UuidFactory;
 
 class ObservationLabService extends BaseService
 {
-
     private const PROCEDURE_RESULT_TABLE = "procedure_result";
     private const PATIENT_TABLE = "patient_data";
 

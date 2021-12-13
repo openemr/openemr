@@ -19,7 +19,6 @@ require_once("IncludeException.php");
  */
 class Includer
 {
-
     /**
      * Includes a file with the given path.
      * If PHP is unable to include the file,

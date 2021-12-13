@@ -15,7 +15,6 @@ require_once(__DIR__ . "/../library/api.inc");
 
 class eRxStore
 {
-
     /**
      * Strip away any non numerical characters
      * @param  string $value Value to sanitize

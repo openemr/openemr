@@ -29,7 +29,6 @@ require_once(dirname(__FILE__) . '/../globals.php');
  */
 abstract class AbstractClickmapModel extends ORDataObject
 {
-
     /**
      * The row to persist information to/from.
      *

@@ -27,7 +27,6 @@
 
 class Group_Statuses
 {
-
     const TABLE = 'list_options';
 
     /**

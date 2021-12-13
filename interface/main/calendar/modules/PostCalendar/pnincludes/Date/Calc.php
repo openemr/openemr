@@ -30,7 +30,6 @@
 
 class Date_Calc
 {
-
     /**
      * Returns the current local date. NOTE: This function
      * retrieves the local date using strftime(), which may

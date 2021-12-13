@@ -14,7 +14,6 @@
  */
 class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
 {
-
     /**
      * @return RuleCriteriaType
      */

@@ -27,7 +27,6 @@
 
 class Therapy_Groups_Encounters
 {
-
     const TABLE = 'form_groups_encounter';
 
     /**

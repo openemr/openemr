@@ -14,7 +14,6 @@
  */
 class RuleCriteriaDbView
 {
-
     var $method;
     var $methodDetail;
     var $optional;

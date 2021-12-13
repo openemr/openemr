@@ -26,7 +26,6 @@ require_once("verysimple/Phreeze/Reporter.php");
  */
 class OnsiteDocumentReporter extends Reporter
 {
-
     // the properties in this class must match the columns returned by GetCustomQuery().
     // 'CustomFieldExample' is an example that is not part of the `onsite_documents` table
     public $CustomFieldExample;

@@ -11,7 +11,6 @@ require_once("FormNursingNotes.class.php");
 
 class C_FormNursingNotes extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

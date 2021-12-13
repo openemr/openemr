@@ -26,7 +26,6 @@ use Laminas\View\Model\ViewModel;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
-
     /**
      * Create html page for 'default' template (match also for pdf)
      */

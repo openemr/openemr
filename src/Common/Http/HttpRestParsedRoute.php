@@ -17,7 +17,6 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class HttpRestParsedRoute
 {
-
     /**
      * Whether the route definition is a valid match against the current request
      * @var bool

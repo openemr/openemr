@@ -28,7 +28,6 @@ use Laminas\View\Model\ViewModel;
  * */
 class ModuleconfigController
 {
-
     public function getHookConfig()
     {
         //NAME KEY SPECIFIES THE NAME OF THE HOOK FOR UNIQUELY IDENTIFYING IN A MODULE.

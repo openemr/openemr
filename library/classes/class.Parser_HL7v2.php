@@ -15,7 +15,6 @@ use Aranyasen\HL7\Segment;
 
 class Parser_HL7v2
 {
-
     /**
     * @var Message
     */

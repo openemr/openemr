@@ -18,7 +18,6 @@ use Ramsey\Uuid\Uuid;
 
 class DocumentTest extends TestCase
 {
-
     /**
      * Checks that a document can be created and the file exists at the location the document says it saves at
      */

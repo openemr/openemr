@@ -24,7 +24,6 @@ require_once("DAO/OnsiteDocumentCriteriaDAO.php");
  */
 class OnsiteDocumentCriteria extends OnsiteDocumentCriteriaDAO
 {
-
     /**
      * GetFieldFromProp returns the DB column for a given class property
      *

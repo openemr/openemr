@@ -2,7 +2,6 @@
 
 class C_InsuranceCompany extends Controller
 {
-
     var $template_mod;
     var $icompanies;
 

@@ -9,7 +9,6 @@ require_once dirname(__FILE__) . '/../../library/formatting.inc.php';
 
 class FormattingTest extends PHPUnit_Framework_TestCase
 {
-
   /**
    * @dataProvider example_american_two_decimal
    */

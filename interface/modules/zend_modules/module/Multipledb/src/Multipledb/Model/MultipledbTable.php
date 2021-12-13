@@ -29,7 +29,6 @@ use Laminas\Db\Adapter\Adapter;
 
 class MultipledbTable
 {
-
     protected $tableGateway;
     protected $adapter;
 

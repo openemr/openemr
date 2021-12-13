@@ -92,7 +92,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Prescription extends ORDataObject
 {
-
     /**
      *
      * @access public

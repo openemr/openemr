@@ -22,7 +22,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
 {
-
    /**
      * @return array<string, mixed> The event names to listen to
      */

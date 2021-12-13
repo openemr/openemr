@@ -30,7 +30,6 @@ use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
  */
 class Kernel
 {
-
     /** @var ContainerBuilder */
     private $container;
 

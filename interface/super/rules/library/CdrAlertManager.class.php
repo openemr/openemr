@@ -27,8 +27,6 @@ require_once($GLOBALS['fileroot'] . "/library/clinical_rules.php");
  */
 class CdrAlertManager
 {
-
-
         /**
          * Constructor
          */

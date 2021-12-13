@@ -19,7 +19,6 @@
  */
 class RuleCriteriaSex extends RuleCriteria
 {
-
     var $value;
 
     function __construct($value)
