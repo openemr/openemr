@@ -18,7 +18,6 @@ use Symfony\Component\EventDispatcher\Event;
 
 class PatientMenuEvent extends Event
 {
-
      /**
      * The UPDATE event occurs once the patient tabbed menu is created, so
       * that modifications can be made to the tabs at the top of the patient menu

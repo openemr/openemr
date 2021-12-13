@@ -18,7 +18,6 @@
  */
 class ActionRouter
 {
-
     var $controller;
     var $path;
     var $webRoot;

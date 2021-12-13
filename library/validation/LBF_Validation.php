@@ -22,7 +22,6 @@
 
 class LBF_Validation
 {
-
     /*If another library is used the key names can be modified here*/
     const VJS_KEY_REQUIRED = 'presence';
     /*

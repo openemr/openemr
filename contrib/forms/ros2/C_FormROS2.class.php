@@ -11,7 +11,6 @@ require_once("FormROS2.class.php");
 
 class C_FormROS2 extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

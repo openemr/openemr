@@ -10,7 +10,6 @@ use Particle\Validator\Exception\InvalidValueException;
  */
 class EncounterValidator extends BaseValidator
 {
-
     /**
      * Configures validations for the Encounter DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.

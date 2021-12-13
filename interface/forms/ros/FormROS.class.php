@@ -19,7 +19,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class FormROS extends ORDataObject
 {
-
     /**
      *
      * @access public

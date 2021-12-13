@@ -14,8 +14,6 @@
  */
 abstract class RuleCriteriaBuilder
 {
-
-
     /**
      * @return RuleCriteriaType
      */

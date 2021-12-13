@@ -30,7 +30,6 @@ require_once("verysimple/Phreeze/IDaoMap2.php");
  */
 class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
 {
-
     private static $KM;
     private static $FM;
 

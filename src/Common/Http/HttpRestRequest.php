@@ -17,7 +17,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class HttpRestRequest
 {
-
     /**
      * @var \RestConfig
      */

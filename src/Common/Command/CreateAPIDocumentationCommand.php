@@ -15,7 +15,6 @@ use OpenEMR\Common\Command\Runner\CommandContext;
 
 class CreateAPIDocumentationCommand implements IOpenEMRCommand
 {
-
     /**
      * Prints the instructions on how to use this command
      * @param CommandContext $context All the context about the command environment.

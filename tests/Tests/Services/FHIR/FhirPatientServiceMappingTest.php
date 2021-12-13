@@ -22,7 +22,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
  */
 class FhirPatientServiceMappingTest extends TestCase
 {
-
     private $fixtureManager;
     private $patientFixture;
 

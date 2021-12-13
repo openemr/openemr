@@ -4,7 +4,6 @@ use OpenEMR\Common\Acl\AclExtended;
 
 class C_DocumentCategory extends Controller
 {
-
     var $template_mod;
     var $document_categories;
     var $tree;

@@ -14,7 +14,6 @@
  */
 class RuleCriteriaDiagnosis extends RuleCriteria
 {
-
     var $title;
     var $codeType;
     var $id;

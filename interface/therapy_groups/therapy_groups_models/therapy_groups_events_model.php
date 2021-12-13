@@ -28,7 +28,6 @@
 
 class Therapy_Groups_Events
 {
-
     const TABLE = 'openemr_postcalendar_events';
 
     /**

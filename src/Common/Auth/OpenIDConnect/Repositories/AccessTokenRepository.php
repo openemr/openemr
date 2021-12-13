@@ -23,7 +23,6 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
-
     /**
      * Returns the token expiration date for the given token id.
      * @param $tokenId string The access token id

@@ -13,7 +13,6 @@
 
 class C_Pharmacy extends Controller
 {
-
     var $template_mod;
     var $pharmacies;
     public $totalpages;

@@ -20,7 +20,6 @@ use Ramsey\Uuid\Uuid;
 
 class ExportMemoryStreamWriterTest extends TestCase
 {
-
     public function testAppend()
     {
         $patient = new FHIRPatient(['id' => Uuid::uuid4()]);

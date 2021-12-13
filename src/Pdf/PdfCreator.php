@@ -17,7 +17,6 @@ use Symfony\Component\Debug\ExceptionHandler;
 
 class PdfCreator
 {
-
     private $binaryPath;
 
     private $tempPath;

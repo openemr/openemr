@@ -11,7 +11,6 @@ require_once("FormSnellen.class.php");
 
 class C_FormSnellen extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

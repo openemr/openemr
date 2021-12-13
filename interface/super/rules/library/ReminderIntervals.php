@@ -15,7 +15,6 @@
  */
 class ReminderIntervals
 {
-
     var $detailMap;
 
     function __construct()

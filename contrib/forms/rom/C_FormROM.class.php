@@ -11,7 +11,6 @@ require_once("FormROM.class.php");
 
 class C_FormROM extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

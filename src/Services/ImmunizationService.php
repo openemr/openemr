@@ -24,7 +24,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class ImmunizationService extends BaseService
 {
-
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
     private $immunizationValidator;

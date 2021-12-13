@@ -14,7 +14,6 @@
  */
 class RuleType
 {
-
     var $code;
     var $lbl;
 

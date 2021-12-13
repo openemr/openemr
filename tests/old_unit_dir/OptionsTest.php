@@ -6,7 +6,6 @@ require_once dirname(__FILE__) . '/BaseHarness.class.php';
 
 class OptionsTest extends BaseHarness
 {
-
     public function test_disp_end_cell()
     {
         global $item_count;

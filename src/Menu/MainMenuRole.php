@@ -17,7 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MainMenuRole extends MenuRole
 {
-
     /**
      * @var EventDispatcher
      */

@@ -20,7 +20,6 @@ define("EVENT_OTHER", 4);
  */
 class FormROM extends ORDataObject
 {
-
     /**
      *
      * @access public

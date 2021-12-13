@@ -14,7 +14,6 @@
  */
 abstract class RuleCriteriaFactory
 {
-
     var $strategyMap;
     function __construct()
     {

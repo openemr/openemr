@@ -14,7 +14,6 @@
  */
 class RuleCriteriaType
 {
-
     // codes
     const ageMin = "age_min";
     const ageMax = "age_max";

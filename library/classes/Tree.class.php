@@ -13,7 +13,6 @@ define("ROOT_TYPE_NAME", 2);
 
 class Tree
 {
-
     /*
     *   This is the name of the table this tree is stored in
     *   @var string

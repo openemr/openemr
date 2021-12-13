@@ -9,5 +9,4 @@
 //
 class AmcPatient extends RsPatient
 {
-
 }

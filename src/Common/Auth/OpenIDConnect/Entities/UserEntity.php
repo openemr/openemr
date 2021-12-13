@@ -24,7 +24,6 @@ use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
 {
-
     public $userRole;
     public $identifier;
 
