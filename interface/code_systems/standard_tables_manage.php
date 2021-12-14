@@ -10,11 +10,9 @@
  * @author    Rohit Kumar <pandit.rohit@netsity.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
- * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
  * @copyright Copyright (c) 2012 Patient Healthcare Analytics, Inc.
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -46,19 +44,11 @@ array_shift($files_array); // get rid of ".."
 
 foreach ($files_array as $file) {
     $this_file = $mainPATH . "/" . $file;
-
-    $allowed_extensions = ['.zip', '.xlsx'];
-    $allow_file = false;
-
-    // See if the file is whitelisted
-    foreach ($allowed_extensions as $ext) {
-        // A match was found
-        if (strpos($file, $ext) !== false) {
-            continue;
-        }
+    if (strpos($file, ".zip") === false) {
+        continue;
     }
 
-    if (is_file($this_file) && strpos($file, ".zip") !== false) {
+    if (is_file($this_file)) {
         handle_zip_file($db, $this_file);
     }
 }
@@ -101,12 +91,6 @@ if ($db == 'RXNORM') {
     }
 } elseif ($db == 'CQM_VALUESET') {
     if (!valueset_import($db)) {
-        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
-        temp_dir_cleanup($db);
-        exit;
-    }
-} elseif ($db == 'VENOM') {
-    if (!venom_import($db)) {
         echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($db);
         exit;

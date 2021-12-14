@@ -93,29 +93,17 @@ if (is_dir($mainPATH)) {
         $i++;
         $file = $mainPATH . "/" . $file;
         if (is_file($file)) {
-            if (strpos($file, "README") !== false) {
-                $allow_file = false;
+            if (!strpos($file, ".zip") !== false) {
+                unset($files_array[$i]);
                 continue;
-            }
-
-            $allowed_extensions = ['.zip', '.xlsx'];
-            $allow_file = false;
-
-            // See if the file is whitelisted
-            foreach ($allowed_extensions as $ext) {
-                // A match was found
-                if (strpos($file, $ext) !== false) {
-                    $allow_file = true;
-                    continue;
-                }
             }
 
             $supported_file = 0;
             if ($db == 'RXNORM') {
                 if (preg_match("/RxNorm_full_([0-9]{8}).zip/", $file, $matches)) {
-            // Hard code the version RxNorm feed to be Standard
+                    // Hard code the version RxNorm feed to be Standard
                     //  (if add different RxNorm types/versions/lanuages, then can use this)
-            //
+                    //
                     $version = "Standard";
                     $date_release = substr($matches[1], 4) . "-" . substr($matches[1], 0, 2) . "-" . substr($matches[1], 2, -4);
                     $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
@@ -248,17 +236,6 @@ if (is_dir($mainPATH)) {
                          $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
                          array_push($revisions, $temp_date);
                          $supported_file = 1;
-                }
-            } elseif ($db == 'VENOM') {
-                if (preg_match("/VeNom_Data_Dictionary_V([0-9])_release_([a-z])_([a-zA-Z]{3})([0-9]{2}).xlsx/", $file, $matches)) {
-                    $version = $matches[1];
-                    $monthStrArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    $monthNum = array_search($matches[2], $monthStrArr);
-                    $monthNum = $monthNum + 1;
-                    $date_release = "20{$matches[4]}-{$monthNum}-01";
-                    $temp_date = ['date' => $date_release, 'version' => $version, 'path' => "{$mainPATH}/$matches[0]"];
-                    array_push($revisions, $temp_date);
-                    $supported_file = 1;
                 }
             }
 

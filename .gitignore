@@ -15,6 +15,10 @@ node_modules
 # ccda service build
 ccdaservice/node_modules
 
+# Custom modules
+interface/modules/custom_modules/**
+!interface/modules/custom_modules/README.md
+
 # dev editor configs
 /.idea/*
 /.vscode/*

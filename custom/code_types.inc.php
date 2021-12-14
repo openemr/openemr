@@ -51,6 +51,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
+
+require_once dirname(__FILE__) . "/../interface/globals.php";
 require_once(dirname(__FILE__) . "/../library/csv_like_join.php");
 
 $code_types = array();
@@ -169,11 +172,6 @@ define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_cod
 
 define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', array(), '');
 
-// VeNom Coding Group
-define_external_table($code_external_tables, 14, 'venom_dx', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
-define_external_table($code_external_tables, 15, 'venom_dx_test', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
-define_external_table($code_external_tables, 16, 'venom_proc', 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
-
 /**
  * This array stores the external table options. See above for $code_types array
  * 'external' attribute  for explanation of the option listings.
@@ -193,10 +191,32 @@ $ct_external_options = array(
   '11' => xl('SNOMED (RF2) Clinical Term'),
   '12' => xl('SNOMED (RF2) Procedure'),
   '13' => xl('CQM (Mixed Types) Value Set'),
-  '14' => xl('VeNom Diagnosis'),
-  '15' => xl('VeNom Diagnostic Tests'),
-  '16' => xl('VeNom Procedures'),
 );
+
+$lastCtExternalOption = array_key_last($ct_external_options);
+
+if (!is_int($lastCtExternalOption)) {
+    error_log("Last key not an integer");
+    return false;
+}
+
+$nextCtExternalOption = $lastCtExternalOption + 1;
+$venomArr = [
+    'venom_dx' => 'VeNom Diagnoses',
+    'venom_dx_test' => 'VeNom Diagnostic Tests',
+    'venom_proc' => 'VeNom Procedures',
+    'venom_admin' => 'VeNom Admin Tasks',
+];
+
+foreach ($venomArr as $table => $title) {
+    $ct_external_options[$nextCtExternalOption] = $title;
+    define_external_table($code_external_tables, $nextCtExternalOption, $table, 'dict_id', 'term', 'term', ['active=1', 'approved=1']);
+    $nextCtExternalOption++;
+}
+
+// @todo This is what would allow a better approach to code types, but there is a scoping issue with the event dispatcher
+// $updatedCodes = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(ExternalCodesCreatedEvent::EVENT_HANDLE, new ExternalCodesCreatedEvent($base_ct_external_options));
+// $ct_external_options = $updatedCodes->getexternalCodeData();
 
 /**
  *  Checks to see if using spanish snomed
