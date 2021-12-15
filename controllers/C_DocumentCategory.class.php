@@ -8,6 +8,7 @@ class C_DocumentCategory extends Controller
     var $document_categories;
     var $tree;
     var $link;
+    var $_last_node;
 
     function __construct($template_mod = "general")
     {

@@ -22,7 +22,15 @@ class EventAuditLogger
 {
     use Singleton;
 
+    /**
+     * @var CryptoGen
+     */
     private $cryptoGen;
+
+    /**
+     * @var boolean
+     */
+    private $breakglassUser;
 
     /**
      * Event action codes indicate whether the event is read/write.

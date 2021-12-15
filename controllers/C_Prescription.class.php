@@ -29,6 +29,8 @@ class C_Prescription extends Controller
     var $providerid = 0;
     var $is_faxing = false;
     var $is_print_to_fax = false;
+    var $RxList;
+    var $prescriptions;
 
     function __construct($template_mod = "general")
     {

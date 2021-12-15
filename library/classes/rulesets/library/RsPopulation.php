@@ -28,7 +28,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     /*
      * Countable Interface
      */
-    public function count()
+    public function count(): int
     {
         return count($this->_patients);
     }
@@ -36,7 +36,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     /*
      * Iterator Interface
      */
-    public function rewind()
+    public function rewind(): void
     {
         reset($this->_patients);
     }
@@ -56,7 +56,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
         return next($this->_patients);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->current() !== false;
     }
@@ -65,7 +65,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     /*
      * ArrayAccess Interface
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($value instanceof CqmPatient) {
             if ($offset == "") {
@@ -78,12 +78,12 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
         }
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->_patients[$offset]);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->_patients[$offset]);
     }

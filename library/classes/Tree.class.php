@@ -31,6 +31,10 @@ class Tree
     */
     var $_db;
 
+    var $_root;
+    var $_root_type;
+    var $tree;
+
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
     *   @param mixed $root name or id of desired root node

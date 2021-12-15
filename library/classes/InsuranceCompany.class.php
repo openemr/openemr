@@ -57,6 +57,8 @@ class InsuranceCompany extends ORDataObject
 
     var $address;
 
+    var $X12Partner;
+
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */

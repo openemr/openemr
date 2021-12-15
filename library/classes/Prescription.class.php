@@ -143,6 +143,8 @@ class Prescription extends ORDataObject
     var $active;
     var $ntx;
 
+    var $encounter;
+
     /**
     * Constructor sets all Prescription attributes to their default value
     */
