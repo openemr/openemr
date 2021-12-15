@@ -264,6 +264,7 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
   f.i<?php echo attr($i); ?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo attr($i); ?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo attr($i); ?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo attr($i); ?>subscriber_street_line_2.value=f.form_street_line_2.value;
   f.i<?php echo attr($i); ?>subscriber_city.value=f.form_city.value;
   f.form_i<?php echo attr($i); ?>subscriber_state.value=f.form_state.value;
   f.i<?php echo attr($i); ?>subscriber_postal_code.value=f.form_postal_code.value;
@@ -278,6 +279,7 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
   f.form_i<?php echo attr($i); ?>subscriber_sex.value = f.form_sex.value;
   f.i<?php echo attr($i); ?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo attr($i); ?>subscriber_employer_street.value=f.form_em_street.value;
+  f.i<?php echo attr($i); ?>subscriber_employer_street_line_2.value=f.form_em_street_line_2.value;
   f.i<?php echo attr($i); ?>subscriber_employer_city.value=f.form_em_city.value;
   f.form_i<?php echo attr($i); ?>subscriber_employer_state.value=f.form_em_state.value;
   f.i<?php echo attr($i); ?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
@@ -672,6 +674,15 @@ if (! $GLOBALS['simplified_demographics']) {
                value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
             </div>
+            <div class="col-md-3 pt-1">
+              <span class='label_custom required'><?php echo xlt('SE Address Line 2'); ?></span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' class='form-control form-control-sm mb-1' size='25'
+               name='i<?php echo attr($i); ?>subscriber_employer_street_line_2'
+               value="<?php echo attr($result3["subscriber_employer_street_line_2"] ?? ''); ?>"
+               onchange="capitalizeMe(this);" />
+            </div>
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
@@ -840,6 +851,18 @@ if (! $GLOBALS['simplified_demographics']) {
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
                name='i<?php echo attr($i); ?>subscriber_street'
                value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>"
+               onchange="capitalizeMe(this);" />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pt-1">
+              <span class='label_custom required'><?php echo xlt('Address Line 2'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
+               name='i<?php echo attr($i); ?>subscriber_street_line_2'
+               value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
             </div>
           </div><!-- end nested row -->
