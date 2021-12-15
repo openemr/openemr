@@ -9,4 +9,5 @@
 //
 class AmcPatient extends RsPatient
 {
+    public $object;
 }

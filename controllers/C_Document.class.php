@@ -20,7 +20,6 @@ use OpenEMR\Services\PatientService;
 
 class C_Document extends Controller
 {
-    public $template_mod;
     public $documents;
     public $document_categories;
     public $tree;
@@ -28,6 +27,7 @@ class C_Document extends Controller
     public $manual_set_owner = false; // allows manual setting of a document owner/service
     public $facilityService;
     public $patientService;
+    public $_last_node;
     private $Document;
     private $cryptoGen;
 

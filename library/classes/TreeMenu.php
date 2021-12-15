@@ -371,12 +371,13 @@ class HTML_TreeNode
   // author's intention was in using this name twice or if it was a mistake
     //var $parent;
 
-
     /**
     * Javascript event handlers;
     * @var array
     */
     var $events;
+
+    var $id;
 
     /**
     * Constructor
@@ -575,6 +576,9 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     */
     var $noTopLevelImages;
 
+    var $maxDepth;
+    var $usePersistence;
+
     /**
     * Constructor, takes the tree structure as
     * an argument and an array of options which
@@ -747,6 +751,8 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     * @var string
     */
     var $linkTarget;
+
+    var $submitText;
 
     /**
     * Constructor

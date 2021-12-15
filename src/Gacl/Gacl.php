@@ -73,6 +73,9 @@ class Gacl {
     /** @var boolean The utf8 encoding flag */
     var $_db_encoding_setting = '';
 
+    /** @var object An ADODB database connector object */
+    var $db;
+
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
 	 * 		Alternatively you could wait for the cache to expire.

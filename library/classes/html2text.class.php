@@ -429,7 +429,7 @@ class html2text
         $text = preg_replace($this->search, $this->replace, $text);
 
         // Strip any other HTML tags
-        $text = strip_tags($text, $this->allowed_tags);
+        $text = strip_tags($text ?? '', $this->allowed_tags);
 
         // Bring down number of empty lines to 2 max
         $text = preg_replace("/\n\s+\n/", "\n\n", $text);

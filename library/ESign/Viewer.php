@@ -30,6 +30,14 @@ require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 
 class Viewer extends Abstract_Model
 {
+    public $target;
+    public $encounterId;
+    public $logId;
+    public $formId;
+    public $formDir;
+    public $signatures;
+    public $verified;
+
     public function __construct(array $args = null)
     {
         parent::__construct($args);

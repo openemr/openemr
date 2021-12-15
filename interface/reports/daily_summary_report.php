@@ -366,7 +366,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                     <?php
                                     if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
                                         $totalAppointments = $totalAppointments ?? null;
-                                        $totalAppointments += $information['appointments'];
+                                        $totalAppointments += ($information['appointments'] ?? null);
 
                                         $totalNewRegisterPatient = $totalNewRegisterPatient ?? null;
                                         $totalNewRegisterPatient += ($information['newPatient'] ?? null);
@@ -375,10 +375,10 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         $totalVisits += ($information['visits'] ?? null);
 
                                         $totalPayments = $totalPayments ?? null;
-                                        $totalPayments += floatval(str_replace(",", "", ($information['payments'] ?? null)));
+                                        $totalPayments += floatval(str_replace(",", "", ($information['payments'] ?? '')));
 
                                         $totalPaidAmount = $totalPaidAmount ?? null;
-                                        $totalPaidAmount += floatval(str_replace(",", "", ($information['paidAmount'] ?? null)));
+                                        $totalPaidAmount += floatval(str_replace(",", "", ($information['paidAmount'] ?? '')));
 
                                         $totalDueAmount = $totalDueAmount ?? null;
                                         $totalDueAmount += $dueAmount;
