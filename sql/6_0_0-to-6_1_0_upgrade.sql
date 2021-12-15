@@ -1355,11 +1355,11 @@ ALTER TABLE employer_data ADD street_line_2 TINYTEXT;
 #EndIf
 
 #IfMissingColumn insurance_data subscriber_street_line_2
-ALTER TABLE insurance_data ADD subscriber_street_line_2 TINYTEXT default NULL;
+ALTER TABLE insurance_data ADD subscriber_street_line_2 TINYTEXT;
 #EndIf
 
 #IfMissingColumn insurance_data subscriber_employer_street_line_2
-ALTER TABLE insurance_data ADD subscriber_employer_street_line_2 TINYTEXT default NULL;
+ALTER TABLE insurance_data ADD subscriber_employer_street_line_2 TINYTEXT ;
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id street_line_2
