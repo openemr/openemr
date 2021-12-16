@@ -403,11 +403,14 @@ $layout_tbl = tableNameFromLayout($layout_id);
 $layout_alert = "";
 if (($layout_id !== "") && ($layout_tbl !== "")) {
     $layout_alert = sprintf(
-        '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <strong>%s</strong> "%s" %s.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        '<div class="alert alert-warning alert-dismissible fade show my-0 py-0" role="alert">
+            <strong>%s</strong> %s
+            <button type="button" class="close my-0 py-0" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
         </div>',
-        xlt('Do not delete standard fields!'), xlt('Unused'), xlt('option should be used to hide fields')
+        xlt('Do not delete standard fields!'),
+        xlt('Select "UOR" option "Unused" to hide the field.')
     );
 }
 
