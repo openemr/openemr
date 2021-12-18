@@ -398,7 +398,7 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
-$layout_tbl = tableNameFromLayout($layout_id);
+$layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 // Setup alert for table layouts
 $layout_alert = "";
 if (($layout_id !== "") && ($layout_tbl !== "")) {
@@ -1589,7 +1589,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' > ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'translate_layout' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
