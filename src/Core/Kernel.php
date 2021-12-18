@@ -8,8 +8,6 @@
 
 namespace OpenEMR\Core;
 
-require_once dirname(__FILE__) . '/../../interface/globals.php';
-
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
