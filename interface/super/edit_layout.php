@@ -398,10 +398,10 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
-$layout_tbl = tableNameFromLayout($layout_id);
 // Setup alert for table layouts
 $layout_alert = "";
 if (($layout_id !== "") && ($layout_tbl !== "")) {
+    $layout_tbl = tableNameFromLayout($layout_id);
     $layout_alert = sprintf(
         '<div class="alert alert-warning alert-dismissible fade show my-0 py-0" role="alert">
             <strong>%s</strong> %s
