@@ -1064,14 +1064,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
                 echo "  <th class='dehead' align='left'>";
-                      echo $form_age_inc * $c;
+                echo $form_age_inc * $c;
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
                 } else {
                     echo "+";
                 }
-
-                      echo "</th>\n";
+                echo "</th>\n";
             }
         } else {
             ?>
@@ -1142,9 +1141,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 0,
                 0,
                 0,
-                substr($agedate, 5, 2),
-                substr($agedate, 8, 2),
-                substr($agedate, 0, 4)
+                (int) substr($agedate, 5, 2),
+                (int) substr($agedate, 8, 2),
+                (int) substr($agedate, 0, 4)
             );
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
