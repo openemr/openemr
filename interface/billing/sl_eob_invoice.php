@@ -447,6 +447,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 // Get invoice charge details.
 $codes = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
+$bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND encounter = ? limit 1", array($patient_id, $encounter_id));
 ?>
 
 <div class="container-fluid">
@@ -506,8 +507,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         ?>
                     </div>
                 </div>
-                <div class="form-group mt-3">
-                     <textarea name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2" readonly><?php echo attr($insurance ?? ''); ?></textarea>
+                <div class="form-row">
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="billing_note"><?php echo xlt('Billing Note'); ?>:</label>
+                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo ($pdrow['billing_note'] ?? '') . "\n" . ($bnrow['billing_note'] ?? ''); ?></textarea>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-lg">
