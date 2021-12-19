@@ -432,6 +432,8 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
             $form_done = 0 + $_POST['form_done'];
             $form_stmt_count = 0 + $_POST['form_stmt_count'];
             sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
+            // also update billing for aging
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array($form_deposit_date, $patient_id, $encounter_id));
         }
         // will reload page w/o reposting
         echo "location.replace(location)\n";

@@ -870,30 +870,24 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             }
         }
 
-      // This computes the invoice's total original charges and adjustments,
-      // date of last activity, and determines if insurance has responded to
-      // all billing items.
+        // This computes the invoice's total original charges and adjustments,
+        // date of last activity, and determines if insurance has responded to
+        // all billing items.
         $invlines = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
-
-      // if ($encounter_id == 185) { // debugging
-      //   echo "\n<!--\n";
-      //   print_r($invlines);
-      //   echo "\n-->\n";
-      // }
 
         $row['charges'] = 0;
         $row['adjustments'] = 0;
         $row['paid'] = 0;
         $ins_seems_done = true;
-        $ladate = $svcdate;
+        $last_active_date = $svcdate;
         foreach ($invlines as $key => $value) {
             $row['charges'] += $value['chg'] + ($value['adj'] ?? null);
             $row['adjustments'] += 0 - ($value['adj'] ?? null);
             $row['paid'] += $value['chg'] - $value['bal'];
             foreach ($value['dtl'] as $dkey => $dvalue) {
                 $dtldate = trim(substr($dkey, 0, 10));
-                if ($dtldate && $dtldate > $ladate) {
-                    $ladate = $dtldate;
+                if ($dtldate && $dtldate > $last_active_date) {
+                    $last_active_date = $dtldate;
                 }
             }
 
@@ -917,14 +911,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $row['billing_errmsg'] = 'Ins1 seems not done';
         }
 
-        // Calculate claim age date for due ins
-        if ($is_due_ins) {
-            $ladate = $row['bill_date'];
-        }
+        // Check billing for more recent age date even if due pt
+        $last_active_date = ($row['bill_date'] > $last_active_date) ? $row['bill_date'] : $last_active_date;
 
-        $row['ladate'] = $ladate;
+        $row['last_active_date'] = $last_active_date;
 
-        if ($ladate == '') {
+        if ($last_active_date == '') {
             $row['inactive_days'] = "n/a";
         } else {
             // Compute number of days since last activity.
@@ -932,9 +924,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 0,
                 0,
                 0,
-                substr($ladate, 5, 2),
-                substr($ladate, 8, 2),
-                substr($ladate, 0, 4)
+                substr($last_active_date, 5, 2),
+                substr($last_active_date, 8, 2),
+                substr($last_active_date, 0, 4)
             );
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
@@ -1003,10 +995,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             echo csvEscape(xl('Balance')) . ',';
             echo csvEscape(xl('IDays')) . ',';
             if ($form_cb_err) {
-                echo csvEscape(xl('LADate')) . ',';
+                echo csvEscape(xl('last_active_date')) . ',';
                 echo csvEscape(xl('Error')) . "\n";
             } else {
-                echo csvEscape(xl('LADate')) . "\n";
+                echo csvEscape(xl('last_active_date')) . "\n";
             }
         }
     } else {
@@ -1136,7 +1128,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // Compute invoice balance and aging column number, and accumulate aging.
         $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
         if ($form_age_cols) {
-            $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
+            $agedate = $is_ageby_lad ? $row['last_active_date'] : $row['dos'];
             $agetime = mktime(
                 0,
                 0,
@@ -1212,7 +1204,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   </td>
             <?php if ($form_cb_adate) { ?>
   <td class='detail'>
-   &nbsp;<?php echo text(oeFormatShortDate($row['ladate'])); ?>
+   &nbsp;<?php echo text(oeFormatShortDate($row['last_active_date'])); ?>
   </td>
 <?php } ?>
   <td class="detail" align="left">
@@ -1307,10 +1299,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 echo csvEscape(oeFormatMoney($balance))              . ',';
                 echo csvEscape($row['inactive_days'])                . ',';
                 if ($form_cb_err) {
-                    echo csvEscape(oeFormatShortDate($row['ladate']))    . ',';
+                    echo csvEscape(oeFormatShortDate($row['last_active_date']))    . ',';
                     echo csvEscape($row['billing_errmsg'])               . "\n";
                 } else {
-                    echo csvEscape(oeFormatShortDate($row['ladate']))    . "\n";
+                    echo csvEscape(oeFormatShortDate($row['last_active_date']))    . "\n";
                 }
             }
         } // end $form_csvexport
