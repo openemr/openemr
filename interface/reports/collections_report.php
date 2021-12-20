@@ -851,7 +851,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $row['referrer']  = $erow['referrer'];
         $row['provider']  = $erow['provider_id'];
         $row['irnumber']  = $erow['invoice_refno'];
-        $row['bill_date']  = $erow['bill_date'];  // use this for ins_due claim age date
+        $row['bill_date'] = $erow['bill_date'];  // use this for ins_due claim age date
 
       // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';

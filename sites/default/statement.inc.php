@@ -253,20 +253,20 @@ function create_HTML_statement($stmt)
 
         $dos = $line['dos'];
         ksort($line['detail']);
-        # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
-        $age_index = (int) (($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
         // suppressing individual adjustments = improved statement printing
         $adj_flag = false;
         $note_flag = false;
         $pt_paid_flag = false;
         $prev_ddate = '';
+        $last_active_date = $dos;
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr($dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+            }
+
+            if ($ddate && $ddate > $last_active_date) {
+                $last_active_date = $ddate;
             }
 
             $amount = '';
@@ -330,6 +330,17 @@ function create_HTML_statement($stmt)
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), "Item balance ", sprintf("%.2f", ($line['amount'] - $line['paid'])));
             ++$count;
         }
+
+        # Compute the aging bucket index and accumulate into that bucket.
+        $last_active_date = ($line['bill_date'] > $last_active_date) ? $line['bill_date'] : $last_active_date;
+        // If first bill then make the amount due current
+        if ($stmt['dun_count'] == '0') {
+            $last_active_date = date('Y-m-d');
+        }
+        $age_in_days = (int) (($todays_time - strtotime($last_active_date)) / (60 * 60 * 24));
+        $age_index = (int) (($age_in_days - 1) / 30);
+        $age_index = max(0, min($num_ages - 1, $age_index));
+        $aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
     // This generates blank lines until we are at line 20.
