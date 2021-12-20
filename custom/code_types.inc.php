@@ -47,10 +47,17 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
+require_once dirname(__FILE__) . "/../interface/globals.php";
 require_once(__DIR__ . "/../library/csv_like_join.php");
+
+global $GLOBALS;
 
 $code_types = array();
 global $code_types;
@@ -188,6 +195,13 @@ $ct_external_options = array(
   '12' => xl('SNOMED (RF2) Procedure'),
   '13' => xl('CQM (Mixed Types) Value Set')
 );
+
+/**
+ * @var EventDispatcher
+ */
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$externalCodesEvent = new ExternalCodesCreatedEvent($ct_external_options);
+$eventDispatcher->dispatch($externalCodesEvent);
 
 /**
  *  Checks to see if using spanish snomed
