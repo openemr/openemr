@@ -258,15 +258,15 @@ function create_HTML_statement($stmt)
         $note_flag = false;
         $pt_paid_flag = false;
         $prev_ddate = '';
-        $last_active_date = $dos;
+        $last_activity_date = $dos;
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr($dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
 
-            if ($ddate && $ddate > $last_active_date) {
-                $last_active_date = $ddate;
+            if ($ddate && $ddate > $last_activity_date) {
+                $last_activity_date = $ddate;
             }
 
             $amount = '';
@@ -332,12 +332,12 @@ function create_HTML_statement($stmt)
         }
 
         # Compute the aging bucket index and accumulate into that bucket.
-        $last_active_date = ($line['bill_date'] > $last_active_date) ? $line['bill_date'] : $last_active_date;
+        $last_activity_date = ($line['bill_date'] > $last_activity_date) ? $line['bill_date'] : $last_activity_date;
         // If first bill then make the amount due current
         if ($stmt['dun_count'] == '0') {
-            $last_active_date = date('Y-m-d');
+            $last_activity_date = date('Y-m-d');
         }
-        $age_in_days = (int) (($todays_time - strtotime($last_active_date)) / (60 * 60 * 24));
+        $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
