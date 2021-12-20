@@ -684,7 +684,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
-            if ($_POST['form_individual'] == 1) {
+            if ($_POST['form_individual'] ?? '' == 1) {
                 $where .= " OR f.encounter = ? ";
                 array_push($sqlArray, $newencounter);
             } else {
@@ -879,15 +879,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $row['adjustments'] = 0;
         $row['paid'] = 0;
         $ins_seems_done = true;
-        $last_activity_date = $svcdate;
+        $aging_date = $svcdate;
         foreach ($invlines as $key => $value) {
             $row['charges'] += $value['chg'] + ($value['adj'] ?? null);
             $row['adjustments'] += 0 - ($value['adj'] ?? null);
             $row['paid'] += $value['chg'] - $value['bal'];
             foreach ($value['dtl'] as $dkey => $dvalue) {
                 $dtldate = trim(substr($dkey, 0, 10));
-                if ($dtldate && $dtldate > $last_activity_date) {
-                    $last_activity_date = $dtldate;
+                if ($dtldate && $dtldate > $aging_date) {
+                    $aging_date = $dtldate;
                 }
             }
 
@@ -912,11 +912,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
 
         // Check billing for more recent age date even if due pt
-        $last_activity_date = ($row['bill_date'] > $last_activity_date) ? $row['bill_date'] : $last_activity_date;
+        $aging_date = ($row['bill_date'] > $aging_date) ? $row['bill_date'] : $aging_date;
 
-        $row['last_activity_date'] = $last_activity_date;
+        $row['aging_date'] = $aging_date;
 
-        if ($last_activity_date == '') {
+        if ($aging_date == '') {
             $row['inactive_days'] = "n/a";
         } else {
             // Compute number of days since last activity.
@@ -924,9 +924,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 0,
                 0,
                 0,
-                substr($last_activity_date, 5, 2),
-                substr($last_activity_date, 8, 2),
-                substr($last_activity_date, 0, 4)
+                substr($aging_date, 5, 2),
+                substr($aging_date, 8, 2),
+                substr($aging_date, 0, 4)
             );
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
@@ -990,15 +990,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             echo csvEscape(xl('DOS')) . ',';
             echo csvEscape(xl('Referrer')) . ',';
             echo csvEscape(xl('Provider')) . ',';
+            echo csvEscape(xl('Charge')) . ',';
             echo csvEscape(xl('Adjust')) . ',';
             echo csvEscape(xl('Paid')) . ',';
             echo csvEscape(xl('Balance')) . ',';
-            echo csvEscape(xl('IDays')) . ',';
+
+            if ($form_cb_idays) {
+                echo csvEscape(xl('Aging Days')) . ',';
+            }
+
             if ($form_cb_err) {
-                echo csvEscape(xl('last_activity_date')) . ',';
                 echo csvEscape(xl('Error')) . "\n";
             } else {
-                echo csvEscape(xl('last_activity_date')) . "\n";
+                echo "\n";
             }
         }
     } else {
@@ -1071,7 +1075,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
         ?>
         <?php if ($form_cb_idays) { ?>
-  <th align="right"><?php echo xlt('IDays')?>&nbsp;</th>
+  <th align="right"><?php echo xlt('Aging Days')?>&nbsp;</th>
     <?php } ?>
         <?php if (!$is_ins_summary) { ?>
   <th align="center"><?php echo xlt('Prv') ?></th>
@@ -1128,7 +1132,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // Compute invoice balance and aging column number, and accumulate aging.
         $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
         if ($form_age_cols) {
-            $agedate = $is_ageby_lad ? $row['last_activity_date'] : $row['dos'];
+            $agedate = $is_ageby_lad ? $row['aging_date'] : $row['dos'];
             $agetime = mktime(
                 0,
                 0,
@@ -1204,7 +1208,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   </td>
             <?php if ($form_cb_adate) { ?>
   <td class='detail'>
-   &nbsp;<?php echo text(oeFormatShortDate($row['last_activity_date'])); ?>
+   &nbsp;<?php echo text(oeFormatShortDate($row['aging_date'])); ?>
   </td>
 <?php } ?>
   <td class="detail" align="left">
@@ -1262,7 +1266,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
           // The CSV detail line is written here added conditions for checked items (TLH).
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-            if ($balance > 0 || $_POST['form_zero_balances']) {
+            if ($balance > 0 || ($_POST['form_zero_balances'] ?? '')) {
                 echo csvEscape($row['ins1'])                         . ','; // insname
                 echo csvEscape($ptname)                              . ',';
                 if ($form_cb_ssn) {
@@ -1299,10 +1303,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 echo csvEscape(oeFormatMoney($balance))              . ',';
                 echo csvEscape($row['inactive_days'])                . ',';
                 if ($form_cb_err) {
-                    echo csvEscape(oeFormatShortDate($row['last_activity_date']))    . ',';
                     echo csvEscape($row['billing_errmsg'])               . "\n";
                 } else {
-                    echo csvEscape(oeFormatShortDate($row['last_activity_date']))    . "\n";
+                    echo "\n";
                 }
             }
         } // end $form_csvexport
@@ -1324,9 +1327,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $alertmsg .= "AND flagged as in collections.";
         }
     } elseif ($_POST['form_csvexport']) {
+        // todo: trigger alert with this message
         // echo "</textarea>\n";
         // $alertmsg .= "$export_patient_count patients representing $" .
-        //   sprintf("%.2f", $export_dollars) . " have been exported.";
+        //    sprintf("%.2f", $export_dollars) . " have been exported.";
     } else {
         echo " <tr class='bg-white'>\n";
         if ($is_ins_summary) {
