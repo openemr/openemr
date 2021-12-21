@@ -253,20 +253,20 @@ function create_HTML_statement($stmt)
 
         $dos = $line['dos'];
         ksort($line['detail']);
-        # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
-        $age_index = (int) (($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
         // suppressing individual adjustments = improved statement printing
         $adj_flag = false;
         $note_flag = false;
         $pt_paid_flag = false;
         $prev_ddate = '';
+        $last_activity_date = $dos;
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr($dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+            }
+
+            if ($ddate && $ddate > $last_activity_date) {
+                $last_activity_date = $ddate;
             }
 
             $amount = '';
@@ -330,6 +330,18 @@ function create_HTML_statement($stmt)
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), "Item balance ", sprintf("%.2f", ($line['amount'] - $line['paid'])));
             ++$count;
         }
+
+        # Compute the aging bucket index and accumulate into that bucket.
+        $last_activity_date = ($line['bill_date'] > $last_activity_date) ? $line['bill_date'] : $last_activity_date;
+        // If first bill then make the amount due current and reset aging date
+        if ($stmt['dun_count'] == '0') {
+            $last_activity_date = date('Y-m-d');
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $patient_id, $encounter_id));
+        }
+        $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
+        $age_index = (int) (($age_in_days - 1) / 30);
+        $age_index = max(0, min($num_ages - 1, $age_index));
+        $aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
     // This generates blank lines until we are at line 20.

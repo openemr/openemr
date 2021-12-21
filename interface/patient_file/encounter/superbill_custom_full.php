@@ -766,7 +766,7 @@ if ($fend > ($count ?? null)) {
             echo "  <td class='text'>" . text($iter['code_text']) . "</td>\n";
             echo "  <td class='text'>" . text($iter['code_text_short']) . "</td>\n";
 
-            if (related_codes_are_used()) {
+            if (related_codes_are_used() && $iter['related_code']) {
                 // Show related codes.
                 echo "  <td class='text'>";
                 $arel = explode(';', $iter['related_code']);
