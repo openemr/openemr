@@ -220,7 +220,7 @@ function endPatient($ptrow)
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
     } else {
-        if ($ptrow['count'] > 1) {
+        if ($ptrow['count'] > 1 && !$is_due_ins) {
             echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
             /***************************************************************
           echo "  <td class='detail' colspan='$initial_colspan'>";

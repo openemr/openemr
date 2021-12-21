@@ -510,7 +510,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="billing_note"><?php echo xlt('Billing Note'); ?>:</label>
-                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo ($pdrow['billing_note'] ?? '') . "\n" . ($bnrow['billing_note'] ?? ''); ?></textarea>
+                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
                     </div>
                 </div>
                 <div class="form-row">
