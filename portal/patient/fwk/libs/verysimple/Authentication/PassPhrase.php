@@ -13,7 +13,6 @@
  */
 class PassPhrase
 {
-
     /**
      * *
      * GetRandomPassPhrase returns a prounoucable password of the given length

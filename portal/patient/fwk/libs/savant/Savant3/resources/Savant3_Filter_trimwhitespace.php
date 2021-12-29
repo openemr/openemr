@@ -34,7 +34,6 @@
  */
 class Savant3_Filter_trimwhitespace extends Savant3_Filter
 {
-
     /**
      *
      * Removes extra white space within the text.

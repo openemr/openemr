@@ -13,7 +13,6 @@
  */
 class DatabaseException extends Exception
 {
-
     /**
      * codes used to determine error sub-type
      */
