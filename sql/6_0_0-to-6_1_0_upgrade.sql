@@ -1384,6 +1384,8 @@ UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='care_team_status' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`)
 VALUES ('DEM','patient_groups',@group_id,'Patient Categories',@seq_add_to+5,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
+
+ALTER TABLE `patient_data` ADD `patient_groups` TEXT;
 #Endif
 
 #IfNotRow2D list_options list_id lists option_id Patient_Groupings

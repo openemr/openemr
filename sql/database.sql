@@ -7304,6 +7304,7 @@ CREATE TABLE `patient_data` (
   `name_history` TINYTEXT,
   `suffix` TINYTEXT,
   `street_line_2` TINYTEXT,
+  `patient_groups` TEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
