@@ -26,6 +26,7 @@
  */
 class Savant3_Error
 {
+
     /**
      *
      * The error code, typically a Savant 'ERR_*' string.

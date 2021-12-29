@@ -25,6 +25,7 @@ require_once("Model/OnsiteDocument.php");
  */
 class OnsiteDocumentController extends AppBasePortalController
 {
+
     /**
      * Override here for any controller-specific functionality
      *

@@ -29,6 +29,7 @@
  */
 abstract class Savant3_Filter
 {
+
     /**
      *
      * Optional reference to the calling Savant object.

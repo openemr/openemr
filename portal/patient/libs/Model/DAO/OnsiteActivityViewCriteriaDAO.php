@@ -29,6 +29,7 @@ require_once("verysimple/Phreeze/Criteria.php");
  */
 class OnsiteActivityViewCriteriaDAO extends Criteria
 {
+
     public $Id_Equals;
     public $Id_NotEquals;
     public $Id_IsLike;

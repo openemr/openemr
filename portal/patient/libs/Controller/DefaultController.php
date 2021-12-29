@@ -17,6 +17,7 @@ require_once("AppBasePortalController.php");
  */
 class DefaultController extends AppBasePortalController
 {
+
     /**
      * Override here for any controller-specific functionality
      */

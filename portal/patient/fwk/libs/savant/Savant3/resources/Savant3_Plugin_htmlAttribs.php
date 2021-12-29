@@ -26,6 +26,7 @@
  */
 class Savant3_Plugin_htmlAttribs extends Savant3_Plugin
 {
+
     /**
      *
      * Converts an associative array to a string of tag attributes.

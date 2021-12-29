@@ -24,6 +24,7 @@ require_once("OnsiteActivityViewCriteria.php");
  */
 class OnsiteActivityView extends OnsiteActivityViewDAO
 {
+
     /**
      * Override default validation
      * @see Phreezable::Validate()

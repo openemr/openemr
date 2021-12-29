@@ -2,6 +2,7 @@
 
 class parseCSV
 {
+
     /*
      *
      * Class: parseCSV v0.4.3 beta

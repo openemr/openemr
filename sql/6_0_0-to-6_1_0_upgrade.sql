@@ -1377,3 +1377,34 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
 VALUES ('DEM', 'em_street_line_2', @group_id, 'Employer Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
 #Endif
+
+#IfNotRow2D layout_options form_id DEM field_id patient_groups
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team_status' AND form_id='DEM');
+UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='care_team_status' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`)
+VALUES ('DEM','patient_groups',@group_id,'Patient Categories',@seq_add_to+5,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
+#Endif
+
+#IfNotRow2D list_options list_id lists option_id Patient_Groupings
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Patient_Groupings','Patient Groupings',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_1','Group I',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_2','Group II',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_3','Group III',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_4','Group IV',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_5','Group V',50,0,0);
+#EndIf
+
+#IfMissingColumn document_templates send_date
+ALTER TABLE `document_templates` CHANGE `exclude_portal` `send_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, CHANGE `exclude_dashboard` `end_date` DATETIME DEFAULT NULL;
+ALTER TABLE `document_templates` CHANGE `profile` `profile` VARCHAR(63) NOT NULL, CHANGE `category` `category` VARCHAR(63) NOT NULL;
+ALTER TABLE `document_templates` DROP INDEX `location`, ADD UNIQUE `location` (`pid`, `profile`, `category`, `template_name`);
+#EndIf
+
+#IfMissingColumn document_template_profiles member_of
+ALTER TABLE `document_template_profiles` ADD `member_of` VARCHAR(64) NOT NULL;
+ALTER TABLE `document_template_profiles` ADD `active` TINYINT(1) NOT NULL DEFAULT '0';
+ALTER TABLE `document_template_profiles` ADD `recurring` TINYINT(1) NOT NULL DEFAULT '0',ADD `event_trigger` VARCHAR(31) NOT NULL, ADD `period` INT(4) NOT NULL;
+ALTER TABLE `document_template_profiles` CHANGE `profile` `profile` VARCHAR(64) NOT NULL, CHANGE `category` `category` VARCHAR(64) NOT NULL, CHANGE `template_name` `template_name` VARCHAR(255) NOT NULL;
+ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `location` (`profile`, `template_id`, `member_of`);
+#EndIf

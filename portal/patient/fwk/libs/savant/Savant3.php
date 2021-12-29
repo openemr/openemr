@@ -41,10 +41,9 @@ include_once dirname(__FILE__) . '/Savant3/Plugin.php';
  *
  *
  */
-
-#[\AllowDynamicProperties]
 class Savant3
 {
+
     /**
      *
      * Array of configuration parameters.

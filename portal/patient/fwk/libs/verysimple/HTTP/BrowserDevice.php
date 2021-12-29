@@ -24,6 +24,7 @@
  */
 class BrowserDevice
 {
+
     /**
      * patters to search for devices
      *

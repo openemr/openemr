@@ -13,6 +13,7 @@
  */
 class TextImageWriter
 {
+
     /**
      *
      * @param

@@ -20,6 +20,7 @@
  */
 class FormValidator
 {
+
     /**
      * Returns true if the provided email is valid
      *

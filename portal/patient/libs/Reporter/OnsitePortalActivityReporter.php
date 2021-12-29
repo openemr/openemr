@@ -26,6 +26,7 @@ require_once("verysimple/Phreeze/Reporter.php");
  */
 class OnsitePortalActivityReporter extends Reporter
 {
+
     // the properties in this class must match the columns returned by GetCustomQuery().
     // 'CustomFieldExample' is an example that is not part of the `onsite_portal_activity` table
     public $CustomFieldExample;

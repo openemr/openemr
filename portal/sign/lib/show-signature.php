@@ -46,7 +46,10 @@ $isAdmin = ($type === 'admin-signature');
 if ($isAdmin) {
     $req_pid = 0;
 }
-
+if ($type === 'witness-signature') {
+    echo(js_escape('Witness Signature'));
+    exit();
+}
 if ($req_pid === 0 || empty($user)) {
     if (!$isAdmin) {
         echo(js_escape('error not an admin'));

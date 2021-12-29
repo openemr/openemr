@@ -17,6 +17,7 @@ require_once "verysimple/String/VerySimpleStringUtil.php";
  */
 class OAuthUtil
 {
+
     /**
      * Given a URL return an OAuth signed URL.
      * This will handle creating a timestamp and nonce

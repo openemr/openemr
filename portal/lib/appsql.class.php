@@ -17,6 +17,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable
 {
+
     public function __construct()
     {
     }

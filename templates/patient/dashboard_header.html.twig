@@ -36,6 +36,7 @@
                 {% set text = "Create Portal Credentials"|xlt %}
             {% endif %}
             <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-secondary btn-sm small_modal {{ class|attr }}">{{ text|text }}</a>
+            <button type="button" class="btn btn-secondary btn-sm" onclick='assignPatientDocuments({{pid|js_url }})'>{{ "Assign Documents"|xlt }}</button>
         {% endif %}
 
 

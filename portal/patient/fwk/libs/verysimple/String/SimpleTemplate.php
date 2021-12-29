@@ -15,6 +15,7 @@ require_once("util/html2text.php");
  */
 class SimpleTemplate
 {
+
     /** @var used internally for merging. */
     static $_MERGE_TEMPLATE_VALUES = null;
 
