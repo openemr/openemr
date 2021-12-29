@@ -24,7 +24,6 @@ require_once("OnsitePortalActivityCriteria.php");
  */
 class OnsitePortalActivity extends OnsitePortalActivityDAO
 {
-
     /**
      * Override default validation
      * @see Phreezable::Validate()

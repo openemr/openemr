@@ -21,12 +21,11 @@ require_once("verysimple/Phreeze/Reporter.php");
  * Note that Reporters are read-only and cannot be used for saving data.
  *
  * @package Openemr::Model::DAO
- * @author ClassBuilder
+ * @author  ClassBuilder
  * @version 1.0
  */
 class PatientReporter extends Reporter
 {
-
     // the properties in this class must match the columns returned by GetCustomQuery().
     public $Id;
     public $Title;
