@@ -656,7 +656,7 @@ $none_message = xlt("Nothing to show for current actions.");
                         }
                         echo "<tr><td class='h6 font-weight-bolder bg-light text-dark' data-toggle='collapse' data-target='" .
                             attr('#id' . ++$idcnt) . "' role='button'>" . text($name) .
-                            " (" . text($count . ' ' . xlt('Templates')) . ")</td></tr>";
+                            " (" . text($count . ' ' . xl('Templates')) . ")</td></tr>";
                         echo "<td class='collapse' id='" . attr('id' . $idcnt) . "'><table class='table table-sm table-striped table-bordered'>\n";
                         //echo '<caption><h5>' . text($name) . '</h5></caption>';
                         echo "<thead>\n";

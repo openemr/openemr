@@ -461,7 +461,7 @@ function renderProfileHtml()
                                 </div>
                                 <div class='input-group-prepend'>
                                     <label for="<?php echo $profile_esc ?>-days"><?php echo xlt('Every') ?></label>
-                                    <input name="days" type="text" style="width: 50px" class='input-control-sm ml-1' id="<?php echo $profile_esc ?>-days" placeholder="<?php echo xlt('days') ?>" value="<?php echo $days ?>" />
+                                    <input name="days" type="text" style="width: 50px" class='input-control-sm ml-1' id="<?php echo $profile_esc ?>-days" placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
                                 </div>
                             </form>
                             <?php
