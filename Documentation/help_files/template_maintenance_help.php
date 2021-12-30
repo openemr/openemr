@@ -19,8 +19,8 @@
             <div class='card-text px-1'>
                 <ul>
                     <li><?php echo xlt('The Scope toolbar is global to the entire view. It consists of Location, Category and action buttons.') . " <i class='fa fa-sync'></i> " .
-                     xlt('button to clear Location selections, "Send" button to send templates to patient(s) or profiles') . " <i class='fa fa-search'></i><i class='fa fa-sync'></i>" .
-                     xlt('  to search Location and Category current selections or refresh views. By selecting location and or category, all the tables in the form will reflect those selection.'); ?></li>
+                     xlt('button to clear Location selections, "Send" button to send templates to patient(s) or profiles') . " <i class='fa fa-search'></i><i class='fa fa-sync'></i>" . ' ' .
+                     xlt('to search Location and Category current selections or refresh views. By selecting location and or category, all the tables in the form will reflect those selection.'); ?></li>
                     <li><?php echo xlt('Additionally, to the right is a toggle to select if you want to use the pop out window or dialog editor. The window allows having multiple editors open at the same time where the dialog is more appropriate for making quick edits'); ?></li>
                     <li><?php echo xlt('Best practice is to select Location(s) then a Category for the location then click the appropriate action button.'); ?></li>
                     <li><?php echo xlt('There are three main template views. The first is the Repository where you store templates for future edits and disposal. '); ?><?php echo xlt('Second is the All Patients. This View shows all current templates that are default to all patients. '); ?><?php echo xlt('Lastly is the view to show templates assigned to patients.'); ?></li>
