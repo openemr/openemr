@@ -24,8 +24,6 @@
                                     {% set formURL = rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode %}
                                     {% set onclick = "openNewForm(" ~ formURL|attr_js ~ "," ~ item.displayText|xlFormTitle|attr_js ~ ")" %}
                                 {% endif %}
-
-                                {# <a href="#" class="dropdown-item" onclick="openNewForm({{ formURL|attr_js }}, {{ item.displayText|xlFormTitle|attr_js }})">{{ item.displayText|xlFormTitle|text }}</a> #}
                                 <a href="#" class="dropdown-item" onclick="{{ onclick }}">{{ item.displayText|xlFormTitle|text }}</a>
                             {% endfor %}
                         </div>
