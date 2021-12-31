@@ -77,7 +77,7 @@ if ($transid) {
     if (empty($_REQUEST['patient_id'])) {
         // If no transaction ID or patient ID, this will be a totally blank form.
         $patient_id = 0;
-        $refer_date = '';
+        $refer_date = date('Y-m-d');
     } else {
         $patient_id = $_REQUEST['patient_id'] + 0;
         $refer_date = date('Y-m-d');
