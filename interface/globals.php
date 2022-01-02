@@ -565,6 +565,11 @@ $tmore = xl('(More)');
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
 
+$versionSql = "SELECT * FROM `version`";
+$versionRes = sqlQuery($versionSql);
+$versionString = "{$versionRes['v_major']}.{$versionRes['v_minor']}.{$versionRes['v_patch']}";
+$GLOBALS['openemr_version'] = $versionString;
+
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
 $GLOBALS['backpic'] = $backpic ?? '';
