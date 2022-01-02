@@ -565,25 +565,6 @@ $tmore = xl('(More)');
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
 
-$version = (new VersionService())->fetch();
-
-if (!empty($version)) {
-    //Version tag
-    $patch_appending = "";
-    //Collected below function call to a variable, since unable to directly include
-    // function calls within empty() in php versions < 5.5 .
-    $version_getrealpatch = $version['v_realpatch'];
-    if (($version['v_realpatch'] != '0') && (!(empty($version_getrealpatch)))) {
-        $patch_appending = " (" . $version['v_realpatch'] . ")";
-    }
-
-    $openemr_version = $version['v_major'] . "." . $version['v_minor'] . "." . $version['v_patch'];
-    $openemr_version .= $version['v_tag'] . $patch_appending;
-} else {
-    $openemr_version = xl('Unknown version');
-}
-$GLOBALS['openemr_version'] = $openemr_version;
-
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
 $GLOBALS['backpic'] = $backpic ?? '';
