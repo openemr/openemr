@@ -36,11 +36,14 @@ class VersionService extends BaseService
      * @var $includeTag bool Include the tag
      * @returns string Dot separated major, minor, patch version string (tag at end, if included)
      */
-    public function asString(bool $includeTag = true): string
+    public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
         $v = $this->fetch();
         $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
         $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
+        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
+            $string .= " (" . $v['v_realpatch'] . ")";
+        }
         return $string;
     }
 

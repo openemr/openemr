@@ -32,7 +32,7 @@ use OpenEMR\Services\VersionService;
 // Force logging off
 $GLOBALS["enable_auditlog"] = 0;
 
-$EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version']));
+$EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', (new VersionService())->asString()));
 ?>
 
 
