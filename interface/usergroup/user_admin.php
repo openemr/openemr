@@ -214,6 +214,14 @@ function authorized_clicked() {
  f.calendar.checked  =  f.authorized.checked;
 }
 
+function toggle_password() {
+  var x = document.getElementById("clearPass");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
 </script>
 <style>
   .physician_type_class{
@@ -278,7 +286,12 @@ function authorized_clicked() {
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
     <TD style="width:200px;"><span class=text><?php echo xlt('User\'s New Password'); ?>: </span></TD>
-    <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  class="form-control" value=""><font class="mandatory"></font></td>
+    <TD class='text' style="width:280px;">
+        <input type='password' id=clearPass name=clearPass style="width:150px;"  class="form-control" value="">
+        <input type="checkbox" id="togglePass" name="togglePass" onclick="toggle_password()" style="margin: .5rem 0 1rem;">
+        <label for="togglePass">Show Password</label>
+        <font class="mandatory"></font>
+    </td>
 </TR>
 <?php } ?>
 
