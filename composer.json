@@ -19,7 +19,7 @@
         "ezyang/htmlpurifier": "4.13.0",
         "google/apiclient": "2.12.0",
         "guzzlehttp/guzzle": "7.4.0",
-        "html2text/html2text": "^4.3",
+        "html2text/html2text": "4.3.1",
         "kamermans/guzzle-oauth2-subscriber": "1.0.11",
         "knplabs/knp-snappy": "1.3.1",
         "laminas/laminas-config": "3.7.0",
