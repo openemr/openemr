@@ -527,7 +527,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         let strongMsg = document.createElement("strong");
         strongMsg.innerHTML = msg;
         divAlert.prepend(strongMsg);
-        setTimeout(()=>{$('.alert').alert('close');}, 5000);
+        setTimeout(()=>{
+            document.querySelector("div.alert").remove();
+        }, 3000);
     }
     </script>
 </body>
