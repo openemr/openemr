@@ -289,7 +289,7 @@ function toggle_password() {
     <TD class='text' style="width:280px;">
         <input type='password' id=clearPass name=clearPass style="width:150px;"  class="form-control" value="">
         <input type="checkbox" id="togglePass" name="togglePass" onclick="toggle_password()" style="margin: .5rem 0 1rem;">
-        <label for="togglePass">Show Password</label>
+        <label for="togglePass"><?php echo xlt('Show Password'); ?></label>
         <font class="mandatory"></font>
     </td>
 </TR>
