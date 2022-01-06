@@ -54,7 +54,6 @@
 use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-require_once dirname(__DIR__) . "/interface/globals.php";
 require_once(__DIR__ . "/../library/csv_like_join.php");
 
 $code_types = array();
@@ -199,8 +198,7 @@ $ct_external_options = array(
  */
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $externalCodesEvent = new ExternalCodesCreatedEvent($ct_external_options);
-$eventDispatcher->dispatch(ExternalCodesCreatedEvent::EVENT_HANDLE, $externalCodesEvent);
-
+$test = $eventDispatcher->dispatch(ExternalCodesCreatedEvent::EVENT_HANDLE, $externalCodesEvent);
 $ct_external_options = $externalCodesEvent->getExternalCodeData();
 
 /**
