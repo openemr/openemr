@@ -136,7 +136,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
     ?>
     <script>
         function checkUserName() {
@@ -433,23 +433,12 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             });
             <?php } ?>
             <?php if (isset($_GET['w'])) { ?>
-            var unique_id = $.gritter.add({
-                title: '<span class="red">' + <?php echo xlj('Oops!');?> +'</span>',
-                text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
-                sticky: false,
-                time: '5000',
-                class_name: 'my-nonsticky-class'
-            });
+                // mdsupport - Would be good to include some clue about what went wrong!
+                bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
             <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
-            var unique_id = $.gritter.add({
-                title: '<span class="green">' + <?php echo xlj('Success');?> +'</span>',
-                text: <?php echo xlj('You have been successfully logged out.');?>,
-                sticky: false,
-                time: '5000',
-                class_name: 'my-nonsticky-class'
-            });
+                bsAlert(<?php echo xlj('You have been successfully logged out.'); ?>);
             <?php } ?>
 
             return false;
@@ -523,6 +512,13 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 alert(message);
             });
         }
+
+    function bsAlert(msg) {
+        let htm = $($("#alertStore").html());
+        $('<strong>'+msg+'</strong>').insertBefore(htm.find("button:first"));
+        htm.insertBefore("form");
+        setTimeout(()=>{$('.alert').alert('close');}, 5000);
+    }
     </script>
 </body>
 </html>
