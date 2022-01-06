@@ -522,9 +522,11 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         }
 
     function bsAlert(msg) {
-        let htm = $($("#alertStore").html());
-        $('<strong>'+msg+'</strong>').insertBefore(htm.find("button:first"));
-        htm.insertBefore("form");
+        let divAlert = document.getElementById("alertStore").querySelector("div.alert").cloneNode(true);
+        document.querySelector("form").prepend(divAlert);
+        let strongMsg = document.createElement("strong");
+        strongMsg.innerHTML = msg;
+        divAlert.prepend(strongMsg);
         setTimeout(()=>{$('.alert').alert('close');}, 5000);
     }
     </script>
