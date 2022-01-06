@@ -401,6 +401,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         </div><!-- div wrapper -->
                 <?php } ?> <!--  logon wrapper -->
 
+<div id="alertStore" class="d-none">
+    <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
+      <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+</div>
+
     <script>
         var tab_mode = true;
         var webroot_url = <?php echo js_escape($GLOBALS['web_root']) ?>;
