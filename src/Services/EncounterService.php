@@ -136,6 +136,7 @@ class EncounterService extends BaseService
      * @param array  $search         search array parameters
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
+     * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
@@ -642,19 +643,7 @@ class EncounterService extends BaseService
     public function getPatientEncounterListWithCategories($pid)
     {
         $encounters = $this->getEncountersForPatientByPid($pid);
-        /**
-         *  $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
-        if (sqlNumRows($result4) > 0) {
-        while ($rowresult4 = sqlFetchArray($result4)) { ?>
-        EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
-        EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
-        CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
-        Count++;
-        <?php
-        }
-        }
-         */
+
         $encounterList = [
             'ids' => []
             ,'dates' => []

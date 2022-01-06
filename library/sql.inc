@@ -256,7 +256,7 @@ function sqlFetchArray($r)
         return false;
     }
 
-    if ($r->EOF) {
+    if ($r->EOF ?? '') {
         return false;
     }
 

@@ -58,7 +58,7 @@ class ProductRegistrationService
     private function optInStrategy($email)
     {
         // build the information array
-        $info = ['email' => $email, 'version' => $GLOBALS['openemr_version']];
+        $info = ['email' => $email, 'version' => (new VersionService())->asString()];
         if (!empty(getenv('OPENEMR_DOCKER_ENV_TAG', true))) {
             // this will add standard package information if it exists
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);

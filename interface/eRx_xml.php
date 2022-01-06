@@ -125,7 +125,7 @@ function credentials($doc, $r)
     $versionService = new VersionService();
     $openemrVersion = $versionService->asString(false);
     $productVersion->appendChild(
-        $doc->createTextNode($openemrVersion)
+        $doc->createTextNode((new VersionService())->asString())
     );
     $b->appendChild($productVersion);
     $r->appendChild($b);

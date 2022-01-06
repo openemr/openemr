@@ -21,7 +21,6 @@ if ($response !== true) {
 use Dotenv\Dotenv;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
-use OpenEMR\Services\VersionService;
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -564,11 +563,6 @@ $tmore = xl('(More)');
 //   Note this label gets translated here via the xl function
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
-
-$versionSql = "SELECT * FROM `version`";
-$versionRes = sqlQuery($versionSql);
-$versionString = "{$versionRes['v_major']}.{$versionRes['v_minor']}.{$versionRes['v_patch']}";
-$GLOBALS['openemr_version'] = $versionString;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

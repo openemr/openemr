@@ -207,7 +207,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
   // Get all the globals from DB
     $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
-
+    // start transaction
+    sqlStatementNoLog('SET autocommit=0');
+    sqlStatementNoLog('START TRANSACTION');
     $i = 0;
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
@@ -267,6 +269,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
             ++$i;
         }
     }
+    // end of transaction
+    sqlStatementNoLog('COMMIT');
+    sqlStatementNoLog('SET autocommit=1');
 
     checkCreateCDB();
     checkBackgroundServices();
