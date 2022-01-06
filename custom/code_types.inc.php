@@ -198,7 +198,7 @@ $ct_external_options = array(
  */
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $externalCodesEvent = new ExternalCodesCreatedEvent($ct_external_options);
-$test = $eventDispatcher->dispatch(ExternalCodesCreatedEvent::EVENT_HANDLE, $externalCodesEvent);
+$eventDispatcher->dispatch(ExternalCodesCreatedEvent::EVENT_HANDLE, $externalCodesEvent);
 $ct_external_options = $externalCodesEvent->getExternalCodeData();
 
 /**
