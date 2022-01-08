@@ -65,7 +65,7 @@ class BirthdayReminder
             ) ||
             (
                 $GLOBALS['patient_birthday_alert'] == 1 &&
-                date('m-d') == $dobStr
+                $today == $dobStr
             )
         ) {
             if ($this->isbirthdayAlertOff()) {
