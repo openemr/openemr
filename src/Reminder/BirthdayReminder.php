@@ -50,7 +50,14 @@ class BirthdayReminder
         // only need month and day for birthdate
         $today = date('m-d');
         $dobStr = strtotime($res['DOB']);
-        $dobStr = date('m-d', $dobStr);
+
+        // fix for December birthdays check in January
+        if (date('m') == '01' && date('m', $dobStr) == '12') {
+            $dobStr = "00-" . date('d', $dobStr);
+        } else {
+            $dobStr = date('m-d', $dobStr);
+        }
+
         if (
             // on and up to 28 days
             (
