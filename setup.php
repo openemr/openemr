@@ -1076,7 +1076,7 @@ STP2TBLBOT;
                         }
 
                         if (! $installer->iuname_is_valid()) {
-                            echo "$error. Please pick a proper 'Last name'.<br />\n";
+                            echo "$error. Please pick a proper 'Initial User Last Name'.<br />\n";
                             echo "Click Back in browser to re-enter.<br />\n";
                             break;
                         }
