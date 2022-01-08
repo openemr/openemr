@@ -36,61 +36,6 @@ require_once("../globals.php");
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
 
-// mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
-// If this script is called with app parameter, validate it without showing other apps.
-//
-// Build a list of valid entries
-$emr_app = array();
-$sql = "SELECT option_id, title,is_default FROM list_options WHERE list_id=? and activity=1 ORDER BY seq, option_id";
-$rs = sqlStatement($sql, ['apps']);
-if (sqlNumRows($rs)) {
-    while ($app = sqlFetchArray($rs)) {
-        $app_req = explode('?', trim($app['title']));
-        if (! file_exists('../' . $app_req[0])) {
-            continue;
-        }
-
-        $emr_app [trim($app ['option_id'])] = trim($app ['title']);
-        if ($app ['is_default']) {
-            $emr_app_def = $app ['option_id'];
-        }
-    }
-}
-
-$div_app = '';
-if (count($emr_app)) {
-    // Standard app must exist
-    $std_app = 'main/main_screen.php';
-    if (!in_array($std_app, $emr_app)) {
-        $emr_app['*OpenEMR'] = $std_app;
-    }
-
-    if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
-        $div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
-    } else {
-        foreach ($emr_app as $opt_disp => $opt_value) {
-            $opt_htm .= sprintf(
-                '<option value="%s" %s>%s</option>\n',
-                attr($opt_disp),
-                ($opt_disp == $opt_default ? 'selected="selected"' : ''),
-                text(xl_list_label($opt_disp))
-            );
-        }
-
-        $div_app = sprintf(
-            '
-            <div id="divApp" class="form-group">
-                <label for="appChoice" class="text-right">%s:</label>
-                <div>
-                    <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
-                </div>
-            </div>',
-            xlt('App'),
-            $opt_htm
-        );
-    }
-}
-
 // This code allows configurable positioning in the login page
 $logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
 $formarea = "py-3 px-2 p-sm-5 bg-white order-2";
