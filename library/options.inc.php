@@ -700,7 +700,7 @@ function generate_form_field($frow, $currvalue)
         if (!$agestr) {
             echo " title='$description'";
         }
-        if ($frow['uor'] == 2) 
+        if ($frow['uor'] == 2) {
             echo " required";
         }
         // help chrome users avoid autocomplete interfere with datepicker widget display
