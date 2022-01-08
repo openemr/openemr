@@ -1458,7 +1458,6 @@ function myChangeCheck() {
 <input type="hidden" id="targetlayout" name="targetlayout" value="" />
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
-<?php echo $layout_alert; ?>
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
 <?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
