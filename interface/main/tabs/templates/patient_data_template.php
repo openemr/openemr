@@ -59,11 +59,11 @@ switch ($search_any_type) {
             </div>
             <div class="form-group">
                 <!-- ko if: patient -->
-                <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
+                <a class="ptName btn btn-small btn-info" data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
                     <span data-bind="text: pname()"></span>
                     (<span data-bind="text: pubpid"></span>)
-                </a>
-                <a href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                </a>&ensp;
+                <a href="#" class="btn btn-sm btn-warning" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                     <i class="fa fa-times"></i>
                 </a>
                 <div>
@@ -75,11 +75,11 @@ switch ($search_any_type) {
         <div class="flex-fill ml-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->
-            <a class="btn btn-sm btn-link" data-bind="click: clickEncounterList" href="#"
+            <a class="btn btn-sm btn-info" data-bind="click: clickEncounterList" href="#"
                 title="<?php echo xla("Visit History"); ?>">
                 <i class="fas fa-history"></i>
             </a>
-            <a class="btn btn-sm btn-link" data-bind="click: clickNewEncounter" href="#"
+            <a class="btn btn-sm btn-primary" data-bind="click: clickNewEncounter" href="#"
                 title="<?php echo xla("New Encounter"); ?>">
                 <i class="fa fa-plus"></i>
             </a>
@@ -103,7 +103,7 @@ switch ($search_any_type) {
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
-                    <?php echo xlt("View Past Encounters"); ?>&nbsp;
+                    <?php echo xlt("Select Encounter"); ?>&nbsp;
                     (<span data-bind="text:encounterArray().length"></span>)<span class="caret"></span></button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
