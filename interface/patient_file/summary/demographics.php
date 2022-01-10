@@ -666,19 +666,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         });
 
         /**
-         * Assign and persist documents to portal patients
-         * @var int patientId pid
-         */
-        function assignPatientDocuments(patientId) {
-            let url = top.webroot_url + '/portal/import_template_ui.php?from_demo_pid=' + encodeURIComponent(patientId);
-            dlgopen(url, 'pop-assignments', 'modal-xl', 850, '', '', {
-                allowDrag: true,
-                allowResize: true,
-                sizeHeight: 'full',
-            });
-        }
-
-        /**
          * Change the preference to expand/collapse a given card.
          *
          * For the given e element, find the corresponding card body, determine if it is collapsed

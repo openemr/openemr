@@ -12834,7 +12834,7 @@ CREATE TABLE `document_template_profiles` (
   `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
   `member_of` varchar(64) NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 0,
-  `recurring` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring` tinyint(1) NOT NULL DEFAULT 1,
   `event_trigger` varchar(31) NOT NULL,
   `period` int(4) NOT NULL,
   PRIMARY KEY (`id`),

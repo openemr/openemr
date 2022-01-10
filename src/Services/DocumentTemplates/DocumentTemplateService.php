@@ -71,12 +71,12 @@ class DocumentTemplateService
         $results = [];
 
         try {
-            // get all assigned templates for profiles with patient groups
             $sql_patient = "SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?";
-            $sql = "Select pd.pid, Concat_Ws(', ', `lname`, `fname`) as name, ptd.profile, ptd.member_of, ptd.recurring, ptd.event_trigger, ptd.period, tpl.* From `patient_data` pd " .
+            // get all assigned templates for profiles with patient groups
+            $sql = "Select pd.pid, Concat_Ws(', ', `lname`, `fname`) as name, pd.patient_groups, tplId.profile, tplId.member_of, tplId.recurring, tplId.event_trigger, tplId.period, tplId.modified_date as profile_date, tpl.* From `patient_data` pd " .
                 "Join `document_template_profiles` as ptd On pd.patient_groups LIKE CONCAT('%',ptd.member_of, '%') And pd.$pid_where " .
                 "Join (Select * From `document_template_profiles`) tplId On tplId.profile = ptd.profile And ptd.active = '1' " .
-                "Join (Select `id`, `category`, `template_name`, `location`, `template_content`, `mime` From `document_templates` $cat_where) as tpl On tpl.id = tplId.template_id Group By `pid`, `category`, `template_name` Order By `lname`";
+                "Join (Select `id`, `category`, `template_name`, `location`, `template_content`, `mime`, `modified_date` From `document_templates` $cat_where) as tpl On tpl.id = tplId.template_id Group By `pid`, `category`, `template_name` Order By `lname`";
             $query_result = sqlStatement($sql, $bind);
             while ($row = sqlFetchArray($query_result)) {
                 if (is_array($row)) {
@@ -176,6 +176,74 @@ class DocumentTemplateService
             $result[$event['profile']] = $event;
         }
         return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function fetchProfileEvents($profile): array
+    {
+        return sqlQuery("SELECT `profile`, `recurring`, `event_trigger`, `period` FROM `document_template_profiles` WHERE `template_id` > '0' AND `profile` = ? GROUP BY `profile` LIMIT 1", array($profile));
+    }
+
+
+    /**
+     * @param $template
+     * @return mixed int|date
+     */
+    public function showTemplateFromEvent($template, $show_due_date = false)
+    {
+        $in_review = false;
+        $result = sqlQuery("SELECT * FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1", array($template['pid'], $template['id']));
+        if (!$result) {
+            return true;
+        }
+        $in_review = $result['denial_reason'] === 'Locked' || $result['denial_reason'] === 'In Review';
+        // must be a saved doc pending review so don't show.
+        // patient selects the edited doc from their history.
+        if (!$in_review) {
+            return false;
+        }
+        if (!isset($template['trigger_event'])) {
+            // these are sent templates. Not in group.
+            if (!empty($template['profile'])) {
+                $event = $this->fetchProfileEvents($template['profile']);
+                $template['event_trigger'] = '';
+                $template['recurring'] = 1;
+                $template['period'] = 0;
+                if (is_array($event)) {
+                    $template['event_trigger'] = $event['event_trigger'];
+                    $template['recurring'] = $event['recurring'];
+                    $template['period'] = $event['period'];
+                }
+            } else {
+                return false; // in review or locked so don't show. @todo possibly delete sent template.
+            }
+        }
+        if ($template['event_trigger'] === 'once') {
+            return false;
+        }
+        $period = $template['period'] ?: 0;
+        $formatted_future = date('Y-m-d', strtotime($result['create_date'] . "+$period days"));
+        $future_date = strtotime($formatted_future);
+        $currentDate = strtotime(date('Y-m-d'));
+        if ($show_due_date) {
+            if (!empty($template['recurring'])) {
+                if ($future_date > $currentDate) {
+                    return $future_date;
+                }
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        if (!empty($template['recurring'])) {
+            if ($future_date > $currentDate) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -303,11 +371,11 @@ class DocumentTemplateService
             foreach ($patients as $id => $groups) {
                 $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', array($groups, $id));
             }
-            sqlStatementNoLog('COMMIT');
-            sqlStatementNoLog('SET autocommit=1');
         } catch (Exception $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
+        sqlStatementNoLog('COMMIT');
+        sqlStatementNoLog('SET autocommit=1');
         return !$rtn;
     }
 
@@ -337,12 +405,24 @@ class DocumentTemplateService
      * @param int $pid
      * @return array
      */
-    public function getTemplateListAllCategories($pid = 0): array
+    public function getTemplateListAllCategories($pid = 0, $exclude_sent = false): array
     {
         $results = array();
         $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE pid = ? ORDER BY `category`', array($pid));
+        $exclude = null;
+        if ($exclude_sent) {
+            $query = sqlStatement('SELECT `template_name` FROM `document_templates` WHERE pid = "0" ORDER BY `category`');
+            while ($row = sqlFetchArray($query)) {
+                if (is_array($row)) {
+                    $exclude[] = $row['template_name'];
+                }
+            }
+        }
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
+                if ($exclude_sent && in_array($row['template_name'], $exclude)) {
+                    continue;
+                }
                 $results[$row['category'] ?? ''][] = $row;
             }
         }
@@ -350,6 +430,7 @@ class DocumentTemplateService
     }
 
     /**
+     * Reserved to prevent duplicate templates across profiles. TBD.
      * @return array
      */
     public function getTemplateListUnique(): array
@@ -584,7 +665,7 @@ class DocumentTemplateService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         try {
-            foreach ($templates as $id) {
+            foreach ($templates as $id => $profile) {
                 $template = $this->fetchTemplate($id);
                 $destination_category = $template['category'];
                 if ($destination_category === 'repository') {
@@ -593,7 +674,7 @@ class DocumentTemplateService
                 $content = $template['template_content'];
                 $name = $template['template_name'];
                 foreach ($pids as $pid) {
-                    $result = $this->insertTemplate($pid, $destination_category, $name, $content);
+                    $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
                 }
             }
         } catch (Exception $e) {
@@ -725,13 +806,16 @@ class DocumentTemplateService
         return $category_list;
     }
 
+
     /**
+     * @param $pid
      * @param $id
-     * @return mixed
+     * @return array|false|null
      */
-    public function fetchTemplateStatus($id)
+    public function fetchTemplateStatus($pid, $name)
     {
-        return sqlQuery('SELECT status FROM `document_templates` WHERE `id` = ?', array($id))['status'];
+        $sql = "SELECT `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
+        return sqlQuery($sql, array($pid, $name));
     }
 
     /**
@@ -741,5 +825,22 @@ class DocumentTemplateService
     public function fetchProfileStatus($profile)
     {
         return sqlQuery('SELECT active FROM `document_template_profiles` WHERE `template_id` = "0" AND `profile` = ?', array($profile))['active'];
+    }
+
+    /**
+     * @param $token
+     * @return array
+     */
+    public function fetchPatientListByIssuesSearch($token): array
+    {
+        $result = [];
+        $search = '%' . $token . '%';
+        $sql = "SELECT pd.pid, pd.`pubpid`, pd.`lname`, pd.`fname`, pd.`mname`, pd.`DOB`, pd.`providerID`, l.title, l.diagnosis FROM `patient_data` pd " .
+            "JOIN(SELECT * FROM `lists` WHERE `type` = 'medical_problem' AND (`title` LIKE ? OR `diagnosis` LIKE ?)) AS l ON l.`pid` = pd.`pid` GROUP BY pd.`pid`";
+        $rtn = sqlStatement($sql, array($search, $search));
+        while ($row = sqlFetchArray($rtn)) {
+            $result[] = $row;
+        }
+        return $result;
     }
 }
