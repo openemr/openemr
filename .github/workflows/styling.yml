@@ -25,7 +25,7 @@ jobs:
       - name: Install php_codesniffer
         run: |
           failTest=false
-          composer global require "squizlabs/php_codesniffer=3.*" || failTest=true
+          composer global require "squizlabs/php_codesniffer=3.6.1" || failTest=true
           if $failTest; then
             exit 1
           fi

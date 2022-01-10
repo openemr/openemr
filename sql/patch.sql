@@ -121,3 +121,29 @@ VALUES
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',10,1,0,'','','',0,0,1);
 #EndIf
+
+#IfNotTable payment_processing_audit
+CREATE TABLE `payment_processing_audit` (
+`uuid` binary(16) NOT NULL DEFAULT '',
+`service` varchar(50) DEFAULT NULL,
+`pid` bigint NOT NULL,
+`success` tinyint DEFAULT 0,
+`action_name` varchar(50) DEFAULT NULL,
+`amount` varchar(20) DEFAULT NULL,
+`ticket` varchar(100) DEFAULT NULL,
+`transaction_id` varchar(100) DEFAULT NULL,
+`audit_data` text,
+`date` datetime DEFAULT NULL,
+`map_uuid` binary(16) DEFAULT NULL,
+`map_transaction_id` varchar(100) DEFAULT NULL,
+`reverted` tinyint DEFAULT 0,
+`revert_action_name` varchar(50) DEFAULT NULL,
+`revert_transaction_id` varchar(100) DEFAULT NULL,
+`revert_audit_data` text,
+`revert_date` datetime DEFAULT NULL,
+PRIMARY KEY (`uuid`),
+KEY (`pid`),
+KEY (`success`)
+) ENGINE=InnoDB;
+#EndIf
+

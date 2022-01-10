@@ -1722,6 +1722,18 @@
               "acct",
               "rep_a"
             ]
+          },
+          {
+            "label": "Payment Processing",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/payment_processing_report.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "acct",
+              "rep_a"
+            ]
           }
         ],
         "requirement": 0
