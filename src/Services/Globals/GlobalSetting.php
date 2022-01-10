@@ -27,6 +27,8 @@ class GlobalSetting
     const DATA_TYPE_PASS = "pass";
     // used for encrypted field values
     const DATA_TYPE_ENCRYPTED = "encrypted";
+    // used for encrypted hash field values
+    const DATA_TYPE_ENCRYPTED_HASH = "encrypted_hash";
     // generates a random uuid if the value is an empty string
     const DATA_TYPE_DEFAULT_RANDOM_UUID = "if_empty_create_random_uuid";
     // 15 character maximum number string
