@@ -47,3 +47,8 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfRow2D list_options list_id lists option_id apps
+DELETE FROM list_options WHERE list_id="lists" AND "option_id"="apps";
+DELETE FROM list_options WHERE list_id="apps";
+#EndIf
