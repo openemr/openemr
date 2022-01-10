@@ -41,18 +41,39 @@ class BirthdayReminder
     public function isDisplayBirthdayAlert()
     {
         //Collect dob and if deceased for the patient
-        $sql = "SELECT `deceased_date`, `DOB` FROM `patient_data` WHERE `pid` = ?";
+        $sql = "SELECT `DOB` FROM `patient_data` WHERE `pid` = ?";
         $res = sqlQuery($sql, array($this->pid));
 
-        if (!empty($res['deceased_date']) && $res['deceased_date'] > 0) {
+        if (is_patient_deceased($this->pid)) {
             return false;
         }
-        $today = date('Y-m-d');
+        // only need month and day for birthdate
+        $today = date('m-d');
         $dobStr = strtotime($res['DOB']);
+
+        // fix for December birthdays check in January
+        if (date('m') == '01' && date('m', $dobStr) == '12') {
+            $dobStr = "00-" . date('d', $dobStr);
+        } else {
+            $dobStr = date('m-d', $dobStr);
+        }
+
         if (
-            (($GLOBALS['patient_birthday_alert'] == 3) && ($today >= date('Y-m-d', $dobStr)) && ($today <= date('Y') . '-' . date('m-d', strtotime('+28 days', strtotime($res['DOB'])))  )) ||
-            (($GLOBALS['patient_birthday_alert'] == 2) && ($today >= date('Y-m-d', $dobStr))) ||
-            (($GLOBALS['patient_birthday_alert'] == 1) && (date('m-d') == date('m-d', $dobStr)))
+            // on and up to 28 days
+            (
+                $GLOBALS['patient_birthday_alert'] == 3 &&
+                $today >= $dobStr &&
+                $today <= date('m-d', strtotime('+28 days', strtotime($res['DOB'])))
+            ) ||
+            // on and after
+            (
+                $GLOBALS['patient_birthday_alert'] == 2 &&
+                $today >= $dobStr
+            ) ||
+            (
+                $GLOBALS['patient_birthday_alert'] == 1 &&
+                $today == $dobStr
+            )
         ) {
             if ($this->isbirthdayAlertOff()) {
                 return false;

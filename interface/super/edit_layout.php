@@ -401,20 +401,6 @@ natsort($sorted_datatypes);
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
-// Setup alert for table layouts
-$layout_alert = "";
-if (($layout_id !== "") && ($layout_tbl !== "")) {
-    $layout_alert = sprintf(
-        '<div class="alert alert-warning alert-dismissible fade show my-0 py-0" role="alert">
-            <strong>%s</strong> %s
-            <button type="button" class="close my-0 py-0" data-dismiss="alert">
-                <span>&times;</span>
-            </button>
-        </div>',
-        xlt('Do not delete standard fields!'),
-        xlt('Select "UOR" option "Unused" to hide the field.')
-    );
-}
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
 $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
@@ -1474,7 +1460,6 @@ function myChangeCheck() {
 <input type="hidden" id="targetlayout" name="targetlayout" value="" />
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
-<?php echo $layout_alert; ?>
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
 <?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>

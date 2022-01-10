@@ -1075,6 +1075,12 @@ STP2TBLBOT;
                             break;
                         }
 
+                        if (! $installer->iuname_is_valid()) {
+                            echo "$error. Please pick a proper 'Initial User Last Name'.<br />\n";
+                            echo "Click Back in browser to re-enter.<br />\n";
+                            break;
+                        }
+
                                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Creating Database and First User</h3>";
                                     echo "<div class='jumbotron p-5'>";
 
