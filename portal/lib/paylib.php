@@ -42,6 +42,31 @@ if ($_SESSION['portal_init'] !== true) {
 
 $_SESSION['portal_init'] = false;
 
+if ($_POST['mode'] == 'Sphere') {
+    $cryptoGen = new CryptoGen();
+    $dataTrans = $cryptoGen->decryptStandard($_POST['enc_data']);
+    $dataTrans = json_decode($dataTrans, true);
+
+    $form_pid = $dataTrans['get']['patient_id_cc'];
+
+    $cc = array();
+    $cc["cardHolderName"] = $dataTrans['post']['name'];
+    $cc['status'] = $dataTrans['post']['status_name'];
+    $cc['authCode'] = $dataTrans['post']['authcode'];
+    $cc['transId'] = $dataTrans['post']['transid'];
+    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
+    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
+    $cc['zip'] = '';
+    $ccaudit = json_encode($cc);
+    $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+
+    $_SESSION['whereto'] = '#paymentcard';
+
+    SaveAudit($form_pid, $invoice, $ccaudit);
+
+    echo 'ok';
+}
+
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
