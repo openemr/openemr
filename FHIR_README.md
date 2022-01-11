@@ -60,6 +60,10 @@ _Example:_ `https://localhost:9300/apis/default/fhir/Patient` returns a Patient'
 
 The Bearer token is required for each OpenEMR FHIR request (except for the Capability Statement), and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the [Authorization](API_README.md#authorization) section.
 
+When registering an API client to use with Swagger the following for the redirect url and launch url for the client.
+- Redirect URL -> <base_site_address>/swagger/oauth2-redirect.html
+- Launch URL -> <base_site_address>/swagger/index.html
+
 Request:
 
 ```sh
