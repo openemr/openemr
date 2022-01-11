@@ -30,6 +30,7 @@
 //   Czech                          // xl('Czech')
 //   Danish                         // xl('Danish')
 //   Dutch                          // xl('Dutch')
+//   English (Australian)           // xl('English (Australian)')
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
 //   Estonian                       // xl('Estonian')
@@ -263,13 +264,6 @@ $GLOBALS_METADATA = array(
             xl('Width in pixels of the left navigation frame in frame based layout.')
         ),
 
-        'openemr_name' => array(
-            xl('Application Title'),
-            'text',
-            'OpenEMR',
-            xl('Application name for login page and main window title.')
-        ),
-
         'enable_group_therapy' => array(
             xl('Enable Group Therapy'),
             'bool',                           // data type
@@ -373,20 +367,6 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
         ),
-        //
-        'online_support_link' => array(
-            xl('Online Support Link'),
-            'text',                           // data type
-            'http://open-emr.org/',
-            xl('URL for OpenEMR support.')
-        ),
-
-        'support_phone_number' => array(
-            xl('Support Phone Number'),
-            'text',
-            '',
-            xl('Phone Number for Vendor Support that Appears on the About Page.')
-        ),
 
         'encounter_page_size' => array(
             xl('Encounter Page Size'),
@@ -449,6 +429,76 @@ $GLOBALS_METADATA = array(
             xl('What kind of sorting will be in the drop lists.')
         ),
 
+        'prevent_browser_refresh' => array(
+            xl('Prevent Web Browser Refresh') . '*',
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
+    ),
+
+    'Branding' => [
+        'openemr_name' => array(
+            xl('Application Title'),
+            'text',
+            'OpenEMR',
+            xl('Application name used throughout the user interface.')
+        ),
+
+        'display_main_menu_logo' => [
+            xl('Display main menu logo'),
+            'bool',
+            '1',
+            xl('Dislay main menu logo'),
+        ],
+
+        'online_support_link' => array(
+            xl('Online Support Link'),
+            'text',                           // data type
+            'http://open-emr.org/',
+            xl('URL to a support page.')
+        ),
+
+        'user_manual_link' => [
+            xl('User Manual Link Override'),
+            'text',
+            '',
+            xl("Point to a custom user manual. Leave blank for the default, auto-generated URL for specific version of application"),
+        ],
+
+        'support_phone_number' => array(
+            xl('Support Phone Number'),
+            'text',
+            '',
+            xl('Phone Number for Vendor Support that Appears on the About Page.')
+        ),
+
+        'display_acknowledgements' => [
+            xl('Display links to the acknowledgements page'),
+            'bool',
+            '1',
+            xl('Used on the login and about pages'),
+        ],
+
+        'display_review_link' => [
+            xl('Display the Review link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Review link on the About page'),
+        ],
+
+        'display_donations_link' => [
+            xl('Display the Donations link on the About page'),
+            'bool',
+            '1',
+            xl('Display the Donations link on the About page'),
+        ],
+
         'show_tagline_on_login' => [
             xl('Show Tagline on Login Page') . "*",
             'bool',
@@ -461,13 +511,6 @@ $GLOBALS_METADATA = array(
             'text',
             xl("The most popular open-source Electronic Health Record and Medical Practice Management solution."),
             xl("Tagline text on the login page")
-        ],
-
-        'show_ack_on_login' => [
-            xl('Show Acknowledgment Link on Login Page') . "*",
-            'bool',
-            '1',
-            xl('Show the tagline from the login screen'),
         ],
 
         'show_labels_on_login_form' => [
@@ -504,19 +547,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Mini Logo 2')
         ),
-
-        'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh') . '*',
-            array(
-                '0' => xl('Do not warn or prevent web browser refresh'),
-                '1' => xl('Warn, but do not prevent web browser refresh'),
-                '2' => xl('Warn and prevent web browser refresh')
-            ),
-            '2',                              // default = true
-            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
-        ),
-
-    ),
+    ],
 
     // Locale Tab
     //
@@ -1247,6 +1278,13 @@ $GLOBALS_METADATA = array(
             xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ),
 
+        'MedicareReferrerIsRenderer' => array(
+            xl('Medicare Referrer Is Renderer'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
+        ),
+
         'statement_logo' => array(
             xl('Statement Logo GIF Filename'),
             'text',                           // data type
@@ -1473,6 +1511,13 @@ $GLOBALS_METADATA = array(
             xl('This will give the user the option to lock (separate locking and signing)')
         ),
 
+        'esign_report_show_only_signed' => array(
+            xl('Only Include E-Signed Forms On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any encounter forms not E-Signed on the patient report')
+        ),
+
         'esign_report_hide_empty_sig' => array(
             xl('Hide Empty E-Sign Logs On Report'),
             'bool',                           // data type
@@ -1480,6 +1525,12 @@ $GLOBALS_METADATA = array(
             xl('This will hide empty e-sign logs on the patient report')
         ),
 
+        'esign_report_hide_all_sig' => array(
+            xl('Exclude All E-Sign Logs On Report'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide any e-sign logs on the patient report')
+        ),
     ),
     //Documents Tab
     'Documents' => array(
@@ -2873,13 +2924,6 @@ $GLOBALS_METADATA = array(
             xl('You may put text here as the default complaint in the New Patient Encounter form.')
         ),
 
-        'MedicareReferrerIsRenderer' => array(
-            xl('Medicare Referrer Is Renderer'),
-            'bool',                           // data type
-            '0',                              // default = true
-            xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
-        ),
-
         'post_to_date_benchmark' => array(
             xl('Financial Close Date (yyyy-mm-dd)'),
             'text',                           // data type
@@ -3080,6 +3124,7 @@ $GLOBALS_METADATA = array(
             array(
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
+                'Sphere' => xl('Gateway for Sphere Payments'),
                 'Stripe' => xl('Gateway for Stripe Manual Payments')
             ),
             'InHouse',
@@ -3112,6 +3157,55 @@ $GLOBALS_METADATA = array(
             'encrypted',
             '',
             xl('Mainly Authorize.Net uses two keys')
+        ),
+
+        'sphere_clinicfront_trxcustid' => array(
+            xl('Sphere Clinicfront (MOTO) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront (MOTO) Transaction CustID')
+        ),
+
+        'sphere_clinicfront_trxcustid_licensekey' => array(
+            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key')
+        ),
+
+        'sphere_moto_tc_link_pass' => array(
+            xl('Sphere MOTO TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere MOTO TC Link Password')
+        ),
+
+        'sphere_patientfront_trxcustid' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID')
+        ),
+
+        'sphere_patientfront_trxcustid_licensekey' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key')
+        ),
+
+        'sphere_ecomm_tc_link_pass' => array(
+            xl('Sphere Ecomm TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere Ecomm TC Link Password')
+        ),
+
+        'sphere_credit_void_confirm_pin' => array(
+            xl('Sphere Void/Credit Confirmation PIN'),
+            'encrypted_hash',
+            '',
+            xl('Sphere Void/Credit Confirmation Password. OpenEMR confirms pin/password before proceeding with void/credit.')
         ),
 
         'medex_enable' => array(

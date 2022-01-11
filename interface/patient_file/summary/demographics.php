@@ -918,16 +918,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         for ($y = 1; count($insurance_array) > $y; $y++) {
                             $insInBinder .= ',?';
                         }
-                        $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(" . $insInBinder . ") ORDER BY date DESC";
+                        $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(" . $insInBinder . ") ORDER BY type, date DESC";
                         $params[] = $pid;
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
-                        $insCount = 0;
+                        $prior_ins_type = '';
+
                         while ($row = sqlFetchArray($res)) {
-                            // TODO: $insCount appears to be undefined here and is throwing errors... probably need to fix this.
-                            $insCount = ($row['provider']) ? $insCount++ : $insCount;
                             if ($row['provider']) {
-                                $row['isOld'] = (strcmp($enddate ?? '', 'Present') != 0) ? true : false;
+                                // since the query is sorted by DATE DESC can use prior ins type to identify
+                                $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
@@ -943,11 +943,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     ],
                                 ];
                                 $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
+                                $row['dispFromDate'] = $row['date'] ? true : false;
+                                $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
+                                $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
+                                $insArr[] = $row;
+                                $prior_ins_type = $row['type'];
                             }
-                            $row['dispFromDate'] = ((strcmp($row['date'], '0000-00-00') != 0) || $row['date'] == "") ? true : false;
-                            $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
-                            $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                            $insArr[] = $row;
                         }
 
                         if ($GLOBALS["enable_oa"]) {

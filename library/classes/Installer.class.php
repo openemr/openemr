@@ -125,6 +125,16 @@ class Installer
         return true;
     }
 
+    public function iuname_is_valid()
+    {
+        if ($this->iuname == "" || !isset($this->iuname)) {
+            $this->error_message = "Initial user last name is invalid: '$this->iuname'";
+            return false;
+        }
+
+        return true;
+    }
+
     public function password_is_valid()
     {
         if ($this->pass == "" || !isset($this->pass)) {

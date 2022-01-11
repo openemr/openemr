@@ -24,6 +24,8 @@ require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Events\PatientPortal\RenderEvent;
+use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
     require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
@@ -50,7 +52,8 @@ foreach ($msgs as $i) {
     }
 }
 if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
+    $whereto = '#secure-msgs-card';
+    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#secure-msgs-card');
 }
 $messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
 
@@ -86,7 +89,7 @@ if ($appts) {
             $etitle = '';
         }
 
-        $appointments[] = [
+        $formattedRecord = [
             'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
             'appointmentType' => xl('Type') . ': ' . $row['pc_catname'],
             'provider' => xl('Provider') . ': ' . $row['ufname'] . ' ' . $row['ulname'],
@@ -96,6 +99,8 @@ if ($appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
+        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
 
@@ -247,7 +252,8 @@ function buildNav($newcnt, $pid, $result)
 
 $navMenu = buildNav($newcnt, $pid, $result);
 
-echo (new TwigContainer(''))->getTwig()->render('portal/home.html.twig', [
+$twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
+echo $twig->render('portal/home.html.twig', [
     'user' => $user,
     'whereto' => $_SESSION['whereto'] ?: ($whereto ?? '#documentscard'),
     'result' => $result,
@@ -266,7 +272,6 @@ echo (new TwigContainer(''))->getTwig()->render('portal/home.html.twig', [
     'youHave' => xl('You have'),
     'navMenu' => $navMenu,
     'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
-    'jsVersion' => $v_js_includes,
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
     'patientName' => $_SESSION['ptName'],
@@ -277,4 +282,8 @@ echo (new TwigContainer(''))->getTwig()->render('portal/home.html.twig', [
     'appointmentLimit' => $apptLimit,
     'appointmentCount' => $count,
     'displayLimitLabel' => xl('Display limit reached'),
+    'eventNames' => [
+        'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
+        'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE
+    ]
 ]);

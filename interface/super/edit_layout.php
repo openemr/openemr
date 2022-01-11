@@ -398,6 +398,7 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
+$layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
 $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
@@ -459,6 +460,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
                 "default_value = '" . add_escape_custom(trim($iter['default']))   . "', " .
                 "description = '"   . add_escape_custom(trim($iter['desc']))      . "', " .
+                "codes = '"   . add_escape_custom(trim($iter['codes']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
                 "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
@@ -476,7 +478,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $listval = $data_type == 34 ? trim($_POST['contextName']) : trim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, description" .
+      ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
@@ -493,6 +495,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
       ",'" . add_escape_custom($data_type) . "'"                                  .
         ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newcodes'])) . "'" .
       ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
       ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
       ",'" . add_escape_custom($listval) . "'" .
@@ -914,6 +917,9 @@ function writeFieldLine($linedata)
             echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
+    echo "  <td class='text-center optcell'>";
+    echo "<input type='text' name='fld[" . attr($fld_line_no) . "][codes]' id='codes_fld[" . attr($fld_line_no) . "][codes]' value='" . attr($linedata['codes']) . "' title='" . xla('Code(s)') . "' onclick='select_clin_term_code(this)' size='10' maxlength='255' class='form-control optin' />";
+    echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
@@ -1112,6 +1118,11 @@ function genLayoutOptions($title = '?', $default = '')
   <?php Header::setupHeader(['select2']); ?>
   <title><?php echo xlt('Layout Editor'); ?></title>
   <style>
+      .sticky-top {
+          top: 80px;
+          z-index: 999;
+      }
+
     .orgTable tr.head {
         font-size: 0.6875rem;
         background-color: var(--gray400);
@@ -1167,10 +1178,6 @@ function genLayoutOptions($title = '?', $default = '')
 
     .help {
         cursor: help;
-    }
-
-    .layouts_title {
-        font-size: 110%;
     }
 
     .translation {
@@ -1451,7 +1458,6 @@ function myChangeCheck() {
 <input type="hidden" id="targetlayout" name="targetlayout" value="" />
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
-
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
 <?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
@@ -1465,11 +1471,12 @@ function myChangeCheck() {
 <?php echo xlt('Include inactive'); ?></label>
 
 <?php if ($layout_id) { ?>
-<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
-<input type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup' value='<?php echo xla('Add Group'); ?>' />
-<span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger btn-sm" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span>
-<br />
+<div class="btn-group ml-auto">
+    <button type='button' class='btn btn-secondary btn-sm' onclick='edit_layout_props("")'><?php echo xla('Layout Properties'); ?></button>
+    <button type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup'><?php echo xla('Add Group'); ?></button>
+    <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xla('Save Changes'); ?></button>
+</div>
+<br>
     <?php echo xlt('With selected');?>:&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
 <input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
@@ -1481,7 +1488,7 @@ function myChangeCheck() {
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
 <?php } else { ?>
-<input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<button type='button' class='btn btn-primary btn-sm btn-add btn-new' onclick='edit_layout_props("")'><?php echo xla('New Layout'); ?></button>
 <?php } ?>
 
 <div id="tips" class="container tips">
@@ -1545,7 +1552,7 @@ if ($layout_id) {
             }
 
             // echo "<div id='" . $group_id . "' class='group'>";
-            echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
+            echo "<div class='text bold layouts_title'>";
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
@@ -1557,26 +1564,39 @@ if ($layout_id) {
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 
-            echo text($gdispname);
-            // if not english and set to translate layout labels, then show the translation of group name
-            if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                // echo "<span class='translation'&gt;&gt;&gt;&nbsp; " . xlt($gdispname) . "</span>";
-                echo "<span class='translation'>" . xlt($gdispname) . "</span>";
-                echo "&nbsp; ";
-            }
-            echo "&nbsp; ";
-            echo " <input type='button' class='addfield' id='" . attr("addto~$group_id") . "' value='" . xla('Add Field') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='renamegroup' id='" . attr("$group_id~$gmyname") . "' value='" . xla('Rename Group') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='deletegroup' id='" . attr("$group_id") . "' value='" . xla('Delete Group') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='movegroup' id='" . attr("$group_id~up") . "' value='" . xla('Move Up') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo " <input type='button' class='movegroup' id='" . attr("$group_id~down") . "' value='" . xla('Move Down') . "'/>";
-            echo "&nbsp; &nbsp; ";
-            echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
-            echo "</div>";
+            $group_id_attr = attr($group_id);
+            $group_id_attr_js = attr_js($group_id);
+            $t_vars = [
+                "xla_add_field" => xla("Add Field"),
+                "xla_rename_group" => xla("Rename Group"),
+                "xla_delete_group" => xla("Delete Group"),
+                "xla_move_up" => xla("Move Up"),
+                "xla_move_down" => xla("Move Down"),
+                "xla_group_props" => xla("Group Properties"),
+                'text_group_name' => text($gdispname),
+                'translate_layout' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'attr_gmyname' => attr($gmyname),
+            ];
+            echo <<<HTML
+            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+                <span class="navbar-brand">{$t_vars['translate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
+                <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
+                    <div class="btn-group mr-2" role="group" aria-label="Field Group">
+                        <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id_attr}">{$t_vars['xla_add_field']}</button>
+                    </div>
+                    <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
+                        <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
+                    </div>
+                    <div class="btn-group mr-2" role="group" aria-label="Group Options">
+                        <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['attr_gmyname']}">{$t_vars['xla_rename_group']}</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xla_group_props']}</button>
+                        <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xla_delete_group']}</button>
+                    </div>
+                </div>
+
+            </nav>
+            HTML;
             $firstgroup = false;
             if (!empty($row['form_id'])) { // if this is not an empty group
                 ?>
@@ -1607,6 +1627,7 @@ if ($layout_id) {
                 if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
+          <th><?php echo xlt('Code(s)'); ?></th>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
       </thead>
@@ -1686,6 +1707,7 @@ if ($layout_id) {
    <th><?php echo xlt('Data Cols'); ?></th>
    <th><?php echo xlt('Options'); ?></th>
    <th><?php echo xlt('Description'); ?></th>
+   <th><?php echo xlt('Code(s)'); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -1739,6 +1761,7 @@ foreach ($sorted_datatypes as $key => $value) {
    <td><select name="newedit_options[]" id="newedit_options"  multiple class='form-control typeAddons'></select>
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
    <td><input type="text" class='form-control' name="newdesc" id="newdesc" value="" size="20" /> </td>
+   <td><input type='text' class='form-control' name="newcodes" id="newcodes" value="" onclick='select_clin_term_code(this)' size='10' maxlength='255' /> </td>
   </tr>
   <tr>
    <td colspan="9">
@@ -1757,26 +1780,27 @@ foreach ($sorted_datatypes as $key => $value) {
 <?php echo "var fldOptions = [";
 echo !empty($GLOBALS['portal_onsite_two_enable']) ? "{id: 'EP',text:" . xlj('Exclude in Portal') . "}," : '';
 echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
-	{id: 'B',text:" . xlj('Gestational Age') . ",ctx:['4'],ctxExcp:['0']},
-	{id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
-	{id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},
-	{id: 'D',text:" . xlj('Dup Check') . "},
-	{id: 'E',text:" . xlj('Dup Check on only Edit, or Extra billing codes OK') . "},
-	{id: 'W',text:" . xlj('Dup Check on only New') . "},
-	{id: 'G',text:" . xlj('Graphable') . "},
-	{id: 'J',text:" . xlj('Jump to Next Row') . "},
-	{id: 'K',text:" . xlj('Prepend Blank Row') . "},
-	{id: 'L',text:" . xlj('Lab Order') . "},
-	{id: 'M',text:" . xlj('Radio Group Master') . "},
-	{id: 'm',text:" . xlj('Radio Group Member') . "},
-	{id: 'N',text:" . xlj('New Patient Form') . "},
-	{id: 'O',text:" . xlj('Order Processor') . "},
-	{id: 'P',text:" . xlj('Default to previous value') . "},
-	{id: 'R',text:" . xlj('Distributor') . "},
-	{id: 'T',text:" . xlj('Description is default text') . "},
-	{id: 'U',text:" . xlj('Capitalize all') . "},
-	{id: 'V',text:" . xlj('Vendor') . "},
-	{id: 'X',text:" . xlj('Do Not Print') . "},
+    {id: 'B',text:" . xlj('Gestational Age') . ",ctx:['4'],ctxExcp:['0']},
+    {id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
+    {id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},
+    {id: 'D',text:" . xlj('Dup Check') . "},
+    {id: 'E',text:" . xlj('Dup Check on only Edit, or Extra billing codes OK') . "},
+    {id: 'W',text:" . xlj('Dup Check on only New') . "},
+    {id: 'G',text:" . xlj('Graphable') . "},
+    {id: 'J',text:" . xlj('Jump to Next Row') . "},
+    {id: 'K',text:" . xlj('Prepend Blank Row') . "},
+    {id: 'L',text:" . xlj('Lab Order') . "},
+    {id: 'M',text:" . xlj('Radio Group Master') . "},
+    {id: 'm',text:" . xlj('Radio Group Member') . "},
+    {id: 'N',text:" . xlj('New Patient Form') . "},
+    {id: 'O',text:" . xlj('Order Processor') . "},
+    {id: 'P',text:" . xlj('Default to previous value') . "},
+    {id: 'R',text:" . xlj('Distributor') . "},
+    {id: 'T',text:" . xlj('Description is default text') . "},
+    {id: 'DAP',text:" . xlj('Description is Placeholder') . "},
+    {id: 'U',text:" . xlj('Capitalize all') . "},
+    {id: 'V',text:" . xlj('Vendor') . "},
+    {id: 'X',text:" . xlj('Do Not Print') . "},
     {id:'grp',text:" . xlj('Stylings') . ",children:[
         {id: 'RS',text:" . xlj('Add Bottom Border Row') . "},
         {id: 'RO',text:" . xlj('Outline Entire Row') . "},
@@ -1785,8 +1809,8 @@ echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
         {id: 'SP',text:" . xlj('Span Entire Row') . "}
     ]},
     {id: '0',text:" . xlj('Read Only') . "},
-	{id: '1',text:" . xlj('Write Once') . "},
-	{id: '2',text:" . xlj('Billing Code Descriptions') . "}];\n";
+    {id: '1',text:" . xlj('Write Once') . "},
+    {id: '2',text:" . xlj('Billing Code Descriptions') . "}];\n";
 
 // Language direction for select2
 echo 'var langDirection = ' . js_escape($_SESSION['language_direction']) . ';';
@@ -2285,6 +2309,7 @@ function SetField(field_id, title, data_type, uor, fld_length, max_length,
   elemFromPart('datacols'    ).value = datacols;
   elemFromPart('edit_options').value = edit_options;
   elemFromPart('desc'        ).value = description;
+  elemFromPart('codes'        ).value = codes;
   elemFromPart('lengthHeight').value = fld_rows;
 }
 
@@ -2346,6 +2371,40 @@ function IsNumeric(value, min, max) {
         return false;
 
     return true;
+}
+
+// This invokes the find-code popup.
+function select_clin_term_code(e) {
+    current_sel_name = '';
+    current_sel_clin_term = e.id;
+    dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
+}
+
+// This is for callback by the find-code popup.
+function set_related(codetype, code, selector, codedesc) {
+    // Coming from the Clinical Terms Code(s) edit
+    var e =  document.getElementById(current_sel_clin_term);
+    var s = e.value;
+    if (code) {
+        if (s.length > 0) s += ';';
+        s += codetype + ':' + code;
+    }
+    else {
+        s = '';
+    }
+    e.value = s;
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    my_del_related(s, document.getElementById(current_sel_clin_term), false);
+}
+
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return document.getElementById(current_sel_clin_term).value.split(';');
 }
 
 /****************************************************/

@@ -34,11 +34,20 @@ require_once dirname(__FILE__) . "/../../library/encounter.inc";
 
 class EncounterService extends BaseService
 {
+    /**
+     * @var EncounterValidator
+     */
     private $encounterValidator;
+
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
+
+    /**
+     * Default class_code from list_options.  Defaults to outpatient ambulatory care.
+     */
+    const DEFAULT_CLASS_CODE = 'AMB';
 
     /**
      * Default constructor.
@@ -52,7 +61,21 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Returns a list of encounters matching the encounter indentifier.
+     * Returns a list of encounters matching the encounter identifier.
+     *
+     * @param  $eid     The encounter identifier of particular encounter
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     *                    payload.
+     */
+    public function getEncounterById($eid, $puuidBind = null)
+    {
+        $search = ['eid' => new TokenSearchField('eid', [new TokenSearchValue($eid)])];
+        return $this->search($search, true, $puuidBind);
+    }
+
+    /**
+     * Returns a list of encounters matching the encounter identifier.
      *
      * @param  $euuid     The encounter identifier of particular encounter
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
@@ -65,6 +88,21 @@ class EncounterService extends BaseService
         return $this->search($search, true, $puuidBind);
     }
 
+    /**
+     * Returns an encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return array         first row of encounter data
+     */
+    public function getOneByPidEid($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0];
+        }
+        return [];
+    }
 
     public function getUuidFields(): array
     {
@@ -98,6 +136,7 @@ class EncounterService extends BaseService
      * @param array  $search         search array parameters
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
+     * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
@@ -326,7 +365,9 @@ class EncounterService extends BaseService
             "newpatient",
             $data['pid'],
             $data["provider_id"],
-            $data["date"]
+            $data["date"],
+            $data['user'],
+            $data['group']
         );
 
         if ($results) {
@@ -583,5 +624,52 @@ class EncounterService extends BaseService
         $validator->optional('oxygen_saturation')->numeric();
 
         return $validator->validate($vital);
+    }
+
+    public function getEncountersForPatientByPid($pid)
+    {
+        $encounterResult = $this->search(['pid' => $pid]);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData();
+        }
+        return [];
+    }
+
+    /**
+     * The result of this function returns the format needed by the frontend with the window.left_nav.setPatientEncounter function
+     * @param $pid
+     * @return array
+     */
+    public function getPatientEncounterListWithCategories($pid)
+    {
+        $encounters = $this->getEncountersForPatientByPid($pid);
+
+        $encounterList = [
+            'ids' => []
+            ,'dates' => []
+            ,'categories' => []
+        ];
+        foreach ($encounters as $index => $encounter) {
+            $encounterList['ids'][$index] = $encounter['eid'];
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['categories'][$index] = $encounter['pc_catname'];
+        }
+        return $encounterList;
+    }
+
+    /**
+     * Returns the sensitivity level for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string         sensitivity_level of first row of encounter data
+     */
+    public function getSensitivity($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['sensitivity'];
+        }
+        return [];
     }
 }

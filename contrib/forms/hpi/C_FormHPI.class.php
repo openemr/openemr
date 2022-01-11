@@ -11,7 +11,6 @@ require_once("FormHPI.class.php");
 
 class C_FormHPI extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

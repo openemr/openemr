@@ -5,7 +5,6 @@ require_once("FormHpTjePrimary.class.php");
 
 class C_FormHpTje extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

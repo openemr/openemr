@@ -29,7 +29,6 @@
  */
 class Savant3_Plugin_image extends Savant3_Plugin
 {
-
     /**
      *
      * The document root.

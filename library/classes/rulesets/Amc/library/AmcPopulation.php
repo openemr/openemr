@@ -26,7 +26,7 @@ class AmcPopulation extends RsPopulation
     /*
      * ArrayAccess Interface
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($value instanceof AmcPatient) {
             if ($offset == "") {

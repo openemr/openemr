@@ -244,7 +244,7 @@ if (!empty($_POST['form_save'])) {
         ,'begdate' => $form_begin ?? "NULL"
         ,'enddate' => $form_end ?? "NULL"
         ,'returndate' => $form_return ?? "NULL"
-        ,'erx_uploaded' => 0
+        ,'erx_uploaded' => '0'
         ,'id' => $issue ?? null
         ,'pid' => $thispid
     ];

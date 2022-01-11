@@ -184,7 +184,7 @@ class CdaTemplateImportDispose
         }
     }
 
-    public function InsertCarePlan($care_plan_array, $pid, $revapprove = 1)
+    public function InsertCarePlan($care_plan_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($care_plan_array)) {
             return;
@@ -221,8 +221,10 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $query_insert = "INSERT INTO form_care_plan(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], date('Y-m-d')));
+            $plan_date = $carecoordinationTable->formatDate($value['date'], 1);
+            $plan_date_value = fixDate($plan_date);
+            $query_insert = "INSERT INTO form_care_plan(id,pid,groupname,user,encounter,activity,code,codetext,description,date,care_plan_type) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type']));
         }
 
         if (count($care_plan_array) > 0) {
@@ -854,7 +856,7 @@ class CdaTemplateImportDispose
         $oid_route = $unit_option_id = $oidu_unit = '';
         foreach ($pres_array as $key => $value) {
             $active = 1;
-            if ($value['enddate'] == '' || $value['enddate'] == 0) {
+            if (empty($value['enddate'])) {
                 $value['enddate'] = (null);
             }
 
@@ -976,21 +978,23 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($q_insert, array('drug_form', $oidu_unit, $value['dose_unit'], 1));
             }
 
-            $res_q_sel_pres = null; // to avoid php8 warnings
+            $res_q_sel_pres_cnt = $res_q_sel_pres_r_cnt = null; // to avoid php8 warnings
             if (!empty($value['extension'])) {
                 $q_sel_pres = "SELECT *
                          FROM prescriptions
                          WHERE patient_id = ? AND external_id = ?";
                 $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
+                $res_q_sel_pres_cnt = $res_q_sel_pres->count();
             } else {
                 // prevent bunch of duplicated prescriptions/medications
                 $q_sel_pres_r = "SELECT *
                          FROM `prescriptions`
                          WHERE `patient_id` = ? AND `drug` = ?";
                 $res_q_sel_pres_r = $appTable->zQuery($q_sel_pres_r, array($pid, $value['drug_text']));
+                $res_q_sel_pres_r_cnt = $res_q_sel_pres_r->count();
             }
 
-            if ((empty($value['extension']) && $res_q_sel_pres_r->count() == 0) || ($res_q_sel_pres->count() == 0)) {
+            if ((empty($value['extension']) && $res_q_sel_pres_r_cnt === 0) || ($res_q_sel_pres_cnt === 0)) {
                 $query = "INSERT INTO prescriptions
                   ( patient_id,
                     date_added,
@@ -1045,8 +1049,8 @@ class CdaTemplateImportDispose
                     $value['drug_code'],
                     $provider_id,
                     $value['extension'],
-                    1,
-                    $value['request_intent']));
+                    0,
+                    ($value['request_intent'] ?? null)));
             } else {
                 $q_upd_pres = "UPDATE prescriptions
                        SET patient_id=?,
@@ -1084,8 +1088,8 @@ class CdaTemplateImportDispose
                     $provider_id,
                     $value['extension'],
                     $pid,
-                    1,
-                    $value['request_intent']));
+                    0,
+                    ($value['request_intent'] ?? null)));
             }
         }
     }
@@ -1224,21 +1228,21 @@ class CdaTemplateImportDispose
         $userName = "";
 
         if (!empty($value['provider_fname'])) {
-            $value['provider_name'] = $value['provider_fname'] ?: 'External';
-            $value['provider_family'] = $value['provider_lname'] ?: 'Provider';
+            $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
+            $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
         }
 
         if ($create_user_name) {
-            $userName = ($value['provider_name'] ?: 'External') . ($value['provider_family'] ?: 'Provider');
+            $userName = (($value['provider_name'] ?? '') ?: 'External') . (($value['provider_family'] ?? '') ?: 'Provider');
         }
         $query_ins_users = "INSERT INTO users
         ( username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
         VALUES(?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 1, 'external_provider')";
         $res_query_ins_users = $appTable->zQuery($query_ins_users, array(
             $userName,
-            $value['provider_name'] ?: 'External',
-            $value['provider_family'] ?: 'Provider',
-            $value['provider_npi'] ?: CarecoordinationTable::NPI_SAMPLE,
+            ($value['provider_name'] ?? '') ?: 'External',
+            ($value['provider_family'] ?? '') ?: 'Provider',
+            ($value['provider_npi'] ?? '') ?: CarecoordinationTable::NPI_SAMPLE,
             $value['represented_organization_name'] ?? null,
             $value['provider_address'] ?? null,
             $value['provider_city'] ?? null,
@@ -1279,34 +1283,48 @@ class CdaTemplateImportDispose
             $enc_cur = $enc->current();
             $enc_id = $enc_cur['encounter'] ?: 0;
 
-            foreach ($value['result'] as $res) {
-                $query_select_pt = "SELECT * FROM procedure_type WHERE procedure_code = ? AND lab_id = ?";
-                $result_pt = $appTable->zQuery($query_select_pt, array($res['result_code'], $pro_id));
-                if ($result_pt->count() == 0) {
-                    //procedure_type
-                    $query_insert_pt = "INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)";
-                    $result_pt = $appTable->zQuery($query_insert_pt, array($res['result_text'], $pro_id, $res['result_code'], 'ord', 1, 'laboratory_test'));
-                    $res_pt_id = $result_pt->getGeneratedValue();
-                    $query_update_pt = "UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?";
-                    $appTable->zQuery($query_update_pt, array($res_pt_id, $res_pt_id));
-                }
+            $query_select_pt = 'SELECT * FROM procedure_type WHERE procedure_code = ? AND procedure_type = ? AND lab_id = ?';
+            $result_pt = $appTable->zQuery($query_select_pt, array($value['proc_code'], 'ord', $pro_id));
+            if ($result_pt->count() == 0) {
+                //procedure_type
+                $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
+                $result_pt = $appTable->zQuery($query_insert_pt, array($value['proc_text'], $pro_id, $value['proc_code'], 'ord', 1, 'laboratory_test'));
+                $res_pt_id = $result_pt->getGeneratedValue();
+                $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
+                $appTable->zQuery($query_update_pt, array($res_pt_id, $res_pt_id));
+            }
 
-                //procedure_order
-                $query_insert_po = "INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id) VALUES (?,?,?,?,?,?,?,?,?)";
-                $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'normal', $value['status'] ?? 'complete', 1, $pro_id));
-                $po_id = $result_po->getGeneratedValue();
-                //procedure_order_code
-                $query_insert_poc = "INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title) VALUES (?,?,?,?,?,?)";
-                $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $res['result_code'], $res['result_text'], '', 'laboratory_test'));
-                //procedure_report
-                $query_insert_pr = "INSERT INTO procedure_report(procedure_order_id,date_collected,report_status,review_status) VALUES (?,?,?,?)";
-                $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), 'final', 'reviewed'));
-                $res_id = $result_pr->getGeneratedValue();
+            if (!empty($value['result'][0]['result_date']) && empty($value['date'])) {
+                $date = ApplicationTable::fixDate($value['result'][0]['result_date'], 'yyyy-mm-dd', 'yyyy/mm/dd');
+                $value['date'] = $date;
+            }
+            if (empty($value['date'])) {
+                $value['date'] = $carecoordinationTable->formatDate(date('Ymd'), 1);
+                $date = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'yyyy/mm/dd');
+            }
+
+            //procedure_order
+            $query_insert_po = "INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) VALUES (?,?,?,?,?,?,?,?,?,'laboratory_test')";
+            $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $enc_id, ($date ?? null), ($date ?? null), 'normal', $value['status'] ?? 'complete', 1, $pro_id));
+            $po_id = $result_po->getGeneratedValue();
+
+            //procedure_order_code
+            $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
+
+            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $value['proc_code'], $value['proc_text'], '', 'laboratory_test', 'laboratory_test'));
+            addForm($enc_id, $pro_name . '-' . $po_id, $po_id, 'procedure_order', $pid, $this->userauthorized);
+
+            //procedure_report
+            $query_insert_pr = 'INSERT INTO procedure_report(procedure_order_id,date_collected,date_report,report_status,review_status) VALUES (?,?,?,?,?)';
+            $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, ($date ?? null), ($date ?? null), 'final', 'reviewed'));
+            $res_id = $result_pr->getGeneratedValue();
+
+            foreach ($value['result'] as $res) {
                 //procedure_result
-                $range_unit = explode(' ', $res['result_range']);
-                $range = $range_unit[0];
-                $unit = $range_unit[1];
-                if ($unit != '') {
+                $range = $res['result_range'] ?? '';
+                $unit = $res['result_unit'] ?? '';
+                $result_date = ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'yyyy/mm/dd');
+                if (!empty($unit)) {
                     $qU_select = "SELECT * FROM list_options WHERE list_id = ? AND option_id = ?";
                     $Ures = $appTable->zQuery($qU_select, array('proc_unit', $unit));
                     if ($Ures->count() == 0) {
@@ -1317,10 +1335,22 @@ class CdaTemplateImportDispose
                         $appTable->zQuery($qU_update, array('proc_unit', $unit));
                     }
 
-                    $query_insert_prs = "INSERT INTO procedure_result(procedure_report_id,result_code,date,units,result,`range`,result_text,result_status) VALUES (?,?,?,?,?,?,?,?)";
-                    $result_prs = $appTable->zQuery($query_insert_prs, array($res_id, $res['result_code'], ApplicationTable::fixDate($res['result_date'], 'yyyy-mm-dd', 'dd/mm/yyyy'), $unit, $res['result_value'], $range, $res['result_text'], 'final'));
+                    $query_select_pt = 'SELECT * FROM procedure_type WHERE procedure_code = ? AND procedure_type = ? AND lab_id = ?';
+                    $result_pt = $appTable->zQuery($query_select_pt, array($value['proc_code'], 'res', $pro_id));
+                    if ($result_pt->count() == 0) {
+                        //result_type
+                        $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
+                        $result_pt = $appTable->zQuery($query_insert_pt, array($res['result_text'], $pro_id, $res['result_code'], 'res', 1, 'laboratory_test'));
+                        $res_pt_id_res = $result_pt->getGeneratedValue();
+                        $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
+                        $appTable->zQuery($query_update_pt, array(($res_pt_id ?? null), $res_pt_id_res));
+                    }
+
+                    if (!empty($res['result_code'])) {
+                        $query_insert_prs = "INSERT INTO procedure_result(procedure_report_id,result_code,date,units,result,`range`,result_text,result_status) VALUES (?,?,?,?,?,?,?,?)";
+                        $result_prs = $appTable->zQuery($query_insert_prs, array($res_id, $res['result_code'], $result_date, $unit, $res['result_value'], $range, $res['result_text'], 'final'));
+                    }
                 }
-                addForm($enc_id, $pro_name . '-' . $po_id, $po_id, 'procedure_order', $pid, $this->userauthorized);
             }
         }
     }
@@ -1457,11 +1487,13 @@ class CdaTemplateImportDispose
                           respiration,
                           head_circ,
                           oxygen_saturation,
+                          BMI,
                           activity,
                           external_id
                          )
                          VALUES
                          (
+                          ?,
                           ?,
                           ?,
                           ?,
@@ -1487,6 +1519,7 @@ class CdaTemplateImportDispose
                     $value['respiration'],
                     $value['head_circ'],
                     $value['oxygen_saturation'],
+                    $value['BMI'],
                     $value['extension']));
                 $vitals_id = $res->getGeneratedValue();
             } else {
@@ -1501,7 +1534,8 @@ class CdaTemplateImportDispose
                              pulse=?,
                              respiration=?,
                              head_circ=?,
-                             oxygen_saturation=?
+                             oxygen_saturation=?,
+                             BMI=?
                          WHERE external_id=?";
                 $appTable->zQuery($q_upd_vitals, array($pid,
                     $vitals_date_value,
@@ -1514,6 +1548,7 @@ class CdaTemplateImportDispose
                     $value['respiration'],
                     $value['head_circ'],
                     $value['oxygen_saturation'],
+                    $value['BMI'],
                     $value['extension']));
                 foreach ($res_q_sel_vitals as $row_vitals) {
                     $vitals_id = $row_vitals['id'];
@@ -1579,6 +1614,86 @@ class CdaTemplateImportDispose
                 $vitals_id,
                 $pid,
                 ($_SESSION['authUser'] ?? null)));
+        }
+    }
+
+    public function InsertObservationPerformed($observation_preformed_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
+    {
+        if (empty($observation_preformed_array)) {
+            return;
+        }
+        $newid = '';
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery('SELECT MAX(id) as largestId FROM `form_observation`');
+        foreach ($res as $val) {
+            if ($val['largestId']) {
+                $newid = $val['largestId'] + 1;
+            } else {
+                $newid = 1;
+            }
+        }
+
+        foreach ($observation_preformed_array as $key => $value) {
+            if ($value['date'] != '') {
+                $date = $carecoordinationTable->formatDate($value['date']);
+            } else {
+                $date = date('Y-m-d');
+            }
+
+            $query_sel_enc = 'SELECT encounter
+                            FROM form_encounter
+                            WHERE date=? AND pid=?';
+            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($date, $pid));
+
+            if ($res_query_sel_enc->count() == 0) {
+                $res_enc = $appTable->zQuery('SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1', array($pid));
+                $res_enc_cur = $res_enc->current();
+                $encounter_for_forms = $res_enc_cur['encounter'];
+            } else {
+                foreach ($res_query_sel_enc as $value2) {
+                    $encounter_for_forms = $value2['encounter'];
+                }
+            }
+
+            $res = $appTable->zQuery(
+                'INSERT INTO form_observation(
+                id,date,pid,groupname,user,encounter, activity,
+                             code,
+                             observation,
+                             ob_value,
+                             ob_unit,
+                             description,
+                             ob_status,
+                             ob_code,
+                             ob_type,
+                             ob_reason_status,
+                             ob_reason_code,
+                             ob_reason_text) 
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                array(
+                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
+                    $value['code'],
+                    $value['observation'],
+                    $value['result_code_text'],
+                    "",
+                    $value['code_text'],
+                    $value['observation_status'],
+                    $value['result_code'],
+                    $value['observation_type'],
+                    $value['reason_status'],
+                    $value['reason_code'],
+                    $value['reason_code_text']
+                )
+            );
+        }
+
+        if (count($observation_preformed_array) > 0) {
+            $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
+            $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
         }
     }
 }

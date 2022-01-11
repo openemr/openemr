@@ -13,7 +13,6 @@
 
 class eRxPage
 {
-
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
 

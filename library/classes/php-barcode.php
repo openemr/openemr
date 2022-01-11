@@ -28,7 +28,6 @@
 
 class Barcode
 {
-
     public static function gd($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null)
     {
         return self::_draw(__FUNCTION__, $res, $color, $x, $y, $angle, $type, $datas, $width, $height);
@@ -454,7 +453,6 @@ class BarcodeEAN
 
 class BarcodeUPC
 {
-
     public static function getDigit($code)
     {
         if (strlen($code) < 12) {

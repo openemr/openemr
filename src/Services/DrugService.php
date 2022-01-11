@@ -18,7 +18,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class DrugService extends BaseService
 {
-
     private const DRUG_TABLE = "drugs";
 
     /**

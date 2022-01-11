@@ -8,11 +8,11 @@ on:
 
 jobs:
 
-  build_apache_73_105:
-    name: PHP 7.3 - Apache - MariaDB 10.5
+  build_apache_74_106:
+    name: PHP 7.4 - Apache - MariaDB 10.6
     runs-on: ubuntu-20.04
     env:
-      DOCKER_DIR: apache_73_105
+      DOCKER_DIR: apache_74_106
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
@@ -29,99 +29,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
-      - name: Main build
-        run: |
-          source ci/ciLibrary.source
-          composer_github_auth
-          main_build
-
-      - name: CCDA build
-        run: |
-          source ci/ciLibrary.source
-          ccda_build
-
-      - name: Install and configure
-        run: |
-          source ci/ciLibrary.source
-          install_configure
-
-      - name: Unit testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_unit
-        if: ${{ success() || failure() }}
-
-      - name: E2e testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_e2e
-        if: ${{ success() || failure() }}
-
-      - name: Api testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_api
-        if: ${{ success() || failure() }}
-
-      - name: Fixtures testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_fixtures
-        if: ${{ success() || failure() }}
-
-      - name: Services testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_services
-        if: ${{ success() || failure() }}
-
-      - name: Validators testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_validators
-        if: ${{ success() || failure() }}
-
-      - name: Controllers testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_controllers
-        if: ${{ success() || failure() }}
-
-      - name: Common testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_common
-        if: ${{ success() || failure() }}
-
-  build_apache_74_105:
-    name: PHP 7.4 - Apache - MariaDB 10.5
-    runs-on: ubuntu-20.04
-    env:
-      DOCKER_DIR: apache_74_105
-      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
-      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-
-      - name: Report PHP Version
-        run: php -v
-
-      - name: Install npm package
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -213,7 +121,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -305,7 +213,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -397,7 +305,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -489,7 +397,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -581,7 +489,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -673,7 +581,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -765,7 +673,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -812,97 +720,6 @@ jobs:
           build_test_fixtures
         if: ${{ success() || failure() }}
 
-      - name: Services testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_services
-        if: ${{ success() || failure() }}
-
-      - name: Validators testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_validators
-        if: ${{ success() || failure() }}
-
-      - name: Controllers testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_controllers
-        if: ${{ success() || failure() }}
-
-      - name: Common testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_common
-        if: ${{ success() || failure() }}
-
-  build_nginx_73:
-    name: PHP 7.3 - Nginx - MariaDB 10.5
-    runs-on: ubuntu-20.04
-    env:
-      DOCKER_DIR: nginx_73
-      OPENEMR_DIR: /usr/share/nginx/html/openemr
-      CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-
-      - name: Report PHP Version
-        run: php -v
-
-      - name: Install npm package
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
-      - name: Main build
-        run: |
-          source ci/ciLibrary.source
-          composer_github_auth
-          main_build
-
-      - name: CCDA build
-        run: |
-          source ci/ciLibrary.source
-          ccda_build
-
-      - name: Install and configure
-        run: |
-          source ci/ciLibrary.source
-          install_configure
-
-      - name: Unit testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_unit
-        if: ${{ success() || failure() }}
-
-      - name: E2e testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_e2e
-        if: ${{ success() || failure() }}
-
-      - name: Api testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_api
-        if: ${{ success() || failure() }}
-
-      - name: Fixtures testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_fixtures
-        if: ${{ success() || failure() }}
       - name: Services testing
         run: |
           source ci/ciLibrary.source
@@ -928,7 +745,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_74:
-    name: PHP 7.4 - Nginx - MariaDB 10.5
+    name: PHP 7.4 - Nginx - MariaDB 10.6
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_74
@@ -948,7 +765,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -1020,7 +837,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_8:
-    name: PHP 8.0 - Nginx - MariaDB 10.5
+    name: PHP 8.0 - Nginx - MariaDB 10.6
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_80
@@ -1040,7 +857,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -1112,7 +929,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    name: PHP 8.1 - Nginx - MariaDB 10.5 (Note skipping lots of tests in PHP 8.1 for now)
+    name: PHP 8.1 - Nginx - MariaDB 10.6
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_81
@@ -1132,7 +949,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Dockers environment start
         run: |
@@ -1155,50 +972,142 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
-      - name: Unit testing (skipping in PHP 8.1 for now)
+      - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          #build_test_unit
+          build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing (skipping in PHP 8.1 for now)
+      - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          #build_test_e2e
+          build_test_e2e
         if: ${{ success() || failure() }}
 
-      - name: Api testing (skipping in PHP 8.1 for now)
+      - name: Api testing
         run: |
           source ci/ciLibrary.source
-          #build_test_api
+          build_test_api
         if: ${{ success() || failure() }}
 
-      - name: Fixtures testing (skipping in PHP 8.1 for now)
+      - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          #build_test_fixtures
+          build_test_fixtures
         if: ${{ success() || failure() }}
 
-      - name: Services testing (skipping in PHP 8.1 for now)
+      - name: Services testing
         run: |
           source ci/ciLibrary.source
-          #build_test_services
+          build_test_services
         if: ${{ success() || failure() }}
 
-      - name: Validators testing (skipping in PHP 8.1 for now)
+      - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          #build_test_validators
+          build_test_validators
         if: ${{ success() || failure() }}
 
-      - name: Controllers testing (skipping in PHP 8.1 for now)
+      - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          #build_test_controllers
+          build_test_controllers
         if: ${{ success() || failure() }}
 
-      - name: Common testing (skipping in PHP 8.1 for now)
+      - name: Common testing
         run: |
           source ci/ciLibrary.source
-          #build_test_common
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_nginx_82:
+    name: PHP 8.2 - Nginx - MariaDB 10.6
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_DIR: nginx_82
+      OPENEMR_DIR: /usr/share/nginx/html/openemr
+      CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
         if: ${{ success() || failure() }}

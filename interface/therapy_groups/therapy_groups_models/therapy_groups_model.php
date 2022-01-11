@@ -27,7 +27,6 @@
 
 class Therapy_Groups
 {
-
     const TABLE = 'therapy_groups';
 
     public function getAllGroups()

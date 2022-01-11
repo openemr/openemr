@@ -8,7 +8,6 @@ require_once 'Installer.class.php';
 
 class InstallerTest extends PHPUnit_Framework_TestCase
 {
-
     protected $installer;
     protected $post_variables;
 

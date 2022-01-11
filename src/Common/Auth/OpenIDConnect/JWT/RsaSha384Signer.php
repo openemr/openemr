@@ -58,7 +58,7 @@ class RsaSha384Signer implements Signer
      *
      * @return string
      */
-    public function getAlgorithmId()
+    public function algorithmId(): string
     {
         return self::ALGORITHM_ID;
     }
@@ -70,14 +70,14 @@ class RsaSha384Signer implements Signer
      */
     public function modifyHeader(array &$headers)
     {
-        $headers['alg'] = $this->getAlgorithmId();
+        $headers['alg'] = $this->algorithmId();
         $this->headers = $headers;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function sign($payload, $key)
+    public function sign($payload, $key): string
     {
         // we only handle signature verification not signature creation.
         throw new \BadMethodCallException("This class can only be used for signature verification not signing");
@@ -94,7 +94,7 @@ class RsaSha384Signer implements Signer
      *
      * @throws InvalidArgumentException When given key is invalid
      */
-    public function verify($expected, $payload, $key)
+    public function verify($expected, $payload, $key): bool
     {
 
         $this->logger->debug("RsaSha384Signer->verify() beginning jwt verification");
@@ -105,7 +105,7 @@ class RsaSha384Signer implements Signer
         if ($key instanceof JsonWebKeySet) {
             $kid = $this->headers['kid'] ?? null;
             $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk");
-            $jwk = $key->getJSONWebKey($kid, $this->getAlgorithmId());
+            $jwk = $key->getJSONWebKey($kid, $this->algorithmId());
         } else {
             $key = $key instanceof Key ? $key->contents() : $key;
             try {

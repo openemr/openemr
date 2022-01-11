@@ -2,9 +2,9 @@
 
 class C_InsuranceCompany extends Controller
 {
-
     var $template_mod;
     var $icompanies;
+    var $InsuranceCompany;
 
     public function __construct($template_mod = "general")
     {

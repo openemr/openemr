@@ -106,6 +106,7 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     ") VALUES ( ?,?,? )", array($category, $option, $codes));
             }
         }
+        $current_checksum = listChecksum($list_id);
     } elseif ($list_id == 'code_types') {
         // special case for code types
         sqlStatement("DELETE FROM code_types");
@@ -351,7 +352,7 @@ function getCodeDescriptions($codes)
             $row = sqlQuery("SELECT code_text FROM codes WHERE " .
                 "code_type = ? AND " .
                 "code = ? ORDER BY modifier LIMIT 1", array($code_types[$code_type]['id'], $code ));
-            $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text']));
+            $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
         }
         $desc = str_replace('~', ' ', $desc);
         if ($s) {
@@ -882,7 +883,9 @@ function writeITLine($it_array)
                 }
             }
         });
-
+        $(document).on('select2:open', () => {
+            document.querySelector('.select2-search__field').focus();
+        });
         // Keeping track of code picker requests.
         var current_lino = 0;
         var current_sel_name = '';

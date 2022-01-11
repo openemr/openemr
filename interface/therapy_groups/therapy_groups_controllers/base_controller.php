@@ -27,7 +27,6 @@
 
 class BaseController
 {
-
     const VIEW_FOLDER = 'therapy_groups_views';
     const MODEL_FOLDER = 'therapy_groups_models';
 

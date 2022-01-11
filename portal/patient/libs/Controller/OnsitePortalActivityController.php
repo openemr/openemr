@@ -25,7 +25,6 @@ require_once("Model/OnsitePortalActivity.php");
  */
 class OnsitePortalActivityController extends AppBasePortalController
 {
-
     /**
      * Override here for any controller-specific functionality
      *

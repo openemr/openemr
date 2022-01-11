@@ -23,6 +23,7 @@ use Esign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
@@ -282,6 +283,16 @@ $esignApi = new Api();
 </head>
 
 <body class="min-vw-100">
+<?php
+    // fire off an event here
+if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     */
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
+}
+?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
@@ -300,9 +311,11 @@ $esignApi = new Api();
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
+            <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
             <a class="navbar-brand mt-2 mt-xl-0 mr-3 mr-xl-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
                 <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
             </a>
+            <?php endif; ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -352,6 +365,16 @@ $esignApi = new Api();
             goRepeaterServices();
         });
     </script>
+    <?php
+    // fire off an event here
+    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+        /**
+         * @var \Symfony\Component\EventDispatcher\EventDispatcher
+         */
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+    }
+    ?>
 </body>
 
 </html>

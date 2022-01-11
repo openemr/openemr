@@ -13,7 +13,6 @@ define("ROOT_TYPE_NAME", 2);
 
 class Tree
 {
-
     /*
     *   This is the name of the table this tree is stored in
     *   @var string
@@ -31,6 +30,10 @@ class Tree
     *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
     */
     var $_db;
+
+    var $_root;
+    var $_root_type;
+    var $tree;
 
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name

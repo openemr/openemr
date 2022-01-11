@@ -21,7 +21,6 @@ Twig_Autoloader::register();
  */
 class TwigRenderEngine implements IRenderEngine
 {
-
     /** @var Twig_Environment */
     public $twig;
 

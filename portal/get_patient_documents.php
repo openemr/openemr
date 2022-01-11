@@ -50,20 +50,20 @@ while ($file = sqlFetchArray($fres)) {
     $path .= convert_safe_file_dir_name($cat['name']) . "/";
     // create the folder structure at the temporary dir
     if (!is_dir($tmp . "/" . $pid . "/" . $path)) {
-        if (!mkdir($tmp . "/" . $pid . "/" . $path, 0777, true)) {
+        if (!mkdir($concurrentDirectory = $tmp . "/" . $pid . "/" . $path, 0777, true) && !is_dir($concurrentDirectory)) {
             echo xlt("Error creating directory!") . "<br />";
         }
     }
 
     // copy the document
     $documentId = $file['id'];
-    $obj = new \C_Document();
+    $obj = new C_Document();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
         $pos = strpos(substr($file['name'], -5), '.');
         // check if has an extension or find it from the mimetype
         if ($pos === false) {
-            $file['name'] = $file['name'] . get_extension($file['mimetype']);
+            $file['name'] .= get_extension($file['mimetype']);
         }
 
         $dest = $tmp . "/" . $pid . "/" . $path . "/" . convert_safe_file_dir_name($file['name']);

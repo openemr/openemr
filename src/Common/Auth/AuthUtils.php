@@ -932,7 +932,7 @@ class AuthUtils
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
         if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
             $current_date = date("Y-m-d");
-            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ($GLOBALS['password_expiration_days'] + $GLOBALS['password_grace_time']) . " days"));
+            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)$GLOBALS['password_expiration_days'] + (int)$GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
                 return false;
             }

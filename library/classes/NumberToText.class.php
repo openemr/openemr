@@ -33,8 +33,6 @@ define("N2T_NEGATIVE", "negative");
 
 class NumberToText
 {
-
-
     var $number;
     var $currency;
     var $capatalize;

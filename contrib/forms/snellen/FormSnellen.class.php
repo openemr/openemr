@@ -20,7 +20,6 @@ define("EVENT_OTHER", 4);
  */
 class FormSnellen extends ORDataObject
 {
-
     /**
      *
      * @access public

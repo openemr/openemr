@@ -33,7 +33,6 @@ use OpenEMR\Common\Session\SessionUtil;
 
 class TherapyGroupsController extends BaseController
 {
-
     public $therapyGroupModel;
 
     /* Note: Created functions to return arrays so that xl method can be used in array rendering. */

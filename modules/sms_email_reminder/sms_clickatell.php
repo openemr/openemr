@@ -37,7 +37,6 @@
 
 class sms
 {
-
     /**
     * Clickatell API-ID
     * @link http://sourceforge.net/forum/forum.php?thread_id=1005106&forum_id=344522 How to get CLICKATELL API ID?

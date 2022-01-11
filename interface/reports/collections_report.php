@@ -220,7 +220,7 @@ function endPatient($ptrow)
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
     } else {
-        if ($ptrow['count'] > 1) {
+        if ($ptrow['count'] > 1 && !$is_due_ins) {
             echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
             /***************************************************************
           echo "  <td class='detail' colspan='$initial_colspan'>";
@@ -317,9 +317,9 @@ function insuranceSelect()
 {
     global $ins_co_name;
     $insurancei = getInsuranceProviders();
-    if ($_POST['form_csvexport']) {
+    if (!empty($_POST['form_csvexport'])) {
         foreach ($insurancei as $iid => $iname) {
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 $ins_co_name = $iname;
             }
         }
@@ -329,11 +329,11 @@ function insuranceSelect()
          echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
         foreach ($insurancei as $iid => $iname) {
             echo "<option value='" . attr($iid) . "'";
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 echo " selected";
             }
             echo ">" . text($iname) . "</option>\n";
-            if ($iid == $_POST['form_payer_id']) {
+            if ($iid == ($_POST['form_payer_id'] ?? null)) {
                 $ins_co_name = $iname;
             }
         }
@@ -684,7 +684,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
-            if ($_POST['form_individual'] == 1) {
+            if ($_POST['form_individual'] ?? '' == 1) {
                 $where .= " OR f.encounter = ? ";
                 array_push($sqlArray, $newencounter);
             } else {
@@ -741,7 +741,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
       "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
       "( SELECT bill_date FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
-      "b.activity = 1 AND b.code_type != 'COPAY' LIMIT 1) AS billdate, " .
+      "b.activity = 1 AND b.code_type != 'COPAY' LIMIT 1) AS bill_date, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
@@ -851,7 +851,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $row['referrer']  = $erow['referrer'];
         $row['provider']  = $erow['provider_id'];
         $row['irnumber']  = $erow['invoice_refno'];
-        $row['billdate']  = $erow['billdate'];  // use this for ins_due claim age date
+        $row['bill_date'] = $erow['bill_date'];  // use this for ins_due claim age date
 
       // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';
@@ -870,30 +870,24 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             }
         }
 
-      // This computes the invoice's total original charges and adjustments,
-      // date of last activity, and determines if insurance has responded to
-      // all billing items.
+        // This computes the invoice's total original charges and adjustments,
+        // date of last activity, and determines if insurance has responded to
+        // all billing items.
         $invlines = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
-
-      // if ($encounter_id == 185) { // debugging
-      //   echo "\n<!--\n";
-      //   print_r($invlines);
-      //   echo "\n-->\n";
-      // }
 
         $row['charges'] = 0;
         $row['adjustments'] = 0;
         $row['paid'] = 0;
         $ins_seems_done = true;
-        $ladate = $svcdate;
+        $aging_date = $svcdate;
         foreach ($invlines as $key => $value) {
             $row['charges'] += $value['chg'] + ($value['adj'] ?? null);
             $row['adjustments'] += 0 - ($value['adj'] ?? null);
             $row['paid'] += $value['chg'] - $value['bal'];
             foreach ($value['dtl'] as $dkey => $dvalue) {
                 $dtldate = trim(substr($dkey, 0, 10));
-                if ($dtldate && $dtldate > $ladate) {
-                    $ladate = $dtldate;
+                if ($dtldate && $dtldate > $aging_date) {
+                    $aging_date = $dtldate;
                 }
             }
 
@@ -917,14 +911,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $row['billing_errmsg'] = 'Ins1 seems not done';
         }
 
-        // Calculate claim age date for due ins
-        if ($is_due_ins) {
-            $ladate = $row['billdate'];
-        }
+        // Check billing for more recent age date even if due pt
+        $aging_date = ($row['bill_date'] > $aging_date) ? $row['bill_date'] : $aging_date;
 
-        $row['ladate'] = $ladate;
+        $row['aging_date'] = $aging_date;
 
-        if ($ladate == '') {
+        if ($aging_date == '') {
             $row['inactive_days'] = "n/a";
         } else {
             // Compute number of days since last activity.
@@ -932,9 +924,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 0,
                 0,
                 0,
-                substr($ladate, 5, 2),
-                substr($ladate, 8, 2),
-                substr($ladate, 0, 4)
+                substr($aging_date, 5, 2),
+                substr($aging_date, 8, 2),
+                substr($aging_date, 0, 4)
             );
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
@@ -998,15 +990,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             echo csvEscape(xl('DOS')) . ',';
             echo csvEscape(xl('Referrer')) . ',';
             echo csvEscape(xl('Provider')) . ',';
+            echo csvEscape(xl('Charge')) . ',';
             echo csvEscape(xl('Adjust')) . ',';
             echo csvEscape(xl('Paid')) . ',';
             echo csvEscape(xl('Balance')) . ',';
-            echo csvEscape(xl('IDays')) . ',';
+
+            if ($form_cb_idays) {
+                echo csvEscape(xl('Aging Days')) . ',';
+            }
+
             if ($form_cb_err) {
-                echo csvEscape(xl('LADate')) . ',';
                 echo csvEscape(xl('Error')) . "\n";
             } else {
-                echo csvEscape(xl('LADate')) . "\n";
+                echo "\n";
             }
         }
     } else {
@@ -1064,14 +1060,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
                 echo "  <th class='dehead' align='left'>";
-                      echo $form_age_inc * $c;
+                echo $form_age_inc * $c;
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
                 } else {
                     echo "+";
                 }
-
-                      echo "</th>\n";
+                echo "</th>\n";
             }
         } else {
             ?>
@@ -1080,7 +1075,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
         ?>
         <?php if ($form_cb_idays) { ?>
-  <th align="right"><?php echo xlt('IDays')?>&nbsp;</th>
+  <th align="right"><?php echo xlt('Aging Days')?>&nbsp;</th>
     <?php } ?>
         <?php if (!$is_ins_summary) { ?>
   <th align="center"><?php echo xlt('Prv') ?></th>
@@ -1137,14 +1132,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // Compute invoice balance and aging column number, and accumulate aging.
         $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
         if ($form_age_cols) {
-            $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
+            $agedate = $is_ageby_lad ? $row['aging_date'] : $row['dos'];
             $agetime = mktime(
                 0,
                 0,
                 0,
-                substr($agedate, 5, 2),
-                substr($agedate, 8, 2),
-                substr($agedate, 0, 4)
+                (int) substr($agedate, 5, 2),
+                (int) substr($agedate, 8, 2),
+                (int) substr($agedate, 0, 4)
             );
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
@@ -1213,7 +1208,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   </td>
             <?php if ($form_cb_adate) { ?>
   <td class='detail'>
-   &nbsp;<?php echo text(oeFormatShortDate($row['ladate'])); ?>
+   &nbsp;<?php echo text(oeFormatShortDate($row['aging_date'])); ?>
   </td>
 <?php } ?>
   <td class="detail" align="left">
@@ -1271,7 +1266,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
           // The CSV detail line is written here added conditions for checked items (TLH).
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-            if ($balance > 0 || $_POST['form_zero_balances']) {
+            if ($balance > 0 || ($_POST['form_zero_balances'] ?? '')) {
                 echo csvEscape($row['ins1'])                         . ','; // insname
                 echo csvEscape($ptname)                              . ',';
                 if ($form_cb_ssn) {
@@ -1308,10 +1303,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 echo csvEscape(oeFormatMoney($balance))              . ',';
                 echo csvEscape($row['inactive_days'])                . ',';
                 if ($form_cb_err) {
-                    echo csvEscape(oeFormatShortDate($row['ladate']))    . ',';
                     echo csvEscape($row['billing_errmsg'])               . "\n";
                 } else {
-                    echo csvEscape(oeFormatShortDate($row['ladate']))    . "\n";
+                    echo "\n";
                 }
             }
         } // end $form_csvexport
@@ -1333,9 +1327,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $alertmsg .= "AND flagged as in collections.";
         }
     } elseif ($_POST['form_csvexport']) {
+        // todo: trigger alert with this message
         // echo "</textarea>\n";
         // $alertmsg .= "$export_patient_count patients representing $" .
-        //   sprintf("%.2f", $export_dollars) . " have been exported.";
+        //    sprintf("%.2f", $export_dollars) . " have been exported.";
     } else {
         echo " <tr class='bg-white'>\n";
         if ($is_ins_summary) {

@@ -30,6 +30,7 @@ namespace OpenEMR\Common\Crypto;
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
+#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
@@ -48,6 +49,9 @@ class CryptoGen
 
     # Note that dynamic variables in this class in the collectCryptoKey()
     #  function are used to store the key cache.
+    #   (note this is why this class has the been marked with the
+    #    [AllowDynamicProperties] attribute, or will throw deprecation
+    #    message in PHP 8.2 and throw error in PHP 9.0)
 
     public function __construct()
     {

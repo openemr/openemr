@@ -15,7 +15,7 @@
         root.confirm = confirm;
         root.closeAjax = closeAjax;
         root.close = close;
-
+        root.popUp = popUp;
         return root;
 
         function ajax(data) {
@@ -41,10 +41,11 @@
             let alertTitle = '<span class="text-danger bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
             return dlgopen('', '', 675, 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up mr-1"></i>OK', close: true, style: 'primary'}
+                    {text: 'OK', close: true, style: 'primary'}
                 ],
                 type: 'Alert',
                 sizeHeight: 'auto',
+                resolvePromiseOn: 'close',
                 html: '<p class="text-center">' + data + '</p>'
             });
         }
@@ -54,7 +55,7 @@
             let alertTitle = '<span class="text-info bg-light"><i class="fa fa-exclamation-triangle"></i>&nbsp;' + title + '</span>';
             return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
-                    {text: '<i class="fa fa-thumbs-up mr-1"></i>Yes', close: true, id: 'confirmYes', style: 'primary'},
+                    {text: 'Yes', close: true, id: 'confirmYes', style: 'primary'},
                     {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
@@ -63,6 +64,54 @@
                 sizeHeight: 'auto',
                 html: '<p class="text-center">' + data + '</p>'
             });
+        }
+
+        /* popUp
+        * Borrowed from a CKEditor Source plugin and modified to suit my purpose.
+        * Licensed under the GPL 2 or greater.
+        * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+        * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+        */
+        function popUp( url, data, name, width, height) {
+            width = width || '80%'; height = height || '85%';
+
+            if ( typeof width == 'string' && width.length > 1 && width.substr( width.length - 1, 1 ) === '%') {
+                width = parseInt(window.screen.width * parseInt(width, 10) / 100, 10);
+            }
+            if ( typeof height == 'string' && height.length > 1 && height.substr( height.length - 1, 1 ) === '%') {
+                height = parseInt(window.screen.height * parseInt(height, 10) / 100, 10);
+            }
+            if ( width < 640 ) {
+                width = 640;
+            }
+            if ( height < 420 ) {
+                height = 420;
+            }
+            let top = parseInt(( window.screen.height - height ) / 2, 10);
+            let left = parseInt(( window.screen.width - width ) / 2, 10);
+
+            let options = ('location=no,menubar=no,toolbar=no,dependent=yes,minimizable=no,modal=yes,alwaysRaised=yes,resizable=yes,scrollbars=yes') +
+                ',width=' + width +
+                ',height=' + height +
+                ',top=' + top +
+                ',left=' + left;
+
+            let modalWindow = window.open('', name, options, true);
+            if ( !modalWindow ) {
+                return false;
+            }
+            try {
+                modalWindow.focus();
+                if (data) {
+                    modalWindow.document.body.innerHTML = data;
+                } else {
+                    modalWindow.location.href = url;
+                }
+            } catch ( e ) {
+                window.open(url, null, options, true);
+            }
+
+            return true;
         }
 
         function closeAjax() {
@@ -461,7 +510,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful values are init, shown, show, confirm, alert and closed which coincide with dialog events.
+        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and closed which coincide with dialog events.
     };
 
     if (!opts) {

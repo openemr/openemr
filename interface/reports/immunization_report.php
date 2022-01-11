@@ -188,7 +188,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         $content .= "PID|" . // [[ 3.72 ]]
             "|" . // 1. Set id
             "|" . // 2. (B)Patient id
-            $r['patientid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|" . // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test.
+            $r['patientid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
             "|" . // 4. (B) Alternate PID
             $r['patientname'] . "|" . // 5.R. Name
             "|" . // 6. Mather Maiden Name

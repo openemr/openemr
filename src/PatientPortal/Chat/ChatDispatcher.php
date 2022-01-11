@@ -6,19 +6,21 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\PatientPortal\Chat;
+
+use RuntimeException;
 
 abstract class ChatDispatcher
 {
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
     protected $_currentAction, $_defaultModel;
 
-    const ACTION_POSTFIX = 'Action';
-    const ACTION_DEFAULT = 'indexAction';
+    public const ACTION_POSTFIX = 'Action';
+    public const ACTION_DEFAULT = 'indexAction';
 
     public function __construct()
     {
@@ -50,7 +52,7 @@ abstract class ChatDispatcher
             }
         } else {
             $this->setResponse(
-                call_user_func(array($this, self::ACTION_DEFAULT), array())
+                $this->{self::ACTION_DEFAULT}(array())
             );
         }
 
@@ -63,9 +65,8 @@ abstract class ChatDispatcher
             if (is_scalar($this->_response)) {
                 echo $this->_response;
             } else {
-                throw new \Exception('Response content must be scalar');
+                throw new RuntimeException('Response content must be scalar');
             }
-
             exit;
         }
     }
@@ -119,8 +120,7 @@ abstract class ChatDispatcher
     public function getRequest($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_request[$param]) ?
-                $this->_request[$param] : $default;
+            return $this->_request[$param] ?? $default;
         }
 
         return $this->_request;
@@ -129,8 +129,7 @@ abstract class ChatDispatcher
     public function getQuery($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_query[$param]) ?
-                $this->_query[$param] : $default;
+            return $this->_query[$param] ?? $default;
         }
 
         return $this->_query;
@@ -139,8 +138,7 @@ abstract class ChatDispatcher
     public function getPost($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_post[$param]) ?
-                $this->_post[$param] : $default;
+            return $this->_post[$param] ?? $default;
         }
 
         return $this->_post;
@@ -149,8 +147,7 @@ abstract class ChatDispatcher
     public function getServer($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_server[$param]) ?
-                $this->_server[$param] : $default;
+            return $this->_server[$param] ?? $default;
         }
 
         return $this->_server;
@@ -159,8 +156,7 @@ abstract class ChatDispatcher
     public function getSession($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_session[$param]) ?
-                $this->_session[$param] : $default;
+            return $this->_session[$param] ?? $default;
         }
 
         return $this->_session;
@@ -169,8 +165,7 @@ abstract class ChatDispatcher
     public function getCookie($param = null, $default = null)
     {
         if ($param) {
-            return isset($this->_cookies[$param]) ?
-                $this->_cookies[$param] : $default;
+            return $this->_cookies[$param] ?? $default;
         }
 
         return $this->_cookies;
@@ -178,7 +173,7 @@ abstract class ChatDispatcher
 
     public function getUser()
     {
-        return $this->_session['ptName'] ? $this->_session['ptName'] : $this->_session['authUser'];
+        return $this->_session['ptName'] ?: $this->_session['authUser'];
     }
 
     public function getIsPortal()

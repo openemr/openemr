@@ -28,7 +28,6 @@ require_once("Model/OnsiteActivityView.php");
  */
 class OnsiteActivityViewController extends AppBasePortalController
 {
-
     /**
      * Override here for any controller-specific functionality
      *

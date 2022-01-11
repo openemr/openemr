@@ -20,7 +20,6 @@ use Psr\Http\Message\ResponseInterface;
 
 class HttpRestRouteHandler
 {
-
     public static function dispatch(&$routes, HttpRestRequest $restRequest, $return_method = 'standard')
     {
         $dispatchRestRequest = clone $restRequest; // don't want to mess with the original request properties.

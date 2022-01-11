@@ -154,7 +154,8 @@ function &pcVarPrepForDisplay($s)
 }
 function &pcVarPrepHTMLDisplay($s)
 {
-    return pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
+    $postcalendarRemoveScriptTags = pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
+    return $postcalendarRemoveScriptTags;
 }
 function pcGetTopicName($topicid)
 {
@@ -164,7 +165,8 @@ function pcGetTopicName($topicid)
 function &postcalendar_makeValidURL($s)
 {
     if (empty($s)) {
-        return '';
+        $s = '';
+        return $s;
     }
 
     if (!preg_match('|^http[s]?:\/\/|i', $s)) {
@@ -178,7 +180,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/", "", $in);
 }
 
-function postcalendar_getDate($format = '%Y%m%d')
+function postcalendar_getDate($format = 'Ymd')
 {
     list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
@@ -197,15 +199,15 @@ function postcalendar_getDate($format = '%Y%m%d')
             }
 
             if (!isset($jumpday)) {
-                $jumpday   = strftime('%d', $time);
+                $jumpday   = date('d', $time);
             }
 
             if (!isset($jumpmonth)) {
-                $jumpmonth = strftime('%m', $time);
+                $jumpmonth = date('m', $time);
             }
 
             if (!isset($jumpyear)) {
-                $jumpyear  = strftime('%Y', $time);
+                $jumpyear  = date('Y', $time);
             }
         }
 
@@ -217,14 +219,15 @@ function postcalendar_getDate($format = '%Y%m%d')
     $m = substr($Date, 4, 2);
     $d = substr($Date, 6, 2);
     OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
-    return strftime($format, mktime(0, 0, 0, $m, $d, $y));
+    return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
-function &postcalendar_today($format = '%Y%m%d')
+function &postcalendar_today($format = 'Ymd')
 {
     $time = time();
+    $date = date($format, $time);
 
-    return strftime($format, $time);
+    return $date;
 }
 
 /**

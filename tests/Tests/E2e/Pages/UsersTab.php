@@ -10,7 +10,6 @@ use Facebook\WebDriver\WebDriverBy;
 
 class UsersTab
 {
-
     private const ADMIN_IFRAME = "//*[@id='framesDisplay']//iframe[@name='adm']";
     private const NEW_USER_IFRAME = "//*[@id='modalframe']";
 

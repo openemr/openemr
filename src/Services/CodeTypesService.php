@@ -19,7 +19,6 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
  */
 class CodeTypesService
 {
-
     /**
      * @const string
      */
@@ -290,27 +289,32 @@ class CodeTypesService
 
         $formatted_type = $this->formatCodeType($codeType ?: '');
         $oid = $this->getSystemForCodeType($formatted_type, true);
-        // use valueset table if code type not installed or active.
-        if (!$this->isInstalledCodeType($formatted_type) && empty($currentCodeText)) {
+        $formatted_code = $this->getCodeWithType($code ?? '', $formatted_type);
+        if (empty($currentCodeText) && $this->isInstalledCodeType($formatted_type)) {
+            $currentCodeText = $this->lookup_code_description($formatted_code, $codeDescriptionType);
+        }
+
+        // use valueset table if code description not found.
+        if (empty($currentCodeText)) {
             if (strpos($codeType, '2.16.840.1.113883.') !== false) {
                 $oid = trim($codeType);
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
             $formatted_type = $value['code_type'] ?: $formatted_type;
+            if (!empty($code) && !empty($formatted_type)) {
+                $formatted_code = $formatted_type . ':' . $code;
+            }
             $oid = $value['code_system'];
             $currentCodeText = $value['description'];
             $valueset_name = $value['valueset_name'];
             $valueset = $value['valueset'];
         }
-        $formatted_code = $this->getCodeWithType($code ?? '', $formatted_type);
-        if (empty($currentCodeText)) {
-            $currentCodeText = $this->lookup_code_description($formatted_code, $codeDescriptionType);
-        }
+
         return array(
             'code' => $code ?? "",
-            'formatted_code' => $formatted_code ?? "",
-            'formatted_code_type' => $formatted_type ?? "",
+            'formatted_code' => $formatted_code ?: $code,
+            'formatted_code_type' => $formatted_type ?: $codeType,
             'code_text' => trim($currentCodeText),
             'system_oid' => $oid ?? "",
             'valueset' => $valueset ?? "",
