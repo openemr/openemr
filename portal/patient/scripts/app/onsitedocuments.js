@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -28,6 +28,7 @@ var page = {
     isFrameForm: 0,
     lbfFormName: "",
     formOrigin: 0, // default portal
+    presentPatientSignature: false,
 
     init: function () {
         // ensure initialization only occurs once
@@ -69,7 +70,7 @@ var page = {
             this.collection.each(function (model, index, list) {
                 let tplname = model.get('filePath')
                 if (model.get('denialReason') !== '' && tplname !== '') {
-                    $('#' + tplname).hide();
+                    //$('#' + tplname).hide();
                 }
             });
             // attach click handler to the table rows for editing
@@ -348,6 +349,7 @@ var page = {
                         if (page.onsiteDocument.get('denialReason') === 'In Review') {
                             pageAudit.onsitePortalActivity.set('status', 'waiting');
                         } else {
+                            page.onsiteDocument.set('denialReason', 'Editing');
                             pageAudit.onsitePortalActivity.set('status', 'editing');
                         }
                         // save lbf iframe template
@@ -359,6 +361,7 @@ var page = {
                     if (page.onsiteDocument.get('denialReason') === 'In Review') {
                         pageAudit.onsitePortalActivity.set('status', 'waiting');
                     } else {
+                        page.onsiteDocument.set('denialReason', 'Editing');
                         pageAudit.onsitePortalActivity.set('status', 'editing');
                     }
                     page.updateModel(true);
@@ -515,8 +518,8 @@ var page = {
 
     newDocument: function (pid, user, templateName, template_id) {
         docid = templateName;
-        cuser = user;
-        cpid = pid;
+        cuser = cuser > '' ? cuser : user;
+        cpid = cpid > '0' ? cpid : pid;
         isNewDoc = true;
         m = new model.OnsiteDocumentModel();
         m.set('docType', docid);
@@ -706,8 +709,8 @@ var page = {
         }
         // if this is new then on success we need to add it to the collection
         var isNew = page.onsiteDocument.isNew();
-        var s = page.onsiteDocument.get('denialReason');
-        if (!isNew && s == 'New' && s != 'In Review') {
+        let s = page.onsiteDocument.get('denialReason');
+        if (!isNew && s === 'New' && s !== 'In Review') {
             page.onsiteDocument.set('denialReason', 'Open');
             app.showProgress('modelLoader');
         }
@@ -741,7 +744,7 @@ var page = {
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
             'provider': page.onsiteDocument.get('provider'),
             'encounter': page.onsiteDocument.get('encounter'),
-            'createDate': page.onsiteDocument.get('createDate'),
+            'createDate': new Date(), //page.onsiteDocument.get('createDate'),
             'docType': page.onsiteDocument.get('docType'),
             'patientSignedStatus': ptsignature ? '1' : '0',
             'patientSignedTime': ptsignature ? new Date() : '0000-00-00',

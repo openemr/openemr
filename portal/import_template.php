@@ -84,14 +84,12 @@ if ($_POST['mode'] === 'send') {
                 // get all template ids for this profile
                 $rtn_ids = sqlStatement('SELECT `template_id` as id FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > "0"', array($profile));
                 while ($rtn_id = sqlFetchArray($rtn_ids)) {
-                    $master_ids[] = $rtn_id['id'];
+                    $master_ids[$rtn_id['id']] = $profile;
                 }
                 continue;
             }
-            $master_ids[] = $id;
+            $master_ids[$id] = '';
         }
-        $master_ids = array_unique($master_ids);
-
         $last_id = $templateService->sendTemplate($pids_array, $master_ids, $_POST['category']);
         if ($last_id) {
             echo xlt('Templates Successfully sent to Locations.');
@@ -321,14 +319,14 @@ function renderProfileHtml()
                 group: {
                     name: 'repo',
                     handle: '.move-handle',
-                    //pull: 'clone'
+                    pull: 'clone'
                 },
                 sort: true,
                 animation: 150,
-                /*onAdd: function (evt) {
+                onAdd: function (evt) {
                     let el = evt.item;
                     el.parentNode.removeChild(el);
-                }*/
+                }
             });
 
             Object.keys(profiles).forEach(key => {
@@ -339,14 +337,14 @@ function renderProfileHtml()
                         name: 'repo',
                         delay: 1000,
                         handle: '.move-handle',
-                        /*pull: (to, from, dragEl, event) => {
+                        put: (to, from, dragEl, event) => {
                             for (let i = 0; i < to.el.children.length; i++) {
                                 if (to.el.children[i].getAttribute('data-id') === dragEl.getAttribute('data-id')) {
                                     return false
                                 }
                             }
                             return true
-                        },*/
+                        },
                     },
                     animation: 150
                 });
@@ -397,7 +395,9 @@ function renderProfileHtml()
     <body>
         <div class='container-fluid'>
             <?php
-            $templates = $templateService->getTemplateListUnique();
+            // exclude templates sent to all patients(defaults)
+            $templates = $templateService->getTemplateListAllCategories(-1, true);
+            //$templates = $templateService->getTemplateListUnique(); // Reserved TBD future use
             ?>
             <div class='row'>
                 <div class='col-5 col-height'>
@@ -454,9 +454,10 @@ function renderProfileHtml()
                                 <div class='input-group-prepend'>
                                     <label for="<?php echo $profile_esc ?>-when"><?php echo xlt('On') ?></label>
                                     <select name="when" class='input-control-sm mx-1' id="<?php echo $profile_esc ?>-when">
-                                        <option value="completed"><?php echo xlt('Completed') ?></option>
-                                        <option <?php echo $trigger === 'always' ? 'selected' : ''; ?> value='always'><?php echo xlt('Always') ?></option>
-                                        <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>
+                                        <option value=""><?php echo xlt('Unassigned') ?></option>
+                                        <option <?php echo $trigger === 'completed' ? 'selected' : ''; ?> value="completed"><?php echo xlt('Completed') ?></option>
+                                        <!--<option <?php /*echo $trigger === 'always' ? 'selected' : ''; */?> value='always'><?php /*echo xlt('Always') */?></option>
+                                        <option <?php /*echo $trigger === 'once' ? 'selected' : ''; */?> value='once'><?php /*echo xlt('One time') */?></option>-->
                                     </select>
                                 </div>
                                 <div class='input-group-prepend'>

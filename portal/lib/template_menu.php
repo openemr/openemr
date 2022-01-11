@@ -34,6 +34,10 @@ function render_template_list($pid, $cuser)
 
             $flag = false;
             foreach ($file as $filename) {
+                $test = $templateService->showTemplateFromEvent($filename);
+                if (!$test) {
+                    continue;
+                }
                 if ($filename['template_name'] === 'Help') {
                     continue;
                 }
@@ -42,7 +46,7 @@ function render_template_list($pid, $cuser)
                 }
                 if (!$flag) {
                     $flag = true;
-                    echo "<li class='text-center'><h5 class='mb-0'>$cat_name</h5></li>\n";
+                    echo "<li class='text-center'><h6 class='mb-0'>$cat_name</h6></li>\n";
                 }
                 $id = $filename['id'];
                 $btnname = $filename['template_name'];

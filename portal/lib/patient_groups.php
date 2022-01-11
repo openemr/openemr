@@ -85,7 +85,7 @@ if (!isset($_GET['render_group_assignments'])) {
         $searchparm = trim($_REQUEST['searchparm'] ?? '');
 
         if ($searchby == 'Last') {
-            $result = getPatientLnames("$searchparm", 'pid, id, lname, fname, mname, providerID, DOB');
+            $result = getPatientLnames("$searchparm", 'pid, pubpid, lname, fname, mname, providerID, DOB');
         } elseif ($searchby == 'Phone') {
             $result = getPatientPhone("$searchparm");
         } elseif ($searchby == 'ID') {
@@ -94,6 +94,8 @@ if (!isset($_GET['render_group_assignments'])) {
             $result = getPatientDOB(DateToYYYYMMDD($searchparm));
         } elseif ($searchby == 'SSN') {
             $result = getPatientSSN("$searchparm");
+        } elseif ($searchby == 'Issues') {
+            $result = $templateService->fetchPatientListByIssuesSearch("$searchparm");
         }
     } else {
         $result = getPatientLnames("", 'pid, pubpid, lname, fname, mname, providerID, DOB');
@@ -251,9 +253,6 @@ if (!isset($_GET['render_group_assignments'])) {
 </script>
 <body>
     <div class='container-fluid'>
-        <?php
-        $templates = $templateService->getTemplateListAllCategories(-1);
-        ?>
         <div class='row'>
             <div class='col-6 col-height p-0 pb-1'>
                 <nav id='searchCriteria' class='navbar navbar-light bg-light sticky-top'>
@@ -261,18 +260,8 @@ if (!isset($_GET['render_group_assignments'])) {
                         <div class='form-row'>
                             <select name='searchby' id='searchby' class="form-control form-control-sm ml-1">
                                 <option value="Last"><?php echo xlt('Name'); ?></option>
-                                <option value='Diagnosis'<?php if (!empty($searchby) && ($searchby === 'Diagnosis')) {
-                                    echo ' selected';
-                                                         } ?>><?php echo xlt('Diagnosis'); ?></option>
-                                <!--<option value="Phone"<?php /*if (!empty($searchby) && ($searchby === 'Phone')) {
-                                    echo ' selected';
-                                } */?>><?php /*echo xlt('Phone'); */?></option>
-                                <option value="ID"<?php /*if (!empty($searchby) && ($searchby === 'ID')) {
-                                    echo ' selected';
-                                } */?>><?php /*echo xlt('ID'); */?></option>
-                                <option value="DOB"<?php /*if (!empty($searchby) && ($searchby === 'DOB')) {
-                                    echo ' selected';
-                                } */?>><?php /*echo xlt('DOB'); */?></option>-->
+                                <option value='Issues'<?php if (!empty($searchby) && ($searchby === 'Issues')) {
+                                    echo ' selected'; } ?>><?php echo xlt('Problems or Code'); ?></option>
                             </select>
                             <div class='input-group'>
                                 <input type='text' class="form-control form-control-sm" id='searchparm' name='searchparm' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo xla('If name, any part of lastname or lastname,firstname') ?>' placeholder='<?php echo xla('Search criteria.') ?>' />
@@ -305,7 +294,11 @@ if (!isset($_GET['render_group_assignments'])) {
                                 echo "<li class='list-group-item px-1 py-1 mb-1' data-pid='$pt_pid' data-groups='$groups_esc'>" .
                                     '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
                                     '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
-                                    '<strong>' . text($pt['pubpid']) . '</strong>' . '</li>' . "\n";
+                                    '<strong>' . text($pt['pubpid']) . '</strong>';
+                                if (!empty($searchby) && ($searchby === 'Issues')) {
+                                    echo ' ' . xlt('Result') . ': ' . text($pt['title']) . ' ' . text($pt['diagnosis']);
+                                }
+                                    echo '</li>' . "\n";
                             }
                         }
                         ?>
@@ -488,9 +481,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <body>
 <div class='container-fluid'>
-    <?php
-    $templates = $templateService->getTemplateListAllCategories(-1);
-    ?>
     <div class='row'>
         <div class='col-6 col-height p-0 pb-1'>
             <nav id='dispose' class='navbar navbar-light bg-light sticky-top'>
@@ -507,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 foreach ($group_list as $group => $groups) {
                     $group_esc = attr($groups['option_id']);
                     $groups_esc = attr($groups['option_id']);
-                    echo "<li class='list-group-item move-handle text-center bg-secondary text-light p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
+                    echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
                     echo "<ul id='$group_esc' class='list-group-flush m-1 p-1 collapse'>\n";
                     foreach ($result[$groups['option_id']] as $pt) {
                         $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
@@ -556,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         foreach ($groups as $group) {
                             $group_esc = attr($group['member_of']);
                             $title = $group_list[$group['member_of']]['title'] ?: $group['member_of'];
-                            echo "<li class='list-group-item move-handle text-center bg-secondary text-light p-1 mt-1 mb-0' data-group='$group_esc'>" . text($title) . "</li>\n";
+                            echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($title) . "</li>\n";
                         }
                     }
                     echo "</ul>\n";

@@ -140,17 +140,17 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $sigfld = '<span>';
+            $sigfld = '<script>var presentPatientSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
-            $sigfld = '<span>';
+            $sigfld = '<script>var presentAdminSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
-            $sigfld = '<span>';
+            $sigfld = '<script>var presentWitnessSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);

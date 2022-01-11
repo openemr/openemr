@@ -76,9 +76,10 @@ $none_message = xlt("Nothing to show for current actions.");
 
         function getSendCheckProfiles() {
             let checked = [];
-            $('input:checked[name=send_profile]:checked').each(function () {
-                let isProfile = this.dataset.send_profile;
-                if (isProfile == 'yes') {
+            $('input:checked[name=send_profile]:checked').each(
+                function () {
+                    let isProfile = this.dataset.send_profile;
+                    if (isProfile == 'yes') {
                     checked.push($(this).val());
                 }
             });
@@ -326,9 +327,14 @@ $none_message = xlt("Nothing to show for current actions.");
     </style>
 </head>
 <body class="body-top">
-    <div class='container'>
+    <div class='container-xl'>
         <nav class='nav navbar bg-light text-dark sticky-top'>
             <span class='title'><?php echo xlt('Template Maintenance'); ?></span>
+            <div class="ml-auto">
+                <label class="form-check"><?php echo xlt('Full Editor'); ?>
+                    <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
+                </label>
+            </div>
             <div class='btn-group ml-1'>
                 <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
                     <?php echo xlt('Help') ?>
@@ -396,11 +402,6 @@ $none_message = xlt("Nothing to show for current actions.");
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
                     </div>
-                    <div class="ml-auto">
-                        <label class="form-check"><?php echo xlt('Full Editor'); ?>
-                            <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
-                        </label>
-                    </div>
                     <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo attr($_REQUEST['upload-nav-value'] ?? 'collapse') ?>' />
                     <input type='hidden' id='persist_checks' name='persist_checks' value='' />
                     <input type='hidden' id='all_state' name='all_state' value='<?php echo attr($_REQUEST['all_state'] ?? 'collapse') ?>' />
@@ -461,7 +462,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     echo "<tbody>\n";
                     foreach ($templates as $cat => $files) {
                         if (empty($cat)) {
-                            $cat = xlt('Default');
+                            $cat = xlt('General');
                         }
                         foreach ($files as $file) {
                             $template_id = $file['id'];
@@ -600,7 +601,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     echo "<tbody>\n";
                     foreach ($templates as $cat => $files) {
                         if (empty($cat)) {
-                            $cat = xlt('Default');
+                            $cat = xlt('General');
                         }
                         foreach ($files as $file) {
                             $template_id = $file['id'];
@@ -639,7 +640,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     // by categories and patient pid.
                     $templates = [];
                     $show_cat_flag = false;
-                    if (empty($patient)) {// All templates for all patients
+                    if (is_array($patient) && $patient[0] === '0') {// All templates for all patients
                         $patient_templates = $templateService->getPortalAssignedTemplates(0, $category, false);
                     } else {// Category selected so get all of them for pid's
                         $patient_templates = $templateService->getTemplateCategoriesByPids($patient, $category);
@@ -649,47 +650,82 @@ $none_message = xlt("Nothing to show for current actions.");
                     $idcnt = 0;
                     foreach ($patient_templates as $name => $templates) {
                         $count = 0;
+                        $fetched_groups = $fetch_pid = null;
                         foreach ($templates as $c => $t) {
                             if (is_array($t)) {
+                                $fetch_pid = $t[0]['pid'];
+                                if (empty($fetched_groups)) {
+                                    $fetched_groups = str_replace('|', ', ', $t[0]['patient_groups'] ?? '');
+                                }
                                 $count += count($t);
                             }
                         }
+
                         echo "<tr><td class='h6 font-weight-bolder bg-light text-dark' data-toggle='collapse' data-target='" .
                             attr('#id' . ++$idcnt) . "' role='button'>" . text($name) .
-                            " (" . text($count . ' ' . xl('Templates')) . ")</td></tr>";
+                            " (" . text($count . ' ' . xl('Templates')) . ") in " . text($fetched_groups) . "</td></tr>";
                         echo "<td class='collapse' id='" . attr('id' . $idcnt) . "'><table class='table table-sm table-striped table-bordered'>\n";
                         //echo '<caption><h5>' . text($name) . '</h5></caption>';
                         echo "<thead>\n";
                         echo "<tr>\n" .
-                            '<th>' . xlt('Category') . '</th>' .
+                            '</th><th>' . xlt('Category') . '</th>' .
+                            '<th>' . xlt('Profile') .
                             '<th>' . xlt('Template Actions') .
                             '</th><th>' . xlt('Status') .
-                            '</th><th>' . xlt('Profile') .
-                            '</th><th>' . xlt('Group') .
-                            '</th><th>' . xlt('Last Modified') . '</th>' .
+                            '</th><th>' . xlt('Last Action') . '</th>' .
+                            '</th><th>' . xlt('Next Due') .
                             "</tr>\n";
                         echo "</thead>\n";
                         echo "<tbody>\n";
-                        ksort($templates);
                         foreach ($templates as $cat => $files) {
                             if (empty($cat)) {
-                                $cat = xlt('Default');
+                                $cat = xlt('General');
                             }
                             foreach ($files as $file) {
                                 $template_id = $file['id'];
+                                $audit_status = array (
+                                    'pid' => '',
+                                    'create_date' => ($file['profile_date'] ?: $file['modified_date']) ?? '',
+                                    'doc_type' => '',
+                                    'patient_signed_time' => '',
+                                    'authorize_signed_time' => '',
+                                    'patient_signed_status' => '',
+                                    'review_date' => '',
+                                    'denial_reason' => $file['status'] ?: '',
+                                    'file_name' => '',
+                                    'file_path' => '',
+                                );
+                                $audit_status_fetch = $templateService->fetchTemplateStatus($file['pid'], $file['id']);
+                                if (is_array($audit_status_fetch)) {
+                                    $audit_status = $audit_status_fetch;
+                                }
+                                $next_due = $templateService->showTemplateFromEvent($file, true);
+                                if ($next_due > 1) {
+                                    $audit_status['denial_reason'] = xl('Scheduled');
+                                    $next_due = date('m/d/Y', $next_due);
+                                } elseif ($next_due === 1 || ($next_due === true && $file['recurring'] ?? 0)) {
+                                    $audit_status['denial_reason'] = xl('Recurring');
+                                    $next_due =  xl('Active');
+                                } elseif ($next_due === 0) {
+                                    $audit_status['denial_reason'] = xl('Completed');
+                                    $next_due =  xl('Inactive');
+                                } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
+                                    $next_due = xl('Active');
+                                }
+
                                 echo '<tr><td>' . text(ucwords($cat)) . '</td>';
+                                echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
                                     '<button type="button" id="patientEdit' . attr($template_id) .
                                     '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')">' .
                                     text($file['template_name']) . "</button>\n";
-                                if (empty($file['profile'])) {
+                                if (empty($file['member_of']) && !empty($file['status'])) {
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
                                         '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button></td>\n";
                                 }
-                                echo '<td>' . text($file['status']) . '</td>';
-                                echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
-                                echo '<td>' . text($group_list[$file['member_of']]['title'] ?? '') . '</td>';
-                                echo '<td>' . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . '</td>';
+                                echo '<td>' . text($audit_status['denial_reason']) . '</td>';
+                                echo '<td>' . text(date('m/d/Y H:i:s', strtotime($audit_status['create_date']))) . '</td>';
+                                echo '<td>' . text($next_due) . '</td>';
                                 echo "</tr>\n";
                             }
                         }
@@ -697,7 +733,7 @@ $none_message = xlt("Nothing to show for current actions.");
                             echo "</table></td>\n";
                     }
                     if (empty($templates)) {
-                        echo '<tr><td>' . xlt('Select Patients from Scope Location') . "</td></tr>\n";
+                        echo '<tr><td>' . xlt('Multi Select Patients or All Patients using toolbar Location') . "</td></tr>\n";
                     }
                     echo "</tbody>\n";
                     echo "</table>\n";

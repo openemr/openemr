@@ -42,10 +42,10 @@ var pageAudit = {
 	},
 
 	/**
-	 * Fetch the collection data from the server
-	 * @param object params passed through to collection.fetch
-	 * @param bool true to hide the loading animation
-	 */
+     * Fetch the collection data from the server
+     * @param params
+     * @param hideLoader
+     */
 	fetchOnsitePortalActivities: function(params, hideLoader) {
 		// persist the params so that paging/sorting/filtering will play together nicely
 

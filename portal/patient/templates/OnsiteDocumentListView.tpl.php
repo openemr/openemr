@@ -341,9 +341,12 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     <div class="navbar-header mt-3">
                         <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
                     </div>
-                    <?php require_once __DIR__ . '/../../lib/template_menu.php'; ?>
-                    <?php if (empty($is_module)) { ?>
-                    <?php } else { ?>
+                    <?php
+                    if (!empty($is_module) || !empty($is_portal)) {
+                        require_once __DIR__ . '/../../lib/template_menu.php';
+                    }
+                    ?>
+                    <?php if (!empty($is_module)) { ?>
                         <li class="nav-item mb-1">
                             <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
@@ -356,14 +359,13 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card p-2 m-1" id="docpanel">
-
                         <!-- Document edit container -->
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
                         <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
                                 <div id="templatecontent" class="template-body bg-white">
-                                    <div class="text-center h-100 overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div>
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="content" id="content" value="" />
