@@ -1285,7 +1285,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         if (!isset($_SESSION['authUserID'])) {
             if (!isset($ccdata["cardHolderName"])) {
                 if ($GLOBALS['payment_gateway'] == 'Sphere') {
-                    echo SpherePayment::renderSphereHtml();
+                    echo SpherePayment::renderSphereHtml('patient');
                 } else {
                     echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
                 }
