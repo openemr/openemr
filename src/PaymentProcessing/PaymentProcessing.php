@@ -175,8 +175,10 @@ class PaymentProcessing
             $row['front'] = $auditData['get']['front'] ?? null;
             if ($row['front'] == 'patient') {
                 $row['front_label'] = xl("Patient Portal");
-            } elseif ($row['front'] == 'clinic') {
-                $row['front_label'] = xl("Front Office");
+            } elseif ($row['front'] == 'clinic-phone') {
+                $row['front_label'] = xl("Front Office by Phone");
+            } elseif ($row['front'] == 'clinic-retail') {
+                $row['front_label'] = xl("Front Office in Person");
             } elseif (!empty($row['front'])) {
                 $row['front_label'] = xl($row['front']);
             }

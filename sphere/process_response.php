@@ -54,7 +54,7 @@ if ($GLOBALS['payment_gateway'] != 'Sphere') {
     if ($_GET['front'] == 'patient') {
         // will not show error descriptions in patient front
         $description = '';
-    } else { // $_GET['front'] == 'clinic'
+    } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'
         $description = (!empty($_POST['description'])) ? ' (' . $_POST['description'] . ')' : '';
     }
 
@@ -72,7 +72,7 @@ if ($GLOBALS['payment_gateway'] != 'Sphere') {
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 1, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
         if ($_GET['front'] == 'patient') {
             echo "<script>opener.sphereSuccess(" . js_escape((new CryptoGen())->encryptStandard(json_encode($auditData))) . ");dlgclose();</script>";
-        } else { // $_GET['front'] == 'clinic'
+        } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'
             echo "<script>opener.sphereSuccess(" . js_escape($_POST['transid']) . ");dlgclose();</script>";
         }
     } else {

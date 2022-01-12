@@ -15,7 +15,7 @@ namespace OpenEMR\PaymentProcessing\Sphere;
 
 class Sphere
 {
-    // Sphere payment processing urls for clinic front (Trustee Premier for MOTO)
+    // Sphere payment processing urls for clinic front (Trustee Premier for MOTO and RETAIL)
     public const CLINICFRONT_PRODUCTION_URL = 'https://tcpkb.trustcommerce.com/trustcommerce_payment/index.php';
     public const CLINICFRONT_TESTING_URL = 'https://stagetcpkb.trustcommerce.com/trustcommerce_payment/index.php';
 
