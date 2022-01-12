@@ -66,8 +66,8 @@ class SphereRevert
     {
         $this->logger = new SystemLogger();
 
-        if (($front != 'patient') && ($front != 'clinic')) {
-            $this->logger->error("SphereRevert getToken front needs to be patient or clinic. Exiting.");
+        if (($front != 'patient') && ($front != 'clinic-phone') && ($front != 'clinic-retail')) {
+            $this->logger->error("SphereRevert getToken front needs to be patient or clinic-phone or clinic-retail. Exiting.");
             exit;
         }
         $this->front = $front;
@@ -78,7 +78,10 @@ class SphereRevert
         if ($front == 'patient') {
             $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
             $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_ecomm_tc_link_pass']);
-        } else { //$front == 'clinic'
+        } elseif ($front == 'clinic-retail') {
+            $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid']);
+            $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_retail_tc_link_pass']);
+        } else { // $front == 'clinic-phone'
             $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid']);
             $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_moto_tc_link_pass']);
         }
