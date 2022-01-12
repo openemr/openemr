@@ -658,7 +658,7 @@ if (
                 top.restoreSession();
             }
 
-            return true;
+            return errMsgs.length == 0;
         }
 
         // Called to open the data entry form of a specified encounter form instance.
