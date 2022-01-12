@@ -100,6 +100,7 @@ var page = {
             });
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
+                    $("#topnav").hide();
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -539,6 +540,9 @@ var page = {
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
+        if (docid !== 'Help') {
+            $("#topnav").hide();
+        }
         if (currentName === templateName && currentName && !isNewDoc) {
             // update form for any submits.(downloads and prints)
             $("#docid").val(currentName);

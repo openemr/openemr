@@ -843,4 +843,54 @@ class DocumentTemplateService
         }
         return $result;
     }
+
+    /**
+     * @param $current_patient
+     * @param $current_user
+     * @return string
+     */
+    public function renderPortalTemplateMenu($current_patient, $current_user): string
+    {
+        $menu = "";
+        $category_list = $this->getFormattedCategories();
+        $all_templates = $this->getPortalAssignedTemplates($current_patient, '', true);
+        ksort($all_templates);
+        foreach ($all_templates as $category => $templates) {
+            if (is_array($templates)) {
+                $is_category = $category_list[$category]['title'] ?? $category;
+                if ($is_category === 'default') {
+                    $is_category = '';
+                }
+                $cat_name = text($is_category);
+
+                $flag = false;
+                foreach ($templates as $template) {
+                    if ((int)$template['pid'] === 0) {
+                        $template['pid'] = $current_patient;
+                    }
+                    $test = $this->showTemplateFromEvent($template);
+                    if (!$test) {
+                        continue;
+                    }
+                    if ($template['template_name'] === 'Help') {
+                        continue;
+                    }
+                    if ((int)$template['pid'] !== 0 && (int)$template['pid'] !== (int)$current_patient) {
+                        continue;
+                    }
+                    if (!$flag) {
+                        $flag = true;
+                        $menu .=  "<li class='text-center'><h6 class='mb-0'>$cat_name</h6></li>\n";
+                    }
+                    $id = $template['id'];
+                    $btnname = $template['template_name'];
+                    $menu .=  '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a></li>\n";
+                }
+                if (!$flag) {
+                    $menu .=  '<strong><hr class="mb-2 mt-1" /></strong>';
+                }
+            }
+        }
+        return $menu;
+    }
 }

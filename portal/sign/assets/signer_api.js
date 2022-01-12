@@ -356,12 +356,12 @@ function initSignerApi() {
     $(function (global) {
         var wrapper = document.getElementById("openSignModal");
         var canvasOptions = {
-            minWidth: .75,
+            minWidth: 1.00,
             maxWidth: 2.75,
             penColor: 'rgb(0, 0, 0)',
             minDistance: 4,
             /*throttle: 0,*/
-            velocityFilterWeight: .2,
+            velocityFilterWeight: .5,
         };
         var openPatientButton = document.querySelector("[data-type=patient-signature]");
         var openAdminButton = document.querySelector("[data-type=admin-signature]");
@@ -421,7 +421,7 @@ function initSignerApi() {
             $('#signatureModal').attr('src', signhere);
             $("#openSignModal").modal({backdrop: false});
             $('html').css({
-                'overflow': 'hidden', 'padding-right': '15px'
+                'overflow': 'hidden'
             });
             $(this).css({
                 'padding-right': '0px'

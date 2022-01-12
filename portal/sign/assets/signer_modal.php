@@ -54,7 +54,7 @@ if ($is_portal) {
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
-<div id='openSignModal' class='modal fade' role='document' tabindex='-1'>
+<div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
     <div class='modal-dialog modal-xl'>
         <div class='modal-content signature-pad'>
             <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>

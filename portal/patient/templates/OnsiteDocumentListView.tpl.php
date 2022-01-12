@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $pid = $this->cpid;
 $recid = $this->recid;
@@ -50,6 +51,8 @@ if (!$docid) {
 $isnew = false;
 $ptName = $_SESSION['ptName'] ?? $pid;
 $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+
+$templateService = new DocumentTemplateService();
 ?>
 <!DOCTYPE html>
 <html>
@@ -297,10 +300,6 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
                             <?php if (empty($is_module)) { ?>
-                                <!-- future popout -->
-                                <!--<li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='history.go(0);'><?php /*echo xlt('Dismiss'); */ ?></a>
-                                </li>-->
                             <?php } else { ?>
                                 <li class="nav-item">
                                     <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
@@ -309,17 +308,13 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                         </ul>
                     </div>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"></i><?php echo xlt('History') ?>
+                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><?php echo xlt('History') ?>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
-                        <!-- future popout-->
-                        <!--<li class="nav-item mb-1">
-                        <a class="nav-link text-danger btn btn-outline-danger" onclick='window.location.replace("./../home.php")'><?php /*echo xlt('Home'); */ ?></a>
-                    </li>-->
                     <?php } else { ?>
                         <li class="nav-item mb-1">
                             <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
@@ -334,16 +329,16 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 </ul>
             </div>
         </nav>
-        <div class="d-flex flex-row justify-content-start">
+        <div class="d-flex flex-row justify-content-center">
             <!-- Pending documents menu left -->
-            <div class="align-self-start sticky-top" id="topnav">
+            <div class="sticky-top" id="topnav">
                 <ul class="nav flex-column nav-pills nav-pills-ovr">
                     <div class="navbar-header mt-3">
                         <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
                     </div>
                     <?php
                     if (!empty($is_module) || !empty($is_portal)) {
-                        require_once __DIR__ . '/../../lib/template_menu.php';
+                        echo $templateService->renderPortalTemplateMenu($pid, $cuser);
                     }
                     ?>
                     <?php if (!empty($is_module)) { ?>
@@ -355,7 +350,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 <div id="collectionAlert"></div>
             </div><!-- close left pending -->
             <!-- Right editor container -->
-            <div class="flex-column col-md-10 col-lg-10">
+            <div class="flex-column">
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card p-2 m-1" id="docpanel">
@@ -387,9 +382,9 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                                         <div class="controls">
                                             <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
                                             <span id="confirmDeleteOnsiteDocumentContainer">
-                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
-                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
-                          </span>
+                                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
+                                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
+                                          </span>
                                         </div>
                                     </div>
                                 </fieldset>
