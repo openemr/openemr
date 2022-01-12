@@ -67,7 +67,7 @@ class SphereRevert
         $this->logger = new SystemLogger();
 
         if (($front != 'patient') && ($front != 'clinic-phone') && ($front != 'clinic-retail')) {
-            $this->logger->error("SphereRevert getToken front needs to be patient or clinic. Exiting.");
+            $this->logger->error("SphereRevert getToken front needs to be patient or clinic-phone or clinic-retail. Exiting.");
             exit;
         }
         $this->front = $front;
