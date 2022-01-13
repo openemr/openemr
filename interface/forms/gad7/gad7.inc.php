@@ -25,7 +25,7 @@ $str_somewhat = xl('Somewhat difficult');
 $str_very = xl('Very difficult');
 $str_extremely = xl('Extremely difficult');
 
-$str_nosave_exit = xl("Close form without saving answers");
+$str_nosave_exit = xl("Close Without Saving");
 $str_nosave_confirm = xl("Are you sure you'd like to quit without saving your answers?");
 
 $str_form_name = xl("General Anxiety Disorder 7 (GAD-7)");
@@ -33,3 +33,5 @@ $str_form_title = xl("GAD-7");
 
 $str_q8 = xl('How difficult have these problems made it to do work, take care of things at home, or get along with other people?');
 $str_q8_2 = '(' . xl('This question is optional and not included in the final score') . ')  ';
+
+$disclaimer = xl("This form should only be used for persons age 12 and older");

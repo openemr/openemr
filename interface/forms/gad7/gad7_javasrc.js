@@ -33,33 +33,14 @@ var str_score_analysis = [" " + xl("No anxiety disorder"), " " + xl("Mild anxiet
  * @return undefined
 */
 function manage_question_8 (value) {
-    if ((gad7_score > 0 ) && q8_gone){
-        question = document.createElement("small");  // create the node to hold question 8
-        question.class="text";
-        var menue = document.createElement("select");  // create 'select' element, to hold the menue
-        // set some of the parameters
-        menue.name = "difficulty";
-        menue.onchange = "record_score_q8(my_form.difficulty.value);" ;
-        menue.length=5;
-        create_q8 (question, menue); // populate question 8 and menue - do in main page as it requires php
-        // set the default value - if new it's 'select answer', else it's previous value
-        if (value == "undef")  {menue.options[4].defaultSelected = true;}
-         // else we can use value as an index
-        else {menue.options[Number(value)].defaultSelected = true;}
-        //    display the question and  menue in the reservered place
-        place = document.getElementById("q8_place");
-        place.parentNode.appendChild( question, place);
-        place.parentNode.appendChild( menue, place);
+    const q8 = document.getElementById("q8_container");
+    if ((gad7_score > 0) && q8_gone) {
+        q8.classList.remove("d-none");
         q8_gone = false;
-    }
-    else if (gad7_score == 0 && !q8_gone) {    //take question 8 off the displayed form
-        document.my_form.difficulty.remove();
-        question.remove();
+    } else if (gad7_score == 0 && !q8_gone) {
+        q8.classList.add("d-none");
         q8_gone = true;
     }
-    // nothing to do as
-    //   score > 0 but the question is already there -
-    // or score == 0 and this is at startup
 }
 
 // function update_score - display new total score - check if question 8 should be displayed
@@ -80,8 +61,7 @@ function update_score(index, new_score){  //index is the number of the question,
     // replace score for each question - could just save it and add them all up again in a loop of course
        if (score != 'undef'){
             all_answered[index]=true;
-       }
-       else {
+       } else {
            score = 0; /* for the purposes of calculating total - if question reset to 'please input..' */
            all_answered[index]=false;
        }
@@ -91,16 +71,17 @@ function update_score(index, new_score){  //index is the number of the question,
             gad7_score = gad7_score + Number(all_scores[index]) ;
         }
     }
+
     // decide which explanatory string to dispay for the new score
     if (gad7_score < 5 ) explanation = str_score_analysis[0];
     else if (gad7_score <15) explanation = str_score_analysis[1];
     else explanation = str_score_analysis[2];
+
     // create string to be display - the score plus the explanation
     total_string = gad7_score+" - "+explanation;
     if (total_digits) {//   replace previous total with new one
         total_digits.innerText = total_string;
-    }
-    else{ //or create a visible total
+    } else { //or create a visible total
         total_digits = document.createElement("b");
         the_total_text = document.createTextNode(total_string);
         total_digits.appendChild(the_total_text);
@@ -112,9 +93,10 @@ function update_score(index, new_score){  //index is the number of the question,
     }
     //when the total is larger than zero if necessary create and display the 8th questions as well
     // - else delete it from the display
-     manage_question_8("undef"); // if the question is regenerated then use the 'please select an answer' value
+    manage_question_8("undef"); // if the question is regenerated then use the 'please select an answer' value
     return true;
 }
+
 // record the answer to question 8
 // the final question (index == 7) is not included in the sccore itself and is optional
 function record_score_q8 (score) {
