@@ -54,7 +54,7 @@ if ($is_portal) {
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
-<div id='openSignModal' class='modal fade' role='document' tabindex='-1'>
+<div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
     <div class='modal-dialog modal-xl'>
         <div class='modal-content signature-pad'>
             <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
@@ -68,7 +68,6 @@ $vars
                         <div class='btn-group signature-pad-actions bg-light'>
                                 <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
                                 <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='$aud' id='signatureModal'>$msg1</button>
-                                <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display: none'>$msg6</button>
                                 <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>$msg2</button>
                                 <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>
                                 <span><h6 id='labelName'></h6></span>
