@@ -849,7 +849,7 @@ class DocumentTemplateService
      * @param $current_user
      * @return string
      */
-    public function renderPortalTemplateMenu($current_patient, $current_user): string
+    public function renderPortalTemplateMenu($current_patient, $current_user, $dropdown = false): string
     {
         $menu = "";
         $category_list = $this->getFormattedCategories();
@@ -880,14 +880,26 @@ class DocumentTemplateService
                     }
                     if (!$flag) {
                         $flag = true;
-                        $menu .=  "<li class='text-center'><h6 class='mb-0'>$cat_name</h6></li>\n";
+                        if (!$dropdown) {
+                            $menu .= "<li class='text-center'><h6 class='mb-0'>$cat_name</h6></li>\n";
+                        } else {
+                            $menu .= "<div class='h6 text-center'>$cat_name</div>\n";
+                        }
                     }
                     $id = $template['id'];
                     $btnname = $template['template_name'];
-                    $menu .=  '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a></li>\n";
+                    if (!$dropdown) {
+                        $menu .= '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a></li>\n";
+                    } else {
+                        $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
+                    }
                 }
                 if (!$flag) {
-                    $menu .=  '<strong><hr class="mb-2 mt-1" /></strong>';
+                    if (!$dropdown) {
+                        $menu .= '<strong><hr class="mb-2 mt-1" /></strong>';
+                    } else {
+                        $menu .= "<div class='dropdown-divider'></div>\n";
+                    }
                 }
             }
         }

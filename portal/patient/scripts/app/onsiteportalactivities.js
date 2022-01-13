@@ -88,23 +88,19 @@ var pageAudit = {
 
 		pageAudit.modelView.model = pageAudit.onsitePortalActivity;
 
-		if (pageAudit.onsitePortalActivity.id == null || pageAudit.onsitePortalActivity.id == '') {
+		if (pageAudit.onsitePortalActivity.id == null || pageAudit.onsitePortalActivity.id === '') {
 			// this is a new record, there is no need to contact the server
 			//pageAudit.renderModelView(false);
 		} else {
 			app.showProgress('modelLoader');
 			// fetch the model from the server so we are not updating stale data
 			pageAudit.onsitePortalActivity.fetch({
-
 				success: function() {
 					// data returned from the server.  render the model view
 					//pageAudit.renderModelView(true);
 				},
-
 				error: function(m, r) {
-
 				}
-
 			});
 		}
 

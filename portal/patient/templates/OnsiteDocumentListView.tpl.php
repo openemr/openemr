@@ -281,15 +281,16 @@ $templateService = new DocumentTemplateService();
             restoreTextInputs();
         }
     </script>
-    <div class="container-fluid">
-        <nav id="verytop" class="nav navbar-light bg-light navbar-expand pt-4 pb-2 m-0 sticky-top">
-            <!--<a id='showNav' class='btn btn-secondary ml-auto' onclick='parent.document.getElementById("topNav").classList.toggle("collapse");'><?php /*echo xlt('View Mode'); */?></a>-->
-            <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
-            <div id="topmenu" class="mr-auto">
-                <ul class="navbar-nav mr-auto">
+    <div class="container-xl">
+        <nav id="verytop" class="navbar navbar-expand-md navbar-light bg-light pt-4 pb-2 m-0 sticky-top">
+            <a class="navbar-brand"><h3><?php echo xlt("Document Center") ?></h3></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="topmenu" class="collapse navbar-collapse">
+                <ul class="navbar-nav">
                     <!-- Sticky actions toolbar -->
-                    <div class='nav helpHide d-none'>
-                        <!--<a id='docTitle' class='navbar-brand' href='#'><?php /*echo xlt('Form Actions') */ ?></a>-->
+                    <div class='helpHide d-none'>
                         <ul class="navbar-nav">
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
@@ -299,18 +300,22 @@ $templateService = new DocumentTemplateService();
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
-                            <?php if (empty($is_module)) { ?>
-                            <?php } else { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                                </li>
-                            <?php } ?>
                         </ul>
                     </div>
                     <li class='nav-item mb-1'>
                         <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><?php echo xlt('History') ?>
                         </a>
                     </li>
+                    <?php if (!empty($is_module) || !empty($is_portal)) { ?>
+                    <div class="dropdown mb-1 z-index-master">
+                        <a class="dropdown-toggle nav-link btn btn-outline-success text-success d-none" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <?php echo xlt('Pending') ?>
+                        </a>
+                        <div class="dropdown-menu z-index-master" aria-labelledby="dropdownMenu">
+                            <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
+                        </div>
+                    </div>
+                    <?php } ?>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
@@ -332,9 +337,9 @@ $templateService = new DocumentTemplateService();
         <div class="d-flex flex-row justify-content-center">
             <!-- Pending documents menu left -->
             <div class="sticky-top" id="topnav">
-                <ul class="nav flex-column nav-pills nav-pills-ovr">
+                <ul class="nav flex-column nav-pills nav-pills-ovr z-index-0">
                     <div class="navbar-header mt-3">
-                        <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
+                        <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xlt('Pending') ?></h4></a>
                     </div>
                     <?php
                     if (!empty($is_module) || !empty($is_portal)) {
@@ -357,10 +362,10 @@ $templateService = new DocumentTemplateService();
                         <!-- Document edit container -->
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
-                        <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
+                        <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
                                 <div id="templatecontent" class="template-body bg-white">
-                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div>
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="content" id="content" value="" />
@@ -372,7 +377,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
@@ -414,9 +419,7 @@ $templateService = new DocumentTemplateService();
                     </tr>
                     </thead>
                     <tbody>
-                    <% items.each(function(item) {
-                    // if ((!isPortal && item.get('denialReason') == 'Locked')) return;
-                    %>
+                    <% items.each(function(item) {  %>
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>

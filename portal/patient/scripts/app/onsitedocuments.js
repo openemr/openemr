@@ -101,6 +101,7 @@ var page = {
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
                     $("#topnav").hide();
+                    $("#dropdownMenu").removeClass('d-none');
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -435,7 +436,7 @@ var page = {
             });
         });
 
-        if (newFilename) { // auto load new on init. once only.
+        if (newFilename) { // autoload new on init. once only.
             page.newDocument(cpid, cuser, newFilename, id);
             newFilename = '';
         }
@@ -542,6 +543,9 @@ var page = {
         page.lbfFormName = '';
         if (docid !== 'Help') {
             $("#topnav").hide();
+            if (!isModule) {
+                $("#dropdownMenu").removeClass('d-none');
+            }
         }
         if (currentName === templateName && currentName && !isNewDoc) {
             // update form for any submits.(downloads and prints)
