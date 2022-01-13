@@ -539,7 +539,11 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             $this->logger->error(
                 "AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
-                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage()
+                    , 'payload' => $exception->getPayload()
+                    , 'trace' => $exception->getTraceAsString()
+                    , 'redirectUri' => $exception->getRedirectUri()
+                    , 'errorType' => $exception->getErrorType()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));

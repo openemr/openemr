@@ -32,7 +32,6 @@
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <?php } ?>
 
-<link href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js"></script>

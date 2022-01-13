@@ -136,7 +136,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
     ?>
     <script>
         function checkUserName() {
@@ -401,6 +401,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         </div><!-- div wrapper -->
                 <?php } ?> <!--  logon wrapper -->
 
+<div id="alertStore" class="d-none">
+    <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
+      <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+</div>
+
     <script>
         var tab_mode = true;
         var webroot_url = <?php echo js_escape($GLOBALS['web_root']) ?>;
@@ -433,23 +441,12 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             });
             <?php } ?>
             <?php if (isset($_GET['w'])) { ?>
-            var unique_id = $.gritter.add({
-                title: '<span class="red">' + <?php echo xlj('Oops!');?> +'</span>',
-                text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
-                sticky: false,
-                time: '5000',
-                class_name: 'my-nonsticky-class'
-            });
+                // mdsupport - Would be good to include some clue about what went wrong!
+                bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
             <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
-            var unique_id = $.gritter.add({
-                title: '<span class="green">' + <?php echo xlj('Success');?> +'</span>',
-                text: <?php echo xlj('You have been successfully logged out.');?>,
-                sticky: false,
-                time: '5000',
-                class_name: 'my-nonsticky-class'
-            });
+                bsAlert(<?php echo xlj('You have been successfully logged out.'); ?>);
             <?php } ?>
 
             return false;
@@ -523,6 +520,17 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 alert(message);
             });
         }
+
+    function bsAlert(msg) {
+        let divAlert = document.getElementById("alertStore").querySelector("div.alert").cloneNode(true);
+        document.querySelector("form").prepend(divAlert);
+        let strongMsg = document.createElement("strong");
+        strongMsg.innerHTML = msg;
+        divAlert.prepend(strongMsg);
+        setTimeout(()=>{
+            document.querySelector("div.alert").remove();
+        }, 3000);
+    }
     </script>
 </body>
 </html>

@@ -25,7 +25,7 @@ require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
-require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
@@ -46,8 +46,8 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 if (isset($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
-    if (isset($_GET['set_encounterid']) && (intval($_GET['set_encounterid']) > 0)) {
-        $encounter = intval($_GET['set_encounterid']);
+    if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
+        $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);
     }
 }
@@ -605,7 +605,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 380, 200, '', '', {
+                dlgopen('', '', 380, 400, '', '', {
                     buttons: [{
                         text: <?php echo xlj('Close'); ?>,
                         close: true,

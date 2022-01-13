@@ -13,6 +13,9 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
+use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -309,9 +312,11 @@ class RestControllerHelper
             if (!in_array($resource, self::IGNORE_ENDPOINT_RESOURCES)) {
                 $service = null;
                 $serviceClass = $this->getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace);
+                $serviceClass = self::filterServiceClassForResource($resource, $serviceClass);
                 if (!empty($serviceClass)) {
                     $service = new $serviceClass();
                 }
+
                 if (!array_key_exists($resource, $resourcesHash)) {
                     $capResource = new FHIRCapabilityStatementResource();
                     $capResource->setType(new FHIRCode($resource));
@@ -335,5 +340,23 @@ class RestControllerHelper
             $restItem->addResource($capResource);
         }
         return $restItem;
+    }
+
+    /**
+     * Fires off a system event for the given API resource to filter the serviceClass.  This gives module writers
+     * the opportunity to extend the api, add / remove Implementation Guide profiles and declare different API conformance
+     * @param $resource The api resource that was parsed
+     * @param $serviceClass The service class that was found by default in the system or null if none was found
+     * @return string|null The filtered service class property
+     */
+    private static function filterServiceClassForResource(string $resource, ?string $serviceClass)
+    {
+        if (!empty($GLOBALS['kernel'])) {
+            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $event = $dispatcher->dispatch(new RestApiResourceServiceEvent($resource, $serviceClass), RestApiResourceServiceEvent::EVENT_HANDLE);
+            return $event->getServiceClass();
+        }
+
+        return $serviceClass;
     }
 }
