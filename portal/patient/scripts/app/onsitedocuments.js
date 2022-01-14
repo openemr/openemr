@@ -18,6 +18,7 @@ var page = {
     isInitialized: false,
     isInitializing: false,
     isSaved: true,
+    isNewDoc: false,
     fetchParams: {filter: '', orderBy: '', orderDesc: '', page: 1, patientId: cpid, recid: recid},
     fetchInProgress: false,
     dialogIsOpen: false,
@@ -67,12 +68,13 @@ var page = {
                 $("#topnav").hide();
             }
             // No dups - turn off buttons if doc exist
-            this.collection.each(function (model, index, list) {
+            // Currently not needed.
+            /*this.collection.each(function (model, index, list) {
                 let tplname = model.get('filePath')
                 if (model.get('denialReason') !== '' && tplname !== '') {
-                    //$('#' + tplname).hide();
+                    $('#' + tplname).hide();
                 }
-            });
+            });*/
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
@@ -101,7 +103,7 @@ var page = {
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
                     $("#topnav").hide();
-                    $("#dropdownMenu").removeClass('d-none');
+                    //$("#dropdownMenu").removeClass('d-none');
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -142,7 +144,6 @@ var page = {
                     timepicker: false
                 });
             })
-
             $("#templatecontent").on('focus', ".datetimepicker:not(.hasDatetimepicker)", function () {
                 $(".datetimepicker").datetimepicker({
                     i18n: {
@@ -166,6 +167,7 @@ var page = {
             page.isLocked = (page.onsiteDocument.get('denialReason') === 'Locked');
             (page.isLocked) ? $("#printTemplate").show() : $("#printTemplate").hide();
             $("#chartHistory").hide();
+
 
             page.getDocument(page.onsiteDocument.get('docType'), cpid, page.onsiteDocument.get('filePath'));
             if (page.isDashboard) { // review
@@ -434,6 +436,14 @@ var page = {
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                 }
             });
+
+            $('.navCollapse .dropdown-menu>a').on('click', function(){
+                $('.navbar-collapse').collapse('hide');
+            });
+
+            $('.navCollapse li.nav-item>a').on('click', function(){
+                $('.navbar-collapse').collapse('hide');
+            });
         });
 
         if (newFilename) { // autoload new on init. once only.
@@ -486,8 +496,8 @@ var page = {
     },
     /**
      * Fetch the collection data from the server
-     * @param object params passed through to collection.fetch
-     * @param bool true to hide the loading animation
+     * @param params
+     * @param hideLoader
      */
     fetchOnsiteDocuments: function (params, hideLoader) {
         // persist the params so that paging/sorting/filtering will play together nicely
@@ -522,7 +532,7 @@ var page = {
         docid = templateName;
         cuser = cuser > '' ? cuser : user;
         cpid = cpid > '0' ? cpid : pid;
-        isNewDoc = true;
+        page.isNewDoc = true;
         m = new model.OnsiteDocumentModel();
         m.set('docType', docid);
         m.set('filePath', template_id);
@@ -535,6 +545,7 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
+        $("#editorContainer").removeClass('w-auto').addClass('w-100');
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
@@ -543,11 +554,8 @@ var page = {
         page.lbfFormName = '';
         if (docid !== 'Help') {
             $("#topnav").hide();
-            if (!isModule) {
-                $("#dropdownMenu").removeClass('d-none');
-            }
         }
-        if (currentName === templateName && currentName && !isNewDoc) {
+        if (currentName === templateName && currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
             $("#docid").val(currentName);
             // get document template
@@ -593,12 +601,11 @@ var page = {
                 success: function (templateHtml, textStatus, jqXHR) {
                     $("#docid").val(templateName);
                     $('#templatecontent').html(templateHtml);
-                    if (isNewDoc) {
-                        isNewDoc = false;
+                    if (page.isNewDoc) {
+                        page.isNewDoc = false;
                         page.isSaved = false;
                         $("#printTemplate").hide();
                         $("#submitTemplate").hide();
-                        //$("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument', templateHtml);
                         if (isPortal) {
                             $('#adminSignature').css('cursor', 'default').off();
@@ -607,6 +614,10 @@ var page = {
                             $('#witnessSignature').css('cursor', 'default').off();
                         }
                         bindFetch();
+
+                        if (page.isFrameForm) {
+                            $("#editorContainer").removeClass('w-100').addClass('w-auto');
+                        }
                         // new encounter form
                         // lbf has own signer instance. no binding here.
                         // page.lbfFormName & page.isFrameForm is set from template directive
@@ -671,7 +682,7 @@ var page = {
 
     /**
      * Render the model template in the container
-     * @param bool show the delete button
+     * @param showDeleteButton
      */
     renderModelView: function (showDeleteButton) {
         page.modelView.render();
@@ -794,7 +805,7 @@ var page = {
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                     }
-                    isNewDoc = false;
+                    page.isNewDoc = false;
                     page.onsiteDocuments.add(page.onsiteDocument)
                 }
                 if (model.reloadCollectionOnModelUpdate) {

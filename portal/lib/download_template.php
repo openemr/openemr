@@ -168,7 +168,7 @@ function doSubs($s)
             $content = 'data:application/pdf;base64,' . base64_encode($content);
             $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
             $sigfld .= "<div class='d-none' id='showPdf'>\n";
-            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='450px'></object>\n";
+            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='675em'></object>\n";
             $sigfld .= '</div>';
             $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
             $s = keyReplace($s, $sigfld);

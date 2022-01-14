@@ -203,6 +203,10 @@ function renderEditorHtml($template_id, $content)
       .list-group-item {
         font-size: .9rem;
       }
+
+      .cke_contents {
+        height: 78vh !important;
+      }
     </style>
     <body>
         <div class="container-fluid">

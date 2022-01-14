@@ -45,7 +45,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
         // get latest help template id
-        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC', array('Help'))['id'];
+        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', array('Help'))['id'] ?? 0;
 
         if (isset($_GET['pid'])) {
             $pid = (int) $_GET['pid'];
