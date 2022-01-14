@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * @package OpenEMR
  * @subpackage Core
  * @author Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2017 Robert Down
+ * @copyright Copyright (c) 2017-2022 Robert Down
  */
 class Header
 {
