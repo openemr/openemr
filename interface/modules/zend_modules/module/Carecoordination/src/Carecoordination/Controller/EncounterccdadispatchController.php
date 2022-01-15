@@ -226,8 +226,10 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($socket === false) {
             throw new Exception("Socket Creation Failed");
         }
-        // Let's check if server is already running
-        $server_active = socket_connect($socket, "localhost", "6661");
+
+        // Let's check if server is already running but suppress warning with @ operator
+        $server_active = @socket_connect($socket, "localhost", "6661");
+
         if ($server_active === false) {
             // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
             if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
