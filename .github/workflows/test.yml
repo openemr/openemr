@@ -20,21 +20,23 @@ jobs:
           node-version: '16'
 
       - name: Main npm Build
-        failTest=false
-        npm install || failTest=true
-        npm run build || failTest=true
-        if $failTest; then
-          exit 1
-        fi
+        run: |
+          failTest=false
+          npm install || failTest=true
+          npm run build || failTest=true
+          if $failTest; then
+            exit 1
+          fi
 
       - name: CCDA npm Build
-        failTest=false
-        cd ccdaservice || failTest=true
-        npm install || failTest=true
-        cd ../ || failTest=true
-        if $failTest; then
-          exit 1
-        fi
+        run: |
+          failTest=false
+          cd ccdaservice || failTest=true
+          npm install || failTest=true
+          cd ../ || failTest=true
+          if $failTest; then
+            exit 1
+          fi
 
   build_apache_74_106:
     name: PHP 7.4 - Apache - MariaDB 10.6
