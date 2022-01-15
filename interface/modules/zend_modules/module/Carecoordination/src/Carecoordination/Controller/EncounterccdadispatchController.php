@@ -90,7 +90,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $combination      = $this->params('pids');
             $view             = $this->params('view');
         }
-        if ($_POST['sent_by_app'] === 'portal') {
+        if (($_POST['sent_by_app'] ?? '') === 'portal') {
             $downloadccda = $this->getRequest()->getPost('downloadccda');
             if ($downloadccda === 'download_ccda') {
                 $combination      = $this->getRequest()->getPost('combination');
@@ -107,8 +107,11 @@ class EncounterccdadispatchController extends AbstractActionController
         if (!$this->sections) {
             $components0  = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
             foreach ($components0 as $key => $value) {
-                if ($str) {
+                if ($str ?? '') {
                     $str .= '|';
+                } else {
+                    $str = $key;
+                    continue;
                 }
 
                 $str .= $key;
@@ -120,8 +123,11 @@ class EncounterccdadispatchController extends AbstractActionController
         if (!$this->components) {
             $components1  = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
             foreach ($components1 as $key => $value) {
-                if ($str1) {
+                if ($str1 ?? '') {
                     $str1 .= '|';
+                } else {
+                    $str1 = $key;
+                    continue;
                 }
 
                 $str1 .= $key;
@@ -135,7 +141,7 @@ class EncounterccdadispatchController extends AbstractActionController
             foreach ($arr as $row) {
                 $arr = explode('_', $row);
                 $this->patient_id   = $arr[0];
-                $this->encounter_id = ($arr[1] > 0 ? $arr[1] : null);
+                $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
                 if ($this->latest_ccda) {
                     $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
                 }
@@ -304,21 +310,21 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";
         $this->data .= "<send>" . htmlspecialchars($send, ENT_QUOTES) . "</send>";
         $this->data .= "<assignedEntity>
-                <streetAddressLine>" . htmlspecialchars($assignedEntity['streetAddressLine'], ENT_QUOTES) . "</streetAddressLine>
-                <city>" . htmlspecialchars($assignedEntity['city'], ENT_QUOTES) . "</city>
-                <state>" . htmlspecialchars($assignedEntity['state'], ENT_QUOTES) . "</state>
-                <postalCode>" . htmlspecialchars($assignedEntity['postalCode'], ENT_QUOTES) . "</postalCode>
-                <country>" . htmlspecialchars($assignedEntity['country'], ENT_QUOTES) . "</country>
+                <streetAddressLine>" . htmlspecialchars($assignedEntity['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
+                <city>" . htmlspecialchars($assignedEntity['city'] ?? '', ENT_QUOTES) . "</city>
+                <state>" . htmlspecialchars($assignedEntity['state'] ?? '', ENT_QUOTES) . "</state>
+                <postalCode>" . htmlspecialchars($assignedEntity['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
+                <country>" . htmlspecialchars($assignedEntity['country'] ?? '', ENT_QUOTES) . "</country>
             </assignedEntity>
-            <telecom use='WP' value='" . htmlspecialchars($assignedEntity['telecom'], ENT_QUOTES) . "'/>
+            <telecom use='WP' value='" . htmlspecialchars($assignedEntity['telecom'] ?? '', ENT_QUOTES) . "'/>
             <representedOrganization>
-                <name>" . htmlspecialchars($representedOrganization['name'], ENT_QUOTES) . "</name>
-                <telecom use='WP' value='" . htmlspecialchars($representedOrganization['telecom'], ENT_QUOTES) . "'/>
-                <streetAddressLine>" . htmlspecialchars($representedOrganization['streetAddressLine'], ENT_QUOTES) . "</streetAddressLine>
-                <city>" . htmlspecialchars($representedOrganization['city'], ENT_QUOTES) . "</city>
-                <state>" . htmlspecialchars($representedOrganization['state'], ENT_QUOTES) . "</state>
-                <postalCode>" . htmlspecialchars($representedOrganization['postalCode'], ENT_QUOTES) . "</postalCode>
-                <country>" . htmlspecialchars($representedOrganization['country'], ENT_QUOTES) . "</country>
+                <name>" . htmlspecialchars($representedOrganization['name'] ?? '', ENT_QUOTES) . "</name>
+                <telecom use='WP' value='" . htmlspecialchars($representedOrganization['telecom'] ?? '', ENT_QUOTES) . "'/>
+                <streetAddressLine>" . htmlspecialchars($representedOrganization['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
+                <city>" . htmlspecialchars($representedOrganization['city'] ?? '', ENT_QUOTES) . "</city>
+                <state>" . htmlspecialchars($representedOrganization['state'] ?? '', ENT_QUOTES) . "</state>
+                <postalCode>" . htmlspecialchars($representedOrganization['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
+                <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
             </representedOrganization>";
         $this->data .= "<referral_reason><text>" . htmlspecialchars($this->referral_reason, ENT_QUOTES) . "</text></referral_reason>";
 
