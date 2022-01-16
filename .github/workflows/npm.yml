@@ -1,0 +1,121 @@
+name: npm
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  npm_install_ubuntu_2004:
+    name: NPM only Install - Ubuntu 20.04 - NodeJS 16
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Main npm Install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: CCDA npm Install
+        run: |
+          failTest=false
+          cd ccdaservice || failTest=true
+          npm install || failTest=true
+          cd ../ || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  npm_install_macos_11:
+    name: NPM only Install - MacOS Big Sur - NodeJS 16
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Main npm Install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: CCDA npm Install
+        run: |
+          failTest=false
+          cd ccdaservice || failTest=true
+          npm install || failTest=true
+          cd ../ || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  npm_install_macos_1015:
+    name: NPM only Install - MacOS Catalina - NodeJS 16
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Main npm Install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: CCDA npm Install
+        run: |
+          failTest=false
+          cd ccdaservice || failTest=true
+          npm install || failTest=true
+          cd ../ || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  npm_install_win_2022:
+    name: NPM only Install - Windows Server 2022 - NodeJS 16
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install npm package
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Main npm Install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest (exit 1)
+
+      - name: CCDA npm Install
+        run: |
+          failTest=false
+          cd ccdaservice || failTest=true
+          npm install || failTest=true
+          cd ../ || failTest=true
+          if $failTest (exit 1)
