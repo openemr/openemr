@@ -108,14 +108,21 @@ jobs:
 
       - name: Main npm Install
         run: |
-          SET failTest="false"
-          npm install || failTest="true"
-          if ["%failTest%"]==["true"] (exit 1)
+          REM SET failTest="false"
+          REM npm install || failTest="true"
+          npm install
+          REM if ["%failTest%"]==["true"] (
+            REM exit 1
+          REM )
 
       - name: CCDA npm Install
         run: |
-          SET failTest="false"
-          cd ccdaservice || failTest="true"
-          npm install || failTest="true"
-          cd ../ || failTest="true"
-          if ["%failTest%"]==["true"] (exit 1)
+          REM SET failTest="false"
+          REM cd ccdaservice || failTest="true"
+          REM npm install || failTest="true"
+          cd ccdaservice
+          npm install
+          REM cd ../ || failTest="true"
+          REM if ["%failTest%"]==["true"] (
+          REM  exit 1
+          REM )
