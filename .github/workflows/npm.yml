@@ -108,14 +108,14 @@ jobs:
 
       - name: Main npm Install
         run: |
-          failTest=false
-          npm install || failTest=true
-          if $failTest (exit 1)
+          SET failTest="false"
+          npm install || failTest="true"
+          if ["%failTest%"]==["true"] (exit 1)
 
       - name: CCDA npm Install
         run: |
-          failTest=false
-          cd ccdaservice || failTest=true
-          npm install || failTest=true
-          cd ../ || failTest=true
-          if $failTest (exit 1)
+          SET failTest="false"
+          cd ccdaservice || failTest="true"
+          npm install || failTest="true"
+          cd ../ || failTest="true"
+          if ["%failTest%"]==["true"] (exit 1)
