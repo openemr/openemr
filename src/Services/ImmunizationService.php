@@ -123,7 +123,7 @@ class ImmunizationService extends BaseService
                         ,id AS provider_id
                     FROM
                         users
-                ) provider ON immunizations.administered_by_id = providers.provider_id";
+                ) providers ON immunizations.administered_by_id = providers.provider_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
