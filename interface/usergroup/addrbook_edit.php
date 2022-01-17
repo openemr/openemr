@@ -111,7 +111,7 @@ if (!empty($_POST['form_save'])) {
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
     $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
-    $option_abook_type = $type_sql_row['option_value'];
+    $option_abook_type = $type_sql_row['option_value'] ?? '';
  // Set up any abook_type specific settings
     if ($option_abook_type == 3) {
         // Company centric
