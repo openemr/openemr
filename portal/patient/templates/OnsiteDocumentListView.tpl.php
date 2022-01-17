@@ -347,8 +347,8 @@ $templateService = new DocumentTemplateService();
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                            <div id="templatediv" class="card-body border bg-white overflow-auto">
-                                <div id="templatecontent" class="template-body bg-white">
+                            <div id="templatediv" class="card-body border overflow-auto">
+                                <div id="templatecontent" class="template-body">
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
@@ -361,7 +361,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">

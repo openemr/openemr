@@ -347,7 +347,7 @@
             <strong>{{ 'Working!' | xlt }}</strong>
             {{ 'Please wait...' | xlt }}</div>
 
-        <div class="collapse" data-parent="#cardgroup" id="lists">
+        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
                 <header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
                 <div id="medicationlist" class="card-body bg-light"></div>
@@ -370,7 +370,7 @@
             </div>
         </div>
 
-        <div class="card collapse" data-parent="#cardgroup" id="reportcard">
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
             <header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
             <div id="reports" class="card-body"></div>
         </div>
@@ -378,6 +378,7 @@
         <div class="card collapse" data-parent="#cardgroup" id="profilecard">
             <div id="profilereport" class="card-body bg-light"></div>
         </div>
+
         <div class="collapse" data-parent="#cardgroup" id="documentscard">
             <div class="card">
                 <div id="patdocuments" class="card-body">
@@ -385,6 +386,7 @@
                 </div>
             </div>
         </div>
+
         <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
             <div class="card">
                 <div id="secure-msgs" class="card-body">
@@ -392,10 +394,9 @@
                 </div>
             </div>
         </div>
-        <!-- /.lists -->
 
         {% if allow_portal_appointments %}
-            <div class="collapse mt-2" data-parent="#cardgroup" id="appointmentcard">
+            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
                 <div class="container-fluid">
                     <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
                     <div class="row">
@@ -414,7 +415,7 @@
                         {% endif %}
 
                     </div>
-                    <div>
+                    <div class="mb-3">
                         <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
                     </div>
                 </div>
@@ -423,7 +424,7 @@
         {% endif %}
 
         {% if portal_two_payments %}
-            <div class="collapse" data-parent="#cardgroup" id="paymentcard">
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
                 <div class="card">
                     <header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
                     <div id="payment" class="card-body bg-light"></div>
@@ -432,7 +433,7 @@
         {% endif %}
 
         {% if allow_portal_chat %}
-            <div class="collapse" data-parent="#cardgroup" id="messagescard">
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="messagescard">
                 <div class="card pt-0 pb-0">
                     <header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
                     <div id="chat" class="card-body p-0 overflow-hidden" style="height: calc(100vh - 120px);">
@@ -443,7 +444,7 @@
         {% endif %}
 
         {% if portal_onsite_document_download %}
-            <div class="card collapse" data-parent="#cardgroup" id="downloadcard">
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
                 <header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
                 <div id="docsdownload" class="card-body">
                     <div>
@@ -458,7 +459,7 @@
         {% endif %}
 
         {% if portal_two_ledger %}
-            <div class="collapse" data-parent="#cardgroup" id="ledgercard">
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
                 <div class="card">
                     <header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
                     <div id="patledger" class="card-body">
@@ -469,7 +470,7 @@
         {% endif %}
 
         {% if isEasyPro %}
-            <div class="card collapse" data-parent="#cardgroup" id="procard">
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
                 <header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
                 <div id="pro" class="card-body bg-light"></div>
             </div>

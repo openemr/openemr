@@ -17,9 +17,9 @@ require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (
-    ($_SESSION['register'] === true && isset($_SESSION['pid'])) ||
-    ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-    ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+    (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) ||
+    (($_SESSION['credentials_update'] ?? null) === 1 && isset($_SESSION['pid'])) ||
+    (($_SESSION['itsme'] ?? null) === 1 && isset($_SESSION['password_update']))
 ) {
     $ignoreAuth_onsite_portal = true;
 }

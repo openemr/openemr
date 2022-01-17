@@ -399,7 +399,7 @@ if ($GLOBALS['language_menu_login']) {
     </script>
 </head>
 <body class="mt-4 skin-blue">
-    <div class="container">
+    <div class="container-lg">
         <h1 class="text-center"><?php echo xlt('Account Registration'); ?></h1>
         <div class="stepwiz">
             <div class="stepwiz-row setup-panel">
