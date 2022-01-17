@@ -616,7 +616,7 @@ var page = {
                         bindFetch();
 
                         if (page.isFrameForm) {
-                            $("#editorContainer").removeClass('w-100').addClass('w-auto');
+                            //$("#editorContainer").removeClass('w-100').addClass('w-auto');
                         }
                         // new encounter form
                         // lbf has own signer instance. no binding here.
