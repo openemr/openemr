@@ -101,7 +101,6 @@ $templateService = new DocumentTemplateService();
           width: 1220px;
         }
       }
-
       .nav-pills-ovr > li > a {
         border: 1px solid !important;
         border-radius: .25rem !important;
@@ -281,14 +280,14 @@ $templateService = new DocumentTemplateService();
             restoreTextInputs();
         }
     </script>
-    <div class="container-xl">
-        <nav id="verytop" class="navbar navbar-expand-md navbar-light bg-light pt-4 pb-2 m-0 sticky-top">
-            <a class="navbar-brand"><h3><?php echo xlt("Document Center") ?></h3></a>
+    <div class="container-xl px-1">
+        <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
+            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("My Documents") ?></h3></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div id="topmenu" class="collapse navbar-collapse">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav navCollapse mr-auto">
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
@@ -302,20 +301,20 @@ $templateService = new DocumentTemplateService();
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
                         </ul>
                     </div>
+                    <?php if (!empty($is_module) || !empty($is_portal)) { ?>
+                        <div class="dropdown mb-1">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <?php echo xlt('New Documents') ?>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
+                            </div>
+                        </div>
+                    <?php } ?>
                     <li class='nav-item mb-1'>
                         <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><?php echo xlt('History') ?>
                         </a>
                     </li>
-                    <?php if (!empty($is_module) || !empty($is_portal)) { ?>
-                    <div class="dropdown mb-1 z-index-master">
-                        <a class="dropdown-toggle nav-link btn btn-outline-success text-success d-none" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <?php echo xlt('Pending') ?>
-                        </a>
-                        <div class="dropdown-menu z-index-master" aria-labelledby="dropdownMenu">
-                            <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
-                        </div>
-                    </div>
-                    <?php } ?>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
@@ -335,36 +334,21 @@ $templateService = new DocumentTemplateService();
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-center">
-            <!-- Pending documents menu left -->
-            <div class="sticky-top" id="topnav">
-                <ul class="nav flex-column nav-pills nav-pills-ovr z-index-0">
-                    <div class="navbar-header mt-3">
-                        <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xlt('Pending') ?></h4></a>
-                    </div>
-                    <?php
-                    if (!empty($is_module) || !empty($is_portal)) {
-                        echo $templateService->renderPortalTemplateMenu($pid, $cuser);
-                    }
-                    ?>
-                    <?php if (!empty($is_module)) { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                        </li>
-                    <?php } ?>
-                </ul>
+            <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
+            <div class="clearfix" id="topnav">
                 <div id="collectionAlert"></div>
-            </div><!-- close left pending -->
+            </div>
             <!-- Right editor container -->
-            <div class="flex-column">
+            <div id="editorContainer" class="d-flex flex-column w-100 h-auto">
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
-                    <div class="card p-2 m-1" id="docpanel">
+                    <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                            <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
-                                <div id="templatecontent" class="template-body bg-white">
+                            <div id="templatediv" class="card-body border overflow-auto">
+                                <div id="templatecontent" class="template-body">
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
@@ -377,7 +361,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">

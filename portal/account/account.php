@@ -17,9 +17,9 @@ require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (
-    ($_SESSION['register'] === true && isset($_SESSION['pid'])) ||
-    ($_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-    ($_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+    (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) ||
+    (($_SESSION['credentials_update'] ?? null) === 1 && isset($_SESSION['pid'])) ||
+    (($_SESSION['itsme'] ?? null) === 1 && isset($_SESSION['password_update']))
 ) {
     $ignoreAuth_onsite_portal = true;
 }
@@ -29,7 +29,7 @@ require_once("$srcdir/patient.inc");
 require_once(__DIR__ . "/../lib/portal_mail.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("./account.lib.php");
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+$action = $_REQUEST['action'] ?? '';
 if ($action == 'set_lang') {
     $_SESSION['language_choice'] = (int)$_REQUEST['value'];
     echo 'okay';
@@ -67,7 +67,7 @@ if ($action == 'userIsUnique') {
 }
 
 if ($action == 'get_newpid') {
-    $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
+    $email = $_REQUEST['email'] ?? '';
     $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
     if ((int)$rtn != 0) {
         echo xlt("This account already exists.") . "\r\n\r\n" .
@@ -77,20 +77,20 @@ if ($action == 'get_newpid') {
         exit();
     }
     $rtn = getNewPid();
-    echo "$rtn";
+    echo js_escape($rtn);
     exit();
 }
 
 if ($action == 'is_new') {
     $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
     $rtn = isNew($_REQUEST['dob'], $_REQUEST['last'], $_REQUEST['first'], $email);
-    echo "$rtn";
+    echo js_escape($rtn);
     exit();
 }
 
 if ($action == 'do_signup') {
     $rtn = doCredentials($_REQUEST['pid']);
-    echo "$rtn";
+    echo js_escape($rtn);
     exit();
 }
 
@@ -104,7 +104,7 @@ if ($action == 'notify_admin') {
     $pid = $_REQUEST['pid'];
     $provider = $_REQUEST['provider'];
     $rtn = notifyAdmin($pid, $provider);
-    echo "$rtn";
+    echo js_escape($rtn);
     exit();
 }
 

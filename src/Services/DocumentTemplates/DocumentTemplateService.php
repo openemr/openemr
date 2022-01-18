@@ -266,28 +266,6 @@ class DocumentTemplateService
     }
 
     /**
-     * @param $group_array
-     * @return array
-     */
-    public function getPatientsByGroup($group_array): array
-    {
-        $results = [];
-        foreach ($group_array as $group) {
-            $search = '%' . $group . '%';
-            $query_result = sqlStatement(
-                'SELECT pid, pubpid, fname, mname, lname, DOB, patient_groups FROM patient_data WHERE patient_groups <> "" AND patient_groups LIKE ? ORDER BY `lname`',
-                array($search)
-            );
-            while ($row = sqlFetchArray($query_result)) {
-                if (is_array($row)) {
-                    $results[$group][] = $row;
-                }
-            }
-        }
-        return $results;
-    }
-
-    /**
      * @param $profile
      * @return array
      */

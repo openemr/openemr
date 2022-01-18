@@ -885,7 +885,7 @@ if (
         ?>
         <!-- row width will size to col content width -->
         <!-- We need all possible viewport width sjp w-100 -->
-        <div class="row w-100">
+        <div class="row w-100 overflow-auto">
             <div class="col-12">
                 <?php
                 $cmsportal_login = '';

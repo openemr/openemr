@@ -74,7 +74,7 @@ if ($appts) {
         $count++;
         $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = substr($row['pc_startTime'], 0, 2) + 0;
+        $disphour = (int)substr($row['pc_startTime'], 0, 2);
         $dispmin = substr($row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';

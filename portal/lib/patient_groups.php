@@ -18,16 +18,6 @@ $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();
 $profile_list = $templateService->fetchDefaultProfiles();
 
-if ($_POST['mode'] === 'fetch_groups') {
-    $rtn = $templateService->getPatientsByGroup($group_list);
-    if ($rtn) {
-        echo $rtn;
-    } else {
-        echo xlt('Error! Groups fetch failed.');
-    }
-    exit;
-}
-
 if ($_POST['mode'] === 'save_profile_groups') {
     $groups = json_decode(($_POST['patient_groups'] ?? ''), true, 512, JSON_THROW_ON_ERROR);
     $work_ids = [];
