@@ -1093,7 +1093,7 @@ class GaclApi extends Gacl {
 			foreach ($map_group_ids as $group_id) {
 				$this->debug_text ('Insert: '. strtoupper($map) .' GROUP ID: '. $group_id);
         $get_group_data = $this->get_group_data($group_id, $map);
-				$group_data = &$get_group_data;
+        $group_data = &$get_group_data;
 
 				if (empty($group_data)) {
 					$this->debug_text('add_acl(): '. strtoupper($map) . " Group: $group_id DOES NOT exist in the database. Skipping...");
@@ -3051,7 +3051,6 @@ class GaclApi extends Gacl {
 			return true;
 		}
 
-		
 		$insert_id = $this->db->GenID($this->_db_table_prefix.$object_type.'_seq',10);
 		$query = 'INSERT INTO '. $table .' (id,section_value,value,order_value,name,hidden) VALUES('. $this->db->quote($insert_id) .','. $this->db->quote($section_value) .','. $this->db->quote($value) .','. $this->db->quote($order) .','. $this->db->quote($name) .','. $this->db->quote($hidden) .')';
 		$rs = $this->db->Execute($query);

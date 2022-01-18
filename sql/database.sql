@@ -2527,7 +2527,7 @@ INSERT INTO `gacl_aro_sections_seq` VALUES (9);
 
 DROP TABLE IF EXISTS `gacl_aro_seq`;
 CREATE TABLE `gacl_aro_seq` (
-  `id` int(12) NOT NULL
+  `id` int(11) NOT NULL
 ) ENGINE=InnoDB;
 
 --
