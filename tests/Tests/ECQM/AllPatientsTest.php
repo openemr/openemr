@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -35,5 +36,4 @@ class AllPatientsTest extends TestCase
             file_put_contents($filename, json_encode($model));
         }
     }
-
 }

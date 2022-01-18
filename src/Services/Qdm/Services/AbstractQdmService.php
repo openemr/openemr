@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -38,9 +39,9 @@ abstract class AbstractQdmService
         return 'pid';
     }
 
-    public abstract function getSqlStatement();
+    abstract public function getSqlStatement();
 
-    public abstract function makeQdmModel(array $record);
+    abstract public function makeQdmModel(array $record);
 
     public function executeQuery()
     {
@@ -67,7 +68,7 @@ abstract class AbstractQdmService
 
         try {
             $result = sqlStatementThrowException($sql, $binds);
-        } catch(SqlQueryException $exception) {
+        } catch (SqlQueryException $exception) {
             error_log($exception->getMessage());
             throw new \Exception("There is likely an error in Service query, must contain a patient ID. 'pid' not found and getPatientIdColumn() not implemented.");
         }
