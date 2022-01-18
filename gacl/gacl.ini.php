@@ -1,6 +1,6 @@
 ;<?php trigger_error('This is a hidden INI file, not PHP.  Go away!', E_USER_ERROR); ?>
 ;
-debug 			= TRUE
+debug 			= FALSE
 
 ;
 ;Admin interface
