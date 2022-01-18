@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -16,7 +17,6 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 {
-
     public function getSqlStatement()
     {
         $sql = "SELECT

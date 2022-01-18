@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -56,6 +57,4 @@ class QdmRecord
     {
         $this->pid = $pid;
     }
-
-
 }

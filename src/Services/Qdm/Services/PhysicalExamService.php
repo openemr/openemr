@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -38,9 +39,9 @@ class PhysicalExamService extends AbstractQdmService implements QdmServiceInterf
         // Since the vitals are all stored in the same record, and QDM needs them as separate QDM::PhysicalExamPerformed
         // models, let's pick out the pieces and union our results
         $sql = [];
-        $sql []= "SELECT pid, `date`, bpd AS `value`, 'mm[Hg]' AS unit, 'dbp' AS type FROM form_vitals"; // Diastolic blood pressure
-        $sql []= "SELECT pid, `date`, bps AS `value`, 'mm[Hg]' AS unit, 'sbp' AS type FROM form_vitals"; // Systolic blood pressure
-        $sql []= "SELECT pid, `date`, BMI AS `value`, 'kg/m2' AS unit, 'bmi' AS type FROM form_vitals"; // BMI ratio
+        $sql[] = "SELECT pid, `date`, bpd AS `value`, 'mm[Hg]' AS unit, 'dbp' AS type FROM form_vitals"; // Diastolic blood pressure
+        $sql[] = "SELECT pid, `date`, bps AS `value`, 'mm[Hg]' AS unit, 'sbp' AS type FROM form_vitals"; // Systolic blood pressure
+        $sql[] = "SELECT pid, `date`, BMI AS `value`, 'kg/m2' AS unit, 'bmi' AS type FROM form_vitals"; // BMI ratio
 
         $unions = implode(" UNION ", $sql);
         $fullSql = "SELECT * FROM ( $unions ) AS physical_exams";
