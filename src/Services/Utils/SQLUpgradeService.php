@@ -622,8 +622,10 @@ class SQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfUpdateEditOptionsNeeded\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
-                $this->updateLayoutEditOptions($matches[1], $matches[2], $matches[3], $matches[4]);
-                $skipping = false;
+                $skipping = $this->updateLayoutEditOptions($matches[1], $matches[2], $matches[3], $matches[4]);
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (preg_match('/^#EndIf/', $line)) {
                 $skipping = false;
             }
@@ -1253,10 +1255,18 @@ class SQLUpgradeService
 
     private function updateLayoutEditOptions($mode, $form_id, $add_option, $values)
     {
+        $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
-
+        if (empty($subject)) {
+            $this->echo("<p class='text-danger'>Missing field ids for update $mode.</p>");
+            return true;
+        }
         $sql = "SELECT `field_id`, `edit_options`, `seq` FROM `layout_options` WHERE `form_id` = ? ";
         $result = sqlStatementNoLog($sql, array($form_id));
+        if (empty(sqlNumRows($result))) {
+            $this->echo("<p class='text-danger'>No results returned for $form_id.</p>");
+            return true;
+        }
 
         $this->echo("<p class='text-success'>Start Layouts Edit Options $mode $add_option update.</p>");
 
@@ -1278,6 +1288,7 @@ class SQLUpgradeService
                     $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
                     $this->echo('Setting new edit options ' . $row['field_id'] . ' to ' . $new_options . "<br />");
                     sqlStatementNoLog($update_sql, array($new_options, $row['field_id'], $row['seq']));
+                    $flag = false;
                 }
             }
         } catch (SqlQueryException $e) {
@@ -1292,6 +1303,7 @@ class SQLUpgradeService
         sqlStatementNoLog('SET autocommit=1');
         $this->echo("<p class='text-success'>Layout Edit Options $mode $add_option done.</p><br />");
         $this->flush_echo();
-        return true;
+
+        return $flag;
     }
 }
