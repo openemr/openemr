@@ -101,6 +101,10 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
+--  #IfUpdateEditOptionsNeeded
+--    desc: Change Layout edit options.
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -1435,4 +1439,7 @@ ALTER TABLE `document_template_profiles` ADD `active` TINYINT(1) NOT NULL DEFAUL
 ALTER TABLE `document_template_profiles` ADD `recurring` TINYINT(1) NOT NULL DEFAULT '1',ADD `event_trigger` VARCHAR(31) NOT NULL, ADD `period` INT(4) NOT NULL;
 ALTER TABLE `document_template_profiles` CHANGE `profile` `profile` VARCHAR(64) NOT NULL, CHANGE `category` `category` VARCHAR(64) NOT NULL, CHANGE `template_name` `template_name` VARCHAR(255) NOT NULL;
 ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `location` (`profile`, `template_id`, `member_of`);
+#EndIf
+
+#IfUpdateEditOptionsNeeded Add DEM DAP fname,mname,lname,suffix,name_history,birth_fname,birth_mname,birth_lname
 #EndIf
