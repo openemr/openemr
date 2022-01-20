@@ -10,11 +10,13 @@
  * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Robert DOwn <robertdown@live.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
