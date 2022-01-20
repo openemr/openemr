@@ -91,6 +91,8 @@ $(function () {
 
     $(".select-previous-names").select2({
         theme: "bootstrap4",
+        dropdownAutoWidth: true,
+        width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
     }).on("select2:unselecting", function (e) {
         $(this).data('state', 'unselected');
@@ -136,6 +138,8 @@ $(function () {
     // careteam select2
     $(".select-dropdown").select2({
         theme: "bootstrap4",
+        dropdownAutoWidth: true,
+        width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
