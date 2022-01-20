@@ -1253,22 +1253,20 @@ class SQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values)
+    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
         if (empty($subject)) {
-            $this->echo("<p class='text-danger'>Missing field ids for update $mode.</p>");
+            $this->echo("<p class='text-danger'>Missing field ids for update " . text($mode) . ".</p>");
             return true;
         }
         $sql = "SELECT `field_id`, `edit_options`, `seq` FROM `layout_options` WHERE `form_id` = ? ";
         $result = sqlStatementNoLog($sql, array($form_id));
         if (empty(sqlNumRows($result))) {
-            $this->echo("<p class='text-danger'>No results returned for $form_id.</p>");
+            $this->echo("<p class='text-danger'>No results returned for " . text($form_id) . ".</p>");
             return true;
         }
-
-        $this->echo("<p class='text-success'>Start Layouts Edit Options $mode $add_option update.</p>");
 
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
@@ -1284,16 +1282,20 @@ class SQLUpgradeService
                     } else {
                         continue;
                     }
+                    if ($flag) {
+                        // just show this prior first change (so will be not shown if this is "skipped")
+                        $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
+                    }
                     $new_options = json_encode($options);
                     $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
-                    $this->echo('Setting new edit options ' . $row['field_id'] . ' to ' . $new_options . "<br />");
+                    $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
                     sqlStatementNoLog($update_sql, array($new_options, $row['field_id'], $row['seq']));
                     $flag = false;
                 }
             }
         } catch (SqlQueryException $e) {
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
@@ -1301,8 +1303,11 @@ class SQLUpgradeService
         }
         sqlStatementNoLog('COMMIT');
         sqlStatementNoLog('SET autocommit=1');
-        $this->echo("<p class='text-success'>Layout Edit Options $mode $add_option done.</p><br />");
-        $this->flush_echo();
+        if (!$flag) {
+            // so will be not shown if this is "skipped"
+            $this->echo("<p class='text-success'>Layout Edit Options " . text($mode) . " " . text($add_option) . " done.</p><br />");
+            $this->flush_echo();
+        }
 
         return $flag;
     }
