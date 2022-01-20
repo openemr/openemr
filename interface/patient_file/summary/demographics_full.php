@@ -501,7 +501,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 
-    <div class="container-fluid">
+    <div class="container-xl">
         <div class="row">
             <div class="col-12">
                 <h2><?php echo xlt('Edit Current Patient');?></h2>
@@ -523,11 +523,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 $condition_str = '';
 ?>
 <br />
-  <div class="section-header">
-   <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
-</div>
-
-<div class='container-fluid'>
+<div class='container-xl'>
+    <div class="section-header">
+        <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
+    </div>
     <ul class="tabNav">
         <?php display_layout_tabs('DEM', $result, $result2); ?>
     </ul>
@@ -538,7 +537,7 @@ $condition_str = '';
 </div>
 <br />
 
-<div class='container-fluid'>
+<div class='container-xl'>
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {

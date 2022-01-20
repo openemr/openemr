@@ -389,7 +389,7 @@ function srchDone(pid){
 $constraints = LBF_Validation::generate_validate_constraints("DEM");
 ?>
 <script> var constraints = <?php echo $constraints; ?>; </script>
-    <div class="container-fluid">
+    <div class="container-xl">
         <div class="row">
             <div class="col-md-12">
                 <h2><?php echo xlt('Search or Add Patient');?></h2>
@@ -501,11 +501,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="section collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
-                                        <div class="container-fluid card-body">
+                                        <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
                             } elseif (strlen($last_group) == 0) {
-                                echo " <div class='container-fluid'>\n";
+                                echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
                             $last_group = $this_group;
@@ -604,7 +604,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 </h2>
                             </div>
                             <div id="div_ins" class="section collapse" aria-labelledby="header_ins" >
-                                <div class="container-fluid card-body">
+                                <div class="container-xl card-body">
                         HTML;
 
                         for ($i = 1; $i <= sizeof($insurance_info); $i++) {
