@@ -1441,5 +1441,30 @@ ALTER TABLE `document_template_profiles` CHANGE `profile` `profile` VARCHAR(64) 
 ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `location` (`profile`, `template_id`, `member_of`);
 #EndIf
 
+-- Adding description as placeholder option
 #IfUpdateEditOptionsNeeded Add DEM DAP fname,mname,lname,suffix,name_history,birth_fname,birth_mname,birth_lname
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id title datacols 3
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'title';
+UPDATE `layout_options` SET `fld_length` = '15' WHERE `form_id` = 'DEM' AND `field_id` = 'fname';
+UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'mname';
+UPDATE `layout_options` SET `fld_length` = '20' WHERE `form_id` = 'DEM' AND `field_id` = 'lname';
+UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'suffix';
+UPDATE `layout_options` SET `datacols` = '1' WHERE `form_id` = 'DEM' AND `field_id` = 'status';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id birth_fname datacols 3
+UPDATE `layout_options` SET `fld_length` = '15', `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_fname';
+UPDATE `layout_options` SET `fld_length` = '5', `description` = 'Middle Name' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_mname';
+UPDATE `layout_options` SET `fld_length` = '20' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_lname';
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'name_history';
+#EndIf
+
+-- Adding prepend row option
+#IfUpdateEditOptionsNeeded Add DEM K pubpid,name_history
+#EndIf
+
+-- Adding Exclude in Portal option
+#IfUpdateEditOptionsNeeded Add DEM EP care_team_provider,care_team_facility,care_team_status,regdate,referral_source,religion,ethnicity,race,ref_providerID
 #EndIf
