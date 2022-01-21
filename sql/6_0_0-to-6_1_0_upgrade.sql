@@ -1451,6 +1451,7 @@ UPDATE `layout_options` SET `fld_length` = '15' WHERE `form_id` = 'DEM' AND `fie
 UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'mname';
 UPDATE `layout_options` SET `fld_length` = '20' WHERE `form_id` = 'DEM' AND `field_id` = 'lname';
 UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'suffix';
+UPDATE `layout_options` SET `datacols` = '1' WHERE `form_id` = 'DEM' AND `field_id` = 'status';
 #EndIf
 
 #IfNotRow3D layout_options form_id DEM field_id birth_fname datacols 3
