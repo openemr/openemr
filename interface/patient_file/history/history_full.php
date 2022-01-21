@@ -240,7 +240,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 <body>
 
-<div id="container_div" class="container-fluid mt-3">
+<div id="container_div" class="container-xl mt-3">
     <div class="row">
         <div class="col-12">
             <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
