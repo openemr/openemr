@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +23,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -44,6 +47,9 @@ $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
+
+$twigContainer = new TwigContainer();
+$twig = $twigContainer->getTwig();
 
 // Compute a current checksum of the data from the database for the given list.
 //
@@ -365,21 +371,7 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine(
-    $option_id,
-    $title,
-    $seq,
-    $default,
-    $value,
-    $mapping = '',
-    $notes = '',
-    $codes = '',
-    $tog1 = '',
-    $tog2 = '',
-    $active = '1',
-    $subtype = ''
-) {
-
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = '') {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -1238,97 +1230,104 @@ function writeITLine($it_array)
     <thead>
     <tr>
         <?php if ($list_id == 'feesheet') : ?>
-            <td class="font-weight-bold"><?php echo xlt('Group'); ?></td>
-            <td class="font-weight-bold"><?php echo xlt('Option'); ?></td>
-            <td class="font-weight-bold"><?php echo xlt('Generates'); ?></td>
+            <th><?php echo xlt('Group'); ?></td>
+            <th><?php echo xlt('Option'); ?></td>
+            <th><?php echo xlt('Generates'); ?></td>
         <?php elseif ($list_id == 'code_types') : ?>
-            <th class="font-weight-bold"><?php echo xlt('Active{{Code}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Key'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('ID'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Label'); ?></th>
+            <th><?php echo xlt('Active{{Code}}'); ?></th>
+            <th><?php echo xlt('Key'); ?></th>
+            <th><?php echo xlt('ID'); ?></th>
+            <th><?php echo xlt('Label'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th class="font-weight-bold"><?php echo xlt('Seq'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('ModLength'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Justify'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Mask'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Claims'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Fees'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Relations'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Hide'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Procedure'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Diagnosis'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Clinical Term'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Medical Problem'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Drug'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('External'); ?></th>
+            <th><?php echo xlt('Seq'); ?></th>
+            <th><?php echo xlt('ModLength'); ?></th>
+            <th><?php echo xlt('Justify'); ?></th>
+            <th><?php echo xlt('Mask'); ?></th>
+            <th><?php echo xlt('Claims'); ?></th>
+            <th><?php echo xlt('Fees'); ?></th>
+            <th><?php echo xlt('Relations'); ?></th>
+            <th><?php echo xlt('Hide'); ?></th>
+            <th><?php echo xlt('Procedure'); ?></th>
+            <th><?php echo xlt('Diagnosis'); ?></th>
+            <th><?php echo xlt('Clinical Term'); ?></th>
+            <th><?php echo xlt('Medical Problem'); ?></th>
+            <th><?php echo xlt('Drug'); ?></th>
+            <th><?php echo xlt('External'); ?></th>
         <?php elseif ($list_id == 'apptstat' || $list_id == 'groupstat') : ?>
-            <th class="font-weight-bold"><?php echo xlt('ID'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Title'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Order{{Sequence}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Default'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Active{{Appointment}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Color'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Alert Time'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Check In'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</th>
-            <th class="font-weight-bold"><?php echo xlt('Check Out'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Code(s)'); ?></th>
+            <th><?php echo xlt('ID'); ?></th>
+            <th><?php echo xlt('Title'); ?></th>
+            <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+            <th><?php echo xlt('Default'); ?></th>
+            <th><?php echo xlt('Active{{Appointment}}'); ?></th>
+            <th><?php echo xlt('Color'); ?></th>
+            <th><?php echo xlt('Alert Time'); ?></th>
+            <th><?php echo xlt('Check In'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <th><?php echo xlt('Check Out'); ?></th>
+            <th><?php echo xlt('Code(s)'); ?></th>
         <?php elseif ($list_id == 'issue_types') : ?>
-            <th class="font-weight-bold"><?php echo xlt('OpenEMR Application Category'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Active{{Issue}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Order{{Sequence}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Type'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Plural'); ?></th>
+            <th><?php echo xlt('OpenEMR Application Category'); ?></th>
+            <th><?php echo xlt('Active{{Issue}}'); ?></th>
+            <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+            <th><?php echo xlt('Type'); ?></th>
+            <th><?php echo xlt('Plural'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th class="font-weight-bold"><?php echo xlt('Singular'); ?></th>
+            <th><?php echo xlt('Singular'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th class="font-weight-bold"><?php echo xlt('Mini'); ?></th>
+            <th><?php echo xlt('Mini'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th class="font-weight-bold"><?php echo xlt('Style'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Force Show'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Access Control'); ?></th>
+            <th><?php echo xlt('Style'); ?></th>
+            <th><?php echo xlt('Force Show'); ?></th>
+            <th><?php echo xlt('Access Control'); ?></th>
+        <?php elseif ($list_id == "external_patient_education"): ?>
+            <td><?php echo xlt('ID'); ?></th>
+            <td><?php echo xlt('Title'); ?></th>
+            <td><?php echo xlt('URL'); ?></th>
+            <td><?php echo xlt('Order'); ?></th>
+            <td><?php echo xlt('Default'); ?></th>
+            <td><?php echo xlt('Active'); ?></th>
         <?php else : ?>
-            <th title='<?php echo xla('Click to edit'); ?>' class="font-weight-bold"><?php echo xlt('ID'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Title'); ?></th>
+            <th title='<?php echo xla('Click to edit'); ?>'><?php echo xlt('ID'); ?></th>
+            <th><?php echo xlt('Title'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th class="font-weight-bold"><?php echo xlt('Order{{Sequence}}'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Default'); ?></th>
-            <th class="font-weight-bold"><?php echo xlt('Active'); ?></th>
+            <th><?php echo xlt('Order{{Sequence}}'); ?></th>
+            <th><?php echo xlt('Default'); ?></th>
+            <th><?php echo xlt('Active'); ?></th>
             <?php if ($list_id == 'taxrate') { ?>
-                <th class="font-weight-bold"><?php echo xlt('Rate'); ?></th>
+                <th><?php echo xlt('Rate'); ?></th>
             <?php } elseif ($list_id == 'contrameth') { ?>
-                <th class="font-weight-bold"><?php echo xlt('Effectiveness'); ?></th>
+                <th><?php echo xlt('Effectiveness'); ?></th>
             <?php } elseif ($list_id == 'lbfnames' || $list_id == 'transactions') { ?>
-                <th title='<?php echo xla('Number of past history columns'); ?>' class="font-weight-bold"><?php echo xlt('Repeats'); ?></th>
+                <th title='<?php echo xla('Number of past history columns'); ?>'><?php echo xlt('Repeats'); ?></th>
             <?php } elseif ($list_id == 'fitness') { ?>
-                <th class="font-weight-bold"><?php echo xlt('Color:Abbr'); ?></th>
+                <th><?php echo xlt('Color:Abbr'); ?></th>
             <?php } elseif ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
-                <th class="font-weight-bold"><?php echo xlt('Type'); ?></th>
+                <th><?php echo xlt('Type'); ?></th>
             <?php } elseif ($list_id == 'warehouse') { ?>
-                <th class="font-weight-bold"><?php echo xlt('Facility'); ?></th>
+                <th><?php echo xlt('Facility'); ?></th>
             <?php } elseif ($list_id == 'immunizations') { ?>
-                <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
+                <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
             <?php } elseif ($list_id == 'ptlistcols') { ?>
-                <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
+                <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
             <?php }
             if ($GLOBALS['ippf_specific']) { ?>
-    <th class="font-weight-bold"><?php echo xlt('Global ID'); ?></th>
+                <th><?php echo xlt('Global ID'); ?></th>
             <?php } ?>
-            <th class="font-weight-bold"><?php
+            <th><?php
             if ($list_id == 'language') {
                 echo xlt('ISO 639-2 Code');
             } elseif ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
@@ -1361,10 +1360,10 @@ function writeITLine($it_array)
                 echo xlt('Notes');
             } ?></th>
 
-            <th class="font-weight-bold"><?php echo xlt('Code(s)'); ?></th>
+            <th><?php echo xlt('Code(s)'); ?></th>
             <?php
             if (preg_match('/_issue_list$/', $list_id)) { ?>
-                <th class="font-weight-bold"><?php echo xlt('Subtype'); ?></th>
+                <th><?php echo xlt('Subtype'); ?></th>
                 <?php
             }
         endif; // end not fee sheet ?>
@@ -1419,6 +1418,35 @@ function writeITLine($it_array)
             for ($i = 0; $i < 3; ++$i) {
                 writeITLine(array());
             }
+        } elseif ($list_id == 'external_patient_education') {
+            $sql = "SELECT lo.* FROM list_options AS lo
+                    RIGHT JOIN list_options lo2
+                        ON lo2.option_id = lo.list_id
+                        AND lo2.list_id = 'lists'
+                        AND lo2.edit_options = 1
+                    WHERE lo.list_id = ?
+                        AND lo.edit_options = 1
+                    ORDER BY seq, title {$sql_limits}";
+            $query = sqlStatement($sql, [$list_id]);
+            $results = [];
+            global $opt_line_no, $list_id;
+
+            while ($row = sqlFetchArray($query)) {
+                $row['line_no'] = $opt_line_no;
+                $results[] = $row;
+                ++$opt_line_no;
+            }
+
+            for ($i = 0; $i < 3; ++$i) {
+                $results[] = ['line_no' => $opt_line_no];
+                ++$opt_line_no;
+            }
+
+            $vars = [
+                'rows' => $results,
+            ];
+            echo $twig->render('super/lists/external_patient_education/partials/row.html.twig', $vars);
+
         } else {
             $res = sqlStatement("SELECT count(*) as total_rows
                          FROM list_options AS lo

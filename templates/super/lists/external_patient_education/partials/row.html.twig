@@ -1,0 +1,34 @@
+{#
+Display a row in the External Patient Education list
+
+@author Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2022 Robert DOwn <robertdown@live.com>
+#}
+{% for row in rows %}
+{% set lo = row.line_no | attr %}
+{% set classes = "bg-transparent form-control form-control-sm" %}
+<tr>
+    <td>
+        <input type='hidden' name='opt[{{lo }}][real_id]' value='{{ row.option_id | attr }}' size='12' maxlength='127' class=''>
+        <input type='text' name='opt[{{ lo }}][id]' value='{{ row.option_id | attr }}' size='12' maxlength='127' class='{{ classes }}'/>
+    </td>
+    <td>
+        <input type='text' name='opt[{{ lo }}][title]' value='{{ row.title | attr }}' size='20' maxlength='127' class='{{ classes }}'>
+        {% if globals.translate_lists and session.language_choice > 1 %}
+        <span class='translation'>{{ row.title | xlt }}</span>
+        {% endif %}
+    </td>
+    <td>
+        <input type="text" name="opt[{{ lo }}][notes]" value="{{ row.notes | attr }}" class="{{ classes }}">
+    </td>
+    <td>
+        <input type='text' name='opt[{{ lo }}][seq]' value='{{ row.seq | attr }}' size='4' maxlength='10' class='{{ classes }}'>
+    </td>
+    <td>
+        <input type='checkbox' name='opt[{{ lo }}][default]' value='1' onclick='defClicked({{ lo }})' class='' {% if row.is_default == 1 %}checked{% endif %}>
+    </td>
+    <td>
+        <input type="checkbox" name="opt[{{ lo }}][activity]" value="1" {% if row.activity == 1 %}checked{% endif %}>
+    </td>
+</tr>
+{% endfor %}
