@@ -39,12 +39,6 @@ foreach ($options as $opt) {
     $websites[$opt['title']] = $opt['notes'];
 }
 
-// $websites = array(
-//     'Medline'   => 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15',
-//     'eMedicine' => 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]',
-//     'WebMD'     => 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined'
-// );
-
 // Collect variables
 $form_lookup_at = (isset($_POST['form_lookup_at'])) ? $_POST['form_lookup_at'] : '';
 $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] : '';

@@ -23,7 +23,6 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -47,9 +46,6 @@ $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
-
-$twigContainer = new TwigContainer();
-$twig = $twigContainer->getTwig();
 
 // Compute a current checksum of the data from the database for the given list.
 //
@@ -385,13 +381,13 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     echo "  <td>";
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
-        attr($option_id) . "' size='12' maxlength='127' class='optin' />";
+        attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
-        attr($option_id) . "' size='12' maxlength='127' class='optin' />";
+        attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
     echo "</td>\n";
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][title]' value='" .
-        attr($title) . "' size='20' maxlength='127' class='optin' />";
+        attr($title) . "' size='20' maxlength='127' class='optin form-control form-control-sm'>";
     echo "</td>\n";
 
     // if not english and translating lists then show the translation
@@ -400,7 +396,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     }
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][seq]' value='" .
-        attr($seq) . "' size='4' maxlength='10' class='optin' />";
+        attr($seq) . "' size='4' maxlength='10' class='optin form-control form-control-sm' />";
     echo "</td>\n";
 
     echo "  <td>";
@@ -538,7 +534,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         }
         echo "  <td>";
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][notes]' value='" .
-            attr($notes) . "' size='25' maxlength='255' class='optin' ";
+            attr($notes) . "' size='25' maxlength='255' class='optin form-control form-control-sm' ";
         echo "/>";
         echo "</td>\n";
     }
@@ -546,7 +542,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][codes]' title='" .
         xla('Code(s)') . "' value='" .
-        attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin' />";
+        attr($codes) . "' onclick='select_clin_term_code(this)' size='25' maxlength='255' class='optin form-control form-control-sm' />";
     echo "</td>\n";
 
     if (preg_match('/_issue_list$/', $list_id)) {
@@ -1275,34 +1271,27 @@ function writeITLine($it_array)
             <th><?php echo xlt('Plural'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
             <th><?php echo xlt('Singular'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
             <th><?php echo xlt('Mini'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
             <th><?php echo xlt('Style'); ?></th>
             <th><?php echo xlt('Force Show'); ?></th>
             <th><?php echo xlt('Access Control'); ?></th>
-        <?php elseif ($list_id == "external_patient_education"): ?>
-            <td><?php echo xlt('ID'); ?></th>
-            <td><?php echo xlt('Title'); ?></th>
-            <td><?php echo xlt('URL'); ?></th>
-            <td><?php echo xlt('Order'); ?></th>
-            <td><?php echo xlt('Default'); ?></th>
-            <td><?php echo xlt('Active'); ?></th>
         <?php else : ?>
             <th title='<?php echo xla('Click to edit'); ?>'><?php echo xlt('ID'); ?></th>
             <th><?php echo xlt('Title'); ?></th>
             <?php //show translation column if not english and the translation lists flag is set
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
             <th><?php echo xlt('Order{{Sequence}}'); ?></th>
             <th><?php echo xlt('Default'); ?></th>
@@ -1356,6 +1345,8 @@ function writeITLine($it_array)
                 echo xlt('Page Validation');
             } elseif ($list_id == 'lbfnames') {
                 echo xlt('Attributes');
+            } elseif ($list_id == "external_patient_education") {
+                echo xlt('External URL');
             } else {
                 echo xlt('Notes');
             } ?></th>
@@ -1418,35 +1409,6 @@ function writeITLine($it_array)
             for ($i = 0; $i < 3; ++$i) {
                 writeITLine(array());
             }
-        } elseif ($list_id == 'external_patient_education') {
-            $sql = "SELECT lo.* FROM list_options AS lo
-                    RIGHT JOIN list_options lo2
-                        ON lo2.option_id = lo.list_id
-                        AND lo2.list_id = 'lists'
-                        AND lo2.edit_options = 1
-                    WHERE lo.list_id = ?
-                        AND lo.edit_options = 1
-                    ORDER BY seq, title {$sql_limits}";
-            $query = sqlStatement($sql, [$list_id]);
-            $results = [];
-            global $opt_line_no, $list_id;
-
-            while ($row = sqlFetchArray($query)) {
-                $row['line_no'] = $opt_line_no;
-                $results[] = $row;
-                ++$opt_line_no;
-            }
-
-            for ($i = 0; $i < 3; ++$i) {
-                $results[] = ['line_no' => $opt_line_no];
-                ++$opt_line_no;
-            }
-
-            $vars = [
-                'rows' => $results,
-            ];
-            echo $twig->render('super/lists/external_patient_education/partials/row.html.twig', $vars);
-
         } else {
             $res = sqlStatement("SELECT count(*) as total_rows
                          FROM list_options AS lo
