@@ -543,7 +543,7 @@ function doWait(e){
             $lastptid = -1;
             $lastpoid = -1;
             $lastpcid = -1;
-            $lastrptid = NULL;
+            $lastrptid = null;
             $encount = 0;
             $lino = 0;
             $extra_html = '';
