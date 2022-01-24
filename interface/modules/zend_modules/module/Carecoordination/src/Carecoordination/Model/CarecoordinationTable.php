@@ -553,7 +553,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     '228274009' => 'Never'
                 );
                 $alcohol = explode("|", $newdata['social_history']['alcohol']);
-                if ($alcohol[2] != 0) {
+                if (!empty($alcohol[2])) {
                     $alcohol_date = $this->formatDate($alcohol[2], 1);
                 } else {
                     $alcohol_date = $alcohol[2];
@@ -569,7 +569,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
                 $tobacco = explode("|", $newdata['social_history']['smoking']);
-                if ($tobacco[2] != 0) {
+                if (!empty($tobacco[2])) {
                     $smoking_date = $this->formatDate($tobacco[2], 1);
                 } else {
                     $smoking_date = $tobacco[2];
@@ -1440,9 +1440,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($query4, array((null), $data['pid'], $data['lists1_exist-list_id'][$i]));
                                 }
                             } elseif (substr($key, 0, -4) == 'lists2-con') {
-                                if ($data['lists2-begdate-con'][$i] != 0) {
+                                if (!empty($data['lists2-begdate-con'][$i])) {
                                     $allergy_begdate_value = ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
-                                } elseif ($data['lists2-begdate-con'][$i] == 0) {
+                                } elseif (empty($data['lists2-begdate-con'][$i])) {
                                     $allergy_begdate = $data['lists2-begdate-con'][$i];
                                     $allergy_begdate_value = fixDate($allergy_begdate);
                                     $allergy_begdate_value = (null);
@@ -1615,7 +1615,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($q_insert, array('drug_form', $oidu_unit, $data['lists3-dose_unit-con'][$i], 1));
                                 }
 
-                                if ($data['lists3-enddate-con'][$i] == '' || $data['lists3-enddate-con'][$i] == 0) {
+                                if (empty($data['lists3-enddate-con'][$i])) {
                                     $data['lists3-enddate-con'][$i] = (null);
                                 }
 
