@@ -872,9 +872,9 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
-                      } ?>>
-    <div class="container-fluid">
+    echo " style='background-color:var(--white)'"; } ?>>
+    <!-- Set as a container until xl breakpoint then make fluid. -->
+    <div class="container-xl">
         <?php
         // form-inline is more consistent with the fact that LBFs are not designed for
         // small devices. In particular we prefer horizontal arrangement of multiple
