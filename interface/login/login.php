@@ -252,4 +252,72 @@ $viewArgs = [
     'formArea' => $formarea,
     'showLabels' => $GLOBALS['show_labels_on_login_form'],
 ];
-echo $t->render("login/login_core.html.twig", $viewArgs);
+
+// mdsupport - Integrate external content
+$publicUrl = "https://www.open-emr.org/";
+$loginHtml = file_get_contents($publicUrl);
+if ($loginHtml) {
+    // Fix during tests
+    $cssFix = "https://www.open-emr.org/style.min.a401b847525db22d3414c418e139dd793430539520659bb5ea12b3f144b3fc65.css";
+    $cssContent = file_get_contents($cssFix);
+    $loginHtml = preg_replace(
+        '/\<link.+?a401b847525db22d3414c418e139dd793430539520659bb5ea12b3f144b3fc65.+?\>/i',
+        '<link rel="stylesheet" href="style.min.css">',
+        $loginHtml);
+    // Insert basic login form
+    $formHtml = '
+    ';
+} else {
+    $loginHtml = $t->render("login/login_core.html.twig", $viewArgs);
+}
+
+echo $loginHtml;
+
+// Following code relies on browsers moving html stuff inside the body
+?>
+<div id='inline-form-login' class='d-none'>
+    <li class="dropdown ml-3">
+        <a type="button" id="dropdownMenu1" data-toggle="dropdown" 
+            class="btn btn-primary dropdown-toggle nav-link font-weight-bold">Login <span class="caret"></span>
+        </a>
+        <div class="dropdown-menu">
+            <form class="px-4 py-3" id="login_form" name="login_form" autocomplete="off" 
+                action="../main/main_screen.php?auth=login&site=<?php echo $_SESSION['site_id'] ?>"
+                target="_top">
+
+            <input type="hidden" name="new_login_session_management" value="1">
+            <input type="hidden" name="languageChoice" value="<?php echo $defaultLanguage['id'] ?>">
+
+            <div id="standard-auth-username" class="form-group">
+                <label for="authUser" class="text-right">Username</label>
+                <input type="text" class="form-control" id="authUser" name="authUser" placeholder="Username">
+            </div>
+
+            <div id="standard-auth-password" class="form-group">
+                <label for="clearPass" class="text-right">Password</label>
+                <input type="password" class="form-control" id="clearPass" name="clearPass" 
+                placeholder="Password">
+            </div>
+
+            <div class="form-group">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="dropdownCheck">
+                <label class="form-check-label" for="dropdownCheck">
+                  Remember me
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+          </form>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">New around here? Sign up</a>
+          <a class="dropdown-item" href="#">Forgot password?</a>
+        </div>
+    </li>
+</div>
+<script>
+$(() => {
+    $('#inline-form-login > li label').addClass('text-white');
+    $('#inline-form-login > li').insertAfter('#navbarSupportedContent > ul > li:last');
+});
+</script>
