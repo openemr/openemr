@@ -7,8 +7,10 @@
   * @link      http://www.open-emr.org
   * @author    Ranganath Pathak <pathak@scrs1.org>
   * @author    Brady Miller <brady.g.miller@gmail.com>
+  * @author    Robert Down <robertdown@live.com>
   * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
   * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
   * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   */
 

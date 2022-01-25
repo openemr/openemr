@@ -1,3 +1,11 @@
+{#
+The Patient Portal card for the Medical Record Dashboard
+
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
 {% block erx %}
     {% if erxEnable %}
         <a href="{{ urlWebRoot|attr }}/interface/eRx.php?page=medentry" class="btn btn-secondary btn-sm btn-add erx" onclick="top.restoreSession();">{{ "NewCrop MedEntry"|xlt }}</a>
