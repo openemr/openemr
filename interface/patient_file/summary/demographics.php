@@ -1222,13 +1222,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'erxEnable' => $GLOBALS['erx_enable'],
                     ]);
 
-                    echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
-                        'portalAuthorized' => portalAuthorized($pid),
-                        'portalLoginHref' => $portal_login_href,
-                        'title' => xl('Patient Portal'),
-                        'id' => 'patient_portal',
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-                    ]);
+                    if ($GLOBALS['portal_onsite_two_enable']):
+                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
+                            'portalAuthorized' => portalAuthorized($pid),
+                            'portalLoginHref' => $portal_login_href,
+                            'title' => xl('Patient Portal'),
+                            'id' => 'patient_portal',
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                        ]);
+                    endif;
 
                     // If there is an ID Card or any Photos show the widget
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
