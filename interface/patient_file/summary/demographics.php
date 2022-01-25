@@ -37,6 +37,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -1223,12 +1224,29 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     if ($GLOBALS['portal_onsite_two_enable']):
+                        /** @var EventDispatcher */
+                        $d = $GLOBALS['kernel']->getEventDispatcher();
+                        $e = new CardRenderEvent('portal');
+
+                        // Proof of concept, this gets moved before the PR gets merged
+                        $d->addListener(CardRenderEvent::EVENT_HANDLE, function($event) {
+                            if ($event->getCard() == 'portal') {
+                                $event->appendContent([
+                                    'template' => 'patient/partials/testing.html.twig',
+                                    'vars' => ['var1' => 'hello!'],
+                                ]);
+                            }
+                        });
+
+                        $result = $d->dispatch(CardRenderEvent::EVENT_HANDLE, $e);
+
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
                             'portalAuthorized' => portalAuthorized($pid),
                             'portalLoginHref' => $portal_login_href,
                             'title' => xl('Patient Portal'),
                             'id' => 'patient_portal',
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'content' => $result->getContent(),
                         ]);
                     endif;
 

@@ -13,6 +13,9 @@ The Patient Portal card for the Medical Record Dashboard
     {% if portalAuthorized == false %}
         {{ "Patient Portal Not Authorized"|xlt }}
     {% else %}
+        {% for row in content %}
+            {{ include(row.template, row.vars) }}
+        {% endfor %}
         {% if portalAuthorized.created == true %}
             {% set class = "fa-key" %}
             {% set text = "Reset Credentials"|xlt %}
