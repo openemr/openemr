@@ -196,7 +196,7 @@ if (!empty($_POST['form_save'])) {
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = 0 + (int)$payment) {
+            if ($amount = 0 + floatval($payment)) {
                  $zero_enc = $enc;
                 if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance') {
                     if (!$enc) {
