@@ -1,0 +1,14 @@
+measurements:
+    temperature: true
+    pulse_rate: true
+    blood_pressure: true
+    respiratory_rate: true
+    oxygen_saturation: true
+    oxygen_flow_rate: true
+    inhaled_oxygen_concentration: true
+    growth_meausrements: true
+    height: true
+    weight: true
+    head_circumference: true
+    waist:circumference: true
+    body_mass_index: true

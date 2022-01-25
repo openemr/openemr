@@ -1,4 +1,4 @@
-<select name="interpretation[{$input|attr}]" class="form-control" id='interpretation_{$input|attr}'>
+<select name="interpretation[{$input|attr}]" class="form-control form-control-sm" id='interpretation_{$input|attr}'>
     <option value=""> </option>
     {foreach item=option from=$interpretation_options}
         {if isset($vitalDetails) && $option.id == $vitalDetails->get_interpretation_option_id()}

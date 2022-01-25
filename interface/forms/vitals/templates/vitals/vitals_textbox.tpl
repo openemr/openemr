@@ -1,17 +1,17 @@
 {if isset($hide) && $hide }
-<tr class="hide">
+<tr class="d-none">
 {else}
 <tr>
 {/if}
     <td class="graph" id="{$input|attr}">{$title|xlt}</td>
     <td>{xlt t=$unit|xlt}</td>
 
-    <td class='currentvalues p-2'>
+    <td class='currentvalues'>
         {if isset($vitalsStringFormat) }
-        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
+        <input type="text" class="form-control form-control-sm" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
         {else}
-        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
+        <input type="text" class="form-control form-control-sm" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"/>
         {/if}
 

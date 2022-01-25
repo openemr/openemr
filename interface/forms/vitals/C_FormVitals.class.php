@@ -20,7 +20,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Services\ListService;
-
+use Symfony\Component\Yaml\Yaml;
 class C_FormVitals extends Controller
 {
     /**
@@ -30,6 +30,11 @@ class C_FormVitals extends Controller
 
     var $template_dir;
     var $form_id;
+
+    /**
+     * @var array $config The configuration options
+     */
+    var $config;
 
 
     const OMIT_CIRCUMFERENCES_NO = 0;
@@ -46,6 +51,8 @@ class C_FormVitals extends Controller
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
 
+        $config = Yaml::parseFile(dirname(__FILE__) . DIRECTORY_SEPARATOR . "config.yaml");
+
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
@@ -60,6 +67,7 @@ class C_FormVitals extends Controller
         $this->assign("MEASUREMENT_USA_ONLY", FormVitals::MEASUREMENT_USA_ONLY);
         $this->assign("MEASUREMENT_PERSIST_IN_METRIC", FormVitals::MEASUREMENT_PERSIST_IN_METRIC);
         $this->assign("MEASUREMENT_PERSIST_IN_USA", FormVitals::MEASUREMENT_PERSIST_IN_USA);
+        $this->assign("display", $config['measurements']);
 
 //        $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
         $this->assign("hide_circumferences", $GLOBALS['gbl_vitals_options'] > 0);

@@ -13,7 +13,8 @@
 
 {literal}
 <script>
-function vitalsFormSubmitted() {
+function vitalsFormSubmitted()
+{
     var invalid = "";
 
     var elementsToValidate = new Array();
@@ -151,13 +152,13 @@ function vitalsFormSubmitted() {
                 <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
                 <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-sm">
                             <thead>
                                 <tr>
                                     <th class="text-left">{xlt t="Name"}</th>
                                     <th class="text-left">{xlt t="Unit"}</th>
-                                    <th class='currentvalues p-2' title="{xla t='Date and time of this observation'}">
-                                        <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
+                                    <th class='currentvalues' title="{xla t='Date and time of this observation'}">
+                                        <input type='text' size='14' class='form-control form-control-sm datetimepicker oe-patient-background' name='date' id='date' value='{$vitals->get_date()|date_format:"%Y-%m-%d %H:%M"|attr}' />
                                     </th>
                                     <th class="currentvalues editonly">{xlt t="Abn"}</th>
                                     {foreach item=result from=$results}
@@ -166,89 +167,93 @@ function vitalsFormSubmitted() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- TODO: we could pull much of each individual metric into the controller and have the templates driven by configuration would that be easier to understand? -->
-                                { include file="vitals_textbox_conversion.tpl" title="Weight" input="weight"
-                                    vitals=$vitals vitalsValue="get_weight" vitalsValueMetric="get_weight_metric"
-                                    unit="lbs" unitMetric="kg" vitalsStringFormat="%.2f"
-                                    vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)" }
+                                {if $display.pulse_rate == true}
+                                    { include file="vitals_textbox.tpl" title="Pulse" unit="per min" input="pulse" vitals=$vitals vitalsValue="get_pulse" vitalsStringFormat="%.0f" }
+                                {/if}
 
-                                { include file="vitals_textbox_conversion.tpl" title="Height/Length" input="height"
-                                    vitalsValue="get_height" vitalsValueMetric="get_height_metric" unit="in"
-                                    unitMetric="cm" vitalsStringFormat="%.2f" }
+                                {if $display.blood_pressure == true}
+                                    { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps" vitals=$vitals vitalsValue="get_bps" }
+                                    { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd" vitals=$vitals vitalsValue="get_bpd" }
+                                {/if}
 
-                                { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps"
-                                    vitals=$vitals vitalsValue="get_bps" }
+                                {if $display.respiration_rate == true}
+                                    { include file="vitals_textbox.tpl" title="Respiration" unit="per min" input="respiration" vitals=$vitals vitalsValue="get_respiration" vitalsStringFormat="%.0f" }
+                                {/if}
 
-                                { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd"
-                                    vitals=$vitals vitalsValue="get_bpd" }
+                                {if $display.temperature == true}
+                                    { include file="vitals_textbox_conversion.tpl" title="Temperature" input="temperature" vitals=$vitals vitalsValue="get_temperature" vitalsValueMetric="get_temperature_metric" unit="F" unitMetric="C" vitalsStringFormat="%.2f" }
+                                    { include file='vitals_temp_method.tpl'}
+                                {/if}
 
-                                { include file="vitals_textbox.tpl" title="Pulse" unit="per min" input="pulse"
-                                    vitals=$vitals vitalsValue="get_pulse" vitalsStringFormat="%.0f" }
+                                {if $display.oxygen_saturation == true}
+                                    { include file="vitals_textbox.tpl" title="Oxygen Saturation" unit="%" input="oxygen_saturation" vitals=$vitals vitalsValue="get_oxygen_saturation" vitalsStringFormat="%.0f" }
+                                {/if}
 
-                                { include file="vitals_textbox.tpl" title="Respiration" unit="per min"
-                                    input="respiration" vitals=$vitals vitalsValue="get_respiration" vitalsStringFormat="%.0f" }
+                                {if $display.oxygen_flow_rate == true}
+                                    {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min" input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate" }
+                                {/if}
 
-                                { include file="vitals_textbox_conversion.tpl" title="Temperature" input="temperature"
-                                    vitals=$vitals vitalsValue="get_temperature" vitalsValueMetric="get_temperature_metric"
-                                    unit="F" unitMetric="C" vitalsStringFormat="%.2f" }
+                                {if $display.inhaled_oxygen_concentration == true}
+                                    {include file="vitals_textbox.tpl" title="Inhaled Oxygen Concentration" unit="%" input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration" }
+                                {/if}
 
-                                {include file='vitals_temp_method.tpl'}
+                                {if $display.growth_meausrements == true}
+                                    <tr>
+                                        <td><h4 class="pt-2">{ "Growth Measurements"|xlt }</h4></td>
+                                    </tr>
 
-                                { include file="vitals_textbox.tpl" title="Oxygen Saturation" unit="%"
-                                    input="oxygen_saturation" vitals=$vitals vitalsValue="get_oxygen_saturation"
-                                    vitalsStringFormat="%.0f" }
+                                    {if $display.weight == true}
+                                        { include file="vitals_textbox_conversion.tpl" title="Weight" input="weight" vitals=$vitals vitalsValue="get_weight" vitalsValueMetric="get_weight_metric" unit="lbs" unitMetric="kg" vitalsStringFormat="%.2f" vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)" }
+                                    {/if}
 
-                                {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
-                                    input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate" }
+                                    {if $display.height == true}
+                                        { include file="vitals_textbox_conversion.tpl" title="Height/Length" input="height" vitalsValue="get_height" vitalsValueMetric="get_height_metric" unit="in" unitMetric="cm" vitalsStringFormat="%.2f" }
+                                    {/if}
 
-                                {include file="vitals_textbox.tpl" title="Inhaled Oxygen Concentration" unit="%"
-                                    input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration" }
+                                    {if $display.head_circumference == true}
+                                        { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ" vitals=$vitals vitalsValue="get_head_circ" vitalsValueMetric="get_head_circ_metric" unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
+                                    {/if}
 
-                                { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
-                                    vitals=$vitals vitalsValue="get_head_circ" vitalsValueMetric="get_head_circ_metric"
-                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
+                                    {if $display.waist_circumference == true}
+                                        { include file="vitals_textbox_conversion.tpl" title="Waist Circumference" input="waist_circ" vitals=$vitals vitalsValue="get_waist_circ" vitalsValueMetric="get_waist_circ_metric" unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
+                                    {/if}
 
-                                { include file="vitals_textbox_conversion.tpl" title="Waist Circumference" input="waist_circ"
-                                    vitals=$vitals vitalsValue="get_waist_circ" vitalsValueMetric="get_waist_circ_metric"
-                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
-                                }
-
-                                    <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
-                                        <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
-                                            name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
+                                    { if $display.body_mass_index == true}
+                                    <tr>
+                                        <td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
+                                        <td class='currentvalues'>
+                                            <input type="text" class="form-control form-control-sm" size='5' name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/>
+                                        </td>
                                         <td class="editonly"></td>
-                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
-                                            vitalsValue='get_BMI' results=$results }
+                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false vitalsValue='get_BMI' results=$results }
                                     </tr>
 
                                     <tr>
                                         <td>{xlt t="BMI Status"}</td><td>{xlt t="Type"}</td>
-                                        <td class='currentvalues p-2'>
-                                            <input type="text" class="form-control" size='20'
-                                                name="BMI_status" id="BMI_status" value="{$vitals->get_BMI_status()|attr}"/></td>
+                                        <td class='currentvalues'>
+                                            <input type="text" class="form-control form-control-sm" size='20' name="BMI_status" id="BMI_status" value="{$vitals->get_BMI_status()|attr}"/>
+                                        </td>
                                         <td class="editonly"></td>
-                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false
-                                        vitalsValue='get_BMI_status' results=$results }
+                                        { include file='vitals_historical_values.tpl' vitals=$vitals useMetric=false vitalsValue='get_BMI_status' results=$results }
                                     </tr>
+                                    {/if}
 
-                                {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
-                                    {include file="vitals_textbox.tpl" title="Pediatric Weight Height Percentile"
-                                        unit="%" input="ped_weight_height"
-                                        vitals=$vitals vitalsValue="get_ped_weight_height"
-                                    }
+                                    {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
+                                        {if $display.pediatric_weight_percentile == true}
+                                            {include file="vitals_textbox.tpl" title="Pediatric Weight Height Percentile" unit="%" input="ped_weight_height" vitals=$vitals vitalsValue="get_ped_weight_height" }
+                                        {/if}
 
-                                    {include file="vitals_textbox.tpl" title="Pediatric BMI Percentile" unit="%"
-                                        input="ped_bmi" vitals=$vitals vitalsValue="get_ped_bmi"
-                                    }
+                                        {if $display.pediatric_bmi_percentile == true}
+                                            {include file="vitals_textbox.tpl" title="Pediatric BMI Percentile" unit="%" input="ped_bmi" vitals=$vitals vitalsValue="get_ped_bmi" }
+                                        {/if}
 
-                                    {include file="vitals_textbox.tpl" title="Pediatric Head Circumference Percentile"
-                                        unit="%" input="ped_head_circ" vitals=$vitals vitalsValue="get_ped_head_circ"
-                                        hide=$hide_circumferences}
+                                        {if $display.pediatric_head_percentile == true}
+                                            {include file="vitals_textbox.tpl" title="Pediatric Head Circumference Percentile" unit="%" input="ped_head_circ" vitals=$vitals vitalsValue="get_ped_head_circ" hide=$hide_circumferences}
+                                        {/if}
+                                    {/if}
                                 {/if}
 
                                 {include file="vitals_notes.tpl" title="Other Notes" unit="" input="note" vitalsValue=$vitals->get_note()}
-                                    <tr><td>&nbsp;</td></tr>
-
                                     <tr>
                                         <td colspan='5' class="text-center">
                                             {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
@@ -265,7 +270,7 @@ function vitalsFormSubmitted() {
                     <div class="text-left position-override">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
-                            <button type="button" class="btn btn-secondary btn-cancel editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
+                            <button type="button" class="btn btn-link btn-cancel editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
                         </div>
                     </div>
                 </div>
@@ -278,7 +283,7 @@ function vitalsFormSubmitted() {
             </form>
         </div>
     </div>
-    </div>
+</div>
 <script>
 var formdate = {$vitals->get_date()|date_format:"%Y%m%d"|js_escape};
 // vitals array elements are in the format:

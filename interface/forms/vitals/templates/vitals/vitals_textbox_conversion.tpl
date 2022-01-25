@@ -1,29 +1,29 @@
 <!-- USA row comes first -->
-    {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY}
-    <tr class="hide">
-    {else}
+{if $units_of_measurement == $MEASUREMENT_METRIC_ONLY}
+    <tr class="d-none">
+{else}
     <tr>
-    {/if}
+{/if}
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_METRIC}
         <td class="unfocus graph" id="{$input|attr}">
     {else}
         <td class="graph" id="{$input|attr}">
     {/if}
-            {xlt t=$title}
-        </td>
+        {xlt t=$title}
+    </td>
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_METRIC}
         <td class="unfocus">
     {else}
         <td>
     {/if}
-            {xlt t=$unit}
-        </td>
+        {xlt t=$unit}
+    </td>
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_METRIC}
         <td class="valuesunfocus">
     {else}
-        <td class='currentvalues p-2'>
+        <td class='currentvalues'>
     {/if}
-            <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
+            <input type="text" class="form-control form-control-sm" size='5' name='{$input|attr}' id='{$input|attr}_input'
                    value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"
                    onChange="convUnit('usa', {$unit|attr_js}, '{$input|attr}_input')" title='{$vitalsValueUSAHelpTitle|default:''|xlt}'/>
         </td>
@@ -36,7 +36,7 @@
 
 <!-- Metric row comes second -->
 {if $units_of_measurement == $MEASUREMENT_USA_ONLY}
-    <tr class="hide">
+    <tr class="d-none">
 {else}
     <tr>
 {/if}
@@ -57,10 +57,10 @@
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_USA}
         <td class="valuesunfocus">
     {else}
-        <td class='currentvalues p-2'>
+        <td class='currentvalues'>
     {/if}
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
-            <input type="text" class="form-control" size='5' id='{$input|attr}_input_metric'
+            <input type="text" class="form-control form-control-sm" size='5' id='{$input|attr}_input_metric'
                    value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
                    onChange="convUnit('metric', {$unit|attr_js}, '{$input|attr}_input')"/>
         </td>
